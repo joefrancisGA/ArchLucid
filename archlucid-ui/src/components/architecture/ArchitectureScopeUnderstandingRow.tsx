@@ -11,7 +11,11 @@ import {
   SCOPE_ITEM_MAX_LENGTH,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_FORM_FIELD_LABEL_CLASS,
+  OPERATOR_FORM_FIELD_STACK_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureScopeUnderstandingRowProps = {
@@ -22,8 +26,6 @@ export type ArchitectureScopeUnderstandingRowProps = {
   readonly onValueChange: (bulletId: string, nextValue: string) => void;
   readonly onRemove: (bulletId: string) => void;
 };
-
-const LABEL_COLUMN_CLASS = "min-w-[11rem]";
 
 /**
  * Operator-added rows all share one label, so they are named by their value to keep every Remove
@@ -55,16 +57,15 @@ export function ArchitectureScopeUnderstandingRow(
   const showSourcePointer = readOnlySourceLabel !== null;
 
   return (
-    <li className="flex flex-wrap items-start gap-2" data-testid={`architecture-scope-row-${bullet.id}`}>
+    <li className={OPERATOR_FORM_FIELD_STACK_CLASS} data-testid={`architecture-scope-row-${bullet.id}`}>
       {bullet.label.length === 0 ? null : editable ? (
-        <Label htmlFor={inputId} className={cn(LABEL_COLUMN_CLASS, "pt-2")}>
-          {bullet.label}
-        </Label>
+        <Label htmlFor={inputId}>{bullet.label}</Label>
       ) : (
-        <span className={cn(LABEL_COLUMN_CLASS, OPERATOR_FORM_FIELD_LABEL_CLASS)}>{bullet.label}</span>
+        <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{bullet.label}</span>
       )}
 
-      <div className="min-w-[12rem] flex-1 space-y-1">
+      <div className="flex flex-wrap items-start gap-2">
+        <div className="min-w-[12rem] flex-1 space-y-1">
         {editable ? (
           <Input
             id={inputId}
@@ -91,9 +92,9 @@ export function ArchitectureScopeUnderstandingRow(
             {scopeReadOnlyHint(readOnlySourceLabel ?? props.contextSourceLabel)}
           </p>
         ) : null}
-      </div>
+        </div>
 
-      {editable && removable ? (
+        {editable && removable ? (
         <Button
           type="button"
           variant="outline"
@@ -106,7 +107,8 @@ export function ArchitectureScopeUnderstandingRow(
         >
           Remove
         </Button>
-      ) : null}
+        ) : null}
+      </div>
     </li>
   );
 }

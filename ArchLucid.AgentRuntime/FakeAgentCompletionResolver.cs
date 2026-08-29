@@ -44,6 +44,9 @@ public static class FakeAgentCompletionResolver
         if (systemPrompt.Contains(ArchitectureOverviewRewriteLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
             return FakeArchitectureOverviewRewriteCompletionJson.Build(userPrompt);
 
+        if (systemPrompt.Contains(ClarificationAnswerRephraseLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
+            return FakeClarificationAnswerRephraseCompletionJson.Build(userPrompt);
+
         if (systemPrompt.Contains(DraftIntakeReasoningLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
             return FakeDraftIntakeReasoningCompletionJson.Build(userPrompt);
 

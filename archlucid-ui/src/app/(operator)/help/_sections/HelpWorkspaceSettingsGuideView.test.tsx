@@ -41,7 +41,7 @@ import {
   WORKSPACE_SETTINGS_HELP_SOURCES,
 } from "@/lib/workspace-settings-help-evidence-copy";
 import { TENANT_SETTINGS_PAGE_SUBTITLE } from "@/lib/tenant-settings-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -132,13 +132,8 @@ describe("HelpWorkspaceSettingsGuideView", () => {
     );
     expect(screen.getByTestId("help-workspace-settings-guide").textContent?.match(/header switcher/gi)).toHaveLength(1);
 
-    for (const source of WORKSPACE_SETTINGS_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+    expectWhereToGoNextFollowUpLinks(screen, WORKSPACE_SETTINGS_HELP_SOURCES);
 
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
-
-    expect(screen.getAllByRole("link", { name: "Open Projects recycle bin" })).toHaveLength(1);
     expect(screen.getAllByRole("link", { name: "Read Workspace and scope help" })).toHaveLength(1);
     expect(screen.queryByRole("link", { name: "Workspace settings" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();

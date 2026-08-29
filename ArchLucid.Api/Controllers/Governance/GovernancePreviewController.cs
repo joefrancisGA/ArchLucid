@@ -52,6 +52,16 @@ public sealed class GovernancePreviewController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (string.IsNullOrWhiteSpace(body.RunId))
+        {
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (!Guid.TryParse(body.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+        {
+            return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
@@ -113,7 +123,6 @@ public sealed class GovernancePreviewController(
 
         if (scopeProblem is not null)
             return scopeProblem;
-
 
         try
         {

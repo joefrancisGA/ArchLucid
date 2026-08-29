@@ -148,6 +148,28 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
+    public async Task PostProductFeedbackAsync_returns_bad_request_when_run_id_is_empty()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            RunId = Guid.Empty,
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repo.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task PostProductFeedbackAsync_rejects_out_of_scope_run_id()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

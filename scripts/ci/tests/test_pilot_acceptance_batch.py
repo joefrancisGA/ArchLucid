@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROOF_SCRIPT = REPO_ROOT / "scripts" / "collect-first-pilot-proof.ps1"
@@ -55,7 +56,7 @@ class PilotAcceptanceBatchTests(unittest.TestCase):
             out_md = root / "acceptance.md"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(REPO_ROOT / "scripts/ci/report_pilot_acceptance_thresholds.py"),
                     "--go-no-go-summary",
                     str(summary),

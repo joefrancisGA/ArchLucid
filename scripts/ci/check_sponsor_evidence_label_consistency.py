@@ -27,11 +27,14 @@ _REQUIRED_PROCUREMENT_ANCHORS: dict[str, tuple[str, ...]] = {
 # Task #8 scope — sponsor output surfaces (first-value MD/PDF, value DOCX, demo preview, why pack, procurement).
 _SPONSOR_OUTPUT_SURFACES: dict[str, tuple[str, ...]] = {
     "ArchLucid.Application/Pilots/FirstValueReportBuilder.cs": (
-        "Sponsor first-page status",
+        "FirstValueReportSponsorStatusSectionFormatter",
         "SponsorRoiNarrativeGateMarkdownFormatter",
         "SponsorDecisionDeltaNoveltyMarkdownFormatter",
+    ),
+    "ArchLucid.Application/Pilots/FirstValueReportSponsorStatusSectionFormatter.cs": (
+        "Sponsor first-page status",
         "Deferred buyer requirements",
-        "execution mode",
+        "Execution mode",
     ),
     "ArchLucid.ArtifactSynthesis/Docx/DocxValueReportRenderer.cs": (
         "ROI narrative claim gate",

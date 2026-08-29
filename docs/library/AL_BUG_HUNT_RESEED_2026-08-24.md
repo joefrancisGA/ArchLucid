@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — `/al-bug` ledger reseed pass log. Not a buyer or operator document.
+
 # Ledger reseed pass — 2026-08-24
 
 ## Cleanup

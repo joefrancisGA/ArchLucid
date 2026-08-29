@@ -18,7 +18,7 @@ class TestAdoptionBatch5AG(unittest.TestCase):
         self.assertIn("blank-advanced", text)
 
     def test_tb_219_new_run_wizard_reads_preset_param(self) -> None:
-        path = (
+        wizard_paths = (
             REPO_ROOT
             / "archlucid-ui"
             / "src"
@@ -27,9 +27,18 @@ class TestAdoptionBatch5AG(unittest.TestCase):
             / "architecture"
             / "reviews"
             / "new"
-            / "NewRunWizardClient.tsx"
+            / "NewRunWizardStepBody.tsx",
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "reviews"
+            / "new"
+            / "use-new-run-wizard-query-prefill.ts",
         )
-        text = path.read_text(encoding="utf-8")
+        text = "".join(path.read_text(encoding="utf-8") for path in wizard_paths)
         self.assertIn("wizard-preset-deeplink", text)
         self.assertIn("wizard-preset-deeplink-active", text)
 
@@ -52,7 +61,7 @@ class TestAdoptionBatch5AG(unittest.TestCase):
     def test_tb_219_should_you_evaluate_links_pilot_preset(self) -> None:
         path = REPO_ROOT / "docs" / "go-to-market" / "BUYER_PERSONAS.md"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("/reviews/new?preset=greenfield", text)
+        self.assertIn("/architecture/reviews/new?preset=greenfield", text)
         self.assertIn("pre-fills greenfield preset", text)
 
     def test_tb_219_evaluator_workbook_quick_start_preset(self) -> None:

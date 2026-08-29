@@ -23,10 +23,12 @@ class TestAdoptionBatch5Z(unittest.TestCase):
         self.assertIn("ParseFromFile", text)
 
     def test_tb_209_program_wires_request_create(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Cli" / "Program.cs"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn('case "request":', text)
-        self.assertIn("RequestCreateCommand", text)
+        handlers_path = REPO_ROOT / "ArchLucid.Cli" / "CliCommandHandlers.Misc.cs"
+        registry_path = REPO_ROOT / "ArchLucid.Cli" / "CommandRegistry.cs"
+        handlers_text = handlers_path.read_text(encoding="utf-8")
+        registry_text = registry_path.read_text(encoding="utf-8")
+        self.assertIn("RequestCreateCommand", handlers_text)
+        self.assertIn("request create --from-file", registry_text)
 
     def test_tb_209_operator_quickstart_documents_cli(self) -> None:
         path = REPO_ROOT / "docs" / "library" / "customer-facing" / "OPERATOR_QUICKSTART.md"

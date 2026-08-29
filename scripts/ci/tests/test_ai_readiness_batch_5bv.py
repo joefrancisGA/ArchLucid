@@ -38,10 +38,33 @@ class TestAiReadinessBatch5BV(unittest.TestCase):
             / "_sections"
             / "PolicyPackNaturalLanguageBuilder.tsx"
         )
+        modes_path = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "governance"
+            / "policy-packs"
+            / "_sections"
+            / "PolicyRuleAuthoringWizardModes.tsx"
+        )
+        builder_path = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "governance"
+            / "policy-packs"
+            / "_sections"
+            / "PolicyPackNaturalLanguageBuilder.tsx"
+        )
         wizard_text = wizard_path.read_text(encoding="utf-8")
+        modes_text = modes_path.read_text(encoding="utf-8")
         builder_text = builder_path.read_text(encoding="utf-8")
         self.assertIn("policy-rule-authoring-wizard", wizard_text)
-        self.assertIn("PolicyPackNaturalLanguageBuilder", wizard_text)
+        self.assertIn("PolicyPackNaturalLanguageBuilderDeferred", modes_text)
         self.assertIn("generatePolicyPackFromPrompt", builder_text)
 
 

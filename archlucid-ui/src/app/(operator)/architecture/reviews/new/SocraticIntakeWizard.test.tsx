@@ -11,6 +11,7 @@ const patchDraftRequest = vi.fn();
 const skipDraftQuestion = vi.fn();
 const submitDraftRequest = vi.fn();
 const routerPush = vi.fn();
+const tryLoadPriorPackageGuidedIntakePrefill = vi.fn();
 const searchParamsGet = vi.hoisted(() => vi.fn(() => null as string | null));
 
 vi.mock("next/navigation", async (importOriginal) => {
@@ -52,6 +53,11 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
   answerDraftQuestion: (...args: unknown[]) => answerDraftQuestion(...args),
   skipDraftQuestion: (...args: unknown[]) => skipDraftQuestion(...args),
   submitDraftRequest: (...args: unknown[]) => submitDraftRequest(...args),
+}));
+
+vi.mock("@/lib/try-load-prior-package-guided-intake-prefill", () => ({
+  tryLoadPriorPackageGuidedIntakePrefill: (...args: unknown[]) =>
+    tryLoadPriorPackageGuidedIntakePrefill(...args),
 }));
 
 vi.mock("@/components/draft-intake/DraftIntakeActorEditor", () => ({
@@ -226,6 +232,8 @@ describe("SocraticIntakeWizard", () => {
     searchParamsGet.mockImplementation(() => null);
     getDraftRequest.mockReset();
     routerPush.mockReset();
+    tryLoadPriorPackageGuidedIntakePrefill.mockReset();
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue(null);
     window.sessionStorage.clear();
   });
 
@@ -447,6 +455,55 @@ describe("SocraticIntakeWizard", () => {
       OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
     );
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeDisabled();
+    expect(createDraftRequest).not.toHaveBeenCalled();
+  });
+
+  it("prefills guided intake from rerun= when the prior package intake is available", async () => {
+    searchParamsGet.mockImplementation((key: string) => (key === "rerun" ? "run-failed-1" : null));
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue({
+      systemName: "ArchLucid",
+      freeTextIntent:
+        'Architecture review intake for "ArchLucid". Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.',
+      businessOutcome:
+        "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.",
+      actorSet: {
+        actors: [
+          {
+            label: "Primary operator",
+            kind: "Human",
+            trustOrigin: "Internal",
+            contract: "Sync",
+            origin: "Asserted",
+            confidence: 100,
+          },
+        ],
+      },
+      scopeBullets: [
+        {
+          id: "prior-scope-0",
+          kind: "custom",
+          label: "Primary System or Architecture",
+          value: "ArchLucid",
+          source: "inferred",
+        },
+      ],
+      scopeGateOpen: true,
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    await waitFor(() => {
+      expect(tryLoadPriorPackageGuidedIntakePrefill).toHaveBeenCalledWith("run-failed-1");
+    });
+
+    await waitFor(() => {
+      expect((screen.getByTestId("socratic-system-name") as HTMLInputElement).value).toBe("ArchLucid");
+    });
+
+    expect((screen.getByTestId("socratic-intent") as HTMLTextAreaElement).value).toContain("ArchLucid");
+    expect((screen.getByTestId("socratic-outcome") as HTMLTextAreaElement).value).toContain(
+      "Evaluate the attached materials",
+    );
     expect(createDraftRequest).not.toHaveBeenCalled();
   });
 

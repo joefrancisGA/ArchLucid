@@ -37,7 +37,7 @@ import {
   type DeriveScopeUnderstandingBulletsInput,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_FORM_FIELD_STACK_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 import { cn } from "@/lib/utils";
 
@@ -273,11 +273,11 @@ export function ArchitectureScopeUnderstandingCheckPanel(
 
   return (
     <section
-      className={cn(DESIGN_TOKENS.callout.neutral, "space-y-3 p-4")}
+      className={cn(DESIGN_TOKENS.callout.neutral, OPERATOR_LAYOUT.cardPadding, OPERATOR_LAYOUT.sectionStack)}
       data-testid="architecture-scope-understanding-check"
       aria-labelledby="architecture-scope-understanding-heading"
     >
-      <div className="space-y-1">
+      <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h2
           id="architecture-scope-understanding-heading"
           className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
@@ -290,7 +290,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       </div>
 
       <ul
-        className={cn("m-0 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)}
+        className={cn("m-0 list-none space-y-4 p-0", OPERATOR_TYPOGRAPHY.body)}
         data-testid="architecture-scope-understanding-bullets"
       >
         {bullets.map((bullet) => (
@@ -306,7 +306,10 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       </ul>
 
       <div
-        className="space-y-2 border-t border-al-border-subtle pt-3"
+        className={cn(
+          OPERATOR_FORM_FIELD_STACK_CLASS,
+          "border-t border-al-border-subtle pt-4",
+        )}
         data-testid="architecture-scope-understanding-add"
       >
         <Label htmlFor="architecture-scope-understanding-new">
@@ -371,6 +374,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
         </p>
       </div>
 
+      <div className="space-y-3 border-t border-al-border-subtle pt-4">
       {!confirmed && !canConfirmScope ? (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -480,6 +484,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
           </Button>
         </div>
       )}
+      </div>
     </section>
   );
 }

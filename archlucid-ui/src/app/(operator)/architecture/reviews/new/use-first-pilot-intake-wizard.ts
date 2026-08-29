@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useInferredUniversalIntakeAnswers } from "@/hooks/use-inferred-universal-intake-answers";
 import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
@@ -60,6 +61,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const { onRunCreatedNavigate } = props;
   const searchParams = useSearchParams();
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
+  const { isSimulator } = useAgentExecutionMode();
   const exampleTemplatePrefillAppliedRef = useRef(false);
   const priorPackagePrefillAppliedRef = useRef(false);
   const priorRunId = useMemo(() => readPriorRunIdFromSearch(searchParams), [searchParams]);
@@ -84,6 +86,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [l0SkippedQuestionKeys, setL0SkippedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const {
     inferredQuestionKeys: inferredL0QuestionKeys,
+    rephrasedQuestionKeys: rephrasedL0QuestionKeys,
     isExtractingEvidenceText,
     clarificationSuggestionsUnavailable,
     canSuggestFromEvidence,
@@ -96,6 +99,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     answers: l0Answers,
     onAnswersChange: setL0Answers,
     blocksLlmRephrase: blocksLlmExecution,
+    isSimulator,
   });
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
@@ -321,6 +325,8 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     l0SkippedQuestionKeys,
     setL0SkippedQuestionKeys,
     inferredL0QuestionKeys,
+    rephrasedL0QuestionKeys,
+    isSimulator,
     isExtractingEvidenceText,
     clarificationSuggestionsUnavailable,
     canSuggestFromEvidence,

@@ -1,0 +1,130 @@
+import { cn } from "@/lib/utils";
+
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { StatusTag } from "@/components/ui/status-tag";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableHeadRow,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatStageDurationMs } from "@/lib/format-stage-duration";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
+
+import type { RunProgressTrackerViewModel } from "./use-run-progress-tracker";
+
+type RunProgressTrackerStagesViewProps = Pick<
+  RunProgressTrackerViewModel,
+  | "buyerAssessmentCopy"
+  | "pipelineJobLabel"
+  | "completedStages"
+  | "totalProgressStages"
+  | "progressValue"
+  | "ctx"
+  | "graph"
+  | "findings"
+  | "manifest"
+  | "stageTimeline"
+  | "activeSummary"
+>;
+
+export function RunProgressTrackerStagesView({
+  buyerAssessmentCopy,
+  pipelineJobLabel,
+  completedStages,
+  totalProgressStages,
+  progressValue,
+  ctx,
+  graph,
+  findings,
+  manifest,
+  stageTimeline,
+  activeSummary,
+}: RunProgressTrackerStagesViewProps) {
+  const progressHeading = pipelineJobLabel.heading;
+
+  return (
+    <>
+      <div className="mt-4 space-y-2">
+        <div className={cn("flex justify-between text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+          <span>{progressHeading}</span>
+          <span>
+            {completedStages} / {totalProgressStages} stages
+          </span>
+        </div>
+        <Progress
+          value={progressValue}
+          className="h-2"
+          aria-label={pipelineJobLabel.progressAriaLabel}
+        />
+      </div>
+
+      <Separator className="my-6" />
+
+      <ul className="m-0 flex flex-col gap-3 p-0 list-none">
+        <li className="flex flex-wrap items-center gap-2">
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Source context captured</span>
+          <StatusTag kind={ctx ? "ready" : "draft"} label={ctx ? "Complete" : "Pending"} />
+        </li>
+        <li className="flex flex-wrap items-center gap-2">
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Evidence graph ready</span>
+          <StatusTag kind={graph ? "ready" : "draft"} label={graph ? "Complete" : "Pending"} />
+        </li>
+        <li className="flex flex-wrap items-center gap-2">
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Findings complete</span>
+          <StatusTag kind={findings ? "ready" : "draft"} label={findings ? "Complete" : "Pending"} />
+        </li>
+        {buyerAssessmentCopy ? (
+          <li className="flex flex-wrap items-center gap-2" data-testid="run-progress-signed-record-row">
+            <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record</span>
+            <StatusTag
+              kind={manifest ? "ready" : "draft"}
+              label={manifest ? "Complete" : "Not created yet"}
+            />
+          </li>
+        ) : (
+          <li className="flex flex-wrap items-center gap-2">
+            <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record ready</span>
+            <StatusTag kind={manifest ? "ready" : "draft"} label={manifest ? "Complete" : "Pending"} />
+          </li>
+        )}
+      </ul>
+
+      {buyerAssessmentCopy && stageTimeline.length > 0 ? (
+        <div className="mt-6" data-testid="run-progress-stage-timeline-table">
+          <h4 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Stage timing</h4>
+          <EnterpriseTable ariaLabel="Assessment stage timing" className="mt-3">
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Started</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Completed</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Duration</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {stageTimeline.map((stage) => (
+                <EnterpriseTableRow key={stage.stageName}>
+                  <EnterpriseTableCell>{buyerPipelineStageName(stage.stageName, true)}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{formatInstantForLocale(stage.startedUtc)}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{formatInstantForLocale(stage.completedUtc)}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{formatStageDurationMs(stage.durationMs ?? null)}</EnterpriseTableCell>
+                </EnterpriseTableRow>
+              ))}
+            </EnterpriseTableBody>
+          </EnterpriseTable>
+        </div>
+      ) : null}
+
+      {activeSummary?.description ? (
+        <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{activeSummary.description}</p>
+      ) : null}
+    </>
+  );
+}

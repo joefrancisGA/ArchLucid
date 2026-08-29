@@ -1,15 +1,25 @@
 import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
 import {
+  filterQualityGatedInferredAnswers,
   isReadableInferredClarificationAnswer,
   normalizeClarificationInferenceCorpus,
 } from "@/lib/inferred-clarification-answer-quality";
 import { deriveStatedConstraintContextFromTexts } from "@/lib/review-quality/stated-constraint-context";
+import { synthesizeAdditionalActorsAnswer } from "@/lib/universal-intake-actor-synthesis";
+import {
+  isHeadingOnlyChunk,
+  splitInferenceChunks,
+  truncateAtWordBoundary,
+} from "@/lib/universal-intake-inference-chunks";
 import { UNIVERSAL_INTAKE_MUST_QUESTION_KEYS } from "@/lib/universal-intake-must-completeness";
 
 export const UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS = 40;
 
 export const UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER =
   "Suggested from your architecture context and rewritten in plain language — review each answer before you continue.";
+
+export const UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER =
+  "Suggested from your evidence — review each answer before you continue.";
 
 export const UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER =
   "We could not suggest clarification answers from your document text. Answer each question in your own words.";
@@ -39,39 +49,52 @@ const QUESTION_KEY = {
   cost: "l0.pillar.cost",
   operations: "l0.pillar.operations",
   performance: "l0.pillar.performance",
+  sustainability: "l0.pillar.sustainability",
   cloudTarget: CLOUD_TARGET_QUESTION_KEY,
 } as const;
 
-function splitSentences(corpus: string): readonly string[] {
-  return corpus
-    .split(/(?<=[.!?])\s+/)
-    .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence.length > 0);
-}
+function findChunkMatching(corpus: string, patterns: readonly RegExp[]): string | null {
+  for (const chunk of splitInferenceChunks(corpus)) {
+    if (isHeadingOnlyChunk(chunk)) {
+      continue;
+    }
 
-function truncateSentenceAtWordBoundary(sentence: string, maxLength = 320): string {
-  if (sentence.length <= maxLength) {
-    return sentence;
-  }
-
-  const slice = sentence.slice(0, maxLength);
-  const lastSpace = slice.lastIndexOf(" ");
-
-  if (lastSpace > maxLength * 0.6) {
-    return slice.slice(0, lastSpace).trimEnd();
-  }
-
-  return slice.trimEnd();
-}
-
-function findSentenceMatching(corpus: string, patterns: readonly RegExp[]): string | null {
-  for (const sentence of splitSentences(corpus)) {
-    if (patterns.some((pattern) => pattern.test(sentence))) {
-      return truncateSentenceAtWordBoundary(sentence);
+    if (patterns.some((pattern) => pattern.test(chunk))) {
+      return truncateAtWordBoundary(chunk);
     }
   }
 
   return null;
+}
+
+function findProseAfterHeading(corpus: string, headingPattern: RegExp): string | null {
+  const lines = corpus.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index] ?? "";
+
+    if (!headingPattern.test(line)) {
+      continue;
+    }
+
+    for (let nextIndex = index + 1; nextIndex < lines.length; nextIndex += 1) {
+      const candidate = lines[nextIndex] ?? "";
+
+      if (isHeadingOnlyChunk(candidate) || isDiagramCaptionLine(candidate)) {
+        continue;
+      }
+
+      if (candidate.length > 0) {
+        return truncateAtWordBoundary(candidate);
+      }
+    }
+  }
+
+  return null;
+}
+
+function isDiagramCaptionLine(line: string): boolean {
+  return /^Diagram\s*[—\-]/i.test(line.trim()) || /\bDiagram\s*[—\-]/i.test(line);
 }
 
 function formatMinutesLabel(minutes: number): string {
@@ -106,14 +129,25 @@ function inferReliabilityAnswer(corpus: string): string | null {
     return parts.join("; ");
   }
 
-  return findSentenceMatching(corpus, [
-    /\b(?:RTO|RPO|uptime|availability|recovery|disaster recovery|high availability)\b/i,
+  const explicitRecovery = findChunkMatching(corpus, [
+    /record actual RTO/i,
+    /\bRTO\b/i,
+    /\bRPO\b/i,
+  ]);
+
+  if (explicitRecovery !== null) {
+    return explicitRecovery;
+  }
+
+  return findChunkMatching(corpus, [
+    /\b(?:uptime|availability|recovery|disaster recovery|high availability|geo failover|failover group|paired region|zone redundant)\b/i,
   ]);
 }
 
 function inferSecurityAnswer(corpus: string): string | null {
-  return findSentenceMatching(corpus, [
-    /\b(?:PII|PHI|PCI(?:-DSS)?|HIPAA|GDPR|SOC\s*2|FedRAMP|trust boundary|data sensitivity|regulated|confidential)\b/i,
+  return findChunkMatching(corpus, [
+    /\b(?:PII|PHI|PCI(?:-DSS)?|HIPAA|GDPR|SOC\s*2|FedRAMP|trust boundary|trust edge|data sensitivity|regulated|confidential)\b/i,
+    /\b(?:Entra(?:\s+ID)?|managed identity|private endpoint|Key Vault)\b/i,
   ]);
 }
 
@@ -124,29 +158,58 @@ function inferCostAnswer(corpus: string): string | null {
     return `Monthly cost ceiling about $${stated.monthlyCostCeilingUsd.toLocaleString("en-US")}.`;
   }
 
-  return findSentenceMatching(corpus, [
-    /\b(?:budget|cost constraint|cost ceiling|finops|monthly spend|operating cost)\b/i,
+  const proseAfterFinOps = findProseAfterHeading(corpus, /^FinOps and capacity drivers$/i);
+
+  if (proseAfterFinOps !== null) {
+    return proseAfterFinOps;
+  }
+
+  return findChunkMatching(corpus, [
+    /\b(?:budget|cost constraint|cost ceiling|finops|monthly spend|operating cost|capacity drivers|budget gate|spend kill)\b/i,
     /\$\s*[\d,]+(?:\.\d+)?\s*(?:\/\s*month|per month|monthly)\b/i,
   ]);
 }
 
 function inferOperationsAnswer(corpus: string): string | null {
-  return findSentenceMatching(corpus, [
-    /\b(?:on[- ]call|observability|monitoring|incident response|runbook|SRE|DevOps|day[- ]to[- ]day operations)\b/i,
+  const observabilityProse = findProseAfterHeading(corpus, /^Observability map$/i);
+
+  if (observabilityProse !== null) {
+    return observabilityProse;
+  }
+
+  return findChunkMatching(corpus, [
+    /\b(?:on[- ]call|observability|monitoring|incident response|runbook|SRE|DevOps|day[- ]to[- ]day operations|OpenTelemetry|OTel|Application Insights)\b/i,
   ]);
 }
 
 function inferPerformanceAnswer(corpus: string): string | null {
-  return findSentenceMatching(corpus, [
-    /\b(?:latency|throughput|transactions per second|TPS|QPS|concurrent users|requests per second|scale)\b/i,
+  return findChunkMatching(corpus, [
+    /\b(?:latency|throughput|transactions per second|TPS|QPS|concurrent users|requests per second|autoscale|capacity)\b/i,
   ]);
 }
 
+function inferSustainabilityAnswer(corpus: string): string | null {
+  const hasEfficiencyLanguage = /\b(?:sustainability|utilization|idle capacity|retention|carbon|energy efficiency)\b/i.test(
+    corpus,
+  );
+
+  if (hasEfficiencyLanguage) {
+    return findChunkMatching(corpus, [
+      /\b(?:sustainability|utilization|idle capacity|retention|carbon|energy efficiency)\b/i,
+    ]);
+  }
+
+  const explicitNone = /\b(?:no sustainability|none for this lifecycle|not a sustainability focus)\b/i.test(corpus);
+
+  if (explicitNone) {
+    return "None for this lifecycle stage.";
+  }
+
+  return null;
+}
+
 function inferAdditionalActorsAnswer(corpus: string): string | null {
-  return findSentenceMatching(corpus, [
-    /\b(?:API clients?|service accounts?|machine users?|partner teams?|administrators|operators|batch jobs?|integrations?)\b/i,
-    /\b(?:human and machine|users and systems)\b/i,
-  ]);
+  return synthesizeAdditionalActorsAnswer(corpus);
 }
 
 function inferCloudTargetAnswer(corpus: string): string | null {
@@ -162,7 +225,15 @@ function inferCloudTargetAnswer(corpus: string): string | null {
     Gcp: 0,
   };
 
+  if (/\bazure-first\b/.test(lower)) {
+    scores.Azure += 2;
+  }
+
   if (/\bmicrosoft azure\b/.test(lower) || /\bazure\b/.test(lower)) {
+    scores.Azure += 1;
+  }
+
+  if (/\bfront door\b/.test(lower) || /\bapim\b/.test(lower) || /\bazure sql\b/.test(lower)) {
     scores.Azure += 1;
   }
 
@@ -196,6 +267,7 @@ const INFERENCE_BY_QUESTION_KEY: Record<string, (corpus: string) => string | nul
   [QUESTION_KEY.cost]: inferCostAnswer,
   [QUESTION_KEY.operations]: inferOperationsAnswer,
   [QUESTION_KEY.performance]: inferPerformanceAnswer,
+  [QUESTION_KEY.sustainability]: inferSustainabilityAnswer,
   [QUESTION_KEY.cloudTarget]: inferCloudTargetAnswer,
 };
 
@@ -223,7 +295,7 @@ export function inferUniversalIntakeAnswersFromCorpus(corpus: string): Readonly<
     }
   }
 
-  return inferred;
+  return filterQualityGatedInferredAnswers(inferred);
 }
 
 export function mergeInferredUniversalIntakeAnswers(input: {
@@ -234,10 +306,11 @@ export function mergeInferredUniversalIntakeAnswers(input: {
   readonly mergedAnswers: Readonly<Record<string, string>>;
   readonly newlyInferredQuestionKeys: readonly string[];
 } {
+  const gatedInferred = filterQualityGatedInferredAnswers(input.inferredAnswers);
   const mergedAnswers: Record<string, string> = { ...input.currentAnswers };
   const newlyInferredQuestionKeys: string[] = [];
 
-  for (const [questionKey, inferredAnswer] of Object.entries(input.inferredAnswers)) {
+  for (const [questionKey, inferredAnswer] of Object.entries(gatedInferred)) {
     if (input.lockedQuestionKeys.has(questionKey)) {
       continue;
     }
@@ -257,3 +330,5 @@ export function mergeInferredUniversalIntakeAnswers(input: {
     newlyInferredQuestionKeys,
   };
 }
+
+export { filterQualityGatedInferredAnswers, isReadableInferredClarificationAnswer };

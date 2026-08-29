@@ -16,11 +16,13 @@ class TestAdoptionBatch5BL(unittest.TestCase):
         self.assertIn("UpdatePriorityRanksAsync", text)
 
     def test_tb_183_order_by_priority_api(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "RunQueryController.cs"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("orderBy", text)
-        self.assertIn("orderByPriority", text)
-        self.assertIn("PriorityRank", text)
+        controller_path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "RunQueryController.Findings.cs"
+        service_path = REPO_ROOT / "ArchLucid.Application" / "Runs" / "Query" / "RunFindingsQueryService.cs"
+        controller_text = controller_path.read_text(encoding="utf-8")
+        service_text = service_path.read_text(encoding="utf-8")
+        self.assertIn("orderBy", controller_text)
+        self.assertIn("orderByPriority", service_text)
+        self.assertIn("PriorityRank", service_text)
 
     def test_tb_183_feature_flag_and_migration(self) -> None:
         options = (REPO_ROOT / "ArchLucid.Core" / "Configuration" / "RerankFindingsOptions.cs").read_text(

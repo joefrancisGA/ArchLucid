@@ -430,6 +430,78 @@ describe("RunProgressTracker", () => {
     );
   });
 
+  it("stops stage-timeline polling when assessment failed terminally", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "failed-1",
+    });
+
+    render(
+      <RunProgressTracker
+        runId="failed-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "failed-1",
+        }}
+        diagnosticContext={{ legacyRunStatus: "Failed", lastFailureReason: "authority_pipeline_dead_letter" }}
+      />,
+    );
+
+    await act(async () => {
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    expect(mockGetRunStageTimeline).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(/Assessment failed — review the error details/i)).toBeInTheDocument();
+    expect(screen.getByText(/Execution failed before the first pipeline stage/i)).toBeInTheDocument();
+    expect(screen.getByText(/authority_pipeline_dead_letter/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Re-run review" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new?path=guided-intake&rerun=failed-1",
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+
+    expect(mockGetRunStageTimeline).toHaveBeenCalledTimes(1);
+    expect(mockGetRunSummary).not.toHaveBeenCalled();
+  });
+
+  it("does not refetch stage timeline on every summary poll tick", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "timeline-poll-1",
+      hasContextSnapshot: true,
+    });
+
+    render(
+      <RunProgressTracker
+        runId="timeline-poll-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "timeline-poll-1",
+        }}
+      />,
+    );
+
+    await act(async () => {
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    const callsAfterMount = mockGetRunStageTimeline.mock.calls.length;
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(12_000);
+    });
+
+    expect(mockGetRunStageTimeline.mock.calls.length).toBeLessThanOrEqual(callsAfterMount + 3);
+  });
+
   it("shows extended timeout copy when tenant p90 exceeds three minutes", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
