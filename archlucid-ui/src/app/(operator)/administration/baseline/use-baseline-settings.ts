@@ -153,6 +153,56 @@ export function useBaselineSettings(): UseBaselineSettingsResult {
     void load();
   }, [demoMode, load]);
 
+  function resolvePersistBaselineValidationError(args: {
+    reviewTrim: string;
+    prepTrim: string;
+    peopleTrim: string;
+    noteTrim: string;
+  }): string | null {
+    const { reviewTrim, prepTrim, peopleTrim, noteTrim } = args;
+
+    if (reviewValidation.error) {
+      return reviewValidation.error;
+    }
+
+    if (prepValidation.error) {
+      return prepValidation.error;
+    }
+
+    if (peopleValidation.error) {
+      return peopleValidation.error;
+    }
+
+    if (noteTrim.length > 500) {
+      return "Review note must be 500 characters or fewer.";
+    }
+
+    if (noteTrim.length > 0 && reviewTrim.length === 0) {
+      return "Enter review cycle hours before saving a review note.";
+    }
+
+    const prepN = parseNumberOrNull(prepTrim);
+    const peopleN = parseNumberOrNull(peopleTrim);
+
+    if (reviewTrim.length > 0) {
+      const reviewParsed = parseNumberOrNull(reviewTrim);
+
+      if (Number.isNaN(reviewParsed) || reviewParsed === null || reviewParsed <= 0 || reviewParsed > 10_000) {
+        return "Review cycle hours must be between 0 and 10,000.";
+      }
+    }
+
+    if (prepTrim.length > 0 && (Number.isNaN(prepN) || prepN === null || prepN <= 0 || prepN > 10_000)) {
+      return "Manual prep hours must be between 0 and 10,000.";
+    }
+
+    if (peopleTrim.length > 0 && (Number.isNaN(peopleN) || peopleN === null || peopleN <= 0 || peopleN > 10_000)) {
+      return "People per review must be between 0 and 10,000.";
+    }
+
+    return null;
+  }
+
   async function persistBaseline(): Promise<void> {
     if (demoMode) {
       return;
@@ -162,16 +212,15 @@ export function useBaselineSettings(): UseBaselineSettingsResult {
     const prepTrim = manualPrep.trim();
     const peopleTrim = people.trim();
     const noteTrim = reviewNote.trim();
+    const validationError = resolvePersistBaselineValidationError({
+      reviewTrim,
+      prepTrim,
+      peopleTrim,
+      noteTrim,
+    });
 
-    if (reviewValidation.error || prepValidation.error || peopleValidation.error) {
-      return;
-    }
-
-    if (noteTrim.length > 500) {
-      return;
-    }
-
-    if (noteTrim.length > 0 && reviewTrim.length === 0) {
+    if (validationError) {
+      showError("Baseline", validationError);
       return;
     }
 
@@ -181,18 +230,6 @@ export function useBaselineSettings(): UseBaselineSettingsResult {
 
     if (reviewTrim.length > 0) {
       reviewParsed = parseNumberOrNull(reviewTrim);
-
-      if (Number.isNaN(reviewParsed) || reviewParsed === null || reviewParsed <= 0 || reviewParsed > 10_000) {
-        return;
-      }
-    }
-
-    if (prepTrim.length > 0 && (Number.isNaN(prepN) || prepN === null || prepN <= 0 || prepN > 10_000)) {
-      return;
-    }
-
-    if (peopleTrim.length > 0 && (Number.isNaN(peopleN) || peopleN === null || peopleN <= 0 || peopleN > 10_000)) {
-      return;
     }
 
     setSaving(true);
