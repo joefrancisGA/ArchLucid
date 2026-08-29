@@ -2283,11 +2283,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 98
-- **bugs-found:** 266
+- **hunts:** 99
+- **bugs-found:** 267
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — `RecordBulkDisposition` mixed whitespace ids silently dropped when in-scope finding processed
+- **last-bug:** 2026-08-29 — facade bulk-disposition duplicate findingIds deduped before RecordAsync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2572,11 +2572,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.DryRunPolicyPack` / `PolicyPackDryRunService` — duplicate non-whitespace `evaluateAgainstRunIds` inflated `deltaCounts.evaluated` — **hit 2026-08-29 (#196):** dedupe trimmed run ids in `PolicyPackDryRunService` (SimulateBulk parity); regression in `PolicyPackDryRunServiceTests`.
 - [x] (proven) `GovernancePreCommitSimulationController` (`GetChecklistAsync`, `SimulateAsync`) — malformed `runId` returned `ProblemTypes.BadRequest` instead of `ValidationFailed` (governance run-history parity) — **hit 2026-08-29:** align invalid run id problem type with sibling routes; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernancePreviewController` / `GovernancePreviewService.NormalizeAndValidateEnvironment` — padded `sourceEnvironment`/`targetEnvironment`/`environment` failed known-environment validation before trim — **hit 2026-08-29:** trim environment before `IsKnownEnvironment`; workflow submit/promote/activate trim parity; regression in `GovernancePreviewServiceTests` and `GovernanceWorkflowFacadeTests`.
+- [x] (proven) `GovernanceStickinessFacade.RecordBulkDispositionAsync` — duplicate non-whitespace `findingIds` double-record disposition and inflate `ProcessedCount` when facade invoked directly — **hit 2026-08-29 (#268):** `OrdinalIgnoreCase` dedupe before `RecordAsync` (controller already rejects duplicates at HTTP 400 via #196/#244); regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_records_each_distinct_finding_id_once_when_list_contains_duplicates`.
 - [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — `ArgumentException` for identical source/target after normalization surfaces `ProblemTypes.BadRequest` while sibling validation inputs use `ValidationFailed` (governance client-input problem-type parity gap).
 
 2026-08-29 thorough hunt #250 (supersedes #739): strengthened bulk-disposition mixed-whitespace regression; re-shipped #246/#248 batch-review and simulate-bulk case-variant duplicate guards.
 
 2026-08-29 thorough hunt #263 (supersedes #755): batch-review duplicate-id per-item validation and case-variant dedupe already on consolidation branch via #254/#246; cheap-disproved `CompareManifests` padded-version candidate.
+
+2026-08-29 thorough hunt #268 (supersedes #761): facade `RecordBulkDispositionAsync` duplicate findingId dedupe (`OrdinalIgnoreCase`); batch-review duplicate and compare-manifest padded candidates already on consolidation branch via #254/#263; controller duplicate rejection retained at HTTP 400 (#196/#244).
 
 2026-08-28 thorough hunt #254 (supersedes #745): batch-review duplicate and case-variant duplicate `approvalRequestId` per-item validation; cheap-disproved `CompareManifests` padded-version picker.
 
