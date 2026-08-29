@@ -21,7 +21,7 @@ public static class InsightDensityEngineDistributionMarkdown
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .Count();
 
-        int absentFromTable = BuiltInProductEngineCount - enginesInTable;
+        int absentFromTable = Math.Max(0, BuiltInProductEngineCount - enginesInTable);
 
         List<string> lines = [
             "# Insight-density engine distribution",
