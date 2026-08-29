@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { expectFollowUpLink, expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
   MermaidDiagram: ({
@@ -151,9 +151,7 @@ describe("HelpTopicComparisonReplay (CO)", () => {
 
     const sources = screen.getByTestId("comparison-replay-help-sources");
 
-    for (const source of COMPARISON_REPLAY_HELP_SOURCES) {
-      expectFollowUpLink(within(sources), source);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), COMPARISON_REPLAY_HELP_SOURCES);
 
     expect(screen.getByTestId("help-comparison-replay-compare-action")).toHaveAttribute(
       "href",

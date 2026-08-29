@@ -11,12 +11,13 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 class TestTraceabilityBatch5CD(unittest.TestCase):
     def test_tb_037_provenance_snapshot_materialization(self) -> None:
         access = REPO_ROOT / "ArchLucid.Application" / "Provenance" / "ProvenanceGraphAccessService.cs"
-        orchestrator = (
+        persistence_stage = (
             REPO_ROOT
             / "ArchLucid.Application"
             / "Runs"
             / "Orchestration"
-            / "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"
+            / "Commit"
+            / "AuthorityCommitPersistenceStage.cs"
         )
         enqueuer = (
             REPO_ROOT
@@ -26,11 +27,11 @@ class TestTraceabilityBatch5CD(unittest.TestCase):
             / "PostCommitProjectionEnqueuer.cs"
         )
         access_text = access.read_text(encoding="utf-8")
-        orchestrator_text = orchestrator.read_text(encoding="utf-8")
+        persistence_text = persistence_stage.read_text(encoding="utf-8")
         enqueuer_text = enqueuer.read_text(encoding="utf-8")
         self.assertIn("TryMaterializeSnapshotAsync", access_text)
         self.assertIn("RecordProvenanceSnapshotWrite", access_text)
-        self.assertIn("PostCommitProjectionEnqueuer", orchestrator_text)
+        self.assertIn("PostCommitProjectionEnqueuer", persistence_text)
         self.assertIn("ProvenanceSnapshotMaterialization", enqueuer_text)
 
     def test_tb_055_reasoning_trace_on_findings(self) -> None:

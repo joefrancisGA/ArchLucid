@@ -64,6 +64,8 @@ import {
 
   INTERNAL_INTEGRATION_EVENTS_DLQ_PATH,
 
+  INTERNAL_OPERATIONAL_ERRORS_PATH,
+
   INTERNAL_PRICING_QUOTE_AGING_PATH,
 
   INTERNAL_RAG_HEALTH_PATH,
@@ -263,6 +265,22 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           title: "Failed integration messages — inspect and retry failed outbound integration events",
 
           icon: Inbox,
+
+          tier: "advanced",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: INTERNAL_OPERATIONAL_ERRORS_PATH as typeof INTERNAL_OPERATIONAL_ERRORS_PATH & "/internal/operational-errors",
+
+          label: "Operational errors",
+
+          title: "Operational errors — review captured HTTP, database, and unhandled exceptions",
+
+          icon: MessageSquareText,
 
           tier: "advanced",
 

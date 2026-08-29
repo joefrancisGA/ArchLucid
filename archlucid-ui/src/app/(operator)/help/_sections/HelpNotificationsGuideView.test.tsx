@@ -10,6 +10,7 @@ import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
+  expectWhereToGoNextFollowUpLinks,
 } from "@/lib/claim-discipline-test-helpers";
 import {
   NOTIFICATIONS_HELP_GUIDE_HEADINGS,
@@ -27,7 +28,6 @@ import {
   NOTIFICATIONS_HELP_SOURCES,
   NOTIFICATIONS_HELP_TOPIC_LABEL,
 } from "@/lib/notifications-help-evidence-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE } from "@/lib/notification-preference-center";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -112,11 +112,7 @@ describe("HelpNotificationsGuideView", () => {
 
     const sourcesStrip = screen.getByTestId("help-notifications-sources");
 
-    for (const source of NOTIFICATIONS_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-
-      expect(within(sourcesStrip).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesStrip), NOTIFICATIONS_HELP_SOURCES);
 
     expect(screen.queryByRole("link", { name: "Read alerts help →" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Read Slack integration help →" })).not.toBeInTheDocument();

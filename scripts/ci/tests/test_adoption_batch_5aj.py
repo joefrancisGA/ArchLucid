@@ -32,7 +32,7 @@ class TestAdoptionBatch5AJ(unittest.TestCase):
         self.assertIn("baselineReviewCycleHours", text)
 
     def test_tb_238_new_run_wizard_wires_baseline_step(self) -> None:
-        path = (
+        wizard_paths = (
             REPO_ROOT
             / "archlucid-ui"
             / "src"
@@ -41,9 +41,18 @@ class TestAdoptionBatch5AJ(unittest.TestCase):
             / "architecture"
             / "reviews"
             / "new"
-            / "NewRunWizardClient.tsx"
+            / "NewRunWizardStepBody.tsx",
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "reviews"
+            / "new"
+            / "NewRunWizardClient.tsx",
         )
-        text = path.read_text(encoding="utf-8")
+        text = "".join(path.read_text(encoding="utf-8") for path in wizard_paths)
         self.assertIn("WizardStepBaselineMetrics", text)
         self.assertIn("FULL_WIZARD_BASELINE_METRICS_STEP_INDEX", text)
         self.assertIn("persistBaselineMetricsIfNeeded", text)

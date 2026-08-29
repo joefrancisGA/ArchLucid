@@ -20,6 +20,7 @@ public sealed class ClarificationAnswerRephraseService(
     private const int MaxAnswerChars = 480;
 
     private const string RephraseSystemPrompt =
+        "rephrasedAnswer (string) " +
         "You rewrite architecture intake clarification answers so they sound like a human operator " +
         "answered each question directly. " +
         "Use ONLY facts already present in the extracted answer for that question. " +
@@ -89,6 +90,9 @@ public sealed class ClarificationAnswerRephraseService(
                 string trimmed = CapAnswer(answer.RephrasedAnswer.Trim());
 
                 if (!IsUsableRephrase(item.ExtractedAnswer, trimmed))
+                    continue;
+
+                if (!InferredClarificationAnswerQuality.IsReadableInferredClarificationAnswer(trimmed))
                     continue;
 
                 merged[item.QuestionKey] = trimmed;
@@ -167,8 +171,11 @@ public sealed class ClarificationAnswerRephraseService(
         {
             string trimmed = item.ExtractedAnswer.Trim();
 
-            if (trimmed.Length > 0)
+            if (trimmed.Length > 0
+                && InferredClarificationAnswerQuality.IsReadableInferredClarificationAnswer(trimmed))
+            {
                 fallback[item.QuestionKey] = trimmed;
+            }
         }
 
         return fallback;

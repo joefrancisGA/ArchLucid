@@ -54,9 +54,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 3.56%
+**OVERALL WEIGHT SCORE:** 3.49%
 
-**OVERALL EVIDENCE SCORE:** 1.48%
+**OVERALL EVIDENCE SCORE:** 1.46%
 
 ## Master table (UX score 0 first; then Deficit desc; ties A→Z by path)
 
@@ -65,6 +65,80 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AS | `/assurance-status` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | DIS | `/digest/sponsor` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | DIU | `/digest/sponsor/run/[runId]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| HEA | `/help/accelerator-chooser` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HED | `/help/admin-diagnostics` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HAD | `/help/advisory-scans` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEI | `/help/ai-usage` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HAL | `/help/alerts` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEP | `/help/api-contracts` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HAP | `/help/api-keys` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HER | `/help/architecture-drafts` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HAR | `/help/architecture-intelligence` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| EAR | `/help/architecture-scorecard` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEU | `/help/audit-trail` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HAU | `/help/authentication-sign-in` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEZ | `/help/azure-boards` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HAZ | `/help/azure-permissions` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEB | `/help/baseline-settings` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HBI | `/help/billing-and-plans` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HCA | `/help/caiq-sig-response` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HPX | `/help/choose-your-next-step` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HCL | `/help/cli-usage` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| ECL | `/help/cloud-connections` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEO | `/help/comparison-replay` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HCO | `/help/configuration-reference` | 0.02% | 0 | 0 | 2 | Internal | No | None |
+| ECO | `/help/connection-status` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEX | `/help/contact-support` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HDA | `/help/data-handling` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEE | `/help/decision-register` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HDI | `/help/digests` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HDP | `/help/dpa-template` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEN | `/help/engineering-troubleshooting` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| EEN | `/help/enterprise-onboarding` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEV | `/help/evidence-graph` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| EEV | `/help/evidence-intake` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| EEX | `/help/evidence-trail` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEF | `/help/findings` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HFI | `/help/first-architecture-review` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEG | `/help/getting-started` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HGL | `/help/glossary` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HGO | `/help/governance-approval` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEM | `/help/impact-preview` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HIM | `/help/improvement-planning` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HIN | `/help/integration-readiness` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEJ | `/help/jira-integration` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HMO | `/help/model-governance` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HNO | `/help/notifications` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HPI | `/help/pilot-feedback` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| EPI | `/help/pilot-guide` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HPO | `/help/policy-packs` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HPR | `/help/preferences` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| EPR | `/help/prior-manifest-retrieval` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| EPX | `/help/procurement` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HRE | `/help/recurrence-schedules` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| ERE | `/help/repeat-review-loop` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| ERX | `/help/report-a-problem` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| REX | `/help/review-guide` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HXX | `/help/review-packages` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HRO | `/help/roi-summary` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HES | `/help/scope` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HSE | `/help/search-review-evidence` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| ESE | `/help/security-trust` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| ESX | `/help/servicenow-integration` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HSL | `/help/slack-integration` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HSO | `/help/soc2-self-assessment` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HSP | `/help/specialty-walkthroughs` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| ESP | `/help/sponsor-dashboard` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| SPX | `/help/sponsor-report` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HET | `/help/standards-and-rules` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HST | `/help/structured-brief` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HSU | `/help/subprocessors` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEY | `/help/system-health` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HTE | `/help/teams-integration` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HTR | `/help/troubleshooting` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HUS | `/help/users-and-roles` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HEW | `/help/webhooks-integration` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HWO | `/help/workspace-settings` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | RE | `/architecture/reviews` | 12% | 0,2 | 24 | 1176 | Core review | No | Architecture reviews hub (Core review) - RunsPageView with ReviewsHubHeaderActions PageContextualHelpButton (topic map review-packages; Category-1 registry), summary/inventory/drafts. Sibling RRE = review detail; RNX = start review; RRF = finding detail. Not a signed-record Sources trail by itself. Score 72/100 (2026-08-08) - core inventory launcher at ARE/GFN Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail. |
 | RRE | `/architecture/reviews/[reviewId]` | 10.04% | 0,2 | 20.08 | 983.92 | Core review | No | Review workspace detail (Core review) - RunDetailPageView with PageContextualHelpButton (topic map review-packages; Category-1 registry), decision snapshot, findings/tabs. Absorbs former SRN hit share from retired legacy /snapshot/[reviewId] bookmark (hard-retired; use /architecture/reviews/{runId}?readOnly=1 leave-behind). Sibling RE = reviews list; RRF = finding detail; ERU = evidence-trace. Not a full sealed-record diligence Sources trail alone. Score 72/100 (2026-08-08) - core package workspace at ARE/GFN Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail. |
 | RRF | `/architecture/reviews/[reviewId]/findings/[findingId]` | 9% | 0,2 | 18 | 882 | Core review | No | Finding detail (Core review) - FindingDetailPageView with PageContextualHelpButton (topic map findings; Category-1 path matcher), wayfinding, policy citation hero, operational actions, Evidence trace CTA. Sibling ERU = evidence-trace. Not a full sealed-record diligence Sources trail alone. Score 72/100 (2026-08-08) - core finding disposition at ARE/GFN Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail. |
