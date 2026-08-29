@@ -2614,6 +2614,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-29 seed hunt #154: proved five core governance controller ghost-workspace 404 parity (dashboard, policy packs, manifests, preview, resolution).
 
+2026-08-29 thorough hunt #153 (supersedes #773, #616): governance stickiness and pre-commit simulation ghost-workspace 404 parity already on consolidation branch; added missing `GetRiskRegister_returns_not_found_when_workspace_missing` regression.
+
 2026-08-29 thorough hunt #153: proved governance stickiness and pre-commit simulation ghost-workspace 404 parity; zone hunt-ready backlog cleared.
 
 2026-08-29 seed hunt #152: proved five tenancy-controller ghost-workspace 404 parity; reseeded stickiness register reads and pre-commit simulation workspace preflight candidates as hunt-ready.
