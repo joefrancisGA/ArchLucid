@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 81
-- **bugs-found:** 229
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — simulate-bulk invalid runIds 400
+- **hunts:** 82
+- **bugs-found:** 233
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-29
+- **last-bug:** 2026-08-29 — dry-run and simulate-bulk duplicate run-id handling
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2480,8 +2480,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — padded `runId` accepted by `RequireScopedRunAsync` but repository query may not match when padding differs from stored normalization — **cheap-disproof 2026-08-28:** `RequireScopedRunAsync` trims and returns normalized id for downstream queries; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_items_when_route_run_id_is_padded` (hunt #142).
 - [x] (invalid) `GovernanceController.GetPromotions` / `GetActivations` — padded `runId` handled by shared `RequireScopedRunAsync` but lack dedicated padded-route regression tests — **cheap-disproof 2026-08-28:** shared `RequireScopedRunAsync` normalized id path already proven on `GetApprovalRequests`; added sibling regression tests in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id — **cheap-disproof 2026-08-28:** intentional validation ordering (count cap before per-id GUID parse), aligned with `DryRunPolicyPack`; both return HTTP 400; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
-- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` are silently deduped with no per-item result row (batch client cannot distinguish omitted duplicate from never-sent id).
-- [ ] (candidate) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity on single-manifest reads.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **hit 2026-08-29:** `OrdinalIgnoreCase` dedupe emits per-item `ValidationFailed` (`approvalRequestId is duplicated.`); regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_request_id_is_duplicated` and case-variant sibling.
+- [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-29:** `LoadAndCompareManifestPairAsync` uses scoped manifest loader with trim; regression in `ManifestsControllerTests.CompareManifests_returns_ok_when_query_params_are_padded`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` — duplicate `findingIds` double-processed the same finding — **hit 2026-08-29:** `OrdinalIgnoreCase` dedupe before `RecordAsync`; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceController.DryRunPolicyPack` / `PolicyPackDryRunService.EvaluateAsync` — duplicate `evaluateAgainstRunIds` double-evaluated runs and inflated `TotalRequestedRuns` — **hit 2026-08-29:** case-insensitive dedupe after trim; regression in `PolicyPackDryRunServiceTests.EvaluateAsync_deduplicates_duplicate_evaluate_against_run_ids_case_insensitively`.
+- [x] (proven) `PolicyPacksController.SimulateBulk` / `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — duplicate `runIds` deduped in evaluation loop but `RequestedRunCount` reported raw `runIds.Count` — **hit 2026-08-29:** count distinct trimmed non-whitespace ids; regression in `PolicyPackWorkflowFacadeTests.TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated`.
+
+2026-08-29 thorough hunt #270: proved batch-review duplicate-id per-item validation, bulk-disposition duplicate findingId dedupe, dry-run duplicate run-id dedupe, and simulate-bulk requested-run count; cheap-disproved manifest-compare padded-version candidate.
 
 2026-08-28 thorough hunt #190 (dry): cheap-disproved promotions/activations padded-route test gap and simulate-bulk validation-order candidates; seeded batch-review duplicate-id silence and manifest-compare padded-version candidates.
 

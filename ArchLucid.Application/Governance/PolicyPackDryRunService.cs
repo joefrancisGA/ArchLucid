@@ -67,8 +67,7 @@ public sealed class PolicyPackDryRunService(
         await EnsurePolicyPackInScopeAsync(policyPackId, cancellationToken);
 
         int clampedPageSize = ClampPageSize(pageSize);
-        List<string> cleanedRunIds = evaluateAgainstRunIds.Where(id => !string.IsNullOrWhiteSpace(id)).Select(id => id.Trim())
-            .Take(IPolicyPackDryRunService.MaxEvaluatedRuns).ToList();
+        List<string> cleanedRunIds = DeduplicateRunIds(evaluateAgainstRunIds);
         Dictionary<string, double> parsedThresholds = ParseThresholds(proposedThresholds);
         string redactedThresholdsJson = RedactProposedThresholdsJson(proposedThresholds);
         List<PolicyPackDryRunRunItem> allItems = [];
@@ -102,6 +101,30 @@ public sealed class PolicyPackDryRunService(
     private static int ClampPageSize(int? pageSize)
     {
         return pageSize is null ? IPolicyPackDryRunService.DefaultPageSize : Math.Clamp(pageSize.Value, 1, IPolicyPackDryRunService.MaxPageSize);
+    }
+
+    private static List<string> DeduplicateRunIds(IReadOnlyList<string> evaluateAgainstRunIds)
+    {
+        List<string> cleanedRunIds = [];
+        HashSet<string> seenRunIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string runIdRaw in evaluateAgainstRunIds)
+        {
+            if (string.IsNullOrWhiteSpace(runIdRaw))
+                continue;
+
+            string runId = runIdRaw.Trim();
+
+            if (!seenRunIds.Add(runId))
+                continue;
+
+            cleanedRunIds.Add(runId);
+
+            if (cleanedRunIds.Count >= IPolicyPackDryRunService.MaxEvaluatedRuns)
+                break;
+        }
+
+        return cleanedRunIds;
     }
 
     private static int ClampPage(int? page, int totalItems, int pageSize)
