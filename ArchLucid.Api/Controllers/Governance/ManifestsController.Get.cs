@@ -54,6 +54,7 @@ public sealed partial class ManifestsController
             return tenantProblem;
 
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
+
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -89,6 +90,7 @@ public sealed partial class ManifestsController
             return tenantProblem;
 
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
+
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -133,6 +135,7 @@ public sealed partial class ManifestsController
             return tenantProblem;
 
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
+
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -239,6 +242,7 @@ public sealed partial class ManifestsController
 
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -270,6 +274,7 @@ public sealed partial class ManifestsController
 
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
