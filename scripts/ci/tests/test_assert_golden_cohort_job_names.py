@@ -75,6 +75,47 @@ class GoldenCohortJobNamesTests(unittest.TestCase):
         errors = check_workflow_text(text)
         self.assertTrue(any("preflight" in item for item in errors))
 
+    def test_workflow_name_does_not_satisfy_concurrency_group(self) -> None:
+        text = VALID_WORKFLOW.replace(
+            "concurrency:\n"
+            "  group: golden-cohort-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}\n"
+            "  cancel-in-progress: true\n",
+            "",
+        )
+        errors = check_workflow_text(text)
+        self.assertTrue(any("concurrency" in item for item in errors))
+
+    def test_missing_concurrency_group_fails_even_when_cancel_is_true(self) -> None:
+        text = VALID_WORKFLOW.replace(
+            "  group: golden-cohort-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}\n",
+            "",
+        )
+        errors = check_workflow_text(text)
+        self.assertTrue(any("concurrency.group" in item for item in errors))
+
+    def test_job_level_cancel_in_progress_does_not_count(self) -> None:
+        text = VALID_WORKFLOW.replace(
+            "concurrency:\n"
+            "  group: golden-cohort-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}\n"
+            "  cancel-in-progress: true\n",
+            "concurrency:\n"
+            "  group: golden-cohort-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}\n",
+        )
+        text = text.replace(
+            "  cohort-contract:\n    runs-on: ubuntu-latest\n",
+            "  cohort-contract:\n    cancel-in-progress: true\n    runs-on: ubuntu-latest\n",
+        )
+        errors = check_workflow_text(text)
+        self.assertTrue(any("cancel-in-progress" in item for item in errors))
+
+    def test_concurrency_block_allows_comments(self) -> None:
+        text = VALID_WORKFLOW.replace(
+            "concurrency:\n  group:",
+            "concurrency:\n  # queue relief\n  group:",
+        )
+        errors = check_workflow_text(text)
+        self.assertEqual(errors, [])
+
 
 if __name__ == "__main__":
     unittest.main()

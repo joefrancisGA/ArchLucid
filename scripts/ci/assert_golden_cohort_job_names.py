@@ -26,6 +26,13 @@ PR_KEEP_JOBS: tuple[str, ...] = (
 
 _JOB_HEADER = re.compile(r"^  ([a-z0-9-]+):\s*$")
 _JOB_LEVEL_IF = re.compile(r"^    if:")
+_CONCURRENCY_GROUP = re.compile(r"^  group:\s*(.+)$")
+_CONCURRENCY_CANCEL = re.compile(r"^  cancel-in-progress:\s*true\s*$")
+
+# Workflow-level group must be PR-aware (PR number) with a ref fallback.
+EXPECTED_CONCURRENCY_GROUP = (
+    "golden-cohort-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+)
 
 
 def _job_blocks(text: str) -> dict[str, str]:
@@ -83,6 +90,66 @@ def _job_level_if_text(job_body: str) -> str:
     return "\n".join(collected)
 
 
+def _workflow_level_concurrency_block(text: str) -> str:
+    """Return the top-level ``concurrency:`` mapping, ignoring job-level keys."""
+    collected: list[str] = []
+    capturing = False
+
+    for line in text.replace("\r\n", "\n").splitlines():
+        if not capturing:
+            if line == "concurrency:":
+                capturing = True
+                collected.append(line)
+
+            continue
+
+        if line.startswith("  ") or line.strip() == "":
+            collected.append(line)
+            continue
+
+        break
+
+    return "\n".join(collected)
+
+
+def _concurrency_errors(text: str) -> list[str]:
+    """Require the workflow-level concurrency block, not a substring of the workflow name."""
+    block = _workflow_level_concurrency_block(text)
+    errors: list[str] = []
+
+    if not block:
+        return [
+            "golden-cohort-nightly.yml missing top-level concurrency: block "
+            f"(group: {EXPECTED_CONCURRENCY_GROUP} with cancel-in-progress: true)"
+        ]
+
+    group_value: str | None = None
+    cancel_ok = False
+
+    for line in block.splitlines():
+        group_match = _CONCURRENCY_GROUP.match(line)
+
+        if group_match is not None:
+            group_value = group_match.group(1).strip().strip("\"'")
+
+        if _CONCURRENCY_CANCEL.match(line):
+            cancel_ok = True
+
+    if group_value != EXPECTED_CONCURRENCY_GROUP:
+        errors.append(
+            "golden-cohort-nightly.yml concurrency.group must be "
+            f"{EXPECTED_CONCURRENCY_GROUP} (found {group_value!r})"
+        )
+
+    if not cancel_ok:
+        errors.append(
+            "golden-cohort-nightly.yml concurrency.cancel-in-progress must be true "
+            "on the workflow-level concurrency block"
+        )
+
+    return errors
+
+
 def check_workflow_text(text: str) -> list[str]:
     errors: list[str] = []
 
@@ -95,20 +162,7 @@ def check_workflow_text(text: str) -> list[str]:
     if "cohort-real-llm-gate:" not in text:
         errors.append("golden-cohort-nightly.yml missing cohort-real-llm-gate job")
 
-    expected = (
-        "concurrency:\n"
-        "  group: golden-cohort-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}\n"
-        "  cancel-in-progress: true\n"
-    )
-
-    normalized = text.replace("\r\n", "\n")
-
-    if expected not in normalized:
-        errors.append(
-            "golden-cohort-nightly.yml missing PR-aware concurrency "
-            "(golden-cohort-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }} "
-            "with cancel-in-progress: true)"
-        )
+    errors.extend(_concurrency_errors(text))
 
     blocks = _job_blocks(text)
 
