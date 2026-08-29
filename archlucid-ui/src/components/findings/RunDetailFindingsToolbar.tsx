@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,11 +12,7 @@ import { formatFindingsVisibilitySummaryLine } from "@/lib/findings/finding-conf
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
-import {
-  DEFAULT_FINDING_JOB_VIEW,
-  type FindingJobView,
-} from "@/lib/findings/finding-job-view";
-import { writeFindingJobViewToUrl } from "@/lib/findings/review-findings-job-view-url";
+import type { FindingJobView } from "@/lib/findings/finding-job-view";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
 import {
   severityBadgeLabel,
@@ -29,11 +25,12 @@ import {
   deriveFindingsToolbarStatusCounts,
   deriveOpenRootCauseClusterCount,
   FILTER_OPTIONS,
-  GROUNDING_FILTER_OPTIONS,
-  ORIGIN_FILTER_OPTIONS,
   type RunDetailFindingsFilterKind,
   type RunDetailFindingsSortKind,
 } from "@/components/findings/run-detail-findings-toolbar-presentation";
+
+import { FindingsProvenanceFilters } from "./FindingsProvenanceFilters";
+import { FindingsSortSelect } from "./FindingsSortSelect";
 
 export type {
   RunDetailFindingsFilterKind,
@@ -47,6 +44,7 @@ export {
   filterFindingsForToolbar,
   sortFindingsForToolbar,
 } from "@/components/findings/run-detail-findings-toolbar-presentation";
+export { useRunDetailFindingsToolbarState } from "./use-run-detail-findings-toolbar-state";
 
 export type RunDetailFindingsToolbarLayout = "full" | "compact";
 
@@ -79,86 +77,6 @@ export type RunDetailFindingsToolbarProps = {
   readonly packageCommitted?: boolean;
   readonly onNaturalLanguageFilterApply?: (facets: FindingsNaturalLanguageFacets) => void;
 };
-
-function FindingsSortSelect(props: {
-  readonly id: string;
-  readonly sort: RunDetailFindingsSortKind;
-  readonly onSortChange: (sort: RunDetailFindingsSortKind) => void;
-}): React.JSX.Element {
-  return (
-    <div>
-      <Label htmlFor={props.id} className={OPERATOR_TYPOGRAPHY.helper}>
-        Sort
-      </Label>
-      <select
-        id={props.id}
-        className="mt-1 h-9 w-full rounded-md border border-neutral-200 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
-        value={props.sort}
-        onChange={(event) => {
-          props.onSortChange(event.target.value as RunDetailFindingsSortKind);
-        }}
-      >
-        <option value="trust-then-severity">Trust then severity</option>
-        <option value="severity-desc">Severity (high first)</option>
-        <option value="severity-asc">Severity (low first)</option>
-        <option value="title-asc">Title (AΓÇôZ)</option>
-      </select>
-    </div>
-  );
-}
-
-function FindingsProvenanceFilters(props: {
-  readonly idPrefix: string;
-  readonly originFilter: FindingOriginFilter;
-  readonly onOriginFilterChange: (filter: FindingOriginFilter) => void;
-  readonly groundingFilter: FindingGroundingFilter;
-  readonly onGroundingFilterChange: (filter: FindingGroundingFilter) => void;
-}): React.JSX.Element {
-  return (
-    <>
-      <div>
-        <Label htmlFor={`${props.idPrefix}-origin`} className={OPERATOR_TYPOGRAPHY.helper}>
-          Origin
-        </Label>
-        <select
-          id={`${props.idPrefix}-origin`}
-          className="mt-1 h-9 w-full rounded-md border border-neutral-200 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
-          value={props.originFilter}
-          onChange={(event) => {
-            props.onOriginFilterChange(event.target.value as FindingOriginFilter);
-          }}
-          data-testid={`${props.idPrefix}-origin`}
-        >
-          {ORIGIN_FILTER_OPTIONS.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <Label htmlFor={`${props.idPrefix}-grounding`} className={OPERATOR_TYPOGRAPHY.helper}>
-          Grounding
-        </Label>
-        <select
-          id={`${props.idPrefix}-grounding`}
-          className="mt-1 h-9 w-full rounded-md border border-neutral-200 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
-          value={props.groundingFilter}
-          onChange={(event) => {
-            props.onGroundingFilterChange(event.target.value as FindingGroundingFilter);
-          }}
-          data-testid={`${props.idPrefix}-grounding`}
-        >
-          {GROUNDING_FILTER_OPTIONS.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-    </>
-  );
-}
 
 export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
   const layout = props.layout ?? "full";
@@ -475,61 +393,6 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
       ) : null}
     </div>
   );
-}
-
-export function useRunDetailFindingsToolbarState(options?: {
-  readonly initialJobView?: FindingJobView;
-}): {
-  readonly filter: RunDetailFindingsFilterKind;
-  readonly setFilter: (filter: RunDetailFindingsFilterKind) => void;
-  readonly jobView: FindingJobView;
-  readonly setJobView: (jobView: FindingJobView) => void;
-  readonly ownerFilter: string;
-  readonly setOwnerFilter: (value: string) => void;
-  readonly domainFilter: string;
-  readonly setDomainFilter: (value: string) => void;
-  readonly searchQuery: string;
-  readonly setSearchQuery: (value: string) => void;
-  readonly sort: RunDetailFindingsSortKind;
-  readonly setSort: (sort: RunDetailFindingsSortKind) => void;
-  readonly originFilter: FindingOriginFilter;
-  readonly setOriginFilter: (filter: FindingOriginFilter) => void;
-  readonly groundingFilter: FindingGroundingFilter;
-  readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
-} {
-  const [filter, setFilter] = useState<RunDetailFindingsFilterKind>("all");
-  const [jobView, setJobViewState] = useState<FindingJobView>(
-    options?.initialJobView ?? DEFAULT_FINDING_JOB_VIEW,
-  );
-  const setJobView = useCallback((next: FindingJobView): void => {
-    setJobViewState(next);
-    writeFindingJobViewToUrl(next);
-  }, []);
-  const [ownerFilter, setOwnerFilter] = useState("");
-  const [domainFilter, setDomainFilter] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sort, setSort] = useState<RunDetailFindingsSortKind>("trust-then-severity");
-  const [originFilter, setOriginFilter] = useState<FindingOriginFilter>("all");
-  const [groundingFilter, setGroundingFilter] = useState<FindingGroundingFilter>("all");
-
-  return {
-    filter,
-    setFilter,
-    jobView,
-    setJobView,
-    ownerFilter,
-    setOwnerFilter,
-    domainFilter,
-    setDomainFilter,
-    searchQuery,
-    setSearchQuery,
-    sort,
-    setSort,
-    originFilter,
-    setOriginFilter,
-    groundingFilter,
-    setGroundingFilter,
-  };
 }
 
 export function defaultWorkspaceExpandedForFinding(finding: QuickDecisionFinding): boolean {

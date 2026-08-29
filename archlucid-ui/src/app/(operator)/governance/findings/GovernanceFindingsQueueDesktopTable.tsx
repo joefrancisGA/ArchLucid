@@ -3,17 +3,11 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import type { CSSProperties, ReactElement } from "react";
+import type { ReactElement } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import {
-  EnterpriseTable,
-  EnterpriseTableBody,
-  EnterpriseTableHead,
-  EnterpriseTableHeadRow,
-  EnterpriseTableHeaderCell,
-} from "@/components/ui/enterprise-table";
+import { EnterpriseTable } from "@/components/ui/enterprise-table";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   governanceFindingInspectHref,
@@ -22,7 +16,6 @@ import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
 import {
   GOVERNANCE_FINDINGS_QUEUE_KEYBOARD_HINT_AT,
-  governanceFindingsQueueRecordColumnLabel,
   governanceFindingsQueueTableAriaLabel,
 } from "@/lib/governance/governance-assigned-to-me-queue-copy";
 import {
@@ -32,11 +25,14 @@ import {
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 
 import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
-import { GovernanceFindingsQueueTableRow } from "./GovernanceFindingsQueueTableRow";
 import {
   governanceFindingsQueueRowEstimatePx,
   shouldVirtualizeGovernanceFindingsQueue,
 } from "./governance-findings-queue-virtualization";
+import { GovernanceFindingsQueueTableBody } from "./GovernanceFindingsQueueTableBody";
+import type { GovernanceFindingsQueueTableBodyProps } from "./GovernanceFindingsQueueTableBody";
+import { GovernanceFindingsQueueTableHead } from "./GovernanceFindingsQueueTableHead";
+import { GovernanceFindingsQueueVirtualizedTableBody } from "./GovernanceFindingsQueueVirtualizedTableBody";
 
 export type GovernanceFindingsQueueDesktopTableProps = {
   readonly rows: readonly GovernanceFindingQueueRow[];
@@ -49,276 +45,6 @@ export type GovernanceFindingsQueueDesktopTableProps = {
   readonly isRowNewSinceLastVisit?: (row: GovernanceFindingQueueRow) => boolean;
   readonly onRowOpened?: (row: GovernanceFindingQueueRow) => void;
 };
-
-type GovernanceFindingsQueueTableBodyProps = {
-  readonly rows: readonly GovernanceFindingQueueRow[];
-  readonly buyerPolishedShell: boolean;
-  readonly queueMode: GovernanceFindingsQueueMode;
-  readonly hasBulkSelect: boolean;
-  readonly selectedFindingIds?: ReadonlySet<string>;
-  readonly onToggleRow?: (findingId: string) => void;
-  readonly isRowFocused?: (index: number) => boolean;
-  readonly isRowNewSinceLastVisit?: (row: GovernanceFindingQueueRow) => boolean;
-  readonly onRowOpened?: (row: GovernanceFindingQueueRow) => void;
-  readonly ariaRowCount?: number;
-};
-
-function GovernanceFindingsQueueSortHeaderCell(props: {
-  readonly label: string;
-  readonly sortKey: GovernanceAssignedToMeQueueSortKey;
-  readonly activeSortKey: GovernanceAssignedToMeQueueSortKey;
-  readonly sortAsc: boolean;
-  readonly onSort: (sortKey: GovernanceAssignedToMeQueueSortKey) => void;
-}): ReactElement {
-  const isActive = props.activeSortKey === props.sortKey;
-  const directionLabel = props.sortAsc ? "ascending" : "descending";
-
-  return (
-    <EnterpriseTableHeaderCell>
-      <button
-        type="button"
-        className={cn(
-          "font-inherit text-left font-semibold text-al-text-secondary hover:text-al-text-primary",
-          isActive ? "text-al-text-primary" : undefined,
-        )}
-        aria-label={
-          isActive ? `Sort by ${props.label}, ${directionLabel}` : `Sort by ${props.label}`
-        }
-        onClick={() => {
-          props.onSort(props.sortKey);
-        }}
-      >
-        {props.label}
-        {isActive ? (props.sortAsc ? " ↑" : " ↓") : null}
-      </button>
-    </EnterpriseTableHeaderCell>
-  );
-}
-
-function GovernanceFindingsQueueTableHead(props: {
-  readonly buyerPolishedShell: boolean;
-  readonly queueMode: GovernanceFindingsQueueMode;
-  readonly hasBulkSelect: boolean;
-  readonly allSelected: boolean;
-  readonly someSelected: boolean;
-  readonly onToggleAll: () => void;
-  readonly sticky?: boolean;
-  readonly assignedToMeSortKey?: GovernanceAssignedToMeQueueSortKey;
-  readonly assignedToMeSortAsc?: boolean;
-  readonly onAssignedToMeSort?: (sortKey: GovernanceAssignedToMeQueueSortKey) => void;
-}): ReactElement {
-  const {
-    buyerPolishedShell,
-    queueMode,
-    hasBulkSelect,
-    allSelected,
-    someSelected,
-    onToggleAll,
-    sticky,
-    assignedToMeSortKey = "severity",
-    assignedToMeSortAsc = true,
-    onAssignedToMeSort,
-  } = props;
-  const isAssignedToMe = queueMode === "assigned-to-me";
-
-  return (
-    <EnterpriseTableHead
-      className={
-        sticky
-          ? "sticky top-0 z-[1] bg-al-surface-raised shadow-[0_1px_0_0_rgb(229_229_229)] dark:shadow-[0_1px_0_0_rgb(38_38_38)]"
-          : undefined
-      }
-    >
-      <EnterpriseTableHeadRow>
-        {hasBulkSelect ? (
-          <EnterpriseTableHeaderCell className="w-8">
-            <input
-              type="checkbox"
-              className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-teal-700 dark:border-neutral-600"
-              aria-label={allSelected ? "Deselect all findings" : "Select all findings on this page"}
-              checked={allSelected}
-              ref={(el) => {
-                if (el) {
-                  el.indeterminate = someSelected && !allSelected;
-                }
-              }}
-              onChange={onToggleAll}
-            />
-          </EnterpriseTableHeaderCell>
-        ) : null}
-        {buyerPolishedShell ? (
-          <>
-            <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Record</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Record summary</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Recommended action</EnterpriseTableHeaderCell>
-          </>
-        ) : isAssignedToMe ? (
-          <>
-            <GovernanceFindingsQueueSortHeaderCell
-              label={governanceFindingsQueueRecordColumnLabel(queueMode)}
-              sortKey="title"
-              activeSortKey={assignedToMeSortKey}
-              sortAsc={assignedToMeSortAsc}
-              onSort={(sortKey) => {
-                onAssignedToMeSort?.(sortKey);
-              }}
-            />
-            <GovernanceFindingsQueueSortHeaderCell
-              label="Source review"
-              sortKey="sourceReview"
-              activeSortKey={assignedToMeSortKey}
-              sortAsc={assignedToMeSortAsc}
-              onSort={(sortKey) => {
-                onAssignedToMeSort?.(sortKey);
-              }}
-            />
-            <GovernanceFindingsQueueSortHeaderCell
-              label="Severity"
-              sortKey="severity"
-              activeSortKey={assignedToMeSortKey}
-              sortAsc={assignedToMeSortAsc}
-              onSort={(sortKey) => {
-                onAssignedToMeSort?.(sortKey);
-              }}
-            />
-            <GovernanceFindingsQueueSortHeaderCell
-              label="Due / revisit"
-              sortKey="due"
-              activeSortKey={assignedToMeSortKey}
-              sortAsc={assignedToMeSortAsc}
-              onSort={(sortKey) => {
-                onAssignedToMeSort?.(sortKey);
-              }}
-            />
-            <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-          </>
-        ) : (
-          <>
-            <EnterpriseTableHeaderCell>Risk</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Source review</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Age</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Exception expiry</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Last decision</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-          </>
-        )}
-        <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
-      </EnterpriseTableHeadRow>
-    </EnterpriseTableHead>
-  );
-}
-
-function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBodyProps): ReactElement {
-  const {
-    rows,
-    buyerPolishedShell,
-    queueMode,
-    hasBulkSelect,
-    selectedFindingIds,
-    onToggleRow,
-    isRowFocused,
-    isRowNewSinceLastVisit,
-    onRowOpened,
-    ariaRowCount,
-  } = props;
-
-  return (
-    <EnterpriseTableBody aria-rowcount={ariaRowCount}>
-      {rows.map((row, rowIndex) => (
-        <GovernanceFindingsQueueTableRow
-          key={`${row.runId}:${row.findingId}:table`}
-          row={row}
-          buyerPolishedShell={buyerPolishedShell}
-          queueMode={queueMode}
-          hasBulkSelect={hasBulkSelect}
-          selectedFindingIds={selectedFindingIds}
-          onToggleRow={onToggleRow}
-          isFocused={isRowFocused?.(rowIndex)}
-          showNewSinceLastVisit={isRowNewSinceLastVisit?.(row) ?? false}
-          onOpenRow={() => {
-            onRowOpened?.(row);
-          }}
-        />
-      ))}
-    </EnterpriseTableBody>
-  );
-}
-
-type GovernanceFindingsQueueVirtualizedTableBodyProps = GovernanceFindingsQueueTableBodyProps & {
-  readonly rowVirtualizer: ReturnType<typeof useVirtualizer<HTMLDivElement, Element>>;
-};
-
-function GovernanceFindingsQueueVirtualizedTableBody(
-  props: GovernanceFindingsQueueVirtualizedTableBodyProps,
-): ReactElement {
-  const {
-    rows,
-    buyerPolishedShell,
-    queueMode,
-    hasBulkSelect,
-    selectedFindingIds,
-    onToggleRow,
-    isRowFocused,
-    rowVirtualizer,
-    isRowNewSinceLastVisit,
-    onRowOpened,
-    ariaRowCount,
-  } = props;
-
-  return (
-    <EnterpriseTableBody
-      aria-rowcount={ariaRowCount}
-      style={{
-        height: `${rowVirtualizer.getTotalSize()}px`,
-        position: "relative",
-      }}
-    >
-      {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-        const row = rows[virtualRow.index];
-
-        if (row === undefined) {
-          return null;
-        }
-
-        const rowStyle: CSSProperties = {
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          transform: `translateY(${virtualRow.start}px)`,
-          display: "table",
-          tableLayout: "fixed",
-        };
-
-        return (
-          <GovernanceFindingsQueueTableRow
-            key={`${row.runId}:${row.findingId}:virtual`}
-            row={row}
-            buyerPolishedShell={buyerPolishedShell}
-            queueMode={queueMode}
-            hasBulkSelect={hasBulkSelect}
-            selectedFindingIds={selectedFindingIds}
-            onToggleRow={onToggleRow}
-            isFocused={isRowFocused?.(virtualRow.index)}
-            style={rowStyle}
-            showNewSinceLastVisit={isRowNewSinceLastVisit?.(row) ?? false}
-            onOpenRow={() => {
-              onRowOpened?.(row);
-            }}
-          />
-        );
-      })}
-    </EnterpriseTableBody>
-  );
-}
 
 /** Carbon-style desktop queue for architecture risks and recorded decisions (md+). */
 export function GovernanceFindingsQueueDesktopTable(

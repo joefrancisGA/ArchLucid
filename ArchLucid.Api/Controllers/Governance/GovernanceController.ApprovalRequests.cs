@@ -111,6 +111,11 @@ public sealed partial class GovernanceController
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
 
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -191,6 +196,11 @@ public sealed partial class GovernanceController
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
 
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -268,13 +278,16 @@ public sealed partial class GovernanceController
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (body.ApprovalRequestIds.Count == 0)
+        if (body.ApprovalRequestIds is null || body.ApprovalRequestIds.Count == 0)
             return this.BadRequestProblem("ApprovalRequestIds must contain at least one id.",
                 ProblemTypes.ValidationFailed);
 
         if (body.ApprovalRequestIds.Count > 50)
             return this.BadRequestProblem("At most 50 approval request ids are allowed per request.",
                 ProblemTypes.ValidationFailed);
+
+        if (body.Decision is null)
+            return this.BadRequestProblem("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);
 
         string decision = body.Decision.Trim();
 
@@ -297,20 +310,36 @@ public sealed partial class GovernanceController
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
         List<GovernanceBatchReviewItemResult> results = [];
-        List<string> distinctIds = body.ApprovalRequestIds
-            .Where(static id => !string.IsNullOrWhiteSpace(id))
-            .Select(static id => id.Trim())
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
 
-        if (distinctIds.Count == 0)
+        if (!body.ApprovalRequestIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
         {
             return this.BadRequestProblem(
                 "ApprovalRequestIds must contain at least one non-empty id.",
                 ProblemTypes.ValidationFailed);
         }
 
-        foreach (string approvalRequestId in distinctIds)
+        HashSet<string> processedApprovalRequestIds = new(StringComparer.Ordinal);
+
+        foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
+        {
+            if (string.IsNullOrWhiteSpace(rawApprovalRequestId))
+            {
+                results.Add(
+                    new GovernanceBatchReviewItemResult
+                    {
+                        ApprovalRequestId = rawApprovalRequestId,
+                        Succeeded = false,
+                        ErrorCode = ProblemTypes.ValidationFailed,
+                        Message = "approvalRequestId is required.",
+                    });
+
+                continue;
+            }
+
+            string approvalRequestId = rawApprovalRequestId.Trim();
+
+            if (!processedApprovalRequestIds.Add(approvalRequestId))
+                continue;
 
             try
             {
@@ -337,13 +366,25 @@ public sealed partial class GovernanceController
 
                 if (scopeError is not null)
                 {
+                    string errorCode = ProblemTypes.RunNotFound;
+                    string message = $"Run '{approval.RunId}' was not found.";
+
+                    if (scopeError is ObjectResult { Value: Microsoft.AspNetCore.Mvc.ProblemDetails scopeProblem })
+                    {
+                        if (!string.IsNullOrWhiteSpace(scopeProblem.Type))
+                            errorCode = scopeProblem.Type;
+
+                        if (!string.IsNullOrWhiteSpace(scopeProblem.Detail))
+                            message = scopeProblem.Detail;
+                    }
+
                     results.Add(
                         new GovernanceBatchReviewItemResult
                         {
                             ApprovalRequestId = approvalRequestId,
                             Succeeded = false,
-                            ErrorCode = ProblemTypes.RunNotFound,
-                            Message = $"Run '{approval.RunId}' was not found.",
+                            ErrorCode = errorCode,
+                            Message = message,
                         });
 
                     continue;
@@ -417,6 +458,7 @@ public sealed partial class GovernanceController
                         Message = ex.Message
                     });
             }
+        }
 
         return Ok(new GovernanceBatchReviewResponse { Results = results });
     }

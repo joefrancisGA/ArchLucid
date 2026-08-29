@@ -179,6 +179,12 @@ public sealed class TenantWorkspacesController(
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
+        if (workspaceId == Guid.Empty)
+            return this.BadRequestProblem("workspaceId is required.", ProblemTypes.ValidationFailed);
+
+        if (projectId == Guid.Empty)
+            return this.BadRequestProblem("projectId is required.", ProblemTypes.ValidationFailed);
+
         IReadOnlyList<TenantWorkspaceListItem> workspaces =
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
 
@@ -246,6 +252,12 @@ public sealed class TenantWorkspacesController(
 
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        if (workspaceId == Guid.Empty)
+            return this.BadRequestProblem("workspaceId is required.", ProblemTypes.ValidationFailed);
+
+        if (projectId == Guid.Empty)
+            return this.BadRequestProblem("projectId is required.", ProblemTypes.ValidationFailed);
 
         IReadOnlyList<TenantWorkspaceListItem> workspaces =
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
