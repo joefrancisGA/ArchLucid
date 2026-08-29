@@ -1786,7 +1786,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RealLlmOutputStructuralValidator.ValidateAgentResultStructure` — case-sensitive top-level/finding/trace property lookup rejects PascalCase `AgentResult` envelopes from external LLM tooling — **hit 2026-08-29:** `TryGetPropertyCaseInsensitive` on required keys; regression in `RealLlmOutputStructuralValidatorTests.ValidateAgentResultStructure_accepts_PascalCase_property_names`.
 - [ ] (candidate) `FindingJsonConverter` / `ReadOptionalString` — case-sensitive top-level property names (`agentExecutionTraceId`, `humanReviewStatus`) may miss PascalCase persisted finding snapshots on reload.
 
-2026-08-29 seed hunt #262: proved faithfulness aggregate PascalCase, Service Bus correlationId PascalCase, and golden-corpus AgentResult structural PascalCase; seeded FindingJsonConverter top-level PascalCase candidate.
+2026-08-29 seed hunt #265: proved faithfulness aggregate PascalCase, Service Bus correlationId PascalCase, and golden-corpus AgentResult structural PascalCase; seeded FindingJsonConverter top-level PascalCase candidate.
 
 ---
 
