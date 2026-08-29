@@ -6,6 +6,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { applySchemaOverrides } from "./api-types-schema-overrides.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uiRoot = path.resolve(__dirname, "..");
@@ -30,7 +31,7 @@ function splitMonolith(source) {
 
   const header = source.slice(0, pathsStart).trimEnd();
   const pathsBody = source.slice(pathsStart, componentsStart).trimEnd();
-  const schemasBody = source.slice(componentsStart).trimEnd();
+  const schemasBody = applySchemaOverrides(source.slice(componentsStart).trimEnd());
 
   const schemas = `${header}\n\n${schemasBody}\n`;
   const paths = `${header}\n\nimport type { components } from "./schemas.generated";\n\n${pathsBody}\n`;
@@ -43,7 +44,7 @@ function writeGeneratedFiles() {
 
   execFileSync(
     "npx",
-    ["openapi-typescript", snapshotPath, "-o", tempMonolith],
+    ["--yes", "openapi-typescript@7.6.1", snapshotPath, "-o", tempMonolith],
     { cwd: uiRoot, stdio: "inherit" },
   );
 
