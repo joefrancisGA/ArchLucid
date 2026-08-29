@@ -110,7 +110,7 @@ public sealed partial class PolicyPacksController
             if (!seenRunIds.Add(trimmedRunId))
             {
                 return this.BadRequestProblem(
-                    "RunIds contains a duplicate id.",
+                    "RunIds contains duplicate values.",
                     ProblemTypes.ValidationFailed);
             }
         }
