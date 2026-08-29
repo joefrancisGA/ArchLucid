@@ -1,5 +1,5 @@
 /*
-  Rollback 326_DropUnusedFineTunedModelRegistryEntries.sql —
+  Rollback 335_DropUnusedFineTunedModelRegistryEntries.sql —
   recreate empty table shell (no row restore). Matches 267 CREATE shape.
 */
 
