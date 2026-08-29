@@ -217,9 +217,9 @@ jobs:
             exit 0
           fi
 
-          if [ -z "${{ secrets.AZURE_CLIENT_ID }}" ] || [ -z "${{ secrets.AZURE_TENANT_ID }}" ]; then
+          if [ -z "${{ secrets.AZURE_CLIENT_ID }}" ] || [ -z "${{ secrets.AZURE_TENANT_ID }}" ] || [ -z "${{ secrets.AZURE_SUBSCRIPTION_ID }}" ]; then
             echo "enabled=false" >> "${GITHUB_OUTPUT}"
-            echo "Azure OIDC secrets are empty; cohort-real-llm-gate passes as no-op."
+            echo "Azure OIDC client/tenant/subscription secrets are empty; cohort-real-llm-gate passes as no-op."
             exit 0
           fi
 
