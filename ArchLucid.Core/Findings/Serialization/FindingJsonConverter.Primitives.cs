@@ -33,7 +33,7 @@ public sealed partial class FindingJsonConverter
 
     private static DateTimeOffset? ReadOptionalDateTimeOffset(JsonElement root, string name)
     {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind == JsonValueKind.Null)
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind == JsonValueKind.Null)
             return null;
 
         if (el.ValueKind == JsonValueKind.String &&
