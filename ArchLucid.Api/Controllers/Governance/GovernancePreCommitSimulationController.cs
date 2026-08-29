@@ -65,10 +65,7 @@ public sealed class GovernancePreCommitSimulationController(
         IReadOnlyList<TenantWorkspaceListItem> workspaces =
             await _tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
-        TenantWorkspaceListItem? currentWorkspace =
-            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == workspaceId);
-
-        if (currentWorkspace is null)
+        if (!workspaces.Any(workspace => workspace.WorkspaceId == workspaceId))
         {
             return this.NotFoundProblem(
                 "Workspace was not found for this tenant.",
@@ -76,7 +73,6 @@ public sealed class GovernancePreCommitSimulationController(
         }
 
         return null;
-    }
     // idempotency-posture: dry-run-no-persist
     [HttpGet("checklist/{runId}")]
     [ProducesResponseType(typeof(PreFinalizeChecklistResult), StatusCodes.Status200OK)]
