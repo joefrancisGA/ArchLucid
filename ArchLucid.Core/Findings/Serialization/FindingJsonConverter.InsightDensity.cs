@@ -9,17 +9,17 @@ public sealed partial class FindingJsonConverter
 {
     private static void ReadInsightDensityFields(JsonElement root, Finding finding)
     {
-        if (root.TryGetProperty("insightDensityScore", out JsonElement scoreElement) &&
+        if (TryGetPropertyCaseInsensitive(root, "insightDensityScore", out JsonElement scoreElement) &&
             scoreElement.ValueKind == JsonValueKind.Number &&
             scoreElement.TryGetInt32(out int insightDensityScore))
         {
             finding.InsightDensityScore = insightDensityScore;
         }
 
-        if (root.TryGetProperty("treatment", out JsonElement treatmentElement))
+        if (TryGetPropertyCaseInsensitive(root, "treatment", out JsonElement treatmentElement))
             finding.Treatment = ReadTreatment(treatmentElement);
 
-        if (root.TryGetProperty("classification", out JsonElement classificationElement))
+        if (TryGetPropertyCaseInsensitive(root, "classification", out JsonElement classificationElement))
             finding.Classification = ReadClassification(classificationElement);
 
         finding.WhyThisIsNotGeneric = ReadOptionalString(root, "whyThisIsNotGeneric");

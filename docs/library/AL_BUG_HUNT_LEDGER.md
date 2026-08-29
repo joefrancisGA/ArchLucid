@@ -1755,11 +1755,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 16
-- **bugs-found:** 29
+- **hunts:** 19
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — `FindingJsonConverter.ReadStringDictValue` coerced boolean `properties` tokens to empty strings, dropping flag values on snapshot reload
+- **last-bug:** 2026-08-29 — `RealLlmOutputStructuralValidator` case-sensitive property lookup rejected PascalCase `AgentResult` envelopes at the golden-cohort structural gate
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1800,8 +1800,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadStringDict` calls `GetString()` on numeric `properties` tokens and aborts full finding deserialize — **hit 2026-08-29 (#225):** coerce number tokens to invariant strings and preserve sibling string entries (`Deserialize_properties_numeric_values_preserve_string_entries`).
 - [x] (proven) `FindingJsonConverter.ReadStringDictValue` coerces boolean `properties` tokens to empty strings — **hit 2026-08-29 (#229):** `{"flag":true}` hydrated as `""`, losing downstream property lookups; fixed with invariant boolean string coercion (`Deserialize_properties_boolean_values_preserve_invariant_string`).
 - [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` accepts undefined legacy status strings via bare `Enum.TryParse` without `Enum.IsDefined` — **cheap-disproof 2026-08-29 (#229):** `TryParseStatus` already guards with `Enum.IsDefined`; numeric-string `"99"` returns false (`TryParseStatus_rejects_undefined_numeric_string_ordinals`).
-- [x] (valid-no-repro) `RealLlmOutputStructuralValidator.ValidateAgentResultStructure` requires camelCase `agentType` top-level key — doc states camelCase contract serializer output; PascalCase `AgentType` is out of scope for golden-corpus structural checks.
+- [x] (proven) `FindingJsonConverter.Read` case-sensitive on `findingSchemaVersion`, `relatedNodeIds`, `properties`, `treatment`, `payloadType`, `payload`, and `trace` — PascalCase exporter labels silently default or drop on snapshot reload — **hit 2026-08-29 (#255):** `TryGetPropertyCaseInsensitive` on structure fields (`Deserialize_pascal_case_findingSchemaVersion_maps_version`, `Deserialize_pascal_case_relatedNodeIds_maps_list`, `Deserialize_pascal_case_properties_bag_maps_entries`, `Deserialize_pascal_case_treatment_maps_demote_to_checklist`, `Deserialize_pascal_case_payloadType_and_payload_map_typed_payload`, `Deserialize_pascal_case_trace_maps_source_agent_execution_trace_id`).
+- [x] (proven) `FindingJsonConverter.Read` case-sensitive on `enforcementTier`, `humanReviewStatus`, and sibling scalar tokens — PascalCase labels silently default on reload — **hit 2026-08-29 (#255):** case-insensitive lookup on scalar fields (`Deserialize_pascal_case_enforcementTier_maps_advisory`, `Deserialize_pascal_case_humanReviewStatus_maps_pending`).
+- [x] (proven) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` tokens failed `GetString()` instead of coercing — **hit 2026-08-29 (#255):** `TryGetInt64` coercion (`Deserialize_numeric_agentExecutionTraceId_coerces_to_string`).
+- [x] (valid-no-repro) `RealLlmOutputStructuralValidator.ValidateAgentResultStructure` requires camelCase `agentType` top-level key — superseded by hunt **#259** proof below; prior cheap-disproof assumed contract serializer output only.
+- [x] (proven) `RealLlmOutputStructuralValidator` case-sensitive on `agentType`, `findings`, and nested `trace` fields — PascalCase LLM output envelopes failed structural validation despite valid shape — **hit 2026-08-29 (#259):** `TryGetPropertyCaseInsensitive` on top-level keys, findings, trace lists, severity, and content fields (`ValidateAgentResultStructure_accepts_PascalCase_property_names`).
 - [ ] (candidate) `DecisionConfidenceSourceMapper.ToBuyerLabel(string?)` numeric-string ordinals — `TryParse` without `Enum.IsDefined`; cheap-disproof: undefined `"99"` maps to buyer `Unknown` via switch default, not a raw ordinal leak.
+- [ ] (candidate) `GoldenCorpus` aggregate JSON readers outside `FindingJsonConverter` / `RealLlmOutputStructuralValidator` — additional case-sensitive property lookups may drop exporter PascalCase labels on reload paths.
+
+2026-08-29 seed hunt #259 (supersedes #750): re-shipped #255/#257 fixes on master; proved `RealLlmOutputStructuralValidator` PascalCase envelope parse; narrowed golden-corpus reader candidate backlog.
+
+2026-08-29 seed hunt #257: re-shipped #255 `FindingJsonConverter` fixes; proved `RunExplanationConfidenceCalloutBuilder` PascalCase aggregate parse (folded as #217 on consolidation branch).
+
+2026-08-29 seed hunt #255: proved `FindingJsonConverter` PascalCase structure/scalar parse and numeric `agentExecutionTraceId` coercion.
 
 2026-08-29 seed hunt #229 (supersedes #710): proved boolean properties-bag coercion; cheap-disproved legacy run-status candidate; hunts #223–#227 carry otherwise folded via #216/#219/#221/#225/#708.
 

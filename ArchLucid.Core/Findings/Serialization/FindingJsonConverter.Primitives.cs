@@ -16,7 +16,7 @@ public sealed partial class FindingJsonConverter
     /// </summary>
     private static ExplainabilityTrace ReadTrace(JsonElement root, JsonSerializerOptions options, Finding finding)
     {
-        if (!root.TryGetProperty("trace", out JsonElement tr))
+        if (!TryGetPropertyCaseInsensitive(root, "trace", out JsonElement tr))
             return new ExplainabilityTrace();
         try
         {
@@ -33,8 +33,11 @@ public sealed partial class FindingJsonConverter
 
     private static string? ReadOptionalString(JsonElement root, string name)
     {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind is JsonValueKind.Null)
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind is JsonValueKind.Null)
             return null;
+
+        if (el.ValueKind == JsonValueKind.Number && el.TryGetInt64(out long numeric))
+            return numeric.ToString(CultureInfo.InvariantCulture);
 
         return el.GetString();
     }
@@ -53,7 +56,7 @@ public sealed partial class FindingJsonConverter
 
     private static List<string> ReadStringList(JsonElement root, string name)
     {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Array)
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind != JsonValueKind.Array)
             return [];
 
         return el.EnumerateArray().Select(e => e.GetString() ?? "").Where(s => s.Length > 0).ToList();
@@ -61,7 +64,7 @@ public sealed partial class FindingJsonConverter
 
     private static Dictionary<string, string> ReadStringDict(JsonElement root, string name)
     {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Object)
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind != JsonValueKind.Object)
             return new Dictionary<string, string>();
         Dictionary<string, string> d = new(StringComparer.OrdinalIgnoreCase);
 
@@ -83,5 +86,22 @@ public sealed partial class FindingJsonConverter
             return element.GetBoolean().ToString(CultureInfo.InvariantCulture);
 
         return "";
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+
+                return true;
+            }
+        }
+
+        value = default;
+
+        return false;
     }
 }
