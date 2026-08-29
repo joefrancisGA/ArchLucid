@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
+- **last-hunt:** 2026-08-29
+- **last-bug:** 2026-08-29 — PascalCase faithfulness aggregate JSON, Service Bus correlationId, and AgentResult structural validator
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1781,6 +1781,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — case-sensitive `TryGetProperty` on faithfulness fields drops PascalCase aggregate JSON → `ResolveDisposition` returns PASS instead of HOLD/WARN — **hit 2026-08-29:** case-insensitive lookup for ratio, fallback, warning, citations; regression in `RunExplanationConfidenceCalloutBuilderTests.FromAggregateJson_maps_PascalCase_faithfulness_fields`.
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` — case-sensitive `correlationId` misses PascalCase `"CorrelationId"` while sibling `IntegrationEventServiceBusApplicationProperties` already uses case-insensitive lookup — **hit 2026-08-29:** `TryGetStringPropertyCaseInsensitive`; regression in `IntegrationEventServiceBusCorrelationIdTests.TryResolveForPublish_reads_PascalCase_correlationId_from_payload_when_activity_unset`.
+- [x] (proven) `RealLlmOutputStructuralValidator.ValidateAgentResultStructure` — case-sensitive top-level/finding/trace property lookup rejects PascalCase `AgentResult` envelopes from external LLM tooling — **hit 2026-08-29:** `TryGetPropertyCaseInsensitive` on required keys; regression in `RealLlmOutputStructuralValidatorTests.ValidateAgentResultStructure_accepts_PascalCase_property_names`.
+- [ ] (candidate) `FindingJsonConverter` / `ReadOptionalString` — case-sensitive top-level property names (`agentExecutionTraceId`, `humanReviewStatus`) may miss PascalCase persisted finding snapshots on reload.
+
+2026-08-29 seed hunt #262: proved faithfulness aggregate PascalCase, Service Bus correlationId PascalCase, and golden-corpus AgentResult structural PascalCase; seeded FindingJsonConverter top-level PascalCase candidate.
 
 ---
 

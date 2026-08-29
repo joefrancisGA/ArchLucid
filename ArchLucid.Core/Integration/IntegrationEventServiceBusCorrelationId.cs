@@ -46,12 +46,8 @@ public static class IntegrationEventServiceBusCorrelationId
         {
             using JsonDocument doc = JsonDocument.Parse(payloadUtf8);
 
-            if (!doc.RootElement.TryGetProperty("correlationId", out JsonElement correlationEl))
-                return null;
-
-            string? correlationId = correlationEl.GetString();
-
-            if (string.IsNullOrWhiteSpace(correlationId))
+            if (!TryGetStringPropertyCaseInsensitive(doc.RootElement, "correlationId", out string? correlationId)
+                || string.IsNullOrWhiteSpace(correlationId))
                 return null;
 
             return Trim(correlationId);
@@ -60,5 +56,22 @@ public static class IntegrationEventServiceBusCorrelationId
         {
             return null;
         }
+    }
+
+    private static bool TryGetStringPropertyCaseInsensitive(JsonElement root, string propertyName, out string? value)
+    {
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value.GetString();
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
     }
 }
