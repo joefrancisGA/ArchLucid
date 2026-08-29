@@ -19,11 +19,25 @@ class TestDemoBatch5Dt(unittest.TestCase):
         self.assertNotIn("Audit trail complete — review package finalized", text)
 
     def test_review_detail_finalize_anchor_targets_header(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
-        text = path.read_text(encoding="utf-8")
+        guidance_path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
+        exports_path = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "reviews"
+            / "[reviewId]"
+            / "_sections"
+            / "RunDetailArtifactsExportsSection.tsx"
+        )
+        guidance_text = guidance_path.read_text(encoding="utf-8")
+        exports_text = exports_path.read_text(encoding="utf-8")
 
-        self.assertIn('href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR', text)
-        self.assertNotIn('href: "#run-actions"', text)
+        self.assertIn('export const BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR = "#finalize-review"', guidance_text)
+        self.assertIn("href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", exports_text)
+        self.assertNotIn('href: "#run-actions"', guidance_text)
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor" / "sponsor-roi-kpi-display.ts"
