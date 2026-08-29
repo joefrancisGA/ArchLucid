@@ -2549,7 +2549,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-27 thorough hunt #164: proved pre-commit simulation foreign-workspace preflight gap via shared `RequireTenantOrNotFoundAsync` upgrade.
 
-2026-08-27 thorough hunt #163: proved governance-controller workflow foreign-workspace preflight gap via shared `RequireTenantOrNotFoundAsync` upgrade.
+2026-08-27 thorough hunt #167: proved governance-controller workflow foreign-workspace preflight gap via shared `RequireTenantOrNotFoundAsync` upgrade.
 
 2026-08-27 seed hunt #162: proved manifests-controller foreign-workspace preflight gap; reseeded governance-controller workflow, pre-commit simulation, integrations-ops, and LLM-cost-reporting ghost-workspace candidates.
 
