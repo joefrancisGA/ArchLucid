@@ -77,6 +77,8 @@ public sealed class GovernanceWorkflowActivateStage(
         if (!IsKnownEnvironment(environment))
             throw new ArgumentException("Environment must be one of: dev, test, prod.", nameof(environment));
 
+        environment = environment.ToLowerInvariant();
+
         ArchitectureRunDetail runDetail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
 
