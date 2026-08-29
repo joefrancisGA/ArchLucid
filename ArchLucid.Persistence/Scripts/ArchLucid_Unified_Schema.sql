@@ -8886,3 +8886,47 @@ BEGIN
 
     EXEC sp_executesql @knowledgeModelRunSql;
 END
+GO
+
+/* 334: Platform operational error log. */
+IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PlatformOperationalErrors
+    (
+        PlatformOperationalErrorId BIGINT IDENTITY(1,1) NOT NULL,
+        ErrorId                    NVARCHAR(64)         NOT NULL,
+        Category                   NVARCHAR(128)        NOT NULL,
+        Source                     NVARCHAR(256)        NULL,
+        Message                    NVARCHAR(4000)       NOT NULL,
+        DetailsJson                NVARCHAR(MAX)        NULL,
+        CreatedUtc                 DATETIME2            NOT NULL,
+        ResolvedUtc                DATETIME2            NULL,
+        CONSTRAINT PK_PlatformOperationalErrors PRIMARY KEY CLUSTERED (PlatformOperationalErrorId)
+    );
+END
+GO
+
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = N'IX_PlatformOperationalErrors_ErrorId'
+      AND object_id = OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U')
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_PlatformOperationalErrors_ErrorId
+        ON dbo.PlatformOperationalErrors (ErrorId);
+END
+GO
+
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = N'IX_PlatformOperationalErrors_CreatedUtc'
+      AND object_id = OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U')
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_PlatformOperationalErrors_CreatedUtc
+        ON dbo.PlatformOperationalErrors (CreatedUtc);
+END
