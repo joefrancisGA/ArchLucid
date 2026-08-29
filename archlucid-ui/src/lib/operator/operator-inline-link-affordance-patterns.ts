@@ -41,7 +41,7 @@ export const OPERATOR_INLINE_LINK_OWN_CHROME_TOKENS = [
   "MARKETING_PUBLIC_NAV_LINK_CLASS",
   "DESIGN_TOKENS.interactive.chip",
   "DESIGN_TOKENS.interactive.navActive",
-  "DESIGN_TOKENS.card",
+  "DESIGN_TOKENS.surface.card",
   "OPERATOR_BUTTON_COMPACT_CLASS",
   // Shared helpers that stamp button, badge, or icon-trigger chrome onto an anchor.
   "buttonVariants",
