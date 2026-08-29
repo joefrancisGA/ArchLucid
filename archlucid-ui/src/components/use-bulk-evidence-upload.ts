@@ -42,24 +42,27 @@ export function useBulkEvidenceUpload(
   const isMaxFilesBlocked = error?.kind === "max-files";
 
   const handleFiles = (selectedFiles: FileList | File[]) => {
-    setError(null);
     setUploadSummary(null);
 
     const newFiles = Array.from(selectedFiles);
-    const totalFiles = files.length + newFiles.length;
 
-    if (totalFiles > BULK_EVIDENCE_UPLOAD_MAX_FILES) {
-      const excess = totalFiles - BULK_EVIDENCE_UPLOAD_MAX_FILES;
+    setFiles((prev) => {
+      const totalFiles = prev.length + newFiles.length;
 
-      setError({
-        kind: "max-files",
-        userMessage: `Maximum ${BULK_EVIDENCE_UPLOAD_MAX_FILES} files per upload. Please remove ${excess} files or upload in multiple batches.`,
-      });
+      if (totalFiles > BULK_EVIDENCE_UPLOAD_MAX_FILES) {
+        const excess = totalFiles - BULK_EVIDENCE_UPLOAD_MAX_FILES;
 
-      return;
-    }
+        setError({
+          kind: "max-files",
+          userMessage: `Maximum ${BULK_EVIDENCE_UPLOAD_MAX_FILES} files per upload. Please remove ${excess} files or upload in multiple batches.`,
+        });
 
-    setFiles((prev) => [...prev, ...newFiles]);
+        return prev;
+      }
+
+      setError(null);
+      return [...prev, ...newFiles];
+    });
   };
 
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
