@@ -10,7 +10,9 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 335_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 334_*.sql (excluding Rollback/).
+    Note: migration 335-era operational-errors objects are not represented in this generated artifact
+    until the corresponding DDL is restored to the unified schema source and the file is regenerated.
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
