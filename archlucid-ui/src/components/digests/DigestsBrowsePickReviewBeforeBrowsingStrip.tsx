@@ -36,7 +36,7 @@ export function DigestsBrowsePickReviewBeforeBrowsingStrip(
         Pick a review before browsing digests
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Digest history is easiest to interpret against a finalized review package. Choose one to keep
+        Digest history is easiest to interpret against a finalized architecture package. Choose one to keep
         browse context aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -51,7 +51,7 @@ export function DigestsBrowsePickReviewBeforeBrowsingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="digests-browse-pick-review-before-browsing"
           hideFieldHelper
         />
