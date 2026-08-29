@@ -6,6 +6,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Contracts.Alerts.Composite;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Models;
@@ -28,7 +29,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchLucid.Decisioning.Tests;
+namespace ArchLucid.Application.Tests.Advisory;
 
 /// <summary>
 /// Tests for Advisory Scan Runner.

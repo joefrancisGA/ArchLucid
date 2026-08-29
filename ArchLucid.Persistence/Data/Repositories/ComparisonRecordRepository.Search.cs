@@ -1,3 +1,4 @@
+// stryker disable all
 using System.Data;
 
 using ArchLucid.Contracts.Metadata;

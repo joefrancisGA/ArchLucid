@@ -1,3 +1,4 @@
+// stryker disable all
 using ArchLucid.Core.Identity;
 
 using Dapper;

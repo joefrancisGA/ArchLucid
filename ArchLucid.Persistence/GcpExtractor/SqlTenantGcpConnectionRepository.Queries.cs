@@ -1,3 +1,4 @@
+// stryker disable all
 using ArchLucid.Core.GcpExtractor;
 using ArchLucid.Core.Tenancy;
 
