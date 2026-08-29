@@ -25,7 +25,7 @@ export function GraphViewerSelectionSettings({
   onToggleAdvanced,
   edgeInferenceThreshold,
   onEdgeInferenceThresholdChange,
-}: GraphViewerSelectionSettingsProps): React.ReactElement {
+}: GraphViewerSelectionSettingsProps): JSX.Element {
   return (
     <>
       {interactiveSurfaceReady ? (
