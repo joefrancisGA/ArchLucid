@@ -48,7 +48,7 @@ export function DecisionRegisterPickReviewBeforeFilteringStrip(
         Pick a review before filtering
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Scope the decision register to one review package so category, confidence, and date filters stay aligned
+        Scope the decision register to one architecture package so category, confidence, and date filters stay aligned
         with governance context.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -63,7 +63,7 @@ export function DecisionRegisterPickReviewBeforeFilteringStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="decision-register-pick-review-before-filtering"
           hideFieldHelper
         />

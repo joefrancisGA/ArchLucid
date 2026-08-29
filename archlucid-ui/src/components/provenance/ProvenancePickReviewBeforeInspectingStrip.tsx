@@ -36,7 +36,7 @@ export function ProvenancePickReviewBeforeInspectingStrip(
         Pick a review before inspecting provenance
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Provenance graphs are scoped to a review package. Choose one to load linkage, timeline, and tables.
+        Provenance graphs are scoped to a architecture package. Choose one to load linkage, timeline, and tables.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -50,7 +50,7 @@ export function ProvenancePickReviewBeforeInspectingStrip(
           committedOnly={false}
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="provenance-pick-review-before-inspecting"
           hideFieldHelper
         />

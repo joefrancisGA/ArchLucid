@@ -34,7 +34,7 @@ export function ScorecardReviewPickerStrip(props: ScorecardReviewPickerStripProp
         Pick a review before scoring
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Scorecard metrics are scoped to one review package. Choose a review to keep savings previews aligned.
+        Scorecard metrics are scoped to one architecture package. Choose a review to keep savings previews aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -48,7 +48,7 @@ export function ScorecardReviewPickerStrip(props: ScorecardReviewPickerStripProp
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="scorecard-review-picker"
           hideFieldHelper
         />

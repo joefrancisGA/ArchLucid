@@ -63,7 +63,7 @@ export function ImpactPreviewPickReviewBeforeSimulatingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="impact-preview-pick-review-before-simulating"
           hideFieldHelper
         />
