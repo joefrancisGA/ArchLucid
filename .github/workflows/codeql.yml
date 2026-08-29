@@ -15,8 +15,10 @@ env:
   ARCHLUCID_UI_DIR: archlucid-ui
 
 concurrency:
-  # Only the newest CodeQL run for a ref matters. Cancel stale work so trunk churn cannot
-  # consume runner capacity on superseded commits.
+  # Per-ref, cancel superseded runs. This replaces the 2026-08-27 per-SHA groups
+  # (`codeql-${{ github.sha }}`, cancel-in-progress: false) that analyzed every
+  # commit but filled the Actions queue. Trade-off: latest trunk/manual ref wins;
+  # intermediate SHAs may never finish. See CODEQL_TRIAGE.md.
   group: codeql-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
