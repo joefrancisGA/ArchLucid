@@ -52,10 +52,7 @@ public static class MarketplaceWebhookPayloadParser
             if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            if (!TryReadStringOrNumberToken(property.Value, out value))
-                value = null;
-
-            return true;
+            return TryReadStringOrNumberToken(property.Value, out value);
         }
 
         value = null;
