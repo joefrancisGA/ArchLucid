@@ -207,6 +207,13 @@ public sealed partial class RunsController
                     "Each item must include ExtractedAnswer with at least 3 characters.",
                     ProblemTypes.ValidationFailed);
             }
+
+            if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(item.ExtractedAnswer))
+            {
+                return this.BadRequestProblem(
+                    $"Each item ExtractedAnswer must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
         }
 
         RephraseClarificationAnswersResponse response =

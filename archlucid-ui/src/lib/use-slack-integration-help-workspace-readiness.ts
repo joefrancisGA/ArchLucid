@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { listAlertRoutingSubscriptions } from "@/lib/api";
 import { readActiveWorkspaceScopeLabel } from "@/lib/active-workspace-scope-label";
@@ -40,12 +40,20 @@ const INITIAL_SNAPSHOT: Omit<SlackIntegrationHelpWorkspaceReadinessSnapshot, "re
 
 export function useSlackIntegrationHelpWorkspaceReadiness(): SlackIntegrationHelpWorkspaceReadinessSnapshot {
   const [snapshot, setSnapshot] = useState(INITIAL_SNAPSHOT);
+  const activeRequestRef = useRef(0);
 
   const reload = useCallback(() => {
+    const requestId = activeRequestRef.current + 1;
+    activeRequestRef.current = requestId;
+
     setSnapshot((current) => ({ ...current, loading: true, loadFailed: false, loadForbidden: false }));
 
     void listAlertRoutingSubscriptions()
       .then((data) => {
+        if (activeRequestRef.current !== requestId) {
+          return;
+        }
+
         const slackRows = data.filter((row) => row.channelType === SLACK_CHANNEL_TYPE);
         const activeDestinationCount = slackRows.filter((row) => row.isEnabled === true).length;
         const workspaceScopeLabel = readActiveWorkspaceScopeLabel();
@@ -62,6 +70,10 @@ export function useSlackIntegrationHelpWorkspaceReadiness(): SlackIntegrationHel
         });
       })
       .catch((error: unknown) => {
+        if (activeRequestRef.current !== requestId) {
+          return;
+        }
+
         if (isApiRequestError(error) && error.httpStatus === 403) {
           setSnapshot({
             loading: false,
@@ -92,6 +104,10 @@ export function useSlackIntegrationHelpWorkspaceReadiness(): SlackIntegrationHel
 
   useEffect(() => {
     reload();
+
+    return () => {
+      activeRequestRef.current += 1;
+    };
   }, [reload]);
 
   return { ...snapshot, reload };
