@@ -93,6 +93,7 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.BadRequest);
 
         // Reject year-1 / unspecified defaults ΓÇö OpenAPI date-time + Schemathesis reject "0001-01-01T00:00:00".
+
         if (fromUtc.Year < 1970 || toUtc.Year < 1970)
             return this.BadRequestProblem(
                 "fromUtc and toUtc must be on or after 1970-01-01.",
@@ -145,6 +146,11 @@ public sealed partial class GovernanceController
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
 
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
+
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
             .ConfigureAwait(false);
@@ -189,6 +195,11 @@ public sealed partial class GovernanceController
             return tenantProblem;
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
