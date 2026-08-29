@@ -41,19 +41,23 @@ export function tryRenderMarketingAccessibilityMarkdownHeading(
   if (ctx.line.startsWith("## ") && !ctx.line.startsWith("###")) {
     const rawTitle = ctx.line.slice(3).trim();
     const { id: sectionId, title } = resolveHelpHeadingId(rawTitle, ctx.allocateSectionSlug);
-    const stateUpdate: MarkdownHeadingStateUpdate = {
-      currentSubsectionTitle: "",
-    };
-
-    if (title === CAIQ_SIG_RESPONSE_LITE_PART_HEADING) {
-      stateUpdate.currentPartLabel = CAIQ_SIG_RESPONSE_LITE_PART_HEADING;
-      stateUpdate.currentSectionTitle = title;
-    } else if (title === CAIQ_SIG_RESPONSE_SIG_PART_HEADING) {
-      stateUpdate.currentPartLabel = CAIQ_SIG_RESPONSE_SIG_PART_HEADING;
-      stateUpdate.currentSectionTitle = title;
-    } else {
-      stateUpdate.currentSectionTitle = title;
-    }
+    const stateUpdate: MarkdownHeadingStateUpdate =
+      title === CAIQ_SIG_RESPONSE_LITE_PART_HEADING
+        ? {
+            currentPartLabel: CAIQ_SIG_RESPONSE_LITE_PART_HEADING,
+            currentSectionTitle: title,
+            currentSubsectionTitle: "",
+          }
+        : title === CAIQ_SIG_RESPONSE_SIG_PART_HEADING
+          ? {
+              currentPartLabel: CAIQ_SIG_RESPONSE_SIG_PART_HEADING,
+              currentSectionTitle: title,
+              currentSubsectionTitle: "",
+            }
+          : {
+              currentSectionTitle: title,
+              currentSubsectionTitle: "",
+            };
 
     return {
       node: ctx.isPrivacy ? (
@@ -95,16 +99,16 @@ export function tryRenderMarketingAccessibilityMarkdownHeading(
   if (ctx.line.startsWith("### ")) {
     const rawTitle = ctx.line.slice(4).trim();
     const { id: sectionId, title } = resolveHelpHeadingId(rawTitle, ctx.allocateSectionSlug);
-    const stateUpdate: MarkdownHeadingStateUpdate = {};
-
-    if (ctx.isCaiqSigResponse) {
-      stateUpdate.currentSectionTitle = title;
-    } else if (ctx.isHelp) {
-      stateUpdate.currentSubsectionTitle = title;
-      stateUpdate.currentProcurementQuestionNumber = ctx.isProcurementHelp
-        ? parseProcurementFaqQuestionNumber(title)
-        : null;
-    }
+    const stateUpdate: MarkdownHeadingStateUpdate = ctx.isCaiqSigResponse
+      ? { currentSectionTitle: title }
+      : ctx.isHelp
+        ? {
+            currentSubsectionTitle: title,
+            currentProcurementQuestionNumber: ctx.isProcurementHelp
+              ? parseProcurementFaqQuestionNumber(title)
+              : null,
+          }
+        : {};
 
     return {
       node: ctx.isPrivacy ? (
