@@ -174,6 +174,7 @@ public static class RealLlmOutputStructuralValidator
                 }
 
                 // Severity must be a non-empty string — a blank severity indicates a hollow or truncated finding.
+
                 if (!TryGetPropertyCaseInsensitive(finding, "severity", out JsonElement severityEl)
                     || severityEl.ValueKind != JsonValueKind.String
                     || string.IsNullOrWhiteSpace(severityEl.GetString()))
