@@ -1752,13 +1752,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-<<<<<<< HEAD
-- **hunts:** 18
-- **bugs-found:** 38
-=======
-- **hunts:** 17
-- **bugs-found:** 33
->>>>>>> 49418c406a (Fix PascalCase list/properties/treatment lookup in FindingJsonConverter (hunt #247).)
+- **hunts:** 19
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
 - **last-bug:** 2026-08-28 — `FindingJsonConverter.ReadStringList` / `ReadStringDict` / insight-density fields ignored PascalCase property names
