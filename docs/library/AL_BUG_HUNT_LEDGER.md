@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 90
-- **bugs-found:** 253
+- **hunts:** 91
+- **bugs-found:** 256
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — decision-register filter validation, manifest summary maxRelationships bounds, pre-commit syntheticCount cap
+- **last-bug:** 2026-08-29 — buyerConfidenceSource validation, drift-trend bucket cap, deferred revisit future guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2511,10 +2511,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — inverted `minConfidence`/`maxConfidence` returned HTTP 200 empty register instead of HTTP 400 — **hit 2026-08-29:** controller rejects min > max before SQL filter construction; regression in `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_min_confidence_exceeds_max_confidence`.
 - [x] (proven) `ManifestsController.GetManifestSummary` — `maxRelationships <= 0` or above `ManifestSummaryLimits.MaxRelationships` silently clamped via `Math.Clamp` instead of HTTP 400 — **hit 2026-08-29:** explicit query bounds (stickiness `maxRows` parity); regression in `ManifestsControllerTests`.
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — `syntheticCount > 500` reached `PreCommitGovernanceGate` O(n) loop despite DTO `[Range(0,500)]` because controller only guarded negatives — **hit 2026-08-29:** explicit upper-bound check before scoped-run preflight; regression in `GovernancePreCommitSimulationControllerTests.Simulate_returns_bad_request_when_synthetic_count_exceeds_five_hundred`.
-- [ ] (candidate) `GovernanceController.DryRunPolicyPack` — `pageSize`/`page` silently clamped in `PolicyPackDryRunService` instead of HTTP 400 (may be intentional Q38 server-clamp contract).
-- [ ] (candidate) `GovernanceStickinessController.GetDecisionRegister` — unknown `buyerConfidenceSource` label filters to `Unknown`/`NotComputed` only instead of HTTP 400.
-- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` — `Deferred` disposition with past `revisitDueUtc` persists without future-date validation (risk-exception renew enforces future expiry).
-- [ ] (candidate) `GovernanceController.GetComplianceDriftTrend` — wide date window with minimum `bucketMinutes` can request unbounded bucket iteration before service call.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — unknown `buyerConfidenceSource` label filters to `Unknown`/`NotComputed` only instead of HTTP 400 — **hit 2026-08-29:** `ValidateBuyerConfidenceSource`; regression in `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_buyer_confidence_source_is_unknown`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `FindingDispositionValidation` — `Deferred` disposition with past `revisitDueUtc` persists without future-date validation — **hit 2026-08-29:** require future revisit date (risk-exception expiry parity); regression in `FindingDispositionValidationTests.Validate_deferred_disposition_rejects_past_revisit_due_date`.
+- [x] (proven) `GovernanceController.GetComplianceDriftTrend` — wide date window with minimum `bucketMinutes` can request unbounded bucket iteration before service call — **hit 2026-08-29:** reject when computed bucket count exceeds 500 before service call; regression in `GovernanceControllerDashboardTests.GetComplianceDriftTrend_returns_bad_request_when_bucket_count_exceeds_five_hundred`.
+- [x] (invalid) `GovernanceController.DryRunPolicyPack` — `pageSize`/`page` silently clamped instead of HTTP 400 — **cheap-disproof 2026-08-29:** intentional owner Q38 server clamp in `IPolicyPackDryRunService` / `PolicyPackDryRunService` and UI tests.
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — non-GUID `runId` returns HTTP 400 while governance run-history endpoints return 404 for parse failures — may be intentional API-shape difference; needs product confirmation before promotion.
+
+2026-08-29 seed hunt #170: reseeded decision-register/manifest-summary/drift-trend/deferred-revisit candidates; proved buyerConfidenceSource, drift bucket cap, and deferred revisit guards; cheap-disproved dry-run page clamp (Q38); seeded pre-finalize checklist run-id status-code parity candidate.
 
 2026-08-29 seed hunt #168: proved decision-register inverted filters, manifest summary `maxRelationships` bounds, and pre-commit `syntheticCount` upper cap; seeded dry-run pagination, buyer-confidence label, disposition revisit, and drift-trend bucket candidates.
 

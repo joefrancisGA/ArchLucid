@@ -101,6 +101,18 @@ public sealed partial class GovernanceController
         if (bucketMinutes is < 60 or > 43_200)
             return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
 
+        DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
+        DateTime toUtcNormalized = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
+
+        int bucketCount = (int)Math.Ceiling((toUtcNormalized - fromUtcNormalized).TotalMinutes / bucketMinutes);
+
+        if (bucketCount > ComplianceDriftTrendMaxBuckets)
+        {
+            return this.BadRequestProblem(
+                $"The requested window produces {bucketCount} trend buckets; at most {ComplianceDriftTrendMaxBuckets} are allowed. Narrow the date range or increase bucketMinutes.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -108,9 +120,6 @@ public sealed partial class GovernanceController
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
-
-        DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
-        DateTime toUtcNormalized = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
 
         IReadOnlyList<ComplianceDriftTrendPoint> points = await _complianceDriftTrendService.GetTrendAsync(
             scope.TenantId,
