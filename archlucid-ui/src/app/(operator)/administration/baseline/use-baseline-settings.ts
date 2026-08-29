@@ -66,7 +66,7 @@ export type UseBaselineSettingsResult = {
   readonly saveDisabledReason: WhyDisabledCtaReason | null;
   readonly hasSavedBaseline: boolean;
   readonly baselineSaveSteps: readonly IntegrationConnectChecklistStep[];
-  readonly baselineSaveEmphasizedStepId: string | undefined;
+  readonly baselineSaveEmphasizedStepId: string;
   readonly noteWouldBeDroppedOnSave: boolean;
   readonly onSave: (event: FormEvent) => Promise<void>;
   readonly onResetToLoaded: () => void;

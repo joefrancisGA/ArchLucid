@@ -39,6 +39,7 @@ public sealed partial class AdvisoryScanRunner
         IReadOnlyList<RunSummaryDto> runs = await authorityQueryService.ListRunsByProjectAsync(scope, slug, 2, ct);
         List<RunSummaryDto> ordered = runs.OrderByDescending(x => x.CreatedUtc).ToList();
         RunSummaryDto? latest = ordered.FirstOrDefault();
+
         if (latest is null)
         {
             await FailAsync(
@@ -50,6 +51,7 @@ public sealed partial class AdvisoryScanRunner
         }
 
         RunDetailDto? latestDetail = await authorityQueryService.GetRunDetailAsync(scope, latest.RunId, ct);
+
         if (latestDetail?.GoldenManifest is null)
         {
             await FailAsync(execution, schedule, "Latest run did not contain a golden manifest.", ct);
@@ -61,9 +63,11 @@ public sealed partial class AdvisoryScanRunner
         ImprovementPlan plan;
         Guid? comparedToRunId = null;
         ComparisonResult? comparisonResult = null;
+
         if (compareTo is not null)
         {
             RunDetailDto? previousDetail = await authorityQueryService.GetRunDetailAsync(scope, compareTo.RunId, ct);
+
             if (previousDetail?.GoldenManifest is not null)
             {
                 comparisonResult = comparisonService.Compare(previousDetail.GoldenManifest, latestDetail.GoldenManifest);
@@ -82,6 +86,7 @@ public sealed partial class AdvisoryScanRunner
             await recommendationLearningService.GetLatestProfileAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct);
         PolicyPackContentDocument effectiveGovernance =
             await effectiveGovernanceLoader.LoadEffectiveContentAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct);
+
         foreach (KeyValuePair<string, string> kvp in effectiveGovernance.AdvisoryDefaults)
             plan.PolicyPackAdvisoryDefaults[kvp.Key] = kvp.Value;
         AlertEvaluationContext alertContext = AlertEvaluationContextFactory.ForAdvisoryScan(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId,

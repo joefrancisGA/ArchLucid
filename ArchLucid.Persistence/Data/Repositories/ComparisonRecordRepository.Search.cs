@@ -193,6 +193,7 @@ public sealed partial class ComparisonRecordRepository
         bool sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
 
         // Cursor paging: only supported for CreatedUtc ordering (plus ComparisonRecordId tiebreaker).
+
         if (!string.Equals(orderColumn, "CreatedUtc", StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("Cursor paging currently supports sortBy=createdUtc only.");
 
