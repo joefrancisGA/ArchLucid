@@ -2911,11 +2911,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 6
-- **bugs-found:** 12
+- **hunts:** 7
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — Quick Scan SampleOnly auto-sample overwrote real analysis
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — sponsor digest signInUrl trailing-slash legacy path 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2933,8 +2933,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Showcase `http_error`/`missing` served Claims Intake static demo for non-curated run ids — `not_found`/`invalid` gated on `hasCuratedShowcaseStaticPayload` but outage branches always called `getShowcaseStaticDemoPayload` — fixed 2026-08-26; show `DemoPreviewNotAvailable` for unknown slugs (`showcase-page.test.tsx`).
 - [x] (proven) `QuickScanClient` capacity banner hardcodes `/auth/signin` without `returnUrl` — **hit 2026-08-27:** anonymous limit CTA did not return to `/quick-scan` after sign-in; fixed with `buildAuthSignInHref({ returnPath: "/quick-scan" })` (`quick-scan.test.tsx`).
 - [x] (proven) `ShowcaseQuickNav` + thin API payload missing `manifest.manifestId` — **hit 2026-08-27:** `fetchShowcasePayload` accepted manifests without `manifestId`, risking `signedRecordDetailPath` trim crash when deep links enabled; reject as `invalid` (`showcase-page.test.tsx`).
-- [ ] (candidate) `normalizeSignInUrl` in `exec-digest-sponsor-deep-link-server.ts` misses trailing-slash legacy `/auth/sign-in/` paths.
+- [x] (proven) `normalizeSignInUrl` in `exec-digest-sponsor-deep-link-server.ts` — API `signInUrl` with trailing-slash legacy `/auth/sign-in/` left hyphenated path unchanged (regex lookahead required end/query/hash immediately after `sign-in`) — **hit 2026-08-28:** optional trailing slash in replace pattern; regression in `exec-digest-sponsor-deep-link-server.test.ts`.
+- [ ] (candidate) `useQuickScanClient` status `useEffect` — TanStack status refetch moves `capacityState` from `AnonymousLimit`/`Busy`/`SampleOnly` back to `Available` — stale amber capacity banner stays visible while Analyze is re-enabled; effect only calls `setCapacityMessage` when `resolveQuickScanCapacityMessage(status)` is non-null and never clears prior state on recovery.
+- [ ] (candidate) `QuickScanClient` / `useQuickScanClient` POST handler — backend returns 403 `QUICK_SCAN_CAPTCHA_REQUIRED` — user sees “Complete the security check…” with no Turnstile challenge mounted on marketing Quick Scan (contrast `SignInFlowClient` OTP path).
 - [x] (proven) Quick Scan `SampleOnly` auto-sample `useEffect` overwrites a real analysis when capacity status loads after submit — **hit 2026-08-27:** effect lacked `result === null` guard; aligned with optimistic `isQuickScanAiSubmitAllowed(null)` race (`use-quick-scan-client.test.ts`).
+
+2026-08-28 thorough hunt #7: proved sponsor digest signInUrl trailing-slash normalization; reseeded quick-scan capacity-banner and captcha candidates.
 - [x] (proven) Static-first showcase slugs skip API but pass `renderMode="api"` and `banner={null}` when API base is configured — **hit 2026-08-27:** conflated API configured with served-from-API; static-first branch now always uses `renderMode="static"` and static banner (`showcase-page.test.tsx`).
 - [x] (proven) Showcase `bad_json` hard-fails curated static-first run ids while `not_found`/`invalid` fall back to curated static payload — **hit 2026-08-27:** `bad_json` branch omitted curated fallback; aligned with sibling outage handling (`showcase-page.test.tsx`).
 
