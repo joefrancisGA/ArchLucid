@@ -15,10 +15,12 @@ export function OperatorHomeCompactStartingActionsSection(): React.JSX.Element {
       className={OPERATOR_LAYOUT.sectionHeadingStack}
       data-testid="operator-home-compact-starting-actions"
     >
-      <OperatorHomeCardSectionTitle id="operator-home-compact-starting-actions-heading">
-        {OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING}
-      </OperatorHomeCardSectionTitle>
-      <OperatorHomeDualPathCards variant="compact" pagePrimaryOwnedElsewhere hideExplorePath />
+      <div className={OPERATOR_LAYOUT.sectionStack}>
+        <OperatorHomeCardSectionTitle id="operator-home-compact-starting-actions-heading">
+          {OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING}
+        </OperatorHomeCardSectionTitle>
+        <OperatorHomeDualPathCards variant="compact" pagePrimaryOwnedElsewhere hideExplorePath />
+      </div>
       <OperationalMetricsGate>
         <AcceleratorChooserCard />
       </OperationalMetricsGate>
