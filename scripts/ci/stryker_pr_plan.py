@@ -83,9 +83,25 @@ def _should_run_full_matrix(path: str) -> bool:
     return False
 
 
-def _targets_for_path(path: str) -> list[tuple[str, str]]:
+def _coordination_code_changed(paths: list[str]) -> bool:
+    for path in paths:
+        normalized = _normalize_path(path)
+
+        if normalized.startswith("ArchLucid.Persistence.Coordination/"):
+            return True
+
+        if normalized.startswith("ArchLucid.Persistence/") and "/Coordination/" in normalized:
+            return True
+
+    return False
+
+
+def _targets_for_path(path: str, coordination_changed: bool) -> list[tuple[str, str]]:
     """Return Stryker (label, config) tuples for one changed file path."""
     p = _normalize_path(path)
+
+    if p.endswith(".sql"):
+        return []
 
     if _should_run_full_matrix(p):
         return list(FULL_MATRIX)
@@ -95,10 +111,16 @@ def _targets_for_path(path: str) -> list[tuple[str, str]]:
         return [("PersistenceCoordination", "stryker-config.persistence-coordination.json")]
 
     if p.startswith("ArchLucid.Persistence.Tests/"):
-        return [
+        targets: list[tuple[str, str]] = [
             ("Persistence", "stryker-config.persistence.json"),
-            ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
         ]
+
+        if coordination_changed:
+            targets.append(
+                ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
+            )
+
+        return targets
 
     excluded_under_persistence = (
         "ArchLucid.Persistence.Runtime/",
@@ -195,9 +217,11 @@ def _dedupe_preserve_order(items: list[tuple[str, str]]) -> list[tuple[str, str]
 
 
 def plan_matrix(paths: list[str]) -> list[tuple[str, str]]:
+    coordination_changed = _coordination_code_changed(paths)
     acc: list[tuple[str, str]] = []
+
     for path in paths:
-        t = _targets_for_path(path)
+        t = _targets_for_path(path, coordination_changed)
         if len(t) == len(FULL_MATRIX):
             return list(FULL_MATRIX)
         acc.extend(t)
@@ -222,9 +246,18 @@ def _self_test() -> None:
     ]
     assert plan_matrix(["ArchLucid.Persistence.Tests/x.cs"]) == [
         ("Persistence", "stryker-config.persistence.json"),
+    ]
+    assert plan_matrix(
+        [
+            "ArchLucid.Persistence.Tests/x.cs",
+            "ArchLucid.Persistence/Coordination/y.cs",
+        ],
+    ) == [
+        ("Persistence", "stryker-config.persistence.json"),
         ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
     ]
     assert plan_matrix(["ArchLucid.Persistence.Runtime/x.cs"]) == []
+    assert plan_matrix(["ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql"]) == []
     assert plan_matrix(["ArchLucid.Persistence/Sql/x.cs"]) == [
         ("Persistence", "stryker-config.persistence.json"),
     ]

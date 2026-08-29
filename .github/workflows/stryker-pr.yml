@@ -83,6 +83,7 @@ jobs:
           -f ${{ matrix.config }}
           -s ArchLucid.sln
           --since:${{ github.event.pull_request.base.sha }}
+          --break-at 0
 
       - name: Assert mutation score vs committed baseline
         if: success()
