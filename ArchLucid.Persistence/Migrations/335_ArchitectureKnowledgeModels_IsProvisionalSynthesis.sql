@@ -1,5 +1,5 @@
 /*
-  326 — Persist κ provisional synthesis flag on dbo.ArchitectureKnowledgeModels.
+  335 — Persist κ provisional synthesis flag on dbo.ArchitectureKnowledgeModels.
 */
 IF COL_LENGTH(N'dbo.ArchitectureKnowledgeModels', N'IsProvisionalSynthesis') IS NULL
 BEGIN
