@@ -6947,7 +6947,7 @@ export interface components {
             manifest?: null | components["schemas"]["GoldenManifest"];
             originalRunId?: string;
             replayRunId?: string;
-            results?: unknown[];
+            results?: components["schemas"]["AgentResult"][];
             warnings?: string[];
         };
         ReplayValidationResponse: {
