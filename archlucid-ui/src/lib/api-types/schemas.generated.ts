@@ -7354,7 +7354,7 @@ export interface components {
             goldenManifest?: null | components["schemas"]["ManifestDocument"];
             graphSnapshot?: null | components["schemas"]["GraphSnapshot"];
             lastAgentExecutionFailure?: null | components["schemas"]["AgentExecutionFailureSummary"];
-            results?: null | unknown[];
+            results?: null | components["schemas"]["AgentResult"][];
             retrievalGroundingSummary?: null | components["schemas"]["RunRetrievalGroundingSummaryDto"];
             run?: components["schemas"]["RunRecord"];
             runDegradedExecution?: boolean;
