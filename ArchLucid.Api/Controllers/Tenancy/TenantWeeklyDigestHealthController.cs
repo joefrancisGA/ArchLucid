@@ -43,7 +43,7 @@ public sealed class TenantWeeklyDigestHealthController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
@@ -51,8 +51,6 @@ public sealed class TenantWeeklyDigestHealthController(
 
         if (scopeProblem is not null)
             return scopeProblem;
-
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
         WeeklyDigestHealthSnapshot snap =
             await _healthReader.GetSnapshotAsync(scope, cancellationToken).ConfigureAwait(false);
 

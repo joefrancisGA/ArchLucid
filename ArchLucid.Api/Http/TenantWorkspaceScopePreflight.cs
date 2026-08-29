@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Http;
 /// </summary>
 internal static class TenantWorkspaceScopePreflight
 {
-    internal static async Task<IActionResult?> RequireTenantAndWorkspaceAsync(
+    internal static async Task<(IActionResult? Problem, ScopeContext Scope)> RequireTenantAndWorkspaceAsync(
         ControllerBase controller,
         IScopeContextProvider scopeProvider,
         ITenantRepository tenantRepository,
@@ -26,16 +26,16 @@ internal static class TenantWorkspaceScopePreflight
         TenantRecord? tenant = await tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenant is null)
-            return controller.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+            return (controller.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound), scope);
 
         bool workspaceExists =
             await WorkspaceExistsAsync(tenantRepository, scope.TenantId, scope.WorkspaceId, cancellationToken)
                 .ConfigureAwait(false);
 
         if (!workspaceExists)
-            return controller.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+            return (controller.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound), scope);
 
-        return null;
+        return (null, scope);
     }
 
     private static async Task<bool> WorkspaceExistsAsync(
