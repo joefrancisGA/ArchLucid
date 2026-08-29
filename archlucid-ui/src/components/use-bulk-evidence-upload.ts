@@ -108,7 +108,9 @@ export function useBulkEvidenceUpload(
         runId,
         batch,
         (progress) => {
-          setProgressPercent(Math.round(progress.percent));
+          setProgressPercent(
+            Math.max(0, Math.min(100, Math.round(progress.percent))),
+          );
 
           const etaSeconds = estimateUploadSecondsRemaining(
             progress.loadedBytes,
