@@ -49,7 +49,6 @@ public sealed class GovernanceSetupController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetSetupGuideBundle(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
@@ -58,6 +57,8 @@ public sealed class GovernanceSetupController(
 
         if (!scopePreflight.Succeeded)
             return scopePreflight.Problem!;
+
+        ScopeContext scope = scopePreflight.Scope;
 
         Task<EffectivePolicyPackSet> effectiveTask = _resolver.ResolveAsync(
             scope.TenantId,
