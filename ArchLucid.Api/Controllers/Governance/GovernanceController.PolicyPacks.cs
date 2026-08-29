@@ -202,6 +202,13 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.EvaluateAgainstRunIds.Any(static id => string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "Each evaluateAgainstRunId must be a non-empty string.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (request.EvaluateAgainstRunIds.Count > 50)
         {
             return this.BadRequestProblem(
@@ -209,11 +216,22 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        HashSet<string> seenRunIds = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (string runId in request.EvaluateAgainstRunIds)
         {
-            if (string.IsNullOrWhiteSpace(runId))
-                continue;
+            string trimmedRunId = runId.Trim();
 
+            if (!seenRunIds.Add(trimmedRunId))
+            {
+                return this.BadRequestProblem(
+                    "evaluateAgainstRunIds contains a duplicate run id.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        foreach (string runId in request.EvaluateAgainstRunIds)
+        {
             if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
             {
                 return this.BadRequestProblem(

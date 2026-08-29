@@ -105,6 +105,13 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.FindingIds.Any(static id => string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "Each FindingId must be a non-empty string.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (request.FindingIds.Count > 50)
         {
             return this.BadRequestProblem(
@@ -112,19 +119,16 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
-        HashSet<string> seenFindingIds = new(StringComparer.Ordinal);
+        HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string findingId in request.FindingIds)
         {
-            if (string.IsNullOrWhiteSpace(findingId))
-                continue;
+            string trimmedFindingId = findingId.Trim();
 
-            string normalizedFindingId = findingId.Trim();
-
-            if (!seenFindingIds.Add(normalizedFindingId))
+            if (!seenFindingIds.Add(trimmedFindingId))
             {
                 return this.BadRequestProblem(
-                    "duplicate findingId in batch.",
+                    "FindingIds contains a duplicate id.",
                     ProblemTypes.ValidationFailed);
             }
         }

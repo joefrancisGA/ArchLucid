@@ -26,13 +26,16 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (request.RunId == Guid.Empty)
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+
+        if (string.IsNullOrWhiteSpace(request.FindingId))
+            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
-
-        if (request.RunId == Guid.Empty)
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
         try
         {

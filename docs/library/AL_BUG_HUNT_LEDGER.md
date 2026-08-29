@@ -2270,11 +2270,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 96
-- **bugs-found:** 264
+- **hunts:** 97
+- **bugs-found:** 265
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — preview/compare padded environment trim parity
+- **last-bug:** 2026-08-29 — `RecordBulkDisposition` accepted case-variant duplicate `findingIds`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2547,11 +2547,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.SubmitApprovalRequest` / `LogGovernanceApprovalRequestedAuditAsync` — padded `manifestVersion` echoed into `GovernanceApprovalRequested` audit `DataJson` while workflow trims for processing — **hit 2026-08-29:** trim manifest/environment fields in audit payload (run-id trim parity); regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_logs_trimmed_manifest_version_in_audit_when_manifest_version_is_padded`.
 - [x] (proven) `PolicyPacksController.SimulateBulk` — explicit JSON `null` `runIds` caused NRE on `.Count` → HTTP 500 — **hit 2026-08-29:** null-or-empty guard before count cap (batch-review parity); regression in `PolicyPacksControllerSimulateBulkScopeTests`.
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — explicit JSON `null` `evaluateAgainstRunIds` caused NRE on `.Count` → HTTP 500 — **hit 2026-08-29:** null-or-empty guard before validation loop (batch-review parity); regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_ids_is_null`.
-- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — duplicate non-whitespace `findingIds` processed twice with inflated `processedCount` — **hit 2026-08-29:** reject duplicate trimmed finding ids with HTTP 400 before facade; regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_finding_ids_are_duplicated`.
-- [x] (proven) `GovernanceController.DryRunPolicyPack` / `PolicyPackDryRunService` — duplicate non-whitespace `evaluateAgainstRunIds` inflated `deltaCounts.evaluated` — **hit 2026-08-29:** dedupe trimmed run ids in `PolicyPackDryRunService` (SimulateBulk parity); regression in `PolicyPackDryRunServiceTests`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — duplicate non-whitespace `findingIds` processed twice with inflated `processedCount` — **hit 2026-08-29 (#196):** reject duplicate trimmed finding ids with HTTP 400 before facade; regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_finding_ids_are_duplicated`.
+- [x] (proven) `PolicyPacksController.SimulateBulk` — duplicate `runIds` silently deduped while `RequestedRunCount` still counted duplicates — **hit 2026-08-29 (#238):** reject duplicate ids at controller with HTTP 400; regression in `SimulateBulk_returns_bad_request_when_run_ids_contain_duplicate`.
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — duplicate `evaluateAgainstRunIds` double-evaluated same run and inflated `totalRequestedRuns` — **hit 2026-08-29 (#240):** reject duplicate ids at controller with HTTP 400 (`SimulateBulk` parity); regression in `DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_ids_contains_duplicate_id`.
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` — whitespace-only `findingId` reached facade — **hit 2026-08-29 (#242):** require non-whitespace `findingId` before facade call; regression in `CreateRiskException_returns_bad_request_when_finding_id_is_whitespace`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — case-variant duplicate `findingIds` (`finding-1` / `FINDING-1`) double-dispositioned same finding — **hit 2026-08-29 (#244):** `StringComparer.OrdinalIgnoreCase` duplicate guard (`SimulateBulk`/`DryRunPolicyPack` parity); regression in `RecordBulkDisposition_returns_bad_request_when_finding_ids_differ_only_by_case`.
+- [x] (proven) `GovernanceController.DryRunPolicyPack` / `PolicyPackDryRunService` — duplicate non-whitespace `evaluateAgainstRunIds` inflated `deltaCounts.evaluated` — **hit 2026-08-29 (#196):** dedupe trimmed run ids in `PolicyPackDryRunService` (SimulateBulk parity); regression in `PolicyPackDryRunServiceTests`.
 - [x] (proven) `GovernancePreCommitSimulationController` (`GetChecklistAsync`, `SimulateAsync`) — malformed `runId` returned `ProblemTypes.BadRequest` instead of `ValidationFailed` (governance run-history parity) — **hit 2026-08-29:** align invalid run id problem type with sibling routes; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernancePreviewController` / `GovernancePreviewService.NormalizeAndValidateEnvironment` — padded `sourceEnvironment`/`targetEnvironment`/`environment` failed known-environment validation before trim — **hit 2026-08-29:** trim environment before `IsKnownEnvironment`; workflow submit/promote/activate trim parity; regression in `GovernancePreviewServiceTests` and `GovernanceWorkflowFacadeTests`.
 - [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — `ArgumentException` for identical source/target after normalization surfaces `ProblemTypes.BadRequest` while sibling validation inputs use `ValidationFailed` (governance client-input problem-type parity gap).
+
+2026-08-29 thorough hunt #244 (supersedes #731): proved case-variant duplicate `findingIds` in bulk disposition; re-shipped #238/#240 controller duplicate guards and #242 risk-exception `findingId` trim.
 
 2026-08-29 thorough hunt #201 (hit): proved pre-commit malformed run id `ValidationFailed` parity and preview/compare padded environment trim; seeded compare-same-env problem-type candidate.
 
