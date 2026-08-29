@@ -23,7 +23,8 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
                 root.TryGetProperty("findingSchemaVersion", out JsonElement fsv) && fsv.TryGetInt32(out int v) ? v : 0,
             FindingId = root.GetProperty("findingId").GetString() ?? Guid.NewGuid().ToString("N"),
             FindingType = root.GetProperty("findingType").GetString() ?? "",
-            Category = TryGetPropertyCaseInsensitive(root, "category", out JsonElement cat)
+            Category = TryGetPropertyCaseInsensitive(root, "category", out JsonElement cat) &&
+                       cat.ValueKind == JsonValueKind.String
                 ? cat.GetString() ?? ""
                 : "",
             EngineType = root.GetProperty("engineType").GetString() ?? "",
