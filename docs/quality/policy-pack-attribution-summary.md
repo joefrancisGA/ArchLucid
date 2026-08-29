@@ -1,6 +1,6 @@
 # Policy-pack attribution summary
 
-Generated UTC: **2026-08-24T14:28:56.525599+00:00**
+Generated UTC: **2026-08-29T05:58:10.957582+00:00**
 Rollup: **PASS**
 
 | Scenario | Attribution % | Expected % | Match | Findings | Attributable |

@@ -37,6 +37,42 @@
       "source": "simulate",
       "githubRunId": "",
       "githubRunUrl": ""
+    },
+    {
+      "recordedUtc": "2026-08-29T05:57:15.915278+00:00",
+      "mtdUsd": 14.5,
+      "monthlyBudgetUsd": 15.0,
+      "exitCode": 2,
+      "source": "simulate",
+      "githubRunId": "",
+      "githubRunUrl": ""
+    },
+    {
+      "recordedUtc": "2026-08-29T05:57:18.231391+00:00",
+      "mtdUsd": 14.5,
+      "monthlyBudgetUsd": 15.0,
+      "exitCode": 2,
+      "source": "simulate",
+      "githubRunId": "",
+      "githubRunUrl": ""
+    },
+    {
+      "recordedUtc": "2026-08-29T05:58:21.340939+00:00",
+      "mtdUsd": 14.5,
+      "monthlyBudgetUsd": 15.0,
+      "exitCode": 2,
+      "source": "simulate",
+      "githubRunId": "",
+      "githubRunUrl": ""
+    },
+    {
+      "recordedUtc": "2026-08-29T05:58:23.690142+00:00",
+      "mtdUsd": 14.5,
+      "monthlyBudgetUsd": 15.0,
+      "exitCode": 2,
+      "source": "simulate",
+      "githubRunId": "",
+      "githubRunUrl": ""
     }
   ]
 }
