@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Common;
@@ -545,6 +547,74 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_request_id_is_duplicated()
+    {
+        const string approvalRequestId = "apr-batch-duplicate";
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = runId.ToString("D"),
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowService> workflow = new();
+        workflow
+            .Setup(w => w.ApproveAsync(
+                approvalRequestId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest { ApprovalRequestId = approvalRequestId });
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.BatchReviewApprovalRequests(
+            new GovernanceApprovalBatchReviewRequest
+            {
+                ApprovalRequestIds = [approvalRequestId, approvalRequestId],
+                Decision = "approve",
+            },
+            CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        GovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<GovernanceBatchReviewResponse>().Subject;
+        body.Results.Should().HaveCount(2);
+        body.Results.Should().Contain(item =>
+            item.ApprovalRequestId == approvalRequestId && item.Succeeded);
+        body.Results.Should().Contain(item =>
+            item.ApprovalRequestId == approvalRequestId
+            && !item.Succeeded
+            && item.ErrorCode == ProblemTypes.ValidationFailed
+            && item.Message == "duplicate approvalRequestId in batch.");
+
+        workflow.Verify(
+            w => w.ApproveAsync(
+                approvalRequestId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task BatchReviewApprovalRequests_returns_validation_failed_per_item_when_mixed_list_contains_whitespace_id()
     {
         const string approvalRequestId = "apr-batch-mixed-whitespace";
@@ -805,6 +875,74 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         result.Should().BeOfType<OkObjectResult>();
         captured.Should().NotBeNull();
         captured!.RunId.Should().Be(runId);
+    }
+
+    [Fact]
+    public async Task SubmitApprovalRequest_logs_trimmed_manifest_version_in_audit_when_manifest_version_is_padded()
+    {
+        Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        const string paddedManifestVersion = "  1  ";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowService> workflow = new();
+        workflow
+            .Setup(w => w.SubmitApprovalRequestAsync(
+                runId.ToString("D"),
+                paddedManifestVersion,
+                "dev",
+                "test",
+                "actor",
+                "actor-id",
+                null,
+                false,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("actor");
+        actor.Setup(a => a.GetActorId()).Returns("actor-id");
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowService: workflow.Object,
+            actorContext: actor.Object,
+            auditService: audit.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "submit-audit-manifest-trim-test";
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = paddedManifestVersion,
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: false,
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        captured.Should().NotBeNull();
+
+        using JsonDocument doc = JsonDocument.Parse(captured!.DataJson);
+        doc.RootElement.GetProperty("manifestVersion").GetString().Should().Be("1");
     }
 
     [Fact]
@@ -1252,6 +1390,26 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             Scope.TenantId,
             It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
 
+    private static ITenantRepository TenantExistsRepository()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        return tenants.Object;
+    }
+
     private static GovernanceController CreateController(
         IRunRepository? runRepository = null,
         IGovernanceApprovalRequestRepository? approvalRepository = null,
@@ -1290,9 +1448,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             auditService ?? Mock.Of<IAuditService>(),
             Mock.Of<IPolicyPackDraftService>(),
             Mock.Of<IPolicyPackGeneratorService>(),
-            tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
-                Scope.TenantId,
-                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })),
+            tenantRepository ?? TenantExistsRepository(),
             NullLogger<GovernanceController>.Instance);
     }
 }

@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -130,6 +131,25 @@ public sealed class ManifestsControllerTests
             .Setup(r => r.GetByIdAsync(CallerScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunRecord { RunId = runId });
 
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Core.Tenancy.TenantRecord
+            {
+                Id = CallerScope.TenantId,
+                Name = "contoso",
+            });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
         return new ManifestsController(
                 manifestReader ?? reader.Object,
                 manifestDiffService ?? diffService.Object,
@@ -143,13 +163,7 @@ public sealed class ManifestsControllerTests
                 diagramService.Object,
                 scopeProvider.Object,
                 runs.Object,
-                Mock.Of<ArchLucid.Core.Tenancy.ITenantRepository>(repository => repository.GetByIdAsync(
-                    CallerScope.TenantId,
-                    It.IsAny<CancellationToken>()) == Task.FromResult<ArchLucid.Core.Tenancy.TenantRecord?>(new ArchLucid.Core.Tenancy.TenantRecord
-                    {
-                        Id = CallerScope.TenantId,
-                        Name = "contoso",
-                    })))
+                tenants.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -189,6 +203,26 @@ public sealed class ManifestsControllerTests
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ArchLucid.Api.Models.ManifestCompareResponse body =
             ok.Value.Should().BeOfType<ArchLucid.Api.Models.ManifestCompareResponse>().Subject;
+        body.Diff.AddedServices.Should().Contain("svc-b");
+    }
+
+    [Fact]
+    public async Task CompareManifests_returns_ok_with_diff_when_query_params_are_padded()
+    {
+        string paddedLeftVersion = $"  {LeftVersion}  ";
+        string paddedRightVersion = $"  {RightVersion}  ";
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.CompareManifests(
+            paddedLeftVersion,
+            paddedRightVersion,
+            CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ArchLucid.Api.Models.ManifestCompareResponse body =
+            ok.Value.Should().BeOfType<ArchLucid.Api.Models.ManifestCompareResponse>().Subject;
+        body.LeftManifest.Metadata.ManifestVersion.Should().Be(LeftVersion);
+        body.RightManifest.Metadata.ManifestVersion.Should().Be(RightVersion);
         body.Diff.AddedServices.Should().Contain("svc-b");
     }
 

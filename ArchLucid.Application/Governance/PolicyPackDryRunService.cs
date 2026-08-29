@@ -67,8 +67,12 @@ public sealed class PolicyPackDryRunService(
         await EnsurePolicyPackInScopeAsync(policyPackId, cancellationToken);
 
         int clampedPageSize = ClampPageSize(pageSize);
-        List<string> cleanedRunIds = evaluateAgainstRunIds.Where(id => !string.IsNullOrWhiteSpace(id)).Select(id => id.Trim())
-            .Take(IPolicyPackDryRunService.MaxEvaluatedRuns).ToList();
+        List<string> cleanedRunIds = evaluateAgainstRunIds
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Select(id => id.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(IPolicyPackDryRunService.MaxEvaluatedRuns)
+            .ToList();
         Dictionary<string, double> parsedThresholds = ParseThresholds(proposedThresholds);
         string redactedThresholdsJson = RedactProposedThresholdsJson(proposedThresholds);
         List<PolicyPackDryRunRunItem> allItems = [];
