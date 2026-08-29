@@ -1,4 +1,4 @@
-> **Scope:** One copy-paste Composer/Cursor prompt that closes the Failed-review name-occupancy hole. Internal engineering only — not buyer-facing copy.
+> **Scope:** One copy-paste Composer/Cursor prompt that closes the Failed-rerun name-occupancy hole. Internal engineering only — not buyer-facing copy.
 > **Incident:** Operator is told to **Re-run review** after a Failed create, then **Continue to clarifications** 409s because `ArchLucid` is still owned by the Failed `dbo.Runs` row.
 > **Already shipped (do not redo):** Guided-intake `rerun=` prefill — `eeb590fe95` / PR **#666**.
 
