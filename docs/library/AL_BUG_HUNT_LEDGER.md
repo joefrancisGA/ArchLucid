@@ -1755,11 +1755,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 15
-- **bugs-found:** 28
+- **hunts:** 16
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — `FindingJsonConverter.ReadStringDict` called `GetString()` on numeric `properties` tokens and aborted full finding deserialize
+- **last-bug:** 2026-08-29 — `FindingJsonConverter.ReadStringDictValue` coerced boolean `properties` tokens to empty strings, dropping flag values on snapshot reload
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1798,8 +1798,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentModelExecutionProfileParser.TryParse` rejects `"High Assurance"` display label while accepting `"high-assurance"` — **hit 2026-08-29 (#221):** operator tenant-setting labels failed profile parse; fixed with display-label alias (`TryParse_accepts_high_assurance_display_labels`).
 - [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryGetStringPropertyCaseInsensitive` uses `GetString()` only — numeric JSON `deduplicationKey` threw and dropped Service Bus subscription filter properties — **hit 2026-08-29 (#221):** accept string or number tokens (`TryResolveForPublish_alert_resolved_maps_numeric_deduplication_key`).
 - [x] (proven) `FindingJsonConverter.ReadStringDict` calls `GetString()` on numeric `properties` tokens and aborts full finding deserialize — **hit 2026-08-29 (#225):** coerce number tokens to invariant strings and preserve sibling string entries (`Deserialize_properties_numeric_values_preserve_string_entries`).
+- [x] (proven) `FindingJsonConverter.ReadStringDictValue` coerces boolean `properties` tokens to empty strings — **hit 2026-08-29 (#229):** `{"flag":true}` hydrated as `""`, losing downstream property lookups; fixed with invariant boolean string coercion (`Deserialize_properties_boolean_values_preserve_invariant_string`).
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` accepts undefined legacy status strings via bare `Enum.TryParse` without `Enum.IsDefined` — **cheap-disproof 2026-08-29 (#229):** `TryParseStatus` already guards with `Enum.IsDefined`; numeric-string `"99"` returns false (`TryParseStatus_rejects_undefined_numeric_string_ordinals`).
 - [x] (valid-no-repro) `RealLlmOutputStructuralValidator.ValidateAgentResultStructure` requires camelCase `agentType` top-level key — doc states camelCase contract serializer output; PascalCase `AgentType` is out of scope for golden-corpus structural checks.
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseLegacyRunStatus` accepts undefined legacy status strings via bare `Enum.TryParse` without `Enum.IsDefined` — numeric-string ordinals may hydrate cast statuses.
+- [ ] (candidate) `DecisionConfidenceSourceMapper.ToBuyerLabel(string?)` numeric-string ordinals — `TryParse` without `Enum.IsDefined`; cheap-disproof: undefined `"99"` maps to buyer `Unknown` via switch default, not a raw ordinal leak.
+
+2026-08-29 seed hunt #229 (supersedes #710): proved boolean properties-bag coercion; cheap-disproved legacy run-status candidate; hunts #223–#227 carry otherwise folded via #216/#219/#221/#225/#708.
 
 2026-08-29 seed hunt #227 (supersedes #708): quality-gate undefined-ordinal lint already on branch via #219; includes #225 properties-bag numeric coercion; hunts #223–#225 carry otherwise folded via #216/#219/#221.
 
