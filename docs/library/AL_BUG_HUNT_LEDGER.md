@@ -1756,10 +1756,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
 - **hunts:** 12
-- **bugs-found:** 21
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepted numeric-string `"99"` via bare `Enum.TryParse` without `Enum.IsDefined`
+- **last-bug:** 2026-08-29 — `QualityGateWarnOnlyProductionLikeConfigurationLint` treated undefined `AgentOutputQualityGateMode` ordinals as non-WarnOnly and suppressed the production-like advisory
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1790,6 +1790,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `OperationalErrors:*` configuration keys missing from `ConfigurationKeyCatalog` — catalog documents operator-facing keys only; `OperationalErrorOptions` is platform-internal and not an operator config surface in Core.
 - [x] (proven) `TenantItsmConnectorConnectionUpsertValidation.TryParseProvider` rejects `"Azure Boards"` display label while `FindingEnforcementTierClassifier.TryParseProvider` accepts it — **hit 2026-08-29 (#216):** operator upsert with human-readable provider label failed validation; fixed with display-label alias (`TryParseProvider_accepts_jira_and_servicenow`).
 - [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepts undefined severity strings via bare `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-29 (#216):** numeric-string `"99"` hydrated as cast ordinal; fixed with `Enum.IsDefined` guard (`Parse_breach_severity_valid_and_invalid`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` uses case-sensitive `TryGetProperty` for faithfulness signals — PascalCase `"FaithfulnessSupportRatio"` / `"DeterministicFallbackUsed"` missed so low-ratio aggregates resolve as PASS — **hit 2026-08-29 (#217):** fixed with case-insensitive property lookup (`RunExplanationConfidenceCalloutBuilder_FromAggregateJson_and_limitations`).
+- [x] (valid-no-repro) `DecisionConfidenceSourceMapper.ToBuyerLabel` accepts undefined enum ordinals via bare `Enum.TryParse` — numeric-string `"99"` parses to cast ordinal but `ToBuyerLabel(parsed)` falls through to `Unknown`; buyer label stays safe.
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` uses case-sensitive `TryGetProperty("correlationId")` — PascalCase `"CorrelationId"` omitted so Service Bus publish loses payload correlation fallback when activity tag unset — **hit 2026-08-29 (#219):** fixed with case-insensitive property lookup (`TryResolveForPublish_reads_PascalCase_CorrelationId_from_payload_when_activity_unset`).
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` accepts undefined `AgentOutputQualityGateMode` ordinals via bare `Enum.TryParse` — numeric-string `"99"` parsed as non-`WarnOnly` and suppressed the production-like advisory — **hit 2026-08-29 (#219):** treat undefined modes like empty/unknown and emit advisory (`TryDescribeAdvisoryFinding_production_real_undefined_quality_gate_mode_emits_rule`).
+
+2026-08-29 seed hunt #219: proved Service Bus correlation-id casing and quality-gate undefined-ordinal lint suppression; includes enum-guard and ITSM label fixes from seeds #216–#217.
 
 ---
 
