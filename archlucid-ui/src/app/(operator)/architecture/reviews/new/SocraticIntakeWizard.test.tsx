@@ -171,7 +171,7 @@ import {
   GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
 } from "@/lib/guided-intake-copy";
-import { showError, showSuccess } from "@/lib/toast";
+import { showError } from "@/lib/toast";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
