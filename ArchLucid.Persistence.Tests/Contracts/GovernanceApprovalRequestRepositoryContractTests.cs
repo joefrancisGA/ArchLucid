@@ -252,9 +252,18 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
 
         IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(2, CancellationToken.None);
         int totalPending = await repo.CountPendingApprovalsAsync(CancellationToken.None);
+        IReadOnlyList<GovernanceApprovalRequest> allPending =
+            await repo.GetPendingAsync(totalPending, CancellationToken.None);
 
         pending.Should().HaveCount(2);
-        totalPending.Should().BeGreaterThanOrEqualTo(3);
+        totalPending.Should().BeGreaterThan(pending.Count);
+
+        GovernanceApprovalRequest[] mine =
+            [.. allPending.Where(r => r.RunId == runId)];
+
+        mine.Should().Contain(r => r.ApprovalRequestId == idA);
+        mine.Should().Contain(r => r.ApprovalRequestId == idB);
+        mine.Should().Contain(r => r.ApprovalRequestId == idC);
     }
 
     [SkippableFact]
