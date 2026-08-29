@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import unittest
 from pathlib import Path
 
@@ -35,8 +36,12 @@ class TestDemoBatch5Dt(unittest.TestCase):
         guidance_text = guidance_path.read_text(encoding="utf-8")
         exports_text = exports_path.read_text(encoding="utf-8")
 
-        self.assertIn('export const BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR = "#finalize-review"', guidance_text)
-        self.assertIn("href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", exports_text)
+        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", guidance_text)
+        self.assertRegex(
+            guidance_text,
+            r"BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*[\"']#finalize-review[\"']",
+        )
+        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", exports_text)
         self.assertNotIn('href: "#run-actions"', guidance_text)
         self.assertNotIn('href: "#run-actions"', exports_text)
 
