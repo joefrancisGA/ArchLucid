@@ -25,6 +25,7 @@ import {
 } from "./guided-intake-steps";
 import { useGuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 import { useGuidedIntakeDraftWorkflow } from "./use-guided-intake-draft-workflow";
+import { useGuidedIntakePriorRunPrefill } from "./use-guided-intake-prior-run-prefill";
 
 /**
  * Everything `SocraticIntakeWizard` renders from: the brief form, the draft workflow, step
@@ -81,6 +82,21 @@ export function useGuidedIntakeWizard() {
     setStep,
     navigate,
     clearSession,
+  });
+
+  useGuidedIntakePriorRunPrefill({
+    priorRunId,
+    freeTextIntent: form.freeTextIntent,
+    businessOutcome: form.businessOutcome,
+    systemName: form.systemName,
+    actorSet: form.actorSet,
+    setFreeTextIntent: form.setFreeTextIntent,
+    setBusinessOutcome: form.setBusinessOutcome,
+    setSystemName: form.setSystemName,
+    setActorSet: form.setActorSet,
+    setScopeBullets: form.setScopeBullets,
+    setScopeGateOpen: form.setScopeGateOpen,
+    enabled: priorRunId !== null && sourceArchitectureId.length === 0,
   });
 
   const sessionState = useMemo<GuidedIntakeSessionState>(
