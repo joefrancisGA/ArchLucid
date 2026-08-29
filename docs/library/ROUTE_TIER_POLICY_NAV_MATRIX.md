@@ -114,7 +114,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | AdminAuthority |  |  |
 | `Admin/MarketingPricingQuoteFollowUpAdminController.cs` | `/v1/admin/marketing/pricing-quote-requests` | none | AdminAuthority |  |  |
 | `Admin/MeteringAdminController.cs` | `/v1/admin/metering` | none | AdminAuthority | /administration/ai-usage |  |
-| `Admin/OperationalErrorsAdminController.cs` | `/v1/admin/operational-errors` | none | AdminAuthority |  |  |
+| `Admin/OperationalErrorsAdminController.cs` | `/v1/admin/operational-errors` | none | AdminAuthority | /internal/operational-errors |  |
 | `Admin/OperationsController.cs` | `/v1/operations` | none | ReadAuthority |  |  |
 | `Admin/PromptVariantsAdminController.cs` | `/v1/admin/prompt-variants` | none | AdminAuthority |  |  |
 | `Admin/ReferenceEvidenceAdminController.cs` | `/v1/admin/reference-evidence` | none | AdminAuthority |  |  |

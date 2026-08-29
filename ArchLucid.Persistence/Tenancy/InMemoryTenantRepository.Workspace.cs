@@ -24,7 +24,7 @@ public sealed partial class InMemoryTenantRepository
         List<TenantWorkspaceRow> list = _workspacesByTenant.GetOrAdd(tenantId, static _ => []);
 
         lock (list)
-
+        {
             list.Add(
                 new TenantWorkspaceRow
                 {
@@ -34,6 +34,7 @@ public sealed partial class InMemoryTenantRepository
                     DefaultProjectId = defaultProjectId,
                     CreatedUtc = TimeProvider.System.GetUtcNow()
                 });
+        }
 
         return Task.CompletedTask;
     }
@@ -49,8 +50,9 @@ public sealed partial class InMemoryTenantRepository
         TenantWorkspaceRow? row;
 
         lock (list)
-
+        {
             row = list.OrderBy(static w => w.CreatedUtc).FirstOrDefault();
+        }
 
         if (row is null)
             return Task.FromResult<TenantWorkspaceLink?>(null);
@@ -97,7 +99,8 @@ public sealed partial class InMemoryTenantRepository
             return Task.FromResult(false);
 
         lock (list)
-
+        {
             return Task.FromResult(list.Any(workspace => workspace.Id == workspaceId));
+        }
     }
 }
