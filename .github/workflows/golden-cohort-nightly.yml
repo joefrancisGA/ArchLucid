@@ -192,7 +192,7 @@ jobs:
       id-token: write
       issues: write
     steps:
-      - name: Gate eligibility (var off, fork PR, or disabled path)
+      - name: Gate eligibility (var off, fork PR, Dependabot, or missing Azure secrets)
         id: eligibility
         run: |
           set -euo pipefail
@@ -205,6 +205,21 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
             echo "enabled=false" >> "${GITHUB_OUTPUT}"
             echo "Fork pull request; cohort-real-llm-gate passes as no-op (secrets unavailable)."
+            exit 0
+          fi
+
+          # Dependabot PRs use a separate secret store. Azure OIDC client/tenant/subscription
+          # are empty unless duplicated as Dependabot secrets, which fails azure/login and
+          # blocks merge because this job is a required status check.
+          if [ "${{ github.actor }}" = "dependabot[bot]" ]; then
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "Dependabot pull request; Azure credentials unavailable; cohort-real-llm-gate passes as no-op."
+            exit 0
+          fi
+
+          if [ -z "${{ secrets.AZURE_CLIENT_ID }}" ] || [ -z "${{ secrets.AZURE_TENANT_ID }}" ]; then
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "Azure OIDC secrets are empty; cohort-real-llm-gate passes as no-op."
             exit 0
           fi
 
