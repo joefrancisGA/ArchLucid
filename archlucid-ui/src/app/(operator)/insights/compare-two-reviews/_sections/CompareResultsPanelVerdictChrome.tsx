@@ -199,8 +199,8 @@ export function CompareResultsPanelVerdictChrome({
           </p>
           <OperatorApiProblem failure={aiFailure} variant="warning" />
           <OperatorTryNext>
-            AI is optiona — se the structured summary and supplementary tables above for the authoritative diff. If this
-            should work, check API LLM configuration, quotas, and proxy timeouts, then retry{" "}
+            AI is optional — use the structured summary and supplementary tables above for the authoritative diff. If
+            this should work, check API LLM configuration, quotas, and proxy timeouts, then retry{" "}
             <strong>{summarizeCue}</strong>.
           </OperatorTryNext>
         </>
