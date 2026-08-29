@@ -59,18 +59,29 @@ public sealed partial class GovernanceController
         if (scopeError is not null)
             return scopeError;
 
-        if (!string.IsNullOrWhiteSpace(request.ApprovalRequestId))
-        {
-            string approvalRequestId = NormalizeApprovalRequestId(request.ApprovalRequestId);
+        string? normalizedApprovalRequestId = null;
 
+        if (request.ApprovalRequestId is not null)
+        {
+            normalizedApprovalRequestId = NormalizeApprovalRequestId(request.ApprovalRequestId);
+
+            IActionResult? approvalRequestIdProblem =
+                BadRequestWhenApprovalRequestIdEmpty(normalizedApprovalRequestId);
+
+            if (approvalRequestIdProblem is not null)
+                return approvalRequestIdProblem;
+        }
+
+        if (!string.IsNullOrWhiteSpace(normalizedApprovalRequestId))
+        {
             GovernanceApprovalRequest? approval = await approvalRepo
-                .GetByIdAsync(approvalRequestId, cancellationToken)
+                .GetByIdAsync(normalizedApprovalRequestId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (approval is null)
             {
                 return this.NotFoundProblem(
-                    $"Approval request '{approvalRequestId}' was not found.",
+                    $"Approval request '{normalizedApprovalRequestId}' was not found.",
                     ProblemTypes.ResourceNotFound);
             }
 
@@ -93,9 +104,7 @@ public sealed partial class GovernanceController
                 request.SourceEnvironment,
                 request.TargetEnvironment,
                 promotedBy,
-                string.IsNullOrWhiteSpace(request.ApprovalRequestId)
-                    ? request.ApprovalRequestId
-                    : NormalizeApprovalRequestId(request.ApprovalRequestId),
+                normalizedApprovalRequestId,
                 request.Notes,
                 dryRun,
                 verbosePromotionValidationErrors,
@@ -248,18 +257,25 @@ public sealed partial class GovernanceController
     {
         if (string.IsNullOrWhiteSpace(runId))
         {
-            return (this.NotFoundProblem(
+            return (this.BadRequestProblem(
                 "Run id is required.",
-                ProblemTypes.RunNotFound), null);
+                ProblemTypes.ValidationFailed), null);
         }
 
         runId = runId.Trim();
 
         if (!Guid.TryParse(runId, out Guid runGuid))
         {
-            return (this.NotFoundProblem(
-                $"Run '{runId}' was not found.",
-                ProblemTypes.RunNotFound), null);
+            return (this.BadRequestProblem(
+                $"Run id '{runId}' is not valid.",
+                ProblemTypes.ValidationFailed), null);
+        }
+
+        if (runGuid == Guid.Empty)
+        {
+            return (this.BadRequestProblem(
+                "Run id is not valid.",
+                ProblemTypes.ValidationFailed), null);
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

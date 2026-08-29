@@ -29,6 +29,21 @@ public sealed class GovernancePreCommitSimulationControllerTests
     };
 
     [Fact]
+    public async Task GetChecklist_returns_bad_request_when_run_id_is_empty_guid()
+    {
+        Mock<IPreFinalizeChecklistService> checklist = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(checklistService: checklist.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetChecklistAsync(Guid.Empty.ToString("D"), CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        checklist.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetChecklist_returns_not_found_for_out_of_scope_run_id()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -93,6 +108,28 @@ public sealed class GovernancePreCommitSimulationControllerTests
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_run_id_is_empty_guid()
+    {
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(gate: gate.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = Guid.Empty.ToString("D"),
+                SyntheticSeverity = FindingSeverity.Critical,
+                SyntheticCount = 1,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        gate.VerifyNoOtherCalls();
     }
 
     [Fact]

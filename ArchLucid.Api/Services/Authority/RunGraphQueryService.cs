@@ -112,6 +112,15 @@ public sealed class RunGraphQueryService(
 
     public async Task<RunRoiEstimateQueryResult> GetRunRoiEstimateAsync(string runId, CancellationToken cancellationToken)
     {
+        if (!AuthorityRunIdentifier.TryParse(runId, out _))
+        {
+            return new RunRoiEstimateQueryResult
+            {
+                Outcome = RunGraphQueryOutcome.NotFound,
+                ProblemDetail = $"Run '{runId}' was not found."
+            };
+        }
+
         ArchitectureRunDetail? detail =
             await runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
 
