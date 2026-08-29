@@ -5,7 +5,7 @@ namespace ArchLucid.Persistence.Connections;
 /// <summary>
 ///     Extracts SQL Server error metadata from exception chains without forcing Application to reference SqlClient.
 /// </summary>
-public readonly record struct SqlExceptionErrorMetadata(int Number, byte State)
+public readonly record struct SqlExceptionErrorMetadata(int Number, int State)
 {
     public static bool TryRead(Exception? exception, out SqlExceptionErrorMetadata metadata)
     {

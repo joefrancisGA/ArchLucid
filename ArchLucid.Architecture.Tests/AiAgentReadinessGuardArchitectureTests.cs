@@ -49,6 +49,7 @@ public sealed class AiAgentReadinessGuardArchitectureTests
     public void Tb326_host_composition_wires_fallback_and_cost_guardrail()
     {
         string agentsModuleDir = Path.Combine(RepoRoot, "ArchLucid.Host.Composition", "Startup", "Modules", "Agents");
+        Directory.Exists(agentsModuleDir).Should().BeTrue($"agents module directory '{agentsModuleDir}' must exist");
         string text = string.Concat(
             Directory.EnumerateFiles(agentsModuleDir, "*.cs")
                 .OrderBy(static path => path, StringComparer.Ordinal)

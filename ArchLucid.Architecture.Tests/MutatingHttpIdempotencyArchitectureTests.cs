@@ -44,6 +44,7 @@ public sealed class MutatingHttpIdempotencyArchitectureTests
         runsText.Should().Contain("[IdempotencyFilter]");
 
         string queryDir = Path.Combine(root, "ArchLucid.Api", "Controllers", "Authority");
+        Directory.Exists(queryDir).Should().BeTrue($"controller directory '{queryDir}' must exist");
         string queryText = string.Concat(
             Directory.EnumerateFiles(queryDir, "AuthorityQueryController*.cs")
                 .OrderBy(static path => path, StringComparer.Ordinal)
@@ -51,6 +52,7 @@ public sealed class MutatingHttpIdempotencyArchitectureTests
         queryText.Should().Contain("[IdempotencyFilter]");
 
         string stickinessDir = Path.Combine(root, "ArchLucid.Api", "Controllers", "Governance");
+        Directory.Exists(stickinessDir).Should().BeTrue($"controller directory '{stickinessDir}' must exist");
         string stickinessText = string.Concat(
             Directory.EnumerateFiles(stickinessDir, "GovernanceStickinessController*.cs")
                 .OrderBy(static path => path, StringComparer.Ordinal)
