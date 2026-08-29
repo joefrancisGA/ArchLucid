@@ -10110,6 +10110,7 @@ BEGIN
         ElementsJson NVARCHAR(MAX) NOT NULL CONSTRAINT DF_ArchitectureKnowledgeModels_ElementsJson DEFAULT (N'[]'),
         DeclaredPrioritiesJson NVARCHAR(MAX) NOT NULL CONSTRAINT DF_ArchitectureKnowledgeModels_PrioritiesJson DEFAULT (N'[]'),
         FramingAnswersJson NVARCHAR(MAX) NOT NULL CONSTRAINT DF_ArchitectureKnowledgeModels_FramingJson DEFAULT (N'{}'),
+        IsProvisionalSynthesis BIT NOT NULL CONSTRAINT DF_ArchitectureKnowledgeModels_IsProvisionalSynthesis DEFAULT (0),
         CreatedUtc DATETIME2 NOT NULL CONSTRAINT DF_ArchitectureKnowledgeModels_CreatedUtc DEFAULT (SYSUTCDATETIME()),
         UpdatedUtc DATETIME2 NOT NULL CONSTRAINT DF_ArchitectureKnowledgeModels_UpdatedUtc DEFAULT (SYSUTCDATETIME()),
         CONSTRAINT PK_ArchitectureKnowledgeModels PRIMARY KEY (ModelId)
