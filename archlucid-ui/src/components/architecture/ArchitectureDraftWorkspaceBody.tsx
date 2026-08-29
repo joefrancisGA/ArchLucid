@@ -6,7 +6,6 @@ import dynamic from "next/dynamic";
 import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftNextDraftFooter } from "@/components/architecture/ArchitectureDraftNextDraftFooter";
-import { ArchitectureDraftStartReviewGate } from "@/components/architecture/ArchitectureDraftStartReviewGate";
 import { ArchitectureDraftWorkspaceHeaderChrome } from "@/components/architecture/ArchitectureDraftWorkspaceHeaderChrome";
 import { ArchitectureDraftWorkspaceIntakeStack } from "@/components/architecture/ArchitectureDraftWorkspaceIntakeStack";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
