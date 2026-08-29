@@ -484,3 +484,4 @@
 {"at":"2026-08-28T15:47:29.3130297Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-08-28T15:55:34.7115905Z","zoneId":"decisioning","outcome":"hit"}
 {"at":"2026-08-28T18:25:38.4134985Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-28T20:41:51.1135478Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
