@@ -4,7 +4,6 @@ import type { ReactElement } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
-import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTableCell,
