@@ -2242,10 +2242,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
 - **hunts:** 81
-- **bugs-found:** 229
+- **bugs-found:** 230
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — simulate-bulk invalid runIds 400
+- **last-bug:** 2026-08-28 — legal hold past untilUtc returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2302,6 +2302,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceResolutionController.Resolve` / `EffectiveGovernanceResolver.ResolveAsync` — tenant-level assignment for workspace-authored pack merged foreign workspace `ContentJson` — **hit 2026-08-26:** `PolicyPackVisibility.IsVisibleInScope` filters `GetByIdsAsync` enrichment; regression in `EffectiveGovernanceResolverTests.ResolveAsync_excludes_foreign_workspace_pack_on_tenant_level_assignment`.
 - [x] (proven) `PolicyPacksController.GetEffectiveContent` / `GetPageBundle` / `GovernanceSetupController.GetSetupGuideBundle` — foreign-workspace pack JSON leak via `PolicyPackResolver.ResolveAsync` — **hit 2026-08-26:** same visibility filter in resolver; regression in `PolicyPackResolverTests.ResolveAsync_excludes_foreign_workspace_pack_on_tenant_level_assignment`.
 - [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — missing tenant row returned HTTP 409 instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_not_found_when_tenant_missing`.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — past `untilUtc` returned HTTP 409 from command layer instead of HTTP 400 validation — **hit 2026-08-28:** reject non-future `untilUtc` before `TrySetLegalHoldAsync`; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past`.
 - [x] (invalid) `TenantCostSettingsController.PutAsync` — both `eaDiscountPercentage` and `eaDiscountMultiplier` supplied → percentage wins silently with no 400 — **cheap-disproof 2026-08-26:** `TenantCostSettingsPutRequest` XML documents percentage precedence when both are set; not a validation defect.
 - [x] (proven) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — approval row with deleted/out-of-scope `RunId` returned HTTP 200 shell instead of 404 — **hit 2026-08-26:** `RequireScopedRunAsync` preflight on approval `RunId` before lineage/rationale service calls; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `GovernanceController.Approve` / `Reject` — foreign-workspace `approvalRequestId` returned HTTP 400 instead of 404 — **hit 2026-08-26:** `approvalRepo.GetByIdAsync` preflight before workflow review; regression in `GovernanceControllerRunHistoryScopeTests.Approve_returns_not_found_when_approval_request_is_out_of_scope`.
