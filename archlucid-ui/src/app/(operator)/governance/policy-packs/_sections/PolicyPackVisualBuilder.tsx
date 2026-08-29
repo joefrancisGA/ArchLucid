@@ -116,7 +116,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
                   committedOnly
                   preferAutoPick={false}
                   autoSelectSyntheticSample={false}
-                  label="Review package"
+                  label="architecture package"
                   fieldId="visual-builder-run-picker"
                   hideFieldHelper
                 />
@@ -152,7 +152,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
                   committedOnly
                   preferAutoPick={false}
                   autoSelectSyntheticSample={false}
-                  label="Review package"
+                  label="architecture package"
                   fieldId="visual-builder-run-picker"
                   hideFieldHelper
                 />

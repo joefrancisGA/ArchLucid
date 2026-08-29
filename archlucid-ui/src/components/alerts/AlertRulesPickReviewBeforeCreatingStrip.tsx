@@ -48,7 +48,7 @@ export function AlertRulesPickReviewBeforeCreatingStrip(
         Pick a review before creating rules
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Alert rules are easiest to validate against one review package. Choose one to keep threshold previews aligned.
+        Alert rules are easiest to validate against one architecture package. Choose one to keep threshold previews aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +62,7 @@ export function AlertRulesPickReviewBeforeCreatingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="alert-rules-pick-review-before-creating"
           hideFieldHelper
         />

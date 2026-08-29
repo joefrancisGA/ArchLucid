@@ -48,7 +48,7 @@ export function GovernanceApprovalQueuePickReviewBeforeSubmittingStrip(
         Pick a review before submitting
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Governance submissions are easiest to interpret against one review package. Choose one to load the approval
+        Governance submissions are easiest to interpret against one architecture package. Choose one to load the approval
         workflow.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -63,7 +63,7 @@ export function GovernanceApprovalQueuePickReviewBeforeSubmittingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="governance-approval-queue-pick-review-before-submitting"
           hideFieldHelper
         />

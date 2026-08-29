@@ -18,7 +18,7 @@ export function resolveArchitectureIntelligenceAnalysisSteps(input: {
     },
     {
       id: "analyze",
-      label: "Run analysis",
+      label: "start analysis",
       complete: input.analysisComplete,
     },
   ];

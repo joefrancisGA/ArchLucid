@@ -719,33 +719,7 @@ export interface components {
             overallSemanticScore?: number | string;
             traceId?: string;
         };
-        AgentResult: {
-            agentType: components["schemas"]["AgentType"];
-            cacheServed?: boolean;
-            /** Format: double */
-            calibratedConfidence?: null | number | string;
-            checklistCoverage?: components["schemas"]["ArchitectureFinding"][];
-            citations?: null | components["schemas"]["Citation"][];
-            claims: string[];
-            /** Format: double */
-            confidence?: number | string;
-            /** Format: date-time */
-            createdUtc?: string;
-            degradationReasonCode?: null | string;
-            evidenceRefs: string[];
-            findings?: components["schemas"]["ArchitectureFinding"][];
-            insightDensityCuration?: null | components["schemas"]["InsightDensityCurationSummary"];
-            proposedChanges?: null | components["schemas"]["AgentTopologyProposal"];
-            reasoningTrace?: null | string;
-            resultId: string;
-            retrievalGroundingTrace?: null | components["schemas"]["AgentResultRetrievalGroundingTrace"];
-            runId: string;
-            taskId: string;
-            taskStructuralExecutionMode?: null | components["schemas"]["StructuralExecutionMode"];
-            upstreamResultFingerprints?: null | {
-                [key: string]: string;
-            };
-        };
+        AgentResult: unknown;
         AgentResultCompareResponse: {
             diff?: components["schemas"]["AgentResultDiffResult"];
         };
@@ -779,10 +753,6 @@ export interface components {
             rightRunId?: string;
             warnings?: string[];
         };
-        AgentResultRetrievalGroundingTrace: {
-            /** Format: double */
-            citationCoverage?: number | string;
-        };
         AgentTask: {
             agentType: components["schemas"]["AgentType"];
             agentTypeKey?: null | string;
@@ -801,15 +771,6 @@ export interface components {
         };
         /** @enum {string} */
         AgentTaskStatus: "Created" | "InProgress" | "Completed" | "Rejected" | "Failed";
-        AgentTopologyProposal: {
-            addedDatastores?: components["schemas"]["ManifestDatastore"][];
-            addedRelationships?: components["schemas"]["ManifestRelationship"][];
-            addedServices?: components["schemas"]["ManifestService"][];
-            proposalId?: string;
-            requiredControls?: string[];
-            sourceAgent?: components["schemas"]["AgentType"];
-            warnings?: string[];
-        };
         /** @enum {string} */
         AgentType: "Topology" | "Cost" | "Compliance" | "Critic";
         AlertActionLoopResponse: {
@@ -995,6 +956,19 @@ export interface components {
             isConfigured?: boolean;
             maskedSegments?: null | string[];
         };
+        ApplyKnowledgeModelClarificationAnswersRequest: {
+            answers?: {
+                [key: string]: string;
+            };
+        };
+        ApplyKnowledgeModelClarificationAnswersResponse: {
+            /** Format: int32 */
+            appliedCount?: number;
+            /** Format: int32 */
+            mergedFindingCount?: number;
+            partialScopeDisclaimer?: null | string;
+            reReviewTriggered?: boolean;
+        };
         ApproveGovernanceRequest: {
             reviewComment?: null | string;
             reviewedBy?: string;
@@ -1086,46 +1060,18 @@ export interface components {
             confirmedRequiredCapabilities?: string[];
             deniedAssumptions?: string[];
             deniedConstraints?: string[];
+            deniedFailureModeNote?: null | string;
             deniedRequiredCapabilities?: string[];
             failureModeNote?: null | string;
             operationalOwner?: null | string;
             qualityAttribute?: null | string;
             suggestedAssumptions?: string[];
             suggestedConstraints?: string[];
+            suggestedFailureModeNote?: null | string;
             suggestedRequiredCapabilities?: string[];
         };
         /** @enum {string} */
         ArchitectureElementKind: "BusinessObjective" | "Stakeholder" | "FunctionalRequirement" | "QualityAttribute" | "Constraint" | "Assumption" | "Decision" | "Alternative" | "Component" | "Interface" | "DataFlow" | "TrustBoundary" | "DeploymentTopology" | "FailureMode" | "RecoveryObjective" | "CapacityExpectation" | "CostDriver" | "OperationalOwnership" | "ComplianceObligation" | "Evidence" | "Risk" | "Recommendation" | "UnresolvedQuestion" | "TradeOff" | "Contradiction";
-        ArchitectureFinding: {
-            category?: string;
-            classification?: null | components["schemas"]["FindingClassification"];
-            confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
-            /** Format: double */
-            confidenceScore?: null | number | string;
-            decisionConsequence?: null | string;
-            enforcementTier?: components["schemas"]["FindingEnforcementTier"];
-            /** Format: double */
-            estimatedUsdSavings?: null | number | string;
-            /** Format: int32 */
-            evaluationConfidenceScore?: null | number;
-            evidenceRefs?: string[];
-            findingId?: string;
-            iacStub?: null | string;
-            /** Format: int32 */
-            insightDensityScore?: null | number;
-            isMuted?: boolean;
-            message?: string;
-            muteReason?: null | string;
-            policyRuleId?: null | string;
-            principalArchitectValue?: null | string;
-            reasoningTrace?: null | string;
-            severity?: components["schemas"]["FindingSeverity"];
-            sourceAgent?: components["schemas"]["AgentType"];
-            treatment?: null | components["schemas"]["FindingTreatment"];
-            trustLabel?: null | string;
-            trustLabelReason?: null | string;
-            whyThisIsNotGeneric?: null | string;
-        };
         ArchitectureFindingFeedbackPostRequest: {
             comment?: null | string;
             isHelpful?: boolean;
@@ -1297,6 +1243,7 @@ export interface components {
             modelExecutionProfileOverride?: null | string;
             policyReferences: string[];
             priorManifestVersion?: null | string;
+            priorRunId?: null | string;
             qualityAttributeSnapshot?: null | string;
             requestId: string;
             requestSource?: null | string;
@@ -1313,6 +1260,8 @@ export interface components {
             name: string;
         };
         ArchitectureReviewRecurrenceSchedule: {
+            /** Format: uuid */
+            architectureId?: null | string;
             /** Format: int32 */
             consecutiveFailureCount?: number;
             createdByUserId?: string;
@@ -1410,7 +1359,7 @@ export interface components {
             hasBrokenManifestReference?: boolean;
             isCommitted?: boolean;
             manifest?: null | components["schemas"]["GoldenManifest"];
-            results?: components["schemas"]["AgentResult"][];
+            results?: unknown[];
             run?: components["schemas"]["ArchitectureRun"];
             tasks?: components["schemas"]["AgentTask"][];
         };
@@ -1891,6 +1840,11 @@ export interface components {
             sourceArtifactId?: null | string;
             supportStatus?: components["schemas"]["SupportStatus"];
         };
+        ClarificationAnswerRephraseItem: {
+            extractedAnswer: string;
+            questionKey: string;
+            questionPrompt: string;
+        };
         ClientErrorReport: {
             context?: null | {
                 [key: string]: string;
@@ -2010,6 +1964,8 @@ export interface components {
             ruleSetVersion?: string;
         };
         CommittedGovernancePackAssignmentSnapshot: {
+            complianceRuleKeys?: string[];
+            evaluationOutcome?: null | string;
             /** Format: uuid */
             policyPackId?: string;
             policyPackVersion?: string;
@@ -3361,7 +3317,7 @@ export interface components {
             weekLabel?: string;
         };
         ExecuteRunResponse: {
-            results?: components["schemas"]["AgentResult"][];
+            results?: unknown[];
             runId?: string;
         };
         ExplainStructuredBriefSuggestionInput: {
@@ -3592,7 +3548,8 @@ export interface components {
         FindingConfidenceLevel: "High" | "Medium" | "Low" | null;
         /** @enum {string} */
         FindingCorrelationMethod: "None" | "PolicyRuleAndFingerprint" | "MessageCategoryFuzzy";
-        FindingDisposition: number;
+        /** @enum {string} */
+        FindingDisposition: "Accepted" | "Deferred" | "NeedsEvidence" | "Remediated" | "RejectedAsNotApplicable";
         FindingDispositionEventDto: {
             disposition?: components["schemas"]["FindingDisposition"];
             /** Format: uuid */
@@ -3754,6 +3711,8 @@ export interface components {
             traceId?: string;
             userPromptRedacted?: string;
         };
+        /** @enum {string} */
+        FindingMergeConflictResolutionAction: "AcceptPrimary" | "AcceptAlternate" | "KeepBoth";
         FindingMuteRequest: {
             /** Format: date-time */
             expiresAtUtc?: null | string;
@@ -3810,7 +3769,7 @@ export interface components {
             traceCompletenessRatio?: number | string;
             traceConfidenceLabel: string;
         };
-        FindingTreatment: number;
+        FindingTreatment: unknown;
         FindingsSnapshot: {
             checklistCoverage?: components["schemas"]["Finding"][];
             /** Format: uuid */
@@ -4441,6 +4400,7 @@ export interface components {
         IncrementalReReviewResult: {
             fullReReviewTriggered?: boolean;
             globalInvariantResults?: components["schemas"]["GlobalInvariantCheckResult"][];
+            mergedFindingIds?: string[];
             partialScopeDisclaimer?: null | string;
             scope?: components["schemas"]["ReReviewScope"];
             specialistResults?: components["schemas"]["SpecialistReviewResult"][];
@@ -5184,7 +5144,9 @@ export interface components {
         MustNotFailViolation: {
             blocked?: boolean;
             class?: components["schemas"]["MustNotFailClass"];
+            findingId?: null | string;
             message?: string;
+            recommendationId?: null | string;
         };
         NoiseScoreBreakdown: {
             /** Format: double */
@@ -5219,6 +5181,36 @@ export interface components {
         };
         /** @enum {string} */
         OperationState: "Pending" | "Running" | "Succeeded" | "Failed" | "Canceled" | "CancelRequested";
+        OperationalErrorRecord: {
+            actorUserId?: null | string;
+            category?: string;
+            correlationId?: null | string;
+            detailJson?: string;
+            exceptionType?: null | string;
+            httpMethod?: null | string;
+            /** Format: int32 */
+            httpStatusCode?: null | number;
+            /** Format: uuid */
+            id?: string;
+            message?: string;
+            /** Format: date-time */
+            occurredUtc?: string;
+            otelTraceId?: null | string;
+            problemType?: null | string;
+            /** Format: uuid */
+            projectId?: null | string;
+            requestPath?: null | string;
+            source?: string;
+            /** Format: int32 */
+            sqlErrorNumber?: null | number;
+            /** Format: int32 */
+            sqlErrorState?: null | number;
+            stackTrace?: null | string;
+            /** Format: uuid */
+            tenantId?: null | string;
+            /** Format: uuid */
+            workspaceId?: null | string;
+        };
         OperatorDemoReviewFindingSummary: {
             policyRuleKey?: null | string;
             severity?: string;
@@ -6178,6 +6170,25 @@ export interface components {
             syntheticCount?: number;
             syntheticSeverity?: components["schemas"]["FindingSeverity"];
         };
+        PreFinalizeChecklistItem: {
+            /** Format: int32 */
+            count?: number;
+            detail?: null | string;
+            itemId?: string;
+            status?: components["schemas"]["PreFinalizeChecklistItemStatus"];
+            title?: string;
+        };
+        /** @enum {string} */
+        PreFinalizeChecklistItemStatus: "Clear" | "Advisory" | "Blocking";
+        PreFinalizeChecklistResult: {
+            /** Format: int32 */
+            advisoryCount?: number;
+            /** Format: int32 */
+            blockingCount?: number;
+            items?: components["schemas"]["PreFinalizeChecklistItem"][];
+            readyToFinalize?: boolean;
+            runId?: string;
+        };
         PreviewRecurrenceScheduleRunsRequest: {
             /** Format: int32 */
             count?: number;
@@ -6502,11 +6513,22 @@ export interface components {
             comment?: null | string;
             rationale?: null | string;
         };
+        RecommendationActionResponse: {
+            improveLoop?: null | components["schemas"]["RecommendationImproveLoopEvidenceResponse"];
+            recommendation?: components["schemas"]["RecommendationRecordResponse"];
+        };
         RecommendationAlternative: {
             path?: string;
             validationCriteria?: string;
         };
         RecommendationConfidence: number;
+        RecommendationImproveLoopEvidenceResponse: {
+            diffEntries?: components["schemas"]["ArchitectureModelDiffEntry"][];
+            fullReReviewTriggered?: boolean;
+            impact?: null | components["schemas"]["ChangeImpactResult"];
+            mergedFindingIds?: string[];
+            partialScopeDisclaimer?: null | string;
+        };
         RecommendationLearningOperationalStatusResponse: {
             activeProfile?: null | components["schemas"]["RecommendationLearningProfileMetadataResponse"];
             blockingReason?: null | string;
@@ -6719,13 +6741,6 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
-        RecommendationImproveLoopEvidenceResponse: {
-            diffEntries?: components["schemas"]["ArchitectureModelDiffEntry"][];
-            fullReReviewTriggered?: boolean;
-            impact?: null | components["schemas"]["ChangeImpactResult"];
-            mergedFindingIds?: string[];
-            partialScopeDisclaimer?: null | string;
-        };
         RecommendationRecordResponse: {
             category?: string;
             /** Format: uuid */
@@ -6825,6 +6840,14 @@ export interface components {
             expiresAtUtc: string;
             rationale?: null | string;
         };
+        RephraseClarificationAnswersInput: {
+            items: components["schemas"]["ClarificationAnswerRephraseItem"][];
+        };
+        RephraseClarificationAnswersResponse: {
+            rephrasedAnswers?: {
+                [key: string]: string;
+            };
+        };
         ReplayComparisonMetadataResponse: {
             comparisonRecordId?: string;
             comparisonType?: string;
@@ -6914,7 +6937,7 @@ export interface components {
             manifest?: null | components["schemas"]["GoldenManifest"];
             originalRunId?: string;
             replayRunId?: string;
-            results?: components["schemas"]["AgentResult"][];
+            results?: unknown[];
             warnings?: string[];
         };
         ReplayValidationResponse: {
@@ -6969,6 +6992,9 @@ export interface components {
         RequirementsCoverageSection: {
             covered?: components["schemas"]["RequirementCoverageItem"][];
             uncovered?: components["schemas"]["RequirementCoverageItem"][];
+        };
+        ResolveFindingMergeConflictRequest: {
+            action?: components["schemas"]["FindingMergeConflictResolutionAction"];
         };
         ResolvedArchitectureDecision: {
             buyerConfidenceSource?: null | string;
@@ -7318,7 +7344,7 @@ export interface components {
             goldenManifest?: null | components["schemas"]["ManifestDocument"];
             graphSnapshot?: null | components["schemas"]["GraphSnapshot"];
             lastAgentExecutionFailure?: null | components["schemas"]["AgentExecutionFailureSummary"];
-            results?: null | components["schemas"]["AgentResult"][];
+            results?: null | unknown[];
             retrievalGroundingSummary?: null | components["schemas"]["RunRetrievalGroundingSummaryDto"];
             run?: components["schemas"]["RunRecord"];
             runDegradedExecution?: boolean;
@@ -7343,7 +7369,7 @@ export interface components {
             decisionTraces?: unknown[];
             executionFlavorBuyerSummary?: null | string;
             manifest?: null | components["schemas"]["GoldenManifest"];
-            results?: components["schemas"]["AgentResult"][];
+            results?: unknown[];
             run?: components["schemas"]["ArchitectureRun"];
             tasks?: components["schemas"]["AgentTask"][];
             trustEvidenceCard?: null | components["schemas"]["RunTrustEvidenceCard"];
@@ -7576,6 +7602,8 @@ export interface components {
             summary?: string;
         };
         RunRecord: {
+            /** Format: uuid */
+            architectureId?: null | string;
             architectureRequestId?: null | string;
             /** Format: date-time */
             archivedUtc?: null | string;
@@ -7601,11 +7629,13 @@ export interface components {
             graphSnapshotId?: null | string;
             hasGovernanceWarnings?: boolean;
             hasWarnings?: boolean;
+            improveLoopEvidenceJson?: null | string;
             isDeadLettered?: boolean;
             isDemoWelcomeRun?: boolean;
             isPinned?: boolean;
             isPublicShowcase?: boolean;
             isSample?: boolean;
+            knowledgeModelId?: null | string;
             lastFailureReason?: null | string;
             legacyRunStatus?: null | string;
             operatorGovernanceDecision?: null | string;
@@ -8526,6 +8556,22 @@ export interface components {
             jobId: string;
             /** Format: date-time */
             offboardedUtc: string;
+        };
+        TenantFindingEngineControlsResponse: {
+            effectiveEnableLlmJudge?: boolean;
+            effectiveEnableLlmJudgeForEngineFindings?: boolean;
+            effectivePortfolioRecurrenceEnabled?: boolean;
+            enableLlmJudgeForEngineFindingsOverridden?: boolean;
+            enableLlmJudgeOverridden?: boolean;
+            hostDefaultEnableLlmJudge?: boolean;
+            hostDefaultEnableLlmJudgeForEngineFindings?: boolean;
+            hostDefaultPortfolioRecurrenceEnabled?: boolean;
+            portfolioRecurrenceEnabledOverridden?: boolean;
+        };
+        TenantFindingEngineControlsUpdateRequest: {
+            enableLlmJudge?: boolean;
+            enableLlmJudgeForEngineFindings?: boolean;
+            portfolioRecurrenceEnabled?: boolean;
         };
         TenantHealthScoreResponse: {
             /** Format: double */

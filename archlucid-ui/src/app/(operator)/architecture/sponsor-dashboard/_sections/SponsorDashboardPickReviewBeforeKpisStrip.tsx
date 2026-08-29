@@ -36,7 +36,7 @@ export function SponsorDashboardPickReviewBeforeKpisStrip(
         Pick a review before reading sponsor KPIs
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Sponsor savings and drift metrics are easiest to interpret against a finalized review package. Choose one
+        Sponsor savings and drift metrics are easiest to interpret against a finalized architecture package. Choose one
         to keep executive context aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -51,7 +51,7 @@ export function SponsorDashboardPickReviewBeforeKpisStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="sponsor-dashboard-pick-review-before-kpis"
           hideFieldHelper
         />
