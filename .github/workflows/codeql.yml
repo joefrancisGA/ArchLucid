@@ -1,14 +1,13 @@
 # Code scanning for C# (solution) and JavaScript/TypeScript (Operator UI).
-# Enable "Code scanning" in repo Settings → Security after merge if alerts do not appear.
+# Keep heavyweight CodeQL off the high-churn PR hot path; run it on trunk, weekly, or manually.
 name: CodeQL
 
 on:
   push:
     branches: [main, master]
-  pull_request:
-    branches: [main, master]
   schedule:
     - cron: "12 9 * * 1"
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -16,10 +15,10 @@ env:
   ARCHLUCID_UI_DIR: archlucid-ui
 
 concurrency:
-  # Per-commit group: cancel-in-progress=false alone still evicts the single pending slot when
-  # trunk churn is high (GitHub allows one running + one pending per group). See CODEQL_TRIAGE.md.
-  group: codeql-${{ github.sha }}
-  cancel-in-progress: false
+  # Only the newest CodeQL run for a ref matters. Cancel stale work so trunk churn cannot
+  # consume runner capacity on superseded commits.
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   csharp:
@@ -44,8 +43,7 @@ jobs:
           # AlertSuppression binds // codeql[rule-id] comments into SARIF suppressions for assert_codeql_sarif_clean.py.
           packs: codeql/csharp-queries:AlertSuppression.ql
           config-file: ./.github/codeql/codeql-config.yml
-          # `none` is required for PR overlay-base incremental DBs; `manual` forces a full DB and logs a warning.
-          # Trade-off: analysis is "good" vs "best" per GitHub docs; we restore packages to help resolution without a traced build.
+          # Standalone C# extraction keeps CodeQL independent of a traced build.
           build-mode: none
 
       - name: Setup .NET
@@ -62,7 +60,7 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore ArchLucid.sln
 
-      # Emit workspace SARIF for a strict CI gate (complements GitHub "code scanning" PR policies).
+      # Emit workspace SARIF for a strict trunk/security gate.
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
         with:
