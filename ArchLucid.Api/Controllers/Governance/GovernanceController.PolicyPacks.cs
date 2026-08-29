@@ -212,7 +212,7 @@ public sealed partial class GovernanceController
         if (request.EvaluateAgainstRunIds.Any(static id => string.IsNullOrWhiteSpace(id)))
         {
             return this.BadRequestProblem(
-                "Each evaluateAgainstRunId must be a non-empty string.",
+                "Each value in evaluateAgainstRunIds must be a non-empty string.",
                 ProblemTypes.ValidationFailed);
         }
 
