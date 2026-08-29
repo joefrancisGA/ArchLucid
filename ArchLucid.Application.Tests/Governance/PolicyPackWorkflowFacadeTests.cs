@@ -231,7 +231,7 @@ public sealed class PolicyPackWorkflowFacadeTests
 
         PolicyPackSimulateBulkSummary? summary = await sut.TrySimulateBulkAsync(
             packId,
-            ["run-1", "run-1", "RUN-1"],
+            ["run-1", " run-1 ", "run-1", "RUN-1"],
             blockCommitOnCritical: null,
             blockCommitMinimumSeverity: null,
             CancellationToken.None);
