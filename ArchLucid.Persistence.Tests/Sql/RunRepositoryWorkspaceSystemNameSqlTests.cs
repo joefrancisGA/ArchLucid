@@ -33,8 +33,7 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
 
         sql.Should().Contain("@FailedStatus");
         sql.Should().Contain("@QualityRejectedStatus");
-        sql.Should().Contain(nameof(ArchitectureRunStatus.Failed));
-        sql.Should().Contain(nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected));
+        sql.Should().Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)");
     }
 
     [Fact]
