@@ -21,7 +21,7 @@ import { buildWebhookSubscriptionMetadata } from "@/lib/webhook-subscription-met
 import { writeWebhookSubscriptionLastViewedId } from "@/lib/resolve-continue-last-webhook-subscription";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
-type WebhookEnableTarget = {
+export type WebhookEnableTarget = {
   readonly routingSubscriptionId: string;
   readonly subscriptionName: string;
 };
