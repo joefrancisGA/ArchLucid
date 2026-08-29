@@ -249,7 +249,7 @@ public sealed class TenantBaselineControllerTests
             r => r.PersistTrialSignupBaselineReviewCycleAsync(
                 Scope.TenantId,
                 40m,
-                It.Is<string?>(s => s is not null && s.Contains("Updated operator note", StringComparison.Ordinal)),
+                It.Is<string?>(s => s != null && s.Contains("Updated operator note", StringComparison.Ordinal)),
                 It.IsAny<DateTimeOffset>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
