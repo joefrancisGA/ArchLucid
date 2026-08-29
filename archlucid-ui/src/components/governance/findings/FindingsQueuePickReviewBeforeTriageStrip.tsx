@@ -48,7 +48,7 @@ export function FindingsQueuePickReviewBeforeTriageStrip(
         Pick a review before triage
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Scope the findings queue to one review package so triage actions stay aligned with governance context.
+        Scope the findings queue to one architecture package so triage actions stay aligned with governance context.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +62,7 @@ export function FindingsQueuePickReviewBeforeTriageStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="findings-queue-pick-review-before-triage"
           hideFieldHelper
         />

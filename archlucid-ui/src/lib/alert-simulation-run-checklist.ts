@@ -8,7 +8,7 @@ export function resolveAlertSimulationRunSteps(input: {
   return [
     {
       id: "review",
-      label: "Pick a review package",
+      label: "Pick a architecture package",
       complete: input.reviewPicked,
     },
     {

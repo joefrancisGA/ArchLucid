@@ -48,7 +48,7 @@ export function AlertRoutingPickReviewBeforeRoutingStrip(
         Pick a review before routing alerts
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Notification destinations are easiest to validate against one review package. Choose one to keep threshold
+        Notification destinations are easiest to validate against one architecture package. Choose one to keep threshold
         previews aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -63,7 +63,7 @@ export function AlertRoutingPickReviewBeforeRoutingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="alert-routing-pick-review-before-routing"
           hideFieldHelper
         />

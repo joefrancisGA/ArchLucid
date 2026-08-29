@@ -36,7 +36,7 @@ export function AdvisoryScansPickReviewBeforeScanningStrip(
         Pick a review before scanning
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Advisory scans are easiest to interpret against a finalized review package. Choose one to keep
+        Advisory scans are easiest to interpret against a finalized architecture package. Choose one to keep
         recommendations aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -51,7 +51,7 @@ export function AdvisoryScansPickReviewBeforeScanningStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="advisory-scans-pick-review-before-scanning"
           hideFieldHelper
         />
