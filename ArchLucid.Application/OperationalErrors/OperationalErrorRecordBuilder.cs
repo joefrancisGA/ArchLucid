@@ -2,8 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.OperationalErrors;
-
-using Microsoft.Data.SqlClient;
+using ArchLucid.Persistence.Connections;
 
 namespace ArchLucid.Application.OperationalErrors;
 
@@ -12,7 +11,7 @@ public static class OperationalErrorRecordBuilder
     public static OperationalErrorRecord Build(OperationalErrorCaptureRequest request, OperationalErrorOptions options)
     {
         Exception? exception = request.Exception;
-        SqlException? sqlException = FindSqlException(exception);
+        bool hasSqlError = SqlExceptionTraversal.TryFind(exception, out SqlErrorSnapshot sqlError);
 
         string message = request.MessageOverride ?? exception?.Message ?? "HTTP error";
 
@@ -21,7 +20,7 @@ public static class OperationalErrorRecordBuilder
             Id = Guid.NewGuid(),
             OccurredUtc = TimeProvider.System.UtcNowDateTime(),
             Source = request.Source,
-            Category = ResolveCategory(request.Category, sqlException),
+            Category = ResolveCategory(request.Category, hasSqlError),
             HttpStatusCode = request.HttpStatusCode,
             HttpMethod = TruncateNullable(LogSanitizer.Sanitize(request.HttpMethod), 16),
             RequestPath = TruncateNullable(LogSanitizer.Sanitize(request.RequestPath), 2048),
@@ -29,8 +28,8 @@ public static class OperationalErrorRecordBuilder
             ExceptionType = TruncateNullable(LogSanitizer.Sanitize(exception?.GetType().FullName), 512),
             Message = TruncateRequired(LogSanitizer.Sanitize(message), options.MaxMessageLength),
             StackTrace = TruncateNullable(LogSanitizer.Sanitize(exception?.StackTrace), options.MaxStackTraceLength),
-            SqlErrorNumber = sqlException?.Number,
-            SqlErrorState = sqlException?.State,
+            SqlErrorNumber = hasSqlError ? sqlError.Number : null,
+            SqlErrorState = hasSqlError ? sqlError.State : null,
             CorrelationId = TruncateNullable(LogSanitizer.Sanitize(request.CorrelationId), 128),
             OtelTraceId = TruncateNullable(LogSanitizer.Sanitize(request.OtelTraceId), 64),
             TenantId = request.TenantId,
@@ -41,9 +40,9 @@ public static class OperationalErrorRecordBuilder
         };
     }
 
-    private static string ResolveCategory(string requestedCategory, SqlException? sqlException)
+    private static string ResolveCategory(string requestedCategory, bool hasSqlError)
     {
-        if (sqlException is not null)
+        if (hasSqlError)
             return OperationalErrorCategory.DatabaseError;
 
         return requestedCategory;
@@ -79,17 +78,6 @@ public static class OperationalErrorRecordBuilder
         }
 
         return summaries;
-    }
-
-    private static SqlException? FindSqlException(Exception? exception)
-    {
-        for (Exception? current = exception; current is not null; current = current.InnerException)
-        {
-            if (current is SqlException sqlException)
-                return sqlException;
-        }
-
-        return null;
     }
 
     private static string? TruncateNullable(string? value, int maxLength)
