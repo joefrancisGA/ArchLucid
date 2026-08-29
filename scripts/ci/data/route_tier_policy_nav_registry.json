@@ -422,6 +422,16 @@
       "nav_operator_href": "/administration/ai-usage"
     },
     {
+      "controller_file": "Admin/OperationalErrorsAdminController.cs",
+      "class_name": "OperationalErrorsAdminController",
+      "route_template": "v{version:apiVersion}/admin/operational-errors",
+      "normalized_prefix": "/v1/admin/operational-errors",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/OperationsController.cs",
       "class_name": "OperationsController",
       "route_template": "v{version:apiVersion}/operations",
