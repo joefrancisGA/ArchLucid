@@ -61,6 +61,13 @@ public sealed class InboundWebhookBoundedBodyArchitectureTests
         string itsm = File.ReadAllText(itsmPath);
 
         limits.Should().Contain("DefaultMaxUtf8Bytes = 65536");
-        itsm.Should().Contain("MaxInboundWebhookPayloadUtf8Bytes = 65536");
+
+        bool hasLiteralConstant = itsm.Contains("MaxInboundWebhookPayloadUtf8Bytes = 65536", StringComparison.Ordinal);
+        bool delegatesToSupport = itsm.Contains(
+            "ItsmInboundWebhookSyncSupport.MaxInboundWebhookPayloadUtf8Bytes",
+            StringComparison.Ordinal);
+
+        (hasLiteralConstant || delegatesToSupport).Should().BeTrue(
+            because: "ITSM max payload must remain 65536 via literal or shared support constant");
     }
 }

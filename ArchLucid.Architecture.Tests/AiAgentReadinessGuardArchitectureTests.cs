@@ -48,10 +48,11 @@ public sealed class AiAgentReadinessGuardArchitectureTests
     [Fact]
     public void Tb326_host_composition_wires_fallback_and_cost_guardrail()
     {
-        string agentsStartupDir = Path.Combine(RepoRoot, "ArchLucid.Host.Composition", "Startup");
+        string agentsModuleDir = Path.Combine(RepoRoot, "ArchLucid.Host.Composition", "Startup", "Modules", "Agents");
         string text = string.Concat(
-            File.ReadAllText(Path.Combine(agentsStartupDir, "ServiceCollectionExtensions.Agents.cs")),
-            File.ReadAllText(Path.Combine(agentsStartupDir, "ServiceCollectionExtensions.Agents.CompletionPipeline.cs")));
+            Directory.EnumerateFiles(agentsModuleDir, "*.cs")
+                .OrderBy(static path => path, StringComparer.Ordinal)
+                .Select(File.ReadAllText));
 
         text.Should().Contain("new FallbackAgentCompletionClient(");
         text.Should().Contain("new CostGuardrailInterceptor(");

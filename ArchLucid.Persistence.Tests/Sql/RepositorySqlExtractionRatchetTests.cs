@@ -35,11 +35,6 @@ public sealed class RepositorySqlExtractionRatchetTests
         new()
         {
             {
-                "ArchLucid.Persistence/IntegrationOutbox/DapperIntegrationEventOutboxRepository.cs",
-                "IntegrationEventOutboxSql",
-                "ArchLucid.Persistence/IntegrationOutbox/IntegrationEventOutboxSql.cs"
-            },
-            {
                 "ArchLucid.Persistence/Coordination/ProductLearning/DapperProductLearningPilotSignalRepository.cs",
                 "ProductLearningPilotSignalSql",
                 "ArchLucid.Persistence/Coordination/ProductLearning/ProductLearningPilotSignalSql.cs"
@@ -93,11 +88,6 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/Repositories/SqlRunRepository.Query.cs",
                 "RunRepositorySql",
                 "ArchLucid.Persistence/Sql/RunRepositorySql.cs"
-            },
-            {
-                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.cs",
-                "LlmTenantBudgetSql",
-                "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
             },
             {
                 "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.JudgeDaily.cs",

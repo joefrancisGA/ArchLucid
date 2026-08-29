@@ -6,6 +6,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Governance;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class PolicyPackAssignmentOutcomeRecorderTests
 {
     [Fact]
