@@ -1262,6 +1262,52 @@ public sealed class GovernanceStickinessControllerTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_finding_ids_differ_only_by_case()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request => request.FindingId == "finding-1"),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = "finding-1" });
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1", "FINDING-1"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk"
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        dispositions.Verify(
+            d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 
     [Fact]
     public async Task RecordBulkDisposition_returns_bad_request_when_more_than_fifty_finding_ids()
