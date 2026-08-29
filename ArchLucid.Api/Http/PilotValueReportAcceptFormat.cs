@@ -17,7 +17,7 @@ public static class PilotValueReportAcceptFormat
 
         double markdownQuality = GetMediaTypeQuality(mediaTypes, "text/markdown");
         double jsonQuality = Math.Max(
-            GetMediaTypeQuality(mediaTypes, "application/json"),
+            GetExactMediaTypeQuality(mediaTypes, "application/json"),
             Math.Max(GetMediaTypeQuality(mediaTypes, "application/*"), GetMediaTypeQuality(mediaTypes, "*/*")));
 
         if (markdownQuality > jsonQuality)
@@ -35,6 +35,10 @@ public static class PilotValueReportAcceptFormat
         if (jsonIndex < 0)
             return true;
 
+        // Equal q: prefer a concrete markdown entry over JSON-family wildcards (application/*, */*).
+        if (markdownQuality > 0 && !HasConcreteJsonAtQuality(mediaTypes, markdownQuality))
+            return true;
+
         return markdownIndex < jsonIndex;
     }
 
@@ -50,6 +54,29 @@ public static class PilotValueReportAcceptFormat
         }
 
         return mediaTypes;
+    }
+
+    private static double GetExactMediaTypeQuality(IList<MediaTypeHeaderValue> mediaTypes, string mediaType)
+    {
+        double bestQuality = 0.0;
+
+        foreach (MediaTypeHeaderValue candidate in mediaTypes)
+        {
+            if (!MatchesExactMediaType(candidate, mediaType))
+                continue;
+
+            double quality = candidate.Quality ?? 1.0;
+
+            if (quality > bestQuality)
+                bestQuality = quality;
+        }
+
+        return bestQuality;
+    }
+
+    private static bool MatchesExactMediaType(MediaTypeHeaderValue candidate, string mediaType)
+    {
+        return string.Equals(candidate.MediaType.Value, mediaType, StringComparison.OrdinalIgnoreCase);
     }
 
     private static double GetMediaTypeQuality(IList<MediaTypeHeaderValue> mediaTypes, string mediaType)
@@ -79,6 +106,22 @@ public static class PilotValueReportAcceptFormat
         }
 
         return -1;
+    }
+
+    private static bool HasConcreteJsonAtQuality(IList<MediaTypeHeaderValue> mediaTypes, double quality)
+    {
+        foreach (MediaTypeHeaderValue candidate in mediaTypes)
+        {
+            if (!MatchesExactMediaType(candidate, "application/json"))
+                continue;
+
+            double candidateQuality = candidate.Quality ?? 1.0;
+
+            if (Math.Abs(candidateQuality - quality) < 0.0001)
+                return true;
+        }
+
+        return false;
     }
 
     private static int IndexOfFirstJsonMatch(IList<MediaTypeHeaderValue> mediaTypes)
