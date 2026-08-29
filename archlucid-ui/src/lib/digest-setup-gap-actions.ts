@@ -38,12 +38,12 @@ const SUBSCRIPTION_GAP =
   "No digest subscriptions — generated digests have no outbound recipients in this scope.";
 const DISABLED_SUBSCRIPTION_GAP =
   "No enabled digest subscriptions — all subscription rows in this scope are disabled.";
-const EXEC_EMAIL_GAP =
+const SPONSOR_EMAIL_GAP =
   "Sponsor email digest is not fully configured — sponsor emails will not receive the separate sponsor rollup.";
 const ADVISORY_SCHEDULE_GAP_CODE = "no_enabled_advisory_schedule";
 const SUBSCRIPTION_GAP_CODE = "no_digest_subscriptions";
 const DISABLED_SUBSCRIPTION_GAP_CODE = "no_enabled_digest_subscriptions";
-const EXEC_EMAIL_GAP_CODE = "sponsor_email_digest_not_configured";
+const SPONSOR_EMAIL_GAP_CODE = "sponsor_email_digest_not_configured";
 
 /**
  * Maps a backend setup-gap string to title, impact, and a next-action link.
@@ -93,8 +93,8 @@ export function mapDigestSetupGap(gap: string, gapCode?: string | null): DigestS
   }
 
   if (
-    normalizedCode === EXEC_EMAIL_GAP_CODE ||
-    trimmed === EXEC_EMAIL_GAP ||
+    normalizedCode === SPONSOR_EMAIL_GAP_CODE ||
+    trimmed === SPONSOR_EMAIL_GAP ||
     /sponsor email digest/i.test(trimmed)
   ) {
     return {
