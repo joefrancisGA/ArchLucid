@@ -8886,3 +8886,27 @@ BEGIN
 
     EXEC sp_executesql @knowledgeModelRunSql;
 END
+
+GO
+
+/* ---- 334: Platform operational error log ---- */
+
+IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PlatformOperationalErrors
+    (
+        PlatformOperationalErrorId BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        OccurredUtc                 DATETIME2            NOT NULL,
+        Severity                    NVARCHAR(32)         NOT NULL,
+        Category                    NVARCHAR(128)        NULL,
+        ErrorCode                   NVARCHAR(128)        NULL,
+        Source                      NVARCHAR(256)        NULL,
+        CorrelationId               NVARCHAR(128)        NULL,
+        RequestId                   NVARCHAR(64)         NULL,
+        RunId                       NVARCHAR(64)         NULL,
+        Message                     NVARCHAR(MAX)        NOT NULL,
+        DetailsJson                 NVARCHAR(MAX)        NULL
+    );
+END
+
+GO
