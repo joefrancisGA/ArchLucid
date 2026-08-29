@@ -38,6 +38,7 @@ class TestDemoBatch5Dt(unittest.TestCase):
         self.assertIn('export const BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR = "#finalize-review"', guidance_text)
         self.assertIn("href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", exports_text)
         self.assertNotIn('href: "#run-actions"', guidance_text)
+        self.assertNotIn('href: "#run-actions"', exports_text)
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor" / "sponsor-roi-kpi-display.ts"
