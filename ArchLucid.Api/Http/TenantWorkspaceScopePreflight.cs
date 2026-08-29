@@ -32,7 +32,7 @@ internal static class TenantWorkspaceScopePreflight
             await tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
         TenantWorkspaceListItem? currentWorkspace =
-            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == scope.WorkspaceId);
+            workspaces.FirstOrDefault(workspace => workspace.WorkspaceId == scope.WorkspaceId);
 
         if (currentWorkspace is null)
             return controller.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
