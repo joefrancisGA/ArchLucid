@@ -36,6 +36,7 @@ internal static class MvcExtensions
                 options.Conventions.Add(new DefaultPublicApiRateLimitConvention());
                 options.Filters.Add<ApiProblemDetailsExceptionFilter>();
                 options.Filters.Add<ApiErrorResponseNormalizationFilter>();
+                options.Filters.Add<OperationalErrorResultFilter>();
                 options.Filters.Add<OpenApiUndeclaredQueryParameterFilter>();
                 options.Filters.Add<TrialLimitExceededAuditFilter>();
                 options.Filters.Add<RouteTenantScopeBindingFilter>();

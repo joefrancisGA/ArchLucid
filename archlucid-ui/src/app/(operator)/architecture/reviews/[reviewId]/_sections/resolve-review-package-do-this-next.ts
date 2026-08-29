@@ -13,11 +13,13 @@ import {
   type ReviewPackagePrimaryAction,
   type ReviewPackagePrimaryActionKind,
 } from "./resolve-review-package-primary-action";
+import { buildReviewPackageRerunHref } from "./resolve-review-package-approval-blocker";
 
 export type ReviewPackageDoThisNextKind =
   | ReviewPackagePrimaryActionKind
   | "answer-clarifications"
   | "view-assessment-progress"
+  | "rerun-review"
   | "compare-to-prior";
 
 export type ReviewPackageDoThisNext = {
@@ -59,6 +61,16 @@ function clarificationsHref(input: ResolveReviewPackageDoThisNextInput): string 
 
 function viewAssessmentHref(runId: string): string {
   return buildReviewWorkspaceTabHref(runId, "activity");
+}
+
+function resolveRerunHref(input: ResolveReviewPackageDoThisNextInput): string {
+  const correctionHref = input.correctionHref?.trim() ?? "";
+
+  if (correctionHref.length > 0) {
+    return correctionHref;
+  }
+
+  return buildReviewPackageRerunHref(input.runId);
 }
 
 function sentenceForPrimaryAction(
@@ -156,10 +168,15 @@ export function resolveReviewPackageDoThisNext(
 
   if (input.showProgressTracker && input.manifestId === null && pipelineTerminalFailure) {
     return {
-      kind: "view-assessment-progress",
-      sentence: "Assessment failed — review the error details and re-run the review when ready.",
-      actionLabel: "View assessment details",
-      href: viewAssessmentHref(input.runId),
+      kind: "rerun-review",
+      sentence:
+        "Assessment failed — review the error details below, then start a new review with the same intake.",
+      actionLabel: "Re-run review",
+      href: resolveRerunHref(input),
+      secondaryAction: {
+        label: "View assessment details",
+        href: viewAssessmentHref(input.runId),
+      },
     };
   }
 

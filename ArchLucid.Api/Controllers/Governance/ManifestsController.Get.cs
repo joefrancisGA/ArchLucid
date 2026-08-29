@@ -20,6 +20,11 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? manifestVersionProblem = BadRequestWhenManifestVersionEmpty(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -38,6 +43,11 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? manifestVersionProblem = BadRequestWhenManifestVersionEmpty(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -68,6 +78,11 @@ public sealed partial class ManifestsController
         [FromQuery] string? groupBy = GroupByDefault,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? manifestVersionProblem = BadRequestWhenManifestVersionEmpty(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -107,6 +122,11 @@ public sealed partial class ManifestsController
         [FromQuery] int? maxRelationships = null,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? manifestVersionProblem = BadRequestWhenManifestVersionEmpty(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -207,6 +227,11 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? manifestVersionProblem = BadRequestWhenManifestVersionEmpty(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -233,6 +258,11 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? manifestVersionProblem = BadRequestWhenManifestVersionEmpty(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
