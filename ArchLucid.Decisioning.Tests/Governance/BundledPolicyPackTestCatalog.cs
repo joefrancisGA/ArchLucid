@@ -136,23 +136,37 @@ internal static class BundledPolicyPackTestCatalog
         return clone;
     }
 
-    private static readonly Lazy<Task<DecisioningCompliance.ComplianceRulePack>> MergedFilePack =
-        new(static () =>
+    private static readonly System.Threading.SemaphoreSlim MergedFilePackLoadLock = new(1, 1);
+    private static DecisioningCompliance.ComplianceRulePack? MergedFilePack;
+
+    private static async Task<DecisioningCompliance.ComplianceRulePack> LoadMergedFilePackAsync(CancellationToken ct)
+    {
+        if (MergedFilePack is not null)
         {
+            return MergedFilePack;
+        }
+
+        await MergedFilePackLoadLock.WaitAsync(ct);
+        try
+        {
+            if (MergedFilePack is not null)
+            {
+                return MergedFilePack;
+            }
+
             MergedComplianceRulePackLoader loader = new(
             [
                 new FileComplianceRulePackLoader(RepoPath(DefaultRulePackRelativePath)),
                 new FileComplianceRulePackLoader(RepoPath(GaStarterRulePackRelativePath)),
             ]);
 
-            return loader.LoadAsync(CancellationToken.None);
-        });
-
-    private static async Task<DecisioningCompliance.ComplianceRulePack> LoadMergedFilePackAsync(CancellationToken ct)
-    {
-        DecisioningCompliance.ComplianceRulePack pack = await MergedFilePack.Value;
-        ct.ThrowIfCancellationRequested();
-        return pack;
+            MergedFilePack = await loader.LoadAsync(ct);
+            return MergedFilePack;
+        }
+        finally
+        {
+            MergedFilePackLoadLock.Release();
+        }
     }
 
     private static string BundledDirectory() => RepoPath(BundledDirectoryRelativePath);
