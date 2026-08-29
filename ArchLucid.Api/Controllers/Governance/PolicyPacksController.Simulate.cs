@@ -97,7 +97,7 @@ public sealed partial class PolicyPacksController
         if (request.RunIds.Any(static id => string.IsNullOrWhiteSpace(id)))
         {
             return this.BadRequestProblem(
-                "Each RunId must be a non-empty string.",
+                "Each runIds entry must be a non-empty GUID string.",
                 ProblemTypes.ValidationFailed);
         }
 
