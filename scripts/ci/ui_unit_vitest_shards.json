@@ -96,6 +96,7 @@
         "src/review-workflow",
         "src/data",
         "src/testing",
+        "src/types",
         "src/app/api",
         "src/app/not-found.test.tsx",
         "scripts",

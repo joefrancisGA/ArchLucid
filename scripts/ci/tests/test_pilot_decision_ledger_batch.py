@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROOF_SCRIPT = REPO_ROOT / "scripts" / "collect-first-pilot-proof.ps1"
@@ -36,7 +37,7 @@ class PilotDecisionLedgerBatchTests(unittest.TestCase):
             out_md = root / "report.md"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(REPORT_SCRIPT),
                     "--ledger-json",
                     str(ledger),
@@ -81,7 +82,7 @@ class PilotDecisionLedgerBatchTests(unittest.TestCase):
             out_md = root / "report.md"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(REPORT_SCRIPT),
                     "--ledger-json",
                     str(ledger),
@@ -108,7 +109,7 @@ class PilotDecisionLedgerBatchTests(unittest.TestCase):
             out_md = root / "cohort.md"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(AGGREGATE_SCRIPT),
                     "--ledgers-root",
                     str(root),

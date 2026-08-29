@@ -154,7 +154,7 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
             repository.Object,
             Mock.Of<IAuditService>());
 
-        SponsorDigestPreferencesUpsertRequest body = new() { EmailEnabled = true };
+        SponsorDigestPreferencesUpsertRequest body = new() { EmailEnabled = false };
 
         IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
 

@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — Policy-pack expectation facet contract for coverage/cost engines (PP-03–PP-05). Not buyer-facing.
+
 # Policy-pack expectation facets (V1)
 
 **Status:** engineering contract for PP-03–PP-05 · **Encoding:** `PolicyPackContentDocument.advisoryDefaults` string keys (no OpenAPI change in V1).

@@ -19,7 +19,7 @@ class TestAdoptionBatch5BD(unittest.TestCase):
         path = REPO_ROOT / "docs" / "go-to-market" / "BUYER_PERSONAS.md"
         text = path.read_text(encoding="utf-8")
         self.assertIn("archlucid.net/contact", text)
-        self.assertIn("AWS or GCP", text)
+        self.assertIn("AWS/GCP-target", text)
 
     def test_tb_230_placeholder_ci_script(self) -> None:
         script = REPO_ROOT / "scripts" / "ci" / "check_gtm_placeholder_tokens.py"

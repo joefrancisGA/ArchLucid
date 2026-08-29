@@ -125,6 +125,32 @@ The activity is **default aggregated-only** (no per-tenant correlation in the fu
 
 ---
 
+### 3.D — Server operational error inbox
+
+**Purpose.** Persist server-side HTTP errors, database failures, and unhandled exceptions so ArchLucid operations staff can review failures in the product (`/internal/operational-errors`) without relying solely on Application Insights queries.
+
+**Legal basis.** **Article 6(1)(f)** — legitimate interest of the controller in maintaining service reliability and supporting incident response.
+
+**Categories of data subjects.** Operator employees whose requests triggered captured errors; no end-customer architecture artefact content is stored.
+
+**Categories of personal data.**
+- **Technical diagnostics:** HTTP method/path, status code, exception type/message/stack (truncated), SQL error numbers, correlation/trace ids.
+- **Scope identifiers:** optional `tenantId`, `workspaceId`, `projectId`, and authenticated `actorUserId` when present on the failing request.
+- **Explicitly excluded:** request bodies, architecture manifests/findings, passwords, API keys, query strings.
+
+**Recipients.** Microsoft Azure SQL Database (`dbo.PlatformOperationalErrors`).
+
+**Retention.** **90 days** (configurable via `OperationalErrors:RetentionDays`); aged rows purged by a scheduled background job.
+
+**Safeguards.**
+- All text fields sanitized via `LogSanitizer` before insert; capture is fire-and-forget and never blocks user requests.
+- Admin list/detail API requires `AdminAuthority`; internal nav gated by system-administration feature flag.
+- Health/metrics/openapi paths excluded from capture to reduce probe noise.
+
+**Controller contact.** `privacy@archlucid.net`.
+
+---
+
 ## 4. Subject rights
 
 Operators (or their data-controller employer) may request:

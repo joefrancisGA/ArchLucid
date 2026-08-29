@@ -142,7 +142,7 @@ export function useGuidedIntakeDraftCreate(options: Options) {
         core.setAllQuestions(questions.selection.allQuestions);
         core.setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
         core.setPendingQuestions(questions.selection.pendingMustQuestions);
-        setStep(1);
+        setStep(questions.selection.pendingMustQuestions.length === 0 ? 2 : 1);
 
         return;
       }

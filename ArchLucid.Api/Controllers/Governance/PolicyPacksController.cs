@@ -68,19 +68,6 @@ public sealed partial class PolicyPacksController(
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces =
-            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        TenantWorkspaceListItem? currentWorkspace =
-            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == scope.WorkspaceId);
-
-        if (currentWorkspace is null)
-        {
-            return this.NotFoundProblem(
-                "Workspace was not found for this tenant.",
-                ProblemTypes.ResourceNotFound);
-        }
-
         return null;
     }
 
@@ -88,6 +75,18 @@ public sealed partial class PolicyPacksController(
     {
         if (!GovernanceQueryRequestValidationRules.IsUsableRequiredGuid(value))
             return this.BadRequestProblem($"{fieldName} must not be an empty GUID.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
+    private IActionResult? BadRequestWhenRouteIdEmpty(Guid id, string parameterName)
+    {
+        if (id == Guid.Empty)
+        {
+            return this.BadRequestProblem(
+                $"{parameterName} is required.",
+                ProblemTypes.ValidationFailed);
+        }
 
         return null;
     }
@@ -156,6 +155,11 @@ public sealed partial class PolicyPacksController(
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? routeIdEmptyProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdEmptyProblem is not null)
+            return routeIdEmptyProblem;
+
         PolicyPackVersion? version = await _workflow.TryPublishVersionAsync(
             policyPackId,
             request.Version.Trim(),
@@ -201,6 +205,11 @@ public sealed partial class PolicyPacksController(
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? routeIdEmptyProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdEmptyProblem is not null)
+            return routeIdEmptyProblem;
+
         string versionKey = request.Version.Trim();
         string scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
 
@@ -242,6 +251,11 @@ public sealed partial class PolicyPacksController(
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? routeIdEmptyProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
+
+        if (routeIdEmptyProblem is not null)
+            return routeIdEmptyProblem;
+
         bool ok = await _workflow.TryArchiveAssignmentAsync(assignmentId, ct);
 
         if (!ok)
@@ -268,6 +282,11 @@ public sealed partial class PolicyPacksController(
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? routeIdEmptyProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdEmptyProblem is not null)
+            return routeIdEmptyProblem;
 
         bool ok = await _workflow.TrySoftDeletePackAsync(policyPackId, ct);
 
@@ -296,6 +315,11 @@ public sealed partial class PolicyPacksController(
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? routeIdEmptyProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdEmptyProblem is not null)
+            return routeIdEmptyProblem;
 
         PolicyPack? duplicate = await _workflow.TryDuplicatePackAsync(policyPackId, ct);
 
@@ -345,6 +369,11 @@ public sealed partial class PolicyPacksController(
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? routeIdEmptyProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
+
+        if (routeIdEmptyProblem is not null)
+            return routeIdEmptyProblem;
 
         bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, request.IsEnabled, ct);
 

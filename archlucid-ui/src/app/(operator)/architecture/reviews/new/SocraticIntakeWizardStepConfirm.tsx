@@ -7,14 +7,14 @@ import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/WizardPolicyPackCloudMismatchCallout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
 import {
   GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING,
   GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
 } from "@/lib/guided-intake-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EvidencePresenceFlags } from "@/lib/evidence-gap-forecast";
 
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
@@ -49,12 +49,17 @@ export function SocraticIntakeWizardStepConfirm({
 }: SocraticIntakeWizardStepConfirmProps) {
   return (
     <Card data-testid="guided-intake-primary-panel">
-      <CardHeader>
+      <CardHeader className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <CardTitle>{INTAKE_STEPS[2].cardTitle}</CardTitle>
         <CardDescription>{GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <ul className={cn("list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+      <CardContent className={OPERATOR_LAYOUT.sectionStack}>
+        <ul
+          className={cn(
+            "m-0 list-disc space-y-2 pl-5 text-neutral-700 dark:text-neutral-300",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+        >
           <li>
             <InlineMetadataLabel label="Intent" />{" "}
             {freeTextIntent.trim().slice(0, 120)}
@@ -71,13 +76,13 @@ export function SocraticIntakeWizardStepConfirm({
         </ul>
         <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} presentation="summary" />
         {confirmedScopeLines.length > 0 ? (
-          <section className="space-y-1" data-testid="socratic-confirmed-scope-summary">
+          <section className={OPERATOR_LAYOUT.sectionHeadingStack} data-testid="socratic-confirmed-scope-summary">
             <h3 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.label)}>
               {GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING}
             </h3>
             <ul
               className={cn(
-                "m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300",
+                "m-0 list-disc space-y-2 pl-5 text-neutral-700 dark:text-neutral-300",
                 OPERATOR_TYPOGRAPHY.helper,
               )}
             >
@@ -91,23 +96,23 @@ export function SocraticIntakeWizardStepConfirm({
         {policyPackCloudMismatch !== null ? (
           <WizardPolicyPackCloudMismatchCallout detail={policyPackCloudMismatch} />
         ) : null}
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" disabled={busy} onClick={onBack}>
-            Back to questions
-          </Button>
-          <ReviewStartLoadingButton
-            type="button"
-            disabled={!canSubmit}
-            isLoading={busy}
-            idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
-            loadingLabel={REVIEW_START_LOADING_LABEL}
-            onClick={() => {
-              void onSubmit();
-            }}
-            data-testid="socratic-submit"
-          />
-        </div>
       </CardContent>
+      <CardFooter className="flex flex-wrap gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+        <Button type="button" variant="outline" disabled={busy} onClick={onBack}>
+          Back to questions
+        </Button>
+        <ReviewStartLoadingButton
+          type="button"
+          disabled={!canSubmit}
+          isLoading={busy}
+          idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
+          loadingLabel={REVIEW_START_LOADING_LABEL}
+          onClick={() => {
+            void onSubmit();
+          }}
+          data-testid="socratic-submit"
+        />
+      </CardFooter>
     </Card>
   );
 }

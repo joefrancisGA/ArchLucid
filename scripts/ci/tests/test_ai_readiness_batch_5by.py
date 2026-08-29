@@ -37,7 +37,9 @@ class TestAiReadinessBatch5BY(unittest.TestCase):
             REPO_ROOT
             / "ArchLucid.Host.Composition"
             / "Startup"
-            / "ServiceCollectionExtensions.Agents.CompletionPipeline.cs"
+            / "Modules"
+            / "Agents"
+            / "AgentCompletionPipelineHelpers.cs"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("useJudgeDailyCapOnly: true", text)

@@ -110,19 +110,6 @@ public sealed partial class GovernanceController(
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces =
-            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        TenantWorkspaceListItem? currentWorkspace =
-            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == scope.WorkspaceId);
-
-        if (currentWorkspace is null)
-        {
-            return this.NotFoundProblem(
-                "Workspace was not found for this tenant.",
-                ProblemTypes.ResourceNotFound);
-        }
-
         return null;
     }
 
@@ -136,7 +123,7 @@ public sealed partial class GovernanceController(
 
     private IActionResult? ValidateActorIdentityLength()
     {
-        string actor = actorContext.GetActor();
+        string actor = actorContext.GetActor() ?? string.Empty;
 
         if (actor.Length > MaxActorIdentityLength)
         {

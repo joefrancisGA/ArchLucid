@@ -271,7 +271,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             "low" => FindingSeverity.Info,
             "medium" => FindingSeverity.Warning,
             "high" => FindingSeverity.Error,
-            _ => throw new JsonException($"Unknown finding severity value '{raw}'."),
+            _ => FindingSeverity.Info,
         };
     }
 }

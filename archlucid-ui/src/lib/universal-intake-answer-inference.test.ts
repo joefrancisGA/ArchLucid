@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 
+import { isReadableInferredClarificationAnswer } from "@/lib/inferred-clarification-answer-quality";
+import { repairUtf8MojibakeOptional } from "@/lib/utf8-mojibake-repair";
+import { HANDBOOK_INTAKE_INFERENCE_FIXTURE } from "@/lib/universal-intake-handbook-fixture";
 import {
   canSuggestUniversalIntakeAnswersFromEvidence,
   inferUniversalIntakeAnswersFromCorpus,
   mergeInferredUniversalIntakeAnswers,
   UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS,
 } from "@/lib/universal-intake-answer-inference";
-import { isReadableInferredClarificationAnswer } from "@/lib/inferred-clarification-answer-quality";
-import { repairUtf8MojibakeOptional } from "@/lib/utf8-mojibake-repair";
 
 const SAMPLE_BRIEF =
   "Customer-facing API on Microsoft Azure with private endpoints, Entra ID authentication, and PCI-DSS scope for cardholder data. " +
@@ -16,6 +17,9 @@ const SAMPLE_BRIEF =
   "Budget is about $25,000 per month. " +
   "Peak load is 2,000 concurrent users with p95 latency under 300 ms. " +
   "Partner integrations and service accounts also call the API.";
+
+const SCREENSHOT_ACTOR_DUMP =
+  "Actors Actor How they touch the system Operators / architects Browser — Architect workspace (Next.js) Sponsors / evaluators Same UI; sponsor-oriented views and packages CLI / CI automation HTTPS — API (API key or JWT), optionally via Front Door / APIM Diagram — system overview ArchLucid system overview Diagram —";
 
 describe("repairUtf8MojibakeOptional", () => {
   it("repairs common punctuation mojibake", () => {
@@ -30,6 +34,7 @@ describe("isReadableInferredClarificationAnswer", () => {
     expect(isReadableInferredClarificationAnswer("Readable sentence about PCI-DSS scope.")).toBe(true);
     expect(isReadableInferredClarificationAnswer("Truncated mid thought...")).toBe(false);
     expect(isReadableInferredClarificationAnswer("Demo â€\u201D unreadable mojibake blob")).toBe(false);
+    expect(isReadableInferredClarificationAnswer(SCREENSHOT_ACTOR_DUMP)).toBe(false);
   });
 });
 
@@ -76,6 +81,27 @@ describe("inferUniversalIntakeAnswersFromCorpus", () => {
     expect(inferred["l0.actor.additional-kinds"]).toMatch(/service accounts|Partner integrations/i);
   });
 
+  it("does not prefill the flattened actors table dump", () => {
+    const inferred = inferUniversalIntakeAnswersFromCorpus(SCREENSHOT_ACTOR_DUMP);
+
+    expect(inferred["l0.actor.additional-kinds"]).toBeUndefined();
+  });
+
+  it("infers handbook-shaped answers without table dumps", () => {
+    const inferred = inferUniversalIntakeAnswersFromCorpus(HANDBOOK_INTAKE_INFERENCE_FIXTURE);
+    const actorAnswer = inferred["l0.actor.additional-kinds"] ?? "";
+
+    expect(actorAnswer).toMatch(/^Yes\b/i);
+    expect(actorAnswer).toMatch(/operators|architects/i);
+    expect(actorAnswer).toMatch(/sponsors|evaluators/i);
+    expect(actorAnswer).not.toMatch(/Actors Actor/i);
+    expect(actorAnswer).not.toMatch(/Diagram —/i);
+    expect(inferred["l0.pillar.cloud-target"]).toBe("Azure");
+    expect(inferred["l0.pillar.reliability"]).toMatch(/RTO/i);
+    expect(inferred["l0.pillar.security"]).toMatch(/Entra|JWT/i);
+    expect(inferred["l0.pillar.cost"]).toMatch(/budget|FinOps/i);
+    expect(inferred["l0.pillar.operations"]).toMatch(/observability|monitoring|OpenTelemetry/i);
+  });
 });
 
 describe("mergeInferredUniversalIntakeAnswers", () => {

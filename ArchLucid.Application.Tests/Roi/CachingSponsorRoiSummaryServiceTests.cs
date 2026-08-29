@@ -54,6 +54,7 @@ public sealed class CachingSponsorRoiSummaryServiceTests
                 {
                     RiskExceptionId = Guid.NewGuid(),
                     TenantId = TenantId,
+                    WorkspaceId = WorkspaceId,
                     ProjectId = ProjectId,
                     ExpiresAtUtc = nowUtc.AddDays(7),
                     Status = RiskExceptionStatus.Active,
@@ -62,6 +63,7 @@ public sealed class CachingSponsorRoiSummaryServiceTests
                 {
                     RiskExceptionId = Guid.NewGuid(),
                     TenantId = TenantId,
+                    WorkspaceId = WorkspaceId,
                     ProjectId = ProjectId,
                     ExpiresAtUtc = nowUtc.AddDays(30),
                     Status = RiskExceptionStatus.Active,

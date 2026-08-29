@@ -6,11 +6,14 @@ import { describe, expect, it } from "vitest";
 
 import {
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER,
+  GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
   GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE,
   GUIDED_INTAKE_READINESS_SUCCESS_TOAST,
   GUIDED_INTAKE_READY_DRAFT_CLAIM_LABEL,
+  GUIDED_INTAKE_REVIEW_ANSWERS_LABEL,
   GUIDED_INTAKE_STEP2_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
+  resolveGuidedIntakeClarificationsDoneLabel,
 } from "@/lib/guided-intake-copy";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 
@@ -46,6 +49,22 @@ describe("guided-intake-copy (TB-773)", () => {
     expect(GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER).toMatch(/private networking/i);
     expect(GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER).not.toMatch(/\bAzure\b/i);
     expect(GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER).not.toMatch(/Entra/i);
+  });
+});
+
+describe("resolveGuidedIntakeClarificationsDoneLabel", () => {
+  it("shows Start review once every clarification is handled", () => {
+    expect(resolveGuidedIntakeClarificationsDoneLabel(true, false)).toBe(
+      GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
+    );
+  });
+
+  it("keeps Review answers while clarifications remain open", () => {
+    expect(resolveGuidedIntakeClarificationsDoneLabel(false, false)).toBe(GUIDED_INTAKE_REVIEW_ANSWERS_LABEL);
+  });
+
+  it("shows saving state while answers persist", () => {
+    expect(resolveGuidedIntakeClarificationsDoneLabel(true, true)).toBe("Saving answers…");
   });
 });
 

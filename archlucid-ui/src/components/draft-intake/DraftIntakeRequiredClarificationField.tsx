@@ -25,12 +25,13 @@ import {
   resolveDraftIntakeSelectChange,
   resolveDraftIntakeSelectValue,
 } from "@/lib/draft-intake-select-unset-value";
-import { UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER } from "@/lib/universal-intake-answer-inference";
+import {
+  UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER,
+  UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER,
+} from "@/lib/universal-intake-answer-inference";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export { CLOUD_TARGET_QUESTION_KEY };
-
-export const REQUIRED_CLARIFICATION_BASELINE_LABEL = "Required for baseline review";
 
 const CLOUD_TARGET_OPTIONS = [
   { value: "None", label: "Cloud-neutral (no specific provider)" },
@@ -54,10 +55,10 @@ export type DraftIntakeRequiredClarificationFieldProps = {
   readonly isFocused?: boolean;
   readonly compactActions?: boolean;
   readonly showAllMode?: boolean;
-  readonly showBaselineLabel?: boolean;
   readonly canSaveAndContinue?: boolean;
   readonly clarificationStatus?: ClarificationCardStatus;
   readonly isSuggested?: boolean;
+  readonly suggestionWasRephrased?: boolean;
   readonly showRequirednessSuffix?: boolean;
   readonly onAnswerChange: (questionKey: string, value: string) => void;
   readonly onSaveAndContinue: (questionKey: string) => void;
@@ -112,14 +113,6 @@ export function DraftIntakeRequiredClarificationField(
           />
         ) : null}
       </div>
-      {props.showBaselineLabel !== false ? (
-        <p
-          className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="socratic-question-baseline-label"
-        >
-          {REQUIRED_CLARIFICATION_BASELINE_LABEL}
-        </p>
-      ) : null}
       <IntakeFieldLabel
         htmlFor={labelId}
         label={props.question.prompt}
@@ -132,7 +125,9 @@ export function DraftIntakeRequiredClarificationField(
           className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="socratic-question-suggested-hint"
         >
-          {UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER}
+          {props.suggestionWasRephrased === true
+            ? UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER
+            : UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER}
         </p>
       ) : null}
       {isCloudTargetQuestion ? (

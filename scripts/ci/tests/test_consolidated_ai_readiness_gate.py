@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -43,9 +43,15 @@ def test_pester_disposition_suite_exists() -> None:
 
 
 def test_pester_disposition_cases_pass() -> None:
+    pwsh = shutil.which("pwsh")
+    if pwsh is None:
+        import pytest
+
+        pytest.skip("pwsh not on PATH")
+
     completed = subprocess.run(
         [
-            "pwsh",
+            pwsh,
             "-NoProfile",
             "-Command",
             (

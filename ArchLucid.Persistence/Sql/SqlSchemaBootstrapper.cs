@@ -27,19 +27,37 @@ public sealed class SqlSchemaBootstrapper(
 
         string script = await File.ReadAllTextAsync(scriptPath, ct);
         IReadOnlyList<string> batches = SplitGoBatches(script);
+        List<string> executableBatches = batches
+            .Where(static batch => !string.IsNullOrWhiteSpace(batch))
+            .ToList();
+        int totalBatches = executableBatches.Count;
+        bool logProgress = totalBatches > 50;
+
+        if (logProgress)
+        {
+            Console.WriteLine(
+                $"Startup: schema bootstrap executing {totalBatches} SQL batches from {Path.GetFileName(scriptPath)}.");
+        }
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
-        foreach (string batch in batches)
-        {
-            if (string.IsNullOrWhiteSpace(batch))
-                continue;
+        int executedBatches = 0;
 
+        foreach (string batch in executableBatches)
+        {
             CommandDefinition command = new(
                 batch,
                 commandTimeout: commandTimeoutSeconds,
                 cancellationToken: ct);
             await connection.ExecuteAsync(command);
+            executedBatches++;
+
+            if (logProgress
+                && (executedBatches == 1 || executedBatches % 100 == 0 || executedBatches == totalBatches))
+            {
+                Console.WriteLine(
+                    $"Startup: schema bootstrap progress {executedBatches}/{totalBatches} batches.");
+            }
         }
     }
 

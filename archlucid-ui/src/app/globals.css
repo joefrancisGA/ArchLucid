@@ -366,10 +366,19 @@ html.dark a.marketing-public-nav-link {
 }
 
 input,
-select,
-button {
+select {
   padding: 8px;
   font: inherit;
+}
+
+/*
+ * Preserve Button typography utilities (`font-semibold`, `text-[13px]`, …).
+ * Do not use `font: inherit` on `<button>` — unlayered CSS wins over `@layer utilities` and
+ * stripped semibold weight from Refresh, Help, and page-header triggers.
+ */
+button {
+  padding: 8px;
+  font-family: inherit;
 }
 
 /* Keyboard shortcut hints in the help dialog — neutral for light UI; dark-friendly when `prefers-color-scheme: dark` or `.dark`. */
@@ -428,6 +437,20 @@ kbd {
   }
 }
 
+@keyframes al-indeterminate-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(300%);
+  }
+}
+
+.al-indeterminate-sweep {
+  animation: al-indeterminate-sweep 1600ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
 /* forwards (not both): avoid pre-animation opacity:0 so early axe/LCP reads stay AA-safe */
 .marketing-reveal-in {
   animation: marketing-fade-up 520ms ease-out forwards;
@@ -450,6 +473,14 @@ kbd {
   .marketing-hero-visual:hover {
     transform: none;
     transition: none;
+  }
+
+  /* Global * { animation-duration: 0.01ms } parks the sweep off-screen at its end frame. */
+  .al-indeterminate-sweep {
+    animation: none;
+    width: 100%;
+    transform: none;
+    opacity: 0.85;
   }
 }
 

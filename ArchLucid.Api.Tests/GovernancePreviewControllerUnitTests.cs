@@ -40,7 +40,7 @@ public sealed class GovernancePreviewControllerUnitTests
         IActionResult action = await controller.Preview(
             new CreateGovernancePreviewRequest
             {
-                RunId = "run-1",
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
                 ManifestVersion = "missing-v",
                 Environment = "dev"
             },
@@ -60,7 +60,7 @@ public sealed class GovernancePreviewControllerUnitTests
         IActionResult action = await controller.Preview(
             new CreateGovernancePreviewRequest
             {
-                RunId = "run-1",
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
                 ManifestVersion = "v1",
                 Environment = "dev",
             },

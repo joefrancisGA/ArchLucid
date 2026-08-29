@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
@@ -18,6 +18,7 @@ import {
   architectureDraftDeleteConfirmDescription,
 } from "@/lib/architecture/architecture-draft-delete-copy";
 import { canDeleteArchitectureDraft } from "@/lib/architecture/architecture-draft-delete-eligibility";
+import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
 import { removeArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -26,7 +27,7 @@ export type ArchitectureDraftDeleteControlProps = {
   readonly architectureId: string;
   readonly displayName: string;
   readonly linkedReviewId: string | null;
-  readonly customerStatus?: "draft" | "ready-for-review" | "archived";
+  readonly customerStatus?: ArchitectureDraftCustomerStatus;
   readonly serverStatus?: string | null;
   readonly buttonLabel?: string;
   readonly testId?: string;
@@ -36,6 +37,7 @@ export type ArchitectureDraftDeleteControlProps = {
 /** Confirms and abandons a pre-review architecture draft (irreversible). */
 export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteControlProps): React.JSX.Element | null {
   const router = useRouter();
+  const pathname = usePathname();
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -52,9 +54,13 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
     toast.success(ARCHITECTURE_DRAFT_DELETE_SUCCESS_TOAST);
     props.onDeleted?.();
     setConfirmOpen(false);
-    router.push(ARCHITECTURES_LIST_PATH);
+
+    if (pathname !== ARCHITECTURES_LIST_PATH) {
+      router.push(ARCHITECTURES_LIST_PATH);
+    }
+
     router.refresh();
-  }, [props, router]);
+  }, [pathname, props, router]);
 
   const handleConfirm = useCallback(async () => {
     setBusy(true);

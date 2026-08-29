@@ -67,7 +67,7 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
             await recentTask,
             workspaceId,
             projectId);
-        IReadOnlyList<RiskExceptionRecord> activeWaivers = FilterWaiversToScope(
+        IReadOnlyList<RiskExceptionRecord> activeWaivers = GovernanceWaiverExpiryWindow.FilterToScope(
             await activeWaiversTask,
             workspaceId,
             projectId);

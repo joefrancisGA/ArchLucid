@@ -15,6 +15,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Composition.Startup.Modules;
+using ArchLucid.Host.Composition.Startup.Modules.Agents;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Persistence.Coordination.Retrieval;
@@ -23,6 +24,7 @@ using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Composition.Tests.Startup;
 
@@ -89,6 +91,26 @@ public sealed class CompositionModulesRegistrationDisciplineTests
 
         services.Should().Contain(static d => d.ServiceType == typeof(IAgentExecutor));
         services.Should().Contain(static d => d.ServiceType == typeof(IAgentCompletionClient));
+        services.Should().Contain(static d => d.ServiceType == typeof(IAgentTierCompletionRouter));
+    }
+
+    [Fact]
+    public void AgentRuntimeCompositionModule_registers_tier_completion_router_baseline()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+        services.AddSingleton(configuration);
+        services.AddLogging();
+
+        AgentRuntimeCompositionModule.Register(services, configuration);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(IAgentTierCompletionRouter));
+        services.Should().Contain(static d => d.ServiceType == typeof(IAgentCompletionClient));
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        using IServiceScope scope = provider.CreateScope();
+
+        scope.ServiceProvider.GetRequiredService<IAgentTierCompletionRouter>().Should().NotBeNull();
     }
 
     [Fact]

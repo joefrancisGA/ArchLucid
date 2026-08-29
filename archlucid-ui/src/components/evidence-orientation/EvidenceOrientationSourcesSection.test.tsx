@@ -163,12 +163,14 @@ describe("EvidenceOrientationSourcesSection", () => {
     );
 
     const section = screen.getByTestId("cloud-connections-sources");
+    const body = section.querySelector("div.md\\:grid");
     expect(section).toHaveAttribute("data-layout", "columns");
-    expect(section).toHaveClass("md:grid", "md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]");
+    expect(body).toHaveClass("md:grid", "md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]", "md:items-center");
     expect(section.querySelector("ul")).toHaveClass("grid-cols-[minmax(0,1fr)_minmax(0,1fr)]");
     expect(section.querySelector("ul")).not.toHaveClass("flex-col");
     expect(section.querySelector("li")).toHaveClass("min-w-0");
     expect(section.querySelector("a")).toHaveClass("break-words", "min-w-0");
+    expect(screen.getByRole("heading", { name: "Where to go next" }).parentElement).toBe(section);
   });
 
   it("uses a compact single-column link list when only one follow-up sits beside the intro", () => {
@@ -205,8 +207,36 @@ describe("EvidenceOrientationSourcesSection", () => {
     );
 
     const section = screen.getByTestId("cloud-connections-sources");
+    const body = section.querySelector("div.md\\:grid");
     expect(section.querySelector("ul")).toHaveClass("grid-cols-[minmax(0,1fr)_minmax(0,1fr)]");
     expect(section.querySelector("ul")).not.toHaveClass("flex-col");
+    expect(body).toHaveClass("md:items-start");
+    expect(body).not.toHaveClass("md:items-center");
+  });
+
+  it("keeps the heading outside the intro/link row so a single link row aligns with the intro", () => {
+    render(
+      <EvidenceOrientationSourcesSection
+        testId="reviews-new-sources"
+        headingId="reviews-new-sources-heading"
+        title="Related resources"
+        intro="Use these when you need guides after choosing a start path above. Primary actions on this page come first."
+        links={[
+          { label: "First review guide", href: "/architecture/first-review-guide" },
+          { label: "How ArchLucid works", href: "/help/getting-started#how-archlucid-works" },
+        ]}
+        layout="columns"
+      />,
+    );
+
+    const section = screen.getByTestId("reviews-new-sources");
+    const heading = screen.getByRole("heading", { name: "Related resources" });
+    const body = section.querySelector("div.md\\:grid");
+
+    expect(heading.parentElement).toBe(section);
+    expect(body).toContainElement(screen.getByText(/Use these when you need guides/i));
+    expect(body).toContainElement(screen.getByRole("list"));
+    expect(body).toHaveClass("md:items-center");
   });
 
   it("renders nothing when Where to go next is turned off in personal preferences", () => {

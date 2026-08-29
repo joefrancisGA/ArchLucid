@@ -2,6 +2,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "scripts" / "ci" / "assert_pmf_tracker_discipline.py"
@@ -11,7 +12,7 @@ TRACKER = ROOT / "docs" / "archive" / "gtm-internal" / "PMF_VALIDATION_TRACKER.m
 class AssertPmfTrackerDisciplineTests(unittest.TestCase):
     def test_committed_tracker_passes(self):
         proc = subprocess.run(
-            ["python", str(SCRIPT), "--tracker", str(TRACKER)],
+            [PYTHON, str(SCRIPT), "--tracker", str(TRACKER)],
             cwd=str(ROOT),
             capture_output=True,
             text=True,
@@ -33,7 +34,7 @@ class AssertPmfTrackerDisciplineTests(unittest.TestCase):
 
         try:
             proc = subprocess.run(
-                ["python", str(SCRIPT), "--tracker", str(tmp_path)],
+                [PYTHON, str(SCRIPT), "--tracker", str(tmp_path)],
                 cwd=str(ROOT),
                 capture_output=True,
                 text=True,

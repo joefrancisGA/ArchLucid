@@ -154,7 +154,7 @@ public sealed class TenantExecDigestPreferencesControllerTests
             repository.Object,
             Mock.Of<IAuditService>());
 
-        ExecDigestPreferencesUpsertRequest body = new() { EmailEnabled = true };
+        ExecDigestPreferencesUpsertRequest body = new() { EmailEnabled = false };
 
         IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
 
