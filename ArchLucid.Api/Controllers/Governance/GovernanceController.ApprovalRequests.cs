@@ -346,7 +346,7 @@ public sealed partial class GovernanceController
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
                         ErrorCode = ProblemTypes.ValidationFailed,
-                        Message = "Duplicate approvalRequestId in batch.",
+                        Message = $"Approval request id '{approvalRequestId}' appears more than once in the batch; only the first occurrence was processed.",
                     });
 
                 continue;

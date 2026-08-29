@@ -653,15 +653,16 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         body.Results.Should().HaveCount(2);
         body.Results.Should().OnlyContain(r => r.ApprovalRequestId == approvalRequestId);
 
-        GovernanceBatchReviewResult succeededResult =
+        GovernanceBatchReviewItemResult succeededResult =
             body.Results.Should().ContainSingle(r => r.Succeeded).Subject;
         succeededResult.ApprovalRequestId.Should().Be(approvalRequestId);
 
-        GovernanceBatchReviewResult failedResult =
+        GovernanceBatchReviewItemResult failedResult =
             body.Results.Should().ContainSingle(r => !r.Succeeded).Subject;
         failedResult.ApprovalRequestId.Should().Be(approvalRequestId);
         failedResult.ErrorCode.Should().Be(ProblemTypes.ValidationFailed);
-        failedResult.Message.Should().Contain("Duplicate");
+        failedResult.Message.Should().Contain(approvalRequestId);
+        failedResult.Message.Should().Contain("more than once");
         workflow.Verify(
             w => w.ApproveAsync(
                 approvalRequestId,
