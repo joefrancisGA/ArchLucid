@@ -1755,11 +1755,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 12
-- **bugs-found:** 24
+- **hunts:** 14
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — `QualityGateWarnOnlyProductionLikeConfigurationLint` treated undefined `AgentOutputQualityGateMode` ordinals as non-WarnOnly and suppressed the production-like advisory
+- **last-bug:** 2026-08-29 — `IntegrationEventServiceBusApplicationProperties` threw on numeric JSON `deduplicationKey` tokens via `GetString()` on number elements
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1794,6 +1794,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DecisionConfidenceSourceMapper.ToBuyerLabel` accepts undefined enum ordinals via bare `Enum.TryParse` — numeric-string `"99"` parses to cast ordinal but `ToBuyerLabel(parsed)` falls through to `Unknown`; buyer label stays safe.
 - [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` uses case-sensitive `TryGetProperty("correlationId")` — PascalCase `"CorrelationId"` omitted so Service Bus publish loses payload correlation fallback when activity tag unset — **hit 2026-08-29 (#219):** fixed with case-insensitive property lookup (`TryResolveForPublish_reads_PascalCase_CorrelationId_from_payload_when_activity_unset`).
 - [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` accepts undefined `AgentOutputQualityGateMode` ordinals via bare `Enum.TryParse` — numeric-string `"99"` parsed as non-`WarnOnly` and suppressed the production-like advisory — **hit 2026-08-29 (#219):** treat undefined modes like empty/unknown and emit advisory (`TryDescribeAdvisoryFinding_production_real_undefined_quality_gate_mode_emits_rule`).
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` reads `correlationId` only when the JSON token is a string — numeric correlation ids returned null and dropped Service Bus publish correlation fallback — **hit 2026-08-29 (#220):** accept string or number tokens (`TryResolveForPublish_reads_numeric_correlationId_from_payload_when_activity_unset`).
+- [x] (proven) `AgentModelExecutionProfileParser.TryParse` rejects `"High Assurance"` display label while accepting `"high-assurance"` — **hit 2026-08-29 (#221):** operator tenant-setting labels failed profile parse; fixed with display-label alias (`TryParse_accepts_high_assurance_display_labels`).
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryGetStringPropertyCaseInsensitive` uses `GetString()` only — numeric JSON `deduplicationKey` threw and dropped Service Bus subscription filter properties — **hit 2026-08-29 (#221):** accept string or number tokens (`TryResolveForPublish_alert_resolved_maps_numeric_deduplication_key`).
+- [x] (valid-no-repro) `RealLlmOutputStructuralValidator.ValidateAgentResultStructure` requires camelCase `agentType` top-level key — doc states camelCase contract serializer output; PascalCase `AgentType` is out of scope for golden-corpus structural checks.
+
+2026-08-29 seed hunt #221: proved agent execution profile display label and numeric Service Bus deduplication-key payload tokens; includes correlation numeric token fix from #220.
 
 2026-08-29 seed hunt #219: proved Service Bus correlation-id casing and quality-gate undefined-ordinal lint suppression; includes enum-guard and ITSM label fixes from seeds #216–#217.
 
