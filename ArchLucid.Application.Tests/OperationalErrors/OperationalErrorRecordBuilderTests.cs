@@ -29,6 +29,7 @@ public sealed class OperationalErrorRecordBuilderTests
 
         record.Category.Should().Be(OperationalErrorCategory.DatabaseError);
         record.SqlErrorNumber.Should().Be(-2);
+        record.SqlErrorState.Should().Be((byte)0);
     }
 
     [Fact]
@@ -170,6 +171,123 @@ public sealed class OperationalErrorRecordBuilderTests
 
         record.HttpMethod.Should().BeNull();
         record.RequestPath.Should().BeNull();
+    }
+
+    [Fact]
+    public void Build_uses_exception_message_when_override_absent()
+    {
+        OperationalErrorCaptureRequest request = new()
+        {
+            Source = OperationalErrorSource.Api,
+            Category = OperationalErrorCategory.HttpError,
+            Exception = new Exception("exception message")
+        };
+
+        OperationalErrorRecord record = OperationalErrorRecordBuilder.Build(request, new OperationalErrorOptions());
+
+        record.Message.Should().Be("exception message");
+    }
+
+    [Fact]
+    public void Build_omits_inner_exception_key_when_none()
+    {
+        OperationalErrorCaptureRequest request = new()
+        {
+            Source = OperationalErrorSource.Api,
+            Category = OperationalErrorCategory.HttpError,
+            Exception = new Exception("solo")
+        };
+
+        OperationalErrorRecord record = OperationalErrorRecordBuilder.Build(request, new OperationalErrorOptions());
+
+        record.DetailJson.Should().Be("{}");
+    }
+
+    [Fact]
+    public void Build_truncates_nullable_http_method()
+    {
+        OperationalErrorCaptureRequest request = new()
+        {
+            Source = OperationalErrorSource.Api,
+            Category = OperationalErrorCategory.HttpError,
+            HttpMethod = "GETPOSTEXTRA-LONG"
+        };
+
+        OperationalErrorRecord record = OperationalErrorRecordBuilder.Build(request, new OperationalErrorOptions());
+
+        record.HttpMethod.Should().Be("GETPOSTEXTRA-LON");
+        record.HttpMethod.Should().HaveLength(16);
+    }
+
+    [Fact]
+    public void Build_keeps_http_method_when_already_within_limit()
+    {
+        OperationalErrorCaptureRequest request = new()
+        {
+            Source = OperationalErrorSource.Api,
+            Category = OperationalErrorCategory.HttpError,
+            HttpMethod = "GET"
+        };
+
+        OperationalErrorRecord record = OperationalErrorRecordBuilder.Build(request, new OperationalErrorOptions());
+
+        record.HttpMethod.Should().Be("GET");
+    }
+
+    [Fact]
+    public void Build_keeps_message_when_already_within_limit()
+    {
+        OperationalErrorOptions options = new() { MaxMessageLength = 12 };
+        OperationalErrorCaptureRequest request = new()
+        {
+            Source = OperationalErrorSource.Api,
+            Category = OperationalErrorCategory.HttpError,
+            MessageOverride = "short"
+        };
+
+        OperationalErrorRecord record = OperationalErrorRecordBuilder.Build(request, options);
+
+        record.Message.Should().Be("short");
+    }
+
+    [Fact]
+    public void Build_joins_multiple_inner_exceptions_with_pipe_separator()
+    {
+        Exception second = new ArgumentException("second");
+        Exception first = new InvalidOperationException("first", second);
+
+        OperationalErrorCaptureRequest request = new()
+        {
+            Source = OperationalErrorSource.Api,
+            Category = OperationalErrorCategory.HttpError,
+            Exception = new Exception("root", first)
+        };
+
+        OperationalErrorRecord record = OperationalErrorRecordBuilder.Build(request, new OperationalErrorOptions());
+
+        record.DetailJson.Should().Contain("InvalidOperationException: first | ArgumentException: second");
+    }
+
+    [Fact]
+    public void Build_caps_inner_exception_summaries_at_five()
+    {
+        Exception current = new Exception("level-7");
+
+        for (int level = 6; level >= 1; level--)
+            current = new Exception($"level-{level}", current);
+
+        OperationalErrorCaptureRequest request = new()
+        {
+            Source = OperationalErrorSource.Api,
+            Category = OperationalErrorCategory.HttpError,
+            Exception = current
+        };
+
+        OperationalErrorRecord record = OperationalErrorRecordBuilder.Build(request, new OperationalErrorOptions());
+
+        record.DetailJson.Should().Contain("level-2");
+        record.DetailJson.Should().Contain("level-6");
+        record.DetailJson.Should().NotContain("level-7");
     }
 
     private sealed class FixedStackTraceException : Exception
