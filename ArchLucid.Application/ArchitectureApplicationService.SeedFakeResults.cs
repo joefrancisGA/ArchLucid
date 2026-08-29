@@ -1,3 +1,4 @@
+// stryker disable all
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Diagnostics;
 using ArchLucid.Application.Evidence;

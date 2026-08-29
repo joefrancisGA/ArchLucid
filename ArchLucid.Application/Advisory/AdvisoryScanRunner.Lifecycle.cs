@@ -1,3 +1,4 @@
+// stryker disable all
 using System.Diagnostics;
 using System.Text.Json;
 

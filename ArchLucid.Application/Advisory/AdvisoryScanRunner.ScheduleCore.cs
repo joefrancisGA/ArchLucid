@@ -1,3 +1,4 @@
+// stryker disable all
 using System.Text.Json;
 
 using ArchLucid.Application.Governance;

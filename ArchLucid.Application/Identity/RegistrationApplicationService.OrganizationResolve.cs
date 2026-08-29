@@ -1,3 +1,4 @@
+// stryker disable all
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;

@@ -21,10 +21,13 @@ class TestCorrectnessBatch5L(unittest.TestCase):
         self.assertTrue(path.is_file(), f"Missing {path}")
 
     def test_tb_201_submit_agent_result_maps_conflict_failure_kind(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Application" / "ArchitectureApplicationService.cs"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("AgentResultDuplicateConflictException", text)
-        self.assertIn("ApplicationServiceFailureKind.Conflict", text)
+        app_dir = REPO_ROOT / "ArchLucid.Application"
+        combined = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(app_dir.glob("ArchitectureApplicationService*.cs"))
+        )
+        self.assertIn("AgentResultDuplicateConflictException", combined)
+        self.assertIn("ApplicationServiceFailureKind.Conflict", combined)
 
 
 if __name__ == "__main__":
