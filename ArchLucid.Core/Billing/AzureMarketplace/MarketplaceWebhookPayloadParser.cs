@@ -23,6 +23,7 @@ public static class MarketplaceWebhookPayloadParser
         string p = planId.Trim();
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
+
         if (p.Contains("enterprise", StringComparison.OrdinalIgnoreCase))
             return nameof(TenantTier.Enterprise);
 
