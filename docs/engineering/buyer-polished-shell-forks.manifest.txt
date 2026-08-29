@@ -229,7 +229,7 @@ archlucid-ui/src/components/runs/RunExplanationConfidenceBanner.tsx
 archlucid-ui/src/components/runs/RunExplanationSection.tsx
 archlucid-ui/src/components/runs/RunFindingExplainabilityTable.tsx
 archlucid-ui/src/components/runs/RunInspectorPreview.tsx
-archlucid-ui/src/components/runs/RunProgressTracker.tsx
+archlucid-ui/src/components/runs/use-run-progress-tracker.ts
 archlucid-ui/src/components/runs/RunStatusBadge.tsx
 archlucid-ui/src/components/runs/RunTrustEvidenceCardSection.tsx
 archlucid-ui/src/components/runs/RunsListAggregateErrorBoundary.tsx

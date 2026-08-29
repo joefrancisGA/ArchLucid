@@ -36,7 +36,7 @@ export function ReplayPickReviewBeforeValidatingStrip(
         Pick a review before validating
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Validation checks a finalized review package. Choose one to load validation history and run checks.
+        Validation checks a finalized architecture package. Choose one to load validation history and run checks.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -50,7 +50,7 @@ export function ReplayPickReviewBeforeValidatingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="replay-pick-review-before-validating"
           hideFieldHelper
         />

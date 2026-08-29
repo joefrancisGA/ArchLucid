@@ -36,7 +36,7 @@ export function AlertTuningPickReviewBeforeTuningStrip(
         Pick a review before tuning
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Threshold recommendations are easiest to interpret against a finalized review package.
+        Threshold recommendations are easiest to interpret against a finalized architecture package.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -50,7 +50,7 @@ export function AlertTuningPickReviewBeforeTuningStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="alert-tuning-pick-review-before-tuning"
           hideFieldHelper
         />

@@ -37,7 +37,7 @@ export function SponsorReportFinalizedReviewPickerStrip(
         Pick a finalized review first
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Open the review package behind a row in the timeline before sharing exports with stakeholders.
+        Open the architecture package behind a row in the timeline before sharing exports with stakeholders.
       </p>
       <div className="mt-3 flex flex-wrap items-end gap-3">
         <div className="min-w-[16rem] max-w-xl flex-1">
@@ -63,7 +63,7 @@ export function SponsorReportFinalizedReviewPickerStrip(
           disabled={openReviewId.length === 0}
           data-testid="sponsor-report-finalized-review-open"
         >
-          <Link href={openReviewId.length > 0 ? reviewDetailPath(openReviewId) : "#"}>Open review package</Link>
+          <Link href={openReviewId.length > 0 ? reviewDetailPath(openReviewId) : "#"}>Open architecture package</Link>
         </Button>
       </div>
     </section>
