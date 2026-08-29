@@ -1,3 +1,5 @@
+> **Scope:** Auto-generated offline policy-pack attribution report from eval-corpus fixtures; does not claim live pack evaluation changed gate outcomes.
+
 # Policy-pack attribution summary
 
 Generated UTC: **2026-08-29T03:32:39.832419+00:00**
