@@ -175,7 +175,7 @@ function Set-PackAdvisoryPriorityFloor {
 
     $document.advisoryDefaults.priorityFloor = $PriorityFloor
 
-    return ($document | ConvertTo-Json -Depth 30)
+    return ($document | ConvertTo-Json -Depth 100)
 }
 
 function Write-DeclarationThemePilotTable {
