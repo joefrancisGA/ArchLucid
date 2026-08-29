@@ -107,6 +107,33 @@ vi.mock("@/components/draft-intake/DraftIntakeDecisionReceiptCard", () => ({
   ),
 }));
 
+vi.mock("@/lib/architecture/architecture-draft-registry", () => ({
+  buildArchitectureDraftRegistryEntry: vi.fn(() => ({
+    architectureId: "draft-1",
+    displayName: "Draft",
+    customerStatus: "ready-for-review",
+    ownerLabel: "You",
+    lastUpdatedUtc: "2026-08-05T12:00:00Z",
+    linkedReviewId: "branch-run",
+    serverUpdatedUtc: "2026-08-05T12:00:00Z",
+    serverDraftStatus: "RunSpawned",
+  })),
+  upsertArchitectureDraftRegistryEntry: vi.fn(),
+}));
+
+vi.mock("@/lib/operations/review-pipeline-in-flight", () => ({
+  trackReviewPipelineInFlight: vi.fn(() => "run:branch-run"),
+}));
+
+vi.mock("@/lib/first-tenant-funnel-telemetry", () => ({
+  recordFirstTenantFunnelEvent: vi.fn(),
+}));
+
+vi.mock("@/lib/operator/operator-query-invalidation", () => ({
+  invalidateOperatorHomeRunsCaches: vi.fn(async () => undefined),
+  invalidateOperatorSponsorRoiCaches: vi.fn(async () => undefined),
+}));
+
 vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
   showError: vi.fn(),
@@ -144,7 +171,7 @@ import {
   GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
 } from "@/lib/guided-intake-copy";
-import { showError } from "@/lib/toast";
+import { showError, showSuccess } from "@/lib/toast";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
@@ -231,6 +258,7 @@ describe("SocraticIntakeWizard", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);
     getDraftRequest.mockReset();
+    submitDraftRequest.mockReset();
     routerPush.mockReset();
     tryLoadPriorPackageGuidedIntakePrefill.mockReset();
     tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue(null);
@@ -1051,28 +1079,61 @@ describe("SocraticIntakeWizard", () => {
   });
 
   it("routes branch submit to run detail with parentRunId when parent already spawned", async () => {
-    mockAdmittedDraftWithoutClarifications();
+    const admittedMustKeys = ["l0.pillar.security", "l0.pillar.reliability"];
+    const admittedDraft = {
+      draftId: "draft-1",
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      status: "Admitted" as const,
+      document: {
+        freeTextIntent: VALID_GUIDED_INTENT,
+        businessOutcome: "Reduce manual triage time by thirty percent.",
+        actorSet: { actors: [] },
+        requiredMustQuestionKeys: admittedMustKeys,
+      },
+      createdUtc: "2026-08-05T12:00:00Z",
+      updatedUtc: "2026-08-05T12:00:00Z",
+    };
+    const runSpawnedDraft = {
+      ...admittedDraft,
+      status: "RunSpawned" as const,
+      spawnedRunId: "branch-run",
+    };
+
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [],
+      requiredMustQuestionKeys: [],
+      draft: {
+        draftId: "draft-1",
+        document: { requiredMustQuestionKeys: admittedMustKeys },
+      },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions.mockResolvedValue({
+      draftId: "draft-1",
+      status: "Admitted",
+      selection: {
+        allQuestions: [sampleQuestion, secondQuestion],
+        requiredMustQuestionKeys: [],
+        pendingMustQuestions: [],
+      },
+    });
+
+    getDraftRequest
+      .mockResolvedValueOnce(admittedDraft)
+      .mockResolvedValueOnce(admittedDraft)
+      .mockResolvedValueOnce(admittedDraft)
+      .mockResolvedValue(runSpawnedDraft);
     submitDraftRequest.mockResolvedValue({
       draftId: "draft-1",
       status: "RunSpawned",
       runId: "branch-run",
       requestId: "req-branch",
       parentSpawnedRunId: "parent-run",
-    });
-    getDraftRequest.mockResolvedValue({
-      draftId: "draft-1",
-      tenantId: "tenant-1",
-      workspaceId: "workspace-1",
-      projectId: "project-1",
-      status: "RunSpawned",
-      spawnedRunId: "branch-run",
-      document: {
-        freeTextIntent: VALID_GUIDED_INTENT,
-        businessOutcome: "Reduce manual triage time by thirty percent.",
-        actorSet: { actors: [] },
-      },
-      createdUtc: "2026-08-05T12:00:00Z",
-      updatedUtc: "2026-08-05T12:00:00Z",
     });
 
     render(<SocraticIntakeWizard />);
@@ -1085,13 +1146,24 @@ describe("SocraticIntakeWizard", () => {
     });
 
     fireEvent.click(screen.getByTestId("socratic-questions-done"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("guided-intake-primary-panel")).toBeInTheDocument();
+    });
+
     fireEvent.click(screen.getByTestId("socratic-submit"));
 
     await waitFor(() => {
-      expect(routerPush).toHaveBeenCalledWith(
-        "/architecture/reviews/branch-run?parentRunId=parent-run&autoCompare=1",
-      );
+      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1");
     });
+
+    await waitFor(() => {
+      expect(routerPush).toHaveBeenCalled();
+    });
+
+    expect(routerPush.mock.calls.at(-1)?.[0]).toBe(
+      "/architecture/reviews/branch-run?parentRunId=parent-run&autoCompare=1",
+    );
   });
 
   it("gates continue on scope confirmation so the brief carries scope before admission", async () => {
