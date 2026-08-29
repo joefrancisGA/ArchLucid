@@ -45,7 +45,7 @@ public sealed partial class FindingJsonConverter
             return null;
 
         // Exporters often emit Unix epoch milliseconds; second-precision values stay 10 digits through year 2286.
-        return Math.Abs(unix) > 9_999_999_999
+        return unix < -9_999_999_999 || unix > 9_999_999_999
             ? DateTimeOffset.FromUnixTimeMilliseconds(unix)
             : DateTimeOffset.FromUnixTimeSeconds(unix);
     }
