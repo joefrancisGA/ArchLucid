@@ -15,6 +15,30 @@ namespace ArchLucid.Application.Tests.Identity;
 public sealed class SelfServiceTrialAbusePolicyTests
 {
     [Fact]
+    public async Task EvaluateAsync_denies_repeat_email_when_only_casing_differs()
+    {
+        InMemorySelfServiceTrialAbuseRepository repository = new();
+
+        await repository.TryInsertEmailClaimAsync(
+            new SelfServiceTrialEmailClaimInsert
+            {
+                NormalizedEmail = "USER@EXAMPLE.COM",
+                ClaimSource = "test",
+                ClaimedUtc = DateTimeOffset.UtcNow
+            },
+            CancellationToken.None);
+
+        SelfServiceTrialAbusePolicy sut = CreateSut(repository, PublicSignupMode.PublicSelfService);
+
+        SelfServiceTrialAbuseEvaluation result = await sut.EvaluateAsync(
+            new SelfServiceTrialAbuseEvaluationRequest { NormalizedEmail = "user@example.com" },
+            CancellationToken.None);
+
+        Assert.False(result.Allowed);
+        Assert.Equal("email_lifetime_cap", result.DenyReasonCode);
+    }
+
+    [Fact]
     public async Task EvaluateAsync_denies_repeat_email_when_enabled()
     {
         InMemorySelfServiceTrialAbuseRepository repository = new();
@@ -123,7 +147,7 @@ public sealed class SelfServiceTrialAbusePolicyTests
             claimSource: "trial",
             CancellationToken.None);
 
-        // IdentityEmailNormalizer keys are lower-invariant; repository lookups are Ordinal.
+        // IdentityEmailNormalizer keys are lower-invariant; in-memory claims match SQL CI PK.
         (await repository.HasEmailClaimAsync("user@example.com", CancellationToken.None)).Should().BeTrue();
         (await repository.CountDomainClaimsSinceAsync("example.com", DateTimeOffset.UtcNow.AddDays(-1), CancellationToken.None))
             .Should()

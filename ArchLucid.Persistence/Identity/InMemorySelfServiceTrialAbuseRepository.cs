@@ -6,7 +6,8 @@ namespace ArchLucid.Persistence.Identity;
 
 public sealed class InMemorySelfServiceTrialAbuseRepository : ISelfServiceTrialAbuseRepository
 {
-    private readonly ConcurrentDictionary<string, SelfServiceTrialEmailClaimInsert> _emailClaims = new(StringComparer.Ordinal);
+    // SQL PK_PlatformSelfServiceTrialEmailClaims is collation CI; Ordinal would let mixed-case keys bypass the lifetime cap.
+    private readonly ConcurrentDictionary<string, SelfServiceTrialEmailClaimInsert> _emailClaims = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly ConcurrentBag<SelfServiceTrialDomainClaimRecord> _domainClaims = [];
 
