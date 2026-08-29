@@ -262,7 +262,7 @@ body {
   }
 
   .text-button {
-    @apply text-[13px] font-semibold leading-[18px];
+    @apply text-[11px] font-bold leading-[15px];
   }
 
   .text-tab {
@@ -372,7 +372,7 @@ select {
 }
 
 /*
- * Preserve Button typography utilities (`font-semibold`, `text-[13px]`, …).
+ * Preserve Button typography utilities (`font-bold`, `text-[11px]`, …).
  * Do not use `font: inherit` on `<button>` — unlayered CSS wins over `@layer utilities` and
  * stripped semibold weight from Refresh, Help, and page-header triggers.
  */
