@@ -8886,3 +8886,26 @@ BEGIN
 
     EXEC sp_executesql @knowledgeModelRunSql;
 END
+
+GO
+
+/* ---- Operational errors inbox ---- */
+
+IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PlatformOperationalErrors
+    (
+        ErrorId              NVARCHAR(64)  NOT NULL PRIMARY KEY,
+        ErrorCode            NVARCHAR(128) NULL,
+        Source               NVARCHAR(200) NULL,
+        Message              NVARCHAR(MAX) NOT NULL,
+        DetailsJson          NVARCHAR(MAX) NULL,
+        Severity             NVARCHAR(32)  NULL,
+        CorrelationId        NVARCHAR(128) NULL,
+        RequestId            NVARCHAR(64)  NULL,
+        RunId                NVARCHAR(64)  NULL,
+        CreatedUtc           DATETIME2     NOT NULL,
+        AcknowledgedUtc      DATETIME2     NULL,
+        ResolvedUtc          DATETIME2     NULL
+    );
+END
