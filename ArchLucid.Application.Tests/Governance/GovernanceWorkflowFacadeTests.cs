@@ -511,6 +511,45 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task PromoteAsync_trims_padded_manifest_version_when_manifest_is_in_scope()
+    {
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        Mock<IUnifiedGoldenManifestReader> manifests = new(MockBehavior.Strict);
+        manifests
+            .Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GoldenManifest
+            {
+                RunId = "run-1",
+                SystemName = "Sys",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow }
+            });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            runDetail: runDetail.Object,
+            unifiedManifestReader: manifests.Object);
+
+        GovernancePromotionRecord record = await sut.PromoteAsync(
+            "run-1",
+            "  v1  ",
+            "dev",
+            "test",
+            "operator",
+            approvalRequestId: null,
+            notes: null,
+            dryRun: true);
+
+        record.ManifestVersion.Should().Be("v1");
+        manifests.VerifyAll();
+    }
+
+    [Fact]
     public async Task PromoteAsync_dry_run_accepts_padded_environments_when_promotion_is_valid()
     {
         Mock<IRunDetailQueryService> runDetail = new();
