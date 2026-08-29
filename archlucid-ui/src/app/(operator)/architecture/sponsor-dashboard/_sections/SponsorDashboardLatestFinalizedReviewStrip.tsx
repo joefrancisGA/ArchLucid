@@ -31,12 +31,12 @@ export function SponsorDashboardLatestFinalizedReviewStrip(
         Open your most recent finalized review
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Portfolio savings and findings roll up from sealed review packages. Start with{" "}
+        Portfolio savings and findings roll up from sealed architecture packages. Start with{" "}
         <span className="font-medium text-al-text-primary">{title}</span>.
       </p>
       <div className="mt-3">
         <Button type="button" variant="primary" size="sm" asChild data-testid="sponsor-dashboard-latest-finalized-review-open">
-          <Link href={reviewDetailPath(props.runId)}>Open review package</Link>
+          <Link href={reviewDetailPath(props.runId)}>Open architecture package</Link>
         </Button>
       </div>
     </section>

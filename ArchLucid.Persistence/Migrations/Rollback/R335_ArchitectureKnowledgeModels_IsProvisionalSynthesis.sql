@@ -1,5 +1,5 @@
 /*
-  R326: Rollback 326_ArchitectureKnowledgeModels_IsProvisionalSynthesis.sql —
+  R335: Rollback 335_ArchitectureKnowledgeModels_IsProvisionalSynthesis.sql —
   drop provisional synthesis flag from dbo.ArchitectureKnowledgeModels.
 */
 

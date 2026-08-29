@@ -8,7 +8,7 @@ export function resolveRunDetailReviewPackageInspectSteps(input: {
   return [
     {
       id: "review",
-      label: "Open the review package workspace",
+      label: "Open the architecture package workspace",
       complete: input.reviewPicked,
     },
     {

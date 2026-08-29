@@ -36,7 +36,7 @@ export function AdvisorySchedulesPickReviewBeforeSchedulingStrip(
         Pick a review before scheduling
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Recurring advisory scans are easiest to schedule against a finalized review package. Choose one to
+        Recurring advisory scans are easiest to schedule against a finalized architecture package. Choose one to
         keep schedule context aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -51,7 +51,7 @@ export function AdvisorySchedulesPickReviewBeforeSchedulingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="advisory-schedules-pick-review-before-scheduling"
           hideFieldHelper
         />
