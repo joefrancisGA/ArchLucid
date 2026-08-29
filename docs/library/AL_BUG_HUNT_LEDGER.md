@@ -2270,11 +2270,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 97
-- **bugs-found:** 265
+- **hunts:** 98
+- **bugs-found:** 266
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — `RecordBulkDisposition` accepted case-variant duplicate `findingIds`
+- **last-bug:** 2026-08-29 — `RecordBulkDisposition` mixed whitespace ids silently dropped when in-scope finding processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2552,10 +2552,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — duplicate `evaluateAgainstRunIds` double-evaluated same run and inflated `totalRequestedRuns` — **hit 2026-08-29 (#240):** reject duplicate ids at controller with HTTP 400 (`SimulateBulk` parity); regression in `DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_ids_contains_duplicate_id`.
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` — whitespace-only `findingId` reached facade — **hit 2026-08-29 (#242):** require non-whitespace `findingId` before facade call; regression in `CreateRiskException_returns_bad_request_when_finding_id_is_whitespace`.
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — case-variant duplicate `findingIds` (`finding-1` / `FINDING-1`) double-dispositioned same finding — **hit 2026-08-29 (#244):** `StringComparer.OrdinalIgnoreCase` duplicate guard (`SimulateBulk`/`DryRunPolicyPack` parity); regression in `RecordBulkDisposition_returns_bad_request_when_finding_ids_differ_only_by_case`.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — case-variant duplicate `approvalRequestIds` (`apr-1` / `APR-1`) double-processed because dedupe `HashSet` used `Ordinal` comparer — **hit 2026-08-29 (#246):** `StringComparer.OrdinalIgnoreCase` dedupe (`RecordBulkDisposition` parity); regression in `BatchReviewApprovalRequests_returns_validation_failed_per_item_when_list_contains_case_variant_duplicate_id`.
+- [x] (invalid) `GovernanceController.DryRunProposedPolicyPack` — sibling dry-run endpoint may accept duplicate run/manifest id lists without controller dedup guard — **cheap-disproof 2026-08-29 (#246):** endpoint accepts single `targetRunId` / `targetManifestId`, not id lists; validator rejects both targets set.
+- [x] (proven) `PolicyPacksController.SimulateBulk` — case-variant duplicate `runIds` silently deduped — **hit 2026-08-29 (#248):** `OrdinalIgnoreCase` duplicate guard (`SimulateBulk_returns_bad_request_when_run_ids_differ_only_by_case`).
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed `findingIds` with whitespace-only entries silently dropped in facade when at least one in-scope id processed — **hit 2026-08-29 (#250):** controller rejects any whitespace id before facade call; strengthened regression with in-scope finding mock in `RecordBulkDisposition_returns_bad_request_when_mixed_finding_ids_include_whitespace`.
 - [x] (proven) `GovernanceController.DryRunPolicyPack` / `PolicyPackDryRunService` — duplicate non-whitespace `evaluateAgainstRunIds` inflated `deltaCounts.evaluated` — **hit 2026-08-29 (#196):** dedupe trimmed run ids in `PolicyPackDryRunService` (SimulateBulk parity); regression in `PolicyPackDryRunServiceTests`.
 - [x] (proven) `GovernancePreCommitSimulationController` (`GetChecklistAsync`, `SimulateAsync`) — malformed `runId` returned `ProblemTypes.BadRequest` instead of `ValidationFailed` (governance run-history parity) — **hit 2026-08-29:** align invalid run id problem type with sibling routes; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernancePreviewController` / `GovernancePreviewService.NormalizeAndValidateEnvironment` — padded `sourceEnvironment`/`targetEnvironment`/`environment` failed known-environment validation before trim — **hit 2026-08-29:** trim environment before `IsKnownEnvironment`; workflow submit/promote/activate trim parity; regression in `GovernancePreviewServiceTests` and `GovernanceWorkflowFacadeTests`.
 - [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — `ArgumentException` for identical source/target after normalization surfaces `ProblemTypes.BadRequest` while sibling validation inputs use `ValidationFailed` (governance client-input problem-type parity gap).
+
+2026-08-29 thorough hunt #250 (supersedes #739): strengthened bulk-disposition mixed-whitespace regression; re-shipped #246/#248 batch-review and simulate-bulk case-variant duplicate guards.
 
 2026-08-29 thorough hunt #244 (supersedes #731): proved case-variant duplicate `findingIds` in bulk disposition; re-shipped #238/#240 controller duplicate guards and #242 risk-exception `findingId` trim.
 
