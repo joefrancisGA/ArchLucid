@@ -71,6 +71,53 @@ public sealed class FindingDispositionValidationTests
     }
 
     [Fact]
+    public void Validate_rejected_as_not_applicable_requires_minimum_rationale_length()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.RejectedAsNotApplicable,
+            Rationale = "too short",
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*10 characters*");
+    }
+
+    [Fact]
+    public void Validate_deferred_rejects_unset_default_revisit_due_utc()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Deferred,
+            Rationale = "defer until architecture review completes",
+            RevisitDueUtc = default,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Revisit*");
+    }
+
+    [Fact]
+    public void Validate_needs_evidence_allows_short_evidence_request_text()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.NeedsEvidence,
+            Rationale = "need supporting docs",
+            EvidenceRequestText = "x",
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void Validate_accepted_requires_minimum_rationale_and_trade_off()
     {
         RecordFindingDispositionRequest shortRationale = new()

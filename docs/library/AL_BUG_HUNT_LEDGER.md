@@ -653,13 +653,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-29
+- **last-bug:** 2026-08-29 — deferred disposition accepted `default(DateTimeOffset)` revisit due (year 0001)
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -668,6 +668,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Required rationale is skipped when the disposition kind is reject — `RejectedAsNotApplicable` requires rationale in `FindingDispositionValidation.Validate`.
 - [x] (proven) Deferred disposition rejects empty rationale while operator UI gates (TB-2305) require rationale only for Accepted and RejectedAsNotApplicable — fixed by removing Deferred from `requiresRationale`.
 - [x] (proven) Non-Accepted dispositions persist trade-off acknowledgment and cross-kind fields (`RevisitDueUtc`, `EvidenceRequestText`) on unrelated disposition kinds — fixed in `FindingDispositionService` note builder and record normalization.
+- [x] (valid-no-repro) `RejectedAsNotApplicable` with rationale under 10 characters after trim bypasses audit gate — `requiresRationale` branch already enforces `MinimumRationaleLength`; regression in `Validate_rejected_as_not_applicable_requires_minimum_rationale_length`.
+- [x] (proven) `FindingDispositionValidation.Validate` with `Deferred` and `RevisitDueUtc = default` (year 0001) passes the null-only guard — **hit 2026-08-29:** non-null default serialized from API clients persisted unusable revisit dates; fixed by rejecting years before 1970; regression in `Validate_deferred_rejects_unset_default_revisit_due_utc`.
+- [x] (valid-no-repro) `NeedsEvidence` with single-character `EvidenceRequestText` bypasses rationale min-length — validation only requires non-whitespace evidence text; UI `dispositionConfirmBlockedReason` has no min-length gate for evidence; regression in `Validate_needs_evidence_allows_short_evidence_request_text`.
 
 ---
 
