@@ -43,14 +43,20 @@ public sealed class MutatingHttpIdempotencyArchitectureTests
         string runsText = File.ReadAllText(runsPath);
         runsText.Should().Contain("[IdempotencyFilter]");
 
-        string queryPath = Path.Combine(root, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.cs");
-        File.Exists(queryPath).Should().BeTrue();
-        string queryText = File.ReadAllText(queryPath);
+        string queryDir = Path.Combine(root, "ArchLucid.Api", "Controllers", "Authority");
+        string queryText = string.Join(
+            Environment.NewLine,
+            Directory.GetFiles(queryDir, "AuthorityQueryController*.cs")
+                .OrderBy(static path => path, StringComparer.Ordinal)
+                .Select(File.ReadAllText));
         queryText.Should().Contain("[IdempotencyFilter]");
 
-        string stickinessPath = Path.Combine(root, "ArchLucid.Api", "Controllers", "Governance", "GovernanceStickinessController.cs");
-        File.Exists(stickinessPath).Should().BeTrue();
-        string stickinessText = File.ReadAllText(stickinessPath);
+        string stickinessDir = Path.Combine(root, "ArchLucid.Api", "Controllers", "Governance");
+        string stickinessText = string.Join(
+            Environment.NewLine,
+            Directory.GetFiles(stickinessDir, "GovernanceStickinessController*.cs")
+                .OrderBy(static path => path, StringComparer.Ordinal)
+                .Select(File.ReadAllText));
         stickinessText.Should().Contain("[IdempotencyFilter]");
     }
 

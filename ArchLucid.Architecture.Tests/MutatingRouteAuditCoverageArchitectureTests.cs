@@ -35,7 +35,7 @@ public sealed class MutatingRouteAuditCoverageArchitectureTests
 
         ProcessStartInfo startInfo = new()
         {
-            FileName = "python",
+            FileName = OperatingSystem.IsWindows() ? "python" : "python3",
             Arguments = $"\"{scriptPath}\"",
             WorkingDirectory = root,
             RedirectStandardOutput = true,
