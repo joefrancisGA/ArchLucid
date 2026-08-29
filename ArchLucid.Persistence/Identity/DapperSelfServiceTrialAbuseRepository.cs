@@ -19,19 +19,17 @@ public sealed class DapperSelfServiceTrialAbuseRepository(ISqlConnectionFactory 
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        int exists = await connection.ExecuteScalarAsync<int>(
+        return await connection.ExecuteScalarAsync<bool>(
             new CommandDefinition(
                 """
-                SELECT CASE WHEN EXISTS (
+                SELECT CAST(CASE WHEN EXISTS (
                     SELECT 1
                     FROM dbo.PlatformSelfServiceTrialEmailClaims
                     WHERE NormalizedEmail = @NormalizedEmail
-                ) THEN 1 ELSE 0 END;
+                ) THEN 1 ELSE 0 END AS bit);
                 """,
                 new { NormalizedEmail = normalizedEmail },
                 cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-        return exists > 0;
     }
 
     public async Task<bool> HasEmailClaimForTenantAsync(
@@ -41,20 +39,18 @@ public sealed class DapperSelfServiceTrialAbuseRepository(ISqlConnectionFactory 
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        int exists = await connection.ExecuteScalarAsync<int>(
+        return await connection.ExecuteScalarAsync<bool>(
             new CommandDefinition(
                 """
-                SELECT CASE WHEN EXISTS (
+                SELECT CAST(CASE WHEN EXISTS (
                     SELECT 1
                     FROM dbo.PlatformSelfServiceTrialEmailClaims
                     WHERE NormalizedEmail = @NormalizedEmail
                       AND TenantId = @TenantId
-                ) THEN 1 ELSE 0 END;
+                ) THEN 1 ELSE 0 END AS bit);
                 """,
                 new { NormalizedEmail = normalizedEmail, TenantId = tenantId },
                 cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-        return exists > 0;
     }
 
     public async Task TryInsertEmailClaimAsync(SelfServiceTrialEmailClaimInsert claim, CancellationToken cancellationToken)

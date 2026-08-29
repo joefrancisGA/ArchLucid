@@ -38,6 +38,9 @@ internal static class TenantWorkspaceScopePreflight
 {
     private const string ResourceNotFoundMessage = "Resource not found.";
 
+    // Ghost tenant/workspace JWT scope returns the same 404 detail intentionally (parity with
+    // TenantWorkspacesController; avoids distinguishing missing tenant vs missing workspace).
+
     internal static async Task<TenantWorkspaceScopePreflightResult> RequireTenantAndWorkspaceAsync(
         ControllerBase controller,
         IScopeContextProvider scopeProvider,

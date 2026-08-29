@@ -93,14 +93,18 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<bool> WorkspaceExistsAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
             return Task.FromResult(false);
 
+        bool exists;
+
         lock (list)
         {
-            return Task.FromResult(list.Any(workspace => workspace.Id == workspaceId));
+            exists = list.Any(workspace => workspace.Id == workspaceId);
         }
+
+        return Task.FromResult(exists);
     }
 }
