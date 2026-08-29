@@ -499,8 +499,6 @@ if ($ShowFindingDelta) {
 
     $soc2PackJson = Read-PolicyPackContentJson -RelativePathFromRepoRoot 'docs/samples/policy-packs/soc2-tsc-architecture.json'
     $cisAzurePackJson = Read-PolicyPackContentJson -RelativePathFromRepoRoot 'docs/samples/policy-packs/cis-azure-foundations.json'
-    $secBasePackJson = Read-PolicyPackContentJson -RelativePathFromRepoRoot 'docs/samples/policy-packs/security-architecture-baseline.json'
-    $aksPackJson = Read-PolicyPackContentJson -RelativePathFromRepoRoot 'docs/samples/policy-packs/aks-production-baseline.json'
 
     $soc2PackJson = Set-PackAdvisoryPriorityFloor -PackContentJson $soc2PackJson -PriorityFloor $DeclarationPriorityFloor
     $cisAzurePackJson = Set-PackAdvisoryPriorityFloor -PackContentJson $cisAzurePackJson -PriorityFloor $DeclarationPriorityFloor
