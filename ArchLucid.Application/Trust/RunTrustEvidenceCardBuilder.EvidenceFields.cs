@@ -158,6 +158,7 @@ public sealed partial class RunTrustEvidenceCardBuilder
             };
 
         FindingTraceConfidenceDto? first = explanation.FindingTraceConfidences?.FirstOrDefault();
+
         if (first is not null && string.Equals(first.TraceConfidenceLabel, "Low", StringComparison.OrdinalIgnoreCase))
             return new TrustEvidenceFieldSnapshot
             {

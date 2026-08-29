@@ -31,6 +31,7 @@ public sealed partial class RunTrustEvidenceCardBuilder
                 Rel = "evidence", Path = FormattableString.Invariant($"/v1/architecture/review/{enc}/evidence"), Label = "Evidence package",
             },
         ];
+
         if (!string.IsNullOrWhiteSpace(topFindingId))
             links.Add(new RunTrustEvidenceRouteRef
             {

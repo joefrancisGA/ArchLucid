@@ -42,6 +42,7 @@ public sealed partial class RunTrustEvidenceCardBuilder(
     public async Task<RunTrustEvidenceCard?> BuildAsync(ArchitectureRunDetail detail, string? hostAgentExecutionMode, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(detail);
+
         if (!detail.IsCommitted)
             return null;
         ArchitectureRun run = detail.Run;
@@ -77,6 +78,7 @@ public sealed partial class RunTrustEvidenceCardBuilder(
         TrustEvidenceFieldSnapshot ai = BuildAiField(explanation);
         ArchitectureFinding? topFinding = SelectTopSeverityFinding(detail);
         RunTrustEvidenceTopFindingRow? topRow = null;
+
         if (topFinding is not null)
         {
             FindingEvidenceChainResponse? chain = await TryChainAsync(runId, topFinding.FindingId, cancellationToken).ConfigureAwait(false);
