@@ -20,13 +20,17 @@ import {
   webhookSettingsFormSchema,
   type WebhookSettingsFormValues,
 } from "@/lib/webhook-settings-form-schema";
-import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
+import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
 import {
   formatCustomerApiFailure,
+  type WebhookEnableTarget,
   useWebhooksSettingsMutations,
 } from "./use-webhooks-settings-mutations";
-import { useWebhooksSettingsConnectionTest } from "./use-webhooks-settings-connection-test";
+import {
+  useWebhooksSettingsConnectionTest,
+  type UseWebhooksSettingsConnectionTestResult,
+} from "./use-webhooks-settings-connection-test";
 import { useWebhooksSettingsLoad } from "./use-webhooks-settings-load";
 
 export { formatCustomerApiFailure };
@@ -45,12 +49,12 @@ export type UseWebhooksSettingsResult = {
   readonly isSaving: boolean;
   readonly failure: ApiLoadFailureState | null;
   readonly testingId: string | null;
-  readonly testResults: Record<string, WebhookTestResponse>;
+  readonly testResults: UseWebhooksSettingsConnectionTestResult["testResults"];
   readonly saveSuccessMessage: string | null;
   readonly pendingDisable: AlertRoutingSubscriptionDisableTarget | null;
   readonly disableBusy: boolean;
   readonly disableErrorMessage: string | null;
-  readonly pendingEnable: { readonly routingSubscriptionId: string; readonly subscriptionName: string } | null;
+  readonly pendingEnable: WebhookEnableTarget | null;
   readonly enableBusy: boolean;
   readonly enableErrorMessage: string | null;
   readonly secretVisible: boolean;
@@ -68,9 +72,7 @@ export type UseWebhooksSettingsResult = {
   readonly setSaveSuccessMessage: Dispatch<SetStateAction<string | null>>;
   readonly setPendingDisable: Dispatch<SetStateAction<AlertRoutingSubscriptionDisableTarget | null>>;
   readonly setDisableErrorMessage: Dispatch<SetStateAction<string | null>>;
-  readonly setPendingEnable: Dispatch<
-    SetStateAction<{ readonly routingSubscriptionId: string; readonly subscriptionName: string } | null>
-  >;
+  readonly setPendingEnable: Dispatch<SetStateAction<WebhookEnableTarget | null>>;
   readonly setEnableErrorMessage: Dispatch<SetStateAction<string | null>>;
 };
 
