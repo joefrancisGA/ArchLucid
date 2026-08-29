@@ -666,7 +666,6 @@
       "nav_href": "/internal/operational-errors",
       "nav_required_authority": "AdminAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
-<<<<<<< HEAD
       "controller_primary_get_policy_strictest": "AdminAuthority",
       "controller_primary_get_policy_loosest": "AdminAuthority",
       "controller_files": [
@@ -678,12 +677,6 @@
         }
       ],
       "parity": "match"
-=======
-      "controller_primary_get_policy_strictest": null,
-      "controller_primary_get_policy_loosest": null,
-      "controller_files": [],
-      "parity": "unmapped"
->>>>>>> 0e55cdc454 (Sync route tier/nav guards after master merge for CI green.)
     },
     {
       "nav_href": "/internal/platform-bundled-policy-packs",
