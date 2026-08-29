@@ -60,7 +60,7 @@ export function GraphViewerNodeDetailPanel({
   onExplainStatusLineChange,
   explainAggregateHref,
   onExplainAggregateHrefChange,
-}: GraphViewerNodeDetailPanelProps): React.ReactElement {
+}: GraphViewerNodeDetailPanelProps): JSX.Element {
   return (
     <>
       {buyerTrailPanel ? (
