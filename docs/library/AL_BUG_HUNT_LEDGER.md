@@ -1755,11 +1755,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 14
-- **bugs-found:** 27
+- **hunts:** 15
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — `IntegrationEventServiceBusApplicationProperties` threw on numeric JSON `deduplicationKey` tokens via `GetString()` on number elements
+- **last-bug:** 2026-08-29 — `FindingJsonConverter.ReadStringDict` called `GetString()` on numeric `properties` tokens and aborted full finding deserialize
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1797,7 +1797,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` reads `correlationId` only when the JSON token is a string — numeric correlation ids returned null and dropped Service Bus publish correlation fallback — **hit 2026-08-29 (#220):** accept string or number tokens (`TryResolveForPublish_reads_numeric_correlationId_from_payload_when_activity_unset`).
 - [x] (proven) `AgentModelExecutionProfileParser.TryParse` rejects `"High Assurance"` display label while accepting `"high-assurance"` — **hit 2026-08-29 (#221):** operator tenant-setting labels failed profile parse; fixed with display-label alias (`TryParse_accepts_high_assurance_display_labels`).
 - [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryGetStringPropertyCaseInsensitive` uses `GetString()` only — numeric JSON `deduplicationKey` threw and dropped Service Bus subscription filter properties — **hit 2026-08-29 (#221):** accept string or number tokens (`TryResolveForPublish_alert_resolved_maps_numeric_deduplication_key`).
+- [x] (proven) `FindingJsonConverter.ReadStringDict` calls `GetString()` on numeric `properties` tokens and aborts full finding deserialize — **hit 2026-08-29 (#225):** coerce number tokens to invariant strings and preserve sibling string entries (`Deserialize_properties_numeric_values_preserve_string_entries`).
 - [x] (valid-no-repro) `RealLlmOutputStructuralValidator.ValidateAgentResultStructure` requires camelCase `agentType` top-level key — doc states camelCase contract serializer output; PascalCase `AgentType` is out of scope for golden-corpus structural checks.
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseLegacyRunStatus` accepts undefined legacy status strings via bare `Enum.TryParse` without `Enum.IsDefined` — numeric-string ordinals may hydrate cast statuses.
+
+2026-08-29 seed hunt #227 (supersedes #708): quality-gate undefined-ordinal lint already on branch via #219; includes #225 properties-bag numeric coercion; hunts #223–#225 carry otherwise folded via #216/#219/#221.
 
 2026-08-29 seed hunt #221: proved agent execution profile display label and numeric Service Bus deduplication-key payload tokens; includes correlation numeric token fix from #220.
 
