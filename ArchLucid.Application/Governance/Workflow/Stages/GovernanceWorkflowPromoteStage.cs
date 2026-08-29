@@ -71,11 +71,6 @@ public sealed class GovernanceWorkflowPromoteStage(
         bool verbosePromotionValidationErrors,
         CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(runId);
-        ArgumentNullException.ThrowIfNull(manifestVersion);
-        ArgumentNullException.ThrowIfNull(sourceEnvironment);
-        ArgumentNullException.ThrowIfNull(targetEnvironment);
-        ArgumentNullException.ThrowIfNull(promotedBy);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceEnvironment);

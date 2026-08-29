@@ -66,11 +66,6 @@ public sealed class GovernanceWorkflowSubmitStage(
         bool dryRun,
         CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(runId);
-        ArgumentNullException.ThrowIfNull(manifestVersion);
-        ArgumentNullException.ThrowIfNull(sourceEnvironment);
-        ArgumentNullException.ThrowIfNull(targetEnvironment);
-        ArgumentNullException.ThrowIfNull(requestedBy);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceEnvironment);

@@ -28,6 +28,11 @@ namespace ArchLucid.TestSupport.Governance;
 /// </summary>
 public static class GovernanceWorkflowTestComposition
 {
+    private static readonly ILoggerFactory TestLoggerFactory =
+        LoggerFactory.Create(builder => builder.SetMinimumLevel(LogLevel.Trace));
+
+    private static ILogger<T> CreateTestLogger<T>() => TestLoggerFactory.CreateLogger<T>();
+
     public static GovernanceWorkflowFacade CreateFacade(
         IGovernanceApprovalRequestRepository approvalRepo,
         IGovernancePromotionRecordRepository promotionRepo,
@@ -58,14 +63,14 @@ public static class GovernanceWorkflowTestComposition
                 auditSupport,
                 integrationEvents,
                 governanceGateOptions,
-                NullLogger<GovernanceWorkflowSubmitStage>.Instance),
+                CreateTestLogger<GovernanceWorkflowSubmitStage>()),
             new GovernanceWorkflowReviewStage(
                 approvalRepo,
                 baselineMutationAudit,
                 auditSupport,
                 integrationEvents,
                 unitOfWorkFactory,
-                NullLogger<GovernanceWorkflowReviewStage>.Instance),
+                CreateTestLogger<GovernanceWorkflowReviewStage>()),
             new GovernanceWorkflowPromoteStage(
                 approvalRepo,
                 promotionRepo,
@@ -74,7 +79,7 @@ public static class GovernanceWorkflowTestComposition
                 baselineMutationAudit,
                 auditSupport,
                 unitOfWorkFactory,
-                NullLogger<GovernanceWorkflowPromoteStage>.Instance),
+                CreateTestLogger<GovernanceWorkflowPromoteStage>()),
             new GovernanceWorkflowActivateStage(
                 activationRepo,
                 runDetailQueryService,
@@ -84,7 +89,7 @@ public static class GovernanceWorkflowTestComposition
                 integrationEvents,
                 unitOfWorkFactory,
                 integrationEventsOptions,
-                NullLogger<GovernanceWorkflowActivateStage>.Instance));
+                CreateTestLogger<GovernanceWorkflowActivateStage>()));
     }
 
     public static GovernanceWorkflowService CreateService(

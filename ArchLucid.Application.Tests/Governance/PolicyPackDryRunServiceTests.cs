@@ -36,6 +36,199 @@ public sealed class PolicyPackDryRunServiceTests
     };
 
     [SkippableFact]
+    public async Task EvaluateAsync_would_block_when_any_threshold_outcome_breaches()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-noisy", critical: 2, high: 0, medium: 0);
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string> { { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "1" } },
+            ["run-noisy"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.Items.Should().ContainSingle()
+            .Which.WouldBlock.Should().BeTrue();
+        response.Items.Should().ContainSingle()
+            .Which.ThresholdOutcomes.Should().ContainSingle()
+            .Which.WouldBreach.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_honors_cancellation_token()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(3);
+        using CancellationTokenSource cancellation = new();
+        cancellation.Cancel();
+
+        Func<Task> act = () => sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            BuildRunIds(3),
+            pageSize: 20,
+            page: 1,
+            cancellation.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_clamps_page_above_available_results()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(3);
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            BuildRunIds(3),
+            pageSize: 2,
+            page: 99,
+            CancellationToken.None);
+
+        response.Page.Should().Be(2);
+        response.Items.Should().HaveCount(1);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_marks_run_missing_when_detail_query_throws()
+    {
+        Mock<IRunDetailQueryService> runs = new();
+        runs
+            .Setup(r => r.GetRunDetailAsync("broken-run", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs.Object,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["broken-run"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.DeltaCounts.RunMissing.Should().Be(1);
+        response.Items.Should().ContainSingle()
+            .Which.RunMissing.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_throws_when_policy_pack_is_deleted()
+    {
+        PolicyPack deletedPack = new()
+        {
+            PolicyPackId = PolicyPackId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            IsDeleted = true,
+        };
+
+        PolicyPackDryRunService sut = CreateSut(
+            new FakeRunDetailQueryService(),
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>(),
+            deletedPack);
+
+        Func<Task> act = () => sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-1"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<PolicyPackNotFoundException>();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_returns_first_page_when_total_items_is_zero()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(0);
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            [],
+            pageSize: 20,
+            page: 5,
+            CancellationToken.None);
+
+        response.Page.Should().Be(1);
+        response.Items.Should().BeEmpty();
+        response.TotalRequestedRuns.Should().Be(0);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_counts_would_allow_when_thresholds_do_not_breach()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string> { { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "1" } },
+            ["run-clean"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.DeltaCounts.WouldAllow.Should().Be(1);
+        response.DeltaCounts.WouldBlock.Should().Be(0);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_throws_when_proposed_thresholds_is_null()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(1);
+
+        Func<Task> act = () => sut.EvaluateAsync(
+            PolicyPackId,
+            null!,
+            ["run-1"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("proposedThresholds");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_throws_when_evaluate_against_run_ids_is_null()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(1);
+
+        Func<Task> act = () => sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            null!,
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("evaluateAgainstRunIds");
+    }
+
+    [SkippableFact]
     public async Task EvaluateAsync_DefaultsPageSizeTo20WhenNotProvided()
     {
         PolicyPackDryRunService sut = BuildSutWithRunCount(50);

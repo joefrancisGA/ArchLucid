@@ -62,10 +62,6 @@ public sealed class GovernanceWorkflowActivateStage(
         string activatedBy,
         CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(runId);
-        ArgumentNullException.ThrowIfNull(manifestVersion);
-        ArgumentNullException.ThrowIfNull(environment);
-        ArgumentNullException.ThrowIfNull(activatedBy);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
         ArgumentException.ThrowIfNullOrWhiteSpace(environment);
