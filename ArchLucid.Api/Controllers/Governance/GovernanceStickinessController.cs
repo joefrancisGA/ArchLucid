@@ -76,9 +76,9 @@ public sealed partial class GovernanceStickinessController(
     }
 
     private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken) =>
-        await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false)).Problem;
 }

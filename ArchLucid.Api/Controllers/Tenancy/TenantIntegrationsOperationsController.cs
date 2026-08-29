@@ -43,16 +43,16 @@ public sealed class TenantIntegrationsOperationsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (!scopePreflight.Succeeded)
+            return scopePreflight.Problem!;
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopePreflight.Scope;
 
         ConnectorOperationsSummary summary =
             await _summaryReader.GetSummaryAsync(scope, cancellationToken).ConfigureAwait(false);

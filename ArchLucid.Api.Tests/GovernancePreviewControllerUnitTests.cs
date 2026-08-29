@@ -189,15 +189,8 @@ public sealed class GovernancePreviewControllerUnitTests
         if (tenantExists)
         {
             tenants
-                .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(
-                [
-                    new TenantWorkspaceListItem
-                    {
-                        WorkspaceId = Scope.WorkspaceId,
-                        Name = "primary",
-                    },
-                ]);
+                .Setup(repository => repository.WorkspaceExistsAsync(Scope.TenantId, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Guid _, Guid workspaceId, CancellationToken __) => workspaceId == effectiveWorkspaceId);
         }
 
         return new GovernancePreviewController(

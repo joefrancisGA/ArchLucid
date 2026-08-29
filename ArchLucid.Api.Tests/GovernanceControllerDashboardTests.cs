@@ -24,7 +24,7 @@ public sealed class GovernanceControllerDashboardTests
     private static readonly Guid TenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
     private static readonly Guid WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
-    private static void SetupTenantExists(Mock<ITenantRepository> tenants, Guid? workspaceId = null)
+    private static void SetupTenantExists(Mock<ITenantRepository> tenants, Guid? workspaceId = null, bool workspaceExists = true)
     {
         Guid effectiveWorkspaceId = workspaceId ?? WorkspaceId;
 
@@ -32,15 +32,8 @@ public sealed class GovernanceControllerDashboardTests
             .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = TenantId, Name = "contoso" });
         tenants
-            .Setup(t => t.ListWorkspacesAsync(TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = effectiveWorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(t => t.WorkspaceExistsAsync(TenantId, effectiveWorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(workspaceExists);
     }
 
     [SkippableFact]
@@ -121,7 +114,7 @@ public sealed class GovernanceControllerDashboardTests
         });
 
         Mock<ITenantRepository> tenants = new();
-        SetupTenantExists(tenants);
+        SetupTenantExists(tenants, foreignWorkspaceId, workspaceExists: false);
 
         Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
 
@@ -171,7 +164,7 @@ public sealed class GovernanceControllerDashboardTests
         });
 
         Mock<ITenantRepository> tenants = new();
-        SetupTenantExists(tenants);
+        SetupTenantExists(tenants, foreignWorkspaceId, workspaceExists: false);
 
         Mock<IComplianceDriftTrendService> drift = new(MockBehavior.Strict);
 

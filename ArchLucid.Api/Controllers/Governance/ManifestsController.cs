@@ -66,11 +66,11 @@ public sealed partial class ManifestsController(
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken) =>
-        await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false)).Problem;
 
     private IActionResult? BadRequestWhenManifestVersionEmpty(string manifestVersion)
     {

@@ -57,16 +57,16 @@ public sealed partial class GovernanceController
         if (maxChanges > 50)
             return this.BadRequestProblem("maxChanges must be at most 50.", ProblemTypes.ValidationFailed);
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (!scopePreflight.Succeeded)
+            return scopePreflight.Problem!;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ScopeContext scope = scopePreflight.Scope;
 
         GovernanceDashboardSummary summary = await _governanceDashboardService.GetDashboardAsync(
             scope.TenantId,
@@ -106,16 +106,16 @@ public sealed partial class GovernanceController
         if (bucketMinutes is < 60 or > 43_200)
             return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (!scopePreflight.Succeeded)
+            return scopePreflight.Problem!;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ScopeContext scope = scopePreflight.Scope;
 
         TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
 

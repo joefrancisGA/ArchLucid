@@ -232,15 +232,8 @@ public sealed class TenantHomepageSettingsControllerTests
         if (tenantExists)
         {
             tenants
-                .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(
-                [
-                    new TenantWorkspaceListItem
-                    {
-                        WorkspaceId = Scope.WorkspaceId,
-                        Name = "primary",
-                    },
-                ]);
+                .Setup(r => r.WorkspaceExistsAsync(Scope.TenantId, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Guid _, Guid workspaceId, CancellationToken __) => workspaceId == effectiveWorkspaceId);
         }
 
         TenantHomepageSettingsController controller = new(

@@ -379,15 +379,8 @@ public sealed class ManifestsControllerEvidenceScopeTests
             .Setup(repository => repository.GetByIdAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = CallerScope.TenantId, Name = "contoso" });
         tenants
-            .Setup(repository => repository.ListWorkspacesAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = CallerScope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(repository => repository.WorkspaceExistsAsync(CallerScope.TenantId, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, Guid workspaceId, CancellationToken __) => workspaceId == CallerScope.WorkspaceId);
 
         return tenants.Object;
     }

@@ -160,15 +160,8 @@ public sealed class ManifestsControllerTests
                 Name = "contoso",
             });
         tenants
-            .Setup(repository => repository.ListWorkspacesAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new ArchLucid.Core.Tenancy.TenantWorkspaceListItem
-                {
-                    WorkspaceId = CallerScope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(repository => repository.WorkspaceExistsAsync(CallerScope.TenantId, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, Guid workspaceId, CancellationToken __) => workspaceId == CallerScope.WorkspaceId);
 
         return tenants.Object;
     }

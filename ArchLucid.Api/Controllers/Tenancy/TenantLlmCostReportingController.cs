@@ -49,14 +49,14 @@ public sealed class TenantLlmCostReportingController(
                 ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (!scopePreflight.Succeeded)
+            return scopePreflight.Problem!;
 
         LlmCostReportingDashboardResponse dashboard =
             await _reportingService.BuildDashboardAsync(days, cancellationToken).ConfigureAwait(false);

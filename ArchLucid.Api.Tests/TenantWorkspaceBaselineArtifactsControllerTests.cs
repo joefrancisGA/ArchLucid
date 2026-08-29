@@ -35,15 +35,8 @@ public sealed class TenantWorkspaceBaselineArtifactsControllerTests
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
         tenants
-            .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(r => r.WorkspaceExistsAsync(Scope.TenantId, foreignWorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
@@ -111,15 +104,8 @@ public sealed class TenantWorkspaceBaselineArtifactsControllerTests
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(tenant);
         tenants
-            .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(r => r.WorkspaceExistsAsync(Scope.TenantId, Scope.WorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         Mock<IAzureExtractorPackageRepository> packages = new();
         packages

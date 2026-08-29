@@ -74,15 +74,8 @@ public sealed class GovernanceResolutionControllerTests
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
         tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(repository => repository.WorkspaceExistsAsync(Scope.TenantId, Scope.WorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         Mock<IEffectiveGovernanceResolver> resolver = new();
         resolver
@@ -128,15 +121,8 @@ public sealed class GovernanceResolutionControllerTests
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
         tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(repository => repository.WorkspaceExistsAsync(Scope.TenantId, foreignWorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         Mock<IEffectiveGovernanceResolver> resolver = new(MockBehavior.Strict);
         Mock<IAuditService> audit = new(MockBehavior.Strict);

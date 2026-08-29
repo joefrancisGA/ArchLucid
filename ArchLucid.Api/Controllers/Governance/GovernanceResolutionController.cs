@@ -71,16 +71,17 @@ public sealed class GovernanceResolutionController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Resolve(CancellationToken ct = default)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             scopeProvider,
             _tenantRepository,
             ct).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (!scopePreflight.Succeeded)
+            return scopePreflight.Problem!;
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopePreflight.Scope;
+
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(
             scope.TenantId,
             scope.WorkspaceId,

@@ -64,15 +64,8 @@ public sealed class GovernanceSetupControllerTests
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
         tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(repository => repository.WorkspaceExistsAsync(Scope.TenantId, Scope.WorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         GovernanceSetupController controller = new(
             scopeProvider.Object,
@@ -155,15 +148,8 @@ public sealed class GovernanceSetupControllerTests
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
         tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(repository => repository.WorkspaceExistsAsync(Scope.TenantId, foreignWorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         GovernanceSetupController controller = new(
             scopeProvider.Object,

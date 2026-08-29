@@ -50,14 +50,14 @@ public sealed class GovernanceSetupController(
     public async Task<IActionResult> GetSetupGuideBundle(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (!scopePreflight.Succeeded)
+            return scopePreflight.Problem!;
 
         Task<EffectivePolicyPackSet> effectiveTask = _resolver.ResolveAsync(
             scope.TenantId,

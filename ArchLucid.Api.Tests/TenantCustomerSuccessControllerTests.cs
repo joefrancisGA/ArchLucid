@@ -55,15 +55,8 @@ public sealed class TenantCustomerSuccessControllerTests
             .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId });
         tenantMock
-            .Setup(t => t.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(t => t.WorkspaceExistsAsync(Scope.TenantId, Scope.WorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         return new TenantCustomerSuccessController(
                 repo,
@@ -431,15 +424,8 @@ public sealed class TenantCustomerSuccessControllerTests
             .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId });
         tenants
-            .Setup(t => t.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(t => t.WorkspaceExistsAsync(Scope.TenantId, foreignWorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object, tenantRepository: tenants.Object);
 
@@ -471,15 +457,8 @@ public sealed class TenantCustomerSuccessControllerTests
             .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId });
         tenants
-            .Setup(t => t.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(t => t.WorkspaceExistsAsync(Scope.TenantId, foreignWorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         Mock<IOperatorStickinessSnapshotReader> stickiness = new(MockBehavior.Strict);
 
@@ -515,15 +494,8 @@ public sealed class TenantCustomerSuccessControllerTests
             .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId });
         tenants
-            .Setup(t => t.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(t => t.WorkspaceExistsAsync(Scope.TenantId, foreignWorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         Mock<IOperatorStickinessSnapshotReader> stickiness = new(MockBehavior.Strict);
 

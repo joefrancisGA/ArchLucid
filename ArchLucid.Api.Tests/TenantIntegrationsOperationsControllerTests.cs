@@ -67,15 +67,8 @@ public sealed class TenantIntegrationsOperationsControllerTests
             .Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = scope.TenantId, Name = "contoso" });
         tenants
-            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(t => t.WorkspaceExistsAsync(scope.TenantId, scope.WorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         TenantIntegrationsOperationsController controller =
             new(scopeProvider.Object, reader.Object, tenants.Object)
@@ -116,15 +109,8 @@ public sealed class TenantIntegrationsOperationsControllerTests
             .Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = scope.TenantId, Name = "contoso" });
         tenants
-            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                    Name = "primary",
-                },
-            ]);
+            .Setup(t => t.WorkspaceExistsAsync(scope.TenantId, foreignWorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         TenantIntegrationsOperationsController controller =
             new(scopeProvider.Object, reader.Object, tenants.Object)

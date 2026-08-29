@@ -42,15 +42,8 @@ public sealed class TenantLlmCostReportingControllerTests
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
         tenants
-            .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(r => r.WorkspaceExistsAsync(Scope.TenantId, foreignWorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         Mock<ITenantLlmCostReportingService> reporting = new(MockBehavior.Strict);
 
@@ -155,15 +148,8 @@ public sealed class TenantLlmCostReportingControllerTests
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
         tenants
-            .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(r => r.WorkspaceExistsAsync(Scope.TenantId, Scope.WorkspaceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         return new TenantLlmCostReportingController(
             reportingService,

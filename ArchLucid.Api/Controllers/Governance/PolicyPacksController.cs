@@ -62,11 +62,11 @@ public sealed partial class PolicyPacksController(
         assignPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(assignPolicyPackRequestValidator));
 
     private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken) =>
-        await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false)).Problem;
 
     private IActionResult? BadRequestWhenRouteIdEmpty(Guid id, string parameterName)
     {

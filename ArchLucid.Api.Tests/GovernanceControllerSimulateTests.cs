@@ -406,15 +406,8 @@ public sealed class GovernanceControllerSimulateTests
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
         tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .Setup(repository => repository.WorkspaceExistsAsync(Scope.TenantId, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, Guid workspaceId, CancellationToken __) => workspaceId == Scope.WorkspaceId);
 
         return tenants.Object;
     }

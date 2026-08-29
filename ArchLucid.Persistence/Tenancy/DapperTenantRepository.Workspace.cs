@@ -93,4 +93,30 @@ public sealed partial class DapperTenantRepository
             })
             .ToList();
     }
+
+
+    /// <inheritdoc />
+    public async Task<bool> WorkspaceExistsAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        const string sql = """
+                           SELECT CASE WHEN EXISTS (
+                               SELECT 1
+                               FROM dbo.TenantWorkspaces
+                               WHERE TenantId = @TenantId
+                                 AND Id = @WorkspaceId
+                           ) THEN 1 ELSE 0 END;
+                           """;
+
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                },
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
 }

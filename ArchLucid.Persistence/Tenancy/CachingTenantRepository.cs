@@ -86,6 +86,10 @@ public sealed partial class CachingTenantRepository(ITenantRepository inner, IHo
         _inner.ListWorkspacesAsync(tenantId, ct);
 
     /// <inheritdoc />
+    public Task<bool> WorkspaceExistsAsync(Guid tenantId, Guid workspaceId, CancellationToken ct) =>
+        _inner.WorkspaceExistsAsync(tenantId, workspaceId, ct);
+
+    /// <inheritdoc />
     public async Task SuspendTenantAsync(Guid tenantId, CancellationToken ct)
     {
         await _inner.SuspendTenantAsync(tenantId, ct);

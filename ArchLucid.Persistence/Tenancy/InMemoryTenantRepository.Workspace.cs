@@ -86,4 +86,18 @@ public sealed partial class InMemoryTenantRepository
 
         return Task.FromResult<IReadOnlyList<TenantWorkspaceListItem>>(copy);
     }
+
+
+    /// <inheritdoc />
+    public Task<bool> WorkspaceExistsAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
+            return Task.FromResult(false);
+
+        lock (list)
+
+            return Task.FromResult(list.Any(workspace => workspace.Id == workspaceId));
+    }
 }

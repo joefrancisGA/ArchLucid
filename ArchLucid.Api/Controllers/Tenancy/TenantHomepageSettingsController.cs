@@ -47,14 +47,14 @@ public sealed class TenantHomepageSettingsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (!scopePreflight.Succeeded)
+            return scopePreflight.Problem!;
 
         FeaturedCompletedSampleSnapshot snapshot =
             await _featuredCompletedSampleService.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
@@ -68,14 +68,14 @@ public sealed class TenantHomepageSettingsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListEligibleSamplesAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (!scopePreflight.Succeeded)
+            return scopePreflight.Problem!;
 
         IReadOnlyList<FeaturedCompletedSampleCandidate> candidates =
             await _featuredCompletedSampleService.ListEligibleCandidatesAsync(cancellationToken).ConfigureAwait(false);
@@ -110,14 +110,14 @@ public sealed class TenantHomepageSettingsController(
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (!scopePreflight.Succeeded)
+            return scopePreflight.Problem!;
 
         if (body.SelectedRunId == Guid.Empty)
             return this.BadRequestProblem("selectedRunId is required.", ProblemTypes.ValidationFailed);

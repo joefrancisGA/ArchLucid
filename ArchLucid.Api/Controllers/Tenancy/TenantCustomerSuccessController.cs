@@ -195,11 +195,11 @@ public sealed class TenantCustomerSuccessController(
     }
 
     private async Task<IActionResult?> EnsureTenantAndWorkspaceAsync(CancellationToken cancellationToken) =>
-        await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false)).Problem;
 
     private static DateTimeOffset? ToOffset(DateTime? utc)
     {

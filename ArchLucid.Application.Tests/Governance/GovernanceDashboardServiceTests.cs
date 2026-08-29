@@ -222,7 +222,7 @@ public sealed class GovernanceDashboardServiceTests
     }
 
     [SkippableFact]
-    public async Task GetDashboard_FiltersRecentChangesToCurrentWorkspaceProject()
+    public async Task GetDashboard_ReturnsRecentChangesFromScopedGetByScopeAsync()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
         Guid workspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
