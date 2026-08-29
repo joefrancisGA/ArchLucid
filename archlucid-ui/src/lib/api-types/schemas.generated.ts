@@ -719,7 +719,17 @@ export interface components {
             overallSemanticScore?: number | string;
             traceId?: string;
         };
-        AgentResult: unknown;
+        AgentResult: {
+            agentType?: components["schemas"]["AgentType"];
+            /** Format: double */
+            confidence?: null | number | string;
+            claims?: string[];
+            evidenceRefs?: string[];
+            findings?: string[];
+            requiredControls?: string[];
+            warnings?: string[];
+            [key: string]: unknown;
+        };
         AgentResultCompareResponse: {
             diff?: components["schemas"]["AgentResultDiffResult"];
         };
