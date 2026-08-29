@@ -74,7 +74,7 @@
     "@archlucid/api-types": "workspace:*",
     "@azure/communication-email": "^1.1.0",
     "@hookform/resolvers": "^5.9.1",
-    "@microsoft/applicationinsights-web": "^3.4.3",
+    "@microsoft/applicationinsights-web": "3.4.2",
     "@radix-ui/react-alert-dialog": "^1.1.23",
     "@radix-ui/react-collapsible": "^1.1.20",
     "@radix-ui/react-dialog": "^1.1.15",
