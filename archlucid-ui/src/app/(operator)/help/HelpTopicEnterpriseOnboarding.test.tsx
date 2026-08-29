@@ -4,6 +4,7 @@ import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
   expectFollowUpLink,
+  expectWhereToGoNextFollowUpLinks,
 } from "@/lib/claim-discipline-test-helpers";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
@@ -197,9 +198,7 @@ describe("HelpEnterpriseOnboardingGuideView enterprise onboarding checklist", ()
 
     const sources = screen.getByTestId("enterprise-onboarding-help-sources");
 
-    for (const link of ENTERPRISE_ONBOARDING_HELP_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), ENTERPRISE_ONBOARDING_HELP_SOURCES);
 
     expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();

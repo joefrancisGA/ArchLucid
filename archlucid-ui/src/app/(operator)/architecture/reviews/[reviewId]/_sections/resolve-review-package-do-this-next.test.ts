@@ -51,17 +51,33 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.href).toContain("reviewTab=activity");
   });
 
-  it("surfaces assessment-failure guidance instead of in-progress copy", () => {
+  it("surfaces assessment-failure guidance with rerun primary and details secondary", () => {
     const next = resolveReviewPackageDoThisNext({
       ...baseInput,
       showProgressTracker: true,
       legacyRunStatus: "Failed",
     });
 
-    expect(next.kind).toBe("view-assessment-progress");
+    expect(next.kind).toBe("rerun-review");
     expect(next.sentence).toContain("Assessment failed");
-    expect(next.actionLabel).toBe("View assessment details");
+    expect(next.actionLabel).toBe("Re-run review");
+    expect(next.href).toBe(baseInput.correctionHref);
+    expect(next.secondaryAction?.label).toBe("View assessment details");
+    expect(next.secondaryAction?.href).toContain("reviewTab=activity");
     expect(next.sentence).not.toContain("running");
+  });
+
+  it("builds a rerun href when correctionHref is absent on terminal failure", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      correctionHref: null,
+      showProgressTracker: true,
+      legacyRunStatus: "Failed",
+    });
+
+    expect(next.kind).toBe("rerun-review");
+    expect(next.href).toContain("rerun=run-abc");
+    expect(next.href).toContain("path=guided-intake");
   });
 
   it("links assessment progress to reviewTab on committed review workspace", () => {

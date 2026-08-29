@@ -1,4 +1,7 @@
+using ArchLucid.Application.OperationalErrors;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.OperationalErrors;
+using ArchLucid.Host.Core.OperationalErrors;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -11,11 +14,14 @@ namespace ArchLucid.Api.ProblemDetails;
 ///     Maps common application exceptions to RFC 9457 Problem Details responses (obsoletes RFC 7807).
 ///     Keeps controllers focused on HTTP mapping by centralizing exception handling.
 /// </summary>
-public sealed class ApiProblemDetailsExceptionFilter(ILogger<ApiProblemDetailsExceptionFilter> logger)
-    : IExceptionFilter
+public sealed class ApiProblemDetailsExceptionFilter(
+    ILogger<ApiProblemDetailsExceptionFilter> logger,
+    IOperationalErrorCaptureService? operationalErrorCapture = null) : IExceptionFilter
 {
     private readonly ILogger<ApiProblemDetailsExceptionFilter> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IOperationalErrorCaptureService? _operationalErrorCapture = operationalErrorCapture;
 
     public void OnException(ExceptionContext context)
     {
@@ -29,8 +35,31 @@ public sealed class ApiProblemDetailsExceptionFilter(ILogger<ApiProblemDetailsEx
         if (result?.StatusCode is >= StatusCodes.Status500InternalServerError)
             LogMappedServerError(context, result);
 
+        if (result is not null)
+            CaptureOperationalError(context, result);
+
         context.Result = result;
         context.ExceptionHandled = true;
+    }
+
+    private void CaptureOperationalError(ExceptionContext context, ObjectResult result)
+    {
+        if (_operationalErrorCapture is null)
+            return;
+
+        int statusCode = result.StatusCode ?? StatusCodes.Status500InternalServerError;
+        string category = statusCode >= StatusCodes.Status500InternalServerError
+            ? OperationalErrorCategory.UnhandledException
+            : OperationalErrorCategory.HttpError;
+
+        OperationalErrorHttpCapture.TryCaptureFromException(
+            _operationalErrorCapture,
+            context.HttpContext,
+            context.Exception,
+            statusCode,
+            ExtractProblemType(result.Value),
+            OperationalErrorSource.Api,
+            category);
     }
 
     private void LogMappedServerError(ExceptionContext context, ObjectResult result)

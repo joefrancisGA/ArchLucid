@@ -25,6 +25,11 @@
 .PARAMETER ProjectId
   Optional scope header X-Project-Id.
 
+.PARAMETER ShowFindingDelta
+  When set, dry-runs bundled SOC 2 vs CIS Azure sample pack JSON against the same run and prints
+  compliance rule-key sets side by side. Finding-level proof for declaration and topology extras
+  remains the offline golden tests (see docs/quality/policy-filter-golden-delta.md).
+
 .EXAMPLE
   .\scripts\demo-policy-pack-delta.ps1 -RunId eb81dd4972ad429e8d4e214f9934bfc0
 #>
@@ -37,7 +42,8 @@ param(
     [string] $ApiKey = '',
     [string] $TenantId = '',
     [string] $WorkspaceId = '',
-    [string] $ProjectId = ''
+    [string] $ProjectId = '',
+    [switch] $ShowFindingDelta
 )
 
 Set-StrictMode -Version Latest
@@ -117,6 +123,71 @@ function Invoke-ArchLucidJson {
         }
 
         throw "$Method $RelativePath failed: $detail"
+    }
+}
+
+function Read-PolicyPackContentJson {
+    param(
+        [Parameter(Mandatory = $true)][string] $RelativePathFromRepoRoot
+    )
+
+    $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+    $fullPath = Join-Path $repoRoot $RelativePathFromRepoRoot
+
+    if (-not (Test-Path -LiteralPath $fullPath)) {
+        throw "Missing policy pack sample: $fullPath"
+    }
+
+    return (Get-Content -LiteralPath $fullPath -Raw)
+}
+
+function Get-ComplianceRuleKeysFromPackJson {
+    param(
+        [Parameter(Mandatory = $true)][string] $PackContentJson
+    )
+
+    $document = $PackContentJson | ConvertFrom-Json
+
+    if ($null -eq $document -or ($document.PSObject.Properties.Name -notcontains 'complianceRuleKeys')) {
+        return @()
+    }
+
+    return @($document.complianceRuleKeys | ForEach-Object { [string]$_ })
+}
+
+function Write-FindingDeltaReport {
+    param(
+        [Parameter(Mandatory = $true)][string] $PackLabel,
+        [Parameter(Mandatory = $true)][string] $PackContentJson,
+        [Parameter(Mandatory = $true)] $DryRunResponse
+    )
+
+    $ruleKeys = Get-ComplianceRuleKeysFromPackJson -PackContentJson $PackContentJson
+    $ruleKeyCount = @($ruleKeys).Count
+
+    Write-Host ''
+    Write-Host "=== $PackLabel ===" -ForegroundColor Cyan
+    Write-Host "  complianceRuleKeys in pack: $ruleKeyCount"
+
+    if ($ruleKeyCount -gt 0) {
+        $preview = @($ruleKeys | Select-Object -First 8) -join ', '
+
+        if ($ruleKeyCount -gt 8) {
+            $preview = "$preview, ..."
+        }
+
+        Write-Host "  sample keys: $preview"
+    }
+
+    if ($null -ne $DryRunResponse) {
+        if ($DryRunResponse.PSObject.Properties.Name -contains 'gateResult') {
+            Write-Host "  gateResult.blocked: $($DryRunResponse.gateResult.blocked)"
+        }
+
+        if ($DryRunResponse.PSObject.Properties.Name -contains 'selectedComplianceRuleIds') {
+            $selected = @($DryRunResponse.selectedComplianceRuleIds)
+            Write-Host "  selectedComplianceRuleIds: $($selected.Count)"
+        }
     }
 }
 
@@ -352,6 +423,64 @@ $markdownLines = @(
 $markdownPath = Join-Path $bundleDir 'policy-pack-before-after-diff.md'
 $markdownLines | Set-Content -LiteralPath $markdownPath -Encoding UTF8
 Write-Host "Wrote $markdownPath"
+
+if ($ShowFindingDelta) {
+    Write-Host ''
+    Write-Host 'Finding-set toggle (compliance rule keys — same review, different packs)' -ForegroundColor Cyan
+
+    $soc2PackJson = Read-PolicyPackContentJson -RelativePathFromRepoRoot 'docs/samples/policy-packs/soc2-tsc-architecture.json'
+    $cisAzurePackJson = Read-PolicyPackContentJson -RelativePathFromRepoRoot 'docs/samples/policy-packs/cis-azure-foundations.json'
+
+    $soc2DryRunBody = @{
+        targetRunId                = $runIdNormalized
+        policyPackContentJson      = $soc2PackJson
+        blockCommitOnCritical      = $false
+        blockCommitMinimumSeverity = $null
+    }
+    $cisDryRunBody = @{
+        targetRunId                = $runIdNormalized
+        policyPackContentJson      = $cisAzurePackJson
+        blockCommitOnCritical      = $false
+        blockCommitMinimumSeverity = $null
+    }
+
+    $soc2DryRun = Invoke-ArchLucidJson -Method Post -RelativePath '/v1/governance/policy-packs/dry-run' -Body $soc2DryRunBody
+    $cisDryRun = Invoke-ArchLucidJson -Method Post -RelativePath '/v1/governance/policy-packs/dry-run' -Body $cisDryRunBody
+
+    Save-JsonArtifact -FileName 'finding-delta-soc2-dry-run.json' -Object $soc2DryRun
+    Save-JsonArtifact -FileName 'finding-delta-cis-azure-dry-run.json' -Object $cisDryRun
+
+    $soc2Keys = Get-ComplianceRuleKeysFromPackJson -PackContentJson $soc2PackJson
+    $cisKeys = Get-ComplianceRuleKeysFromPackJson -PackContentJson $cisAzurePackJson
+    $onlySoc2 = @($soc2Keys | Where-Object { $cisKeys -notcontains $_ })
+    $onlyCis = @($cisKeys | Where-Object { $soc2Keys -notcontains $_ })
+
+    Write-FindingDeltaReport -PackLabel 'SOC 2 Type II (sample)' -PackContentJson $soc2PackJson -DryRunResponse $soc2DryRun
+    Write-FindingDeltaReport -PackLabel 'CIS Azure Foundations (sample)' -PackContentJson $cisAzurePackJson -DryRunResponse $cisDryRun
+
+    Write-Host ''
+    Write-Host "  keys only in SOC 2 pack: $($onlySoc2.Count) (e.g. soc2-004 transport-security)"
+    Write-Host "  keys only in CIS Azure pack: $($onlyCis.Count) (e.g. cis-az-006 public-access; includes identity topology extra in advisoryDefaults)"
+
+    Save-JsonArtifact -FileName 'finding-delta-rule-key-sets.json' -Object @{
+        runId              = $runIdNormalized
+        soc2RuleKeyCount   = @($soc2Keys).Count
+        cisAzureRuleKeyCount = @($cisKeys).Count
+        onlyInSoc2         = $onlySoc2
+        onlyInCisAzure     = $onlyCis
+        offlineGoldenTests = @(
+            'dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyFilteredGoldenCorpusTests',
+            'dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyFilteredDeclarationGoldenCorpusTests',
+            'dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyExpectationCoverageGoldenCorpusTests'
+        )
+        honestyNote      = 'SOC 2 assignment alone does not add topology identity unless expectation.topologyCategories.add is stamped (see cis-azure-foundations.json).'
+    }
+
+    Write-Host ''
+    Write-Host 'Offline declaration/topology proof (no live API persist):' -ForegroundColor Yellow
+    Write-Host '  dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyFilteredDeclarationGoldenCorpusTests'
+    Write-Host '  dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyExpectationCoverageGoldenCorpusTests'
+}
 
 Write-Host ''
 Write-Host 'Delta demo complete.' -ForegroundColor Green

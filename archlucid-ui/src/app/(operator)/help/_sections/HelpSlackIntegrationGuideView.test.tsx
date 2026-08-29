@@ -21,9 +21,10 @@ import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
+  expectWhereToGoNextFollowUpLinks,
+  whereToGoNextFollowUpLinksForTests,
 } from "@/lib/claim-discipline-test-helpers";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID,
   SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY,
@@ -91,11 +92,12 @@ describe("HelpSlackIntegrationGuideView", () => {
       SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY,
     );
 
-    for (const source of SLACK_INTEGRATION_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+    expectWhereToGoNextFollowUpLinks(screen, SLACK_INTEGRATION_HELP_SOURCES);
 
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-      expect(screen.getByText(source.when)).toBeInTheDocument();
+    for (const source of whereToGoNextFollowUpLinksForTests(SLACK_INTEGRATION_HELP_SOURCES)) {
+      if (source.when !== undefined) {
+        expect(screen.getByText(source.when)).toBeInTheDocument();
+      }
     }
 
     expect(screen.getByRole("link", { name: "Open Alert rules" })).toBeInTheDocument();

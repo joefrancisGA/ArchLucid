@@ -241,6 +241,9 @@ public sealed class TenantCustomerSuccessController(
         if (scopeProblem is not null)
             return scopeProblem;
 
+        if (request.RunId == Guid.Empty)
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+
         if (request.RunId is Guid runId)
         {
             RunRecord? run = await _runRepository

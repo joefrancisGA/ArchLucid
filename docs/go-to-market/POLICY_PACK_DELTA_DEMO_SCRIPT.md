@@ -79,7 +79,14 @@ X-Project-Id: {projectId}
 
 **Honesty:** SOC 2 assignment alone does **not** add topology `identity` unless that pack's `advisoryDefaults` includes `expectation.topologyCategories.add=identity`. See [`docs/quality/policy-filter-golden-delta.md`](../quality/policy-filter-golden-delta.md).
 
-Optional: `.\scripts\demo-policy-pack-delta.ps1 -RunId …` documents gate deltas; finding-set proof remains the golden tests above unless the API exposes a dry-run finding diff without persist.
+Optional: `.\scripts\demo-policy-pack-delta.ps1 -RunId … -ShowFindingDelta` dry-runs bundled SOC 2 vs CIS Azure sample packs and prints compliance rule-key deltas for the same review. Declaration and topology-extra finding proof remains the golden tests below unless the API exposes a finding diff without persist.
+
+```powershell
+.\scripts\demo-policy-pack-delta.ps1 `
+  -RunId eb81dd4972ad429e8d4e214f9934bfc0 `
+  -ShowFindingDelta `
+  -OutputDirectory artifacts/policy-pack-delta-demo
+```
 
 ---
 

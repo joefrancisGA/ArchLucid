@@ -118,6 +118,10 @@ public sealed class TenantHomepageSettingsController(
             return scopeProblem;
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        if (body.SelectedRunId == Guid.Empty)
+            return this.BadRequestProblem("selectedRunId is required.", ProblemTypes.ValidationFailed);
+
         string actor = User?.Identity?.Name ?? "operator";
         FeaturedCompletedSampleSnapshot snapshot;
 

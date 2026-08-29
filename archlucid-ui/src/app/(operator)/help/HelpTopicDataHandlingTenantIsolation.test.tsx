@@ -28,6 +28,17 @@ vi.mock("next/navigation", () => ({
 
 
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
+
+
 import { HelpDataHandlingTenantIsolationGuideView } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationGuideView";
 
 import { DATA_HANDLING_HELP_IA_DUAL_HEADING } from "@/lib/data-handling-help-ia-dual";
@@ -221,7 +232,11 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
       "/help/security-trust",
     );
 
-    const headerActions = screen.getByTestId("help-data-handling-tenant-isolation-header-actions");
+    const headerActions = screen.getAllByTestId("help-data-handling-tenant-isolation-header-actions")[0];
+
+    if (headerActions === undefined) {
+      throw new Error("Expected data-handling header actions.");
+    }
 
     expect(
 
