@@ -62,7 +62,7 @@ export function ArchitectureIntelligencePickReviewBeforeAnalysisStrip(
           committedOnly={false}
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="architecture-intelligence-pick-review"
           hideFieldHelper
         />
