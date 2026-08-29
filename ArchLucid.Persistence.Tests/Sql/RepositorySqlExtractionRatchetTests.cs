@@ -40,6 +40,16 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/Coordination/ProductLearning/ProductLearningPilotSignalSql.cs"
             },
             {
+                "ArchLucid.Persistence/IntegrationOutbox/DapperIntegrationEventOutboxRepository.Enqueue.cs",
+                "IntegrationEventOutboxSql",
+                "ArchLucid.Persistence/IntegrationOutbox/IntegrationEventOutboxSql.cs"
+            },
+            {
+                "ArchLucid.Persistence/IntegrationOutbox/DapperIntegrationEventOutboxRepository.DeadLetters.cs",
+                "IntegrationEventOutboxSql",
+                "ArchLucid.Persistence/IntegrationOutbox/IntegrationEventOutboxSql.cs"
+            },
+            {
                 "ArchLucid.Persistence/Coordination/ProductLearning/Planning/DapperProductLearningPlanningPlanLinkRepository.cs",
                 "ProductLearningPlanningPlanLinkSql",
                 "ArchLucid.Persistence/Coordination/ProductLearning/Planning/ProductLearningPlanningPlanLinkSql.cs"

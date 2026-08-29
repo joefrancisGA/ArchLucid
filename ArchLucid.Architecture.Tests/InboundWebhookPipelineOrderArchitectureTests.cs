@@ -54,6 +54,17 @@ public sealed class InboundWebhookPipelineOrderArchitectureTests
         (parseCall > 0 || inlineParse > 0).Should().BeTrue(because: $"{methodName} must parse JSON after verify");
 
         sizeCheck.Should().BeLessThan(verify, because: "bounded size intake must precede verify (TB-967)");
-        verify.Should().BeLessThan(Math.Max(parseCall, inlineParse), because: "signature/security gate must precede schema parse");
+        verify.Should().BeLessThan(EarliestPositiveIndex(parseCall, inlineParse), because: "signature/security gate must precede schema parse");
+    }
+
+    private static int EarliestPositiveIndex(int first, int second)
+    {
+        if (first <= 0)
+            return second;
+
+        if (second <= 0)
+            return first;
+
+        return Math.Min(first, second);
     }
 }
