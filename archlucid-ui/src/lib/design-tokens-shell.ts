@@ -215,7 +215,7 @@ export const OPERATOR_TYPE_SCALE = {
   button: "text-[11px] font-bold leading-[15px]",
   /**
    * Native `<button>` segmented options, filter chips, and compact triggers — 11/15 bold.
-   * Do not reuse {@link OPERATOR_TYPOGRAPHY.button} here; that scale is reserved for visible-boundary Buttons.
+   * Reuses the same type scale as {@link OPERATOR_TYPE_SCALE.button}, but remains a separate semantic token for native controls.
    */
   nativeControlLabel: "text-[11px] font-bold leading-[15px]",
   /** Tab / table header label — 12/16, semibold. */
