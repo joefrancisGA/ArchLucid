@@ -80,6 +80,23 @@ export function resolveOperatorBillingCurrentPlan(
     };
   }
 
+  const commercialTier =
+    typeof input.commercialTier === "string" ? input.commercialTier.trim() : "";
+
+  if (input.isTrialUsage === false && commercialTier.length > 0) {
+    return {
+      planKind: "paid-plan",
+      headline: commercialTier,
+      supportingLine:
+        workspaceSuffix !== null
+          ? `${workspaceSuffix} is on the ${commercialTier} plan. Manage seats, invoices, and payment from Billing and plans.`
+          : `This workspace is on the ${commercialTier} plan. Manage seats, invoices, and payment from Billing and plans.`,
+      workspaceLabel: workspaceSuffix,
+      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      hasPaidPlan: true,
+    };
+  }
+
   if (input.isFrictionlessTrial) {
     return {
       planKind: "frictionless-trial",
@@ -104,23 +121,6 @@ export function resolveOperatorBillingCurrentPlan(
       workspaceLabel: workspaceSuffix,
       aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
       hasPaidPlan: false,
-    };
-  }
-
-  const commercialTier =
-    typeof input.commercialTier === "string" ? input.commercialTier.trim() : "";
-
-  if (input.isTrialUsage === false && commercialTier.length > 0) {
-    return {
-      planKind: "paid-plan",
-      headline: commercialTier,
-      supportingLine:
-        workspaceSuffix !== null
-          ? `${workspaceSuffix} is on the ${commercialTier} plan. Manage seats, invoices, and payment from Billing and plans.`
-          : `This workspace is on the ${commercialTier} plan. Manage seats, invoices, and payment from Billing and plans.`,
-      workspaceLabel: workspaceSuffix,
-      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
-      hasPaidPlan: true,
     };
   }
 

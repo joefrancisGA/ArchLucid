@@ -2209,11 +2209,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 8
-- **bugs-found:** 11
+- **hunts:** 9
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — RewriteArchitectureOverview omitted chat-intake max text length guard
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — `GetRunRoiEstimate` whitespace runId threw before 404 parity; `RephraseClarificationAnswers` omitted per-item `ExtractedAnswer` max length
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2241,13 +2241,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 68
-- **bugs-found:** 199
+- **hunts:** 101
+- **bugs-found:** 248
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
 - **last-bug:** 2026-08-28 — weekly digest health misleading disabled-subscription gap copy
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -2445,6 +2445,136 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantWeeklyDigestHealthController.GetAsync` / `WeeklyDigestHealthReader` — disabled-only digest subscriptions reported `digestSubscriptionCount > 0` while setup gap said "No digest subscriptions" — **hit 2026-08-28:** emit disabled-only gap copy when rows exist but `IsEnabled` is false; regression in `WeeklyDigestHealthReaderTests.GetSnapshotAsync_reports_disabled_subscription_gap_when_rows_exist_but_none_enabled`.
 
 2026-08-28 thorough hunt #163: proved weekly digest disabled-subscription setup gap wording; zone candidate backlog cleared.
+
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — route `id = Guid.Empty` returned HTTP 404 policy-pack-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before dry-run service lookup (policy-packs route parity); regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_policy_pack_id_is_empty`.
+- [x] (proven) `GovernanceStickinessController.UpdateRecurrenceSchedule` — route `scheduleId = Guid.Empty` returned HTTP 404 schedule-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before repository lookup (create recurrence empty source-run parity); regression in `GovernanceStickinessControllerTests.UpdateRecurrenceSchedule_returns_bad_request_when_schedule_id_is_empty`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` — body `runId = Guid.Empty` bypassed `EnsureRunInScopeWhenProvidedAsync` and persisted disposition — **hit 2026-08-28:** controller rejects empty runId before facade (merge-conflict route empty-run parity); regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_bad_request_when_run_id_is_empty`.
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` — body `runId = Guid.Empty` bypassed scoped-run preflight — **hit 2026-08-28:** controller rejects empty runId before facade; regression in `GovernanceStickinessControllerTests.CreateRiskException_returns_bad_request_when_run_id_is_empty`.
+- [x] (proven) `GovernanceController.RequireScopedRunAsync` — empty/whitespace `runId` on submit/promote/activate/approval-history routes returned HTTP 404 `RunNotFound` instead of HTTP 400 — **hit 2026-08-28:** return `ValidationFailed` for missing run id (pre-commit checklist/simulate parity); regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_bad_request_when_run_id_is_empty`.
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `workspaceId` or `projectId = Guid.Empty` returned HTTP 404 instead of HTTP 400 validation — **hit 2026-08-28:** reject empty route guids before workspace/project lookup (policy-packs route parity); regression in `TenantWorkspacesControllerTests`.
+
+- [x] (proven) `GovernanceController.RequireScopedRunAsync` — malformed `runId` on approval-history routes returned HTTP 404 `RunNotFound` instead of HTTP 400 — **hit 2026-08-28:** return `ValidationFailed` when `Guid.TryParse` fails (pre-commit checklist parity); regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_bad_request_when_run_id_is_not_valid`.
+- [x] (proven) `TenantHomepageSettingsController.PutAsync` — body `selectedRunId = Guid.Empty` returned HTTP 404 `RunNotFound` because empty is treated as a provided id — **hit 2026-08-28:** reject empty guid before featured-sample service lookup (stickiness empty body runId parity); regression in `TenantHomepageSettingsControllerTests.PutAsync_returns_bad_request_when_selected_run_id_is_empty`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` — whitespace-only route `findingId` returned HTTP 404 after trim to empty — **hit 2026-08-28:** reject blank finding id after `NormalizeFindingId` (bulk-disposition whitespace parity); regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_bad_request_when_finding_id_is_whitespace`.
+- [x] (proven) `PolicyPacksController` route `policyPackId` / `assignmentId` / `policyPackCatalogEntryId` = `Guid.Empty` — scoped repository lookup returned HTTP 404 instead of HTTP 400 validation — **hit 2026-08-28:** shared `BadRequestWhenRouteIdEmpty` on pack/assignment/catalog route reads and mutations plus promote/demote body guards (DryRunPolicyPack parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `runId = Guid.Empty` returned HTTP 404 `RunNotFound` because empty is treated as a provided id — **hit 2026-08-28:** reject empty guid before scoped run lookup (homepage/stickiness empty runId parity); regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_run_id_is_empty`.
+
+- [x] (proven) `GovernanceStickinessController.RevokeRiskException` / `RenewRiskException` — route `riskExceptionId = Guid.Empty` returned HTTP 404 or unhandled service error instead of HTTP 400 — **hit 2026-08-28:** controller rejects empty guid before facade lookup (update-recurrence scheduleId parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` — route `runId = Guid.Empty` returned HTTP 404 merge-conflict-not-found because `EnsureRunInScopeWhenProvidedAsync` treats empty as omitted — **hit 2026-08-28:** controller rejects empty `runId` before facade (record-disposition body runId parity); regression in `GovernanceStickinessControllerTests.ResolveFindingMergeConflict_returns_bad_request_when_run_id_empty`.
+- [x] (proven) `GovernanceStickinessController.ListDispositions` / `ResolveFindingMergeConflict` — whitespace-only route `findingId` returned HTTP 200 `[]` or HTTP 404 after trim to empty — **hit 2026-08-28:** reject blank finding id after `NormalizeFindingId` (record-disposition parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceController.Simulate` / `PolicyPacksController.Simulate` — body `runId = "00000000-0000-0000-0000-000000000000"` passed whitespace guard and scoped lookup returned HTTP 404 instead of HTTP 400 — **hit 2026-08-28:** reject empty guid after trim/parse before dry-run service lookup (RequireScopedRunAsync malformed-run parity); regression in `GovernanceControllerSimulateTests` and `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `ManifestsController` read/export routes — whitespace-only `manifestVersion` returned HTTP 404 `ManifestNotFound` instead of HTTP 400 validation — **hit 2026-08-28:** `BadRequestWhenManifestVersionEmpty` on manifest read/export routes (compare leftVersion/rightVersion parity); regression in `ManifestsControllerTests`.
+
+- [x] (proven) `GovernanceController.RequireScopedRunAsync` — body/route `runId = "00000000-0000-0000-0000-000000000000"` passed whitespace/malformed guards and scoped lookup returned HTTP 404 instead of HTTP 400 — **hit 2026-08-28:** reject `Guid.Empty` after parse before repository lookup (Simulate empty runId parity); regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_bad_request_when_run_id_is_empty_guid`.
+- [x] (proven) `GovernanceController` approval singleton routes (`GetApprovalRequestLineage`, `GetApprovalRequestRationale`, `Approve`, `Reject`) — whitespace-only route `approvalRequestId` returned HTTP 404 after trim to empty — **hit 2026-08-28:** `BadRequestWhenApprovalRequestIdEmpty` after `NormalizeApprovalRequestId` (stickiness findingId whitespace parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernancePreCommitSimulationController` checklist/simulate — route/body `runId = "00000000-0000-0000-0000-000000000000"` returned HTTP 404 `RunNotFound` instead of HTTP 400 — **hit 2026-08-28:** reject empty guid after parse before scoped run preflight (Simulate parity); regression in `GovernancePreCommitSimulationControllerTests`.
+- [x] (proven) `GovernancePreviewController.Preview` — body `runId = "00000000-0000-0000-0000-000000000000"` passed validator `NotEmpty` and service lookup returned HTTP 404 instead of HTTP 400 — **hit 2026-08-28:** reject empty guid after trim/parse before preview service lookup (Simulate parity); regression in `GovernancePreviewControllerUnitTests`.
+- [x] (proven) `GovernanceController.Promote` — body whitespace-only `approvalRequestId` bypassed optional approval preflight and reached `PromoteAsync` with padded id — **hit 2026-08-28:** reject blank approval id when provided and pass normalized id to workflow (approval route whitespace parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — stored approval with malformed `RunId` surfaced per-item `RunNotFound` instead of `ValidationFailed` from `RequireScopedRunAsync` — **hit 2026-08-28:** propagate scoped-run problem type/detail into batch item results (approve/reject parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — JSON `decision: null` caused HTTP 500 on `Decision.Trim()` — **hit 2026-08-28:** null decision guard before trim; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — JSON `approvalRequestIds: null` caused HTTP 500 on `.Count` — **hit 2026-08-28:** null list guard before count check; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — mixed list with whitespace-only ids silently dropped instead of per-item validation failure — **hit 2026-08-28:** emit per-item `ValidationFailed` for whitespace ids while processing valid ids (all-whitespace list still returns HTTP 400); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (invalid) `GovernanceController.Activate` — missing `Idempotency-Key` returns HTTP 400 but lacks dedicated regression beside promote/submit siblings — **cheap-disproof 2026-08-28:** `ReadGovernanceIdempotencyKey(true)` already rejects missing header before tenant/run preflight; test gap only, not wrong behavior.
+
+- [x] (proven) `GovernanceController.DryRunProposedPolicyPack` — invalid, empty-GUID `targetRunId`, or `targetManifestId = Guid.Empty` reached dry-run service and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-28:** controller validates target run/manifest ids before `EvaluateAsync` (Simulate parity); regression in `GovernanceControllerSimulateTests`.
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — `evaluateAgainstRunIds` containing malformed or empty-GUID strings returned HTTP 200 with `runMissing` deltas instead of HTTP 400 — **hit 2026-08-28:** validate each non-whitespace run id before `EvaluateAsync` (Simulate/DryRunProposedPolicyPack parity); regression in `GovernanceControllerSimulateTests`.
+- [x] (invalid) `GovernanceController.Approve` / `Reject` — whitespace-only route `approvalRequestId` returns HTTP 400 via shared guard but lacks dedicated approve/reject regression tests — **cheap-disproof 2026-08-28:** `BadRequestWhenApprovalRequestIdEmpty` already guards both routes; added dedicated regression tests in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `PolicyPacksController.SimulateBulk` — `runIds` containing malformed or empty-GUID strings returned HTTP 200 with `notFoundRunCount` instead of HTTP 400 — **hit 2026-08-28:** validate each non-whitespace run id before `TrySimulateBulkAsync` (DryRunPolicyPack parity); regression in `PolicyPacksControllerSimulateBulkScopeTests`.
+- [x] (invalid) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — padded `runId` accepted by `RequireScopedRunAsync` but repository query may not match when padding differs from stored normalization — **cheap-disproof 2026-08-28:** `RequireScopedRunAsync` trims and returns normalized id for downstream queries; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_items_when_route_run_id_is_padded` (hunt #142).
+- [x] (invalid) `GovernanceController.GetPromotions` / `GetActivations` — padded `runId` handled by shared `RequireScopedRunAsync` but lack dedicated padded-route regression tests — **cheap-disproof 2026-08-28:** shared `RequireScopedRunAsync` normalized id path already proven on `GetApprovalRequests`; added sibling regression tests in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (invalid) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id — **cheap-disproof 2026-08-28:** intentional validation ordering (count cap before per-id GUID parse), aligned with `DryRunPolicyPack`; both return HTTP 400; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
+- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` are silently deduped with no per-item result row (batch client cannot distinguish omitted duplicate from never-sent id).
+- [ ] (candidate) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity on single-manifest reads.
+
+2026-08-28 thorough hunt #190 (dry): cheap-disproved promotions/activations padded-route test gap and simulate-bulk validation-order candidates; seeded batch-review duplicate-id silence and manifest-compare padded-version candidates.
+
+2026-08-28 thorough hunt #186: proved batch-review mixed whitespace per-item validation; cheap-disproved activate idempotency test-gap candidate; zone candidate backlog cleared.
+
+2026-08-28 seed hunt #185: proved batch-review scoped-run error parity and null decision/ids guards; seeded batch mixed-whitespace and activate idempotency candidates.
+
+2026-08-28 thorough hunt #184: proved preview empty runId 400 and promote whitespace approvalRequestId 400; zone candidate backlog cleared.
+
+2026-08-28 seed hunt #183: proved RequireScopedRunAsync empty runId 400, approval whitespace route id 400, and pre-commit empty runId 400; seeded preview empty runId and promote whitespace approvalRequestId candidates.
+
+2026-08-28 thorough hunt #182: proved simulate empty runId string 400 and manifest whitespace version 400; zone candidate backlog cleared.
+
+2026-08-28 seed hunt #181: proved risk-exception empty route id, merge-conflict empty runId, and disposition-sibling whitespace findingId guards; seeded simulate empty runId string and manifest whitespace version candidates.
+
+2026-08-28 thorough hunt #180: proved policy-pack route empty-guid guards and product-feedback empty runId 400; zone candidate backlog cleared.
+
+2026-08-28 seed hunt #179: proved invalid runId 400, homepage empty selectedRunId 400, and disposition whitespace findingId 400; seeded policy-pack route empty-guid and customer-success empty runId candidates.
+
+2026-08-28 thorough hunt #178: proved RequireScopedRunAsync empty-run 400 parity and tenant workspace delete/restore empty route-id guards; zone candidate backlog cleared.
+
+2026-08-28 seed hunt #177: proved dry-run empty pack id, update-recurrence empty schedule id, and disposition/risk-exception empty body runId guards; seeded RequireScopedRunAsync empty-run 404-vs-400 and tenant workspace empty route-id candidates.
+
+- [x] (proven) `GovernanceDashboardService.GetDashboardAsync` / `GovernanceController.GetDashboard` — tenant-wide `GetByTenantAsync` `TOP (@MaxRows)` before in-memory workspace/project filter starved `recentChanges` when newer foreign-workspace rows filled the batch — **hit 2026-08-27:** `IPolicyPackChangeLogRepository.GetByScopeAsync` applies scope in SQL before `TOP`; regression in `GovernanceDashboardServiceTests.GetDashboard_UsesScopedChangeLogQuery_WhenTenantWideTopWouldStarveInScopeRows` and `PolicyPackChangeLogRepositoryContractTests.GetByScopeAsync_FiltersWorkspaceProjectBeforeTopLimit`.
+
+- [x] (proven) `TenantTrialController.LinkEntraAsync` — `GetByNormalizedEmailAsync` is email-only (no tenant binding) so another tenant's trial local identity can be linked during Entra directory bind — **hit 2026-08-27:** `ISelfServiceTrialAbuseRepository.HasEmailClaimForTenantAsync` rejects local link when email claim `TenantId` does not match caller scope; regression in `LinkEntraAsync_returns_bad_request_when_local_email_not_claimed_for_tenant` and `LinkEntraAsync_links_local_identity_when_email_claimed_for_tenant`.
+
+- [x] (invalid) `TenantTrialController.ConvertTrialAsync` — null/empty JSON body converts active trial with unspecified `tier` instead of HTTP 400 — **cheap-disproof 2026-08-27:** `docs/library/BILLING.md` documents optional tier on manual convert; `TryMapRequestTier` treats null/whitespace as unspecified tier by design; regression in `ConvertTrialAsync_accepts_null_body_with_unspecified_tier`.
+
+- [x] (proven) `GovernanceSetupController.GetSetupGuideBundle` — JWT with unknown `workspaceId` returned HTTP 200 empty/minimal bundle instead of workspace 404 — **hit 2026-08-27:** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` (`ListWorkspacesAsync` parity with `TenantWorkspacesController`); regression in `GetSetupGuideBundle_returns_not_found_when_workspace_missing`.
+
+- [x] (proven) `GovernanceResolutionController.Resolve` — unknown `workspaceId` in scope proceeded to `IEffectiveGovernanceResolver.ResolveAsync` without workspace existence validation — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight; regression in `Resolve_returns_not_found_when_workspace_missing`.
+
+- [x] (invalid) `PolicyPacksController.Assign` / `PolicyPackManagementService.AssignAsync` — project-scoped JWT + body `scopeLevel: "Tenant"` (or `"Workspace"`) → HTTP 200 tenant-wide (or workspace-wide) assignment row with `WorkspaceId`/`ProjectId` zeroed, affecting resolution for sibling workspaces/projects; controller forwards body `ScopeLevel` without matching ambient scope tier (`PolicyPacksController.cs` L174–181, `PolicyPackManagementService.cs` L207–214) — **cheap-disproof 2026-08-27:** `docs/library/API_CONTRACTS.md` documents optional `scopeLevel` (`Tenant` \| `Workspace` \| `Project`) and empty GUID storage for broader tiers; hierarchical assignment is intentional (`docs/ARCHITECTURE_ON_ONE_PAGE.md`).
+- [x] (proven) `GovernancePostureController.GetPosture` — valid tenant + `workspaceId` not in `ListWorkspacesAsync` → HTTP 200 empty `ArchitecturePostureSummary` instead of workspace 404 (`TenantWorkspacesController` / setup-guide parity); only `GetByIdAsync` tenant preflight, no `TenantWorkspaceScopePreflight` — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight; regression in `GetPosture_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernanceCoverageController.GetScopeCoverage` / `PreviewCoverage` — ghost workspace in JWT → HTTP 200 empty coverage/preview payload instead of workspace 404; tenant preflight only (`GovernanceCoverageController.cs` L53–76) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight; regression in `GetScopeCoverage_returns_not_found_when_workspace_missing` and `PreviewCoverage_returns_not_found_when_workspace_missing`.
+- [x] (proven) `TenantCustomerSuccessController` GET reads (`GetHealthScoreAsync`, `GetFunnelSnapshotAsync`, `GetStickinessSnapshotAsync`) — ghost workspace → HTTP 200 `isCalculated: false` or zeroed funnel/signals instead of workspace 404; `EnsureTenantExistsAsync` checks tenant row only (`TenantCustomerSuccessController.cs` L59–62, L131–134) — **hit 2026-08-27:** `TenantWorkspaceScopePreflight` on all customer-success reads (including next-actions and product-feedback POST); regression in `GetHealthScoreAsync_returns_not_found_when_workspace_missing`, `GetFunnelSnapshotAsync_returns_not_found_when_workspace_missing`, and `GetStickinessSnapshotAsync_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — `recordedAfterUtc` > `recordedBeforeUtc` (or `minConfidence` > `maxConfidence`) → HTTP 200 empty register instead of HTTP 400; query filters forwarded to `ArchitectureDecisionRegisterReader` SQL with no controller validation (`GovernanceStickinessController.Registers.cs` L156–170, `ArchitectureDecisionRegisterReader.cs` L164–186) — **hit 2026-08-27:** `ValidateDecisionRegisterFilters` rejects inverted ranges before facade call; regression in `GetDecisionRegister_returns_bad_request_when_recorded_after_is_after_recorded_before` and `GetDecisionRegister_returns_bad_request_when_min_confidence_exceeds_max_confidence`.
+
+- [x] (proven) `TenantHomepageSettingsController` (`GetAsync`, `ListEligibleSamplesAsync`, `PutAsync`) — ghost workspace in JWT → HTTP 200 unconfigured/empty/eligible list instead of workspace 404; `GetByIdAsync` tenant preflight only (`TenantHomepageSettingsController.cs` L47–108) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (posture/customer-success parity); regression in `GetAsync_returns_not_found_when_workspace_missing`, `ListEligibleSamplesAsync_returns_not_found_when_workspace_missing`, and `PutAsync_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernancePreviewController.Preview` / `CompareEnvironments` — ghost workspace → HTTP 200 preview/comparison payload instead of workspace 404; `RequireTenantOrNotFoundAsync` checks tenant row only (`GovernancePreviewController.cs` L54–57, L103–106) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (homepage/posture parity); regression in `Preview_returns_not_found_when_workspace_missing` and `CompareEnvironments_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetDecisionsNeededSummary`, `GetFindingsRegistersBundle`, `GetDecisionRegister`, `ListRiskExceptions`, `ListRecurrenceSchedules`, etc.) — ghost workspace → HTTP 200 empty registers; tenant ghost fixed 2026-08-27 but `RequireTenantOrNotFoundAsync` still omits `ListWorkspacesAsync` workspace check (`GovernanceStickinessController.Registers.cs`, `GovernanceStickinessController.ExceptionsAndSchedules.cs`) — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` delegates to shared `TenantWorkspaceScopePreflight` (preview/homepage parity); regression in `GetRiskRegister_returns_not_found_when_workspace_missing`, `GetDecisionRegister_returns_not_found_when_workspace_missing`, and `ListRecurrenceSchedules_returns_not_found_when_workspace_missing`.
+- [x] (proven) `PolicyPacksController` scope-bound reads (`List`, `GetPageBundle`, `GetEffective`, `GetEffectiveContent`, `ListWorkspaceSelection`, catalog reads) — ghost workspace → HTTP 200 empty catalog/hub instead of workspace 404; `RequireTenantOrNotFoundAsync` tenant-only (`PolicyPacksController.cs` L63–71) — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` delegates to shared `TenantWorkspaceScopePreflight` (stickiness/preview parity); regression in `List_returns_not_found_when_workspace_missing`, `GetPageBundle_returns_not_found_when_workspace_missing`, and `GetEffective_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` — ghost workspace → HTTP 200 empty dashboard/trend instead of workspace 404; inline `GetByIdAsync` tenant preflight only (`GovernanceController.Insights.cs` L60–64) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (policy-packs/preview parity); regression in `GetDashboard_returns_not_found_when_workspace_missing` and `GetComplianceDriftTrend_returns_not_found_when_workspace_missing`.
+- [x] (proven) `TenantWorkspaceBaselineArtifactsController.GetAsync` — ghost workspace → HTTP 200 `{ hasBaselineArtifacts: false }` instead of workspace 404; tenant preflight only before `GetWorkspaceBaselineArtifactsAsync` (`TenantWorkspaceBaselineArtifactsController.cs` L42–46) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (dashboard/policy-packs parity); regression in `GetAsync_returns_not_found_when_workspace_missing`.
+
+- [x] (proven) `ManifestsController` manifest read/export/compare paths (`GetManifest`, diagram/summary/bundle, export/download, compare) — ghost workspace → HTTP 200 manifest payloads after tenant preflight only; `RequireTenantOrNotFoundAsync` omits `ListWorkspacesAsync` (`ManifestsController.cs` L67–75) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (policy-packs parity); regression in `GetManifest_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernanceController` workflow reads/mutations using shared `RequireTenantOrNotFoundAsync` (`GetApprovalRequests`, `Approve`/`Reject`/`Promote`/`Activate`, policy-pack simulate/dry-run, run-history lists) — ghost workspace → HTTP 200 empty/workflow responses instead of workspace 404; tenant ghost fixed 2026-08-27 but `GovernanceController.cs` L101–108 still tenant-only — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` delegates to shared `TenantWorkspaceScopePreflight` (manifests/policy-packs parity); regression in `GetApprovalRequests_returns_not_found_when_workspace_missing`, `Approve_returns_not_found_when_workspace_missing`, `Simulate_returns_not_found_when_workspace_missing`, and `DryRunPolicyPack_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernancePreCommitSimulationController` (`GetChecklist`, `Simulate`) — ghost workspace → HTTP 200 checklist/simulation payload instead of workspace 404; inline `RequireTenantOrNotFoundAsync` tenant-only (`GovernancePreCommitSimulationController.cs` L49–52) — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` delegates to shared `TenantWorkspaceScopePreflight` (governance-workflow parity); regression in `GetChecklist_returns_not_found_when_workspace_missing` and `Simulate_returns_not_found_when_workspace_missing`.
+- [x] (proven) `TenantIntegrationsOperationsController.GetAsync` — ghost workspace → HTTP 200 connector posture summary instead of workspace 404; `GetSummaryAsync(scope, …)` uses ambient workspace but controller only calls `GetByIdAsync` (`TenantIntegrationsOperationsController.cs` L45–52) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight before `GetSummaryAsync` (pre-commit simulation parity); regression in `GetAsync_returns_not_found_when_workspace_missing`.
+- [x] (proven) `TenantLlmCostReportingController.GetDashboard` — ghost workspace → HTTP 200 empty LLM cost dashboard instead of workspace 404; `BuildDashboardAsync` composes workspace-scoped breakdown but controller only preflights tenant row (`TenantLlmCostReportingController.cs` L51–58) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight before `BuildDashboardAsync` (integrations-operations parity); regression in `GetDashboard_returns_not_found_when_workspace_missing`.
+
+2026-08-27 thorough hunt #166: proved LLM cost reporting foreign-workspace preflight gap; ghost-workspace hunt-ready backlog cleared.
+
+2026-08-27 thorough hunt #165: proved integrations-operations foreign-workspace preflight gap via shared `TenantWorkspaceScopePreflight`.
+
+2026-08-27 thorough hunt #164: proved pre-commit simulation foreign-workspace preflight gap via shared `RequireTenantOrNotFoundAsync` upgrade.
+
+2026-08-27 thorough hunt #163: proved governance-controller workflow foreign-workspace preflight gap via shared `RequireTenantOrNotFoundAsync` upgrade.
+
+2026-08-27 seed hunt #162: proved manifests-controller foreign-workspace preflight gap; reseeded governance-controller workflow, pre-commit simulation, integrations-ops, and LLM-cost-reporting ghost-workspace candidates.
+
+2026-08-27 thorough hunt #161: proved workspace-baseline-artifacts foreign-workspace preflight gap; ghost-workspace hunt-ready backlog cleared.
+
+2026-08-27 thorough hunt #160: proved governance dashboard and compliance-drift-trend foreign-workspace preflight gaps.
+
+2026-08-27 thorough hunt #159: proved policy-packs scope-bound read foreign-workspace preflight gap via shared `RequireTenantOrNotFoundAsync` upgrade.
+
+2026-08-27 thorough hunt #158: proved governance-stickiness register-read foreign-workspace preflight gap via shared `RequireTenantOrNotFoundAsync` upgrade.
+
+2026-08-27 thorough hunt #157: proved governance-preview foreign-workspace preflight gap (homepage/posture parity).
+
+2026-08-27 seed hunt #156: proved homepage-settings foreign-workspace preflight gap; reseeded preview/stickiness-registers/policy-packs-list/governance-dashboard/baseline-artifacts ghost-workspace candidates.
+
+2026-08-27 thorough hunt #155: proved decision-register inverted filter validation; cheap-disproved assign scope-level escalation (documented API contract).
+
+2026-08-27 thorough hunt #154: proved customer-success foreign-workspace preflight gap (governance-read parity).
+
+2026-08-27 thorough hunt #153: proved governance-coverage foreign-workspace preflight gap (posture/setup parity).
+
+2026-08-27 thorough hunt #152: proved governance-posture foreign-workspace preflight gap (setup-guide parity).
+
+2026-08-27 seed hunt #151: seeded assign scope-level escalation, ghost-workspace parity (posture/coverage/customer-success), and decision-register inverted-filter candidates.
+
+2026-08-27 thorough hunt #150: proved link-entra cross-tenant local identity bind via tenant-scoped email-claim check; zone candidate backlog cleared.
+
+2026-08-27 thorough hunt #149: proved setup-guide and governance-resolution foreign-workspace preflight gaps; cheap-disproved convert null-body; link-entra cross-tenant email remains candidate.
+
+2026-08-27 seed hunt #148: proved dashboard recentChanges TOP starvation; reseeded trial link-entra cross-tenant email, convert null-body, and setup/resolution foreign-workspace candidates.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 
@@ -2775,11 +2905,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 8
-- **bugs-found:** 12
+- **hunts:** 9
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — archived runs in workspace metrics
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — stale frictionless flag hid paid tier
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2798,12 +2928,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `recentViewLabelFromPathname` mapped canonical `/governance/audit` to generic `"governance · audit"` instead of `"Audit trail"` — only legacy `/audit` was handled; Home recent-views chip showed wrong label after governance route migration (`operator-recent-views.test.ts`).
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` treated a paginated runs dashboard slice as workspace-wide aggregates — **hit 2026-08-26:** partial page now returns zeroed KPI aggregates while preserving workspace `totalCount` (`operator-home-workspace-metrics.test.ts`).
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` included archived runs in committed/active/findings totals — **hit 2026-08-27:** skip `isArchived` rows in aggregate loop (`operator-home-workspace-metrics.test.ts`).
-- [ ] (candidate) `resolveOperatorBillingCurrentPlan` — stale frictionless-trial session flag may hide paid tier after checkout.
-- [ ] (candidate) `readHasSeenWelcomeOnboarding` — welcome dismissal may survive tenant switch (`hasSeenOnboarding` key not cleared in `notifyOperatorScopeChanged`).
-- [ ] (candidate) `readOperatorHomeDisclosureExpanded` — home disclosure prefs may survive tenant switch (global keys not cleared on scope change).
-- [ ] (candidate) `fetchOperatorAiQualitySnapshot` — unvalidated disposition string may crash badge helpers.
+- [x] (proven) `resolveOperatorBillingCurrentPlan` — stale frictionless-trial session flag hid paid tier after checkout when usage reported commercial tier off trial — **hit 2026-08-28:** resolve paid plan before frictionless session branch (stale Active trial parity); regression in `operator-billing-current-plan.test.ts`.
+- [x] (invalid) `readHasSeenWelcomeOnboarding` — welcome dismissal may survive tenant switch (`hasSeenOnboarding` key not cleared in `notifyOperatorScopeChanged`) — **cheap-disproof 2026-08-28:** intentional browser-level user preference (not tenant-scoped data); scope change clears tenant caches only; regression in `operator-scope-storage.test.ts`.
+- [x] (invalid) `readOperatorHomeDisclosureExpanded` — home disclosure prefs may survive tenant switch (global keys not cleared on scope change) — **cheap-disproof 2026-08-28:** intentional device-level collapse preference; not cleared on scope change by design; regression in `operator-scope-storage.test.ts`.
+- [x] (invalid) `fetchOperatorAiQualitySnapshot` — unvalidated disposition string may crash badge helpers — **cheap-disproof 2026-08-28:** `dispositionLabel` / `dispositionClass` return unknown values without throwing; regression in `operator-ai-quality-snapshot.test.ts`.
+- [ ] (candidate) `writeFrictionlessTrialSessionEnabled(false)` — frictionless session flag may remain set after sign-in or checkout, leaving marketing banner visible for paid workspaces until manual clear.
+- [ ] (candidate) `fetchLlmMonthlyDollarBudgetStatusCached` — AI budget percent on billing summary may not refresh after operator scope switch without full page reload.
 
----
+2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: quick-scan-distributed-concurrency
 
