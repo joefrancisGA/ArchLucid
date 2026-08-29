@@ -15,6 +15,7 @@
 | Layer | Purpose | Canonical store / sink |
 | --- | --- | --- |
 | **Durable audit** | Compliance, governance, buyer-facing evidence trail | `dbo.AuditEvents` via `IAuditService` (`AuditEventTypes`) |
+| **Platform operational errors** | Internal staff review of HTTP/database/unhandled failures | `dbo.PlatformOperationalErrors` via `IOperationalErrorCaptureService`; UI `/internal/operational-errors` |
 | **Distributed traces + metrics** | Latency, dependency failure, AI cost, pipeline stage timing | OpenTelemetry → Azure Monitor / OTLP / Prometheus |
 | **Structured logs** | Human-readable triage, request logging, failure detail | Serilog console + App Insights log ingestion when configured |
 

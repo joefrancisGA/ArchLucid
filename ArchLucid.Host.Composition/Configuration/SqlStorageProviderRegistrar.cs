@@ -27,6 +27,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.GoToMarket;
 using ArchLucid.Core.Marketing;
+using ArchLucid.Core.OperationalErrors;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.Identity;
@@ -114,6 +115,7 @@ using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.OperationalErrors;
 using ArchLucid.Persistence.Scim;
 using ArchLucid.Persistence.Sql;
 using ArchLucid.Persistence.Telemetry;
@@ -348,6 +350,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantSponsorDigestPreferencesRepository, DapperTenantSponsorDigestPreferencesRepository>();
         services.AddScoped<ITenantHardPurgeService, SqlTenantHardPurgeService>();
         services.AddScoped<IPlatformAuditRepository, DapperPlatformAuditRepository>();
+        services.AddScoped<IOperationalErrorRepository, DapperOperationalErrorRepository>();
         services.AddScoped<ITenantBlobPrefixDeletionService>(static sp => new TenantBlobPrefixDeletionService(
             sp.GetRequiredService<IOptionsMonitor<ArtifactLargePayloadOptions>>(),
             sp.GetService<ITenantRegionalArtifactBlobClients>(),

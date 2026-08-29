@@ -145,6 +145,11 @@ public sealed partial class GovernanceController
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
 
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
+
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
             .ConfigureAwait(false);
@@ -189,6 +194,11 @@ public sealed partial class GovernanceController
             return tenantProblem;
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
