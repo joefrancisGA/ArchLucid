@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 334_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 333_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -8886,3 +8886,38 @@ BEGIN
 
     EXEC sp_executesql @knowledgeModelRunSql;
 END
+
+GO
+
+/* 334: Platform operational error inbox (see Migrations/334_PlatformOperationalErrors.sql). */
+IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PlatformOperationalErrors
+    (
+        Id               UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_PlatformOperationalErrors2 PRIMARY KEY,
+        OccurredUtc      DATETIME2(7)     NOT NULL CONSTRAINT DF_PlatformOperationalErrors_OccurredUtc2 DEFAULT SYSUTCDATETIME(),
+        Source           NVARCHAR(32)     NOT NULL,
+        Category         NVARCHAR(32)     NOT NULL,
+        HttpStatusCode   INT              NULL,
+        HttpMethod       NVARCHAR(16)     NULL,
+        RequestPath      NVARCHAR(2048)   NULL,
+        ProblemType      NVARCHAR(256)    NULL,
+        ExceptionType    NVARCHAR(512)    NULL,
+        Message          NVARCHAR(2000)   NOT NULL,
+        StackTrace       NVARCHAR(MAX)    NULL,
+        SqlErrorNumber   INT              NULL,
+        SqlErrorState    INT              NULL,
+        CorrelationId    NVARCHAR(128)    NULL,
+        OtelTraceId      NVARCHAR(64)     NULL,
+        TenantId         UNIQUEIDENTIFIER NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NULL,
+        ProjectId        UNIQUEIDENTIFIER NULL,
+        ActorUserId      NVARCHAR(256)    NULL,
+        DetailJson       NVARCHAR(MAX)    NOT NULL CONSTRAINT DF_PlatformOperationalErrors_DetailJson2 DEFAULT (N'{}'),
+        INDEX IX_PlatformOperationalErrors_OccurredUtc2 NONCLUSTERED (OccurredUtc DESC),
+        INDEX IX_PlatformOperationalErrors_Category_OccurredUtc2 NONCLUSTERED (Category, OccurredUtc DESC),
+        INDEX IX_PlatformOperationalErrors_CorrelationId2 NONCLUSTERED (CorrelationId),
+        INDEX IX_PlatformOperationalErrors_TenantId_OccurredUtc2 NONCLUSTERED (TenantId, OccurredUtc DESC),
+        INDEX IX_PlatformOperationalErrors_HttpStatusCode_OccurredUtc2 NONCLUSTERED (HttpStatusCode, OccurredUtc DESC)
+    );
+END;
