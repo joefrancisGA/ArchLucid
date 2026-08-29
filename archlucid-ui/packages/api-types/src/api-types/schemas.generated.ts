@@ -9261,6 +9261,15 @@ export interface components {
             /** Format: date-time */
             latestDigestSubscriptionDeliveryUtc?: null | string;
             setupGaps?: string[];
+            /** Format: int32 */
+            sponsorDigestDayOfWeek?: number;
+            /** Format: int32 */
+            sponsorDigestHourOfDay?: number;
+            sponsorDigestIanaTimeZoneId?: string;
+            /** Format: int32 */
+            sponsorDigestRecipientCount?: number;
+            sponsorEmailDigestEnabled?: boolean;
+            sponsorEmailDigestIsConfigured?: boolean;
         };
         WhyArchLucidSnapshotResponse: {
             /** Format: int32 */
