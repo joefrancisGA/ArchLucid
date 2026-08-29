@@ -35,6 +35,11 @@ public sealed partial class PolicyPacksController
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
         }
 
+        if (!Guid.TryParse(request.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+        {
+            return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
+        }
+
         if (request.Content is null)
         {
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
@@ -89,10 +94,28 @@ public sealed partial class PolicyPacksController
                 ProblemTypes.ValidationFailed);
         }
 
+        foreach (string runId in request.RunIds)
+        {
+            if (string.IsNullOrWhiteSpace(runId))
+                continue;
+
+            if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+            {
+                return this.BadRequestProblem(
+                    "RunIds contains an invalid id.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         PolicyPackSimulateBulkSummary? summary = await _workflow.TrySimulateBulkAsync(
             policyPackId,
