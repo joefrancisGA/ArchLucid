@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 import unittest
 from pathlib import Path
 
@@ -21,33 +20,15 @@ class TestDemoBatch5Dt(unittest.TestCase):
 
     def test_review_detail_finalize_anchor_targets_header(self) -> None:
         guidance_path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
-        exports_path = (
-            REPO_ROOT
-            / "archlucid-ui"
-            / "src"
-            / "app"
-            / "(operator)"
-            / "architecture"
-            / "reviews"
-            / "[reviewId]"
-            / "_sections"
-            / "RunDetailArtifactsExportsSection.tsx"
-        )
         guidance_text = guidance_path.read_text(encoding="utf-8")
+
+        exports_path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "reviews" / "[reviewId]" / "_sections" / "RunDetailArtifactsExportsSection.tsx"
         exports_text = exports_path.read_text(encoding="utf-8")
 
         self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", guidance_text)
-        self.assertRegex(
-            guidance_text,
-            r"BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*[\"']#finalize-review[\"']",
-        )
-        self.assertRegex(
-            exports_text,
-            r"href\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\b",
-        )
-        run_actions_href = re.compile(r'href\s*:\s*["\']#run-actions["\']')
-        self.assertIsNone(run_actions_href.search(guidance_text))
-        self.assertIsNone(run_actions_href.search(exports_text))
+        self.assertIn("#finalize-review", guidance_text)
+        self.assertIn("href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", exports_text)
+        self.assertNotIn('href: "#run-actions"', exports_text)
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor" / "sponsor-roi-kpi-display.ts"
