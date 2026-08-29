@@ -76,10 +76,7 @@ public sealed partial class ManifestsController(
         IReadOnlyList<TenantWorkspaceListItem> workspaces =
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
-        TenantWorkspaceListItem? currentWorkspace =
-            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == scope.WorkspaceId);
-
-        if (currentWorkspace is null)
+        if (!workspaces.Any(workspace => workspace.WorkspaceId == scope.WorkspaceId))
         {
             return this.NotFoundProblem(
                 "Workspace was not found for this tenant.",
