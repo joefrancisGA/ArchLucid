@@ -2415,6 +2415,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessFacade.CreateRiskExceptionAsync` — body `manifestId` without `runId` bypassed manifest-run binding gate — **hit 2026-08-27:** reject manifest-only requests (activate/submit binding parity); regression in `GovernanceStickinessFacadeScopeTests.CreateRiskExceptionAsync_throws_when_manifest_id_provided_without_run_id`.
 - [x] (proven) `ManifestsController.GetManifestInScopeAsync` — padded `manifestVersion` route values failed lookup and returned HTTP 404 though trimmed version was in scope — **hit 2026-08-27:** trim before `GetByVersionAsync` (scoped-run trim parity); regression in `ManifestsControllerEvidenceScopeTests.GetManifest_accepts_padded_manifest_version_when_manifest_is_in_scope`.
 - [x] (proven) `TenantPilotValueReportController.GetPilotValueReport` — `fromUtc` / `toUtc` before 1970 returned HTTP 200 report instead of 400 — **hit 2026-08-27:** reject pre-1970 query dates when specified (compliance-drift-trend parity); regression in `TenantPilotValueReportControllerTests.GetPilotValueReport_returns_bad_request_when_from_utc_before_1970`.
+- [x] (proven) `TenantPilotValueReportController` (`GetPilotValueReport`, `GetRoiSummaryPageBundle`) — ghost workspace returned HTTP 200 pilot/ROI payload instead of workspace 404; `PilotValueReportService.BuildAsync` checks tenant row only while audit export uses ambient workspace — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight before service/audit calls; regression in `TenantPilotValueReportControllerTests.GetPilotValueReport_returns_not_found_when_workspace_missing` and `GetRoiSummaryPageBundle_returns_not_found_when_workspace_missing`.
 - [x] (proven) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` / `TryParseArchitectureRunIdForAudit` — padded `runId` on submit dropped `RunId` from audit event though scoped-run preflight accepted trimmed id — **hit 2026-08-27:** trim before audit parse (scoped-run trim parity); regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_logs_trimmed_run_id_in_audit_when_run_id_is_padded`.
 - [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` / `SubmitApprovalRequest` / `Promote` / `Activate` — `RequireScopedRunAsync` trimmed internally but callers passed original padded `runId` to repositories/workflow, returning empty results despite scope preflight passing — **hit 2026-08-27:** return normalized run id from `RequireScopedRunAsync` and use downstream; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_items_when_route_run_id_is_padded`.
 - [x] (proven) `GovernanceWorkflowSubmitStage` / `GovernanceWorkflowActivateStage` / `GovernanceWorkflowPromoteStage` — padded body `manifestVersion` failed `GetByVersionAsync` lookup and returned HTTP 404 though trimmed version was in scope — **hit 2026-08-27:** trim before manifest lookup (manifest GET trim parity); regression in `GovernanceWorkflowServiceTests.SubmitApprovalRequest_accepts_padded_manifest_version_when_manifest_is_in_scope`.
@@ -2545,9 +2546,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-27 thorough hunt #124: proved preview/compare-environments and list-recurrence-schedules ghost-tenant 404 parity; cheap-disproved setup-guide candidate (already fixed on master).
 
-2026-08-27 thorough hunt #122: proved preview compare-environments and stickiness register ghost-tenant 404 parity.
-
 2026-08-27 seed hunt #123: proved stickiness sibling register reads and coverage preview ghost-tenant 404 parity; seeded preview/recurrence-list ghost-tenant candidates.
+
+2026-08-28 rebased from #605: proved pilot-value-report ghost-workspace 404 parity on `GetPilotValueReport` and `GetRoiSummaryPageBundle`.
+
+2026-08-27 thorough hunt #122: proved preview compare-environments and stickiness register ghost-tenant 404 parity.
 
 2026-08-27 thorough hunt #120: proved governance-resolution ghost tenant 404.
 
