@@ -95,7 +95,15 @@ def check_workflow_text(text: str) -> list[str]:
     if "cohort-real-llm-gate:" not in text:
         errors.append("golden-cohort-nightly.yml missing cohort-real-llm-gate job")
 
-    if "cancel-in-progress: true" not in text or "golden-cohort-" not in text:
+    expected = (
+        "concurrency:\n"
+        "  group: golden-cohort-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}\n"
+        "  cancel-in-progress: true\n"
+    )
+
+    normalized = text.replace("\r\n", "\n")
+
+    if expected not in normalized:
         errors.append(
             "golden-cohort-nightly.yml missing PR-aware concurrency "
             "(golden-cohort-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }} "
