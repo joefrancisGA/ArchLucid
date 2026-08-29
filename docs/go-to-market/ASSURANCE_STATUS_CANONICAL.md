@@ -1,4 +1,4 @@
-﻿> **Reviewed:** 2026-07-27
+﻿> **Reviewed:** 2026-08-29
 
 > **Scope:** Canonical assurance status source for procurement-facing language — current status, deferred windows, allowed wording, evidence links — plus procurement documentation review cadence (formerly `REVIEW_CADENCE.md`), the SOC 2 readiness roadmap (formerly `SOC2_ROADMAP.md`), the repository-linked current assurance posture evidence snapshot (formerly the body of `CURRENT_ASSURANCE_POSTURE.md`; that filename remains a path-stable pack alias), and the owner-conducted security assessment procurement excerpt (formerly the body of `OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`; that filename remains a path-stable pack alias).
 
@@ -6,7 +6,7 @@
 
 **Audience:** Procurement, security reviewers, and internal authors updating buyer-facing artifacts (including maintainers and release managers for review cadence).
 
-**Last reviewed:** 2026-07-27
+**Last reviewed:** 2026-08-29
 
 This document is the single source of truth for assurance status wording and the buyer-facing evidence snapshot used by:
 
@@ -113,12 +113,12 @@ Former body of `docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md` → this section
 
 ### Continuous security testing in CI
 
-ArchLucid runs automated security checks on every pull request and merge to main. These are **merge-blocking** unless noted.
+ArchLucid runs automated security checks on pull requests, merges to main, and scheduled workflows. These are **merge-blocking on PRs** only where the live branch ruleset requires the check; other rows are noted.
 
 | Check | Tool | What it catches | CI status |
 |-------|------|----------------|-----------|
 | Secret scanning | [Gitleaks](https://github.com/gitleaks/gitleaks) (`.gitleaks.toml`) | Leaked API keys, connection strings, tokens in committed code | **Merge-blocking** (Tier 0) |
-| Static analysis (security-extended) | [CodeQL](https://codeql.github.com/) (`.github/workflows/codeql.yml`) | SQL injection, XSS, insecure deserialization, tainted data flows | **Merge-blocking** |
+| Static analysis (security-extended) | [CodeQL](https://codeql.github.com/) (`.github/workflows/codeql.yml`) | SQL injection, XSS, insecure deserialization, tainted data flows | **Trunk + weekly** (SARIF gate on `push` to `master`/`main`, Monday cron, and `workflow_dispatch`; **not** a PR required check) |
 | DAST baseline | [OWASP ZAP](https://www.zaproxy.org/) (`infra/zap/`) | Common web vulnerabilities (OWASP Top 10) against running API image | **Scheduled** (strict variant: `zap-baseline-strict-scheduled.yml`) |
 | API contract fuzz | [Schemathesis](https://schemathesis.readthedocs.io/) (`.github/workflows/schemathesis-scheduled.yml`) | Invalid inputs, unexpected status codes, OpenAPI contract violations | **Scheduled** |
 | Container image scan | [Trivy](https://aquasecurity.github.io/trivy/) (in `ci.yml`) | Known CVEs in OS packages and .NET dependencies | **Merge-blocking** |

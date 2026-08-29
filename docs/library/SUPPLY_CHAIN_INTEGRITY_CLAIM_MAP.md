@@ -23,7 +23,7 @@
 | **Build provenance / SLSA** | — | BuildKit `provenance: false` / `sbom: false` on CI smoke + CD push paths |
 | **CI/CD OIDC** | Azure login OIDC on CD / staging / several nightlies | Strong **cloud access** story — **≠** build attestation |
 | **Dependabot** | nuget / npm / actions / terraform / docker | Opens PRs — **not** a vulnerability merge gate by itself |
-| **Gitleaks / CodeQL** | Tier 0 / separate workflow on PR | Real merge-path security floor |
+| **Gitleaks / CodeQL** | Gitleaks on PR (Tier 0); CodeQL on trunk/weekly/manual (`codeql.yml`, no `pull_request`) | Gitleaks is the PR secret-scan floor; CodeQL SARIF is a post-merge/scheduled gate, not a PR required check |
 | **Trivy IaC** | On Terraform validate (PR path) | Stronger PR gate than image Trivy |
 | **Trivy container** | Inside `docker-build-smoke` CRITICAL/HIGH fixable | Full CI / dispatch — **not** trimmed PR path (see `.github/BRANCH_PROTECTION.md`) |
 | **Deploy tamper resistance** | `BUILD_ID` = git SHA; digest deploy; lineage scripts (Done **TB-657** / **TB-756**) | Tag mutability reduced; **not** cryptographic publisher authenticity |
@@ -37,6 +37,7 @@ Do **not** confuse product `ArchLucid.Provenance` (decision/evidence lineage) wi
 
 | Claim surface | What it says | Depends on supply-chain story? | Explicit or only implicit? |
 |---------------|--------------|--------------------------------|----------------------------|
+| [`ASSURANCE_STATUS_CANONICAL.md`](../go-to-market/ASSURANCE_STATUS_CANONICAL.md) CodeQL “**Merge-blocking**” (pre-2026-08-29) | Every PR blocked on SAST | Yes — CodeQL PR trigger | **Corrected** — CodeQL is trunk/weekly; live ruleset does not require it |
 | [`ASSURANCE_STATUS_CANONICAL.md`](../go-to-market/ASSURANCE_STATUS_CANONICAL.md) Trivy **container** “**Merge-blocking**” | Every PR/merge blocks on image CVEs | Yes — image Trivy gate | **Overstated** vs tiered CI (full CI only) |
 | Same file SBOM “**Per-build artifact**” | Sounds release/customer-ready | Yes — CycloneDX publish story | **Implicit customer readiness**; actually internal Actions artifacts |
 | Same file Dependabot “Automated PRs” | Correct as written | Partial | Explicit OK — readers often upgrade to “vulns blocked” |
@@ -60,6 +61,7 @@ Do **not** confuse product `ArchLucid.Provenance` (decision/evidence lineage) wi
 
 | Too strong | Safe |
 |------------|------|
+| “Merge-blocking CodeQL on every PR” | CodeQL on trunk push + weekly cron + `workflow_dispatch`; not a live required PR check |
 | “Merge-blocking Trivy on every PR” (images) | Image Trivy on full CI/dispatch; IaC Trivy on PR |
 | “We publish SBOMs / SLSA attestations” | CycloneDX CI artifacts; BuildKit provenance/SBOM off |
 | “NuGet High/Critical blocked in CI” | Script exists; **wire before claiming** |

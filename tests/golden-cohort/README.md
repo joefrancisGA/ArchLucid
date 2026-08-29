@@ -72,7 +72,7 @@ After the SHAs are written and committed:
 
 1. Open a PR with the cohort.json changes.
 2. **Owner-only (one step):** in GitHub → **Settings** → **Secrets and variables** → **Actions** → **Variables**, set **`ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED`** to **`true`**. The assistant cannot set repository variables from the repo; CI and this README assume the owner performs this once after verifying non-placeholder SHAs on `main`.
-3. The next nightly `golden-cohort-nightly` run picks up the drift assertion automatically (the `cohort-simulator-drift` job is gated on that variable).
+3. The next **scheduled** `golden-cohort-nightly` run (not the PR path) picks up the drift assertion automatically (the `cohort-simulator-drift` job is gated on that variable and skips `pull_request`).
 
 ## Automation
 

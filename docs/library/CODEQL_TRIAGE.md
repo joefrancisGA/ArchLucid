@@ -129,9 +129,11 @@ gh run view <run-id> --json jobs \
   | python3 -c "import json,sys; [print(j['name'],'->',j['conclusion']) for j in json.load(sys.stdin)['jobs']]"
 ```
 
-**Fix (2026-08-27):** set `group: codeql-${{ github.sha }}` (and the same pattern on `ui-typecheck-on-push.yml`) so each commit gets its own concurrency group and every push can complete. Trade-off: more Actions minutes on a busy trunk, in exchange for every commit actually being analyzed.
+**Current (2026-08-29):** `group: codeql-${{ github.workflow }}-${{ github.ref }}` with `cancel-in-progress: true`, and **no `pull_request` trigger**. CodeQL analyzes the latest trunk (or manual) ref; superseded runs cancel. Intermediate SHAs may never finish. This is the queue-relief trade-off versus analyzing every commit.
 
-**Prior misconfiguration:** `cancel-in-progress: false` on `group: codeql-${{ github.ref }}` was insufficient — GitHub allows **one running + one pending** job per group (`queue: single` default), and `cancel-in-progress` protects only the running job. A newly queued run **always evicts** the pending one. On a trunk at 70–106 pushes/hour, nearly every run was evicted from the pending slot before starting, which is why cancelled runs had **zero jobs**. Alternative fix: `queue: max` (up to 100 pending; cannot combine with `cancel-in-progress: true`).
+**Prior (2026-08-27):** `group: codeql-${{ github.sha }}` with `cancel-in-progress: false` (and the same per-SHA pattern on `ui-typecheck-on-push.yml`) so each commit got its own concurrency group and every push could complete. Trade-off: more Actions minutes on a busy trunk. That filled the PR/trunk queue because every SHA queued C# (120 min) + JavaScript (90 min) and nothing cancelled.
+
+**Prior misconfiguration (before 2026-08-27):** `cancel-in-progress: false` on `group: codeql-${{ github.ref }}` was insufficient — GitHub allows **one running + one pending** job per group (`queue: single` default), and `cancel-in-progress` protects only the running job. A newly queued run **always evicts** the pending one. On a trunk at 70–106 pushes/hour, nearly every run was evicted from the pending slot before starting, which is why cancelled runs had **zero jobs**. Alternative if you must analyze every SHA again: `queue: max` (up to 100 pending; cannot combine with `cancel-in-progress: true`).
 
 ---
 

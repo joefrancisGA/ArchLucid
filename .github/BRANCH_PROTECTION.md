@@ -34,14 +34,25 @@ Use **exact** names as they appear on a completed run (Settings shows autocomple
 | `Operator UI: unit (Vitest)` |
 | `Operator UI: e2e smoke (Playwright)` |
 | `Containers: Docker build smoke` |
-| `CodeQL (csharp)` |
-| `CodeQL (javascript)` |
+| `CodeQL (csharp)` — **do not require on PRs** while `.github/workflows/codeql.yml` has no `pull_request` trigger (trunk / weekly / `workflow_dispatch` only) |
+| `CodeQL (javascript)` — same constraint as csharp |
 | `cohort-real-llm-gate` — when **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** is **`true`**; see [`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`](docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) |
 | `PR: coverage comment` — optional on **full CI** (`workflow_dispatch`): posts only on same-repo **pull_request** events when wired that way; trimmed PR runs skip merged coverage so this job does not apply on PR |
 
 **Note:** Matrix Terraform jobs publish **one check per matrix value**; include each leg you care about.
 
 Checks from **`.NET: full regression (SQL)`** through **`Containers: Docker build smoke`** (and **`PR: coverage comment`**) run only on **full CI** (`workflow_dispatch`), not on trimmed **pull_request** runs.
+
+### Live ruleset (do not guess from JSON alone)
+
+GitHub cannot apply rulesets from files in the repo. As of 2026-08-29, ruleset **`Golden cohort real-LLM gate`** (id `21654724`) requires exactly:
+
+- `cohort-real-llm-gate`
+- `Security: gitleaks (secret scan)`
+- `.NET: fast core (corset)`
+- `Operator UI: typecheck (blocking)`
+
+[`.github/rulesets/golden-cohort-gate-required-check.json`](rulesets/golden-cohort-gate-required-check.json) is the intended four-check list (check names in that JSON may lag the live `.NET: fast core (corset)` display name). [`.github/rulesets/push-corset-codeql-required-check.json`](rulesets/push-corset-codeql-required-check.json) would also require `CodeQL (csharp)` and `CodeQL (javascript)`. **Do not apply that CodeQL-inclusive JSON** while CodeQL is off the PR hot path, or PRs will sit pending those checks forever.
 
 ### If you use Rulesets
 
