@@ -36,7 +36,7 @@ export function DigestSubscriptionsPickReviewBeforeCreatingStrip(
         Pick a review before creating subscriptions
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Subscription destinations are easiest to validate against a finalized review package. Choose one
+        Subscription destinations are easiest to validate against a finalized architecture review. Choose one
         before adding delivery routes.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -51,7 +51,7 @@ export function DigestSubscriptionsPickReviewBeforeCreatingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="digest-subscriptions-pick-review-before-creating"
           hideFieldHelper
         />

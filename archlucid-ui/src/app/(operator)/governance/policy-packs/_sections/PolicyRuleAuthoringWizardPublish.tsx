@@ -132,7 +132,7 @@ export function PolicyRuleAuthoringWizardTestPanel(
                     committedOnly
                     preferAutoPick={false}
                     autoSelectSyntheticSample={false}
-                    label="Review package"
+                    label="Architecture package"
                     fieldId="policy-rule-wizard-run-picker"
                     hideFieldHelper
                   />
@@ -168,7 +168,7 @@ export function PolicyRuleAuthoringWizardTestPanel(
                     committedOnly
                     preferAutoPick={false}
                     autoSelectSyntheticSample={false}
-                    label="Review package"
+                    label="Architecture package"
                     fieldId="policy-rule-wizard-run-picker"
                     hideFieldHelper
                   />

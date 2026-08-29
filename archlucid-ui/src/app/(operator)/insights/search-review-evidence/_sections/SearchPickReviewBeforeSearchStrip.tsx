@@ -36,7 +36,7 @@ export function SearchPickReviewBeforeSearchStrip(
         Pick a review before searching evidence
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Search results are scoped to a review package. Choose one to narrow indexed findings and decisions.
+        Search results are scoped to an architecture package. Choose one to narrow indexed findings and decisions.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -50,7 +50,7 @@ export function SearchPickReviewBeforeSearchStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="search-pick-review-before-search"
           hideFieldHelper
         />

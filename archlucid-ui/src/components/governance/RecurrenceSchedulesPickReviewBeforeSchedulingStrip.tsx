@@ -48,7 +48,7 @@ export function RecurrenceSchedulesPickReviewBeforeSchedulingStrip(
         Pick a review before scheduling
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Recurrence schedules clone from a finalized review package. Choose one to anchor the schedule source run.
+        Recurrence schedules clone from a finalized architecture review. Choose one to anchor the schedule source run.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +62,7 @@ export function RecurrenceSchedulesPickReviewBeforeSchedulingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="recurrence-schedules-pick-review-before-scheduling"
           hideFieldHelper
         />

@@ -36,7 +36,7 @@ export function ExecDigestPickReviewBeforeSchedulingStrip(
         Pick a review before scheduling
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Sponsor digest previews are easiest to interpret against a finalized review package. Choose one
+        Sponsor digest previews are easiest to interpret against a finalized architecture review. Choose one
         before configuring delivery.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -51,7 +51,7 @@ export function ExecDigestPickReviewBeforeSchedulingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="exec-digest-pick-review-before-scheduling"
           hideFieldHelper
         />

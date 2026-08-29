@@ -64,7 +64,7 @@ export function deriveReviewPipelineTerminalFailureDiagnosis(input: {
       detail:
         lastFailureReason.length > 0
           ? `Last failure: ${lastFailureReason}`
-          : "Server marked this review as dead-lettered. Check API logs and AuthorityPipelineWork outbox for this run.",
+          : "Server marked this review as dead-lettered. Check API logs and AuthorityPipelineWork outbox for this review id.",
     };
   }
 

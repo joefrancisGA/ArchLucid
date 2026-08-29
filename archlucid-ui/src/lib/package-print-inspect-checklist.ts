@@ -8,7 +8,7 @@ export function resolvePackagePrintInspectSteps(input: {
   return [
     {
       id: "review",
-      label: "Open the scoped review package",
+      label: "Open the scoped architecture package",
       complete: input.reviewPicked,
     },
     {

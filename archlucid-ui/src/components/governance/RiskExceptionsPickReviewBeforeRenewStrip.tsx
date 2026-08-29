@@ -48,7 +48,7 @@ export function RiskExceptionsPickReviewBeforeRenewStrip(
         Pick a review before renew or revoke
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Scope risk exceptions to one review package so renew and revoke actions stay aligned with governance context.
+        Scope risk exceptions to one architecture package so renew and revoke actions stay aligned with governance context.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +62,7 @@ export function RiskExceptionsPickReviewBeforeRenewStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="risk-exceptions-pick-review-before-renew"
           hideFieldHelper
         />

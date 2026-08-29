@@ -12,7 +12,7 @@ export type ImpactPreviewPickReviewBeforeSimulatingStripProps = {
   readonly onSelectReview: (reviewId: string) => void;
 };
 
-/** Review picker shown before impact preview simulation is scoped to a review package. */
+/** Review picker shown before impact preview simulation is scoped to an architecture package. */
 export function ImpactPreviewPickReviewBeforeSimulatingStrip(
   props: ImpactPreviewPickReviewBeforeSimulatingStripProps,
 ): React.JSX.Element {
@@ -63,7 +63,7 @@ export function ImpactPreviewPickReviewBeforeSimulatingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="impact-preview-pick-review-before-simulating"
           hideFieldHelper
         />

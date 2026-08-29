@@ -172,7 +172,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
                   committedOnly
                   preferAutoPick={false}
                   autoSelectSyntheticSample={false}
-                  label="Review package"
+                  label="Architecture package"
                   fieldId="policy-impact-preview-run-picker"
                   hideFieldHelper
                 />
@@ -205,7 +205,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
                   committedOnly
                   preferAutoPick={false}
                   autoSelectSyntheticSample={false}
-                  label="Review package"
+                  label="Architecture package"
                   fieldId="policy-impact-preview-run-picker"
                   hideFieldHelper
                 />

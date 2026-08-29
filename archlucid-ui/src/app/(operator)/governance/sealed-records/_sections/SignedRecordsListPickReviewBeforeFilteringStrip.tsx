@@ -48,7 +48,7 @@ export function SignedRecordsListPickReviewBeforeFilteringStrip(
         Pick a review before filtering
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Scope the signed records list to one review package before searching or filtering integrity status.
+        Scope the signed records list to one architecture package before searching or filtering integrity status.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +62,7 @@ export function SignedRecordsListPickReviewBeforeFilteringStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="signed-records-list-pick-review-before-filtering"
           hideFieldHelper
         />

@@ -48,7 +48,7 @@ export function PolicyPacksPickReviewBeforeAssigningStrip(
         Pick a review before assigning
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Policy pack assignments should align with a finalized review package so governance scope stays traceable.
+        Policy pack assignments should align with a finalized architecture review so governance scope stays traceable.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +62,7 @@ export function PolicyPacksPickReviewBeforeAssigningStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="policy-packs-pick-review-before-assigning"
           hideFieldHelper
         />
