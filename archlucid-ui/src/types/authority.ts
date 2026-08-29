@@ -135,8 +135,42 @@ export type ReplayResponse = ReplayResponseSchema &
 /** LLM usage rollup — **OpenAPI** `RunAgentLlmCostEstimateResponse`. */
 export type RunAgentExecutionLlmCostEstimate = components["schemas"]["RunAgentLlmCostEstimateResponse"];
 
-/** Agent pipeline result row on authority run detail (`RunDetailDto.results`). */
-export type RunDetailAgentResult = components["schemas"]["AgentResult"];
+/**
+ * Architecture finding nested under authority run detail `results[].findings`.
+ * OpenAPI `AgentResult` is an empty schema (`{}`) because of JSON converters, so wire fields are documented here.
+ */
+export type RunDetailArchitectureFinding = {
+  readonly findingId?: string;
+  readonly message?: string;
+  readonly category?: string;
+  readonly severity?: components["schemas"]["FindingSeverity"];
+  readonly reasoningTrace?: string | null;
+  readonly policyRuleId?: string | null;
+  readonly evidenceRefs?: readonly string[];
+  readonly iacStub?: string | null;
+  readonly isMuted?: boolean;
+  readonly muteReason?: string | null;
+};
+
+/**
+ * Agent pipeline result row on authority run detail (`RunDetailDto.results`).
+ * OpenAPI `AgentResult` is inferred as `unknown`; this wire type keeps operator UI type-safe.
+ */
+export type RunDetailAgentResult = {
+  readonly resultId: string;
+  readonly taskId: string;
+  readonly runId: string;
+  readonly agentType: components["schemas"]["AgentType"];
+  readonly claims: readonly string[];
+  readonly evidenceRefs: readonly string[];
+  readonly confidence?: number | string;
+  readonly calibratedConfidence?: null | number | string;
+  readonly findings?: readonly RunDetailArchitectureFinding[] | null;
+  readonly checklistCoverage?: readonly RunDetailArchitectureFinding[];
+  readonly degradationReasonCode?: string | null;
+  readonly createdUtc?: string;
+  readonly cacheServed?: boolean;
+};
 
 export type TrustEvidenceFieldSnapshot = {
   title: string;
