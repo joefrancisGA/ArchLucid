@@ -211,8 +211,8 @@ export const OPERATOR_TYPE_SCALE = {
   navLabel: "text-[13px] font-medium leading-[18px] text-al-text-primary",
   /** Sidebar nav helper — 11/15, normal (sparse use). */
   navHelper: "text-[11px] font-normal leading-[15px] text-al-text-secondary",
-  /** Button label — 13/18, semibold; canonical `Button`, refresh, and page-header help triggers only (TB-2290). */
-  button: "text-[13px] font-semibold leading-[18px]",
+  /** Button label — 11/15, bold; matches execution-mode top-bar chip size (REAL). */
+  button: "text-[11px] font-bold leading-[15px]",
   /**
    * Native `<button>` segmented options, filter chips, and compact triggers — 11/15 bold.
    * Do not reuse {@link OPERATOR_TYPOGRAPHY.button} here; that scale is reserved for visible-boundary Buttons.
