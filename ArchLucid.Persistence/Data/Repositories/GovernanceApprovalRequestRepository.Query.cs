@@ -178,10 +178,12 @@ public sealed partial class GovernanceApprovalRequestRepository
         p.Add("Submitted", GovernanceApprovalStatus.Submitted);
         PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
-        return await connection.ExecuteScalarAsync<int>(new CommandDefinition(
+        long count = await connection.ExecuteScalarAsync<long>(new CommandDefinition(
             sql,
             p,
             cancellationToken: cancellationToken));
+
+        return checked((int)count);
     }
 
     public async Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(
