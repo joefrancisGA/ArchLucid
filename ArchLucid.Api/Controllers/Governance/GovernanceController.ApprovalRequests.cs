@@ -318,7 +318,7 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
-        HashSet<string> processedApprovalRequestIds = new(StringComparer.Ordinal);
+        HashSet<string> processedApprovalRequestIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
         {
@@ -339,7 +339,18 @@ public sealed partial class GovernanceController
             string approvalRequestId = rawApprovalRequestId.Trim();
 
             if (!processedApprovalRequestIds.Add(approvalRequestId))
+            {
+                results.Add(
+                    new GovernanceBatchReviewItemResult
+                    {
+                        ApprovalRequestId = approvalRequestId,
+                        Succeeded = false,
+                        ErrorCode = ProblemTypes.ValidationFailed,
+                        Message = "approvalRequestId is duplicated.",
+                    });
+
                 continue;
+            }
 
             try
             {

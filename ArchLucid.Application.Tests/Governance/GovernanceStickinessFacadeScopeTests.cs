@@ -584,6 +584,54 @@ public sealed class GovernanceStickinessFacadeScopeTests
             .WithMessage("*None of the provided findings were found in the current scope*");
     }
 
+    [Fact]
+    public async Task RecordBulkDispositionAsync_records_each_distinct_finding_id_once_when_list_contains_duplicates()
+    {
+        const string findingId = "finding-bulk-dup";
+
+        Mock<IFindingInspectReadRepository> inspect = new();
+        inspect
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request => request.FindingId == findingId),
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: inspect.Object,
+            dispositionService: dispositions.Object);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId, findingId, "FINDING-BULK-DUP"],
+            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+            Rationale = "bulk",
+        };
+
+        RecordBulkFindingDispositionResponse response =
+            await sut.RecordBulkDispositionAsync(request, CancellationToken.None);
+
+        response.ProcessedCount.Should().Be(1);
+        response.UpdatedFindingIds.Should().Equal(findingId);
+        dispositions.Verify(
+            d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static GovernanceStickinessFacade CreateSut(
         IArchitectureRiskRegisterService? riskRegister = null,
         IFindingInspectReadRepository? findingInspect = null,

@@ -37,6 +37,7 @@ public sealed partial class GovernanceStickinessFacade
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();
         List<string> updated = [];
+        HashSet<string> processedFindingIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string findingId in request.FindingIds)
         {
@@ -44,6 +45,9 @@ public sealed partial class GovernanceStickinessFacade
                 continue;
 
             string normalizedFindingId = findingId.Trim();
+
+            if (!processedFindingIds.Add(normalizedFindingId))
+                continue;
 
             RecordFindingDispositionRequest normalized = new()
             {
