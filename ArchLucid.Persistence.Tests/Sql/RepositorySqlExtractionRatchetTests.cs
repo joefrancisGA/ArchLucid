@@ -179,11 +179,17 @@ public sealed class RepositorySqlExtractionRatchetTests
         if (!Directory.Exists(companionDirectoryFullPath))
             return ReadRepoFile(companionPath, callerFilePath);
 
-        IEnumerable<string> companionPaths = Directory
+        string[] companionPaths = Directory
             .EnumerateFiles(companionDirectoryFullPath, companionClass + "*.cs")
-            .OrderBy(static path => path, StringComparer.Ordinal);
+            .OrderBy(static path => path, StringComparer.Ordinal)
+            .ToArray();
 
-        return string.Concat(companionPaths.Select(File.ReadAllText));
+        companionPaths.Should().NotBeEmpty(
+            $"Expected at least one companion source file matching '{companionClass}*.cs' in '{companionDirectoryFullPath}' for companion class '{companionClass}'.");
+
+        return string.Join(
+            Environment.NewLine + Environment.NewLine,
+            companionPaths.Select(File.ReadAllText));
     }
 
     private static string ReadRepoFile(string relativePath, [CallerFilePath] string? callerFilePath = null)
