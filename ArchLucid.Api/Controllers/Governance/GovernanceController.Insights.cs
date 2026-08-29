@@ -100,7 +100,7 @@ public sealed partial class GovernanceController
                 ProblemTypes.BadRequest);
 
         if (bucketMinutes is < 60 or > 43_200)
-            return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
+            return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.ValidationFailed);
 
         DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
         DateTime toUtcNormalized = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
