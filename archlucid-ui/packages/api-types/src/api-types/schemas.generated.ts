@@ -9254,6 +9254,15 @@ export interface components {
             executiveDigestRecipientCount?: number;
             executiveEmailDigestEnabled?: boolean;
             executiveEmailDigestIsConfigured?: boolean;
+            /** Format: int32 */
+            sponsorDigestDayOfWeek?: number;
+            /** Format: int32 */
+            sponsorDigestHourOfDay?: number;
+            sponsorDigestIanaTimeZoneId?: string;
+            /** Format: int32 */
+            sponsorDigestRecipientCount?: number;
+            sponsorEmailDigestEnabled?: boolean;
+            sponsorEmailDigestIsConfigured?: boolean;
             /** Format: date-time */
             latestArchitectureDigestGeneratedUtc?: null | string;
             /** Format: uuid */
