@@ -46,7 +46,7 @@ public sealed class InboundWebhookPipelineOrderArchitectureTests
 
         int sizeCheck = methodBody.IndexOf("InboundWebhookBoundedBodyReader", StringComparison.Ordinal);
         int verify = methodBody.IndexOf("TryVerifyWebhookSecurity", StringComparison.Ordinal);
-        int parse = methodBody.IndexOf("JsonDocument.Parse", StringComparison.Ordinal);
+        int parse = methodBody.IndexOf("TryParseWebhookJson", StringComparison.Ordinal);
 
         sizeCheck.Should().BeGreaterThan(0);
         verify.Should().BeGreaterThan(0);
