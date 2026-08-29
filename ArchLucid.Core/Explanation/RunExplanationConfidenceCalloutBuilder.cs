@@ -27,9 +27,18 @@ public static class RunExplanationConfidenceCalloutBuilder
         using JsonDocument doc = JsonDocument.Parse(aggregateJson);
         JsonElement root = doc.RootElement;
 
+        if (root.ValueKind != JsonValueKind.Object)
+            return null;
+
+        // Single pass over the root object — O(n) scan once, O(1) lookups below.
+        Dictionary<string, JsonElement> props = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (JsonProperty p in root.EnumerateObject())
+            props[p.Name] = p.Value;
+
         double? ratio = null;
 
-        if (TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl)
+        if (props.TryGetValue("faithfulnessSupportRatio", out JsonElement ratioEl)
             && ratioEl.ValueKind == JsonValueKind.Number
             && ratioEl.TryGetDouble(out double parsedRatio)
             && double.IsFinite(parsedRatio))
@@ -38,40 +47,23 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         bool fallback =
-            (TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out JsonElement direct)
+            (props.TryGetValue("deterministicFallbackUsed", out JsonElement direct)
              && direct.ValueKind == JsonValueKind.True)
-            || (TryGetPropertyCaseInsensitive(root, "usedDeterministicFallback", out JsonElement legacy)
+            || (props.TryGetValue("usedDeterministicFallback", out JsonElement legacy)
                 && legacy.ValueKind == JsonValueKind.True);
 
-        string? warning = TryGetPropertyCaseInsensitive(root, "faithfulnessWarning", out JsonElement warningEl)
-                            && warningEl.ValueKind == JsonValueKind.String
+        string? warning = props.TryGetValue("faithfulnessWarning", out JsonElement warningEl)
+                          && warningEl.ValueKind == JsonValueKind.String
             ? warningEl.GetString()?.Trim()
             : null;
 
         int? citationCount = null;
 
-        if (TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl)
+        if (props.TryGetValue("citations", out JsonElement citationsEl)
             && citationsEl.ValueKind == JsonValueKind.Array)
             citationCount = citationsEl.GetArrayLength();
 
         return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);
-    }
-
-    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
-    {
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-            {
-                value = property.Value;
-
-                return true;
-            }
-        }
-
-        value = default;
-
-        return false;
     }
 
     public static string ResolveDisposition(RunExplanationConfidenceSignals? signals)

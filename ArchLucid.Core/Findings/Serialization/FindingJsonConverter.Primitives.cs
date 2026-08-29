@@ -113,21 +113,7 @@ public sealed partial class FindingJsonConverter
     }
 
     private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
-    {
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-            {
-                value = property.Value;
-
-                return true;
-            }
-        }
-
-        value = default;
-
-        return false;
-    }
+        => element.TryGetPropertyCaseInsensitive(propertyName, out value);
 
     private static int? ReadOptionalInt32(JsonElement root, string name)
     {
