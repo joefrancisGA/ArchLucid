@@ -212,6 +212,8 @@ public sealed class GovernanceControllerSimulateTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Type.Should().Be(ProblemTypes.ValidationFailed);
         dryRun.VerifyNoOtherCalls();
     }
 
@@ -231,6 +233,8 @@ public sealed class GovernanceControllerSimulateTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Type.Should().Be(ProblemTypes.ValidationFailed);
         dryRun.VerifyNoOtherCalls();
     }
 

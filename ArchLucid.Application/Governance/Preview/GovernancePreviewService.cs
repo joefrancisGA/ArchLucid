@@ -135,23 +135,6 @@ public sealed class GovernancePreviewService(
         return manifest;
     }
 
-    private static string NormalizeAndValidateEnvironment(string environment, string paramName)
-    {
-        if (string.IsNullOrWhiteSpace(environment))
-            throw new ArgumentException("Environment is required.", paramName);
-
-        string normalized = environment.Trim();
-
-        if (!IsKnownEnvironment(normalized))
-            throw new ArgumentException("Environment must be one of: dev, test, prod.", paramName);
-
-        return normalized.ToLowerInvariant();
-    }
-
-    private static bool IsKnownEnvironment(string value)
-    {
-        return string.Equals(value, GovernanceEnvironment.Dev, StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(value, GovernanceEnvironment.Test, StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(value, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase);
-    }
+    private static string NormalizeAndValidateEnvironment(string environment, string paramName) =>
+        GovernanceEnvironment.NormalizeAndValidate(environment, paramName);
 }
