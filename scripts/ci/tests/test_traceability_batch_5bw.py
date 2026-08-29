@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+from ci_test_helpers import REPO_ROOT, read_text_union
 
 
 class TestTraceabilityBatch5BW(unittest.TestCase):
@@ -29,8 +29,10 @@ class TestTraceabilityBatch5BW(unittest.TestCase):
         self.assertIn("RecordStageStartedAsync", text)
 
     def test_tb_250_api_endpoint(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "RunQueryController.cs"
-        text = path.read_text(encoding="utf-8")
+        text = read_text_union(
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "RunQueryController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "RunQueryController.Detail.cs",
+        )
         self.assertIn("stage-timeline", text)
 
     def test_tb_250_operator_ui_section(self) -> None:

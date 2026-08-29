@@ -103,6 +103,7 @@ public sealed partial class GovernanceController
                 "fromUtc and toUtc must be on or after 1970-01-01.",
                 ProblemTypes.BadRequest);
 
+
         if (bucketMinutes is < 60 or > 43_200)
             return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
 
@@ -145,6 +146,11 @@ public sealed partial class GovernanceController
             return tenantProblem;
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
@@ -190,6 +196,11 @@ public sealed partial class GovernanceController
             return tenantProblem;
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)

@@ -1,5 +1,5 @@
 {
-  "generatedUtc": "2026-07-21T20:41:15.565183+00:00",
+  "generatedUtc": "2026-08-29T03:32:54.457318+00:00",
   "disposition": "PASS",
   "retrievalIr": {
     "casesEvaluated": 53,
@@ -44,6 +44,17 @@
     },
     {
       "generatedUtc": "2026-07-21T20:41:15.565183+00:00",
+      "disposition": "PASS",
+      "retrievalIr": {
+        "casesEvaluated": 53,
+        "meanRecallAt5": 5.0,
+        "meanMrr": 0.9308,
+        "floorRecallAt5": 5.0,
+        "floorMrr": 0.75
+      }
+    },
+    {
+      "generatedUtc": "2026-08-29T03:32:54.457318+00:00",
       "disposition": "PASS",
       "retrievalIr": {
         "casesEvaluated": 53,

@@ -37,6 +37,24 @@
       "source": "simulate",
       "githubRunId": "",
       "githubRunUrl": ""
+    },
+    {
+      "recordedUtc": "2026-08-29T03:32:50.477259+00:00",
+      "mtdUsd": 14.5,
+      "monthlyBudgetUsd": 15.0,
+      "exitCode": 2,
+      "source": "simulate",
+      "githubRunId": "",
+      "githubRunUrl": ""
+    },
+    {
+      "recordedUtc": "2026-08-29T03:32:52.880837+00:00",
+      "mtdUsd": 14.5,
+      "monthlyBudgetUsd": 15.0,
+      "exitCode": 2,
+      "source": "simulate",
+      "githubRunId": "",
+      "githubRunUrl": ""
     }
   ]
 }

@@ -119,6 +119,9 @@ public sealed class TenantHomepageSettingsController(
         if (scopeProblem is not null)
             return scopeProblem;
 
+        if (body.SelectedRunId == Guid.Empty)
+            return this.BadRequestProblem("selectedRunId is required.", ProblemTypes.ValidationFailed);
+
         string actor = User?.Identity?.Name ?? "operator";
         FeaturedCompletedSampleSnapshot snapshot;
 

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   buildClarificationRephraseItems,
+  buildClarificationRephraseItemsForEmptyKeys,
   mergeRephrasedClarificationAnswers,
   rephraseClarificationAnswersFromExtractedText,
 } from "@/lib/api/clarification-answer-rephrase-api";
@@ -12,6 +13,7 @@ import {
   evidenceFilesIncludeBinaryArchitectureDocument,
   evidenceFilesNeedDocumentTextExtraction,
 } from "@/lib/evidence-readable-text";
+import { filterQualityGatedInferredAnswers, isReadableInferredClarificationAnswer } from "@/lib/inferred-clarification-answer-quality";
 import {
   UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS,
   canSuggestUniversalIntakeAnswersFromEvidence,
@@ -25,10 +27,12 @@ type UseInferredUniversalIntakeAnswersInput = {
   readonly answers: Readonly<Record<string, string>>;
   readonly onAnswersChange: (answers: Readonly<Record<string, string>>) => void;
   readonly blocksLlmRephrase?: boolean;
+  readonly isSimulator?: boolean;
 };
 
 type UseInferredUniversalIntakeAnswersResult = {
   readonly inferredQuestionKeys: ReadonlySet<string>;
+  readonly rephrasedQuestionKeys: ReadonlySet<string>;
   readonly isExtractingEvidenceText: boolean;
   readonly clarificationSuggestionsUnavailable: boolean;
   readonly canSuggestFromEvidence: boolean;
@@ -42,6 +46,7 @@ export function useInferredUniversalIntakeAnswers(
   input: UseInferredUniversalIntakeAnswersInput,
 ): UseInferredUniversalIntakeAnswersResult {
   const [inferredQuestionKeys, setInferredQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
+  const [rephrasedQuestionKeys, setRephrasedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [isExtractingEvidenceText, setIsExtractingEvidenceText] = useState(false);
   const [clarificationSuggestionsUnavailable, setClarificationSuggestionsUnavailable] = useState(false);
   const lockedQuestionKeysRef = useRef(new Set<string>());
@@ -110,34 +115,66 @@ export function useInferredUniversalIntakeAnswers(
 
       const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
       let answersToApply = inferredAnswers;
+      let appliedRephrasedKeys: readonly string[] = [];
 
-      if (
-        currentInput.blocksLlmRephrase !== true
-        && Object.keys(inferredAnswers).length > 0
-      ) {
+      if (canDraftClarificationAnswers && corpus.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS) {
         if (needsDocumentExtraction) {
           progress.reportStage("drafting-clarification-answers");
         }
 
-        const rephraseItems = buildClarificationRephraseItems({
-          inferredAnswers,
-          questions: ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS,
-        });
+        const rephraseItems = [
+          ...buildClarificationRephraseItems({
+            inferredAnswers,
+            questions: ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS,
+          }),
+          ...buildClarificationRephraseItemsForEmptyKeys({
+            corpus,
+            inferredAnswers,
+            questions: ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS,
+            currentAnswers: answersRef.current,
+            lockedQuestionKeys: lockedQuestionKeysRef.current,
+          }),
+        ];
 
         if (rephraseItems.length > 0) {
           try {
             const rephrased = await rephraseClarificationAnswersFromExtractedText({ items: rephraseItems });
-            answersToApply = mergeRephrasedClarificationAnswers({
+            const merged = mergeRephrasedClarificationAnswers({
               currentAnswers: answersRef.current,
               inferredAnswers,
               rephrasedAnswers: rephrased.rephrasedAnswers,
               lockedQuestionKeys: lockedQuestionKeysRef.current,
             });
+            const suggestedAnswers: Record<string, string> = {};
+
+            for (const [questionKey, answer] of Object.entries(merged.mergedAnswers)) {
+              if (lockedQuestionKeysRef.current.has(questionKey)) {
+                continue;
+              }
+
+              const existingAnswer = answersRef.current[questionKey]?.trim() ?? "";
+
+              if (existingAnswer.length > 0) {
+                continue;
+              }
+
+              const trimmedAnswer = answer.trim();
+
+              if (isReadableInferredClarificationAnswer(trimmedAnswer)) {
+                suggestedAnswers[questionKey] = trimmedAnswer;
+              }
+            }
+
+            answersToApply = suggestedAnswers;
+            appliedRephrasedKeys = merged.rephrasedQuestionKeys;
           }
           catch {
-            // Keep deterministic extracted answers when the advisory rephrase endpoint is unavailable.
+            answersToApply = filterQualityGatedInferredAnswers(inferredAnswers);
           }
         }
+      }
+      else {
+        answersToApply = filterQualityGatedInferredAnswers(inferredAnswers);
       }
 
       const { mergedAnswers, newlyInferredQuestionKeys } = mergeInferredUniversalIntakeAnswers({
@@ -151,7 +188,7 @@ export function useInferredUniversalIntakeAnswers(
       setClarificationSuggestionsUnavailable(
         hasInferenceSource
           && corpus.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS
-          && Object.keys(inferredAnswers).length === 0,
+          && Object.keys(answersToApply).length === 0,
       );
 
       if (newlyInferredQuestionKeys.length === 0) {
@@ -168,6 +205,7 @@ export function useInferredUniversalIntakeAnswers(
 
         return next;
       });
+      setRephrasedQuestionKeys(new Set(appliedRephrasedKeys));
     }
     finally {
       if (needsDocumentExtraction) {
@@ -208,10 +246,21 @@ export function useInferredUniversalIntakeAnswers(
 
       return next;
     });
+    setRephrasedQuestionKeys((current) => {
+      if (!current.has(questionKey)) {
+        return current;
+      }
+
+      const next = new Set(current);
+      next.delete(questionKey);
+
+      return next;
+    });
   }, []);
 
   return {
     inferredQuestionKeys,
+    rephrasedQuestionKeys,
     isExtractingEvidenceText,
     clarificationSuggestionsUnavailable,
     canSuggestFromEvidence,

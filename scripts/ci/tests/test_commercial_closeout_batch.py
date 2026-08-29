@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROOF_SCRIPT = REPO_ROOT / "scripts" / "collect-first-pilot-proof.ps1"
@@ -57,7 +58,7 @@ class CommercialCloseoutBatchTests(unittest.TestCase):
             )
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(REPO_ROOT / "scripts/ci/validate_commercial_closeout_consistency.py"),
                     "--go-no-go-summary",
                     str(summary),
@@ -91,7 +92,7 @@ class CommercialCloseoutBatchTests(unittest.TestCase):
             out_md = root / "readiness.md"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(REPO_ROOT / "scripts/ci/report_quote_to_proof_readiness.py"),
                     "--go-no-go-summary",
                     str(summary),

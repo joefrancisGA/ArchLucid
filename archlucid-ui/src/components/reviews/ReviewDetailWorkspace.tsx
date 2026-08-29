@@ -91,6 +91,15 @@ function panelWithInPipelineBanner(
   );
 }
 
+function panelWithVocabularyRail(tabId: ReviewDetailTabId, vocabularyRail: ReactNode, panel: ReactNode): ReactNode {
+  return (
+    <>
+      <Fragment key={`${tabId}-vocabulary-rail`}>{vocabularyRail}</Fragment>
+      <Fragment key={`${tabId}-panel`}>{panel}</Fragment>
+    </>
+  );
+}
+
 function resolveWorkspaceLifecycle(props: ReviewDetailWorkspaceProps): ReviewWorkspaceLifecycle {
   if (props.lifecycle !== undefined) {
     return props.lifecycle;
@@ -278,22 +287,28 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
           hidden={panelHidden(activeTab, "evidence")}
           data-testid="review-detail-workspace-panel-evidence"
         >
-          <PackageEvidenceEvidenceGraphVocabularyRail
-            runId={props.runId}
-            currentSurfaceId="package-evidence"
-          />
-          {panelWithInPipelineBanner("evidence", props.panels.evidence, inPipelineBanner)}
+          {panelWithVocabularyRail(
+            "evidence",
+            <PackageEvidenceEvidenceGraphVocabularyRail
+              runId={props.runId}
+              currentSurfaceId="package-evidence"
+            />,
+            panelWithInPipelineBanner("evidence", props.panels.evidence, inPipelineBanner),
+          )}
         </div>
         <div
           className="min-w-0 overflow-visible"
           hidden={panelHidden(activeTab, "policies")}
           data-testid="review-detail-workspace-panel-policies"
         >
-          <PackageGovernanceApprovalQueueVocabularyRail
-            runId={props.runId}
-            currentSurfaceId="package-governance"
-          />
-          {panelWithInPipelineBanner("policies", props.panels.policies, inPipelineBanner)}
+          {panelWithVocabularyRail(
+            "policies",
+            <PackageGovernanceApprovalQueueVocabularyRail
+              runId={props.runId}
+              currentSurfaceId="package-governance"
+            />,
+            panelWithInPipelineBanner("policies", props.panels.policies, inPipelineBanner),
+          )}
         </div>
         <div
           className="min-w-0 overflow-visible"
@@ -325,11 +340,14 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
           hidden={panelHidden(activeTab, "activity")}
           data-testid="review-detail-workspace-panel-activity"
         >
-          <PackageActivityAuditTrailVocabularyRail
-            runId={props.runId}
-            currentSurfaceId="package-activity"
-          />
-          {props.panels.activity}
+          {panelWithVocabularyRail(
+            "activity",
+            <PackageActivityAuditTrailVocabularyRail
+              runId={props.runId}
+              currentSurfaceId="package-activity"
+            />,
+            props.panels.activity,
+          )}
         </div>
       </div>
     </ReviewDetailWorkspaceTabContext.Provider>

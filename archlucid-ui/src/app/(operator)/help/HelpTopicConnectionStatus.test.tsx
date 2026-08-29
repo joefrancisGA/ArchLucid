@@ -17,7 +17,7 @@ import {
   CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE_HEADING,
   CONNECTION_STATUS_HELP_SOURCES,
 } from "@/lib/connection-status-help-evidence-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 vi.mock("@/app/(operator)/help/_sections/HelpConnectionStatusWorkspaceReadinessStrip", () => ({
@@ -74,11 +74,7 @@ describe("HelpConnectionStatusGuideView (HCO)", () => {
       screen.getByTestId("help-connection-status-primary-cta"),
     );
 
-    for (const source of CONNECTION_STATUS_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(screen, CONNECTION_STATUS_HELP_SOURCES);
 
     for (const heading of resolveGuideHeadingsForStrip(
       "help-connection-status",

@@ -11,13 +11,11 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 class TestTraceabilityBatch5CE(unittest.TestCase):
     def test_tb_056_partial_failure_surfacing(self) -> None:
         orchestrator = REPO_ROOT / "ArchLucid.Decisioning" / "Services" / "FindingsOrchestrator.cs"
-        manifest_builder = (
-            REPO_ROOT
-            / "ArchLucid.Decisioning"
-            / "Manifest"
-            / "Builders"
-            / "RequirementsPolicyComplianceManifestSectionPopulators.cs"
+        manifest_builders_dir = (
+            REPO_ROOT / "ArchLucid.Decisioning" / "Manifest" / "Builders"
         )
+        provenance_populator = manifest_builders_dir / "ProvenanceManifestSectionPopulator.cs"
+        requirements_populator = manifest_builders_dir / "RequirementsManifestSectionPopulator.cs"
         analyzer = (
             REPO_ROOT / "ArchLucid.Decisioning" / "Findings" / "ExplainabilityTraceCompletenessAnalyzer.cs"
         )
@@ -30,10 +28,11 @@ class TestTraceabilityBatch5CE(unittest.TestCase):
         self.assertIn("FindingEngineFailure", orchestrator_text)
         self.assertIn("RecordFindingsEnginePartialFailure", orchestrator_text)
 
-        manifest_text = manifest_builder.read_text(encoding="utf-8")
-        self.assertIn("EngineFailures", manifest_text)
-        self.assertIn("enrichment was skipped", manifest_text)
-        self.assertIn("WarnSkippedFindingPayload", manifest_text)
+        provenance_text = provenance_populator.read_text(encoding="utf-8")
+        requirements_text = requirements_populator.read_text(encoding="utf-8")
+        self.assertIn("EngineFailures", provenance_text)
+        self.assertIn("enrichment was skipped", provenance_text)
+        self.assertIn("WarnSkippedFindingPayload", requirements_text)
 
         null_enricher = (
             REPO_ROOT
