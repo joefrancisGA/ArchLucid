@@ -673,7 +673,7 @@
           "controller_file": "Admin/OperationalErrorsAdminController.cs",
           "primary_get_policy": "AdminAuthority",
           "method": "ListOperationalErrors",
-          "http_get_route": "operational-errors"
+          "http_get_route": null
         }
       ],
       "parity": "match"
