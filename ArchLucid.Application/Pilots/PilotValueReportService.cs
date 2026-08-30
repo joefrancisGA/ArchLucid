@@ -76,6 +76,7 @@ public sealed class PilotValueReportService(
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
         if (tenant is null)
             return null;
 
@@ -92,6 +93,7 @@ public sealed class PilotValueReportService(
         IReadOnlyList<AuditEvent> auditRows = await _auditRepository
             .GetExportAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, from, toExclusive, AuditExportMaxRows, cancellationToken).ConfigureAwait(false);
         bool auditTruncated = auditRows.Count >= AuditExportMaxRows;
+
         if (auditTruncated && _logger.IsEnabled(LogLevel.Warning))
             _logger.LogWarning("Pilot value report: audit export capped at {Cap} for tenant {TenantId}.", AuditExportMaxRows, scope.TenantId);
         int approvals = auditRows.Count(e => ApprovalEventTypes.Contains(e.EventType));
@@ -101,9 +103,11 @@ public sealed class PilotValueReportService(
         int recommendations = auditRows.Count(e => string.Equals(e.EventType, AuditEventTypes.RecommendationGenerated, StringComparison.Ordinal));
         bool runDetailsTruncated = committedRuns.Count > DefaultRunDetailCap;
         List<CommittedRunRef> runsForDetails = committedRuns;
+
         if (runDetailsTruncated)
         {
             runsForDetails = committedRuns.Take(DefaultRunDetailCap).ToList();
+
             if (_logger.IsEnabled(LogLevel.Warning))
             {
                 _logger.LogWarning("Pilot value report: loading run details for {Loaded} of {Total} committed runs (cap {Cap}).", runsForDetails.Count,
@@ -115,6 +119,7 @@ public sealed class PilotValueReportService(
         List<double> completionSeconds = [];
         HashSet<string> agentTypes = new(StringComparer.OrdinalIgnoreCase);
         List<PilotValueReportRunTimelinePoint> timeline = [];
+
         foreach (CommittedRunRef runRef in runsForDetails)
         {
             ArchitectureRunDetail? detail =
@@ -122,13 +127,18 @@ public sealed class PilotValueReportService(
 
             if (detail is null)
                 continue;
+
             AddFindings(detail, severities);
+
             foreach (AgentResult r in detail.Results)
                 agentTypes.Add(r.AgentType.ToString());
+
             DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
+
             if (committedUtc is { } c)
             {
                 TimeSpan wall = c - detail.Run.CreatedUtc;
+
                 if (wall >= TimeSpan.Zero)
                     completionSeconds.Add(wall.TotalSeconds);
             }
@@ -178,6 +188,7 @@ public sealed class PilotValueReportService(
             (IReadOnlyList<RunSummary> items, bool hasMore, string? next) =
                 await _runDetailQuery.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
             bool stopPaging = false;
+
             foreach (RunSummary s in items)
             {
                 if (s.CreatedUtc < fromInclusive)
