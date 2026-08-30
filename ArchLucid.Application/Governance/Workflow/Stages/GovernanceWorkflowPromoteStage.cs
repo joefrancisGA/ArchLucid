@@ -122,6 +122,7 @@ public sealed class GovernanceWorkflowPromoteStage(
         }
 
         GovernanceApprovalRequest? prodApprovalToMarkPromoted = null;
+
         if (!string.IsNullOrWhiteSpace(approvalRequestId))
         {
             GovernanceApprovalRequest? approvalRequest = await _approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
