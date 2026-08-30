@@ -972,6 +972,17 @@
       "priority": "P2"
     },
     {
+      "ruleId": "soc2-018",
+      "controlId": "SOC2-018",
+      "controlName": "Network segmentation for sensitive workloads",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Network",
+      "requiredEdgeType": "CONNECTS",
+      "severity": "High",
+      "description": "Sensitive workloads must be segmented on dedicated networks (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
+    },
+    {
       "ruleId": "cost-opt-001",
       "controlId": "COST-OPT-001",
       "controlName": "GA Cost starter rule (catalog stub)",
@@ -1258,6 +1269,17 @@
       "priority": "P2"
     },
     {
+      "ruleId": "iso27001-025",
+      "controlId": "ISO27001-025",
+      "controlName": "Network security perimeter documented",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Network",
+      "requiredEdgeType": "CONNECTS",
+      "severity": "High",
+      "description": "Network security perimeter must be documented and enforced (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
+    },
+    {
       "ruleId": "cis-az-001",
       "controlId": "CIS-AZ-001",
       "controlName": "Require MFA for all users",
@@ -1368,6 +1390,61 @@
       "priority": "P2"
     },
     {
+      "ruleId": "cis-az-012",
+      "controlId": "CIS-AZ-012",
+      "controlName": "SQL public network access restricted",
+      "appliesToCategory": "data",
+      "requiredNodeType": "Storage",
+      "requiredEdgeType": "STORES",
+      "severity": "High",
+      "description": "SQL endpoints must not expose public network access (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "cis-az-018",
+      "controlId": "CIS-AZ-018",
+      "controlName": "Key Vault network access restricted",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Key Vault must restrict public network access (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "cis-az-019",
+      "controlId": "CIS-AZ-019",
+      "controlName": "App Service authentication enabled",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "Identity",
+      "requiredEdgeType": "AUTHORIZES",
+      "severity": "High",
+      "description": "App Service must require authentication for sensitive endpoints (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "cis-az-025",
+      "controlId": "CIS-AZ-025",
+      "controlName": "App Service HTTPS only and TLS minimum",
+      "appliesToCategory": "network",
+      "requiredNodeType": "Network",
+      "requiredEdgeType": "CONNECTS",
+      "severity": "High",
+      "description": "App Service must enforce HTTPS-only and minimum TLS (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "cis-az-027",
+      "controlId": "CIS-AZ-027",
+      "controlName": "Container registry public access disabled",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Container registries must disable anonymous public pull (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
+    },
+    {
       "ruleId": "hipaa-001",
       "controlId": "HIPAA-001",
       "controlName": "Encrypt ePHI at rest",
@@ -1476,6 +1553,39 @@
       "severity": "Warning",
       "description": "Stub for hipaa-010; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
       "priority": "P2"
+    },
+    {
+      "ruleId": "hipaa-017",
+      "controlId": "HIPAA-017",
+      "controlName": "Encryption and decryption of ePHI",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "Storage",
+      "requiredEdgeType": "STORES",
+      "severity": "Critical",
+      "description": "ePHI must be encrypted at rest and in transit (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "hipaa-022",
+      "controlId": "HIPAA-022",
+      "controlName": "Minimum necessary access to ePHI",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "Identity",
+      "requiredEdgeType": "AUTHORIZES",
+      "severity": "High",
+      "description": "Access to ePHI must follow minimum necessary principle (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "hipaa-024",
+      "controlId": "HIPAA-024",
+      "controlName": "Breach notification readiness",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "Logging",
+      "requiredEdgeType": "MONITORS",
+      "severity": "High",
+      "description": "Audit and alerting must support breach notification workflows (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
     },
     {
       "ruleId": "pci-001",
@@ -1872,6 +1982,28 @@
       "severity": "Warning",
       "description": "Stub for aks-010; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
       "priority": "P2"
+    },
+    {
+      "ruleId": "aks-015",
+      "controlId": "AKS-015",
+      "controlName": "Internal load balancers for east-west only",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "Network",
+      "requiredEdgeType": "CONNECTS",
+      "severity": "High",
+      "description": "Kubernetes services must use internal load balancers for east-west traffic (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "aks-021",
+      "controlId": "AKS-021",
+      "controlName": "Workload identity for pod access",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "Identity",
+      "requiredEdgeType": "AUTHORIZES",
+      "severity": "High",
+      "description": "Pods must use workload identity instead of long-lived secrets (PP-01 Option B pilot catalog extension).",
+      "priority": "P1"
     },
     {
       "ruleId": "data-class-001",
