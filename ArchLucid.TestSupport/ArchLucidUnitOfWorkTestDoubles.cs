@@ -25,10 +25,14 @@ public static class ArchLucidUnitOfWorkTestDoubles
 
     public static IArchLucidUnitOfWorkFactory ExternalTransactionFactory()
     {
+        Mock<System.Data.IDbConnection> connection = new();
+        Mock<System.Data.IDbTransaction> transaction = new();
+        transaction.SetupGet(x => x.Connection).Returns(connection.Object);
+
         Mock<IArchLucidUnitOfWork> uow = new();
         uow.SetupGet(x => x.SupportsExternalTransaction).Returns(true);
-        uow.SetupGet(x => x.Connection).Returns(Mock.Of<System.Data.IDbConnection>());
-        uow.SetupGet(x => x.Transaction).Returns(Mock.Of<System.Data.IDbTransaction>());
+        uow.SetupGet(x => x.Connection).Returns(connection.Object);
+        uow.SetupGet(x => x.Transaction).Returns(transaction.Object);
         uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
