@@ -12,7 +12,39 @@
 Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord
 ```
 
-## Latest measurement — 2026-08-28 (cloud agent VM, commit pre-push)
+## Latest measurement — 2026-08-28 (integration-tier triage + PP-01 batch, cloud agent VM)
+
+| Assembly | Fast-core result | Notes |
+|----------|------------------|-------|
+| `ArchLucid.Application.Tests` | **1967 / 0** | Green |
+| `ArchLucid.Api.Tests` | **1123 / 0** | Green (fast-core slice) |
+| `ArchLucid.AgentRuntime.Tests` | **743 / 0** | Green |
+| `ArchLucid.Host.Composition.Tests` | **274 / 0** | Green |
+| `ArchLucid.Decisioning.Tests` | **8 / 0** | `BundledPolicyPackDeclarationThemeTests` (PP-01 guard, corset-covered) |
+| `ArchLucid.Api.Tests` (integration) | **SKIP** (no SQL host) | `scripts/ci/probe-sql-integration-host.sh` — prior **457 failed** was a false-negative on Linux VMs without `ARCHLUCID_SQL_TEST`; not a trunk regression |
+
+**Integration-tier triage (task #7):**
+
+- **Root cause:** `ArchLucidApiFactory` requires `ARCHLUCID_SQL_TEST` / `ARCHLUCID_API_TEST_SQL` on non-Windows hosts (`SqlServerIntegrationTestConnections`). Running `Category=Integration` without a reachable SQL host produced hundreds of constructor failures that looked like product regressions.
+- **Fix:** `scripts/ci/probe-sql-integration-host.sh` + `run_trunk_matrix_measurement.sh` now **skip** integration when SQL is unreachable; `trunk-matrix-measurement.yml` adds the same `sqlserver` service container as `ci.yml` integration shards so scheduled/dispatch measurements can run the integration slice when SQL is present.
+- **Authoritative integration signal:** `ci.yml` `workflow_dispatch` job `dotnet-full-regression-core-api-integration` (six SQL-backed shards). Master dispatch [33193938737](https://github.com/joefrancisGA/ArchLucid/actions/runs/33193938737) was **queued** at last check — append shard results here when complete.
+
+**Interpretation:** Push corset + fast-core slices outside Core/Decisioning remain green. Integration tier is environment-gated by design; do not treat bare `dotnet test --filter Category=Integration` on a SQL-less Linux host as trunk health.
+
+## Prior measurement — 2026-08-28 (post-ruleset corset + PP-01, cloud agent VM)
+
+| Assembly | Fast-core result | Notes |
+|----------|------------------|-------|
+| `ArchLucid.Application.Tests` | **1967 / 0** | Green |
+| `ArchLucid.Api.Tests` | **1123 / 0** | Green (fast-core slice) |
+| `ArchLucid.AgentRuntime.Tests` | **743 / 0** | Green |
+| `ArchLucid.Host.Composition.Tests` | **274 / 0** | Green |
+| `ArchLucid.Decisioning.Tests` | **8 / 0** | `BundledPolicyPackDeclarationThemeTests` (PP-01 guard, corset-covered) |
+| `ArchLucid.Api.Tests` (integration) | **55 passed, 457 failed** | `ArchLucidApiFactory` — no SQL host fixture on this VM; superseded by SKIP probe above |
+
+**Interpretation:** Push corset + fast-core slices outside Core/Decisioning are green on trunk after ruleset required-checks update. Integration tier still requires hosted SQL fixtures — not a regression signal from this pass.
+
+## Prior measurement — 2026-08-28 (pre-push, cloud agent VM)
 
 | Assembly | Fast-core result | Notes |
 |----------|------------------|-------|

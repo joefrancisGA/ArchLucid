@@ -17,7 +17,7 @@ A **filter cannot raise density** by itself; raising the headline score requires
 
 ## Corpus limit
 
-The distribution report exercises **six** engines in the golden harness slice (eight after declaration engines in harness fixtures). **33+** built-in engines are absent from that table. `WouldDemoteIfUnprotectedCount` is a **counterfactual** — not production behavior.
+The distribution report lists engine types that produced findings on the golden corpus graphs. The harness registers **fourteen** engines (`GoldenCorpusHarness.CreateEngines`); only a subset appear in the distribution table on any given record pass. **25** built-in product engines are absent from the harness slice (39 − 14). `WouldDemoteIfUnprotectedCount` is a **counterfactual** — not production behavior.
 
 ## Forbidden without owner decision
 
