@@ -34,7 +34,6 @@ namespace ArchLucid.Application.Tests.Advisory;
 /// <summary>
 /// Tests for Advisory Scan Runner.
 /// </summary>
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class AdvisoryScanRunnerTests
 {
