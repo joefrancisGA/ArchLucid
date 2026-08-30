@@ -69,6 +69,190 @@ public sealed class ReviewsAwaitingActionQueryServiceTests
         response.Items[0].RunId.Should().Be(recurrenceRunId);
         response.Items[0].SourceRunId.Should().Be(Guid.Empty);
         response.Items[0].NewFindingCount.Should().Be(0);
+
+        diffService.Verify(
+            s => s.Compare(
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<AgentResult>>()),
+            Times.Never);
+        runs.Verify(
+            r => r.GetByIdAsync(Scope, foreignSourceRunId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ListAsync_does_not_call_get_by_id_when_source_run_id_is_unparseable()
+    {
+        Guid recurrenceRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string requestId = "recurrence-not-a-guid-weekly";
+
+        RunRecord recurrenceRun = CreateRecurrenceRun(recurrenceRunId, requestId);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ListRecentInScopeAsync(Scope, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([recurrenceRun]);
+
+        Mock<IArchitectureRequestRepository> requests = CreateRequestsMock(requestId, "Recurrence review");
+        Mock<IAgentResultDiffService> diffService = new();
+
+        ReviewsAwaitingActionQueryService sut = new(
+            runs.Object,
+            requests.Object,
+            Mock.Of<IAgentResultRepository>(),
+            diffService.Object);
+
+        Contracts.Governance.GovernanceReviewsAwaitingActionResponse response =
+            await sut.ListAsync(Scope, CancellationToken.None);
+
+        response.Items.Should().ContainSingle();
+        response.Items[0].SourceRunId.Should().Be(Guid.Empty);
+        response.Items[0].NewFindingCount.Should().Be(0);
+
+        runs.Verify(
+            r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        diffService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ListAsync_recurrence_detected_via_request_id_prefix_when_request_source_is_not_recurrence()
+    {
+        Guid recurrenceRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string requestId = "recurrence-ffffffffffffffffffffffffffffffff-weekly";
+
+        RunRecord recurrenceRun = CreateRecurrenceRun(recurrenceRunId, requestId, description: "Recurrence via id prefix");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ListRecentInScopeAsync(Scope, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([recurrenceRun]);
+
+        Mock<IArchitectureRequestRepository> requests = CreateRequestsMock(requestId, "Recurrence review", requestSource: "manual");
+
+        ReviewsAwaitingActionQueryService sut = new(
+            runs.Object,
+            requests.Object,
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IAgentResultDiffService>());
+
+        Contracts.Governance.GovernanceReviewsAwaitingActionResponse response =
+            await sut.ListAsync(Scope, CancellationToken.None);
+
+        response.Items.Should().ContainSingle();
+        response.Items[0].Name.Should().Be("Recurrence via id prefix");
+    }
+
+    [Fact]
+    public async Task ListAsync_skips_candidate_when_architecture_request_is_missing()
+    {
+        Guid recurrenceRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string requestId = "recurrence-ffffffffffffffffffffffffffffffff-weekly";
+
+        RunRecord recurrenceRun = CreateRecurrenceRun(recurrenceRunId, requestId);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ListRecentInScopeAsync(Scope, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([recurrenceRun]);
+
+        Mock<IArchitectureRequestRepository> requests = new();
+        requests
+            .Setup(r => r.ListByIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, ArchitectureRequest>());
+
+        ReviewsAwaitingActionQueryService sut = new(
+            runs.Object,
+            requests.Object,
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IAgentResultDiffService>());
+
+        Contracts.Governance.GovernanceReviewsAwaitingActionResponse response =
+            await sut.ListAsync(Scope, CancellationToken.None);
+
+        response.Items.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ListAsync_returns_null_executed_utc_when_run_has_no_completed_timestamp()
+    {
+        Guid recurrenceRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string requestId = "recurrence-ffffffffffffffffffffffffffffffff-weekly";
+
+        RunRecord recurrenceRun = CreateRecurrenceRun(recurrenceRunId, requestId);
+        recurrenceRun.CompletedUtc = null;
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ListRecentInScopeAsync(Scope, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([recurrenceRun]);
+
+        Mock<IArchitectureRequestRepository> requests = CreateRequestsMock(requestId, "Recurrence review");
+
+        ReviewsAwaitingActionQueryService sut = new(
+            runs.Object,
+            requests.Object,
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IAgentResultDiffService>());
+
+        Contracts.Governance.GovernanceReviewsAwaitingActionResponse response =
+            await sut.ListAsync(Scope, CancellationToken.None);
+
+        response.Items.Should().ContainSingle();
+        response.Items[0].ExecutedUtc.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ListAsync_in_scope_source_run_invokes_agent_result_diff_with_normalized_run_ids()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid recurrenceRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string requestId = $"recurrence-{sourceRunId:N}-weekly";
+
+        RunRecord recurrenceRun = CreateRecurrenceRun(recurrenceRunId, requestId);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ListRecentInScopeAsync(Scope, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([recurrenceRun]);
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = sourceRunId, TenantId = Scope.TenantId });
+
+        Mock<IArchitectureRequestRepository> requests = CreateRequestsMock(requestId, "Recurrence review");
+        Mock<IAgentResultRepository> agentResults = CreateAgentResultsMock();
+        Mock<IAgentResultDiffService> diffService = new();
+        diffService
+            .Setup(s => s.Compare(
+                sourceRunId.ToString("N"),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                recurrenceRunId.ToString("N"),
+                It.IsAny<IReadOnlyList<AgentResult>>()))
+            .Returns(new AgentResultDiffResult());
+
+        ReviewsAwaitingActionQueryService sut = new(
+            runs.Object,
+            requests.Object,
+            agentResults.Object,
+            diffService.Object);
+
+        await sut.ListAsync(Scope, CancellationToken.None);
+
+        agentResults.Verify(
+            r => r.GetRollupProjectionByRunIdAsync(Scope, sourceRunId.ToString("N"), It.IsAny<CancellationToken>()),
+            Times.Once);
+        agentResults.Verify(
+            r => r.GetRollupProjectionByRunIdAsync(Scope, recurrenceRunId.ToString("N"), It.IsAny<CancellationToken>()),
+            Times.Once);
+        diffService.Verify(
+            s => s.Compare(
+                sourceRunId.ToString("N"),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                recurrenceRunId.ToString("N"),
+                It.IsAny<IReadOnlyList<AgentResult>>()),
+            Times.Once);
     }
 
     [Fact]
