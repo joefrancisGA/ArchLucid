@@ -104,6 +104,24 @@ public sealed class RunRepositoryCoreTests
     }
 
     [Fact]
+    public void OccupiesWorkspaceSystemName_archived_run_does_not_occupy()
+    {
+        RunRepositoryCore.OccupiesWorkspaceSystemName(new RunRecord
+        {
+            ArchivedUtc = DateTime.UtcNow,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+        }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void OccupiesWorkspaceSystemName_null_run_throws()
+    {
+        Action act = () => RunRepositoryCore.OccupiesWorkspaceSystemName(null!);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
     public void SelectLatestWithGraphAtOrBefore_picks_latest_graph_before_cutoff()
     {
         ScopeContext scope = Scope(TenantId, WorkspaceId, ProjectId);
