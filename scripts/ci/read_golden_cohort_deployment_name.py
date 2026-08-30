@@ -20,11 +20,15 @@ def read_deployment_name(*, config_path: Path | None = None) -> str:
     if not path.is_file():
         return _DEFAULT
 
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    deployment = payload.get("deploymentName")
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return _DEFAULT
 
-    if isinstance(deployment, str) and deployment.strip():
-        return deployment.strip()
+    if isinstance(payload, dict):
+        deployment = payload.get("deploymentName")
+        if isinstance(deployment, str) and deployment.strip():
+            return deployment.strip()
 
     return _DEFAULT
 
