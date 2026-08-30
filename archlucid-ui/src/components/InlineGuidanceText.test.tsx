@@ -45,6 +45,16 @@ describe("InlineGuidanceText", () => {
     ).toBeInTheDocument();
   });
 
+  it("emphasizes the missing-fields scan label", () => {
+    render(<InlineGuidanceText text="Missing: review record version, target environment." />);
+
+    const label = screen.getByText("Missing:");
+
+    expect(label.tagName).toBe("STRONG");
+    expect(label).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
+    expect(screen.getByText(/review record version, target environment\./)).toBeInTheDocument();
+  });
+
   it("renders plain copy when no guidance label prefix is present", () => {
     render(<InlineGuidanceText text="Finish architecture reviews first." />);
 

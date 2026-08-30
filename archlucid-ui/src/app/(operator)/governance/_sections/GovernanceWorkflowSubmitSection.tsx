@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
   enterpriseMutationControlDisabledTitle,
@@ -275,7 +276,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="governance-submit-readiness"
               >
-                {submitReadinessMessage}
+                <InlineGuidanceText text={submitReadinessMessage} />
               </p>
             ) : null}
             {!canMutateWorkflow ? (
