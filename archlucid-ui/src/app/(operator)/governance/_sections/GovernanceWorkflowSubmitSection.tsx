@@ -28,7 +28,7 @@ import {
   governanceWorkflowSubmitCardTitleReader,
   governanceWorkflowSubmitForApprovalButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
@@ -249,9 +249,10 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col items-stretch gap-3">
+          <CardFooter className="flex flex-col items-start gap-3">
             <Button
               type="button"
+              className={CTA_WIDTH.content}
               data-testid="governance-submit-approval-button"
               onClick={() => void onSubmitApproval()}
               disabled={
