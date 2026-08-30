@@ -48,7 +48,7 @@ export function AlertsInboxPickReviewBeforeTriageStrip(
         Pick a review before triage
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Scope the alerts inbox to one review package so triage actions stay aligned with governance context.
+        Scope the alerts inbox to one architecture package so triage actions stay aligned with governance context.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +62,7 @@ export function AlertsInboxPickReviewBeforeTriageStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="alerts-inbox-pick-review-before-triage"
           hideFieldHelper
         />

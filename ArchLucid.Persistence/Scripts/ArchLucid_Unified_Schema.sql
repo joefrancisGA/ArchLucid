@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 333_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 334_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -8889,13 +8889,13 @@ END
 
 GO
 
-/* 334: Platform operational error inbox (see Migrations/334_PlatformOperationalErrors.sql). */
+/* 334: Platform-scoped operational error inbox for internal staff review (HTTP, database, and unhandled exceptions). */
 IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.PlatformOperationalErrors
     (
-        Id               UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_PlatformOperationalErrors2 PRIMARY KEY,
-        OccurredUtc      DATETIME2(7)     NOT NULL CONSTRAINT DF_PlatformOperationalErrors_OccurredUtc2 DEFAULT SYSUTCDATETIME(),
+        Id               UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_PlatformOperationalErrors PRIMARY KEY,
+        OccurredUtc      DATETIME2(7)     NOT NULL CONSTRAINT DF_PlatformOperationalErrors_OccurredUtc DEFAULT SYSUTCDATETIME(),
         Source           NVARCHAR(32)     NOT NULL,
         Category         NVARCHAR(32)     NOT NULL,
         HttpStatusCode   INT              NULL,
@@ -8913,11 +8913,11 @@ BEGIN
         WorkspaceId      UNIQUEIDENTIFIER NULL,
         ProjectId        UNIQUEIDENTIFIER NULL,
         ActorUserId      NVARCHAR(256)    NULL,
-        DetailJson       NVARCHAR(MAX)    NOT NULL CONSTRAINT DF_PlatformOperationalErrors_DetailJson2 DEFAULT (N'{}'),
-        INDEX IX_PlatformOperationalErrors_OccurredUtc2 NONCLUSTERED (OccurredUtc DESC),
-        INDEX IX_PlatformOperationalErrors_Category_OccurredUtc2 NONCLUSTERED (Category, OccurredUtc DESC),
-        INDEX IX_PlatformOperationalErrors_CorrelationId2 NONCLUSTERED (CorrelationId),
-        INDEX IX_PlatformOperationalErrors_TenantId_OccurredUtc2 NONCLUSTERED (TenantId, OccurredUtc DESC),
-        INDEX IX_PlatformOperationalErrors_HttpStatusCode_OccurredUtc2 NONCLUSTERED (HttpStatusCode, OccurredUtc DESC)
+        DetailJson       NVARCHAR(MAX)    NOT NULL CONSTRAINT DF_PlatformOperationalErrors_DetailJson DEFAULT (N'{}'),
+        INDEX IX_PlatformOperationalErrors_OccurredUtc NONCLUSTERED (OccurredUtc DESC),
+        INDEX IX_PlatformOperationalErrors_Category_OccurredUtc NONCLUSTERED (Category, OccurredUtc DESC),
+        INDEX IX_PlatformOperationalErrors_CorrelationId NONCLUSTERED (CorrelationId),
+        INDEX IX_PlatformOperationalErrors_TenantId_OccurredUtc NONCLUSTERED (TenantId, OccurredUtc DESC),
+        INDEX IX_PlatformOperationalErrors_HttpStatusCode_OccurredUtc NONCLUSTERED (HttpStatusCode, OccurredUtc DESC)
     );
 END;

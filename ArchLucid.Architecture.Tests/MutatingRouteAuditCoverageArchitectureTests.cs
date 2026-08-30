@@ -14,7 +14,7 @@ public sealed class MutatingRouteAuditCoverageArchitectureTests
 {
     private static string FindRepoRoot()
     {
-        for (DirectoryInfo? d = new(AppContext.BaseDirectory); d != null; d = d.Parent)
+        for (DirectoryInfo? d = new(AppContext.BaseDirectory); d is not null; d = d.Parent)
         {
             string sln = Path.Combine(d.FullName, "ArchLucid.sln");
 
@@ -33,9 +33,11 @@ public sealed class MutatingRouteAuditCoverageArchitectureTests
 
         File.Exists(scriptPath).Should().BeTrue("check_audit_matrix.py must exist for audit drift guard.");
 
+        string pythonExe = OperatingSystem.IsWindows() ? "python" : "python3";
+
         ProcessStartInfo startInfo = new()
         {
-            FileName = "python",
+            FileName = pythonExe,
             Arguments = $"\"{scriptPath}\"",
             WorkingDirectory = root,
             RedirectStandardOutput = true,
@@ -45,7 +47,7 @@ public sealed class MutatingRouteAuditCoverageArchitectureTests
         };
 
         using Process process = Process.Start(startInfo)
-            ?? throw new InvalidOperationException("Failed to start python for check_audit_matrix.py.");
+            ?? throw new InvalidOperationException($"Failed to start python interpreter ({pythonExe}) for check_audit_matrix.py.");
 
         string stdout = process.StandardOutput.ReadToEnd();
         string stderr = process.StandardError.ReadToEnd();

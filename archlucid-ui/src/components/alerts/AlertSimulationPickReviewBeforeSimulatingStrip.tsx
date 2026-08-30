@@ -36,7 +36,7 @@ export function AlertSimulationPickReviewBeforeSimulatingStrip(
         Pick a review before simulating
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Simulation outcomes are easiest to interpret against a finalized review package. Choose one to keep
+        Simulation outcomes are easiest to interpret against a finalized architecture review. Choose one to keep
         threshold previews aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -51,7 +51,7 @@ export function AlertSimulationPickReviewBeforeSimulatingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="alert-simulation-pick-review-before-simulating"
           hideFieldHelper
         />

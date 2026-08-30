@@ -130,7 +130,7 @@ export function PreFinalizeChecklistPanel({
           ) : null}
         </div>
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-muted-foreground")}>
-          Human approval gates and advisory checks before sealing the review package.
+          Human approval gates and advisory checks before sealing the architecture package.
         </p>
       </CardHeader>
       <CardContent>

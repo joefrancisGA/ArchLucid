@@ -663,6 +663,22 @@
       "parity": "match"
     },
     {
+      "nav_href": "/internal/operational-errors",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "AdminAuthority",
+      "controller_primary_get_policy_loosest": "AdminAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Admin/OperationalErrorsAdminController.cs",
+          "primary_get_policy": "AdminAuthority",
+          "method": "ListOperationalErrors",
+          "http_get_route": null
+        }
+      ],
+      "parity": "match"
+    },
+    {
       "nav_href": "/internal/platform-bundled-policy-packs",
       "nav_required_authority": "AdminAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",

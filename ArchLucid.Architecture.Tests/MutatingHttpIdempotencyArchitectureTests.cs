@@ -9,7 +9,7 @@ public sealed class MutatingHttpIdempotencyArchitectureTests
 {
     private static string FindRepoRoot()
     {
-        for (DirectoryInfo? directory = new(AppContext.BaseDirectory); directory != null; directory = directory.Parent)
+        for (DirectoryInfo? directory = new(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
         {
             string sln = Path.Combine(directory.FullName, "ArchLucid.sln");
 
@@ -43,14 +43,20 @@ public sealed class MutatingHttpIdempotencyArchitectureTests
         string runsText = File.ReadAllText(runsPath);
         runsText.Should().Contain("[IdempotencyFilter]");
 
-        string queryPath = Path.Combine(root, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.cs");
-        File.Exists(queryPath).Should().BeTrue();
-        string queryText = File.ReadAllText(queryPath);
+        string queryDir = Path.Combine(root, "ArchLucid.Api", "Controllers", "Authority");
+        Directory.Exists(queryDir).Should().BeTrue($"controller directory '{queryDir}' must exist");
+        string queryText = string.Concat(
+            Directory.EnumerateFiles(queryDir, "AuthorityQueryController*.cs")
+                .OrderBy(static path => path, StringComparer.Ordinal)
+                .Select(File.ReadAllText));
         queryText.Should().Contain("[IdempotencyFilter]");
 
-        string stickinessPath = Path.Combine(root, "ArchLucid.Api", "Controllers", "Governance", "GovernanceStickinessController.cs");
-        File.Exists(stickinessPath).Should().BeTrue();
-        string stickinessText = File.ReadAllText(stickinessPath);
+        string stickinessDir = Path.Combine(root, "ArchLucid.Api", "Controllers", "Governance");
+        Directory.Exists(stickinessDir).Should().BeTrue($"controller directory '{stickinessDir}' must exist");
+        string stickinessText = string.Concat(
+            Directory.EnumerateFiles(stickinessDir, "GovernanceStickinessController*.cs")
+                .OrderBy(static path => path, StringComparer.Ordinal)
+                .Select(File.ReadAllText));
         stickinessText.Should().Contain("[IdempotencyFilter]");
     }
 

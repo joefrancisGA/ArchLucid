@@ -8,7 +8,7 @@ export function resolveRoiSummarySummarizingSteps(input: {
   return [
     {
       id: "review",
-      label: "Pick a review package",
+      label: "Pick an architecture package",
       complete: input.reviewPicked,
     },
     {

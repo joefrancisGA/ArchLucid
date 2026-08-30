@@ -48,7 +48,7 @@ export function AskPickReviewBeforeAskingStrip(
         Pick a review before asking
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Scope questions to one review package so answers cite the right evidence and governance context.
+        Scope questions to one architecture package so answers cite the right evidence and governance context.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +62,7 @@ export function AskPickReviewBeforeAskingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="ask-pick-review-before-asking"
           hideFieldHelper
         />

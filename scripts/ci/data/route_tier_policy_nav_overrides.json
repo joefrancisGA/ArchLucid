@@ -41,6 +41,7 @@
     "Billing/BillingCheckoutController.cs": "/administration/workspace-settings",
     "Admin/AdminLlmCostTuningController.cs": "/administration/ai-usage",
     "Admin/MeteringAdminController.cs": "/administration/ai-usage",
+    "Admin/OperationalErrorsAdminController.cs": "/internal/operational-errors",
     "Admin/SecurityTrustPublicationController.cs": "/administration/security-trust",
     "Admin/SupportBundleController.cs": "/administration/support",
     "Admin/AdminTenantsController.cs": "/administration/users",

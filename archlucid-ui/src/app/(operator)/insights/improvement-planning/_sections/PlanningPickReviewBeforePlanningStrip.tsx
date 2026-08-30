@@ -36,7 +36,7 @@ export function PlanningPickReviewBeforePlanningStrip(
         Pick a review before planning
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Themes and plans are easiest to interpret against a finalized review package. Choose one to keep
+        Themes and plans are easiest to interpret against a finalized architecture review. Choose one to keep
         improvement context aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -51,7 +51,7 @@ export function PlanningPickReviewBeforePlanningStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="Architecture package"
           fieldId="planning-pick-review-before-planning"
           hideFieldHelper
         />
