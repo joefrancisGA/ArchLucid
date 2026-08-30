@@ -165,6 +165,7 @@ public sealed class GovernanceWorkflowSubmitStage(
     private DateTime? ComputeSlaDeadlineUtc()
     {
         int? slaHours = _governanceGateOptions.Value.ApprovalSlaHours;
+
         if (slaHours is null or <= 0)
             return null;
         return TimeProvider.System.UtcNowDateTime().AddHours(slaHours.Value);
