@@ -56,7 +56,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 **OVERALL WEIGHT SCORE:** 3.49%
 
-**OVERALL EVIDENCE SCORE:** 1.46%
+**OVERALL EVIDENCE SCORE:** 1.45%
 
 ## Master table (UX score 0 first; then Deficit desc; ties A→Z by path)
 
@@ -65,6 +65,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AS | `/assurance-status` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | DIS | `/digest/sponsor` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | DIU | `/digest/sponsor/run/[runId]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| GOD | `/governance/dashboard` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
 | HEA | `/help/accelerator-chooser` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HED | `/help/admin-diagnostics` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HAD | `/help/advisory-scans` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
@@ -139,6 +140,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HUS | `/help/users-and-roles` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HEW | `/help/webhooks-integration` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HWO | `/help/workspace-settings` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| INW | `/insights/workspace-health` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | INO | `/internal/operational-errors` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | RE | `/architecture/reviews` | 12% | 0,2 | 24 | 1176 | Core review | No | Architecture reviews hub (Core review) - RunsPageView with ReviewsHubHeaderActions PageContextualHelpButton (topic map review-packages; Category-1 registry), summary/inventory/drafts. Sibling RRE = review detail; RNX = start review; RRF = finding detail. Not a signed-record Sources trail by itself. Score 72/100 (2026-08-08) - core inventory launcher at ARE/GFN Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail. |
 | RRE | `/architecture/reviews/[reviewId]` | 10.04% | 0,2 | 20.08 | 983.92 | Core review | No | Review workspace detail (Core review) - RunDetailPageView with PageContextualHelpButton (topic map review-packages; Category-1 registry), decision snapshot, findings/tabs. Absorbs former SRN hit share from retired legacy /snapshot/[reviewId] bookmark (hard-retired; use /architecture/reviews/{runId}?readOnly=1 leave-behind). Sibling RE = reviews list; RRF = finding detail; ERU = evidence-trace. Not a full sealed-record diligence Sources trail alone. Score 72/100 (2026-08-08) - core package workspace at ARE/GFN Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail. |
