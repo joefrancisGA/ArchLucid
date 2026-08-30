@@ -27,6 +27,7 @@ import {
 import { GOVERNANCE_WORKFLOW_LOAD_REVIEW_REQUIRED } from "@/lib/governance/governance-mutation-outcome-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { governanceWorkflowOutcomeLineForPhase } from "@/lib/governance/governance-workflow-section-copy";
+import { resolveDefaultGovernanceSubmitManifestVersion } from "@/lib/governance/governance-submit-manifest-version";
 
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
@@ -41,6 +42,7 @@ export function useGovernanceWorkflowPage() {
   const approvalsSectionRef = useRef<HTMLElement | null>(null);
   const deepLinkFocusHandledRef = useRef<string | null>(null);
   const pendingOverviewSubmitScrollRunIdRef = useRef<string | null>(null);
+  const versionSeedRunIdRef = useRef<string | null>(null);
 
   const [submitRunId, setSubmitRunId] = useState("");
   const [submitManifestVersion, setSubmitManifestVersion] = useState("");
@@ -54,6 +56,11 @@ export function useGovernanceWorkflowPage() {
 
   const runListsQuery = useGovernanceWorkflowRunListsQuery(activeRunId);
   const reviewContextQuery = useGovernanceReviewContextQuery(activeRunId);
+  const submitRunIdTrimmed = submitRunId.trim();
+  const submitReviewContextQuery = useGovernanceReviewContextQuery(
+    submitRunIdTrimmed.length > 0 ? submitRunIdTrimmed : null,
+  );
+  const maxPersistedManifestVersion = submitReviewContextQuery.data?.manifestVersion?.trim() || null;
 
   const {
     approvals,
@@ -174,12 +181,32 @@ export function useGovernanceWorkflowPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    const manifestVersion = reviewContextQuery.data?.manifestVersion?.trim() ?? "";
+    const runId = submitRunIdTrimmed;
 
-    if (manifestVersion.length > 0) {
-      setSubmitManifestVersion(manifestVersion);
+    if (runId.length === 0) {
+      versionSeedRunIdRef.current = null;
+      setSubmitManifestVersion("");
+
+      return;
     }
-  }, [reviewContextQuery.data?.manifestVersion]);
+
+    const nextDefault = resolveDefaultGovernanceSubmitManifestVersion(maxPersistedManifestVersion);
+
+    if (versionSeedRunIdRef.current !== runId) {
+      versionSeedRunIdRef.current = runId;
+      setSubmitManifestVersion(nextDefault);
+
+      return;
+    }
+
+    setSubmitManifestVersion((current) => {
+      if (current.trim().length === 0 || current === "1.0.0") {
+        return nextDefault;
+      }
+
+      return current;
+    });
+  }, [submitRunIdTrimmed, maxPersistedManifestVersion]);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId")?.trim() ?? "";
@@ -291,6 +318,7 @@ export function useGovernanceWorkflowPage() {
     setSubmitRunId,
     submitManifestVersion,
     setSubmitManifestVersion,
+    maxPersistedManifestVersion,
     submitSource,
     setSubmitSource,
     submitTarget,
