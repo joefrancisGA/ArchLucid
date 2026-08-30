@@ -71,7 +71,6 @@ public sealed partial class FindingJsonConverter
         return d;
     }
 
-<<<<<<< HEAD
     private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
     {
         foreach (JsonProperty property in element.EnumerateObject())
@@ -87,7 +86,8 @@ public sealed partial class FindingJsonConverter
         value = default;
 
         return false;
-=======
+    }
+
     private static string ReadStringDictValue(JsonElement element)
     {
         if (element.ValueKind == JsonValueKind.String)
@@ -97,6 +97,5 @@ public sealed partial class FindingJsonConverter
             return numeric.ToString(CultureInfo.InvariantCulture);
 
         return "";
->>>>>>> 023cdb5f07 (Fix properties-bag numeric tokens and breach severity guard (hunt #225))
     }
 }
