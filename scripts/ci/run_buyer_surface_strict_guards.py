@@ -397,6 +397,31 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "sponsor export execution-mode label",
+        ("python", "scripts/ci/check_sponsor_export_execution_mode_label.py"),
+        None,
+    ),
+    GuardCommand(
+        "live-api invite-flow CI wiring",
+        ("python", "scripts/ci/check_live_api_invite_flow_ci_wiring.py"),
+        None,
+    ),
+    GuardCommand(
+        "release-gate Playwright wiring",
+        ("python", "scripts/ci/check_release_gate_playwright_wiring.py"),
+        None,
+    ),
+    GuardCommand(
+        "private-beta access-path CI wiring",
+        ("python", "scripts/ci/check_live_api_private_beta_access_ci_wiring.py"),
+        None,
+    ),
+    GuardCommand(
+        "insight-density advisory surfaces",
+        ("python", "scripts/ci/check_insight_density_advisory_surfaces.py"),
+        None,
+    ),
+    GuardCommand(
         "proof-language superlatives",
         ("python", "scripts/ci/check_proof_language_superlatives.py"),
         "--advisory",
