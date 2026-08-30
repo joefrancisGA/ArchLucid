@@ -42,16 +42,16 @@ describe("GovernanceWorkflowSubmitSection breathing room (TB-2000)", () => {
   it("uses OPERATOR_FORM_FIELD_STACK_CLASS on label-control field stacks", () => {
     renderSubmitSection();
 
-    const versionLabel = screen.getByLabelText(/Review record version/i);
-    const versionStack = versionLabel.parentElement;
+    const versionInput = screen.getByLabelText(/Review record version/i);
+    const versionStack = versionInput.parentElement;
 
     expect(versionStack).not.toBeNull();
-    expect(versionStack?.className).toContain("space-y-3");
+    expect(versionStack?.className).toContain(OPERATOR_FORM_FIELD_STACK_CLASS);
 
-    const commentLabel = screen.getByText("Request comment (optional)");
-    const commentStack = commentLabel.parentElement;
+    const commentInput = screen.getByLabelText(/Request comment/i);
+    const commentStack = commentInput.parentElement;
 
     expect(commentStack).not.toBeNull();
-    expect(commentStack?.className).toContain("space-y-3");
+    expect(commentStack?.className).toContain(OPERATOR_FORM_FIELD_STACK_CLASS);
   });
 });
