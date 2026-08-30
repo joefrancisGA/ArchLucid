@@ -74,10 +74,14 @@ function appendRunIdToSponsorDashboardHref(href: string, runId: string | null): 
     return href;
   }
 
-  const params = new URLSearchParams();
-  params.set("runId", runId);
+  const parsedHref = new URL(href, "http://localhost");
+  parsedHref.searchParams.set("runId", runId);
 
-  return `${SPONSOR_DASHBOARD_HREF}?${params.toString()}`;
+  if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(href)) {
+    return parsedHref.toString();
+  }
+
+  return `${parsedHref.pathname}${parsedHref.search}${parsedHref.hash}`;
 }
 
 async function resolvePostSeedRedirectTarget(payload: unknown): Promise<string> {
