@@ -27,8 +27,12 @@
 
 .PARAMETER ShowFindingDelta
   When set, dry-runs bundled SOC 2 vs CIS Azure sample pack JSON against the same run and prints
-  compliance rule-key sets side by side. Finding-level proof for declaration and topology extras
-  remains the offline golden tests (see docs/quality/policy-filter-golden-delta.md).
+  compliance rule-key sets side by side. Also prints the PP-01 declaration-theme pilot table and
+  runs BundledPolicyPackDeclarationThemeTests for offline proof.
+
+.PARAMETER DeclarationPriorityFloor
+  Used with -ShowFindingDelta. Overrides advisoryDefaults.priorityFloor on the sample pack JSON
+  before dry-run (P0 = shipped pilot default; P1 = SOC 2 vs CIS Azure declaration comparison).
 
 .EXAMPLE
   .\scripts\demo-policy-pack-delta.ps1 -RunId eb81dd4972ad429e8d4e214f9934bfc0
@@ -43,7 +47,9 @@ param(
     [string] $TenantId = '',
     [string] $WorkspaceId = '',
     [string] $ProjectId = '',
-    [switch] $ShowFindingDelta
+    [switch] $ShowFindingDelta,
+    [ValidateSet('P0', 'P1', 'P2')]
+    [string] $DeclarationPriorityFloor = 'P0'
 )
 
 Set-StrictMode -Version Latest
@@ -153,6 +159,59 @@ function Get-ComplianceRuleKeysFromPackJson {
     }
 
     return @($document.complianceRuleKeys | ForEach-Object { [string]$_ })
+}
+
+function Set-PackAdvisoryPriorityFloor {
+    param(
+        [Parameter(Mandatory = $true)][string] $PackContentJson,
+        [Parameter(Mandatory = $true)][ValidateSet('P0', 'P1', 'P2')][string] $PriorityFloor
+    )
+
+    $document = $PackContentJson | ConvertFrom-Json
+
+    if ($null -eq $document.advisoryDefaults) {
+        $document | Add-Member -NotePropertyName advisoryDefaults -NotePropertyValue ([pscustomobject]@{})
+    }
+
+    $document.advisoryDefaults.priorityFloor = $PriorityFloor
+
+    return ($document | ConvertTo-Json -Depth 100)
+}
+
+function Write-DeclarationThemePilotTable {
+    Write-Host ''
+    Write-Host 'Declaration themes enabled per bundled pack (PP-01, measured — see policy-filter-golden-delta.md)' -ForegroundColor Cyan
+    Write-Host '  At shipped P0: security-architecture-baseline -> data-protection (sec-base-006);'
+    Write-Host '    aks/eks/gke baselines -> workload-isolation; gdpr -> encryption+transport-security;'
+    Write-Host '    pci-dss -> data-protection+network-isolation.'
+    Write-Host '  SOC 2 and CIS Azure stay silent at P0; at P1: SOC 2 -> encryption+transport-security;'
+    Write-Host '    CIS Azure -> data-protection (cis-az-006).'
+    Write-Host '  HIPAA / ISO 27001 / Zero Trust: silent at any floor until ga-starter catalog extends.'
+}
+
+function Invoke-BundledPackDeclarationThemeProof {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoRoot
+    )
+
+    Write-Host ''
+    Write-Host 'Offline declaration-theme proof (BundledPolicyPackDeclarationThemeTests):' -ForegroundColor Yellow
+
+    $filter = 'FullyQualifiedName~BundledPolicyPackDeclarationThemeTests'
+    $project = Join-Path $RepoRoot 'ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj'
+
+    Push-Location $RepoRoot
+    try {
+        dotnet test $project -c Release --filter $filter --no-restore --logger 'console;verbosity=minimal'
+        if ($LASTEXITCODE -ne 0) {
+            throw "BundledPolicyPackDeclarationThemeTests failed (exit $LASTEXITCODE)."
+        }
+    }
+    finally {
+        Pop-Location
+    }
+
+    Write-Host '  BundledPolicyPackDeclarationThemeTests passed.' -ForegroundColor Green
 }
 
 function Write-FindingDeltaReport {
@@ -425,11 +484,24 @@ $markdownLines | Set-Content -LiteralPath $markdownPath -Encoding UTF8
 Write-Host "Wrote $markdownPath"
 
 if ($ShowFindingDelta) {
+    $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+
+    Write-DeclarationThemePilotTable
+
+    if ($DeclarationPriorityFloor -eq 'P0') {
+        Write-Host ''
+        Write-Host 'NOTE: SOC 2 vs CIS Azure declaration rows need -DeclarationPriorityFloor P1.' -ForegroundColor Yellow
+        Write-Host '      At P0, compare Security Architecture Baseline vs AKS baseline instead (offline tests prove both).' -ForegroundColor Yellow
+    }
+
     Write-Host ''
-    Write-Host 'Finding-set toggle (compliance rule keys — same review, different packs)' -ForegroundColor Cyan
+    Write-Host "Finding-set toggle (compliance rule keys — priorityFloor $DeclarationPriorityFloor)" -ForegroundColor Cyan
 
     $soc2PackJson = Read-PolicyPackContentJson -RelativePathFromRepoRoot 'docs/samples/policy-packs/soc2-tsc-architecture.json'
     $cisAzurePackJson = Read-PolicyPackContentJson -RelativePathFromRepoRoot 'docs/samples/policy-packs/cis-azure-foundations.json'
+
+    $soc2PackJson = Set-PackAdvisoryPriorityFloor -PackContentJson $soc2PackJson -PriorityFloor $DeclarationPriorityFloor
+    $cisAzurePackJson = Set-PackAdvisoryPriorityFloor -PackContentJson $cisAzurePackJson -PriorityFloor $DeclarationPriorityFloor
 
     $soc2DryRunBody = @{
         targetRunId                = $runIdNormalized
@@ -455,29 +527,44 @@ if ($ShowFindingDelta) {
     $onlySoc2 = @($soc2Keys | Where-Object { $cisKeys -notcontains $_ })
     $onlyCis = @($cisKeys | Where-Object { $soc2Keys -notcontains $_ })
 
-    Write-FindingDeltaReport -PackLabel 'SOC 2 Type II (sample)' -PackContentJson $soc2PackJson -DryRunResponse $soc2DryRun
-    Write-FindingDeltaReport -PackLabel 'CIS Azure Foundations (sample)' -PackContentJson $cisAzurePackJson -DryRunResponse $cisDryRun
+    Write-FindingDeltaReport -PackLabel "SOC 2 Type II (sample, floor $DeclarationPriorityFloor)" -PackContentJson $soc2PackJson -DryRunResponse $soc2DryRun
+    Write-FindingDeltaReport -PackLabel "CIS Azure Foundations (sample, floor $DeclarationPriorityFloor)" -PackContentJson $cisAzurePackJson -DryRunResponse $cisDryRun
 
     Write-Host ''
-    Write-Host "  keys only in SOC 2 pack: $($onlySoc2.Count) (e.g. soc2-004 transport-security)"
-    Write-Host "  keys only in CIS Azure pack: $($onlyCis.Count) (e.g. cis-az-006 public-access; includes identity topology extra in advisoryDefaults)"
+    Write-Host "  keys only in SOC 2 pack: $($onlySoc2.Count) (e.g. soc2-004 transport-security at P1)"
+    Write-Host "  keys only in CIS Azure pack: $($onlyCis.Count) (e.g. cis-az-006 data-protection at P1)"
+
+    $honestyNote = @(
+        'PP-01: bundled packs ship priorityFloor P0; SOC 2/CIS Azure declaration themes need P1 (soc2-003/004 vs cis-az-006).'
+        'SOC 2 does not stamp topology identity unless expectation.topologyCategories.add is present (cis-azure sample has it).'
+        'HIPAA/ISO/Zero Trust stay declaration-silent until ga-starter catalog extends.'
+    ) -join ' '
 
     Save-JsonArtifact -FileName 'finding-delta-rule-key-sets.json' -Object @{
-        runId              = $runIdNormalized
-        soc2RuleKeyCount   = @($soc2Keys).Count
-        cisAzureRuleKeyCount = @($cisKeys).Count
-        onlyInSoc2         = $onlySoc2
-        onlyInCisAzure     = $onlyCis
-        offlineGoldenTests = @(
+        runId                    = $runIdNormalized
+        declarationPriorityFloor = $DeclarationPriorityFloor
+        soc2RuleKeyCount         = @($soc2Keys).Count
+        cisAzureRuleKeyCount     = @($cisKeys).Count
+        onlyInSoc2               = $onlySoc2
+        onlyInCisAzure           = $onlyCis
+        offlineGoldenTests       = @(
+            'dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~BundledPolicyPackDeclarationThemeTests',
             'dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyFilteredGoldenCorpusTests',
             'dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyFilteredDeclarationGoldenCorpusTests',
             'dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyExpectationCoverageGoldenCorpusTests'
         )
-        honestyNote      = 'SOC 2 assignment alone does not add topology identity unless expectation.topologyCategories.add is stamped (see cis-azure-foundations.json).'
+        honestyNote              = $honestyNote
+        p0PilotComparison        = @{
+            securityBaselinePack = 'docs/samples/policy-packs/security-architecture-baseline.json'
+            aksBaselinePack      = 'docs/samples/policy-packs/aks-production-baseline.json'
+            declarationThemes    = 'data-protection (sec-base-006) vs workload-isolation (aks-002)'
+        }
     }
 
+    Invoke-BundledPackDeclarationThemeProof -RepoRoot $repoRoot
+
     Write-Host ''
-    Write-Host 'Offline declaration/topology proof (no live API persist):' -ForegroundColor Yellow
+    Write-Host 'Additional offline golden tests (declaration graph fixtures):' -ForegroundColor Yellow
     Write-Host '  dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyFilteredDeclarationGoldenCorpusTests'
     Write-Host '  dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyExpectationCoverageGoldenCorpusTests'
 }
