@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 
 function cloneCatalog(catalog: GovernanceEnvironmentCatalog): GovernanceEnvironmentCatalog {
   return {
+    isAdministratorConfigured: catalog.isAdministratorConfigured,
     environments: catalog.environments.map((environment) => ({ ...environment })),
     transitions: catalog.transitions.map((transition) => ({ ...transition })),
   };

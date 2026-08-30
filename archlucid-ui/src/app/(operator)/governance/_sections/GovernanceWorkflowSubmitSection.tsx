@@ -132,9 +132,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
   const sourceOptions = environmentOptions.length > 0 ? environmentOptions : GOVERNANCE_ENV_OPTIONS;
   const allowedTargetSlugs = governanceAllowedTargetSlugs(environmentCatalog, submitSource);
   const targetOptions = sourceOptions.filter((option) => allowedTargetSlugs.includes(option.value));
-  const resolvedTargetOptions = targetOptions.length > 0 || submitSource.trim().length === 0
-    ? targetOptions
-    : sourceOptions;
+  const resolvedTargetOptions = submitSource.trim().length === 0 ? [] : targetOptions;
   const submitSteps = resolveGovernanceWorkflowSubmitSteps(submitChecklistInput);
   const submitEmphasizedStepId = resolveGovernanceWorkflowSubmitEmphasizedStepId(submitChecklistInput);
 

@@ -35,7 +35,7 @@ export async function resolveGovernanceSetupGuideViewModel(): Promise<Governance
     try {
       const environmentCatalog = await fetchGovernanceEnvironmentCatalog();
 
-      if (environmentCatalog.environments.length > 0 && environmentCatalog.transitions.length > 0) {
+      if (environmentCatalog.isAdministratorConfigured) {
         stepStatuses[3] = "complete";
       }
     } catch {

@@ -20,7 +20,7 @@ public static class GovernanceEnvironmentTransitionRules
         if (string.Equals(source, target, StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if (catalog is { Environments.Count: > 0, Transitions.Count: > 0 })
+        if (catalog is { Environments.Count: > 0 })
             return IsValidCatalogTransition(source, target, catalog);
 
         return GovernanceEnvironmentOrder.IsValidPromotion(source, target);

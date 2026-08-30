@@ -33,13 +33,15 @@ public sealed class GovernanceEnvironmentCatalogService(
             .ConfigureAwait(false);
 
         if (catalog is { Environments.Count: > 0 })
-            return NormalizeCatalog(catalog);
+        {
+            GovernanceEnvironmentCatalog normalized = NormalizeCatalog(catalog);
+            normalized.IsAdministratorConfigured = true;
+
+            return normalized;
+        }
 
         GovernanceEnvironmentCatalog defaults = GovernanceEnvironmentCatalogDefaults.Create();
-
-        await _repository
-            .ReplaceForScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, defaults, cancellationToken)
-            .ConfigureAwait(false);
+        defaults.IsAdministratorConfigured = false;
 
         return defaults;
     }
@@ -58,6 +60,7 @@ public sealed class GovernanceEnvironmentCatalogService(
         });
 
         ValidateCatalogOrThrow(normalized);
+        normalized.IsAdministratorConfigured = true;
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
@@ -84,9 +87,14 @@ public sealed class GovernanceEnvironmentCatalogService(
         string targetSlug,
         CancellationToken cancellationToken = default)
     {
-        GovernanceEnvironmentCatalog catalog = await GetCatalogAsync(scope, cancellationToken).ConfigureAwait(false);
+        GovernanceEnvironmentCatalog? catalog = await _repository
+            .GetByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
+            .ConfigureAwait(false);
 
-        return GovernanceEnvironmentTransitionRules.IsValidTransition(sourceSlug, targetSlug, catalog);
+        if (catalog is { Environments.Count: > 0 })
+            return GovernanceEnvironmentTransitionRules.IsValidTransition(sourceSlug, targetSlug, NormalizeCatalog(catalog));
+
+        return GovernanceEnvironmentTransitionRules.IsValidTransition(sourceSlug, targetSlug);
     }
 
     internal static GovernanceEnvironmentCatalog NormalizeCatalog(GovernanceEnvironmentCatalog catalog)
@@ -113,6 +121,7 @@ public sealed class GovernanceEnvironmentCatalogService(
 
         return new GovernanceEnvironmentCatalog
         {
+            IsAdministratorConfigured = catalog.IsAdministratorConfigured,
             Environments = environments,
             Transitions = transitions,
         };
@@ -148,6 +157,14 @@ public sealed class GovernanceEnvironmentCatalogService(
             .Select(environment => environment.Slug)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+        if (activeSlugs.Count == 0)
+            throw new ArgumentException("At least one active environment is required.");
+
+        if (catalog.Transitions.Count == 0)
+            throw new ArgumentException("At least one transition is required.");
+
+        HashSet<string> transitionEdges = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (GovernanceEnvironmentTransition transition in catalog.Transitions)
         {
             if (string.IsNullOrWhiteSpace(transition.SourceSlug) || string.IsNullOrWhiteSpace(transition.TargetSlug))
@@ -161,6 +178,11 @@ public sealed class GovernanceEnvironmentCatalogService(
 
             if (!activeSlugs.Contains(transition.TargetSlug))
                 throw new ArgumentException($"Transition target '{transition.TargetSlug}' is not an active environment.");
+
+            string edgeKey = $"{transition.SourceSlug}->{transition.TargetSlug}";
+
+            if (!transitionEdges.Add(edgeKey))
+                throw new ArgumentException($"Duplicate transition from '{transition.SourceSlug}' to '{transition.TargetSlug}'.");
         }
     }
 }
