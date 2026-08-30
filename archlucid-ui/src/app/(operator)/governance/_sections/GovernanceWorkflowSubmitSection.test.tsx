@@ -58,6 +58,6 @@ describe("GovernanceWorkflowSubmitSection", () => {
 
     expect(readiness).toHaveTextContent("Ready to submit.");
     expect(within(readiness).queryByText("Missing:")).not.toBeInTheDocument();
-    expect(within(readiness).queryByRole("strong")).not.toBeInTheDocument();
+    expect(readiness.querySelector("strong")).toBeNull();
   });
 });

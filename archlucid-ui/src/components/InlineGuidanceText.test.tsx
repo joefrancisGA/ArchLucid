@@ -13,7 +13,7 @@ describe("InlineGuidanceText", () => {
     const label = screen.getByText("Optional setup:");
 
     expect(label.tagName).toBe("STRONG");
-    expect(label).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
+    expect(label).toHaveClass(...INLINE_GUIDANCE_LABEL_CLASS.split(" "));
     expect(
       screen.getByText(/Finish workspace setup, reviewer access, and optional cloud connections\./),
     ).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe("InlineGuidanceText", () => {
     const label = screen.getByText("Missing:");
 
     expect(label.tagName).toBe("STRONG");
-    expect(label).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
+    expect(label).toHaveClass(...INLINE_GUIDANCE_LABEL_CLASS.split(" "));
     expect(screen.getByText(/review record version, target environment\./)).toBeInTheDocument();
   });
 
