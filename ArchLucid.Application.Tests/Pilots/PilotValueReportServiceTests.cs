@@ -11,6 +11,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -42,7 +43,7 @@ public sealed class PilotValueReportServiceTests
             tenant: null,
             runs: Mock.Of<IRunDetailQueryService>(),
             audit: Mock.Of<IAuditRepository>(),
-            gov: Mock.Of<IGovernanceDashboardService>());
+            approvals: Mock.Of<IGovernanceApprovalRequestRepository>());
 
         PilotValueReport? r = await sut.BuildAsync(null, null, CancellationToken.None);
 
@@ -59,7 +60,7 @@ public sealed class PilotValueReportServiceTests
             tenant,
             runs: Mock.Of<IRunDetailQueryService>(),
             audit: Mock.Of<IAuditRepository>(),
-            gov: GovEmpty().Object);
+            approvals: ApprovalsPending(0).Object);
 
         PilotValueReport? r = await sut.BuildAsync(anchor.AddHours(2), anchor.AddHours(1), CancellationToken.None);
 
@@ -99,7 +100,7 @@ public sealed class PilotValueReportServiceTests
         audit.Setup(a => a.GetExportAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, from, to, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, GovEmpty().Object);
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, ApprovalsPending(0).Object);
 
         PilotValueReport? report = await sut.BuildAsync(from, to, CancellationToken.None);
 
@@ -168,7 +169,7 @@ public sealed class PilotValueReportServiceTests
                     }
                 });
 
-        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, GovPending(3).Object);
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, ApprovalsPending(3).Object);
 
         PilotValueReport? r = await sut.BuildAsync(from, to, CancellationToken.None);
 
@@ -205,13 +206,39 @@ public sealed class PilotValueReportServiceTests
         audit.Setup(a => a.GetExportAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, from, to, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, GovEmpty().Object);
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, ApprovalsPending(0).Object);
 
         PilotValueReport? r = await sut.BuildAsync(from, to, CancellationToken.None);
 
         r.Should().NotBeNull();
         r.TotalRunsCommitted.Should().Be(1);
         runs.Verify(x => x.GetRunDetailForRoiAsync(RunOld, It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task BuildAsync_uses_uncapped_pending_count_not_dashboard_list_cap()
+    {
+        DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 4, 20, 0, 0, 0, DateTimeKind.Utc);
+        TenantRecord tenant = Tenant(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+
+        Mock<IRunDetailQueryService> runs = new();
+        runs.SetupSequence(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([], false, null));
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.GetExportAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, from, to, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = ApprovalsPending(75);
+
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, approvals.Object);
+
+        PilotValueReport? report = await sut.BuildAsync(from, to, CancellationToken.None);
+
+        report.Should().NotBeNull();
+        report.GovernancePendingApprovalsNow.Should().Be(75);
+        approvals.Verify(a => a.CountPendingApprovalsAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static TenantRecord Tenant(DateTimeOffset created) =>
@@ -226,24 +253,14 @@ public sealed class PilotValueReportServiceTests
             TrialSeatsUsed = 0
         };
 
-    private static Mock<IGovernanceDashboardService> GovEmpty()
+    private static Mock<IGovernanceApprovalRequestRepository> ApprovalsPending(int pending)
     {
-        Mock<IGovernanceDashboardService> g = new();
-        g.Setup(x => x.GetDashboardAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new GovernanceDashboardSummary { PendingCount = 0, PendingApprovals = [], RecentDecisions = [], RecentChanges = [] });
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(a => a.CountPendingApprovalsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pending);
 
-        return g;
-    }
-
-    private static Mock<IGovernanceDashboardService> GovPending(int pending)
-    {
-        Mock<IGovernanceDashboardService> g = GovEmpty();
-        g.Setup(x => x.GetDashboardAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new GovernanceDashboardSummary { PendingCount = pending, PendingApprovals = [], RecentDecisions = [], RecentChanges = [] });
-
-        return g;
+        return approvals;
     }
 
     private static RunSummary Summary(string runId, DateTime created, bool committed) =>
@@ -298,7 +315,7 @@ public sealed class PilotValueReportServiceTests
         TenantRecord? tenant,
         IRunDetailQueryService runs,
         IAuditRepository audit,
-        IGovernanceDashboardService gov)
+        IGovernanceApprovalRequestRepository approvals)
     {
         Mock<ITenantRepository> tenants = new();
 
@@ -315,7 +332,7 @@ public sealed class PilotValueReportServiceTests
             audit,
             tenants.Object,
             scope.Object,
-            gov,
+            approvals,
             NullLogger<PilotValueReportService>.Instance);
     }
 }
