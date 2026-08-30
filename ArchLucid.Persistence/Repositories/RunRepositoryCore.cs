@@ -127,7 +127,6 @@ internal static class RunRepositoryCore
     public static bool LegacyRunStatusIsNonTerminal(string? legacyRunStatus)
     {
         // Null/empty statuses are treated as active — safer than falsely releasing lifecycle while status is uninitialized.
-
         if (string.IsNullOrWhiteSpace(legacyRunStatus))
             return true;
 
