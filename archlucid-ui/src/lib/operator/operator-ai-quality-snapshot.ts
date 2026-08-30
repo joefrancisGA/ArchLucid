@@ -69,7 +69,7 @@ function parseOperatorAiQualitySnapshot(value: unknown): OperatorAiQualitySnapsh
 
   const ir = retrievalIr as Record<string, unknown>;
   const remediationLinksRaw = row.remediationLinks;
-  const remediationLinks: OperatorAiQualitySnapshot["remediationLinks"] = [];
+  const remediationLinks: { label: string; path: string }[] = [];
 
   if (Array.isArray(remediationLinksRaw)) {
     for (const link of remediationLinksRaw) {
