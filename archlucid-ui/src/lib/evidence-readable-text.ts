@@ -53,8 +53,6 @@ async function readBinaryDocumentText(file: File): Promise<string | null> {
 
     return text;
   } catch {
-    binaryDocumentTextCache.set(file, null);
-
     return null;
   }
 }
