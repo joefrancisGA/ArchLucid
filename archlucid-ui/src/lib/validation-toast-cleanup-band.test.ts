@@ -61,5 +61,18 @@ describe("form validation affordances regression band (TB-2011)", () => {
     expect(readSrc("src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-admit.ts")).not.toContain(
       "showError",
     );
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-create.ts")).not.toContain(
+      "showError",
+    );
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-create.ts")).not.toContain(
+      "showSuccess",
+    );
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-submit.ts")).not.toContain(
+      "showSuccess",
+    );
+    expect(readSrc("src/components/architecture/ArchitectureDraftWorkspace.tsx")).not.toContain("showError");
+    expect(readSrc("src/components/architecture/ArchitectureDraftWorkspaceSaveActions.tsx")).not.toContain(
+      "showSuccess",
+    );
   });
 });

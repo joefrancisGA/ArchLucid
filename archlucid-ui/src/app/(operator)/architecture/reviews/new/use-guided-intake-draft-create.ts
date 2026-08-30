@@ -8,7 +8,6 @@ import {
   getDraftRequest,
   patchDraftRequest,
 } from "@/lib/api/draft-intake-api";
-import { isApiRequestError } from "@/lib/api-request-error";
 import {
   architectureCreationDefaultActorSet,
   applyArchitectureCreationDraftToFormState,
@@ -24,7 +23,6 @@ import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-d
 import { isGuidedIntakeAccessBlocked, resolveGuidedIntakeBlockedRedirectHref } from "@/lib/architecture/architecture-draft-intake-mode";
 import { mergeAdmittedRequiredMustQuestionKeys } from "@/lib/guided-intake-clarification-progress";
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
-import { showError, showSuccess } from "@/lib/toast";
 import type { BranchDraftResponse, DraftElicitationQuestion, DraftRequestStatus } from "@/types/draft-intake";
 
 import type { GuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
@@ -127,11 +125,6 @@ export function useGuidedIntakeDraftCreate(options: Options) {
 
       if (isGuidedIntakeAccessBlocked(draft.status)) {
         core.setSourceArchitectureAccessBlocked(true);
-        showSuccess(
-          spawnedRunId !== null
-            ? "This architecture already has a review — opening it now."
-            : "This architecture already started a review — returning to the architecture draft.",
-        );
         navigate(resolveGuidedIntakeBlockedRedirectHref(sourceArchitectureId, spawnedRunId));
 
         return;
@@ -196,7 +189,6 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       core.setSavedLocallyQuestionKeys(new Set());
       applyAdmittedRequiredMustQuestionKeysFromDocument(branch.document);
       await refreshQuestions(branch.draftId);
-      showSuccess("What-if branch created — you are now editing the branch draft.");
     },
     [applyAdmittedRequiredMustQuestionKeysFromDocument, core, refreshQuestions, setActorSet, setBusinessOutcome, setFreeTextIntent, setSystemName],
   );
@@ -237,13 +229,8 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       core.setSavedLocallyQuestionKeys(new Set());
       core.setViewAllClarifications(false);
       setStep(1);
-      showSuccess("Continue with the architecture discovery questions.");
     } catch (error) {
       core.setSubmitError(error);
-
-      if (isApiRequestError(error)) {
-        showError("Architecture creation", error.message);
-      }
     } finally {
       core.setBusy(false);
     }
