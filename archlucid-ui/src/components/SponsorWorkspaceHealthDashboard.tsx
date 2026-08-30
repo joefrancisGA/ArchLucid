@@ -229,7 +229,7 @@ export function SponsorWorkspaceHealthDashboard({
           standalonePage={standalonePage}
         />
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
-<p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {`Loading ${SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE.toLowerCase()}…`}
         </p>
       </div>
@@ -245,7 +245,7 @@ export function SponsorWorkspaceHealthDashboard({
           standalonePage={standalonePage}
         />
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
-<OperatorApiProblem
+        <OperatorApiProblem
           fallbackMessage={loadError.message}
           problem={loadError.problem}
           correlationId={loadError.correlationId}
