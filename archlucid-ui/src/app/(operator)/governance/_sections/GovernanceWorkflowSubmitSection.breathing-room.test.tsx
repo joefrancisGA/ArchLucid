@@ -3,16 +3,16 @@ import { describe, expect, it, vi } from "vitest";
 
 import { OPERATOR_FORM_FIELD_STACK_CLASS } from "@/lib/design-tokens";
 
-import { GovernanceWorkflowSubmitSection } from "./GovernanceWorkflowSubmitSection";
-
 vi.mock("@/components/AskRunIdPicker", () => ({
   AskRunIdPicker: (props: { label?: string }) => (
-    <div className={OPERATOR_FORM_FIELD_STACK_CLASS} data-testid="ask-run-id-picker-mock">
+    <div data-testid="ask-run-id-picker-mock">
       <label>{props.label ?? "Review"}</label>
       <select aria-label="Review picker mock" />
     </div>
   ),
 }));
+
+import { GovernanceWorkflowSubmitSection } from "./GovernanceWorkflowSubmitSection";
 
 function renderSubmitSection(): void {
   render(
