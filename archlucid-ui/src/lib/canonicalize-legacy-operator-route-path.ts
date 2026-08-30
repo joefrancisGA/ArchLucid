@@ -120,7 +120,7 @@ const LEGACY_ADMIN_PATH_MAP: Readonly<Record<string, string>> = {
 export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
   const normalized = pathname.trim().length === 0 ? "/" : pathname;
 
-  if (normalized === LEGACY_GOVERNANCE_DASHBOARD_PATH || normalized.startsWith(`${LEGACY_GOVERNANCE_DASHBOARD_PATH}/`)) {
+  if (pathMatchesRoutePrefix(normalized, LEGACY_GOVERNANCE_DASHBOARD_PATH)) {
     return normalized.replace(LEGACY_GOVERNANCE_DASHBOARD_PATH, WORKSPACE_HEALTH_PATH);
   }
 
