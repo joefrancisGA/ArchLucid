@@ -161,7 +161,7 @@ archlucid-ui/src/components/RepeatReviewActivationPrompt.tsx
 archlucid-ui/src/components/RunSavingsSummary.tsx
 archlucid-ui/src/components/ScopeSwitcher.tsx
 archlucid-ui/src/components/ScopeSwitcherTenantContextFooter.tsx
-archlucid-ui/src/components/SponsorWorkspaceHealthDashboard.tsx
+archlucid-ui/src/components/use-sponsor-workspace-health-dashboard.ts
 archlucid-ui/src/components/TeamExpansionNudge.tsx
 archlucid-ui/src/components/WelcomeBanner.tsx
 archlucid-ui/src/components/advisory/use-advisory-schedules-page.ts
