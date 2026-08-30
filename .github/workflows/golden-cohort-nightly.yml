@@ -1,6 +1,10 @@
 # Nightly golden cohort: JSON contract (always) + simulator drift when repository variable
 # ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is "true".
 #
+# PR path keeps only the merge-required jobs: cohort-contract + cohort-real-llm-gate.
+# Faithfulness, RAG signal, simulator drift, and real-mode eval run on schedule /
+# workflow_dispatch, not on pull_request (queue relief; live invoke stays off PRs).
+#
 # Optional real-LLM **gate** (cohort-real-llm-gate job): budget probe + fixture presence check only —
 # no live OpenAI invoke in CI. **`cohort-real-llm-live`** runs (**a**) **workflow_dispatch** with
 # **run_live_invoke=true**, or (**b**) the **Sunday 06:00 UTC** schedule when **vars** below enable it —
@@ -37,6 +41,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: golden-cohort-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   cohort-contract:
     runs-on: ubuntu-latest
@@ -53,6 +61,7 @@ jobs:
 
   cohort-faithfulness-phase-b-warn:
     needs: cohort-contract
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -85,6 +94,7 @@ jobs:
 
   cohort-rag-live-model-faithfulness:
     needs: cohort-contract
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -119,7 +129,7 @@ jobs:
 
   cohort-simulator-drift:
     needs: cohort-contract
-    if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED == 'true' }}
+    if: ${{ github.event_name != 'pull_request' && vars.ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED == 'true' }}
     runs-on: ubuntu-latest
     services:
       sqlserver:
@@ -324,7 +334,8 @@ jobs:
   cohort-real-mode-eval-corpus:
     needs: cohort-real-llm-gate
     if: >-
-      ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
+      ${{ github.event_name != 'pull_request'
+      && vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
       && (needs['cohort-real-llm-gate'].outputs.budget_exit_code == '0'
         || needs['cohort-real-llm-gate'].outputs.budget_exit_code == '1') }}
     runs-on: ubuntu-latest

@@ -4,18 +4,22 @@
 
 # CodeQL merge gates and local runs (ArchLucid)
 
-## 1. Merge-blocking checks (GitHub — no Cursor usage)
+## 1. Trunk / scheduled SARIF gate (GitHub — no Cursor usage)
 
-The workflow [`.github/workflows/codeql.yml`](../../.github/workflows/codeql.yml) runs on pull requests to **`main`** / **`master`**. After analysis it writes SARIF under **`csharp-sarif/`** and **`javascript-sarif/`** and runs [`scripts/ci/assert_codeql_sarif_clean.py`](../../scripts/ci/assert_codeql_sarif_clean.py), which **fails the job** if any non-suppressed SARIF result exists (excluding **`note`** / **`none`** severities).
+The workflow [`.github/workflows/codeql.yml`](../../.github/workflows/codeql.yml) does **not** run on pull requests. It runs on **push** to **`main`** / **`master`**, the weekly Monday cron, and **`workflow_dispatch`**. After analysis it writes SARIF under **`csharp-sarif/`** and **`javascript-sarif/`** and runs [`scripts/ci/assert_codeql_sarif_clean.py`](../../scripts/ci/assert_codeql_sarif_clean.py), which **fails the job** if any non-suppressed SARIF result exists (excluding **`note`** / **`none`** severities).
 
-**Branch protection (recommended):** In the GitHub repo, open **Settings → Branches → Branch protection rule** for **`main`** (and **`master`** if used). Under **Require status checks to pass before merging**, require at least:
+That job failure is a **trunk/security** gate, not a PR required status check. The live ruleset (`Golden cohort real-LLM gate`) does **not** require `CodeQL (csharp)` or `CodeQL (javascript)`. Do **not** add those check names to required PR checks while this workflow has no `pull_request` trigger — GitHub will wait forever for checks that never run.
+
+**If you restore CodeQL as a merge-blocking PR check:** add the `pull_request` trigger back to `codeql.yml` first, then require:
 
 - **`CodeQL (csharp)`** — C# job (includes restore, analysis, SARIF gate).
 - **`CodeQL (javascript)`** — Architect workspace (`archlucid-ui`) job (includes `npm ci` / `npm run build`, analysis, SARIF gate).
 
-Optional but useful: under **Settings → Code security and analysis → Code scanning**, configure **pull request check failure** severities so GitHub’s own code-scanning check aligns with your policy (the workflow gate above is independent and enforces zero unresolved SARIF findings in the uploaded run output).
+The checked-in ruleset JSON [`.github/rulesets/push-corset-codeql-required-check.json`](../../.github/rulesets/push-corset-codeql-required-check.json) still lists those two contexts. **Do not apply it** until CodeQL runs on `pull_request` again (or those contexts are removed from the JSON).
 
-**Fork PRs:** Contributors from forks may not upload to code scanning the same way; the SARIF gate step still enforces findings on the workflow run artifact path when SARIF is produced.
+Optional: under **Settings → Code security and analysis → Code scanning**, configure alert handling. GitHub’s own code-scanning PR annotations need a `pull_request` trigger; without it, SARIF still uploads from trunk/scheduled runs.
+
+**Fork PRs:** CodeQL does not run on PRs at all in this configuration. Use the local CLI scripts below before merge if you need SARIF locally.
 
 ## 2. Cursor / VS Code extension (local IDE)
 
