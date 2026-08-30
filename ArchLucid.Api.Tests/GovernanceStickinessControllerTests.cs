@@ -289,6 +289,20 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetDecisionRegister_returns_bad_request_when_category_is_whitespace()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            category: "   ",
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetFindingsRegistersBundle_returns_bad_request_when_max_rows_exceeds_five_hundred()
     {
         GovernanceStickinessController sut = BuildSut();
