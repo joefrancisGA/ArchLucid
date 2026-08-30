@@ -126,11 +126,25 @@ export default function GovernanceEnvironmentsClient() {
           return current;
         }
 
-        const environments = current.environments.map((environment, environmentIndex) =>
-          environmentIndex === index ? { ...environment, ...patch } : environment,
-        );
+        const environmentToUpdate = current.environments[index];
+        if (environmentToUpdate === undefined) {
+          return current;
+        }
 
-        return { ...current, environments };
+        const updatedEnvironment = { ...environmentToUpdate, ...patch };
+        const environments = current.environments.map((environment, environmentIndex) =>
+          environmentIndex === index ? updatedEnvironment : environment,
+        );
+        const transitions =
+          environmentToUpdate.isActive && updatedEnvironment.isActive === false
+            ? current.transitions.filter(
+                (transition) =>
+                  transition.sourceSlug !== updatedEnvironment.slug &&
+                  transition.targetSlug !== updatedEnvironment.slug,
+              )
+            : current.transitions;
+
+        return { ...current, environments, transitions };
       });
     },
     [],
@@ -138,9 +152,15 @@ export default function GovernanceEnvironmentsClient() {
 
   const addEnvironment = useCallback(() => {
     setDraft((current) => {
-      const environments = current?.environments ?? [];
+      const baseCatalog: GovernanceEnvironmentCatalog = current ?? {
+        isAdministratorConfigured: false,
+        environments: [],
+        transitions: [],
+      };
+      const environments = baseCatalog.environments;
 
       return {
+        ...baseCatalog,
         environments: [
           ...environments,
           {
@@ -150,21 +170,28 @@ export default function GovernanceEnvironmentsClient() {
             isActive: true,
           },
         ],
-        transitions: current?.transitions ?? [],
       };
     });
   }, []);
 
-  const removeEnvironment = useCallback((slug: string) => {
+  const removeEnvironment = useCallback((index: number) => {
     setDraft((current) => {
       if (current === null) {
         return current;
       }
 
+      const environmentToRemove = current.environments[index];
+      if (environmentToRemove === undefined) {
+        return current;
+      }
+
+      const slugToRemove = environmentToRemove.slug;
+
       return {
-        environments: current.environments.filter((environment) => environment.slug !== slug),
+        ...current,
+        environments: current.environments.filter((_, environmentIndex) => environmentIndex !== index),
         transitions: current.transitions.filter(
-          (transition) => transition.sourceSlug !== slug && transition.targetSlug !== slug,
+          (transition) => transition.sourceSlug !== slugToRemove && transition.targetSlug !== slugToRemove,
         ),
       };
     });
@@ -215,7 +242,7 @@ export default function GovernanceEnvironmentsClient() {
         <CardContent className="space-y-4">
           {(draft?.environments ?? []).map((environment, index) => (
             <div
-              key={`${environment.slug}-${index}`}
+              key={index}
               className="grid gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800 md:grid-cols-[1fr_1fr_auto_auto]"
               data-testid={`governance-environment-row-${index}`}
             >
@@ -254,7 +281,7 @@ export default function GovernanceEnvironmentsClient() {
                   variant="outline"
                   size="sm"
                   disabled={!canMutate}
-                  onClick={() => removeEnvironment(environment.slug)}
+                  onClick={() => removeEnvironment(index)}
                 >
                   Remove
                 </Button>
@@ -340,7 +367,10 @@ export default function GovernanceEnvironmentsClient() {
                 return;
               }
 
-              saveMutation.mutate(draft);
+              saveMutation.mutate({
+                environments: draft.environments,
+                transitions: draft.transitions,
+              });
             }}
           >
             Save approval environments
