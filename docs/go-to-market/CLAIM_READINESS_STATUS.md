@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-27
-
 > **Scope:** Operational G1–G6 status for proof-gated GTM stages, plus the G4 proof-packet run log and operating checklist (formerly `PROOF_PACKET_RUN_LOG.md`), plus the sponsor claim / execution-mode label audit and proof-language claim audit (formerly `SPONSOR_CLAIM_LABEL_AUDIT.md`; that filename remains a path-stable CI alias). Update after each pilot or release review; not a public marketing page.
+
+> **Reviewed:** 2026-07-27
 
 # Claim readiness status
 

@@ -1,3 +1,5 @@
+> **Scope:** Generated insight-density engine distribution rollup for golden-corpus measurement; advisory-only — not production demotion behavior or buyer certification evidence.
+
 # Insight-density engine distribution
 
 claimBoundary: Advisory-only measurement — scores do **not** demote typed-engine findings in production.
