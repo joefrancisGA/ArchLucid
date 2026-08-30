@@ -124,11 +124,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: Fetch PR base for path lanes
         if: github.event_name == 'pull_request'
-        run: git fetch origin "${{ github.event.pull_request.base.ref }}" --no-tags
+        run: git fetch origin "${{ github.event.pull_request.base.ref }}" --no-tags --depth=1
 
       - uses: actions/setup-python@v7
         with:
@@ -1119,6 +1119,32 @@ jobs:
       - name: Tenant DiD erosion beyond predicates honesty guard (TB-1233 / M-213)
         continue-on-error: true
         run: python scripts/ci/check_tenant_did_erosion_beyond_predicates_honesty.py
+
+      - name: Sponsor export execution-mode label guard (G1 / TB-9529)
+        continue-on-error: true
+        run: python scripts/ci/check_sponsor_export_execution_mode_label.py
+
+      - name: Live-api invite-flow CI wiring guard (private beta access path)
+        continue-on-error: true
+        run: python scripts/ci/check_live_api_invite_flow_ci_wiring.py
+
+      - name: Release-gate Playwright wiring guard (G-QA-02)
+        continue-on-error: true
+        run: python scripts/ci/check_release_gate_playwright_wiring.py
+
+      - name: Private-beta access-path CI wiring guard (TB-797)
+        continue-on-error: true
+        run: python scripts/ci/check_live_api_private_beta_access_ci_wiring.py
+
+      - name: Insight-density advisory surfaces guard (ID-11 / WK-15)
+        continue-on-error: true
+        run: python scripts/ci/check_insight_density_advisory_surfaces.py
+
+      - name: Sponsor export + access-path guard unit tests
+        continue-on-error: true
+        run: |
+          python -m unittest discover -s scripts/ci/tests -p "test_check_sponsor_export_execution_mode_label.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_check_insight_density_advisory_surfaces.py"
 
       - name: Azure workload privilege escalation seam honesty guard (TB-1245 / M-215)
         continue-on-error: true

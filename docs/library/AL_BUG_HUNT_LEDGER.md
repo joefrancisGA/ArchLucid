@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 13
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
+- **last-hunt:** 2026-08-29
+- **last-bug:** 2026-08-29 — PascalCase faithfulness aggregate JSON and AgentResult structural validator paths
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1781,6 +1781,33 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
+- [x] (proven) `FindingJsonConverter.EnumReaders` top-level string paths for `enforcementTier`, `humanReviewStatus`, `treatment`, `classification`, and `severity` accept numeric-string `"99"` via bare `Enum.TryParse` while properties-bag / numeric JSON paths guard with `Enum.IsDefined` — **hit 2026-08-28 (#223):** top-level string tokens bypassed guards added only on properties path; fixed with `ReadEnforcementTierFromString` reuse and numeric-string + `IsDefined` checks (`Deserialize_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_humanReviewStatus_numeric_string_out_of_range_throws`).
+- [x] (proven) `FindingEnforcementTierClassifier.TryReadTierFromProperties` accepts undefined `properties.enforcementTier` via bare `Enum.TryParse` — **hit 2026-08-28 (#223):** numeric-string `"99"` short-circuited classification; fixed with `Enum.IsDefined` guard (`ClassifyFinding_ignores_undefined_enforcement_tier_property_value`).
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` uses case-sensitive `TryGetProperty("correlationId")` — PascalCase `"CorrelationId"` omitted so Service Bus publish loses payload correlation fallback when activity tag unset — **hit 2026-08-28 (#223):** fixed with case-insensitive property lookup (`TryResolveForPublish_reads_PascalCase_CorrelationId_from_payload_when_activity_unset`).
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` reads `correlationId` only when the JSON token is a string — numeric correlation ids returned null and dropped Service Bus publish correlation fallback — **hit 2026-08-28 (#223):** accept string or number tokens (`TryResolveForPublish_reads_numeric_correlationId_from_payload_when_activity_unset`).
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryGetStringPropertyCaseInsensitive` uses `GetString()` only — numeric JSON `deduplicationKey` threw and dropped Service Bus subscription filter properties — **hit 2026-08-28 (#223):** accept string or number tokens (`TryResolveForPublish_alert_resolved_maps_numeric_deduplication_key`).
+- [x] (proven) `AgentModelExecutionProfileParser.TryParse` rejects `"High Assurance"` display label while accepting `"high-assurance"` — **hit 2026-08-28 (#223):** operator tenant-setting labels failed profile parse; fixed with display-label alias (`TryParse_accepts_high_assurance_display_labels`).
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepts undefined severity numeric-strings via bare `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-28 (#225):** numeric-string `"99"` hydrated as breach severity label; fixed with `Enum.IsDefined` guard (`Parse_breach_severity_numeric_string_out_of_range_returns_null`).
+- [x] (proven) `FindingJsonConverter.ReadStringDict` calls `GetString()` on numeric `properties` tokens and aborts full finding deserialize — **hit 2026-08-28 (#225):** coerce number tokens to invariant strings and preserve sibling string entries (`Deserialize_properties_numeric_values_preserve_string_entries`).
+- [x] (proven) `FindingJsonConverter.Read` case-sensitive on `findingSchemaVersion` — PascalCase `"FindingSchemaVersion": 2` defaulted schema version to `0` on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` (`Deserialize_pascal_case_findingSchemaVersion_maps_version`).
+- [x] (proven) `FindingJsonConverter.ReadStringList` case-sensitive on `relatedNodeIds` / `recommendedActions` — PascalCase `"RelatedNodeIds"` dropped graph linkage on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` in `ReadStringList` (`Deserialize_pascal_case_relatedNodeIds_maps_list`).
+- [x] (proven) `FindingJsonConverter.ReadStringDict` case-sensitive on `properties` — PascalCase `"Properties"` dropped properties bag on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` in `ReadStringDict` (`Deserialize_pascal_case_properties_bag_maps_entries`).
+- [x] (proven) `FindingJsonConverter.ReadInsightDensityFields` case-sensitive on `treatment` / `classification` — PascalCase `"Treatment"` left insight-density fields null on reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` (`Deserialize_pascal_case_treatment_maps_demote_to_checklist`).
+- [x] (proven) `FindingJsonConverter.Read` case-sensitive on `payloadType` and `payload` — PascalCase `"PayloadType"` / `"Payload"` skipped typed payload rehydration on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` for payload type and body (`Deserialize_pascal_case_payloadType_and_payload_map_typed_payload`).
+- [x] (proven) `FindingJsonConverter.ReadTrace` case-sensitive on `trace` — PascalCase `"Trace"` dropped explainability trace on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` in `ReadTrace` (`Deserialize_pascal_case_trace_maps_source_agent_execution_trace_id`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — case-sensitive `TryGetProperty` on faithfulness fields drops PascalCase aggregate JSON → `ResolveDisposition` returns PASS instead of HOLD/WARN — **hit 2026-08-29 (#262):** case-insensitive lookup for ratio, fallback, warning, citations; regression in `RunExplanationConfidenceCalloutBuilderTests.FromAggregateJson_maps_PascalCase_faithfulness_fields`.
+- [x] (proven) `RealLlmOutputStructuralValidator.ValidateAgentResultStructure` — case-sensitive top-level/finding/trace property lookup rejects PascalCase `AgentResult` envelopes from external LLM tooling — **hit 2026-08-29 (#262):** `TryGetPropertyCaseInsensitive` on required keys; regression in `RealLlmOutputStructuralValidatorTests.ValidateAgentResultStructure_accepts_PascalCase_property_names`.
+- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `category`, `enforcementTier`, `humanReviewStatus`, and `evaluationConfidenceLevel` — PascalCase exporter labels may silently default on reload (sibling fields still use `TryGetProperty`).
+- [ ] (candidate) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` / `runIdRef` tokens may not coerce to string (prior #229 seed on unmerged branch).
+- [ ] (candidate) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — undefined `AgentOutputQualityGateMode` numeric-strings may parse via bare `Enum.TryParse` (verify after hunt #223 quality-gate lint fix scope).
+
+2026-08-28 seed hunt #225: proved policy-pack breach-severity undefined ordinal and finding properties-bag numeric token handling; seeded quality-gate undefined-mode sibling candidate.
+
+2026-08-28 seed hunt #223: proved top-level finding enum-string guards, classifier property-tier guard, Service Bus correlation casing/number, numeric dedupe key, and agent profile display label; seeded properties-bag numeric and policy-pack severity sibling candidates.
+
+2026-08-28 seed hunt #251: proved PascalCase `findingSchemaVersion`, list/properties/treatment/payload/trace lookup gaps promoted from prior seed rows; seeded remaining scalar PascalCase and numeric optional-string coercion candidates.
+
+2026-08-29 seed hunt #262: proved faithfulness aggregate PascalCase and golden-corpus AgentResult structural PascalCase; seeded FindingJsonConverter top-level PascalCase candidate.
 
 ---
 
@@ -2241,11 +2268,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 81
-- **bugs-found:** 229
-- **consecutive-dry-hunts:** 1
+- **hunts:** 82
+- **bugs-found:** 230
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — simulate-bulk invalid runIds 400
+- **last-bug:** 2026-08-28 — reviews-awaiting-action echoed foreign sourceRunId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2442,6 +2469,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.GetReviewsAwaitingAction` / `ReviewsAwaitingActionQueryService.ListAsync` — recurrence item echoed foreign-workspace `sourceRunId` parsed from `architectureRequestId` without scoped run lookup — **hit 2026-08-28:** clear `SourceRunId` when parsed source run is out of scope; regression in `ReviewsAwaitingActionQueryServiceTests`.
+- [x] (invalid) `GovernancePreCommitSimulationController.SimulateAsync` — unbounded `syntheticCount` reaches gate loop — **cheap-disproof 2026-08-28:** `PreCommitSyntheticSimulationRequest.SyntheticCount` has `[Range(0, 500)]`; `[ApiController]` model validation rejects values above 500 before action body handling.
+- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `findingRef` for a foreign-workspace finding may persist without inspect-scope gate (optional `runId` is scoped; `FindingRef` is not).
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `projectId` for a sibling project in the same workspace may mutate without `scope.ProjectId` guard (workspace match only).
+
+2026-08-28 seed hunt #159: proved reviews-awaiting-action source-run scope gate; seeded product-feedback findingRef and workspace sibling-project mutation candidates; cheap-disproved pre-finalize simulate unbounded `syntheticCount` (`[Range(0, 500)]` on request model).
+
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — route `id = Guid.Empty` returned HTTP 404 policy-pack-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before dry-run service lookup (policy-packs route parity); regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_policy_pack_id_is_empty`.
 - [x] (proven) `GovernanceStickinessController.UpdateRecurrenceSchedule` — route `scheduleId = Guid.Empty` returned HTTP 404 schedule-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before repository lookup (create recurrence empty source-run parity); regression in `GovernanceStickinessControllerTests.UpdateRecurrenceSchedule_returns_bad_request_when_schedule_id_is_empty`.
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` — body `runId = Guid.Empty` bypassed `EnsureRunInScopeWhenProvidedAsync` and persisted disposition — **hit 2026-08-28:** controller rejects empty runId before facade (merge-conflict route empty-run parity); regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_bad_request_when_run_id_is_empty`.

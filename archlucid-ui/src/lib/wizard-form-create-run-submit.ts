@@ -154,7 +154,7 @@ export type SubmitQuickFamilyWizardCreateRunArgs = GateArgs &
 
 /**
  * QuickStart / SimplifiedPilot share the same inline-validation UX around the shared create-run path.
- * NewRun maps failures to toasts instead and keeps post-create evidence upload in the shell.
+ * NewRun uses the same inline pattern via {@link useNewRunWizardSubmit} and keeps post-create evidence upload in the shell.
  */
 export async function submitQuickFamilyWizardCreateRun(
   args: SubmitQuickFamilyWizardCreateRunArgs,

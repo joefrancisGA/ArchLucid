@@ -109,8 +109,15 @@ public sealed class DraftRequestCrudService(
             if (proposedNormalized is not null
                 && !string.Equals(existingNormalized, proposedNormalized, StringComparison.Ordinal))
             {
+                Guid? excludeRunId = ArchitectureReviewSourceRunResolver.TryParseRunGuid(existing.Document.PriorRunId);
+
                 await _workspaceSystemNameCollisionGuard
-                    .EnsureAvailableAsync(scope, trimmedName, excludeDraftId: draftId, cancellationToken: cancellationToken)
+                    .EnsureAvailableAsync(
+                        scope,
+                        trimmedName,
+                        excludeDraftId: draftId,
+                        excludeRunId: excludeRunId,
+                        cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
             }
         }

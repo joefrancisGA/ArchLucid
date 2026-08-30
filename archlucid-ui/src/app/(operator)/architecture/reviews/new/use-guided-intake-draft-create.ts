@@ -8,7 +8,7 @@ import {
   getDraftRequest,
   patchDraftRequest,
 } from "@/lib/api/draft-intake-api";
-import { isApiRequestError } from "@/lib/api-request-error";
+import { showSuccess } from "@/lib/toast";
 import {
   architectureCreationDefaultActorSet,
   applyArchitectureCreationDraftToFormState,
@@ -24,7 +24,6 @@ import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-d
 import { isGuidedIntakeAccessBlocked, resolveGuidedIntakeBlockedRedirectHref } from "@/lib/architecture/architecture-draft-intake-mode";
 import { mergeAdmittedRequiredMustQuestionKeys } from "@/lib/guided-intake-clarification-progress";
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
-import { showError, showSuccess } from "@/lib/toast";
 import type { BranchDraftResponse, DraftElicitationQuestion, DraftRequestStatus } from "@/types/draft-intake";
 
 import type { GuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
@@ -240,10 +239,6 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       showSuccess("Continue with the architecture discovery questions.");
     } catch (error) {
       core.setSubmitError(error);
-
-      if (isApiRequestError(error)) {
-        showError("Architecture creation", error.message);
-      }
     } finally {
       core.setBusy(false);
     }

@@ -7,7 +7,6 @@ import {
   saveTenantReviewCycleBaseline,
   validateMandatoryWizardBaselineReviewCycleHours,
 } from "@/lib/save-tenant-review-cycle-baseline";
-import { showError, showSuccess } from "@/lib/toast";
 import {
   type WizardBaselineConfidence,
   wizardBaselineConfidenceSourceNote,
@@ -56,12 +55,10 @@ export function useWizardBaselineMetricsActions() {
 
     if (!result.ok) {
       setBaselineMetricsError(result.message);
-      showError("Wizard", result.message);
 
       return false;
     }
 
-    showSuccess("Review-cycle baseline saved for ROI reporting.");
     setBaselineReviewCycleHours("");
 
     if (typeof window !== "undefined") {

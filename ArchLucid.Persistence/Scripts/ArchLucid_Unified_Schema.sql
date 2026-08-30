@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 334_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 335_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -103,7 +103,7 @@ GO
 /* ---- Manifest / evidence ---- */
 /* dbo.GoldenManifestVersions removed — ADR 0030 PR A4 (migration 111). Coordinator-shaped manifests persist via dbo.GoldenManifests. */
 /* dbo.DecisionTraces removed — migration 296; authority rule audits persist via dbo.DecisioningTraces. */
-/* dbo.FineTunedModelRegistryEntries removed — migration 326 (reserved, never written; V1 uses InMemoryFineTunedModelRegistry). */
+/* dbo.FineTunedModelRegistryEntries removed — migration 335 (reserved, never written; V1 uses InMemoryFineTunedModelRegistry). */
 
 IF OBJECT_ID(N'dbo.EvidenceBundles', N'U') IS NULL
 BEGIN

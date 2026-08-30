@@ -1,17 +1,21 @@
 "use client";
 
-import { useCallback, useRef, type MutableRefObject } from "react";
+import { useCallback, useRef, useState, type MutableRefObject } from "react";
 import type { UseFormGetValues, UseFormReset } from "react-hook-form";
 
 import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
-import { showError, showSuccess } from "@/lib/toast";
 import {
   WIZARD_SESSION_IDS,
   wizardSessionHasTextContent,
   writeWizardSessionSnapshot,
 } from "@/lib/wizard-session-persistence";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+
+export type WizardDraftSaveFeedback = {
+  readonly kind: "ok" | "err";
+  readonly message: string;
+};
 
 export type UseNewRunWizardTemplateRestoreParams = {
   readonly stepIndex: number;
@@ -26,6 +30,8 @@ export type UseNewRunWizardTemplateRestoreResult = {
   readonly templateWizardSession: ReturnType<typeof useWizardSessionPersistence>;
   readonly suppressWizardResumePrompt: boolean;
   readonly saveWizardDraft: () => void;
+  readonly draftSaveFeedback: WizardDraftSaveFeedback | null;
+  readonly clearDraftSaveFeedback: () => void;
   readonly clearWizardSessionRef: MutableRefObject<() => void>;
 };
 
@@ -36,6 +42,7 @@ export function useNewRunWizardTemplateRestore(
   const { stepIndex, templateWizardSessionState, showFullWizardShell, reset, setStepIndex, getValues } = params;
 
   const clearWizardSessionRef = useRef<() => void>(() => {});
+  const [draftSaveFeedback, setDraftSaveFeedback] = useState<WizardDraftSaveFeedback | null>(null);
 
   const handleTemplateWizardRestore = useCallback(
     (snapshot: { stepIndex: number; state: WizardFormValues }) => {
@@ -66,16 +73,22 @@ export function useNewRunWizardTemplateRestore(
         stepIndex,
         state: getValues(),
       });
-      showSuccess("Draft saved in this browser.");
+      setDraftSaveFeedback({ kind: "ok", message: "Draft saved in this browser." });
     } catch {
-      showError("Wizard", "Could not save draft.");
+      setDraftSaveFeedback({ kind: "err", message: "Could not save draft." });
     }
   }, [getValues, stepIndex]);
+
+  const clearDraftSaveFeedback = useCallback(() => {
+    setDraftSaveFeedback(null);
+  }, []);
 
   return {
     templateWizardSession,
     suppressWizardResumePrompt,
     saveWizardDraft,
+    draftSaveFeedback,
+    clearDraftSaveFeedback,
     clearWizardSessionRef,
   };
 }

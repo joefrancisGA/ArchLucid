@@ -35,7 +35,7 @@ export async function tryLoadPriorPackageGuidedIntakePrefill(
     return derivePriorPackageGuidedIntakePrefill({
       systemName: request.systemName,
       description: request.description,
-      draftActors: request.draftActors,
+      draftActors: request.draftActors?.map((a) => ({ ...a, label: a.label ?? undefined })),
       inlineRequirements: request.inlineRequirements,
     });
   } catch {

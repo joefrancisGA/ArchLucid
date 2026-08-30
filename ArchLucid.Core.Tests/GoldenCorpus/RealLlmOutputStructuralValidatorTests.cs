@@ -12,6 +12,43 @@ namespace ArchLucid.Core.Tests.GoldenCorpus;
 [Trait("Category", "Unit")]
 public sealed class RealLlmOutputStructuralValidatorTests
 {
+    [Fact]
+    public void ValidateAgentResultStructure_accepts_PascalCase_property_names()
+    {
+        const string json = """
+            {
+              "ResultId": "r1",
+              "TaskId": "t1",
+              "RunId": "run1",
+              "AgentType": "Topology",
+              "Claims": [""],
+              "EvidenceRefs": [""],
+              "Confidence": 0.5,
+              "CreatedUtc": "2026-01-01T00:00:00Z",
+              "Findings": [
+                {
+                  "FindingId": "f1",
+                  "Severity": "info",
+                  "Description": "minimal",
+                  "Trace": {
+                    "SourceAgentExecutionTraceId": null,
+                    "GraphNodeIdsExamined": [],
+                    "RulesApplied": [],
+                    "DecisionsTaken": [],
+                    "AlternativePathsConsidered": [],
+                    "Notes": []
+                  }
+                }
+              ]
+            }
+            """;
+
+        RealLlmStructuralValidationResult result =
+            RealLlmOutputStructuralValidator.ValidateAgentResultStructure("Topology", json);
+
+        result.IsValid.Should().BeTrue();
+    }
+
     [Theory]
     [InlineData(AgentType.Topology)]
     [InlineData(AgentType.Cost)]

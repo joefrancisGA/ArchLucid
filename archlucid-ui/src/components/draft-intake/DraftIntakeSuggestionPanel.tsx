@@ -129,13 +129,14 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
     const selectedActors = pendingSuggestions.filter((actor) =>
       selectedSuggestionKeys.has(actorIdentityKey(actor)),
     );
+    const newActors = filterNewActorSuggestions(actorSet.actors, selectedActors);
 
-    if (selectedActors.length === 0) {
+    if (newActors.length === 0) {
       return;
     }
 
     onChange({
-      actors: [...actorSet.actors, ...selectedActors],
+      actors: [...actorSet.actors, ...newActors],
     });
     dismissSuggestionPanel();
   }

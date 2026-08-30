@@ -13,11 +13,12 @@ import {
   resolveNewRunWizardCompleteSetupEmphasizedStepId,
   resolveNewRunWizardCompleteSetupSteps,
 } from "@/lib/new-run-wizard-complete-setup-checklist";
-import { showError, showSuccess } from "@/lib/toast";
+import { showSuccess } from "@/lib/toast";
 import {
   deriveWizardPolicyPackCloudMismatch,
   type WizardCreateRunPayloadOptions,
 } from "@/lib/wizard-payload";
+import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
 import {
   getWizardStepFieldGroup,
   FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
@@ -109,6 +110,8 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     setBaselineMetricsError,
     persistBaselineMetricsIfNeeded,
   } = useWizardBaselineMetricsActions();
+  const [stepValidationMessage, setStepValidationMessage] = useState<string | null>(null);
+  const [successNotice, setSuccessNotice] = useState<string | null>(null);
   const liveRef = useRef<HTMLDivElement>(null);
   const wizardReadyRef = useRef<HTMLDivElement>(null);
 
@@ -145,13 +148,22 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     onInventoryFileSelected: markCloudProviderFromInventory,
   });
 
-  const showToast = useCallback((kind: "ok" | "err", message: string) => {
-    if (kind === "ok") {
-      showSuccess(message);
-    } else {
-      showError("Wizard", message);
-    }
+  const showSuccessToast = useCallback((message: string) => {
+    showSuccess(message);
   }, []);
+
+  const showWizardNotice = useCallback(
+    (kind: "ok" | "err", message: string) => {
+      if (kind === "ok") {
+        setSuccessNotice(message);
+        setStepValidationMessage(null);
+      } else {
+        setStepValidationMessage(message);
+        setSuccessNotice(null);
+      }
+    },
+    [],
+  );
 
   useNewRunWizardQueryPrefill({
     params,
@@ -162,7 +174,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     goToStep,
     persistWizardMode,
     onPendingEvidenceFileChange: evidence.handlePendingEvidenceFileChange,
-    showToast,
+    showToast: showWizardNotice,
   });
 
   const watchedWizardValues = useWatch({ control }) as WizardFormValues;
@@ -196,6 +208,8 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     templateWizardSession,
     suppressWizardResumePrompt,
     saveWizardDraft,
+    draftSaveFeedback,
+    clearDraftSaveFeedback,
     clearWizardSessionRef,
   } = useNewRunWizardTemplateRestore({
     stepIndex,
@@ -205,6 +219,12 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     setStepIndex,
     getValues,
   });
+
+  useEffect(() => {
+    setStepValidationMessage(null);
+    setSuccessNotice(null);
+    clearDraftSaveFeedback();
+  }, [clearDraftSaveFeedback, stepIndex]);
 
   const {
     submitError,
@@ -224,7 +244,8 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     stepIndex,
     goToStep,
     setRunId,
-    showToast,
+    setStepValidationMessage,
+    showSuccessToast,
     clearWizardSession: () => {
       clearWizardSessionRef.current();
     },
@@ -266,16 +287,23 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       );
 
       if (!applied.ok) {
-        showToast("err", applied.message);
+        setStepValidationMessage(applied.message);
 
         return;
       }
 
-      showToast("ok", "Demo Azure package loaded — it uploads automatically after the review is created.");
+      setSuccessNotice("Demo Azure package loaded — it uploads automatically after the review is created.");
+      setStepValidationMessage(null);
       advance();
     },
-    [advance, evidence.handlePendingEvidenceFileChange, setValue, showToast],
+    [advance, evidence.handlePendingEvidenceFileChange, setValue, setStepValidationMessage, setSuccessNotice],
   );
+
+  const footerValidationMessage =
+    stepValidationMessage ??
+    (draftSaveFeedback?.kind === "err" ? draftSaveFeedback.message : null);
+  const footerSuccessNotice =
+    successNotice ?? (draftSaveFeedback?.kind === "ok" ? draftSaveFeedback.message : null);
 
   const goNext = async () => {
     if (stepIndex === 0) {
@@ -308,7 +336,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
           stepDefinitions[stepIndex]?.label ?? "Unknown",
           "field_validation",
         );
-        showToast("err", "Fix the highlighted fields before continuing.");
+        setStepValidationMessage(REVIEW_START_STEP_VALIDATION_MESSAGE);
 
         return;
       }
@@ -394,7 +422,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       baselineFirst={baselineFirst}
       featuredSampleRunId={featuredSampleRunId}
       goToStep={goToStep}
-      showToast={showToast}
+      showToast={showWizardNotice}
       evidence={evidence}
       tryWithDemoData={tryWithDemoData}
       skipEvidenceAndAdvance={skipEvidenceAndAdvance}
@@ -410,6 +438,8 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       showNav={showNav}
       creationProgress={creationProgress}
       recheckUnresolvedRun={recheckUnresolvedRun}
+      stepValidationMessage={footerValidationMessage}
+      successNotice={footerSuccessNotice}
       submitError={submitError}
       isReviewStep={isReviewStep}
       goBack={goBack}

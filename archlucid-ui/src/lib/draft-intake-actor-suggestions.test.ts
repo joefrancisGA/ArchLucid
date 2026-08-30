@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  actorIdentityKey,
   buildSuggestedActorSet,
   buildSuggestedActorsFromIntent,
   filterNewActorSuggestions,
   isIntentSufficientForActorSuggestions,
   normalizeActorSetForAdmission,
 } from "./draft-intake-actor-suggestions";
+import type { ActorDescriptor } from "@/types/draft-intake";
 
 describe("isIntentSufficientForActorSuggestions", () => {
   it("requires minimum intent length", () => {
@@ -43,12 +45,63 @@ describe("buildSuggestedActorsFromIntent", () => {
   });
 });
 
+describe("actorIdentityKey", () => {
+  it("uses the ADR 0049 triple and ignores display labels", () => {
+    expect(
+      actorIdentityKey({
+        label: "Primary operator",
+        kind: "Human",
+        trustOrigin: "Internal",
+        contract: "Sync",
+        origin: "Asserted",
+        confidence: 100,
+      }),
+    ).toBe("Human|Internal|Sync");
+    expect(
+      actorIdentityKey({
+        label: "Primary internal user",
+        kind: "Human",
+        trustOrigin: "Internal",
+        contract: "Sync",
+        origin: "Inferred",
+        confidence: 70,
+      }),
+    ).toBe("Human|Internal|Sync");
+  });
+});
+
 describe("filterNewActorSuggestions", () => {
   it("excludes suggestions already present in the actor set", () => {
     const existing = buildSuggestedActorsFromIntent("Claims intake with partner API integration.");
     const suggestions = buildSuggestedActorsFromIntent("Claims intake with partner API integration.");
 
     expect(filterNewActorSuggestions(existing, suggestions)).toEqual([]);
+  });
+
+  it("excludes suggestions that match an existing actor triple with a different label", () => {
+    const existing: ActorDescriptor[] = [
+      {
+        label: "Primary operator",
+        kind: "Human",
+        trustOrigin: "Internal",
+        contract: "Sync",
+        origin: "Asserted",
+        confidence: 100,
+      },
+    ];
+    const suggestions = buildSuggestedActorsFromIntent("Customer portal with partner API integration.");
+
+    expect(filterNewActorSuggestions(existing, suggestions)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "Machine", trustOrigin: "External" }),
+        expect.objectContaining({ kind: "Human", trustOrigin: "External" }),
+      ]),
+    );
+    expect(filterNewActorSuggestions(existing, suggestions)).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ label: "Primary internal user" }),
+      ]),
+    );
   });
 });
 

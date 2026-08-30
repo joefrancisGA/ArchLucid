@@ -39,11 +39,35 @@ public sealed class IntegrationEventServiceBusCorrelationIdTests
     }
 
     [Fact]
+    public void TryResolveForPublish_reads_PascalCase_correlationId_from_payload_when_activity_unset()
+    {
+        byte[] utf8 = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { CorrelationId = " payload-pascal " }));
+
+        IntegrationEventServiceBusCorrelationId.TryResolveForPublish(utf8).Should().Be("payload-pascal");
+    }
+
+    [Fact]
     public void TryResolveForPublish_reads_correlationId_from_payload_when_activity_unset()
     {
         byte[] utf8 = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { correlationId = " payload-corr " }));
 
         IntegrationEventServiceBusCorrelationId.TryResolveForPublish(utf8).Should().Be("payload-corr");
+    }
+
+    [Fact]
+    public void TryResolveForPublish_reads_PascalCase_CorrelationId_from_payload_when_activity_unset()
+    {
+        byte[] utf8 = "{\"schemaVersion\":1,\"CorrelationId\":\"pascal-corr\"}"u8.ToArray();
+
+        IntegrationEventServiceBusCorrelationId.TryResolveForPublish(utf8).Should().Be("pascal-corr");
+    }
+
+    [Fact]
+    public void TryResolveForPublish_reads_numeric_correlationId_from_payload_when_activity_unset()
+    {
+        byte[] utf8 = "{\"schemaVersion\":1,\"correlationId\":42424242}"u8.ToArray();
+
+        IntegrationEventServiceBusCorrelationId.TryResolveForPublish(utf8).Should().Be("42424242");
     }
 
     [Fact]

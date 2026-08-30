@@ -129,6 +129,7 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
             throw new InvalidOperationException(documentUrlRejection);
 
         RequestContentSafetyResult safety = await _requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken).ConfigureAwait(false);
+
         if (!safety.IsAllowed)
         {
             string actor = _actorContext.GetActor();
@@ -138,8 +139,10 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid? excludeRunId = ArchitectureReviewSourceRunResolver.TryParseRunGuid(request.PriorRunId);
 
         // ReSharper disable once InvertIf
+
         if (idempotency is not null)
         {
             CreateRunResult? replay = await _idempotencyHelper.TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
@@ -156,7 +159,11 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
                 return replayUnderDistributed;
 
             await _workspaceSystemNameCollisionGuard
-                .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+                .EnsureAvailableAsync(
+                    scope,
+                    request.SystemName,
+                    excludeRunId: excludeRunId,
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
@@ -170,7 +177,11 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
             return fingerprintReplay;
 
         await _workspaceSystemNameCollisionGuard
-            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+            .EnsureAvailableAsync(
+                scope,
+                request.SystemName,
+                excludeRunId: excludeRunId,
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
