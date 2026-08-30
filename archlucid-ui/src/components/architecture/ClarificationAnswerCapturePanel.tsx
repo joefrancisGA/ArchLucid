@@ -5,11 +5,11 @@ import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { applyKnowledgeModelClarificationAnswers } from "@/lib/api/knowledge-model-clarification-api";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
-import { showError, showSuccess } from "@/lib/toast";
 
 const MIN_ANSWER_CHARS = 8;
 
@@ -25,6 +25,7 @@ export function ClarificationAnswerCapturePanel(
 ): React.JSX.Element | null {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const allAnswersValid = useMemo(
     () =>
@@ -42,19 +43,13 @@ export function ClarificationAnswerCapturePanel(
     }
 
     setBusy(true);
+    setSubmitError(null);
 
     try {
-      const result = await applyKnowledgeModelClarificationAnswers(props.runId, answers);
-      const reReviewNote =
-        result.reReviewTriggered
-          ? ` Scoped re-review merged ${result.mergedFindingCount ?? 0} finding(s).`
-          : "";
-      showSuccess(
-        `Applied ${result.appliedCount} clarification answer(s) to the architecture knowledge model.${reReviewNote}`,
-      );
+      await applyKnowledgeModelClarificationAnswers(props.runId, answers);
       window.location.reload();
     } catch (error) {
-      showError("Clarification answers", error instanceof Error ? error.message : "Submit failed.");
+      setSubmitError(error instanceof Error ? error.message : "Submit failed.");
     } finally {
       setBusy(false);
     }
@@ -102,6 +97,14 @@ export function ClarificationAnswerCapturePanel(
           );
         })}
       </ul>
+
+      {submitError !== null ? (
+        <OperatorMutationInlineError
+          message={submitError}
+          testId="clarification-answer-submit-error"
+          recoveryScenario="api-problem"
+        />
+      ) : null}
 
       <Button type="button" disabled={!allAnswersValid || busy} onClick={() => void submitAnswers()}>
         Apply answers and re-review
