@@ -36,7 +36,7 @@ async function toIntakeContextDocument(file: File): Promise<CreateArchitectureRu
   }
 
   if (isReadableEvidenceTextFileName(trimmedName)) {
-    return readReadableTextDocument(name, file);
+    return readReadableTextDocument(name, trimmedName, file);
   }
 
   if (isBinaryArchitectureDocumentFileName(trimmedName)) {
@@ -48,6 +48,7 @@ async function toIntakeContextDocument(file: File): Promise<CreateArchitectureRu
 
 async function readReadableTextDocument(
   name: string,
+  trimmedName: string,
   file: File,
 ): Promise<CreateArchitectureRunDocumentPayload | null> {
   try {
@@ -59,7 +60,7 @@ async function readReadableTextDocument(
 
     return {
       name,
-      contentType: file.name.toLowerCase().endsWith(".md") ? "text/markdown" : "text/plain",
+      contentType: trimmedName.toLowerCase().endsWith(".md") ? "text/markdown" : "text/plain",
       content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
     };
   } catch {

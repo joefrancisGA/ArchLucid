@@ -56,6 +56,21 @@ describe("buildIntakeContextDocumentsFromEvidenceFiles", () => {
     expect(mockedExtract).not.toHaveBeenCalled();
   });
 
+  it("classifies markdown content type from trimmed file names", async () => {
+    const file = new File(["# Brief"], "brief.md ", {
+      type: "text/markdown",
+    });
+    const documents = await buildIntakeContextDocumentsFromEvidenceFiles([file]);
+
+    expect(documents).toEqual([
+      {
+        name: "brief.md",
+        contentType: "text/markdown",
+        content: "# Brief",
+      },
+    ]);
+  });
+
   it("skips images and failed extracts", async () => {
     mockedExtract.mockResolvedValue({
       ok: false,
