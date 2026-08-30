@@ -1986,10 +1986,11 @@ jobs:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           ARCHLUCID_CI_REAL_AOAI_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
           ARCHLUCID_CI_REAL_AOAI_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
-          ARCHLUCID_REAL_AOAI_TEST_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
-          ARCHLUCID_REAL_AOAI_TEST_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
+          ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT: ${{ vars.ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT }}
         run: |
           set -euo pipefail
+          # shellcheck source=/dev/null
+          source scripts/ci/export_real_mode_aoai_env.sh
           args=(--output-dir artifacts/ci/real-mode-ai-quality-evidence)
           if [ "${{ steps.real_mode_live.outputs.invoke_live }}" = "true" ]; then
             args+=(--invoke-live-when-budget-allows)
@@ -3603,11 +3604,15 @@ jobs:
       - name: Restore and run live AOAI AgentRuntime integration
         if: ${{ steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1' }}
         env:
-          ARCHLUCID_REAL_AOAI_TEST_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
-          ARCHLUCID_REAL_AOAI_TEST_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
-          ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT: ${{ vars.ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT }}
+          ARCHLUCID_CI_REAL_AOAI_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
+          ARCHLUCID_CI_REAL_AOAI_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
+          ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT: ${{ vars.ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT }}
+          AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
         run: |
           set -euo pipefail
+          # shellcheck source=/dev/null
+          source scripts/ci/export_real_mode_aoai_env.sh
           dotnet restore ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
           dotnet build ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj \
             --no-restore \

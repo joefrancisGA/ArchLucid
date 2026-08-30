@@ -436,10 +436,13 @@ jobs:
           ARCHLUCID_AGENT_EXECUTION_MODE: "Real"
           AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_DEPLOYMENT_NAME: gpt-5.6-terra
-        run: >
-          dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --configuration Release --
-          golden-cohort drift --strict-real --structural-only
+          ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT: ${{ vars.ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT }}
+        run: |
+          set -euo pipefail
+          # shellcheck source=/dev/null
+          source scripts/ci/export_real_mode_aoai_env.sh
+          dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --configuration Release -- \
+            golden-cohort drift --strict-real --structural-only
 
       - name: Scrape token metrics
         env:

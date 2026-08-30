@@ -74,7 +74,12 @@ jobs:
           ARCHLUCID_REAL_AOAI_TEST_KEY: ${{ secrets.ARCHLUCID_REAL_AOAI_TEST_KEY }}
           ARCHLUCID_CI_REAL_AOAI_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
           ARCHLUCID_CI_REAL_AOAI_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
-        run: pwsh -NoProfile -File ./scripts/ci/Invoke-RealLlmGoldenCohort.ps1
+          ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT: ${{ vars.ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT }}
+        run: |
+          set -euo pipefail
+          # shellcheck source=/dev/null
+          source scripts/ci/export_real_mode_aoai_env.sh
+          pwsh -NoProfile -File ./scripts/ci/Invoke-RealLlmGoldenCohort.ps1
 
       - name: Enforce Phase B LLM Faithfulness Thresholds
         if: ${{ steps.eligibility.outputs.enabled == 'true' && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
