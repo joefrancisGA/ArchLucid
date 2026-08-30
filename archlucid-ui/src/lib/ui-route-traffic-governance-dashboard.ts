@@ -5,12 +5,15 @@ import {
 } from "@/lib/workspace-health-route";
 
 /**
- * Traffic workbook row ID for the standalone Workspace health Insights page.
- * Owner backlog shorthand: GDX.
+ * Traffic workbook metadata for workspace health (owner shorthand: GDX).
+ *
+ * `GOVERNANCE_DASHBOARD_TRAFFIC_PATH` is the retired `/governance/dashboard` bookmark used for
+ * attribution of legacy inbound links; canonical routing lives at {@link WORKSPACE_HEALTH_PATH}
+ * via {@link GOVERNANCE_DASHBOARD_TRAFFIC_CANONICAL_HREF}.
  */
 export const GOVERNANCE_DASHBOARD_TRAFFIC_ROW_ID = "GDX";
 
-/** Legacy bookmark — redirects to {@link WORKSPACE_HEALTH_PATH}. */
+/** Retired bookmark path — not the canonical page; redirects to {@link WORKSPACE_HEALTH_PATH}. */
 export const GOVERNANCE_DASHBOARD_TRAFFIC_PATH = LEGACY_GOVERNANCE_DASHBOARD_PATH;
 
 /** Workbook Section column value — Alerts/gov, not marketing. */
