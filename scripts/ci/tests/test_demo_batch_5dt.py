@@ -22,13 +22,18 @@ class TestDemoBatch5Dt(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
         text = path.read_text(encoding="utf-8")
 
-        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", text)
-        self.assertRegex(text, r'href\s*:\s*["\']#run-actions["\']')
+        self.assertRegex(
+            text,
+            r'BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*["\']#run-actions["\']',
+        )
 
-        component_paths = list((REPO_ROOT / "archlucid-ui" / "src").rglob("ReviewPackageDoThisNextStrip.tsx"))
-        self.assertTrue(
-            component_paths,
-            "Expected to find ReviewPackageDoThisNextStrip.tsx under archlucid-ui/src",
+        component_paths = sorted(
+            (REPO_ROOT / "archlucid-ui" / "src").rglob("ReviewPackageDoThisNextStrip.tsx")
+        )
+        self.assertEqual(
+            len(component_paths),
+            1,
+            "Expected exactly one ReviewPackageDoThisNextStrip.tsx under archlucid-ui/src",
         )
         component_text = component_paths[0].read_text(encoding="utf-8")
         self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", component_text)
