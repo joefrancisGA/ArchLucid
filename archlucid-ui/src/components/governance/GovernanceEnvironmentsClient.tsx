@@ -72,7 +72,7 @@ export default function GovernanceEnvironmentsClient() {
 
   useEffect(() => {
     if (catalogQuery.data !== undefined) {
-      setDraft(cloneCatalog(catalogQuery.data));
+      setDraft((current) => (current === null ? cloneCatalog(catalogQuery.data) : current));
     }
   }, [catalogQuery.data]);
 
