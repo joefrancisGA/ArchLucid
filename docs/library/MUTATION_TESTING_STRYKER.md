@@ -88,25 +88,25 @@ GitHub Actions workflow **`.github/workflows/stryker-scheduled.yml`** runs weekl
 
 **HTML** and **JSON** reports are emitted under `StrykerOutput` (nested timestamp folder; **`mutation-report.json`** is discovered via glob in the assert script).
 
-## Per-PR differential
+## Differential runs (local / optional)
 
-Workflow **`.github/workflows/stryker-pr.yml`** runs on **`pull_request`** to **`main`** / **`master`** (not merge-blocking on the default CI path).
+PR automation for Stryker was removed (2026-08-30): mutation testing is **not** part of the default merge-blocking **`ci.yml`** pipeline and no longer runs on every **`pull_request`**.
 
-| Step | Behavior |
-|------|----------|
-| **Plan** | `scripts/ci/stryker_pr_plan.py` diffs `base.sha...head.sha` and maps touched paths to one or more Stryker configs (same **ten** targets as the weekly matrix, including **Api**, **DecisioningMerge**, **ApplicationGovernance**, and **ApplicationCommitCriticalPaths**). |
-| **Triggers full matrix** | Any `stryker-config*.json` at repo root, `stryker-baselines.json`, assert script, this planner, `stryker-pr.yml` / `stryker-scheduled.yml`, or `.config/dotnet-tools.json`. |
-| **Run** | For each selected target: `dotnet dotnet-stryker -f <config> -s ArchLucid.sln --since:<base_sha>` so only mutants in the PR diff are exercised (faster than a full run). |
-| **Assert** | Same `scripts/ci/assert_stryker_score_vs_baseline.py` as the weekly job, plus **`--allow-zero-denominator`** when the diff scope has no scored mutants (skip compare instead of failing at 0%). |
-| **Merge impact** | Jobs use **`continue-on-error: true`** until baselines and noise are acceptable; check the workflow log and artifacts if you need a green signal. |
+For faster feedback before merge, plan and run differential mutation locally:
 
-**Concurrency:** one plan + matrix per PR (`concurrency` group cancels superseded pushes).
+```bash
+# Plan which configs apply to your branch vs main
+python3 scripts/ci/stryker_pr_plan.py --base origin/main --head HEAD --dry-run
 
-**Fork PRs:** checkout uses the head SHA and fetches the base SHA explicitly so `git diff` and Stryker’s `--since` work for forks.
+# Example: differential run for one target (after dotnet tool restore)
+dotnet dotnet-stryker -f stryker-config.application.json -s ArchLucid.sln --since:origin/main
+```
+
+**Planner:** `scripts/ci/stryker_pr_plan.py` diffs `base...head` and maps touched paths to Stryker configs (same targets as the weekly matrix). Changing any `stryker-config*.json`, `stryker-baselines.json`, assert script, `stryker-scheduled.yml`, or `.config/dotnet-tools.json` should trigger a **full** local or scheduled run, not a single-module shortcut.
 
 ## CI
 
-Mutation testing is **not** part of the default merge-blocking **`ci.yml`** pipeline: it is slower than the Tier 1 “fast core” suite. Use the **PR differential** workflow above for early feedback, the **weekly** scheduled workflow for full regression, or run locally when changing critical persistence or security code.
+Mutation testing is **not** merge-blocking on PRs. Use the **weekly** scheduled workflow for full regression, or run locally when changing critical persistence or security code.
 
 ## Security / cost
 

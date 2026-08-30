@@ -7,7 +7,7 @@ Emits GitHub Actions outputs:
   run=true|false
   matrix_include=JSON array of {"label","config"} for strategy.matrix.include
 
-See docs/library/MUTATION_TESTING_STRYKER.md § Per-PR differential.
+See docs/library/MUTATION_TESTING_STRYKER.md § Differential runs (local / optional).
 """
 from __future__ import annotations
 
@@ -40,7 +40,6 @@ FULL_MATRIX: list[tuple[str, str]] = [
 
 # Paths that should run the full matrix (config / CI / tool pins).
 RUN_ALL_EXACT: tuple[str, ...] = (
-    ".github/workflows/stryker-pr.yml",
     ".github/workflows/stryker-scheduled.yml",
     "scripts/ci/stryker-baselines.json",
     "scripts/ci/assert_stryker_score_vs_baseline.py",

@@ -22,7 +22,7 @@ Exercise **Stryker.NET** against code that affects **authority manifest commit**
 ## CI
 
 1. **Weekly + manual:** [`.github/workflows/stryker-scheduled.yml`](../../.github/workflows/stryker-scheduled.yml) runs this target with **`dotnet dotnet-stryker -f stryker-config.application-commit-critical-paths.json -s ArchLucid.sln`**, asserts against the baseline, and uploads **`StrykerOutput`** as **`stryker-report-ApplicationCommitCriticalPaths`**.
-2. **Pull requests:** [`.github/workflows/stryker-pr.yml`](../../.github/workflows/stryker-pr.yml) includes this label when **`scripts/ci/stryker_pr_plan.py`** maps touched paths (tests, `Governance/`, commit orchestrator, or manifest finalization service). Runs use **`--since:<base>`** for faster differential mutation.
+2. **Before merge (optional, local):** **`scripts/ci/stryker_pr_plan.py`** maps touched paths (tests, `Governance/`, commit orchestrator, or manifest finalization service) to this label; run **`dotnet dotnet-stryker -f stryker-config.application-commit-critical-paths.json -s ArchLucid.sln --since:<base>`** when changing those paths.
 
 ## Reporting
 
