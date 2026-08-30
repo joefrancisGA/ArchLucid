@@ -220,6 +220,7 @@ describe("GovernanceWorkflowPageContent approval state", () => {
     expect(screen.getByTestId("governance-workflow-outcome-banner")).toHaveTextContent(
       GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS,
     );
+    expect(screen.getByTestId("governance-workflow-outcome-banner").className).not.toContain("max-w-prose");
     expect(screen.queryByTestId("governance-buyer-approval-record-lead")).not.toBeInTheDocument();
     expect(screen.queryByText(/approval path complete/i)).not.toBeInTheDocument();
   });
