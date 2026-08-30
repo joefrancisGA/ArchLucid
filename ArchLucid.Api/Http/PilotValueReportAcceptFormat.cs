@@ -36,6 +36,7 @@ public static class PilotValueReportAcceptFormat
             return true;
 
         // Equal q: prefer a concrete markdown entry over JSON-family wildcards (application/*, */*).
+
         if (markdownQuality > 0 && !HasConcreteJsonAtQuality(mediaTypes, markdownQuality))
             return true;
 
