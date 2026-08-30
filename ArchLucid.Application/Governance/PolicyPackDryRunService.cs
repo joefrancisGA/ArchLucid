@@ -60,12 +60,6 @@ public sealed class PolicyPackDryRunService(
         ArgumentNullException.ThrowIfNull(proposedThresholds);
         ArgumentNullException.ThrowIfNull(evaluateAgainstRunIds);
 
-        if (proposedThresholds is null)
-            throw new ArgumentNullException(nameof(proposedThresholds));
-
-        if (evaluateAgainstRunIds is null)
-            throw new ArgumentNullException(nameof(evaluateAgainstRunIds));
-
         await EnsurePolicyPackInScopeAsync(policyPackId, cancellationToken);
 
         int clampedPageSize = ClampPageSize(pageSize);
