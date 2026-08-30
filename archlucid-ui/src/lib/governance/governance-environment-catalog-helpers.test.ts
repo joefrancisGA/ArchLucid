@@ -8,6 +8,7 @@ import {
 import type { GovernanceEnvironmentCatalog } from "@/types/governance-environment-catalog";
 
 const sampleCatalog: GovernanceEnvironmentCatalog = {
+  isAdministratorConfigured: true,
   environments: [
     { slug: "dev", displayName: "Development", sortOrder: 0, isActive: true },
     { slug: "test", displayName: "Staging", sortOrder: 1, isActive: true },
@@ -29,6 +30,15 @@ describe("governance-environment-catalog-helpers", () => {
   it("returns allowed target slugs for a source environment", () => {
     expect(governanceAllowedTargetSlugs(sampleCatalog, "dev")).toEqual(["test"]);
     expect(governanceAllowedTargetSlugs(sampleCatalog, "test")).toEqual([]);
+  });
+
+  it("keeps an empty target list when a source has no allowed transitions", () => {
+    const catalogWithIsolatedSource: GovernanceEnvironmentCatalog = {
+      ...sampleCatalog,
+      transitions: [],
+    };
+
+    expect(governanceAllowedTargetSlugs(catalogWithIsolatedSource, "dev")).toEqual([]);
   });
 
   it("detects whether a transition is allowed", () => {

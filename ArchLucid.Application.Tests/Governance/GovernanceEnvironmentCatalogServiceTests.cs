@@ -18,7 +18,7 @@ public sealed class GovernanceEnvironmentCatalogServiceTests
     };
 
     [Fact]
-    public async Task GetCatalogAsync_seeds_defaults_when_scope_is_empty()
+    public async Task GetCatalogAsync_returns_defaults_without_persisting_when_scope_is_empty()
     {
         InMemoryGovernanceEnvironmentCatalogRepository repository = new();
         GovernanceEnvironmentCatalogService service = CreateService(repository);
@@ -27,10 +27,10 @@ public sealed class GovernanceEnvironmentCatalogServiceTests
 
         catalog.Environments.Should().HaveCount(3);
         catalog.Transitions.Should().HaveCount(2);
-        GovernanceEnvironmentTransitionRules.IsValidTransition(
-            GovernanceEnvironment.Dev,
-            GovernanceEnvironment.Test,
-            catalog).Should().BeTrue();
+        catalog.IsAdministratorConfigured.Should().BeFalse();
+        (await repository.GetByScopeAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, CancellationToken.None))
+            .Should()
+            .BeNull();
     }
 
     [Fact]
@@ -46,12 +46,62 @@ public sealed class GovernanceEnvironmentCatalogServiceTests
                 new GovernanceEnvironmentDefinition { Slug = "qa", DisplayName = "QA", SortOrder = 0, IsActive = true },
                 new GovernanceEnvironmentDefinition { Slug = "qa", DisplayName = "QA duplicate", SortOrder = 1, IsActive = true },
             ],
-            Transitions = [],
+            Transitions =
+            [
+                new GovernanceEnvironmentTransition { SourceSlug = "qa", TargetSlug = "qa" },
+            ],
         };
 
         Func<Task> act = async () => await service.ReplaceCatalogAsync(request, CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task ReplaceCatalogAsync_rejects_zero_transitions()
+    {
+        InMemoryGovernanceEnvironmentCatalogRepository repository = new();
+        GovernanceEnvironmentCatalogService service = CreateService(repository);
+
+        ReplaceGovernanceEnvironmentCatalogRequest request = new()
+        {
+            Environments =
+            [
+                new GovernanceEnvironmentDefinition { Slug = "draft", DisplayName = "Draft", SortOrder = 0, IsActive = true },
+            ],
+            Transitions = [],
+        };
+
+        Func<Task> act = async () => await service.ReplaceCatalogAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*At least one transition is required*");
+    }
+
+    [Fact]
+    public async Task ReplaceCatalogAsync_rejects_duplicate_transition_edges()
+    {
+        InMemoryGovernanceEnvironmentCatalogRepository repository = new();
+        GovernanceEnvironmentCatalogService service = CreateService(repository);
+
+        ReplaceGovernanceEnvironmentCatalogRequest request = new()
+        {
+            Environments =
+            [
+                new GovernanceEnvironmentDefinition { Slug = "draft", DisplayName = "Draft", SortOrder = 0, IsActive = true },
+                new GovernanceEnvironmentDefinition { Slug = "approved", DisplayName = "Approved", SortOrder = 1, IsActive = true },
+            ],
+            Transitions =
+            [
+                new GovernanceEnvironmentTransition { SourceSlug = "draft", TargetSlug = "approved" },
+                new GovernanceEnvironmentTransition { SourceSlug = "draft", TargetSlug = "approved" },
+            ],
+        };
+
+        Func<Task> act = async () => await service.ReplaceCatalogAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*Duplicate transition*");
     }
 
     [Fact]
@@ -77,6 +127,16 @@ public sealed class GovernanceEnvironmentCatalogServiceTests
 
         (await service.IsValidTransitionAsync("draft", "approved", CancellationToken.None)).Should().BeTrue();
         (await service.IsValidTransitionAsync("approved", "draft", CancellationToken.None)).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task IsValidTransitionAsync_falls_back_to_static_ladder_when_scope_is_unconfigured()
+    {
+        InMemoryGovernanceEnvironmentCatalogRepository repository = new();
+        GovernanceEnvironmentCatalogService service = CreateService(repository);
+
+        (await service.IsValidTransitionAsync("dev", "test", CancellationToken.None)).Should().BeTrue();
+        (await service.IsValidTransitionAsync("dev", "prod", CancellationToken.None)).Should().BeFalse();
     }
 
     private static GovernanceEnvironmentCatalogService CreateService(IGovernanceEnvironmentCatalogRepository repository)

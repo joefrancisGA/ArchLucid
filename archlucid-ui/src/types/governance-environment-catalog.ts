@@ -11,6 +11,7 @@ export type GovernanceEnvironmentTransition = {
 };
 
 export type GovernanceEnvironmentCatalog = {
+  isAdministratorConfigured: boolean;
   environments: GovernanceEnvironmentDefinition[];
   transitions: GovernanceEnvironmentTransition[];
 };

@@ -40,6 +40,7 @@ public sealed class InMemoryGovernanceEnvironmentCatalogRepository : IGovernance
         {
             _catalogs[key] = new GovernanceEnvironmentCatalog
             {
+                IsAdministratorConfigured = catalog.IsAdministratorConfigured,
                 Environments = catalog.Environments.ToList(),
                 Transitions = catalog.Transitions.ToList(),
             };

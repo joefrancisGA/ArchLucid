@@ -62,6 +62,7 @@ public sealed class DapperGovernanceEnvironmentCatalogRepository(ISqlConnectionF
 
         return new GovernanceEnvironmentCatalog
         {
+            IsAdministratorConfigured = true,
             Environments = environments,
             Transitions = transitions,
         };
