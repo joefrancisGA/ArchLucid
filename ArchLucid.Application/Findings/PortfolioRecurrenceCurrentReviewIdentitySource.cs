@@ -10,5 +10,5 @@ public sealed class PortfolioRecurrenceCurrentReviewIdentitySource : IPortfolioR
     public IReadOnlyCollection<string> GetIdentities() => _identities;
 
     public void SetIdentities(IReadOnlyCollection<string> identities) =>
-        _identities = identities ?? throw new ArgumentNullException(nameof(identities));
+        _identities = identities is null ? throw new ArgumentNullException(nameof(identities)) : identities.ToArray();
 }

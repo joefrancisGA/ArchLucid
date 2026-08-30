@@ -98,23 +98,23 @@ public sealed class PortfolioRecurrenceFindingEngine(
                 ct);
         }
 
-        KeyValuePair<string, RunSummary>? currentSystem = scannedSystems
+        KeyValuePair<string, RunSummary> currentSystem = scannedSystems
             .FirstOrDefault(pair => string.Equals(pair.Value.RunId, currentRunId, StringComparison.OrdinalIgnoreCase));
 
-        if (currentSystem is not null)
+        if (!string.IsNullOrEmpty(currentSystem.Key))
         {
             await AccumulatePersistedSystemIdentitiesAsync(
                 scope,
-                currentSystem.Value.Key,
-                currentSystem.Value.Value.RunId,
+                currentSystem.Key,
+                currentSystem.Value.RunId,
                 identitiesBySystem,
                 recurrenceByIdentity,
                 ct);
 
-            if (!identitiesBySystem.ContainsKey(currentSystem.Value.Key))
-                AddInFlightIdentitiesForSystem(currentSystem.Value.Key, identitiesBySystem, recurrenceByIdentity);
-            else if (identitiesBySystem[currentSystem.Value.Key].Count == 0)
-                AddInFlightIdentitiesForSystem(currentSystem.Value.Key, identitiesBySystem, recurrenceByIdentity);
+            if (!identitiesBySystem.ContainsKey(currentSystem.Key))
+                AddInFlightIdentitiesForSystem(currentSystem.Key, identitiesBySystem, recurrenceByIdentity);
+            else if (identitiesBySystem[currentSystem.Key].Count == 0)
+                AddInFlightIdentitiesForSystem(currentSystem.Key, identitiesBySystem, recurrenceByIdentity);
         }
 
         HashSet<string> currentScopeIdentities = ResolveCurrentScopeIdentities(
@@ -293,17 +293,17 @@ public sealed class PortfolioRecurrenceFindingEngine(
         IPortfolioRecurrenceCurrentReviewIdentitySource? currentReviewIdentitySource)
     {
         string currentRunId = graphSnapshot.RunId.ToString("N");
-        KeyValuePair<string, RunSummary>? currentSystem = scannedSystems
+        KeyValuePair<string, RunSummary> currentSystem = scannedSystems
             .FirstOrDefault(pair => string.Equals(pair.Value.RunId, currentRunId, StringComparison.OrdinalIgnoreCase));
 
-        if (currentSystem is null)
+        if (string.IsNullOrEmpty(currentSystem.Key))
         {
             return [];
         }
 
         HashSet<string> identities = [];
 
-        if (identitiesBySystem.TryGetValue(currentSystem.Value.Key, out HashSet<string>? persistedIdentities))
+        if (identitiesBySystem.TryGetValue(currentSystem.Key, out HashSet<string>? persistedIdentities))
         {
             foreach (string identity in persistedIdentities)
                 identities.Add(identity);
