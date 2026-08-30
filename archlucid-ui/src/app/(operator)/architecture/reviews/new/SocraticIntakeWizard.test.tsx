@@ -112,6 +112,20 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
+vi.mock("@/lib/architecture/architecture-draft-registry", () => ({
+  buildArchitectureDraftRegistryEntry: vi.fn(() => ({
+    architectureId: "draft-1",
+    displayName: "ArchLucid",
+    customerStatus: "ready-for-review",
+    ownerLabel: "You",
+    lastUpdatedUtc: "2026-08-05T12:00:00Z",
+    linkedReviewId: null,
+    serverUpdatedUtc: "2026-08-05T12:00:00Z",
+    serverDraftStatus: "Admitted",
+  })),
+  upsertArchitectureDraftRegistryEntry: vi.fn(),
+}));
+
 vi.mock("@/components/draft-intake/DraftIntakeReasoningPanel", () => ({
   DraftIntakeReasoningPanel: () => <div data-testid="draft-intake-reasoning-stub">Reasoning stub</div>,
 }));
@@ -1059,21 +1073,37 @@ describe("SocraticIntakeWizard", () => {
       requestId: "req-branch",
       parentSpawnedRunId: "parent-run",
     });
-    getDraftRequest.mockResolvedValue({
-      draftId: "draft-1",
-      tenantId: "tenant-1",
-      workspaceId: "workspace-1",
-      projectId: "project-1",
-      status: "RunSpawned",
-      spawnedRunId: "branch-run",
-      document: {
-        freeTextIntent: VALID_GUIDED_INTENT,
-        businessOutcome: "Reduce manual triage time by thirty percent.",
-        actorSet: { actors: [] },
-      },
-      createdUtc: "2026-08-05T12:00:00Z",
-      updatedUtc: "2026-08-05T12:00:00Z",
-    });
+    getDraftRequest
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        status: "Admitted",
+        document: {
+          freeTextIntent: VALID_GUIDED_INTENT,
+          businessOutcome: "Reduce manual triage time by thirty percent.",
+          actorSet: { actors: [] },
+          requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+        },
+        createdUtc: "2026-08-05T12:00:00Z",
+        updatedUtc: "2026-08-05T12:00:00Z",
+      })
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        status: "RunSpawned",
+        spawnedRunId: "branch-run",
+        document: {
+          freeTextIntent: VALID_GUIDED_INTENT,
+          businessOutcome: "Reduce manual triage time by thirty percent.",
+          actorSet: { actors: [] },
+        },
+        createdUtc: "2026-08-05T12:00:00Z",
+        updatedUtc: "2026-08-05T12:00:00Z",
+      });
 
     render(<SocraticIntakeWizard />);
 
@@ -1085,13 +1115,24 @@ describe("SocraticIntakeWizard", () => {
     });
 
     fireEvent.click(screen.getByTestId("socratic-questions-done"));
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-submit")).toBeEnabled();
+    });
     fireEvent.click(screen.getByTestId("socratic-submit"));
 
     await waitFor(() => {
-      expect(routerPush).toHaveBeenCalledWith(
-        "/architecture/reviews/branch-run?parentRunId=parent-run&autoCompare=1",
-      );
+      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1");
     });
+    await waitFor(() => {
+      expect(routerPush).toHaveBeenCalled();
+    });
+
+    const navigationTarget = routerPush.mock.calls.at(-1)?.[0];
+    const href = new URL(String(navigationTarget), "https://archlucid.test");
+
+    expect(href.pathname).toBe("/architecture/reviews/branch-run");
+    expect(href.searchParams.get("parentRunId")).toBe("parent-run");
+    expect(href.searchParams.get("autoCompare")).toBe("1");
   });
 
   it("gates continue on scope confirmation so the brief carries scope before admission", async () => {
@@ -1146,6 +1187,31 @@ describe("SocraticIntakeWizard", () => {
 
     // A patch here would be rejected: the draft is immutable in status Admitted.
     expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows a failed admission inline above the CTA instead of a toast", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockRejectedValue(
+      new ApiRequestError("A review or architecture named 'ArchLucid' already exists in this workspace.", {
+        problem: null,
+        correlationId: "corr-1",
+        httpStatus: 409,
+      }),
+    );
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    const inlineError = await screen.findByTestId("guided-intake-request-error");
+
+    expect(inlineError).toHaveTextContent(/already exists/i);
+    expect(showError).not.toHaveBeenCalled();
+    expect(
+      inlineError.compareDocumentPosition(screen.getByTestId("socratic-admit"))
+        & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it("shows a failed submit inline above the CTA instead of a toast", async () => {

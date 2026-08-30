@@ -236,8 +236,15 @@ public sealed class DraftAdmissionService(
 
         if (!string.IsNullOrWhiteSpace(existing.Document.SystemName))
         {
+            Guid? excludeRunId = ArchitectureReviewSourceRunResolver.TryParseRunGuid(existing.Document.PriorRunId);
+
             await _workspaceSystemNameCollisionGuard
-                .EnsureAvailableAsync(scope, existing.Document.SystemName, excludeDraftId: draftId, cancellationToken: cancellationToken)
+                .EnsureAvailableAsync(
+                    scope,
+                    existing.Document.SystemName,
+                    excludeDraftId: draftId,
+                    excludeRunId: excludeRunId,
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
 

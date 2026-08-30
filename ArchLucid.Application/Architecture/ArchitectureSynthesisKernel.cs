@@ -99,8 +99,14 @@ public sealed class ArchitectureSynthesisKernel(
             throw new RequestContentSafetyRejectedException(safety.Reasons);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid? excludeRunId = ArchitectureReviewSourceRunResolver.TryParseRunGuid(request.PriorRunId);
+
         await _workspaceSystemNameCollisionGuard
-            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+            .EnsureAvailableAsync(
+                scope,
+                request.SystemName,
+                excludeRunId: excludeRunId,
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         ArchitectureRequest? existing =
