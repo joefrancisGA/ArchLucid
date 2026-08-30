@@ -46,7 +46,9 @@ const DISABLED_SUBSCRIPTION_GAP_CODE = "no_enabled_digest_subscriptions";
 const SPONSOR_EMAIL_GAP_CODE = "sponsor_email_digest_not_configured";
 
 /**
- * Maps a backend setup-gap string to title, impact, and a next-action link.
+ * Maps backend setup-gap data to title, impact, and a next-action link.
+ * When provided, the stable `gapCode` is preferred so mapping remains resilient to copy changes;
+ * otherwise the function falls back to string and regex matching on the setup-gap text.
  * Unknown gaps fall back to a generic configure action on the Schedule tab.
  */
 export function mapDigestSetupGap(gap: string, gapCode?: string | null): DigestSetupGapAction {
