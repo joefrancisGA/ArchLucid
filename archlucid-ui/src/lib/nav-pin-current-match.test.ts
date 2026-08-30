@@ -21,6 +21,12 @@ describe("findNavLinkMatchingPathname", () => {
     expect(findNavLinkMatchingPathname(links, WORKSPACE_HEALTH_PATH)).toEqual(links[0]);
   });
 
+  it("matches nested routes with fragments stripped from href", () => {
+    const links = [link("/governance/audit#summary", "Audit")];
+
+    expect(findNavLinkMatchingPathname(links, "/governance/audit")).toEqual(links[0]);
+  });
+
   it("matches nested routes with query strings stripped from href", () => {
     const links = [link("/governance/audit?tab=recent", "Audit")];
 
