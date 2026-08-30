@@ -14,3 +14,28 @@ export const LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH_FRAGMENT =
 export function isWorkspaceHealthPath(pathname: string): boolean {
   return pathname === WORKSPACE_HEALTH_PATH || pathname.startsWith(`${WORKSPACE_HEALTH_PATH}/`);
 }
+
+/** Canonical workspace health href — preserves legacy bookmark query strings. */
+export function buildWorkspaceHealthRedirectHref(
+  searchParams: Record<string, string | string[] | undefined>,
+): string {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(searchParams)) {
+    if (value === undefined) {
+      continue;
+    }
+
+    if (Array.isArray(value)) {
+      for (const entry of value) {
+        params.append(key, entry);
+      }
+    } else {
+      params.set(key, value);
+    }
+  }
+
+  const query = params.toString();
+
+  return query.length === 0 ? WORKSPACE_HEALTH_PATH : `${WORKSPACE_HEALTH_PATH}?${query}`;
+}

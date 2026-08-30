@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildWorkspaceHealthRedirectHref,
   isWorkspaceHealthPath,
   LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH,
   LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH_FRAGMENT,
@@ -20,6 +21,27 @@ describe("isWorkspaceHealthPath", () => {
     expect(isWorkspaceHealthPath("/insights/workspace-healthish")).toBe(false);
     expect(isWorkspaceHealthPath("/insights/workspace-health-extra")).toBe(false);
     expect(isWorkspaceHealthPath("/governance/dashboard")).toBe(false);
+  });
+});
+
+describe("buildWorkspaceHealthRedirectHref", () => {
+  it("returns the canonical path when search params are absent", () => {
+    expect(buildWorkspaceHealthRedirectHref({})).toBe(WORKSPACE_HEALTH_PATH);
+  });
+
+  it("preserves legacy bookmark query strings", () => {
+    expect(buildWorkspaceHealthRedirectHref({ utm_source: "email" })).toBe(
+      `${WORKSPACE_HEALTH_PATH}?utm_source=email`,
+    );
+    expect(buildWorkspaceHealthRedirectHref({ status: "Open", cursor: "abc" })).toBe(
+      `${WORKSPACE_HEALTH_PATH}?status=Open&cursor=abc`,
+    );
+  });
+
+  it("preserves repeated query params", () => {
+    expect(buildWorkspaceHealthRedirectHref({ tag: ["a", "b"] })).toBe(
+      `${WORKSPACE_HEALTH_PATH}?tag=a&tag=b`,
+    );
   });
 });
 
