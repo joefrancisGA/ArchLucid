@@ -13,6 +13,7 @@ public sealed partial class DifficultyBasedExtractionRouter
 
         // Ambiguity / human-review signals must outrank superficial "structured" markers (tables, YAML
         // front matter, JSON braces). Otherwise contradictory content is stamped DirectlyEstablished.
+
         if (RequiresHumanReview(sourceText))
         {
             return ExtractionDifficulty.HumanReviewRequired;
