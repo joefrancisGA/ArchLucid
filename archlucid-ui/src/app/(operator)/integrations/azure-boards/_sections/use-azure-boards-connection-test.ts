@@ -69,7 +69,13 @@ export function useAzureBoardsConnectionTest(options: UseAzureBoardsConnectionTe
     } finally {
       setIsTesting(false);
     }
-  }, [options, testGate.allowed]);
+  }, [
+    testGate.allowed,
+    options.setLastTestAt,
+    options.setLastTestSummary,
+    options.setLastTestSuccess,
+    options.setHealth,
+  ]);
 
   return {
     testError,

@@ -68,7 +68,14 @@ export function useAzureBoardsPageLoad({
     setLastTestAt(loaded?.lastConnectionTestUtc ?? null);
     setLastTestSummary(loaded?.lastConnectionTestSummary ?? null);
     setLastTestSuccess(
-      loaded?.lastConnectionTestUtc ? loaded.lastConnectionTestSummary?.toLowerCase().includes("succeed") ?? null : null,
+      loaded?.lastConnectionTestUtc
+        ? (() => {
+            const s = loaded.lastConnectionTestSummary?.toLowerCase() ?? "";
+            if (s.includes("succeeded") || s.includes("connection check passed")) return true;
+            if (s.includes("failed") || s.includes("error") || s.includes("unauthorized")) return false;
+            return null;
+          })()
+        : null,
     );
   }, [setAreaPath, setDefaultTags, setIterationPath, setLastTestAt, setLastTestSuccess, setLastTestSummary, setProjectName, setWorkItemType]);
 
