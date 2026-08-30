@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -133,14 +134,10 @@ public sealed class GovernancePreviewController(
         }
     }
 
-    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
-        return null;
-    }
+    private Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken) =>
+        TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeContextProvider,
+            _tenantRepository,
+            cancellationToken);
 }
