@@ -99,9 +99,8 @@ export function GovernanceJobRouterStrip(props: GovernanceJobRouterStripProps): 
   return (
     <section
       className={cn(
-        isCompact
-          ? "mb-4 space-y-2 rounded-md border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"
-          : "mb-6 space-y-3 rounded-md border border-neutral-200 bg-neutral-50/50 px-3 py-3 dark:border-neutral-700 dark:bg-neutral-900/30",
+        "rounded-md border border-neutral-200 bg-neutral-50/50 px-3 dark:border-neutral-700 dark:bg-neutral-900/30",
+        isCompact ? "mb-4 space-y-2 py-2" : "mb-6 space-y-3 py-3",
         props.className,
       )}
       aria-labelledby={isCompact ? undefined : "governance-job-router-heading"}
