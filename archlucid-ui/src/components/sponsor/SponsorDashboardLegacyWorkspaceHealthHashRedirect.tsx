@@ -4,12 +4,12 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import {
-  SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID,
-} from "@/lib/sponsor/sponsor-dashboard-route";
-import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
+  LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH_FRAGMENT,
+  WORKSPACE_HEALTH_PATH,
+} from "@/lib/workspace-health-route";
 
 function isLegacyWorkspaceHealthHash(hash: string): boolean {
-  return hash === `#${SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID}`;
+  return hash === LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH_FRAGMENT;
 }
 
 function legacyWorkspaceHealthRedirectTarget(): string {

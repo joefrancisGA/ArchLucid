@@ -2,7 +2,10 @@ import { render } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SponsorDashboardLegacyWorkspaceHealthHashRedirect } from "@/components/sponsor/SponsorDashboardLegacyWorkspaceHealthHashRedirect";
-import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
+import {
+  LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH_FRAGMENT,
+  WORKSPACE_HEALTH_PATH,
+} from "@/lib/workspace-health-route";
 
 const replace = vi.fn();
 
@@ -20,7 +23,7 @@ describe("SponsorDashboardLegacyWorkspaceHealthHashRedirect", () => {
   });
 
   it("redirects on mount when the legacy hash is present", () => {
-    window.location.hash = "#workspace-health";
+    window.location.hash = LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH_FRAGMENT;
 
     render(<SponsorDashboardLegacyWorkspaceHealthHashRedirect />);
 
@@ -33,14 +36,14 @@ describe("SponsorDashboardLegacyWorkspaceHealthHashRedirect", () => {
     render(<SponsorDashboardLegacyWorkspaceHealthHashRedirect />);
 
     replace.mockClear();
-    window.location.hash = "#workspace-health";
+    window.location.hash = LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH_FRAGMENT;
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
     expect(replace).toHaveBeenCalledWith(WORKSPACE_HEALTH_PATH);
   });
 
   it("preserves the query string when redirecting legacy bookmarks", () => {
-    window.history.replaceState({}, "", "/architecture/sponsor-dashboard?utm=foo#workspace-health");
+    window.history.replaceState({}, "", `/architecture/sponsor-dashboard?utm=foo${LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH_FRAGMENT}`);
 
     render(<SponsorDashboardLegacyWorkspaceHealthHashRedirect />);
 
