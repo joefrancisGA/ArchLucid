@@ -135,14 +135,21 @@ export default function GovernanceEnvironmentsClient() {
         const environments = current.environments.map((environment, environmentIndex) =>
           environmentIndex === index ? updatedEnvironment : environment,
         );
+        const previousSlug = environmentToUpdate.slug;
+        const nextSlug = updatedEnvironment.slug;
+
+        const remappedTransitions = current.transitions.map((transition) => ({
+          ...transition,
+          sourceSlug: transition.sourceSlug === previousSlug ? nextSlug : transition.sourceSlug,
+          targetSlug: transition.targetSlug === previousSlug ? nextSlug : transition.targetSlug,
+        }));
+
         const transitions =
           environmentToUpdate.isActive && updatedEnvironment.isActive === false
-            ? current.transitions.filter(
-                (transition) =>
-                  transition.sourceSlug !== updatedEnvironment.slug &&
-                  transition.targetSlug !== updatedEnvironment.slug,
+            ? remappedTransitions.filter(
+                (transition) => transition.sourceSlug !== nextSlug && transition.targetSlug !== nextSlug,
               )
-            : current.transitions;
+            : remappedTransitions;
 
         return { ...current, environments, transitions };
       });
