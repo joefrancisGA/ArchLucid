@@ -217,10 +217,9 @@ describe("GovernanceWorkflowPageContent approval state", () => {
     });
 
     expect(screen.getByText("No approval requests for this review")).toBeInTheDocument();
-    expect(screen.getByTestId("governance-workflow-outcome-banner")).toHaveTextContent(
-      GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS,
-    );
-    expect(screen.getByTestId("governance-workflow-outcome-banner").className).not.toContain("max-w-prose");
+    const banner = screen.getByTestId("governance-workflow-outcome-banner");
+    expect(banner).toHaveTextContent(GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS);
+    expect(banner.className).not.toContain("max-w-prose");
     expect(screen.queryByTestId("governance-buyer-approval-record-lead")).not.toBeInTheDocument();
     expect(screen.queryByText(/approval path complete/i)).not.toBeInTheDocument();
   });
