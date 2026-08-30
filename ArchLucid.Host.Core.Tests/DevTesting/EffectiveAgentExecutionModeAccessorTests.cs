@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace ArchLucid.Host.Core.Tests.DevTesting;
 
+[Trait("Category", "Unit")]
 public sealed class EffectiveAgentExecutionModeAccessorTests
 {
     [Fact]

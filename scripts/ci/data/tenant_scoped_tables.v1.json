@@ -9,6 +9,7 @@
     "dbo.ArchitectureDigests",
     "dbo.ArchitectureReviewRecurrenceSchedules",
     "dbo.ArchitectureRunIdempotency",
+    "dbo.Architectures",
     "dbo.ArtifactBundles",
     "dbo.AuditEvents",
     "dbo.AuthorityPipelineWorkOutbox",

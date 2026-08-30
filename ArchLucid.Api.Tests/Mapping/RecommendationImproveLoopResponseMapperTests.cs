@@ -7,6 +7,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests.Mapping;
 
+[Trait("Category", "Unit")]
 public sealed class RecommendationImproveLoopResponseMapperTests
 {
     [Fact]

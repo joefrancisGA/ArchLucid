@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 
+[Trait("Category", "Unit")]
 public sealed class ArchitectureIntelligenceStableCheckKeyTests
 {
     [Fact]

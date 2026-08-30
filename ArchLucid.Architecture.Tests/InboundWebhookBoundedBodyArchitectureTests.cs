@@ -55,7 +55,7 @@ public sealed class InboundWebhookBoundedBodyArchitectureTests
             "ArchLucid.Application",
             "Integrations",
             "Itsm",
-            "ItsmInboundWebhookSyncService.cs");
+            "ItsmInboundWebhookSyncSupport.cs");
 
         string limits = File.ReadAllText(limitsPath);
         string itsm = File.ReadAllText(itsmPath);
