@@ -98,25 +98,20 @@ public sealed class PortfolioRecurrenceFindingEngine(
                 ct);
         }
 
-        KeyValuePair<string, RunSummary>? currentSystem = scannedSystems
-            .FirstOrDefault(pair => string.Equals(pair.Value.RunId, currentRunId, StringComparison.OrdinalIgnoreCase));
-
-        if (currentSystem.HasValue &&
-            !string.IsNullOrEmpty(currentSystem.Value.Key) &&
-            currentSystem.Value.Value is not null)
+        if (TryGetCurrentSystem(scannedSystems, currentRunId, out string currentSystemName, out RunSummary currentSystemSummary))
         {
             await AccumulatePersistedSystemIdentitiesAsync(
                 scope,
-                currentSystem.Value.Key,
-                currentSystem.Value.Value.RunId,
+                currentSystemName,
+                currentSystemSummary.RunId,
                 identitiesBySystem,
                 recurrenceByIdentity,
                 ct);
 
-            if (!identitiesBySystem.ContainsKey(currentSystem.Value.Key))
-                AddInFlightIdentitiesForSystem(currentSystem.Value.Key, identitiesBySystem, recurrenceByIdentity);
-            else if (identitiesBySystem[currentSystem.Value.Key].Count == 0)
-                AddInFlightIdentitiesForSystem(currentSystem.Value.Key, identitiesBySystem, recurrenceByIdentity);
+            if (!identitiesBySystem.ContainsKey(currentSystemName))
+                AddInFlightIdentitiesForSystem(currentSystemName, identitiesBySystem, recurrenceByIdentity);
+            else if (identitiesBySystem[currentSystemName].Count == 0)
+                AddInFlightIdentitiesForSystem(currentSystemName, identitiesBySystem, recurrenceByIdentity);
         }
 
         HashSet<string> currentScopeIdentities = ResolveCurrentScopeIdentities(
@@ -295,17 +290,15 @@ public sealed class PortfolioRecurrenceFindingEngine(
         IPortfolioRecurrenceCurrentReviewIdentitySource? currentReviewIdentitySource)
     {
         string currentRunId = graphSnapshot.RunId.ToString("N");
-        KeyValuePair<string, RunSummary>? currentSystem = scannedSystems
-            .FirstOrDefault(pair => string.Equals(pair.Value.RunId, currentRunId, StringComparison.OrdinalIgnoreCase));
-
-        if (currentSystem is null)
+        
+        if (!TryGetCurrentSystem(scannedSystems, currentRunId, out string currentSystemName, out _))
         {
             return [];
         }
 
         HashSet<string> identities = [];
 
-        if (identitiesBySystem.TryGetValue(currentSystem.Value.Key, out HashSet<string>? persistedIdentities))
+        if (identitiesBySystem.TryGetValue(currentSystemName, out HashSet<string>? persistedIdentities))
         {
             foreach (string identity in persistedIdentities)
                 identities.Add(identity);
@@ -318,6 +311,27 @@ public sealed class PortfolioRecurrenceFindingEngine(
         }
 
         return identities;
+    }
+
+    private static bool TryGetCurrentSystem(
+        IReadOnlyList<KeyValuePair<string, RunSummary>> scannedSystems,
+        string currentRunId,
+        out string systemName,
+        out RunSummary systemSummary)
+    {
+        foreach ((string scannedSystemName, RunSummary scannedSystemSummary) in scannedSystems)
+        {
+            if (!string.Equals(scannedSystemSummary.RunId, currentRunId, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            systemName = scannedSystemName;
+            systemSummary = scannedSystemSummary;
+            return true;
+        }
+
+        systemName = string.Empty;
+        systemSummary = null!;
+        return false;
     }
 
     private static IEnumerable<Finding> DeduplicateByMergeKey(IEnumerable<Finding> findings)

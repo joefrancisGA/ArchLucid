@@ -146,6 +146,7 @@ public sealed class DeclarationPremiseConflictFindingEngine(IComplianceRulePackP
         double minWeightInclusive)
     {
         List<ApplicableIntentNode> narrowIntentNodes = [];
+        HashSet<string> seenIntentNodeIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string edgeType in new[] { GraphEdgeTypes.Protects, GraphEdgeTypes.AppliesTo })
         {
@@ -158,8 +159,7 @@ public sealed class DeclarationPremiseConflictFindingEngine(IComplianceRulePackP
                 if (!IsIntentNode(source))
                     continue;
 
-                if (narrowIntentNodes.Any(node =>
-                        string.Equals(node.IntentNode.NodeId, source.NodeId, StringComparison.OrdinalIgnoreCase)))
+                if (!seenIntentNodeIds.Add(source.NodeId))
                     continue;
 
                 narrowIntentNodes.Add(new ApplicableIntentNode(source, true));

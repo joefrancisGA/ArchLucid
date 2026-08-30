@@ -28,6 +28,9 @@ public partial class FindingsOrchestrator(
 {
     private const string PortfolioRecurrenceEngineType = "portfolio-recurrence";
 
+    private readonly IFindingPayloadValidator _validator =
+        validator ?? throw new ArgumentNullException(nameof(validator));
+
     private readonly IOptions<HumanReviewFindingOptions> _humanReviewOptions =
         humanReviewOptions ?? throw new ArgumentNullException(nameof(humanReviewOptions));
 
@@ -60,12 +63,16 @@ public partial class FindingsOrchestrator(
         int successfulEngineInvocations = 0;
 
         IReadOnlyList<EngineAdapter> allAdapters = EngineAdapter.FromEngines(engines, effectfulEngines);
+        bool deferPortfolioRecurrence = _portfolioRecurrenceCurrentReviewIdentitySource is not null;
         EngineAdapter[] primaryAdapters = allAdapters
-            .Where(adapter => !string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.OrdinalIgnoreCase))
+            .Where(adapter =>
+                !deferPortfolioRecurrence
+                || !string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.OrdinalIgnoreCase))
             .ToArray();
-        EngineAdapter? portfolioRecurrenceAdapter = allAdapters
-            .FirstOrDefault(adapter =>
-                string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.OrdinalIgnoreCase));
+        EngineAdapter? portfolioRecurrenceAdapter = deferPortfolioRecurrence
+            ? allAdapters.FirstOrDefault(adapter =>
+                string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.OrdinalIgnoreCase))
+            : null;
 
         Task<EngineInvocationOutcome>[] invocationTasks = primaryAdapters
             .Select(adapter => InvokeEngineAsync(adapter, graphSnapshot, ct))
@@ -208,7 +215,7 @@ public partial class FindingsOrchestrator(
             }
 
             if (!TryAcceptValidatedFinding(
-                    validator,
+                    _validator,
                     finding,
                     engine,
                     engineFailures,
