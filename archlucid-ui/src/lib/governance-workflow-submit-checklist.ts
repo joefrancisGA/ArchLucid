@@ -1,4 +1,5 @@
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
+import { GOVERNANCE_APPROVAL_SUBMIT_CHECKLIST_LABEL } from "@/lib/vocabulary/governance-approval-vocabulary";
 
 export function resolveGovernanceWorkflowSubmitSteps(input: {
   readonly reviewPicked: boolean;
@@ -18,7 +19,7 @@ export function resolveGovernanceWorkflowSubmitSteps(input: {
     },
     {
       id: "submit",
-      label: "Submit for resolve outcomes",
+      label: GOVERNANCE_APPROVAL_SUBMIT_CHECKLIST_LABEL,
       complete: input.submitComplete,
     },
   ];

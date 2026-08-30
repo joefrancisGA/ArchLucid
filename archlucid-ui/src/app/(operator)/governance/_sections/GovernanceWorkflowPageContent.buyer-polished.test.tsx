@@ -121,7 +121,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
     mutationCapability: false,
     layerGuidance: {
       layerBadge: "Approval",
-      headline: "Submit finalized architecture outputs for resolve outcomes review and promotion.",
+      headline: "Submit finalized architecture outputs for governance approval review and promotion.",
       useWhen: "Pick one review and move from submission through approval.",
       firstPilotNote: null,
       enterpriseFootnote: "Approvals follow the configured approval path.",
@@ -210,7 +210,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     );
     expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-interactive-quickstart")).not.toBeInTheDocument();
-    expect(screen.queryAllByText("How resolve outcomes work")).toHaveLength(1);
+    expect(screen.queryAllByText("How governance approval works")).toHaveLength(1);
     expect(screen.queryByTestId("governance-sample-overview-banner")).not.toBeInTheDocument();
     expect(screen.queryByTestId("inline-guidance-governance-overview-next")).not.toBeInTheDocument();
     expect(screen.queryByTestId("governance-overview-submit-action")).not.toBeInTheDocument();
