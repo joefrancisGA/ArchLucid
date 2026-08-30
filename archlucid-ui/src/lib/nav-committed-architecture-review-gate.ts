@@ -63,7 +63,7 @@ function navPathWithoutQuery(href: string): string {
   return navHrefPathPart(href);
 }
 
-/** Insights workspace health uses a sponsor-dashboard fragment href but stays post-commit in the sidebar. */
+/** Insights workspace health is a standalone page and stays post-commit in the sidebar. */
 function isPreCommitOperateInsightsOnlyNavLink(href: string): boolean {
   return href === GOVERNANCE_WORKSPACE_HEALTH_HREF;
 }

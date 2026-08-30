@@ -40,6 +40,10 @@ import {
 } from "@/lib/signed-records-paths";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
+  LEGACY_GOVERNANCE_DASHBOARD_PATH,
+  WORKSPACE_HEALTH_PATH,
+} from "@/lib/workspace-health-route";
+import {
   LEGACY_SPONSOR_REPORT_ROOT_PATH,
   RETIRED_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
@@ -111,10 +115,14 @@ const LEGACY_ADMIN_PATH_MAP: Readonly<Record<string, string>> = {
 
 /**
  * Maps legacy bookmark paths to canonical operator routes for readiness, help, and orientation lookups.
- * Hard-retired paths (`/governance/dashboard`, `/sponsor/scorecard`) are not mapped — host-gate 404s them.
+ * Hard-retired paths (`/sponsor/scorecard`) are not mapped — host-gate 404s them.
  */
 export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
   const normalized = pathname.trim().length === 0 ? "/" : pathname;
+
+  if (normalized === LEGACY_GOVERNANCE_DASHBOARD_PATH || normalized.startsWith(`${LEGACY_GOVERNANCE_DASHBOARD_PATH}/`)) {
+    return normalized.replace(LEGACY_GOVERNANCE_DASHBOARD_PATH, WORKSPACE_HEALTH_PATH);
+  }
 
   if (pathMatchesRoutePrefix(normalized, LEGACY_AUDIT_PATH)) {
     return normalized.replace(LEGACY_AUDIT_PATH, GOVERNANCE_AUDIT_PATH);

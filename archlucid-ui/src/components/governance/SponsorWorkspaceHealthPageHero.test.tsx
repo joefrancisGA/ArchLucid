@@ -38,10 +38,17 @@ describe("SponsorWorkspaceHealthPageHero", () => {
     expect(screen.getByText(executiveWorkspaceHealthPageLead(false))).toBeInTheDocument();
   });
 
-  /** The enclosing dashboard section points `aria-labelledby` at this id, so it must exist on the heading. */
-  it("gives the heading the id the sponsor dashboard section labels itself with", () => {
-    render(<SponsorWorkspaceHealthPageHero buyerPolishedShell />);
+  it("renders an h1 on the standalone workspace health page", () => {
+    render(<SponsorWorkspaceHealthPageHero buyerPolishedShell standalonePage />);
 
-    expect(screen.getByRole("heading", { level: 2 })).toHaveAttribute("id", SPONSOR_WORKSPACE_HEALTH_HEADING_ID);
+    expect(screen.getByTestId("sponsor-workspace-health-page-hero")).toHaveAttribute("data-standalone-page", "true");
+    expect(screen.getByRole("heading", { level: 1, name: SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE })).toBeInTheDocument();
+  });
+
+  /** The page heading id supports in-page anchors and assistive labels. */
+  it("gives the heading the workspace health heading id", () => {
+    render(<SponsorWorkspaceHealthPageHero buyerPolishedShell standalonePage />);
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveAttribute("id", SPONSOR_WORKSPACE_HEALTH_HEADING_ID);
   });
 });

@@ -186,7 +186,7 @@ describe("nav-config structure", () => {
       "/insights/patterns",
       "/insights/sponsor-report",
       "/insights/roi-summary",
-      "/architecture/sponsor-dashboard#workspace-health",
+      "/insights/workspace-health",
     ]);
 
     const pilotHrefs = NAV_GROUPS.find((group) => group.id === "pilot")!.links.map((link) => link.href);

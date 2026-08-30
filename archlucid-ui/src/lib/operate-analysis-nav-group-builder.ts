@@ -131,7 +131,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       },
       {
         // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
-        href: GOVERNANCE_WORKSPACE_HEALTH_HREF as typeof GOVERNANCE_WORKSPACE_HEALTH_HREF & "/architecture/sponsor-dashboard#workspace-health",
+        href: GOVERNANCE_WORKSPACE_HEALTH_HREF as typeof GOVERNANCE_WORKSPACE_HEALTH_HREF & "/insights/workspace-health",
         label: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
         title: "Workspace health — approval and engagement KPIs for the active workspace scope",
         icon: HeartPulse,
