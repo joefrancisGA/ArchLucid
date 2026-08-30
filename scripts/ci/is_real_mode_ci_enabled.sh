@@ -12,8 +12,10 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 MODE="${1:-enabled}"
 
 _is_truthy() {
-  case "${1:-}" in
-    true | TRUE | 1 | yes | YES) return 0 ;;
+  local val
+  val="$(echo "${1:-}" | tr '[:upper:]' '[:lower:]')"
+  case "${val}" in
+    true | 1 | yes) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -73,7 +75,8 @@ case "${MODE}" in
     _main_ci_live_enabled
     ;;
   *)
-    echo "Unknown mode: ${MODE}" >&2
+    echo "Unknown mode: '${MODE}'. Valid modes: enabled, live-schedule, main-ci-live" >&2
+    echo "Usage: bash scripts/ci/is_real_mode_ci_enabled.sh [enabled|live-schedule|main-ci-live]" >&2
     exit 2
     ;;
 esac

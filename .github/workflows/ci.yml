@@ -3628,6 +3628,7 @@ jobs:
           ARCHLUCID_CI_REAL_AOAI_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
           ARCHLUCID_CI_REAL_AOAI_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
           ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT: ${{ vars.ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT }}
+          # Secondary fallbacks resolved by export_real_mode_aoai_env.sh if the ARCHLUCID_CI_REAL_AOAI_* secrets are absent.
           AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
         run: |

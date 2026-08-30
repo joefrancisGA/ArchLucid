@@ -83,5 +83,5 @@ fi
 echo "real_mode_aoai_deployment=${DEPLOYMENT}" >&2
 
 if [ -z "${ENDPOINT}" ] || [ -z "${API_KEY}" ]; then
-  echo "::notice::Live real-mode AOAI credentials not fully configured in this job context (endpoint or key empty)." >&2
+  echo "::notice::Live real-mode AOAI credentials not fully configured in this job context (endpoint or key empty)."
 fi

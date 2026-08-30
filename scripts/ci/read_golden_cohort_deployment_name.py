@@ -7,6 +7,7 @@ import json
 import sys
 from pathlib import Path
 
+# Must match the deploymentName in tests/golden-cohort/budget.config.json; update both together if the label changes.
 _DEFAULT = "archlucid-golden-cohort"
 
 
