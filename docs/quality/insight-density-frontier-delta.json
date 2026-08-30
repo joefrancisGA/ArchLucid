@@ -1,6 +1,6 @@
 {
   "schema": "archlucid.insight-density-frontier-delta-summary.v1",
-  "generatedUtc": "2026-08-30T01:43:20.378814+00:00",
+  "generatedUtc": "2026-08-26T05:17:16.095740+00:00",
   "rollup": "PASS",
   "scenarioCount": 3,
   "matchSimilarityThreshold": 0.6,
