@@ -140,7 +140,7 @@ export type RunDetailAgentFinding = {
   category?: string;
   findingId?: string;
   message?: string;
-  reasoningTrace?: string;
+  reasoningTrace?: string | null;
   severity?: string;
 };
 
