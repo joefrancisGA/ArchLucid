@@ -31,7 +31,7 @@ These prompts map 1:1 to the **top-10 weaknesses** and **§17** items from the 2
 
 | Item | Why |
 |------|-----|
-| PP-01 declaration prefix-family gating | Shipped (`DeclarationSignalPolicyKeyMap`) |
+| PP-01 declaration prefix-family gating | Shipped (`DeclarationSignalPolicyKeyMap`); **theme enablement re-measured 2026-08-28** — see below |
 | PP-02–PP-05 expectation facet / stamp / resolver UNION / cost require-cap | Shipped (`POLICY_PACK_EXPECTATION_FACET.md`) |
 | ID-01–ID-07, ID-08–ID-10 | Shipped or already prompted; **ID-11** is the only leftover density prompt — run it via WK-15, do not rewrite ID-08 |
 | FIT-01–05 ingestion parsers | Archive |
@@ -39,6 +39,19 @@ These prompts map 1:1 to the **top-10 weaknesses** and **§17** items from the 2
 | New coverage-shaped finding engines; Graph-RAG community summarization (ADR 0057) | Hold for **G-REAL-06** |
 | SOC 2 CPA (**G-REAL-05** / TB-135) and third-party pen test (**G-ASSURANCE-02** / TB-136) | Owner assurance; not `(A)` |
 | GTM **M-90** / **M-44** / **M-91** / **M-92** (assessment #2/#3/#5/#6) | GTM V1.1 human cohorts |
+
+## PP-01 follow-up — measured 2026-08-28
+
+Assessment §8 weakness 8 ("declaration *themes* still key off exact CIS/sec-base ids, so buyer-common packs emit nothing") is **real but mis-attributed**. It is not `IsThemeEnabled` semantics. Two mechanisms gate a theme, and both were failing for different packs:
+
+1. **Priority floor.** Bundled packs ship `priorityFloor: P0`, and floor `P0` evaluates **only** `P0` rules. Themes mapped exclusively to `P1`/`P2` ids were silent on the shipped pilot posture. **Fixed** by mapping the `P0`-tier controls that genuinely govern a theme: `sec-base-006` → `data-protection`, `aks`/`eks`/`gke-002` → `workload-isolation`, `aks`/`eks`/`gke-003` → `network-isolation`. `security-architecture-baseline` went from **silent** to emitting `data-protection`.
+2. **Catalog truncation.** The merged file catalog (`default-compliance.rules.json` + `ga-starter-compliance.rules.json`, **795** rules) carries only **10** rules for `soc2`, `cis-az`, `gdpr`, `hipaa`, `iso27001`, `pci`, `zta`, and `aks`. So **18 of 28** declared keys in **18** packs resolve to nothing, and mapped ids `soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021` can never fire. **Not fixed here** — extending that catalog means authoring ~144 rules with real `appliesToCategory` / `requiredNodeType` / `requiredEdgeType`, which changes `ComplianceFindingEngine` output for every tenant assigned those packs. Needs owner sequencing, not an incidental patch.
+
+**Do not "fix" by embedding `pack.curatedRules.v1` into the bundled packs.** `TenantCuratedComplianceRulePackMerger` *replaces* same-id file rules, and `CuratedComplianceRuleMapper` emits `AppliesToCategory = "TenantCurated"` with empty node/edge types — so embedding would silently **remove** compliance evaluability (and override priorities) for the ~10 rules per framework that already work. This was attempted and reverted during this pass.
+
+**Rejected design — do not implement.** A "family tier" letting any prefix-family id (e.g. `soc2-001` alone) enable every theme its framework governs. It would override deliberate admin rule curation and emit findings with no citable `PolicyRuleId`. This resolves assessment §20 open question **(e)**: prefix-family membership stays **vocabulary detection only**, never theme enablement.
+
+**Open owner decisions:** (a) whether bundled declaration packs should ship `priorityFloor: P1` (A4 frames `P0` as provisional); (b) whether to extend `ga-starter-compliance.rules.json` to full framework coverage. Measured per-pack table and guards: [`../quality/policy-filter-golden-delta.md`](../quality/policy-filter-golden-delta.md), `BundledPolicyPackDeclarationThemeTests`.
 
 ## Sequencing
 
