@@ -23,7 +23,8 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 public sealed class TenantErasureLegalHoldController(
     ITenantErasureCommandService tenantErasureCommands,
     ITenantRepository tenantRepository,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    TimeProvider? timeProvider = null) : ControllerBase
 {
     private readonly ITenantErasureCommandService _tenantErasureCommands =
         tenantErasureCommands ?? throw new ArgumentNullException(nameof(tenantErasureCommands));
@@ -33,6 +34,8 @@ public sealed class TenantErasureLegalHoldController(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
     /// <summary>Extend legal hold while the tenant is in erasure quarantine (tenant <c>Admin</c>).</summary>
     // idempotency-posture: operator-documented-safe-retry
@@ -60,7 +63,7 @@ public sealed class TenantErasureLegalHoldController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        if (body.UntilUtc <= TimeProvider.System.GetUtcNow())
+        if (body.UntilUtc <= _timeProvider.GetUtcNow())
         {
             return this.BadRequestProblem(
                 "untilUtc must be in the future.",

@@ -146,8 +146,6 @@ public sealed partial class ManifestsController
                 ProblemTypes.ValidationFailed);
         }
 
-        int? clampedMaxRelationships = maxRelationships;
-
         string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 
         if (string.Equals(format, FormatJson, StringComparison.OrdinalIgnoreCase))
@@ -190,7 +188,7 @@ public sealed partial class ManifestsController
                     })
                     .ToList(),
                 Relationships = includeRelationships
-                    ? manifest.Relationships.Take(clampedMaxRelationships ?? int.MaxValue).Select(r =>
+                    ? manifest.Relationships.Take(maxRelationships ?? int.MaxValue).Select(r =>
                         new ManifestSummaryRelationshipItem
                         {
                             SourceId = r.SourceId,
@@ -212,7 +210,7 @@ public sealed partial class ManifestsController
             IncludeRequiredControls = includeRequiredControls,
             IncludeTags = includeTags,
             IncludeComponentControls = includeComponentControls,
-            MaxRelationships = clampedMaxRelationships
+            MaxRelationships = maxRelationships
         };
 
         string content = manifestSummaryService.GenerateMarkdown(manifest, options);
