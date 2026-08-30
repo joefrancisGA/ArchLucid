@@ -16,6 +16,7 @@ import {
   SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT,
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
   SCOPE_UNDERSTANDING_CONFIRMED_STATUS_LABEL,
+  SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL,
   SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL,
   SCOPE_UNDERSTANDING_HEADING,
   SCOPE_UNDERSTANDING_HELPER,
@@ -41,6 +42,9 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
       />,
     );
 
+    expect(screen.getByTestId("architecture-scope-understanding-brief-label")).toHaveTextContent(
+      SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL,
+    );
     expect(screen.getByRole("heading", { name: SCOPE_UNDERSTANDING_HEADING })).toBeInTheDocument();
     expect(screen.getByText(SCOPE_UNDERSTANDING_HELPER)).toBeInTheDocument();
     expect(screen.getByLabelText(SCOPE_UNDERSTANDING_ADD_LABEL)).toBeInTheDocument();

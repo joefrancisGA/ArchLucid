@@ -54,6 +54,8 @@ export type ScopeUnderstandingBulletBehavior = {
   readonly label: string;
 };
 
+/** Visible region label on the bordered scope panel — ties the box to architecture brief language used elsewhere on intake surfaces. */
+export const SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL = "Architecture brief";
 export const SCOPE_UNDERSTANDING_HEADING = "What ArchLucid will treat as in-scope";
 export const SCOPE_UNDERSTANDING_HELPER =
   "Edit these lines or add your own, then confirm. Confirmed scope is saved into the intake brief the reviewer reads.";
