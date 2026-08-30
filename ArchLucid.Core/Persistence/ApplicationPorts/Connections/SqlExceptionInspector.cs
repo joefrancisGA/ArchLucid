@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence.Connections;
+namespace ArchLucid.Core.Persistence.ApplicationPorts.Connections;
 
 /// <summary>Extracts SQL Server error metadata from exception chains without pulling SqlClient into Application.</summary>
 public static class SqlExceptionInspector
