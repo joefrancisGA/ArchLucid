@@ -2,6 +2,12 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import {
+  OPERATOR_HOME_YOUR_WORK_COLUMN_NAME,
+  OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS,
+  OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE,
+  OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED,
+} from "@/lib/buyer/buyer-polish-copy";
 import type { RunSummary } from "@/types/authority";
 
 let mockDraftEntries: ArchitectureDraftRegistryEntry[] = [];
@@ -157,10 +163,10 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
     render(<UnfinishedWorkRail runs={runs} />);
 
     expect(screen.getByTestId("unfinished-work-rail-column-headers")).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Name" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Type" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Updated" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Status" })).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_NAME)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS)).toBeInTheDocument();
   });
 
   it("uses a shared grid so columns align across rows", () => {

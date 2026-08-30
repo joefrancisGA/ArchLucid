@@ -91,31 +91,16 @@ function UnfinishedWorkRailColumnHeaders(): React.JSX.Element {
       )}
       data-testid="unfinished-work-rail-column-headers"
     >
-      <span
-        role="columnheader"
-        className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-      >
+      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {OPERATOR_HOME_YOUR_WORK_COLUMN_NAME}
       </span>
-      <span
-        role="columnheader"
-        className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-      >
+      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE}
       </span>
-      <span
-        role="columnheader"
-        className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-      >
+      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED}
       </span>
-      <span
-        role="columnheader"
-        className={cn(
-          "min-w-0 text-right text-al-text-secondary",
-          OPERATOR_TYPOGRAPHY.helper,
-        )}
-      >
+      <span className={cn("min-w-0 text-right text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS}
       </span>
     </li>
