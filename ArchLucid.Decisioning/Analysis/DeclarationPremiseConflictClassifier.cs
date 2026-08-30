@@ -342,7 +342,8 @@ public static class DeclarationPremiseConflictClassifier
         ReadOnlySpan<char> prefix = normalizedIntentText.AsSpan(prefixStart, phraseStartIndex - prefixStart);
         int trimmedLength = prefix.Length;
 
-        while (trimmedLength > 0 && char.IsWhiteSpace(prefix[trimmedLength - 1]))
+        while (trimmedLength > 0
+               && (char.IsWhiteSpace(prefix[trimmedLength - 1]) || char.IsPunctuation(prefix[trimmedLength - 1])))
             trimmedLength--;
 
         ReadOnlySpan<char> trimmedPrefix = prefix[..trimmedLength];
