@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import unittest
 from pathlib import Path
 
@@ -41,8 +42,9 @@ class TestDemoBatch5Dt(unittest.TestCase):
             r"BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*[\"']#finalize-review[\"']",
         )
         self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", exports_text)
-        self.assertNotIn('href: "#run-actions"', guidance_text)
-        self.assertNotIn('href: "#run-actions"', exports_text)
+        run_actions_href = re.compile(r'href\s*:\s*["\']#run-actions["\']')
+        self.assertIsNone(run_actions_href.search(guidance_text))
+        self.assertIsNone(run_actions_href.search(exports_text))
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor" / "sponsor-roi-kpi-display.ts"
