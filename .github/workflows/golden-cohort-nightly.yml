@@ -206,9 +206,9 @@ jobs:
         id: eligibility
         run: |
           set -euo pipefail
-          if [ "${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM }}" != "true" ]; then
+          if ! bash scripts/ci/is_real_mode_ci_enabled.sh enabled; then
             echo "enabled=false" >> "${GITHUB_OUTPUT}"
-            echo "ARCHLUCID_GOLDEN_COHORT_REAL_LLM is not true; cohort-real-llm-gate passes as no-op."
+            echo "Real-mode CI disabled — add .github/REAL_MODE_CI_ENABLED or set ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true."
             exit 0
           fi
 
@@ -335,7 +335,7 @@ jobs:
     needs: cohort-real-llm-gate
     if: >-
       ${{ github.event_name != 'pull_request'
-      && vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
+      && (vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' || hashFiles('.github/REAL_MODE_CI_ENABLED') != '')
       && (needs['cohort-real-llm-gate'].outputs.budget_exit_code == '0'
         || needs['cohort-real-llm-gate'].outputs.budget_exit_code == '1') }}
     runs-on: ubuntu-latest
@@ -390,7 +390,7 @@ jobs:
       - cohort-contract
       - cohort-real-llm-gate
     if: >-
-      ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
+      ${{ (vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' || hashFiles('.github/REAL_MODE_CI_ENABLED') != '')
       && (needs['cohort-real-llm-gate'].outputs.budget_exit_code == '0'
         || needs['cohort-real-llm-gate'].outputs.budget_exit_code == '1')
       && (
@@ -398,7 +398,9 @@ jobs:
         || (
           github.event_name == 'schedule'
           && github.event.schedule == '0 6 * * 0'
-          && vars.ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED == 'true'
+          && vars.ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED != 'false'
+          && (vars.ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED == 'true'
+            || hashFiles('.github/REAL_MODE_CI_LIVE_SCHEDULE_ENABLED') != '')
         )
       ) }}
     runs-on: ubuntu-latest

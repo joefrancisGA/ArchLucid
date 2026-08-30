@@ -1944,7 +1944,11 @@ jobs:
     needs:
       - gitleaks
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
+    environment: dev
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v7
 
@@ -1952,18 +1956,55 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Real-mode AI quality evidence (committed exemplars + Phase B floors)
-        id: real_mode_ai_quality_evidence
+      - name: Real-mode live invoke eligibility (full CI only)
+        id: real_mode_live
         run: |
           set -euo pipefail
-          bash scripts/ci/run_real_mode_ai_quality_evidence_ci.sh \
-            --output-dir artifacts/ci/real-mode-ai-quality-evidence
+          invoke_live=false
+          if bash scripts/ci/is_real_mode_ci_enabled.sh main-ci-live; then
+            invoke_live=true
+          fi
+          echo "invoke_live=${invoke_live}" >> "${GITHUB_OUTPUT}"
+          echo "Real-mode live invoke on workflow_dispatch: ${invoke_live}"
+
+      - name: Install requests (budget probe)
+        if: steps.real_mode_live.outputs.invoke_live == 'true'
+        run: python -m pip install --upgrade pip && pip install requests
+
+      - name: Azure login (real-mode budget probe)
+        if: steps.real_mode_live.outputs.invoke_live == 'true'
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Real-mode AI quality evidence (committed exemplars + optional live AOAI)
+        id: real_mode_ai_quality_evidence
+        env:
+          AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          ARCHLUCID_CI_REAL_AOAI_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
+          ARCHLUCID_CI_REAL_AOAI_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
+          ARCHLUCID_REAL_AOAI_TEST_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
+          ARCHLUCID_REAL_AOAI_TEST_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
+        run: |
+          set -euo pipefail
+          args=(--output-dir artifacts/ci/real-mode-ai-quality-evidence)
+          if [ "${{ steps.real_mode_live.outputs.invoke_live }}" = "true" ]; then
+            args+=(--invoke-live-when-budget-allows)
+          fi
+          bash scripts/ci/run_real_mode_ai_quality_evidence_ci.sh "${args[@]}"
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
             echo "## Real-mode AI quality evidence" >> "$GITHUB_STEP_SUMMARY"
             head -n 60 artifacts/ci/real-mode-ai-quality-evidence/ai-quality-release-summary.md >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "## Agent eval corpus (real-mode slice)" >> "$GITHUB_STEP_SUMMARY"
             head -n 40 artifacts/ci/real-mode-ai-quality-evidence/eval-corpus-real-mode-evidence.md >> "$GITHUB_STEP_SUMMARY"
+            if [ -f artifacts/ci/real-mode-ai-quality-evidence/real-llm-evidence-gate-live.json ]; then
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              echo "**Live real-mode gate:** real-llm-evidence-gate-live.json attached." >> "$GITHUB_STEP_SUMMARY"
+            fi
           fi
 
       - name: Upload real-mode AI quality evidence bundle
@@ -3505,7 +3546,7 @@ jobs:
       - chaos-tests
     # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
     if: >-
-      ${{ vars.ARCHLUCID_CI_REAL_AOAI_ENABLED == 'true'
+      ${{ (vars.ARCHLUCID_CI_REAL_AOAI_ENABLED == 'true' || hashFiles('.github/REAL_MODE_CI_ENABLED') != '')
           && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
