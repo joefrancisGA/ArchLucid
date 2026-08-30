@@ -14,15 +14,13 @@ internal static class TenantWorkspaceScopePreflight
 {
     internal static async Task<IActionResult?> RequireTenantAndWorkspaceAsync(
         ControllerBase controller,
-        IScopeContextProvider scopeProvider,
+        ScopeContext scope,
         ITenantRepository tenantRepository,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(controller);
-        ArgumentNullException.ThrowIfNull(scopeProvider);
         ArgumentNullException.ThrowIfNull(tenantRepository);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenant is null)

@@ -52,7 +52,7 @@ public sealed class GovernanceSetupController(
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
-            _scopeProvider,
+            scope,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 

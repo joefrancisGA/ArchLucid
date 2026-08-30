@@ -101,7 +101,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
             new CommandDefinition(
                 sql,
                 new { PolicyPackId = policyPackId, MaxRows = maxRows },
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return rows.ToList();
     }
@@ -132,7 +132,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
             new CommandDefinition(
                 sql,
                 new { TenantId = tenantId, MaxRows = maxRows },
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return rows.ToList();
     }
@@ -173,7 +173,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
                     ProjectId = projectId,
                     MaxRows = maxRows,
                 },
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return rows.ToList();
     }
