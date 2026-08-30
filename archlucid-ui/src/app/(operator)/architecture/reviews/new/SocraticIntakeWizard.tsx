@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { EvidenceExtractionAwaitingSkeleton } from "@/components/evidence/EvidenceExtractionAwaitingSkeleton";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
@@ -29,6 +31,8 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION,
   GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT,
+  GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_HELPER,
+  GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_LABEL,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_TAIL,
   GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD,
@@ -36,6 +40,12 @@ import {
   GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
   resolveGuidedIntakeClarificationsDoneLabel,
 } from "@/lib/guided-intake-copy";
+import {
+  UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER,
+  UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER,
+  UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER,
+  UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER,
+} from "@/lib/universal-intake-answer-inference";
 import {
   DraftIntakeDecisionReceiptCard,
   SocraticIntakeWizardAdvancedRail,
@@ -52,6 +62,7 @@ import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 export function SocraticIntakeWizard() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
+  const { isSimulator } = useAgentExecutionMode();
   const {
     // Intake context (query string, budget gate)
     exampleTemplate,
@@ -123,7 +134,26 @@ export function SocraticIntakeWizard() {
     canReviewAnswers,
     canSubmit,
     policyPackCloudMismatch,
+    clarificationInference,
   } = useGuidedIntakeWizard();
+
+  const {
+    inferredQuestionKeys,
+    rephrasedQuestionKeys,
+    isExtractingEvidenceText,
+    clarificationSuggestionsUnavailable,
+    canSuggestFromEvidence,
+    suggestAnswersFromEvidence,
+    markQuestionEdited,
+  } = clarificationInference;
+  const suggestedDraftCount = inferredQuestionKeys.size;
+  const hasRephrasedSuggestions = rephrasedQuestionKeys.size > 0;
+
+  useEffect(() => {
+    if (suggestedDraftCount > 0) {
+      setViewAllClarifications(true);
+    }
+  }, [setViewAllClarifications, suggestedDraftCount]);
 
   const completedWizardSteps = useMemo(
     () => Array.from({ length: step }, (_, index) => index),
@@ -153,8 +183,11 @@ export function SocraticIntakeWizard() {
         showAllMode={viewAllClarifications}
         showRequirednessSuffix={false}
         clarificationStatus={getClarificationStatus(questionKey)}
+        isSuggested={inferredQuestionKeys.has(questionKey)}
+        suggestionWasRephrased={rephrasedQuestionKeys.has(questionKey)}
         canSaveAndContinue={(answers[questionKey]?.trim() ?? "").length > 0}
         onAnswerChange={(nextQuestionKey, value) => {
+          markQuestionEdited(nextQuestionKey);
           setAnswers((current) => ({
             ...current,
             [nextQuestionKey]: value,
@@ -354,6 +387,67 @@ export function SocraticIntakeWizard() {
                   isFocused: !viewAllClarifications,
                 })
               : null}
+
+            {isExtractingEvidenceText ? <EvidenceExtractionAwaitingSkeleton /> : null}
+
+            {canSuggestFromEvidence ? (
+              <div className="space-y-4" data-testid="guided-intake-clarification-suggest-from-brief">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  {GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_HELPER}
+                </p>
+                {isSimulator ? (
+                  <p
+                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="guided-intake-clarification-simulator-suggest-helper"
+                  >
+                    {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER}
+                  </p>
+                ) : null}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={busy || isExtractingEvidenceText}
+                  data-testid="guided-intake-suggest-from-brief"
+                  onClick={() => {
+                    suggestAnswersFromEvidence();
+                  }}
+                >
+                  {isExtractingEvidenceText
+                    ? "Suggesting answers…"
+                    : GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_LABEL}
+                </Button>
+              </div>
+            ) : null}
+
+            {suggestedDraftCount > 0 ? (
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="guided-intake-clarification-inferred-helper"
+              >
+                {hasRephrasedSuggestions
+                  ? UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER
+                  : UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER}
+              </p>
+            ) : null}
+
+            {suggestedDraftCount > 0 ? (
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="guided-intake-clarification-suggested-draft-count"
+              >
+                {suggestedDraftCount} suggested from your architecture brief — review and save each.
+              </p>
+            ) : null}
+
+            {clarificationSuggestionsUnavailable ? (
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="guided-intake-clarification-inference-unavailable"
+              >
+                {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER}
+              </p>
+            ) : null}
 
             {pendingQuestions.length > 1 ? (
               <Button
