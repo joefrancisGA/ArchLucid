@@ -15,6 +15,7 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Architecture;
 
+[Trait("Category", "Unit")]
 public sealed class ArchitectureIdentityServiceTests
 {
   private static readonly ScopeContext Scope = new()

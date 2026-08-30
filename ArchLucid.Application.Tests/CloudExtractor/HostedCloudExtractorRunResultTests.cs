@@ -4,6 +4,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.CloudExtractor;
 
+[Trait("Category", "Unit")]
 public sealed class HostedCloudExtractorRunResultTests
 {
     [Fact]

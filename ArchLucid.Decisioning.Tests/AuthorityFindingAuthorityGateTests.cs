@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Decisioning.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class AuthorityFindingAuthorityGateTests
 {
   [Fact]
