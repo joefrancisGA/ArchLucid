@@ -22,15 +22,7 @@ public sealed class GraphMaterializationPipelineTests
     {
         GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new Mock<IGraphNodeFactory>().Object);
 
-        pipeline.Stages.Select(stage => stage.Name).Should().Equal([
-            "canonical-objects",
-            "request-cost-constraints",
-            "request-actors",
-            "request-assumptions",
-            "request-quality-attributes",
-            "request-failure-modes",
-            "cost-projected-spend-enrichment",
-        ]);
+        pipeline.Stages.Select(stage => stage.Name).Should().Equal(GraphMaterializationStages.DefaultStageOrder);
     }
 
     [Fact]
