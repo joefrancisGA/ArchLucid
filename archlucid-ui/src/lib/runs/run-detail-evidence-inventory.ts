@@ -28,7 +28,6 @@ function inferEvidenceKind(sourceName: string): string {
     || lower.endsWith(".md")
     || lower.endsWith(".docx")
     || lower.endsWith(".pdf")
-    || lower.endsWith(".doc")
   ) {
     return "Document";
   }
