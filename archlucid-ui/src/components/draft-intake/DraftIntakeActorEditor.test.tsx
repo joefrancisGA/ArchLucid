@@ -71,6 +71,30 @@ describe("DraftIntakeActorEditor", () => {
     });
   });
 
+  it("does not suggest an internal human when Primary operator already fills that triple", () => {
+    const onChange = vi.fn();
+    const actorSet: ActorSet = {
+      actors: [
+        {
+          label: "Primary operator",
+          kind: "Human",
+          trustOrigin: "Internal",
+          contract: "Sync",
+          origin: "Asserted",
+          confidence: 100,
+        },
+      ],
+    };
+
+    render(<DraftIntakeActorEditor actorSet={actorSet} intentText={sampleIntent} onChange={onChange} />);
+
+    fireEvent.click(screen.getByTestId("draft-intake-actor-suggest"));
+
+    expect(
+      screen.queryByTestId("draft-intake-actor-suggestion-Human|Internal|Sync"),
+    ).not.toBeInTheDocument();
+  });
+
   it("opens a checkbox suggestion panel and adds only selected actors", () => {
     const onChange = vi.fn();
 
@@ -80,16 +104,14 @@ describe("DraftIntakeActorEditor", () => {
     expect(screen.getByTestId("draft-intake-actor-suggestions-panel")).toBeInTheDocument();
 
     // Opening the panel pre-selects every suggestion — keep only the machine row under test.
-    const primaryCheckbox = screen.getByTestId(
-      "draft-intake-actor-suggestion-Human|Internal|Sync|primary internal user",
-    );
+    const primaryCheckbox = screen.getByTestId("draft-intake-actor-suggestion-Human|Internal|Sync");
 
     if ((primaryCheckbox as HTMLInputElement).checked) {
       fireEvent.click(primaryCheckbox);
     }
 
     const machineCheckbox = screen.getByTestId(
-      "draft-intake-actor-suggestion-Machine|External|AsyncBatch|machine integration",
+      "draft-intake-actor-suggestion-Machine|External|AsyncBatch",
     );
 
     if (!(machineCheckbox as HTMLInputElement).checked) {
