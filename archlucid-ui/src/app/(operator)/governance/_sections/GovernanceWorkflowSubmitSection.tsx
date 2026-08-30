@@ -37,6 +37,11 @@ import {
 } from "@/lib/governance/governance-workflow-release-copy";
 import { GOVERNANCE_ENV_OPTIONS } from "./governance-workflow-helpers";
 import {
+  governanceAllowedTargetSlugs,
+  governanceEnvironmentOptionsFromCatalog,
+} from "@/lib/governance/governance-environment-catalog-helpers";
+import type { GovernanceEnvironmentCatalog } from "@/types/governance-environment-catalog";
+import {
   resolveGovernanceWorkflowSubmitEmphasizedStepId,
   resolveGovernanceWorkflowSubmitSteps,
 } from "@/lib/governance-workflow-submit-checklist";
@@ -62,6 +67,7 @@ export type GovernanceWorkflowSubmitSectionProps = {
   submitBusy: boolean;
   submitApprovalComplete?: boolean;
   onSubmitApproval: () => void | Promise<void>;
+  environmentCatalog?: GovernanceEnvironmentCatalog;
 };
 
 export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitSectionProps) {
@@ -84,6 +90,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
     submitBusy,
     submitApprovalComplete = false,
     onSubmitApproval,
+    environmentCatalog,
   } = props;
 
   if (buyerSuppressGovernanceSubmitChrome) {
@@ -120,6 +127,14 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
     requiredFieldsComplete,
     submitComplete: submitApprovalComplete,
   };
+
+  const environmentOptions = governanceEnvironmentOptionsFromCatalog(environmentCatalog);
+  const sourceOptions = environmentOptions.length > 0 ? environmentOptions : GOVERNANCE_ENV_OPTIONS;
+  const allowedTargetSlugs = governanceAllowedTargetSlugs(environmentCatalog, submitSource);
+  const targetOptions = sourceOptions.filter((option) => allowedTargetSlugs.includes(option.value));
+  const resolvedTargetOptions = targetOptions.length > 0 || submitSource.trim().length === 0
+    ? targetOptions
+    : sourceOptions;
   const submitSteps = resolveGovernanceWorkflowSubmitSteps(submitChecklistInput);
   const submitEmphasizedStepId = resolveGovernanceWorkflowSubmitEmphasizedStepId(submitChecklistInput);
 
@@ -205,7 +220,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                     <SelectValue placeholder="Source" />
                   </SelectTrigger>
                   <SelectContent>
-                    {GOVERNANCE_ENV_OPTIONS.map((o) => (
+                    {sourceOptions.map((o) => (
                       <SelectItem key={o.value} value={o.value}>
                         {o.label}
                       </SelectItem>
@@ -215,7 +230,11 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="gov-submit-target-env">Target environment</Label>
-                <Select value={submitTarget} onValueChange={setSubmitTarget} disabled={!canMutateWorkflow}>
+                <Select
+                  value={submitTarget}
+                  onValueChange={setSubmitTarget}
+                  disabled={!canMutateWorkflow || submitSource.trim().length === 0}
+                >
                   <SelectTrigger
                     id="gov-submit-target-env"
                     className="w-full"
@@ -224,7 +243,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                     <SelectValue placeholder="Target" />
                   </SelectTrigger>
                   <SelectContent>
-                    {GOVERNANCE_ENV_OPTIONS.map((o) => (
+                    {resolvedTargetOptions.map((o) => (
                       <SelectItem key={o.value} value={o.value}>
                         {o.label}
                       </SelectItem>

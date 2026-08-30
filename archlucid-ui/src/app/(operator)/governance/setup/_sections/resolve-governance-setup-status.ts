@@ -1,4 +1,4 @@
-import { fetchGovernanceSetupGuideBundle } from "@/lib/api/policy-governance-api";
+import { fetchGovernanceEnvironmentCatalog, fetchGovernanceSetupGuideBundle } from "@/lib/api/policy-governance-api";
 
 import {
   GOVERNANCE_SETUP_FOUNDATION_INDICATORS,
@@ -31,11 +31,21 @@ export async function resolveGovernanceSetupGuideViewModel(): Promise<Governance
     if (bundle.alertRoutingSubscriptions.length > 0) {
       stepStatuses[2] = "complete";
     }
+
+    try {
+      const environmentCatalog = await fetchGovernanceEnvironmentCatalog();
+
+      if (environmentCatalog.environments.length > 0 && environmentCatalog.transitions.length > 0) {
+        stepStatuses[3] = "complete";
+      }
+    } catch {
+      // Environment catalog is optional for the rest of the guide; leave step 4 not-started.
+    }
   } catch {
     bundleLoadFailed = true;
   }
 
-  // Steps 4–5 stay not-started until workspace signals exist (tracked: false in step definitions).
+  // Step 5 stays not-started until a workspace signal exists (tracked: false in step definition).
 
   return {
     stepStatuses,
