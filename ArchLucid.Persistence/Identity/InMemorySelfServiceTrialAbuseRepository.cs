@@ -17,6 +17,19 @@ public sealed class InMemorySelfServiceTrialAbuseRepository : ISelfServiceTrialA
         return Task.FromResult(_emailClaims.ContainsKey(normalizedEmail));
     }
 
+    public Task<bool> HasEmailClaimForTenantAsync(
+        string normalizedEmail,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        if (!_emailClaims.TryGetValue(normalizedEmail, out SelfServiceTrialEmailClaimInsert? claim))
+            return Task.FromResult(false);
+
+        return Task.FromResult(claim.TenantId == tenantId);
+    }
+
     public Task TryInsertEmailClaimAsync(SelfServiceTrialEmailClaimInsert claim, CancellationToken cancellationToken)
     {
         _ = cancellationToken;
