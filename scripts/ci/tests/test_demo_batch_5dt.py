@@ -23,8 +23,15 @@ class TestDemoBatch5Dt(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
 
         self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", text)
-        self.assertIn("Finalize lives in ReviewPackageDoThisNextStrip and the page header", text)
-        self.assertNotIn('href: "#run-actions"', text)
+        self.assertRegex(text, r'href\s*:\s*["\']#run-actions["\']')
+
+        component_paths = list((REPO_ROOT / "archlucid-ui" / "src").rglob("ReviewPackageDoThisNextStrip.tsx"))
+        self.assertTrue(
+            component_paths,
+            "Expected to find ReviewPackageDoThisNextStrip.tsx under archlucid-ui/src",
+        )
+        component_text = component_paths[0].read_text(encoding="utf-8")
+        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", component_text)
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor" / "sponsor-roi-kpi-display.ts"
