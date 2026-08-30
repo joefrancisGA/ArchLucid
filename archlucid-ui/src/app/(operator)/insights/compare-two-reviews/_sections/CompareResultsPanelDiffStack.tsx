@@ -81,7 +81,7 @@ export function CompareResultsPanelDiffStack({
               disabled={pdfDownloading}
               data-testid="compare-download-pdf-button"
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-4 w-4" aria-hidden focusable={false} />
               {pdfDownloading ? "Generating PDF…" : "Download PDF report"}
             </Button>
             {pdfError ? (
