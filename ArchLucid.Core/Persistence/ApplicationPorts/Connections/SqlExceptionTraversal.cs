@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence.Connections;
+namespace ArchLucid.Core.Persistence.ApplicationPorts.Connections;
 
 /// <summary>Walks exception chains for embedded <see cref="SqlException" /> instances.</summary>
 public static class SqlExceptionTraversal
