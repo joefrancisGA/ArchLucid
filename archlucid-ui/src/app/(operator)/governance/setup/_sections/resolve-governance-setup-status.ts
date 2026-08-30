@@ -1,4 +1,4 @@
-import { fetchGovernanceEnvironmentCatalog, fetchGovernanceSetupGuideBundle } from "@/lib/api/policy-governance-api";
+import { fetchGovernanceSetupGuideBundle } from "@/lib/api/policy-governance-api";
 
 import {
   GOVERNANCE_SETUP_FOUNDATION_INDICATORS,
@@ -32,15 +32,7 @@ export async function resolveGovernanceSetupGuideViewModel(): Promise<Governance
       stepStatuses[2] = "complete";
     }
 
-    try {
-      const environmentCatalog = await fetchGovernanceEnvironmentCatalog();
-
-      if (environmentCatalog.isAdministratorConfigured) {
-        stepStatuses[3] = "complete";
-      }
-    } catch {
-      // Environment catalog is optional for the rest of the guide; leave step 4 not-started.
-    }
+    // Step 4 stays not-started until a non-seeding workspace signal exists.
   } catch {
     bundleLoadFailed = true;
   }
