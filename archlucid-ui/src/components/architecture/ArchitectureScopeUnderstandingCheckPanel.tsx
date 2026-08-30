@@ -25,6 +25,7 @@ import {
   scopeBulletsFingerprint,
   scopeConfirmedSummaryMessage,
   SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT,
+  SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL,
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
   SCOPE_UNDERSTANDING_CONFIRMED_STATUS_LABEL,
   SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL,
@@ -37,7 +38,14 @@ import {
   type DeriveScopeUnderstandingBulletsInput,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { DESIGN_TOKENS, OPERATOR_FORM_FIELD_STACK_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  DESIGN_TOKENS,
+  OPERATOR_FORM_FIELD_LABEL_CLASS,
+  OPERATOR_FORM_FIELD_STACK_CLASS,
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 import { cn } from "@/lib/utils";
 
@@ -275,8 +283,15 @@ export function ArchitectureScopeUnderstandingCheckPanel(
     <section
       className={cn(DESIGN_TOKENS.callout.neutral, OPERATOR_LAYOUT.cardPadding, OPERATOR_LAYOUT.sectionStack)}
       data-testid="architecture-scope-understanding-check"
-      aria-labelledby="architecture-scope-understanding-heading"
+      aria-labelledby="architecture-scope-understanding-brief-label architecture-scope-understanding-heading"
     >
+      <p
+        id="architecture-scope-understanding-brief-label"
+        className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}
+        data-testid="architecture-scope-understanding-brief-label"
+      >
+        {SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL}
+      </p>
       <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h2
           id="architecture-scope-understanding-heading"

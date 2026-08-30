@@ -544,6 +544,129 @@ public sealed class AuthorityRunOrchestratorTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_preallocated_run_uses_admin_lookup_when_scoped_misses_and_does_not_insert()
+    {
+        Guid runIdGuid = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        RunRecord admittedStub = new()
+        {
+            RunId = runIdGuid,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "ArchLucid",
+            Description = "admitted stub",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            StructuralExecutionMode = StructuralExecutionMode.Simulator
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(x => x.GetCurrentScope()).Returns(scope);
+
+        Mock<IArchLucidUnitOfWork> uow = new();
+        uow.SetupGet(x => x.SupportsExternalTransaction).Returns(false);
+        uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
+
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = new();
+        uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(x => x.GetByIdAsync(scope, runIdGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+        runRepo.Setup(x => x.GetByRunIdAdminAsync(runIdGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(admittedStub);
+
+        Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
+        Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
+        Mock<IAuthorityPipelineWorkRepository> workRepo = new();
+        workRepo.Setup(x => x.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAsyncAuthorityPipelineModeResolver> modeResolver = new();
+        modeResolver
+            .Setup(x => x.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventPublisher> integrationEvents = new();
+        integrationEvents
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        integrationEvents
+            .Setup(x => x.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
+        StubIntegrationOutbox(integrationOutbox);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
+            CreateIntegrationEventsOptionsMonitor(false);
+
+        AuthorityRunOrchestrator sut = CreateOrchestrator(
+            uowFactory.Object,
+            scopeProvider.Object,
+            audit.Object,
+            runRepo.Object,
+            pipeline.Object,
+            retrievalOutbox.Object,
+            workRepo.Object,
+            modeResolver.Object,
+            integrationEvents.Object,
+            integrationOutbox.Object,
+            integrationEventOpts.Object,
+            CreatePipelineOptionsMonitor().Object,
+            CreatePublicSiteOptionsMonitor().Object,
+            CreateUnlimitedTenantConcurrencyGate(),
+            NullLogger<AuthorityRunOrchestrator>.Instance);
+
+        ContextIngestionRequest request = new()
+        {
+            RunId = runIdGuid,
+            ProjectId = "ArchLucid",
+            Description = "d"
+        };
+
+        RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None, "evidence-bundle");
+
+        result.RunId.Should().Be(runIdGuid);
+        runRepo.Verify(
+            x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null),
+            Times.Never);
+        workRepo.Verify(
+            x => x.EnqueueAsync(
+                runIdGuid,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task CompleteQueuedAuthorityPipelineAsync_emits_run_started_with_resumed_from_queue()
     {
         Guid runIdGuid = Guid.NewGuid();
