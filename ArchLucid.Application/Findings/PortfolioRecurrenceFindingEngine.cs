@@ -101,7 +101,9 @@ public sealed class PortfolioRecurrenceFindingEngine(
         KeyValuePair<string, RunSummary>? currentSystem = scannedSystems
             .FirstOrDefault(pair => string.Equals(pair.Value.RunId, currentRunId, StringComparison.OrdinalIgnoreCase));
 
-        if (currentSystem is not null)
+        if (currentSystem.HasValue &&
+            !string.IsNullOrEmpty(currentSystem.Value.Key) &&
+            currentSystem.Value.Value is not null)
         {
             await AccumulatePersistedSystemIdentitiesAsync(
                 scope,
