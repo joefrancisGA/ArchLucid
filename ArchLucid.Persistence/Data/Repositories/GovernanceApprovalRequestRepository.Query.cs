@@ -184,6 +184,7 @@ public sealed partial class GovernanceApprovalRequestRepository
             cancellationToken: cancellationToken));
 
         return count > int.MaxValue ? int.MaxValue : (int)count;
+    }
 
     public async Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(
         int maxRows = 50,

@@ -25,7 +25,7 @@ public interface IPilotValueReportService
 }
 
 /// <summary>
-///     Read-only aggregate: run summaries + run details + scoped audit export + governance dashboard snapshot.
+///     Read-only aggregate: run summaries + run details + scoped audit export + scoped pending-approvals count.
 ///     Durable audit reads use <see cref = "IAuditRepository"/> (existing product pattern; <see cref = "IAuditService"/> is
 ///     append-only).
 /// </summary>
