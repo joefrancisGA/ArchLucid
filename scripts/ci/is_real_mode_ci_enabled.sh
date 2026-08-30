@@ -59,11 +59,6 @@ _main_ci_live_enabled() {
     return 1
   fi
 
-  if [ "${GITHUB_EVENT_NAME:-}" = "pull_request" ] \
-    && [ "${GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FULL_NAME:-}" != "${GITHUB_REPOSITORY:-}" ]; then
-    return 1
-  fi
-
   return 0
 }
 
