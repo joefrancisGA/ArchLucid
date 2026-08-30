@@ -11,7 +11,13 @@ import {
   OPERATOR_TYPOGRAPHY,
   type EnterpriseStatusKind,
 } from "@/lib/design-tokens";
-import { OPERATOR_HOME_YOUR_WORK_HEADING } from "@/lib/buyer/buyer-polish-copy";
+import {
+  OPERATOR_HOME_YOUR_WORK_COLUMN_NAME,
+  OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS,
+  OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE,
+  OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED,
+  OPERATOR_HOME_YOUR_WORK_HEADING,
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   buildUnfinishedWorkRailItems,
   listIncompleteWizardSignals,
@@ -28,6 +34,9 @@ export type UnfinishedWorkRailProps = {
   /** Server-rendered reviews for first paint; a refreshed client snapshot supersedes it when present. */
   readonly runs: readonly RunSummary[];
 };
+
+const UNFINISHED_WORK_RAIL_GRID_COLS =
+  "sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_auto]" as const;
 
 function subscribeWizardSessions(onStoreChange: () => void): () => void {
   if (typeof window === "undefined") {
@@ -73,6 +82,46 @@ function statusTagKindForRailItem(kind: UnfinishedWorkRailItemKind): EnterpriseS
   }
 }
 
+function UnfinishedWorkRailColumnHeaders(): React.JSX.Element {
+  return (
+    <li
+      className={cn(
+        "hidden gap-x-4 border-b border-neutral-200 pb-1.5 dark:border-neutral-800",
+        "sm:col-span-full sm:grid sm:grid-cols-subgrid sm:items-end",
+      )}
+      data-testid="unfinished-work-rail-column-headers"
+    >
+      <span
+        role="columnheader"
+        className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      >
+        {OPERATOR_HOME_YOUR_WORK_COLUMN_NAME}
+      </span>
+      <span
+        role="columnheader"
+        className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      >
+        {OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE}
+      </span>
+      <span
+        role="columnheader"
+        className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      >
+        {OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED}
+      </span>
+      <span
+        role="columnheader"
+        className={cn(
+          "min-w-0 text-right text-al-text-secondary",
+          OPERATOR_TYPOGRAPHY.helper,
+        )}
+      >
+        {OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS}
+      </span>
+    </li>
+  );
+}
+
 function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem }): React.JSX.Element {
   const { item } = props;
 
@@ -114,9 +163,13 @@ function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem })
 function UnfinishedWorkRailList(props: { readonly items: readonly UnfinishedWorkRailItem[] }): React.JSX.Element {
   return (
     <ul
-      className="m-0 mt-2 list-none space-y-0 p-0 sm:grid sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_auto] sm:gap-x-4"
+      className={cn(
+        "m-0 mt-2 list-none space-y-0 p-0 sm:grid sm:gap-x-4",
+        UNFINISHED_WORK_RAIL_GRID_COLS,
+      )}
       data-testid="unfinished-work-rail-list"
     >
+      <UnfinishedWorkRailColumnHeaders />
       {props.items.map((item) => (
         <UnfinishedWorkRailRow key={item.id} item={item} />
       ))}

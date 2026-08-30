@@ -141,6 +141,28 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("renders desktop column headers for work type and activity columns", () => {
+    mockDraftEntries = [];
+    const runs = [
+      {
+        runId: "run-mid",
+        projectId: "default",
+        createdUtc: "2026-08-10T11:00:00Z",
+        description: "Edge review in flight",
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+    ] as RunSummary[];
+
+    render(<UnfinishedWorkRail runs={runs} />);
+
+    expect(screen.getByTestId("unfinished-work-rail-column-headers")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Name" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Type" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Updated" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Status" })).toBeInTheDocument();
+  });
+
   it("uses a shared grid so columns align across rows", () => {
     mockDraftEntries = [
       {
