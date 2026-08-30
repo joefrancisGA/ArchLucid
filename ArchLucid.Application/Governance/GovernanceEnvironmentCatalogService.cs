@@ -132,6 +132,9 @@ public sealed class GovernanceEnvironmentCatalogService(
         if (catalog.Environments.Count == 0)
             throw new ArgumentException("At least one environment definition is required.");
 
+        if (catalog.Transitions.Count == 0)
+            throw new ArgumentException("At least one environment transition is required.");
+
         HashSet<string> slugs = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GovernanceEnvironmentDefinition environment in catalog.Environments)
