@@ -26,14 +26,14 @@ public sealed class IntegrationEventOutboxMessageIdArchitectureTests
             "LogWarningIntegrationEventOutboxMissingMessageId"),
         ("ArchLucid.Application/Runs/Orchestration/AuthorityCommittedPipelineFinalizer.cs",
             "BuildAuthorityRunCompletedMessageId"),
-        ("ArchLucid.Application/Governance/GovernanceWorkflowService.cs", "messageId = $"),
+        ("ArchLucid.Application/Governance/Workflow/Stages/GovernanceWorkflowIntegrationEventSupport.cs", "messageId = $"),
         ("ArchLucid.Persistence/Alerts/AlertIntegrationEventPublishing.cs", "messageId = $"),
         ("ArchLucid.Application/Advisory/AdvisoryScanRunner.cs", "messageId = $"),
         ("ArchLucid.Application/Billing/MarketplaceWebhookIntegrationEventPublisher.cs", "messageId = $"),
         ("ArchLucid.Application/Notifications/Email/TrialLifecycleIntegrationEventPublisher.cs",
             "ArgumentException.ThrowIfNullOrWhiteSpace(messageId)"),
         ("ArchLucid.Application/DataConsistency/DataConsistencyReconciliationHostedService.cs", "string messageId ="),
-        ("ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.cs", "OutboxMessageId = messageId"),
+        ("ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.Sql.cs", "OutboxMessageId = messageId"),
     ];
 
     [Fact]

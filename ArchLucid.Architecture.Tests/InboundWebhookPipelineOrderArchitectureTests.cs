@@ -47,12 +47,14 @@ public sealed class InboundWebhookPipelineOrderArchitectureTests
         int sizeCheck = methodBody.IndexOf("InboundWebhookBoundedBodyReader", StringComparison.Ordinal);
         int verify = methodBody.IndexOf("TryVerifyWebhookSecurity", StringComparison.Ordinal);
         int parse = methodBody.IndexOf("JsonDocument.Parse", StringComparison.Ordinal);
+        int tryParse = methodBody.IndexOf("TryParseWebhookJson", StringComparison.Ordinal);
 
         sizeCheck.Should().BeGreaterThan(0);
         verify.Should().BeGreaterThan(0);
-        parse.Should().BeGreaterThan(0);
+        (parse > 0 || tryParse > 0).Should().BeTrue(because: "schema parse must be explicit or delegated to TryParseWebhookJson");
+        int parseStep = parse > 0 ? parse : tryParse;
 
         sizeCheck.Should().BeLessThan(verify, because: "bounded size intake must precede verify (TB-967)");
-        verify.Should().BeLessThan(parse, because: "signature/security gate must precede schema parse");
+        verify.Should().BeLessThan(parseStep, because: "signature/security gate must precede schema parse");
     }
 }
