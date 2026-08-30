@@ -214,6 +214,7 @@ public sealed class AdvisoryScanRunnerTests
                     runId,
                     null,
                     It.IsAny<ImprovementPlan>(),
+                    It.IsAny<string?>(),
                     It.IsAny<IReadOnlyList<AlertRecord>>()))
             .Returns(builtDigest);
 
