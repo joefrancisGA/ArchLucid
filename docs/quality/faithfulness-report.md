@@ -2,12 +2,12 @@
 
 # RAG faithfulness report
 
-- **Cases evaluated:** 36
-- **Positive readiness cases:** 23
-- **Positive readiness support ratio:** 0.9783
+- **Cases evaluated:** 37
+- **Positive readiness cases:** 24
+- **Positive readiness support ratio:** 0.9792
 - **Negative-control cases:** 13
 - **Negative-control support ratio:** 0.0385
-- **Combined diagnostic support ratio:** 0.6389
+- **Combined diagnostic support ratio:** 0.6486
 - **Floor (minSupportRatio):** 0.8000
 
 ## Interpretation
@@ -21,7 +21,7 @@
 | Category | Cases | Mean support ratio |
 | --- | ---: | ---: |
 | ai-governance | 3 | 0.8333 |
-| azure-saas-readiness | 8 | 1.0000 |
+| azure-saas-readiness | 9 | 1.0000 |
 | deferred-scope-claim | 2 | 0.0000 |
 | demo-vs-customer | 4 | 1.0000 |
 | healthcare-regulatory | 3 | 1.0000 |
@@ -72,19 +72,22 @@
 | ask-customer-network-cited | positive-readiness | demo-vs-customer | 1 | 1 | 1.0000 | - | - | - |
 | ask-multi-corpus-cited | positive-readiness | azure-saas-readiness | 2 | 2 | 1.0000 | - | azure-frontdoor-waf-standard | - |
 | ask-missing-citation-negative | negative-control | missing-citation | 1 | 0 | 0.0000 | adr-0031-cross-tenant | - | - |
+| ask-iterative-retry-recall-boost | positive-readiness | azure-saas-readiness | 2 | 2 | 1.0000 | - | - | - |
 
 ## RAG-V2 ablation (TB-595)
 
 Offline golden-cohort passes that simulate `Retrieval:Advanced` feature flags toggled off by
-filtering retrieval hits attributed to Graph-RAG neighbor expansion, HyDE, or query rewrite.
+filtering retrieval hits attributed to Graph-RAG neighbor expansion, HyDE, query rewrite,
+or iterative retrieve-critique-retry.
 **Positive Δ vs all-on** is the change in positive readiness when the flag is disabled.
 Negative Δ means the feature contributed cited hits on fixtures; positive Δ means attributed
 hits were uncited or unhelpful for the agent output under test.
 
 | Profile | Positive readiness | Δ vs all-on | Combined diagnostic | Δ vs all-on | Hits filtered | Cases affected |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| All on (blended baseline) | 0.9783 | +0.0000 | 0.6389 | +0.0000 | 0 | 0 |
-| EnableGraphRag=false | 0.9783 | +0.0000 | 0.6528 | +0.0139 | 8 | 8 |
-| EnableHyde=false | 1.0000 | +0.0217 | 0.6528 | +0.0139 | 6 | 6 |
-| EnableQueryRewrite=false | 0.9783 | +0.0000 | 0.6389 | +0.0000 | 6 | 6 |
-| All advanced off | 1.0000 | +0.0217 | 0.6667 | +0.0278 | 19 | 19 |
+| All on (blended baseline) | 0.9792 | +0.0000 | 0.6486 | +0.0000 | 0 | 0 |
+| EnableGraphRag=false | 0.9792 | +0.0000 | 0.6622 | +0.0135 | 8 | 8 |
+| EnableHyde=false | 1.0000 | +0.0208 | 0.6622 | +0.0135 | 6 | 6 |
+| EnableQueryRewrite=false | 0.9792 | +0.0000 | 0.6486 | +0.0000 | 6 | 6 |
+| EnableIterativeRetrieveCritiqueRetry=false | 0.9792 | +0.0000 | 0.6486 | +0.0000 | 1 | 1 |
+| All advanced off | 1.0000 | +0.0208 | 0.6757 | +0.0270 | 20 | 20 |

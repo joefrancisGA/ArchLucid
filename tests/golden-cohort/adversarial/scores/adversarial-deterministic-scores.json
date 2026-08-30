@@ -1,0 +1,8 @@
+{
+  "compensating-control-trap": "gate-rejected",
+  "evidence-contradicts-narrative": "gate-rejected",
+  "hub-spoke-mislabel": "merge-clean",
+  "missing-evidence-trap": "gate-rejected",
+  "risk-accepted-not-pass": "disposition-not-pass",
+  "synthetic-datastore-alias-trap": "merge-clean"
+}
