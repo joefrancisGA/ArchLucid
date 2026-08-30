@@ -1,5 +1,5 @@
 /*
-  Migration 335: Drop unused dbo.FineTunedModelRegistryEntries.
+  Migration 326: Drop unused dbo.FineTunedModelRegistryEntries.
 
   Created in 267 as schema reserved for SQL registry parity. V1 DI still wires
   InMemoryFineTunedModelRegistry only; no application SQL writer exists.

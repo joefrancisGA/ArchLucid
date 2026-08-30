@@ -14,7 +14,7 @@ export type SponsorReportFinalizedReviewPickerStripProps = {
   readonly onSelectedReviewIdChange: (reviewId: string) => void;
 };
 
-/** Guides sponsors to open a finalized architecture review before reading aggregate outcomes. */
+/** Guides sponsors to open a finalized review package before reading aggregate outcomes. */
 export function SponsorReportFinalizedReviewPickerStrip(
   props: SponsorReportFinalizedReviewPickerStripProps,
 ): React.JSX.Element | null {
