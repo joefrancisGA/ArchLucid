@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SponsorDashboardLegacyWorkspaceHealthHashRedirect } from "@/components/sponsor/SponsorDashboardLegacyWorkspaceHealthHashRedirect";
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
@@ -13,6 +13,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("SponsorDashboardLegacyWorkspaceHealthHashRedirect", () => {
+  beforeEach(() => {
+    replace.mockClear();
+    window.location.hash = "";
+  });
+
   it("redirects on mount when the legacy hash is present", () => {
     window.location.hash = "#workspace-health";
 

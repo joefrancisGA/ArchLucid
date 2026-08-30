@@ -1,7 +1,7 @@
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
 /**
- * Traffic workbook row ID for Sponsor Workspace Health dashboard.
+ * Traffic workbook row ID for the standalone Workspace health Insights page.
  * Owner backlog shorthand: GDX.
  */
 export const GOVERNANCE_DASHBOARD_TRAFFIC_ROW_ID = "GDX";

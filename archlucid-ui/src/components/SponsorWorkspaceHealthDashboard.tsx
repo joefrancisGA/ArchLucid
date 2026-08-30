@@ -355,7 +355,7 @@ export function SponsorWorkspaceHealthDashboard({
         standalonePage={standalonePage}
       />
       <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
-{scopeBannerBlock}
+      {scopeBannerBlock}
 
       <DataArchivalDegradedBanner />
 

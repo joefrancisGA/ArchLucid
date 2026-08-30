@@ -2,7 +2,6 @@ import type { NavLinkItem } from "@/lib/nav-config";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
@@ -68,9 +67,9 @@ function navPathWithoutQuery(href: string): string {
   return navHrefPathPart(href);
 }
 
-/** Insights workspace health is a standalone page and stays post-commit in the sidebar. */
-function isPreCommitOperateInsightsOnlyNavLink(href: string): boolean {
-  return href === GOVERNANCE_WORKSPACE_HEALTH_HREF;
+/** Standalone workspace health stays post-commit in the sidebar while deep links remain eligible. */
+function isPreCommitWorkspaceHealthNavLink(href: string): boolean {
+  return navHrefPathPart(href) === WORKSPACE_HEALTH_PATH;
 }
 
 /**
@@ -145,7 +144,7 @@ export function filterNavLinksByCommittedArchitectureReviewGate(
   }
 
   const eligible = links.filter((link) => {
-    if (isPreCommitOperateInsightsOnlyNavLink(link.href)) {
+    if (isPreCommitWorkspaceHealthNavLink(link.href)) {
       return false;
     }
 
