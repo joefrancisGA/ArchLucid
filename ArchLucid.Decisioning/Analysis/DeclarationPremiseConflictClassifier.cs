@@ -339,10 +339,16 @@ public static class DeclarationPremiseConflictClassifier
     {
         const int lookback = 32;
         int prefixStart = Math.Max(0, phraseStartIndex - lookback);
-        string prefix = normalizedIntentText[prefixStart..phraseStartIndex].TrimEnd();
+        ReadOnlySpan<char> prefix = normalizedIntentText.AsSpan(prefixStart, phraseStartIndex - prefixStart);
+        int trimmedLength = prefix.Length;
 
-        return prefix.EndsWith("do not", StringComparison.Ordinal)
-            || prefix.EndsWith("don't", StringComparison.Ordinal)
-            || prefix.EndsWith("never", StringComparison.Ordinal);
+        while (trimmedLength > 0 && char.IsWhiteSpace(prefix[trimmedLength - 1]))
+            trimmedLength--;
+
+        ReadOnlySpan<char> trimmedPrefix = prefix[..trimmedLength];
+
+        return trimmedPrefix.EndsWith("do not", StringComparison.Ordinal)
+            || trimmedPrefix.EndsWith("don't", StringComparison.Ordinal)
+            || trimmedPrefix.EndsWith("never", StringComparison.Ordinal);
     }
 }
