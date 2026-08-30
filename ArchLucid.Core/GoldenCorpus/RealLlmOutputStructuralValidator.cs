@@ -70,7 +70,7 @@ public static class RealLlmOutputStructuralValidator
 
             foreach (string key in BaseTopLevelKeys)
             {
-                if (root.TryGetProperty(key, out _))
+                if (TryGetPropertyCaseInsensitive(root, key, out _))
                     continue;
 
                 checks.Add(
@@ -82,7 +82,7 @@ public static class RealLlmOutputStructuralValidator
                 return new RealLlmStructuralValidationResult(false, checks);
             }
 
-            if (!root.TryGetProperty("agentType", out JsonElement agentTypeEl))
+            if (!TryGetPropertyCaseInsensitive(root, "agentType", out JsonElement agentTypeEl))
             {
                 checks.Add(
                     new RealLlmStructuralCheckItem("agentTypeField", false, "Property 'agentType' is missing."));
@@ -106,7 +106,7 @@ public static class RealLlmOutputStructuralValidator
             checks.Add(
                 new RealLlmStructuralCheckItem("agentTypeMatch", true, $"agentType is {expectedEnum} as required."));
 
-            if (!root.TryGetProperty("findings", out JsonElement findings) || findings.ValueKind != JsonValueKind.Array
+            if (!TryGetPropertyCaseInsensitive(root, "findings", out JsonElement findings) || findings.ValueKind != JsonValueKind.Array
                                                                            || findings.GetArrayLength() == 0)
             {
                 checks.Add(
@@ -136,7 +136,7 @@ public static class RealLlmOutputStructuralValidator
                     return new RealLlmStructuralValidationResult(false, checks);
                 }
 
-                if (!finding.TryGetProperty("trace", out JsonElement trace) || trace.ValueKind != JsonValueKind.Object)
+                if (!TryGetPropertyCaseInsensitive(finding, "trace", out JsonElement trace) || trace.ValueKind != JsonValueKind.Object)
                 {
                     checks.Add(
                         new RealLlmStructuralCheckItem(
@@ -147,7 +147,7 @@ public static class RealLlmOutputStructuralValidator
                     return new RealLlmStructuralValidationResult(false, checks);
                 }
 
-                if (trace.TryGetProperty("sourceAgentExecutionTraceId", out JsonElement sid)
+                if (TryGetPropertyCaseInsensitive(trace, "sourceAgentExecutionTraceId", out JsonElement sid)
                     && sid.ValueKind is not (JsonValueKind.String or JsonValueKind.Null))
                 {
                     checks.Add(
@@ -161,7 +161,7 @@ public static class RealLlmOutputStructuralValidator
 
                 foreach (string listKey in TraceListKeys)
                 {
-                    if (trace.TryGetProperty(listKey, out JsonElement listEl) &&
+                    if (TryGetPropertyCaseInsensitive(trace, listKey, out JsonElement listEl) &&
                         listEl.ValueKind == JsonValueKind.Array)
                         continue;
                     checks.Add(
@@ -174,7 +174,8 @@ public static class RealLlmOutputStructuralValidator
                 }
 
                 // Severity must be a non-empty string — a blank severity indicates a hollow or truncated finding.
-                if (!finding.TryGetProperty("severity", out JsonElement severityEl)
+
+                if (!TryGetPropertyCaseInsensitive(finding, "severity", out JsonElement severityEl)
                     || severityEl.ValueKind != JsonValueKind.String
                     || string.IsNullOrWhiteSpace(severityEl.GetString()))
                 {
@@ -189,7 +190,7 @@ public static class RealLlmOutputStructuralValidator
 
                 // At least one content field must be non-empty so hollow findings (all keys present, all blank) are caught.
                 bool hasContent = FindingContentFields.Any(f =>
-                    finding.TryGetProperty(f, out JsonElement el)
+                    TryGetPropertyCaseInsensitive(finding, f, out JsonElement el)
                     && el.ValueKind == JsonValueKind.String
                     && !string.IsNullOrWhiteSpace(el.GetString()));
 
@@ -289,6 +290,23 @@ public static class RealLlmOutputStructuralValidator
     private static bool SetFalse(out string? m, string text)
     {
         m = text;
+
+        return false;
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
 
         return false;
     }

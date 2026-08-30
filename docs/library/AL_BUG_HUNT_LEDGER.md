@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 12
-- **bugs-found:** 25
+- **hunts:** 13
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter` case-sensitive on `findingSchemaVersion`, `relatedNodeIds`, `properties`, `treatment`, `payloadType`, `payload`, and `trace` PascalCase exporter labels
+- **last-hunt:** 2026-08-29
+- **last-bug:** 2026-08-29 — PascalCase faithfulness aggregate JSON and AgentResult structural validator paths
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1795,6 +1795,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadInsightDensityFields` case-sensitive on `treatment` / `classification` — PascalCase `"Treatment"` left insight-density fields null on reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` (`Deserialize_pascal_case_treatment_maps_demote_to_checklist`).
 - [x] (proven) `FindingJsonConverter.Read` case-sensitive on `payloadType` and `payload` — PascalCase `"PayloadType"` / `"Payload"` skipped typed payload rehydration on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` for payload type and body (`Deserialize_pascal_case_payloadType_and_payload_map_typed_payload`).
 - [x] (proven) `FindingJsonConverter.ReadTrace` case-sensitive on `trace` — PascalCase `"Trace"` dropped explainability trace on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` in `ReadTrace` (`Deserialize_pascal_case_trace_maps_source_agent_execution_trace_id`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — case-sensitive `TryGetProperty` on faithfulness fields drops PascalCase aggregate JSON → `ResolveDisposition` returns PASS instead of HOLD/WARN — **hit 2026-08-29 (#262):** case-insensitive lookup for ratio, fallback, warning, citations; regression in `RunExplanationConfidenceCalloutBuilderTests.FromAggregateJson_maps_PascalCase_faithfulness_fields`.
+- [x] (proven) `RealLlmOutputStructuralValidator.ValidateAgentResultStructure` — case-sensitive top-level/finding/trace property lookup rejects PascalCase `AgentResult` envelopes from external LLM tooling — **hit 2026-08-29 (#262):** `TryGetPropertyCaseInsensitive` on required keys; regression in `RealLlmOutputStructuralValidatorTests.ValidateAgentResultStructure_accepts_PascalCase_property_names`.
 - [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `category`, `enforcementTier`, `humanReviewStatus`, and `evaluationConfidenceLevel` — PascalCase exporter labels may silently default on reload (sibling fields still use `TryGetProperty`).
 - [ ] (candidate) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` / `runIdRef` tokens may not coerce to string (prior #229 seed on unmerged branch).
 - [ ] (candidate) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — undefined `AgentOutputQualityGateMode` numeric-strings may parse via bare `Enum.TryParse` (verify after hunt #223 quality-gate lint fix scope).
@@ -1804,6 +1806,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 seed hunt #223: proved top-level finding enum-string guards, classifier property-tier guard, Service Bus correlation casing/number, numeric dedupe key, and agent profile display label; seeded properties-bag numeric and policy-pack severity sibling candidates.
 
 2026-08-28 seed hunt #251: proved PascalCase `findingSchemaVersion`, list/properties/treatment/payload/trace lookup gaps promoted from prior seed rows; seeded remaining scalar PascalCase and numeric optional-string coercion candidates.
+
+2026-08-29 seed hunt #262: proved faithfulness aggregate PascalCase and golden-corpus AgentResult structural PascalCase; seeded FindingJsonConverter top-level PascalCase candidate.
 
 ---
 
