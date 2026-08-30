@@ -1,3 +1,5 @@
+> **Scope:** Regression instrument for `ComplianceRulePackGovernanceFilter` and declaration-theme policy-pack mapping; internal QA only — not buyer-facing certification evidence.
+
 # Policy-filter golden delta
 
 Regression instrument for `ComplianceRulePackGovernanceFilter` — not evidence that all 39 engines are policy-aware.

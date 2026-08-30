@@ -153,6 +153,7 @@ public sealed class BundledPolicyPackDeclarationThemeTests
         // Honest silence, not a bug: these packs' P0 controls are identity/administrative (CIS Azure P0 is
         // cis-az-001..005 — MFA, guest users, Conditional Access, consent), which the declaration classifier
         // does not evaluate. Mapping them would emit a false PolicyRuleId attribution.
+
         foreach (string contentFile in new[]
                  {
                      "cis-azure-foundations.json",
