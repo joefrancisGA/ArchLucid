@@ -124,6 +124,50 @@ public sealed class WeeklyDigestHealthReaderTests
         snapshot.SetupGapCodes.Should().NotContain("no_digest_subscriptions");
     }
 
+    [Fact]
+    public async Task GetSnapshotAsync_reports_missing_subscription_gap_when_no_rows_exist()
+    {
+        Mock<ITenantExecDigestPreferencesRepository> execPrefs = new();
+        execPrefs
+            .Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ExecDigestPreferencesResponse.Unconfigured(TenantId));
+
+        Mock<ITenantSponsorDigestPreferencesRepository> sponsorPrefs = new();
+        sponsorPrefs
+            .Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(SponsorDigestPreferencesResponse.Unconfigured(TenantId));
+
+        WeeklyDigestHealthReader reader = CreateReader(execPrefs.Object, sponsorPrefs.Object);
+
+        WeeklyDigestHealthSnapshot snapshot = await reader.GetSnapshotAsync(Scope, CancellationToken.None);
+
+        snapshot.DigestSubscriptionCount.Should().Be(0);
+        snapshot.EnabledDigestSubscriptionCount.Should().Be(0);
+        snapshot.SetupGapCodes.Should().Contain("no_digest_subscriptions");
+        snapshot.SetupGaps.Should().Contain(
+            "No digest subscriptions — generated digests have no outbound recipients in this scope.");
+    }
+
+    [Fact]
+    public async Task GetSnapshotAsync_reports_no_enabled_advisory_schedule_gap_code()
+    {
+        Mock<ITenantExecDigestPreferencesRepository> execPrefs = new();
+        execPrefs
+            .Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ExecDigestPreferencesResponse.Unconfigured(TenantId));
+
+        Mock<ITenantSponsorDigestPreferencesRepository> sponsorPrefs = new();
+        sponsorPrefs
+            .Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(SponsorDigestPreferencesResponse.Unconfigured(TenantId));
+
+        WeeklyDigestHealthReader reader = CreateReader(execPrefs.Object, sponsorPrefs.Object);
+
+        WeeklyDigestHealthSnapshot snapshot = await reader.GetSnapshotAsync(Scope, CancellationToken.None);
+
+        snapshot.SetupGapCodes.Should().Contain("no_enabled_advisory_schedule");
+    }
+
     private static WeeklyDigestHealthReader CreateReader(
         ITenantExecDigestPreferencesRepository execDigestPreferencesRepository,
         ITenantSponsorDigestPreferencesRepository sponsorDigestPreferencesRepository,
