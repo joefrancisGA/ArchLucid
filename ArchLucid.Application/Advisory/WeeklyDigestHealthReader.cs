@@ -104,8 +104,8 @@ public sealed class WeeklyDigestHealthReader(
 
         static void AddGap(List<string> setupGaps, List<string> setupGapCodes, string code, string message)
         {
-            setupGapCodes.Add(code);
             setupGaps.Add(message);
+            setupGapCodes.Add(code);
         }
 
         if (enabledSchedules == 0)
