@@ -1,8 +1,8 @@
-> **Reviewed:** 2026-07-25
-
 > **Scope:** Repeatable sales/CS demo — same architecture review, different policy-pack enforcement, different pre-finalize gate outcome. Uses shipped V1 governance dry-run and simulation endpoints only. Includes the policy-to-decision proof pilot run-sheet (assessment Tier 1 #1).
 >
 > **Audience:** Sales engineers and CS (Admin / architect workspace). Not a buyer self-serve help topic — buyers should use in-app [Governance approval](/help/governance-approval) and [Understanding governance alerts](/help/alerts) instead of running this script alone.
+
+> **Reviewed:** 2026-07-25
 
 # Policy-pack delta demo script
 
