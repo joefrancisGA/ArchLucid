@@ -5,11 +5,12 @@ import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review
  * (`CurrentPrincipal.hasCommittedArchitectureReview`). Allowed: home, architectures, review hub/detail,
- * evidence graph, sponsor dashboard, help/onboarding, and tenant-admin break-glass paths (baseline + tenant).
+ * evidence graph, sponsor dashboard, workspace health deep links, help/onboarding, and tenant-admin break-glass paths (baseline + tenant).
  * Operate destinations (governance, diagnostics, integrations, digests, compare, …) stay out until commit;
  * deep links remain valid at route level.
  */
@@ -37,6 +38,10 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathnameO
   }
 
   if (pathWithoutQuery === SPONSOR_DASHBOARD_HREF || pathWithoutQuery.startsWith(`${SPONSOR_DASHBOARD_HREF}/`)) {
+    return true;
+  }
+
+  if (pathWithoutQuery === WORKSPACE_HEALTH_PATH || pathWithoutQuery.startsWith(`${WORKSPACE_HEALTH_PATH}/`)) {
     return true;
   }
 

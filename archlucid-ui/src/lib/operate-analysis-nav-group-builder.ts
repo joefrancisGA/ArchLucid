@@ -16,7 +16,6 @@ import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { PATTERN_LIBRARY_NAV_LINK_LABEL } from "@/lib/pattern-library-copy";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
@@ -131,7 +130,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       },
       {
         // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
-        href: GOVERNANCE_WORKSPACE_HEALTH_HREF as typeof GOVERNANCE_WORKSPACE_HEALTH_HREF & "/insights/workspace-health",
+        href: "/insights/workspace-health",
         label: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
         title: "Workspace health — approval and engagement KPIs for the active workspace scope",
         icon: HeartPulse,

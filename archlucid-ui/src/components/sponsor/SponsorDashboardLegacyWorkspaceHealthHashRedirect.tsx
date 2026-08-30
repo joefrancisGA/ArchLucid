@@ -3,7 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH, WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
+import {
+  SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID,
+} from "@/lib/sponsor/sponsor-dashboard-route";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
+
+function isLegacyWorkspaceHealthHash(hash: string): boolean {
+  return hash === `#${SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID}`;
+}
 
 /** Sends legacy `#workspace-health` sponsor-dashboard bookmarks to the standalone page. */
 export function SponsorDashboardLegacyWorkspaceHealthHashRedirect(): null {
@@ -14,9 +21,18 @@ export function SponsorDashboardLegacyWorkspaceHealthHashRedirect(): null {
       return;
     }
 
-    if (window.location.hash === `#${LEGACY_SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HASH}`) {
-      router.replace(WORKSPACE_HEALTH_PATH);
-    }
+    const redirectIfLegacyHash = (): void => {
+      if (isLegacyWorkspaceHealthHash(window.location.hash)) {
+        router.replace(WORKSPACE_HEALTH_PATH);
+      }
+    };
+
+    redirectIfLegacyHash();
+    window.addEventListener("hashchange", redirectIfLegacyHash);
+
+    return () => {
+      window.removeEventListener("hashchange", redirectIfLegacyHash);
+    };
   }, [router]);
 
   return null;
