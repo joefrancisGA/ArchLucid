@@ -129,6 +129,7 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
             throw new InvalidOperationException(documentUrlRejection);
 
         RequestContentSafetyResult safety = await _requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken).ConfigureAwait(false);
+
         if (!safety.IsAllowed)
         {
             string actor = _actorContext.GetActor();
@@ -140,6 +141,7 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         // ReSharper disable once InvertIf
+
         if (idempotency is not null)
         {
             CreateRunResult? replay = await _idempotencyHelper.TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
