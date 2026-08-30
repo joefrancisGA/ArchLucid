@@ -365,10 +365,66 @@ public sealed class GovernanceControllerDashboardTests
     }
 
     [Fact]
-    public async Task GetComplianceDriftTrend_returns_bad_request_when_bucket_count_exceeds_five_hundred()
+    public async Task GetComplianceDriftTrend_returns_ok_when_bucket_count_is_exactly_five_hundred()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+        DateTime fromUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = fromUtc.AddHours(500);
+        const int bucketMinutes = 60;
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = tenantId, Name = "contoso" });
+
+        Mock<IComplianceDriftTrendService> drift = new();
+        drift
+            .Setup(d => d.GetTrendAsync(
+                tenantId,
+                fromUtc,
+                toUtc,
+                TimeSpan.FromMinutes(bucketMinutes),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        GovernanceController sut = new(
+            Mock.Of<IGovernanceWorkflowService>(),
+            Mock.Of<IGovernanceApprovalRequestRepository>(),
+            Mock.Of<IGovernancePromotionRecordRepository>(),
+            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            Mock.Of<IActorContext>(),
+            scope.Object,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<IGovernanceDashboardService>(),
+            Mock.Of<IGovernanceLineageService>(),
+            Mock.Of<IGovernanceRationaleService>(),
+            drift.Object,
+            Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackSchemaKeysService>(),
+            Mock.Of<Core.Audit.IAuditService>(),
+            Mock.Of<IPolicyPackDraftService>(),
+            Mock.Of<IPolicyPackGeneratorService>(),
+            tenants.Object,
+            NullLogger<GovernanceController>.Instance)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, bucketMinutes, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        drift.VerifyAll();
+    }
+
+    [Fact]
+    public async Task GetComplianceDriftTrend_returns_bad_request_when_bucket_count_is_five_hundred_and_one()
     {
         DateTime fromUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        DateTime toUtc = fromUtc.AddDays(21);
+        DateTime toUtc = fromUtc.AddHours(501);
         const int bucketMinutes = 60;
 
         GovernanceController sut = new(

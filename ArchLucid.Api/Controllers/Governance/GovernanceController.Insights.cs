@@ -104,7 +104,10 @@ public sealed partial class GovernanceController
         DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
         DateTime toUtcNormalized = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
 
-        int bucketCount = (int)Math.Ceiling((toUtcNormalized - fromUtcNormalized).TotalMinutes / bucketMinutes);
+        TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
+        long deltaTicks = (toUtcNormalized - fromUtcNormalized).Ticks;
+        long bucketSizeTicks = bucketSize.Ticks;
+        long bucketCount = (deltaTicks + bucketSizeTicks - 1) / bucketSizeTicks;
 
         if (bucketCount > ComplianceDriftTrendMaxBuckets)
         {
@@ -118,8 +121,6 @@ public sealed partial class GovernanceController
 
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
-        TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
 
         IReadOnlyList<ComplianceDriftTrendPoint> points = await _complianceDriftTrendService.GetTrendAsync(
             scope.TenantId,
