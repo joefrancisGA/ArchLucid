@@ -49,11 +49,45 @@ describe("digest-setup-gap-actions", () => {
     expect(action.href).toBe("/governance/advisory-scans?tab=schedules");
   });
 
+  it("maps disabled-only subscription gap separately from missing subscriptions", () => {
+    const action = mapDigestSetupGap("copy changed on server", "no_enabled_digest_subscriptions");
+
+    expect(action.title).toBe("Subscriptions disabled");
+    expect(action.impact).toContain("none are enabled");
+    expect(action.actionLabel).toBe("Review subscriptions");
+    expect(action.href).toBe("/architecture/digests?tab=subscriptions");
+  });
+
+  it("resolveDigestNextBestAction points to subscriptions when rows exist but are disabled", () => {
+    const action = resolveDigestNextBestAction(
+      baseSnap({
+        enabledAdvisoryScheduleCount: 1,
+        digestSubscriptionCount: 2,
+        enabledDigestSubscriptionCount: 0,
+      }),
+    );
+
+    expect(action?.title).toBe("Subscriptions disabled");
+    expect(action?.actionLabel).toBe("Review subscriptions");
+  });
+
   it("maps subscription and sponsor gaps", () => {
     const mapped = mapDigestSetupGaps([
       "No digest subscriptions — generated digests have no outbound recipients in this scope.",
       "Sponsor email digest is not fully configured — sponsor emails will not receive the separate sponsor rollup.",
     ]);
+
+    expect(mapped[0]?.actionLabel).toBe("Create subscription");
+    expect(mapped[0]?.href).toBe("/architecture/digests?tab=subscriptions");
+    expect(mapped[1]?.actionLabel).toBe("Open sponsor schedule");
+    expect(mapped[1]?.href).toBe("/architecture/digests?tab=schedule");
+  });
+
+  it("maps gaps from stable gap codes even when copy changes", () => {
+    const mapped = mapDigestSetupGaps(
+      ["copy changed", "copy changed"],
+      ["no_digest_subscriptions", "sponsor_email_digest_not_configured"],
+    );
 
     expect(mapped[0]?.actionLabel).toBe("Create subscription");
     expect(mapped[0]?.href).toBe("/architecture/digests?tab=subscriptions");
