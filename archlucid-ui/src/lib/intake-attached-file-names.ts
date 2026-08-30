@@ -27,12 +27,46 @@ export function extractAttachedIntakeFileNames(description: string | null | unde
     return [];
   }
 
-  return section
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.startsWith("- "))
-    .map((line) => line.slice(2).trim())
-    .filter((name) => name.length > 0);
+  const names: string[] = [];
+  let started = false;
+
+  for (const rawLine of section.split(/\r?\n/)) {
+    const line = rawLine.trim();
+
+    if (line.length === 0) {
+      if (started) {
+        break;
+      }
+
+      continue;
+    }
+
+    if (ATTACHED_FILES_HEADINGS.includes(line as (typeof ATTACHED_FILES_HEADINGS)[number])) {
+      if (started) {
+        break;
+      }
+
+      continue;
+    }
+
+    if (line.startsWith("- ")) {
+      started = true;
+
+      const name = line.slice(2).trim();
+
+      if (name.length > 0) {
+        names.push(name);
+      }
+
+      continue;
+    }
+
+    if (started) {
+      break;
+    }
+  }
+
+  return names;
 }
 
 function sliceAttachedFilesSection(text: string): string | null {
