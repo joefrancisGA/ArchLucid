@@ -166,7 +166,7 @@ public sealed partial class GovernanceApprovalRequestRepository
         string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
-                      SELECT COUNT(*)
+                      SELECT COUNT_BIG(1)
                       FROM GovernanceApprovalRequests
                       WHERE Status IN (@Draft, @Submitted){scopeSql};
                       """;
@@ -183,8 +183,7 @@ public sealed partial class GovernanceApprovalRequestRepository
             p,
             cancellationToken: cancellationToken));
 
-        return checked((int)count);
-    }
+        return count > int.MaxValue ? int.MaxValue : (int)count;
 
     public async Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(
         int maxRows = 50,
