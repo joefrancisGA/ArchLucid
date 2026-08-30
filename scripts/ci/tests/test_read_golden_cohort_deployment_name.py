@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.ci.read_golden_cohort_deployment_name import read_deployment_name
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
+SCRIPT_DIR = REPO_ROOT / "scripts" / "ci"
+sys.path.insert(0, str(SCRIPT_DIR))
+
+from read_golden_cohort_deployment_name import read_deployment_name  # noqa: E402
 
 
 class ReadGoldenCohortDeploymentNameTests(unittest.TestCase):
