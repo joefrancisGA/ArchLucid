@@ -1,6 +1,6 @@
-﻿> **Reviewed:** 2026-08-29
+﻿> **Scope:** Canonical assurance status source for procurement-facing language — current status, deferred windows, allowed wording, evidence links — plus procurement documentation review cadence (formerly `REVIEW_CADENCE.md`), the SOC 2 readiness roadmap (formerly `SOC2_ROADMAP.md`), the repository-linked current assurance posture evidence snapshot (formerly the body of `CURRENT_ASSURANCE_POSTURE.md`; that filename remains a path-stable pack alias), and the owner-conducted security assessment procurement excerpt (formerly the body of `OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`; that filename remains a path-stable pack alias).
 
-> **Scope:** Canonical assurance status source for procurement-facing language — current status, deferred windows, allowed wording, evidence links — plus procurement documentation review cadence (formerly `REVIEW_CADENCE.md`), the SOC 2 readiness roadmap (formerly `SOC2_ROADMAP.md`), the repository-linked current assurance posture evidence snapshot (formerly the body of `CURRENT_ASSURANCE_POSTURE.md`; that filename remains a path-stable pack alias), and the owner-conducted security assessment procurement excerpt (formerly the body of `OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`; that filename remains a path-stable pack alias).
+> **Reviewed:** 2026-08-29
 
 # Assurance Status Canonical
 
