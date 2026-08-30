@@ -11,7 +11,7 @@ import {
  * attribution of legacy inbound links; canonical routing lives at {@link WORKSPACE_HEALTH_PATH}
  * via {@link GOVERNANCE_DASHBOARD_TRAFFIC_CANONICAL_HREF}.
  */
-export const GOVERNANCE_DASHBOARD_TRAFFIC_ROW_ID = "GDX";
+export const GOVERNANCE_DASHBOARD_RETIRED_TRAFFIC_ROW_ID = "GDX";
 
 /** Retired bookmark path — not the canonical page; redirects to {@link WORKSPACE_HEALTH_PATH}. */
 export const GOVERNANCE_DASHBOARD_TRAFFIC_PATH = LEGACY_GOVERNANCE_DASHBOARD_PATH;
