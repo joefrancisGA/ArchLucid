@@ -48,6 +48,8 @@ export function GraphViewerSelectionSettings({
                 type="button"
                 variant={isAdvanced ? "outline" : "default"}
                 size="sm"
+                aria-pressed={!isAdvanced}
+                disabled={!isAdvanced}
                 className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)}
                 onClick={() => {
                   if (isAdvanced) {
@@ -61,6 +63,8 @@ export function GraphViewerSelectionSettings({
                 type="button"
                 variant={isAdvanced ? "default" : "outline"}
                 size="sm"
+                aria-pressed={isAdvanced}
+                disabled={isAdvanced}
                 className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)}
                 onClick={() => {
                   if (!isAdvanced) {

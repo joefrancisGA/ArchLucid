@@ -76,9 +76,9 @@ internal static partial class TrialFunnelOperationalSummaryBuilder
         TrialFunnelStageMetricResponse[] stages =
         [
             CreateStage(StageTrialStarted, "Trial started", signupAttempts, signupAttempts, null, previousPeriod?.SignupAttempts),
-            CreateStage(StageFirstReviewFinalized, "First review finalized", firstCommits, signupAttempts, firstCommits, previousPeriod?.FirstCommits, previousDenominator: signupAttempts),
-            CreateStage(StageCheckoutActivity, "Checkout activity", checkouts, signupAttempts, checkouts, previousPeriod?.Checkouts, previousDenominator: firstCommits),
-            CreateStage(StageConverted, "Converted", conversions, signupAttempts, conversions, previousPeriod?.Conversions, previousDenominator: firstCommits),
+            CreateStage(StageFirstReviewFinalized, "First review finalized", firstCommits, signupAttempts, signupAttempts, previousPeriod?.FirstCommits, previousDenominator: signupAttempts),
+            CreateStage(StageCheckoutActivity, "Checkout activity", checkouts, signupAttempts, firstCommits, previousPeriod?.Checkouts, previousDenominator: firstCommits),
+            CreateStage(StageConverted, "Converted", conversions, signupAttempts, firstCommits, previousPeriod?.Conversions, previousDenominator: firstCommits),
         ];
 
         return stages;
