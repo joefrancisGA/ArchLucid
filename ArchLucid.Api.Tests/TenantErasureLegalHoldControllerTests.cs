@@ -89,6 +89,11 @@ public sealed class TenantErasureLegalHoldControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        ProblemDetails problem = badRequest.Value.Should().BeOfType<ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().NotBeNullOrWhiteSpace();
+        problem.Detail.Should().Contain("UntilUtc");
     }
 
     [Fact]
