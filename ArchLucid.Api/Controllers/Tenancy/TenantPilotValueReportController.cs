@@ -1,9 +1,11 @@
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Audit;
 
 using Asp.Versioning;
@@ -24,7 +26,8 @@ public sealed class TenantPilotValueReportController(
     IPilotValueReportService pilotValueReportService,
     IPilotValueReportMarkdownFormatter pilotValueReportMarkdownFormatter,
     IScopeContextProvider scopeContextProvider,
-    IAuditRepository auditRepository) : ControllerBase
+    IAuditRepository auditRepository,
+    ITenantRepository tenantRepository) : ControllerBase
 {
     private const int MaxRollingDays = 90;
 
@@ -39,6 +42,9 @@ public sealed class TenantPilotValueReportController(
 
     private readonly IAuditRepository _auditRepository =
         auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     /// <summary>
     ///     Pilot value report: committed-run aggregates, findings, audit-backed governance/recommendation tallies, and a
@@ -65,6 +71,15 @@ public sealed class TenantPilotValueReportController(
                 "fromUtc and toUtc must be on or after 1970-01-01 when specified.",
                 ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeContextProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         PilotValueReport? report = await _pilotValueReportService.BuildAsync(fromUtc, toUtc, cancellationToken);
 
@@ -101,6 +116,15 @@ public sealed class TenantPilotValueReportController(
                 $"rollingDays must be between 1 and {MaxRollingDays}.",
                 ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeContextProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         DateTime rollingToUtc = TimeProvider.System.UtcNowDateTime();
         DateTime rollingFromUtc = rollingToUtc.AddDays(-rollingDays);
