@@ -36,10 +36,7 @@ public sealed partial class AuthorityRunOrchestrator
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
-            RunRecord? existing = await _runRepository.GetByIdAsync(scope, request.RunId, cancellationToken);
-            if (existing is null)
-                throw new InvalidOperationException(
-                    $"Run '{request.RunId:D}' was not found for queued authority completion.");
+            RunRecord existing = await ResolvePreAllocatedRunHeaderAsync(scope, request.RunId, cancellationToken);
 
             if (_runStateTransitionService.ShouldSkipQueuedAuthorityPipelineCompletion(existing.ContextSnapshotId))
             {
