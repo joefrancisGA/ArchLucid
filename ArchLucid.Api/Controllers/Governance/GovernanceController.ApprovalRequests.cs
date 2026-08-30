@@ -346,7 +346,7 @@ public sealed partial class GovernanceController
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
                         ErrorCode = ProblemTypes.ValidationFailed,
-                        Message = "duplicate approvalRequestId in batch.",
+                        Message = "Duplicate approvalRequestId values are not allowed in a batch after trimming whitespace.",
                     });
 
                 continue;
