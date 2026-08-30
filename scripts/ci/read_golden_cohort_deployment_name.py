@@ -23,7 +23,11 @@ def read_deployment_name(*, config_path: Path | None = None) -> str:
 
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except (OSError, json.JSONDecodeError) as exc:
+        print(
+            f"Warning: failed to read deployment name from {path}: {exc}; using default {_DEFAULT!r}",
+            file=sys.stderr,
+        )
         return _DEFAULT
 
     if isinstance(payload, dict):
