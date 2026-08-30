@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Export Azure OpenAI env vars for live real-mode CI (endpoint, key, deployment).
 # Prefers explicit CI secrets; falls back to budget.config.json deploymentName.
-set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
