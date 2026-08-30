@@ -135,8 +135,34 @@ export type ReplayResponse = ReplayResponseSchema &
 /** LLM usage rollup — **OpenAPI** `RunAgentLlmCostEstimateResponse`. */
 export type RunAgentExecutionLlmCostEstimate = components["schemas"]["RunAgentLlmCostEstimateResponse"];
 
+export type RunDetailAgentFindingWire = components["schemas"]["Finding"] & {
+  message?: string;
+  reasoningTrace?: string | null;
+};
+
 /** Agent pipeline result row on authority run detail (`RunDetailDto.results`). */
-export type RunDetailAgentResult = components["schemas"]["AgentResult"];
+export type RunDetailAgentResult = {
+  agentType?: components["schemas"]["AgentType"] | string;
+  cacheServed?: boolean;
+  calibratedConfidence?: number | string | null;
+  checklistCoverage?: RunDetailAgentFindingWire[];
+  citations?: components["schemas"]["Citation"][] | null;
+  claims?: string[];
+  confidence?: number | string;
+  createdUtc?: string;
+  degradationReasonCode?: string | null;
+  evidenceRefs?: string[];
+  findings?: RunDetailAgentFindingWire[];
+  insightDensityCuration?: components["schemas"]["InsightDensityCurationSummary"] | null;
+  proposedChanges?: unknown;
+  reasoningTrace?: string | null;
+  resultId: string;
+  retrievalGroundingTrace?: { citationCoverage?: number | string } | null;
+  runId?: string;
+  taskId?: string;
+  taskStructuralExecutionMode?: components["schemas"]["StructuralExecutionMode"] | null;
+  upstreamResultFingerprints?: Record<string, string> | null;
+};
 
 export type TrustEvidenceFieldSnapshot = {
   title: string;
