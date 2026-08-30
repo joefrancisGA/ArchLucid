@@ -12,7 +12,6 @@ import {
   type ArchitectureDraftFieldState,
 } from "@/lib/architecture/architecture-draft-readiness";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { showSuccess } from "@/lib/toast";
 
 type ArchitectureDraftWorkspaceSaveActionsProps = {
   readonly editorLocked: boolean;
@@ -53,8 +52,6 @@ export function ArchitectureDraftWorkspaceSaveActions(
     const saved = await props.saveDraft();
 
     if (saved) {
-      showSuccess("Architecture draft saved.");
-
       return;
     }
 

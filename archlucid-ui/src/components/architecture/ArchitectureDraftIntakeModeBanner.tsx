@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import {
   ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL,
   ARCHITECTURE_DRAFT_INTAKE_MODE_TITLE,
@@ -18,6 +19,7 @@ type ArchitectureDraftIntakeModeBannerProps = {
   readonly continueHref: string;
   readonly canUnlock: boolean;
   readonly unlockBusy: boolean;
+  readonly unlockError?: string | null;
   readonly onUnlock: () => void;
 };
 
@@ -51,6 +53,11 @@ export function ArchitectureDraftIntakeModeBanner(
           </Button>
         ) : null}
       </div>
+      {props.unlockError !== null && props.unlockError !== undefined ? (
+        <div className="mt-3" data-testid="architecture-draft-unlock-error">
+          <ReviewStartInlineError message={props.unlockError} />
+        </div>
+      ) : null}
     </div>
   );
 }
