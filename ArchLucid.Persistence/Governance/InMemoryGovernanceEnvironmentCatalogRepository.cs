@@ -41,8 +41,22 @@ public sealed class InMemoryGovernanceEnvironmentCatalogRepository : IGovernance
             _catalogs[key] = new GovernanceEnvironmentCatalog
             {
                 IsAdministratorConfigured = catalog.IsAdministratorConfigured,
-                Environments = catalog.Environments.ToList(),
-                Transitions = catalog.Transitions.ToList(),
+                Environments = catalog.Environments
+                    .Select(environment => new GovernanceEnvironmentDefinition
+                    {
+                        Slug = environment.Slug,
+                        DisplayName = environment.DisplayName,
+                        SortOrder = environment.SortOrder,
+                        IsActive = environment.IsActive,
+                    })
+                    .ToList(),
+                Transitions = catalog.Transitions
+                    .Select(transition => new GovernanceEnvironmentTransition
+                    {
+                        SourceSlug = transition.SourceSlug,
+                        TargetSlug = transition.TargetSlug,
+                    })
+                    .ToList(),
             };
         }
 
