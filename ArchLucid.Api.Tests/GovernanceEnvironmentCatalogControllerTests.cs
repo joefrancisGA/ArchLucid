@@ -1,0 +1,158 @@
+using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+
+using FluentAssertions;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using Moq;
+
+namespace ArchLucid.Api.Tests;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class GovernanceEnvironmentCatalogControllerTests
+{
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
+
+    [Fact]
+    public async Task Get_returns_effective_catalog()
+    {
+        GovernanceEnvironmentCatalog catalog = GovernanceEnvironmentCatalogDefaults.Create();
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new();
+        catalogService
+            .Setup(service => service.GetCatalogAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(catalog);
+
+        Mock<IAuditService> auditService = new();
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            auditService.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        ActionResult<GovernanceEnvironmentCatalog> action = await controller.Get(CancellationToken.None);
+
+        OkObjectResult ok = action.Result.Should().BeOfType<OkObjectResult>().Subject;
+        GovernanceEnvironmentCatalog body = ok.Value.Should().BeOfType<GovernanceEnvironmentCatalog>().Subject;
+
+        body.Environments.Should().HaveCount(3);
+        body.Transitions.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task Replace_returns_bad_request_when_catalog_is_invalid()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new();
+        catalogService
+            .Setup(service => service.ReplaceCatalogAsync(It.IsAny<ReplaceGovernanceEnvironmentCatalogRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ArgumentException("At least one environment definition is required."));
+
+        Mock<IAuditService> auditService = new();
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            auditService.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.Replace(
+            new ReplaceGovernanceEnvironmentCatalogRequest(),
+            CancellationToken.None);
+
+        action.Should().BeAssignableTo<ObjectResult>();
+        ((ObjectResult)action).StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        auditService.Verify(
+            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Replace_persists_catalog_and_audits()
+    {
+        GovernanceEnvironmentCatalog saved = new()
+        {
+            Environments =
+            [
+                new GovernanceEnvironmentDefinition
+                {
+                    Slug = "draft",
+                    DisplayName = "Draft",
+                    SortOrder = 0,
+                    IsActive = true,
+                },
+                new GovernanceEnvironmentDefinition
+                {
+                    Slug = "approved",
+                    DisplayName = "Approved",
+                    SortOrder = 1,
+                    IsActive = true,
+                },
+            ],
+            Transitions =
+            [
+                new GovernanceEnvironmentTransition { SourceSlug = "draft", TargetSlug = "approved" },
+            ],
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new();
+        catalogService
+            .Setup(service => service.ReplaceCatalogAsync(It.IsAny<ReplaceGovernanceEnvironmentCatalogRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        catalogService
+            .Setup(service => service.GetCatalogAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(saved);
+
+        Mock<IAuditService> auditService = new();
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            auditService.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        ReplaceGovernanceEnvironmentCatalogRequest request = new()
+        {
+            Environments = saved.Environments,
+            Transitions = saved.Transitions,
+        };
+
+        IActionResult action = await controller.Replace(request, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        GovernanceEnvironmentCatalog body = ok.Value.Should().BeOfType<GovernanceEnvironmentCatalog>().Subject;
+
+        body.Environments.Should().HaveCount(2);
+        auditService.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(auditEvent => auditEvent.EventType == AuditEventTypes.GovernanceEnvironmentCatalogReplaced),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+}

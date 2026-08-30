@@ -107,8 +107,8 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     omitReviewPackageScopeHelp: true,
   },
   "governance-dashboard": {
-    layerBadge: "Governance",
-    headline: "Workspace health — governance and value signals in your current scope.",
+    layerBadge: "Insights",
+    headline: "Workspace health — approval and value signals in your current scope.",
     useWhen:
       "Use after Pilot proof when sponsors need pre-finalization outcomes, severity exposure, compliance drift, SLA posture, and a hours-first value proxy.",
     firstPilotNote: "Optional until first Pilot proof; data is scoped to the active tenant/workspace/project.",

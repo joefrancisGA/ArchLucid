@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatAbsoluteUpdatedAtTitle,
+  formatInventoryUpdatedAtCell,
   formatRelativeTime,
   formatUpdatedAbsoluteWithRelative,
   formatUpdatedRelativeWithAbsoluteParenthetical,
@@ -48,6 +50,15 @@ describe("formatRelativeTime", () => {
 
     expect(formatUpdatedAbsoluteWithRelative(iso, "Jul 9, 2026")).toBe("Updated Jul 9, 2026");
     expect(formatUpdatedAbsoluteWithRelative(iso, "Jul 9, 2026").toLowerCase()).not.toMatch(/\bnow\b/);
+  });
+
+  it("formatInventoryUpdatedAtCell keeps relative display with absolute tooltip title", () => {
+    const past = "2026-06-01T11:00:00.000Z";
+    const cell = formatInventoryUpdatedAtCell(past);
+
+    expect(cell.display.length).toBeGreaterThan(0);
+    expect(cell.absoluteTitle).toBe(formatAbsoluteUpdatedAtTitle(past));
+    expect(cell.display.toLowerCase()).toMatch(/hour|day|minute|second|ago|month|year|now/);
   });
 
   it("uses calendar days so two local dates apart are not labeled yesterday", () => {

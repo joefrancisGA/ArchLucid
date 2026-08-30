@@ -50,10 +50,12 @@ import {
   GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE,
 } from "@/lib/governance/governance-workflow-section-copy";
 import { useGovernanceWorkflowPage } from "./use-governance-workflow-page";
+import { useGovernanceEnvironmentCatalogQuery } from "@/hooks/use-governance-environment-catalog-query";
 
 export type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
 
 export function GovernanceWorkflowPageContent() {
+  const environmentCatalogQuery = useGovernanceEnvironmentCatalogQuery();
   const {
     canMutateWorkflow,
     buyerPolishedShell,
@@ -267,7 +269,7 @@ export function GovernanceWorkflowPageContent() {
             </>
           ) : workflowOutcomeLine !== null ? (
             <p
-              className={cn("mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("mb-4 rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}
               data-testid="governance-workflow-outcome-banner"
             >
               {workflowOutcomeLine}
@@ -299,6 +301,7 @@ export function GovernanceWorkflowPageContent() {
               submitBusy={submitBusy}
               submitApprovalComplete={submitApprovalComplete}
               onSubmitApproval={onSubmitApproval}
+              environmentCatalog={environmentCatalogQuery.data}
             />
           </div>
 

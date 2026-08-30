@@ -11,7 +11,7 @@ import {
 import { StatusTag } from "@/components/ui/status-tag";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import type { ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -77,7 +77,9 @@ export function ReviewsHubInventoryRow(props: ReviewsHubInventoryRowProps): Reac
         <span className="text-al-text-primary">{row.lifecycleStage}</span>
       </EnterpriseTableCell>
       <EnterpriseTableCell>{row.ownerLabel}</EnterpriseTableCell>
-      <EnterpriseTableCell title={row.lastUpdatedAbsolute}>{row.lastUpdated}</EnterpriseTableCell>
+      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary} title={row.lastUpdatedAbsolute}>
+        {row.lastUpdated}
+      </EnterpriseTableCell>
       <EnterpriseTableCell className="text-right tabular-nums">
         {finiteIntegerCountDisplay(row.findingsCount)}
       </EnterpriseTableCell>

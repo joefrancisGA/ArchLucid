@@ -271,5 +271,6 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     saveAndContinue,
     skipQuestion,
     submitDraft,
+    structuredBrief,
   };
 }
