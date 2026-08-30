@@ -3,8 +3,6 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>Extracts SQL Server error metadata from exception chains without pulling SqlClient into Application.</summary>
-public readonly record struct SqlExceptionDetails(int Number, byte State);
-
 public static class SqlExceptionInspector
 {
     public static bool TryFind(Exception? exception, out SqlExceptionDetails details)

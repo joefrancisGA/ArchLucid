@@ -9,9 +9,10 @@
       "enableGraphRag": true,
       "enableHyde": true,
       "enableQueryRewrite": true,
-      "positiveReadinessSupportRatio": 0.9782608695652174,
+      "enableIterativeRetrieveCritiqueRetry": true,
+      "positiveReadinessSupportRatio": 0.9791666666666666,
       "negativeControlSupportRatio": 0.038461538461538464,
-      "combinedDiagnosticSupportRatio": 0.6388888888888888,
+      "combinedDiagnosticSupportRatio": 0.6486486486486487,
       "hitsFiltered": 0,
       "casesWithFilteredHits": 0
     },
@@ -21,9 +22,10 @@
       "enableGraphRag": false,
       "enableHyde": true,
       "enableQueryRewrite": true,
-      "positiveReadinessSupportRatio": 0.9782608695652174,
+      "enableIterativeRetrieveCritiqueRetry": true,
+      "positiveReadinessSupportRatio": 0.9791666666666666,
       "negativeControlSupportRatio": 0.07692307692307693,
-      "combinedDiagnosticSupportRatio": 0.6527777777777778,
+      "combinedDiagnosticSupportRatio": 0.6621621621621622,
       "hitsFiltered": 8,
       "casesWithFilteredHits": 8
     },
@@ -33,9 +35,10 @@
       "enableGraphRag": true,
       "enableHyde": false,
       "enableQueryRewrite": true,
+      "enableIterativeRetrieveCritiqueRetry": true,
       "positiveReadinessSupportRatio": 1.0,
       "negativeControlSupportRatio": 0.038461538461538464,
-      "combinedDiagnosticSupportRatio": 0.6527777777777778,
+      "combinedDiagnosticSupportRatio": 0.6621621621621622,
       "hitsFiltered": 6,
       "casesWithFilteredHits": 6
     },
@@ -45,11 +48,25 @@
       "enableGraphRag": true,
       "enableHyde": true,
       "enableQueryRewrite": false,
-      "positiveReadinessSupportRatio": 0.9782608695652174,
+      "enableIterativeRetrieveCritiqueRetry": true,
+      "positiveReadinessSupportRatio": 0.9791666666666666,
       "negativeControlSupportRatio": 0.038461538461538464,
-      "combinedDiagnosticSupportRatio": 0.6388888888888888,
+      "combinedDiagnosticSupportRatio": 0.6486486486486487,
       "hitsFiltered": 6,
       "casesWithFilteredHits": 6
+    },
+    {
+      "profileKey": "iterative-retry-off",
+      "profileLabel": "EnableIterativeRetrieveCritiqueRetry=false",
+      "enableGraphRag": true,
+      "enableHyde": true,
+      "enableQueryRewrite": true,
+      "enableIterativeRetrieveCritiqueRetry": false,
+      "positiveReadinessSupportRatio": 0.9791666666666666,
+      "negativeControlSupportRatio": 0.038461538461538464,
+      "combinedDiagnosticSupportRatio": 0.6486486486486487,
+      "hitsFiltered": 1,
+      "casesWithFilteredHits": 1
     },
     {
       "profileKey": "all-advanced-off",
@@ -57,20 +74,21 @@
       "enableGraphRag": false,
       "enableHyde": false,
       "enableQueryRewrite": false,
+      "enableIterativeRetrieveCritiqueRetry": false,
       "positiveReadinessSupportRatio": 1.0,
       "negativeControlSupportRatio": 0.07692307692307693,
-      "combinedDiagnosticSupportRatio": 0.6666666666666666,
-      "hitsFiltered": 19,
-      "casesWithFilteredHits": 19
+      "combinedDiagnosticSupportRatio": 0.6756756756756757,
+      "hitsFiltered": 20,
+      "casesWithFilteredHits": 20
     }
   ],
   "deltaVsAllOn": [
     {
       "profileKey": "all-on",
       "profileLabel": "All on (blended baseline)",
-      "positiveReadinessSupportRatio": 0.9782608695652174,
+      "positiveReadinessSupportRatio": 0.9791666666666666,
       "positiveDeltaVsAllOn": 0.0,
-      "combinedDiagnosticSupportRatio": 0.6388888888888888,
+      "combinedDiagnosticSupportRatio": 0.6486486486486487,
       "combinedDeltaVsAllOn": 0.0,
       "hitsFiltered": 0,
       "casesWithFilteredHits": 0
@@ -78,10 +96,10 @@
     {
       "profileKey": "graph-rag-off",
       "profileLabel": "EnableGraphRag=false",
-      "positiveReadinessSupportRatio": 0.9782608695652174,
+      "positiveReadinessSupportRatio": 0.9791666666666666,
       "positiveDeltaVsAllOn": 0.0,
-      "combinedDiagnosticSupportRatio": 0.6527777777777778,
-      "combinedDeltaVsAllOn": 0.01388888888888895,
+      "combinedDiagnosticSupportRatio": 0.6621621621621622,
+      "combinedDeltaVsAllOn": 0.013513513513513487,
       "hitsFiltered": 8,
       "casesWithFilteredHits": 8
     },
@@ -89,31 +107,41 @@
       "profileKey": "hyde-off",
       "profileLabel": "EnableHyde=false",
       "positiveReadinessSupportRatio": 1.0,
-      "positiveDeltaVsAllOn": 0.021739130434782594,
-      "combinedDiagnosticSupportRatio": 0.6527777777777778,
-      "combinedDeltaVsAllOn": 0.01388888888888895,
+      "positiveDeltaVsAllOn": 0.02083333333333337,
+      "combinedDiagnosticSupportRatio": 0.6621621621621622,
+      "combinedDeltaVsAllOn": 0.013513513513513487,
       "hitsFiltered": 6,
       "casesWithFilteredHits": 6
     },
     {
       "profileKey": "query-rewrite-off",
       "profileLabel": "EnableQueryRewrite=false",
-      "positiveReadinessSupportRatio": 0.9782608695652174,
+      "positiveReadinessSupportRatio": 0.9791666666666666,
       "positiveDeltaVsAllOn": 0.0,
-      "combinedDiagnosticSupportRatio": 0.6388888888888888,
+      "combinedDiagnosticSupportRatio": 0.6486486486486487,
       "combinedDeltaVsAllOn": 0.0,
       "hitsFiltered": 6,
       "casesWithFilteredHits": 6
     },
     {
+      "profileKey": "iterative-retry-off",
+      "profileLabel": "EnableIterativeRetrieveCritiqueRetry=false",
+      "positiveReadinessSupportRatio": 0.9791666666666666,
+      "positiveDeltaVsAllOn": 0.0,
+      "combinedDiagnosticSupportRatio": 0.6486486486486487,
+      "combinedDeltaVsAllOn": 0.0,
+      "hitsFiltered": 1,
+      "casesWithFilteredHits": 1
+    },
+    {
       "profileKey": "all-advanced-off",
       "profileLabel": "All advanced off",
       "positiveReadinessSupportRatio": 1.0,
-      "positiveDeltaVsAllOn": 0.021739130434782594,
-      "combinedDiagnosticSupportRatio": 0.6666666666666666,
-      "combinedDeltaVsAllOn": 0.02777777777777779,
-      "hitsFiltered": 19,
-      "casesWithFilteredHits": 19
+      "positiveDeltaVsAllOn": 0.02083333333333337,
+      "combinedDiagnosticSupportRatio": 0.6756756756756757,
+      "combinedDeltaVsAllOn": 0.027027027027026973,
+      "hitsFiltered": 20,
+      "casesWithFilteredHits": 20
     }
   ]
 }

@@ -42,5 +42,16 @@
       "floorRecallAt5": 5.0,
       "floorMrr": 0.75
     }
+  },
+  {
+    "generatedUtc": "2026-08-30T01:43:36.555325+00:00",
+    "disposition": "PASS",
+    "retrievalIr": {
+      "casesEvaluated": 53,
+      "meanRecallAt5": 5.0,
+      "meanMrr": 0.9308,
+      "floorRecallAt5": 5.0,
+      "floorMrr": 0.75
+    }
   }
 ]
