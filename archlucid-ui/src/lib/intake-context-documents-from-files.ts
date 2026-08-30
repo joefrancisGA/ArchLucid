@@ -20,17 +20,11 @@ const INTAKE_CONTEXT_DOCUMENT_NAME_MAX_CHARS = 500;
 export async function buildIntakeContextDocumentsFromEvidenceFiles(
   files: readonly File[],
 ): Promise<CreateArchitectureRunDocumentPayload[]> {
-  const documents: CreateArchitectureRunDocumentPayload[] = [];
+  const documents = await Promise.all(files.map((file) => toIntakeContextDocument(file)));
 
-  for (const file of files) {
-    const document = await toIntakeContextDocument(file);
-
-    if (document !== null) {
-      documents.push(document);
-    }
-  }
-
-  return documents;
+  return documents.filter(
+    (document): document is CreateArchitectureRunDocumentPayload => document !== null,
+  );
 }
 
 async function toIntakeContextDocument(file: File): Promise<CreateArchitectureRunDocumentPayload | null> {
