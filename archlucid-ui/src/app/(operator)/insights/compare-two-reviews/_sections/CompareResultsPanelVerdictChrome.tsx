@@ -186,7 +186,7 @@ export function CompareResultsPanelVerdictChrome({
             <p className="mt-2">{goldenMalformed}</p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
-            Treat this as contract drif — ompare deployed API vs UI. The supplementary diff section may still render if
+            Treat this as contract drift — compare deployed API vs UI. The supplementary diff section may still render if
             that response was valid.
           </OperatorTryNext>
         </>

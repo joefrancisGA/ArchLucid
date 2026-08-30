@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 
 import { createAndDownloadComparisonPdf, getArchitecturePackageDocxUrl } from "@/lib/api";
@@ -5,7 +7,6 @@ import { buildCompareVerdictSummary } from "@/lib/build-compare-verdict-summary"
 import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
 import {
   buildCompareNewFindingTrustLaneRows,
-  deriveCompareQualityDeltaFromGolden,
 } from "@/lib/review-quality/compare-quality-delta";
 import { useCompareGovernanceDiff } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
 import { useCompareFindingCorrelation } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFindingCorrelation";

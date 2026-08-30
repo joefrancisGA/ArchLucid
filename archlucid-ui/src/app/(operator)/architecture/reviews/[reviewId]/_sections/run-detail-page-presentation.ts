@@ -114,6 +114,8 @@ export async function buildRunDetailPresentation(
   model: RunDetailPageModel,
   fromArchitectureCreation: boolean,
 ): Promise<RunDetailPresentation> {
+  const workspaceDerive = await import("@/lib/run-detail-workspace-derive");
+
   const {
     deriveHighestUnresolvedSeverityLabel,
     deriveOverallPostureLabel,
@@ -131,9 +133,7 @@ export async function buildRunDetailPresentation(
     derivePackageVersionLabel,
     formatDecisionSnapshotFindingsLine,
     filterUnresolvedFindings,
-  } = await import("@/lib/run-detail-workspace-derive");
-
-  const workspaceDerive = await import("@/lib/run-detail-workspace-derive");
+  } = workspaceDerive;
 
   const runSummaryForBadge = model.progressForPipelineUi;
   const findingCoverageSummary = model.resolvedDetail.findingCoverageSummary ?? null;
