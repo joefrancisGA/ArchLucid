@@ -94,12 +94,19 @@ internal static class TenantWorkspaceScopePreflight
         object? invocationResult = method.Invoke(target, new[] { tenantId, workspaceId, cancellationToken });
 
         if (invocationResult is null)
-            return null;
+            throw new InvalidOperationException($"Method '{method.Name}' must return Task<T>.");
 
-        await ((Task)invocationResult).ConfigureAwait(false);
+        if (invocationResult is not Task task)
+            throw new InvalidOperationException($"Method '{method.Name}' must return Task<T>.");
+
+        await task.ConfigureAwait(false);
 
         Type taskType = invocationResult.GetType();
         System.Reflection.PropertyInfo? resultProperty = taskType.GetProperty("Result");
-        return resultProperty?.GetValue(invocationResult);
+
+        if (resultProperty is null)
+            throw new InvalidOperationException($"Method '{method.Name}' must return Task<T>.");
+
+        return resultProperty.GetValue(invocationResult);
     }
 }
