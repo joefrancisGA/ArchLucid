@@ -45,6 +45,13 @@ describe("SponsorWorkspaceHealthPageHero", () => {
     expect(screen.getByRole("heading", { level: 1, name: SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE })).toBeInTheDocument();
   });
 
+  it("renders an h2 when embedded in the sponsor dashboard", () => {
+    render(<SponsorWorkspaceHealthPageHero buyerPolishedShell />);
+
+    expect(screen.getByTestId("sponsor-workspace-health-page-hero")).toHaveAttribute("data-standalone-page", "false");
+    expect(screen.getByRole("heading", { level: 2, name: SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE })).toBeInTheDocument();
+  });
+
   /** The page heading id supports in-page anchors and assistive labels. */
   it("gives the heading the workspace health heading id", () => {
     render(<SponsorWorkspaceHealthPageHero buyerPolishedShell standalonePage />);

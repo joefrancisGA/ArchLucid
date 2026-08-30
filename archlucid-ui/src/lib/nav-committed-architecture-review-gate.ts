@@ -4,7 +4,7 @@ import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
-import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
+import { isWorkspaceHealthPath, WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review
@@ -69,7 +69,7 @@ function navPathWithoutQuery(href: string): string {
 
 /** Standalone workspace health stays post-commit in the sidebar while deep links remain eligible. */
 function isPreCommitWorkspaceHealthNavLink(href: string): boolean {
-  return navHrefPathPart(href) === WORKSPACE_HEALTH_PATH;
+  return isWorkspaceHealthPath(navHrefPathPart(href));
 }
 
 /**

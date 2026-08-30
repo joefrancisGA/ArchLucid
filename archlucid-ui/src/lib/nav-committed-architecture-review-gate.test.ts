@@ -46,6 +46,13 @@ describe("filterNavLinksByCommittedArchitectureReviewGate — workspace health",
 
     expect(filterNavLinksByCommittedArchitectureReviewGate([workspaceHealth], false)).toHaveLength(0);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(WORKSPACE_HEALTH_PATH)).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(`${WORKSPACE_HEALTH_PATH}/details`)).toBe(true);
+    expect(
+      filterNavLinksByCommittedArchitectureReviewGate(
+        [{ ...workspaceHealth, href: `${WORKSPACE_HEALTH_PATH}/details` }],
+        false,
+      ),
+    ).toHaveLength(0);
   });
 
   it("sorts sponsor-dashboard fragment anchors with the plain dashboard link before first commit", () => {
