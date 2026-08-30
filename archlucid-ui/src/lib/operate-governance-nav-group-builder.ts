@@ -7,6 +7,7 @@ import {
   Gavel,
   GitBranch,
   History,
+  Layers,
   Lightbulb,
   ShieldX,
 } from "lucide-react";
@@ -17,6 +18,7 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_ENVIRONMENTS_PATH } from "@/lib/governance/governance-environments-route";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
@@ -50,6 +52,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
           title: "Approval setup — operating rhythm for approvals, audit, and policy packs",
           icon: CalendarCheck,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: GOVERNANCE_ENVIRONMENTS_PATH as typeof GOVERNANCE_ENVIRONMENTS_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.governanceEnvironments,
+          title: "Define approval environment slots and allowed transitions",
+          icon: Layers,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

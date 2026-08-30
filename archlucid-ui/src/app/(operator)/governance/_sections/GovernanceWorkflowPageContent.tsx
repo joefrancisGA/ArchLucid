@@ -50,10 +50,12 @@ import {
   GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE,
 } from "@/lib/governance/governance-workflow-section-copy";
 import { useGovernanceWorkflowPage } from "./use-governance-workflow-page";
+import { useGovernanceEnvironmentCatalogQuery } from "@/hooks/use-governance-environment-catalog-query";
 
 export type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
 
 export function GovernanceWorkflowPageContent() {
+  const environmentCatalogQuery = useGovernanceEnvironmentCatalogQuery();
   const {
     canMutateWorkflow,
     buyerPolishedShell,
@@ -297,6 +299,7 @@ export function GovernanceWorkflowPageContent() {
               submitBusy={submitBusy}
               submitApprovalComplete={submitApprovalComplete}
               onSubmitApproval={onSubmitApproval}
+              environmentCatalog={environmentCatalogQuery.data}
             />
           </div>
 
