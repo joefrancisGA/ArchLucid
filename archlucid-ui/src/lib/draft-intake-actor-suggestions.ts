@@ -25,11 +25,12 @@ function hasActorMatching(
   );
 }
 
-/** Stable key for deduplicating actor rows in the intake editor. */
+/**
+ * Stable key for deduplicating actor rows in the intake editor.
+ * ADR 0049: identity is the kind × trust-origin × contract triple — label is display-only.
+ */
 export function actorIdentityKey(actor: ActorDescriptor): string {
-  const label = actor.label?.trim().toLowerCase() ?? "";
-
-  return `${actor.kind}|${actor.trustOrigin}|${actor.contract}|${label}`;
+  return `${actor.kind}|${actor.trustOrigin}|${actor.contract}`;
 }
 
 export function isIntentSufficientForActorSuggestions(
