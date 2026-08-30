@@ -92,6 +92,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly briefFrozen: boolean;
   readonly canUnlockBrief: boolean;
   readonly unlockBusy: boolean;
+  readonly unlockError: string | null;
   readonly onUnlockBrief: () => void;
   readonly draft: DraftRequestResponse | null;
   readonly conflictMessage: string | null;
@@ -160,6 +161,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     briefFrozen,
     canUnlockBrief,
     unlockBusy,
+    unlockError,
     onUnlockBrief,
     draft,
     conflictMessage,
@@ -319,6 +321,7 @@ return (
         continueHref={startReviewFromArchitectureHref(effectiveArchitectureId)}
         canUnlock={canUnlockBrief}
         unlockBusy={unlockBusy}
+        unlockError={unlockError}
         onUnlock={onUnlockBrief}
       />
     ) : null}
