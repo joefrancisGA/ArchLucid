@@ -41,7 +41,10 @@ class TestDemoBatch5Dt(unittest.TestCase):
             guidance_text,
             r"BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*[\"']#finalize-review[\"']",
         )
-        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", exports_text)
+        self.assertRegex(
+            exports_text,
+            r"href\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\b",
+        )
         run_actions_href = re.compile(r'href\s*:\s*["\']#run-actions["\']')
         self.assertIsNone(run_actions_href.search(guidance_text))
         self.assertIsNone(run_actions_href.search(exports_text))

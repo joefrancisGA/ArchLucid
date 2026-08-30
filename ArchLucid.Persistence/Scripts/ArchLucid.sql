@@ -10645,8 +10645,34 @@ BEGIN
 END;
 GO
 
-DENY UPDATE ON dbo.PlatformOperationalErrors TO [ArchLucidApp];
+IF DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NOT NULL
+   AND OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.database_permissions AS dp
+        INNER JOIN sys.database_principals AS gp ON dp.grantee_principal_id = gp.principal_id
+        WHERE dp.class_desc = N'OBJECT_OR_COLUMN'
+          AND dp.major_id = OBJECT_ID(N'dbo.PlatformOperationalErrors')
+          AND dp.permission_name = N'UPDATE'
+          AND dp.state_desc = N'DENY'
+          AND gp.name = N'ArchLucidApp')
+BEGIN
+    DENY UPDATE ON dbo.PlatformOperationalErrors TO [ArchLucidApp];
+END;
 GO
 
-DENY DELETE ON dbo.PlatformOperationalErrors TO [ArchLucidApp];
+IF DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NOT NULL
+   AND OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.database_permissions AS dp
+        INNER JOIN sys.database_principals AS gp ON dp.grantee_principal_id = gp.principal_id
+        WHERE dp.class_desc = N'OBJECT_OR_COLUMN'
+          AND dp.major_id = OBJECT_ID(N'dbo.PlatformOperationalErrors')
+          AND dp.permission_name = N'DELETE'
+          AND dp.state_desc = N'DENY'
+          AND gp.name = N'ArchLucidApp')
+BEGIN
+    DENY DELETE ON dbo.PlatformOperationalErrors TO [ArchLucidApp];
+END;
 GO
