@@ -203,14 +203,28 @@ export function mergeUserAssertions(
     };
 
     if (kind === "Human" || kind === "Both") {
-      appendEntity(drafts.get("users-and-stakeholders")!, entity);
-      drafts.get("users-and-stakeholders")!.provenance = "asserted";
+      const usersDraft = drafts.get("users-and-stakeholders");
+
+      if (usersDraft !== undefined) {
+        appendEntity(usersDraft, entity);
+        usersDraft.provenance = "asserted";
+      }
     }
 
     if (kind === "Machine" || kind === "Both") {
-      appendEntity(drafts.get("systems-and-services")!, entity);
-      drafts.get("systems-and-services")!.provenance = "asserted";
-      appendEntity(drafts.get("external-integrations")!, entity);
+      const systemsDraft = drafts.get("systems-and-services");
+
+      if (systemsDraft !== undefined) {
+        appendEntity(systemsDraft, entity);
+        systemsDraft.provenance = "asserted";
+      }
+
+      const integrationsDraft = drafts.get("external-integrations");
+
+      if (integrationsDraft !== undefined) {
+        appendEntity(integrationsDraft, entity);
+        integrationsDraft.provenance = "asserted";
+      }
     }
   }
 

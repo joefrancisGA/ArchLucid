@@ -1,8 +1,12 @@
 import { BUYER_CTO_DEMO_STEP_BUDGET_MINUTES } from "@/lib/buyer/buyer-cto-demo-tour-storage";
 
+function clampCtoDemoStepIndex(stepIndex: number): number {
+  return Math.max(0, Math.min(stepIndex, BUYER_CTO_DEMO_STEP_BUDGET_MINUTES.length - 1));
+}
+
 /** Minutes remaining from the current step through the end of the 30-minute demo script. */
 export function buyerCtoDemoRemainingBudgetMinutes(stepIndex: number): number {
-  const safeIndex = Math.max(0, Math.min(stepIndex, BUYER_CTO_DEMO_STEP_BUDGET_MINUTES.length - 1));
+  const safeIndex = clampCtoDemoStepIndex(stepIndex);
 
   return BUYER_CTO_DEMO_STEP_BUDGET_MINUTES.slice(safeIndex).reduce((sum, minutes) => sum + minutes, 0);
 }
@@ -35,7 +39,7 @@ export function formatCtoDemoStepTimer(remainingSeconds: number): CtoDemoStepTim
 }
 
 export function buyerCtoDemoStepBudgetSeconds(stepIndex: number): number {
-  const safeIndex = Math.max(0, Math.min(stepIndex, BUYER_CTO_DEMO_STEP_BUDGET_MINUTES.length - 1));
+  const safeIndex = clampCtoDemoStepIndex(stepIndex);
   const minutes = BUYER_CTO_DEMO_STEP_BUDGET_MINUTES[safeIndex] ?? 0;
 
   return minutes * 60;
@@ -43,7 +47,7 @@ export function buyerCtoDemoStepBudgetSeconds(stepIndex: number): number {
 
 /** Presenter-facing label for the current step pacing budget (e.g. "Budget: 6 min"). */
 export function formatCtoDemoStepBudgetLabel(stepIndex: number): string {
-  const safeIndex = Math.max(0, Math.min(stepIndex, BUYER_CTO_DEMO_STEP_BUDGET_MINUTES.length - 1));
+  const safeIndex = clampCtoDemoStepIndex(stepIndex);
   const minutes = BUYER_CTO_DEMO_STEP_BUDGET_MINUTES[safeIndex] ?? 0;
 
   return `Budget: ${minutes} min`;
