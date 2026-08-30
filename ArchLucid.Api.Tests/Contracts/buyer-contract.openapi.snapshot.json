@@ -14349,6 +14349,23 @@
         },
         "type": "object"
       },
+      "GovernanceEnvironmentCatalog": {
+        "properties": {
+          "environments": {
+            "items": {
+              "$ref": "#/components/schemas/GovernanceEnvironmentDefinition"
+            },
+            "type": "array"
+          },
+          "transitions": {
+            "items": {
+              "$ref": "#/components/schemas/GovernanceEnvironmentTransition"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "GovernanceEnvironmentComparisonResult": {
         "properties": {
           "differences": {
@@ -14367,6 +14384,35 @@
             "type": "string"
           },
           "targetEnvironment": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GovernanceEnvironmentDefinition": {
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "GovernanceEnvironmentTransition": {
+        "properties": {
+          "sourceSlug": {
+            "type": "string"
+          },
+          "targetSlug": {
             "type": "string"
           }
         },
@@ -23610,6 +23656,23 @@
               "type": "string"
             },
             "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "ReplaceGovernanceEnvironmentCatalogRequest": {
+        "properties": {
+          "environments": {
+            "items": {
+              "$ref": "#/components/schemas/GovernanceEnvironmentDefinition"
+            },
+            "type": "array"
+          },
+          "transitions": {
+            "items": {
+              "$ref": "#/components/schemas/GovernanceEnvironmentTransition"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -38779,6 +38842,9 @@
     },
     {
       "name": "GovernanceCoverage"
+    },
+    {
+      "name": "GovernanceEnvironmentCatalog"
     },
     {
       "name": "GovernancePosture"
