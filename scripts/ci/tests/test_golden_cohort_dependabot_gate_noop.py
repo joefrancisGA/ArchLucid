@@ -1,8 +1,8 @@
-"""Guard: cohort-real-llm-gate must no-op when Azure secrets are unavailable.
+"""Guard: cohort-real-llm-gate must keep its secretless PR no-op path.
 
-Dependabot PRs cannot read repository/environment Azure OIDC secrets unless those
-values are also stored as Dependabot secrets. That left azure/login failing and
-blocked merge because cohort-real-llm-gate is a required status check (PR #584).
+Fork pull requests cannot read repository/environment Azure OIDC secrets. Keep
+the eligibility guard in place so the required gate exits cleanly before Azure
+login when secrets are unavailable.
 """
 
 from __future__ import annotations
@@ -15,16 +15,21 @@ WORKFLOW = REPO_ROOT / ".github" / "workflows" / "golden-cohort-nightly.yml"
 
 
 class TestGoldenCohortDependabotGateNoop(unittest.TestCase):
-    def test_workflow_noops_dependabot_and_empty_azure_oidc(self) -> None:
-        text = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn(
-            'if [ "${{ github.actor }}" = "dependabot[bot]" ]; then',
-            text,
+    def test_workflow_keeps_secretless_pr_noop_guard(self) -> None:
+        self.assertTrue(
+            WORKFLOW.exists(),
+            f"Expected golden cohort workflow at {WORKFLOW}",
         )
-        self.assertIn('if [ -z "${{ secrets.AZURE_CLIENT_ID }}"', text)
-        self.assertIn("Azure OIDC secrets are empty", text)
-        self.assertIn("Azure credentials unavailable", text)
+
+        text = WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("Gate eligibility (var off, fork PR, or disabled path)", text)
+        self.assertIn("github.event.pull_request.head.repo.full_name", text)
+        self.assertIn("github.repository", text)
+        self.assertIn("Fork pull request;", text)
+        self.assertIn("secrets unavailable", text)
         self.assertIn("azure/login@v3", text)
+        self.assertIn("client-id: ${{ secrets.AZURE_CLIENT_ID }}", text)
+        self.assertIn("if: steps.eligibility.outputs.enabled == 'true'", text)
         self.assertIn("scripts/ci/run_golden_cohort_budget_probe_ci.sh", text)
 
 
