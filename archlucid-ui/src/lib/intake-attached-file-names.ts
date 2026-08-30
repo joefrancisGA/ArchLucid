@@ -1,4 +1,9 @@
-const ATTACHED_FILES_MARKERS = ["\n\nAttached files:", "\n\nAttached architecture evidence:", "\r\n\r\nAttached files:", "\r\n\r\nAttached architecture evidence:"] as const;
+const ATTACHED_FILES_MARKERS = [
+  "\n\nAttached files:",
+  "\n\nAttached architecture evidence:",
+  "\r\n\r\nAttached files:",
+  "\r\n\r\nAttached architecture evidence:",
+] as const;
 
 const ATTACHED_FILES_HEADINGS = ["Attached files:", "Attached architecture evidence:"] as const;
 
