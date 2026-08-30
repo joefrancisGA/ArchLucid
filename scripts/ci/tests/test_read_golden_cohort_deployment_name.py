@@ -2,17 +2,20 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SCRIPT_DIR = REPO_ROOT / "scripts" / "ci"
-sys.path.insert(0, str(SCRIPT_DIR))
+_SCRIPT_PATH = REPO_ROOT / "scripts" / "ci" / "read_golden_cohort_deployment_name.py"
 
-from read_golden_cohort_deployment_name import read_deployment_name  # noqa: E402
+# Load the module from a specific path without mutating sys.path.
+_spec = importlib.util.spec_from_file_location("read_golden_cohort_deployment_name", _SCRIPT_PATH)
+_mod = importlib.util.module_from_spec(_spec)  # type: ignore[arg-type]
+_spec.loader.exec_module(_mod)  # type: ignore[union-attr]
+read_deployment_name = _mod.read_deployment_name
 
 
 class ReadGoldenCohortDeploymentNameTests(unittest.TestCase):
