@@ -24,19 +24,26 @@ class TestDemoBatch5Dt(unittest.TestCase):
 
         self.assertRegex(
             text,
-            r'BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*["\']#run-actions["\']',
+            r'BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*["\']#finalize-review["\']',
         )
 
-        component_paths = sorted(
-            (REPO_ROOT / "archlucid-ui" / "src").rglob("ReviewPackageDoThisNextStrip.tsx")
+        component_path = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "reviews"
+            / "[reviewId]"
+            / "_sections"
+            / "RunDetailArtifactsExportsSection.tsx"
         )
-        self.assertEqual(
-            len(component_paths),
-            1,
-            "Expected exactly one ReviewPackageDoThisNextStrip.tsx under archlucid-ui/src",
+        component_text = component_path.read_text(encoding="utf-8")
+        self.assertRegex(
+            component_text,
+            r"href:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR",
         )
-        component_text = component_paths[0].read_text(encoding="utf-8")
-        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", component_text)
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor" / "sponsor-roi-kpi-display.ts"
