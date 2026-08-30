@@ -13,8 +13,10 @@ _SCRIPT_PATH = REPO_ROOT / "scripts" / "ci" / "read_golden_cohort_deployment_nam
 
 # Load the module from a specific path without mutating sys.path.
 _spec = importlib.util.spec_from_file_location("read_golden_cohort_deployment_name", _SCRIPT_PATH)
-_mod = importlib.util.module_from_spec(_spec)  # type: ignore[arg-type]
-_spec.loader.exec_module(_mod)  # type: ignore[union-attr]
+if _spec is None or _spec.loader is None:
+    raise RuntimeError(f"Failed to load module spec for {_SCRIPT_PATH}")
+_mod = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_mod)
 read_deployment_name = _mod.read_deployment_name
 
 
