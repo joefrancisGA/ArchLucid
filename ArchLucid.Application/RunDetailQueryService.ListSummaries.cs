@@ -39,6 +39,7 @@ public sealed partial class RunDetailQueryService
         DateTime? cursorUtc = null;
         Guid? cursorRunId = null;
         (DateTime CreatedUtc, Guid RunId)? decoded = RunCursorCodec.TryDecode(cursor);
+
         if (decoded.HasValue)
         {
             cursorUtc = decoded.Value.CreatedUtc;
@@ -61,6 +62,7 @@ public sealed partial class RunDetailQueryService
             RowVersion = r.RowVersion
         }).ToList();
         string? next = null;
+
         if (!page.HasMore || page.Items.Count <= 0)
             return (items, page.HasMore, next);
         RunRecord last = page.Items[^1];

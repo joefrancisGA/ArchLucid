@@ -28,6 +28,7 @@ public sealed partial class RunDetailQueryService
         CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
         if (!TryParseRunGuid(runId, out Guid runGuid))
         {
             if (logger.IsEnabled(LogLevel.Debug))
@@ -37,6 +38,7 @@ public sealed partial class RunDetailQueryService
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? record = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+
         if (record is null)
         {
             if (logger.IsEnabled(LogLevel.Debug))

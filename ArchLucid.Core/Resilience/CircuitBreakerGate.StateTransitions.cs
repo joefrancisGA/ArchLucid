@@ -39,6 +39,7 @@ public sealed partial class CircuitBreakerGate
             }
 
             // HalfOpen: only the probing thread holds the slot; others wait out.
+
             if (!_probeInFlight)
                 return;
 
