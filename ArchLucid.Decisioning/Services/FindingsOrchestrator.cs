@@ -22,9 +22,12 @@ public partial class FindingsOrchestrator(
     TimeProvider? timeProvider = null,
     IEnumerable<IEffectfulFindingEngine>? effectfulEngines = null,
     IScopeContextProvider? scopeContextProvider = null,
-    IEffectiveGovernanceLoader? effectiveGovernanceLoader = null)
+    IEffectiveGovernanceLoader? effectiveGovernanceLoader = null,
+    IPortfolioRecurrenceCurrentReviewIdentitySource? portfolioRecurrenceCurrentReviewIdentitySource = null)
     : IFindingsOrchestrator
 {
+    private const string PortfolioRecurrenceEngineType = "portfolio-recurrence";
+
     private readonly IOptions<HumanReviewFindingOptions> _humanReviewOptions =
         humanReviewOptions ?? throw new ArgumentNullException(nameof(humanReviewOptions));
 
@@ -36,6 +39,9 @@ public partial class FindingsOrchestrator(
     private readonly IScopeContextProvider? _scopeContextProvider = scopeContextProvider;
 
     private readonly IEffectiveGovernanceLoader? _effectiveGovernanceLoader = effectiveGovernanceLoader;
+
+    private readonly IPortfolioRecurrenceCurrentReviewIdentitySource? _portfolioRecurrenceCurrentReviewIdentitySource =
+        portfolioRecurrenceCurrentReviewIdentitySource;
 
     public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
         Guid runId,
@@ -53,8 +59,15 @@ public partial class FindingsOrchestrator(
         List<Exception> engineExceptions = [];
         int successfulEngineInvocations = 0;
 
-        IReadOnlyList<EngineAdapter> adapters = EngineAdapter.FromEngines(engines, effectfulEngines);
-        Task<EngineInvocationOutcome>[] invocationTasks = adapters
+        IReadOnlyList<EngineAdapter> allAdapters = EngineAdapter.FromEngines(engines, effectfulEngines);
+        EngineAdapter[] primaryAdapters = allAdapters
+            .Where(adapter => !string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.Ordinal))
+            .ToArray();
+        EngineAdapter? portfolioRecurrenceAdapter = allAdapters
+            .FirstOrDefault(adapter =>
+                string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.Ordinal));
+
+        Task<EngineInvocationOutcome>[] invocationTasks = primaryAdapters
             .Select(adapter => InvokeEngineAsync(adapter, graphSnapshot, ct))
             .ToArray();
 
@@ -65,65 +78,30 @@ public partial class FindingsOrchestrator(
 
         foreach (EngineInvocationOutcome outcome in orderedOutcomes)
         {
-            EngineAdapter engine = outcome.Engine;
+            AppendEngineOutcome(
+                runId,
+                outcome,
+                allFindings,
+                engineFailures,
+                engineExceptions,
+                ref successfulEngineInvocations);
+        }
 
-            if (outcome.Exception is not null)
-            {
-                Exception ex = outcome.Exception;
-                LogEngineFailed(ex, runId, engine.EngineType, engine.Category, outcome.DurationMs);
-                ArchLucidInstrumentation.RecordFindingEngineFailure(engine.EngineType, engine.Category);
-                engineExceptions.Add(ex);
-                engineFailures.Add(
-                    new FindingEngineFailure
-                    {
-                        EngineType = engine.EngineType,
-                        Category = engine.Category,
-                        ErrorMessage = ex.Message,
-                        ExceptionType = ex.GetType().Name,
-                        DurationMs = outcome.DurationMs,
-                        OccurredUtc = _clock.UtcNowDateTime()
-                    });
+        if (portfolioRecurrenceAdapter is not null && _portfolioRecurrenceCurrentReviewIdentitySource is not null)
+        {
+            _portfolioRecurrenceCurrentReviewIdentitySource.SetIdentities(
+                CollectPortfolioRecurrenceIdentities(allFindings));
 
-                continue;
-            }
+            EngineInvocationOutcome portfolioOutcome =
+                await InvokeEngineAsync(portfolioRecurrenceAdapter, graphSnapshot, ct);
 
-            IReadOnlyList<Finding> findings = outcome.Findings ?? [];
-
-            successfulEngineInvocations++;
-            LogEngineCompleted(runId, engine.EngineType, engine.Category, outcome.DurationMs, findings.Count);
-
-            foreach (Finding finding in findings)
-            {
-
-                if (string.IsNullOrWhiteSpace(finding.Category))
-                    finding.Category = engine.Category;
-
-                if (string.IsNullOrWhiteSpace(finding.QualityDimension)
-                    && FindingEngineArchitecturePillarResolver.TryResolveStorageKey(
-                        engine.Category,
-                        out string pillarStorageKey))
-                {
-                    finding.QualityDimension = pillarStorageKey;
-                }
-
-                if (!TryAcceptValidatedFinding(
-                        validator,
-                        finding,
-                        engine,
-                        engineFailures,
-                        out string? rejectionReason))
-                {
-                    LogFindingPayloadRejected(runId, engine.EngineType, finding.FindingId, rejectionReason!);
-                    continue;
-                }
-
-                if (!string.Equals(finding.Category, engine.Category, StringComparison.OrdinalIgnoreCase))
-
-                    throw new InvalidOperationException(
-                        $"Finding category '{finding.Category}' did not match engine category '{engine.Category}' for engine '{engine.EngineType}'.");
-
-                allFindings.Add(finding);
-            }
+            AppendEngineOutcome(
+                runId,
+                portfolioOutcome,
+                allFindings,
+                engineFailures,
+                engineExceptions,
+                ref successfulEngineInvocations);
         }
 
         if (successfulEngineInvocations == 0 && engineExceptions.Count > 0)
@@ -179,6 +157,93 @@ public partial class FindingsOrchestrator(
         LogSnapshotBuilt(runId, snapshot.FindingsSnapshotId, snapshot.Findings.Count, snapshot.SchemaVersion);
 
         return snapshot;
+    }
+
+    private void AppendEngineOutcome(
+        Guid runId,
+        EngineInvocationOutcome outcome,
+        List<Finding> allFindings,
+        List<FindingEngineFailure> engineFailures,
+        List<Exception> engineExceptions,
+        ref int successfulEngineInvocations)
+    {
+        EngineAdapter engine = outcome.Engine;
+
+        if (outcome.Exception is not null)
+        {
+            Exception ex = outcome.Exception;
+            LogEngineFailed(ex, runId, engine.EngineType, engine.Category, outcome.DurationMs);
+            ArchLucidInstrumentation.RecordFindingEngineFailure(engine.EngineType, engine.Category);
+            engineExceptions.Add(ex);
+            engineFailures.Add(
+                new FindingEngineFailure
+                {
+                    EngineType = engine.EngineType,
+                    Category = engine.Category,
+                    ErrorMessage = ex.Message,
+                    ExceptionType = ex.GetType().Name,
+                    DurationMs = outcome.DurationMs,
+                    OccurredUtc = _clock.UtcNowDateTime()
+                });
+
+            return;
+        }
+
+        IReadOnlyList<Finding> findings = outcome.Findings ?? [];
+
+        successfulEngineInvocations++;
+        LogEngineCompleted(runId, engine.EngineType, engine.Category, outcome.DurationMs, findings.Count);
+
+        foreach (Finding finding in findings)
+        {
+            if (string.IsNullOrWhiteSpace(finding.Category))
+                finding.Category = engine.Category;
+
+            if (string.IsNullOrWhiteSpace(finding.QualityDimension)
+                && FindingEngineArchitecturePillarResolver.TryResolveStorageKey(
+                    engine.Category,
+                    out string pillarStorageKey))
+            {
+                finding.QualityDimension = pillarStorageKey;
+            }
+
+            if (!TryAcceptValidatedFinding(
+                    validator,
+                    finding,
+                    engine,
+                    engineFailures,
+                    out string? rejectionReason))
+            {
+                LogFindingPayloadRejected(runId, engine.EngineType, finding.FindingId, rejectionReason!);
+                continue;
+            }
+
+            if (!string.Equals(finding.Category, engine.Category, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    $"Finding category '{finding.Category}' did not match engine category '{engine.Category}' for engine '{engine.EngineType}'.");
+            }
+
+            allFindings.Add(finding);
+        }
+    }
+
+    private static IReadOnlyCollection<string> CollectPortfolioRecurrenceIdentities(IEnumerable<Finding> findings)
+    {
+        HashSet<string> identities = new(StringComparer.Ordinal);
+
+        foreach (Finding finding in findings)
+        {
+            if (finding.IsMuted)
+                continue;
+
+            if (finding.Classification == FindingClassification.ChecklistCoverage)
+                continue;
+
+            identities.Add(FindingSnapshotMergeKey.FromFinding(finding));
+        }
+
+        return identities;
     }
 
     private async Task TryStampPolicyExpectationsAsync(
