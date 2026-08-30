@@ -34,17 +34,18 @@ export async function buildIntakeContextDocumentsFromEvidenceFiles(
 }
 
 async function toIntakeContextDocument(file: File): Promise<CreateArchitectureRunDocumentPayload | null> {
-  const name = file.name.trim().slice(0, INTAKE_CONTEXT_DOCUMENT_NAME_MAX_CHARS);
+  const trimmedName = file.name.trim();
+  const name = trimmedName.slice(0, INTAKE_CONTEXT_DOCUMENT_NAME_MAX_CHARS);
 
   if (name.length === 0) {
     return null;
   }
 
-  if (isReadableEvidenceTextFileName(file.name)) {
+  if (isReadableEvidenceTextFileName(trimmedName)) {
     return readReadableTextDocument(name, file);
   }
 
-  if (isBinaryArchitectureDocumentFileName(file.name)) {
+  if (isBinaryArchitectureDocumentFileName(trimmedName)) {
     return readExtractedBinaryDocument(name, file);
   }
 
