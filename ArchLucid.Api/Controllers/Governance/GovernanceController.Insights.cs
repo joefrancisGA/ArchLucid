@@ -105,14 +105,16 @@ public sealed partial class GovernanceController
         DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
         DateTime toUtcNormalized = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
 
-        int bucketCount = (int)Math.Ceiling((toUtcNormalized - fromUtcNormalized).TotalMinutes / bucketMinutes);
+        double bucketCountRaw = Math.Ceiling((toUtcNormalized - fromUtcNormalized).TotalMinutes / bucketMinutes);
 
-        if (bucketCount > ComplianceDriftTrendMaxBuckets)
+        if (bucketCountRaw > ComplianceDriftTrendMaxBuckets || bucketCountRaw > int.MaxValue)
         {
             return this.BadRequestProblem(
-                $"The requested window produces {bucketCount} trend buckets; at most {ComplianceDriftTrendMaxBuckets} are allowed. Narrow the date range or increase bucketMinutes.",
+                $"The requested window produces {bucketCountRaw} trend buckets; at most {ComplianceDriftTrendMaxBuckets} are allowed. Narrow the date range or increase bucketMinutes.",
                 ProblemTypes.ValidationFailed);
         }
+
+        int bucketCount = (int)bucketCountRaw;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
