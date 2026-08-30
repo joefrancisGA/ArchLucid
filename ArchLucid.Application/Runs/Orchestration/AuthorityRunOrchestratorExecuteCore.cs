@@ -51,20 +51,8 @@ public sealed partial class AuthorityRunOrchestrator
 
             if (request.RunId != Guid.Empty)
             {
-                RunRecord? existingRun = await _runRepository.GetByIdAsync(scope, runId, pipelineCt);
-
-                if (existingRun is not null)
-                {
-                    run = existingRun;
-                    LogAgentExecutionStateTransition(run.RunId, "async_create_admitted", "run_persisted", "(none)");
-                }
-                else
-                {
-                    run = BuildNewRunRecord(runId, request, scope);
-                    await SaveRunWithTransientRetryAsync(run, uow, pipelineCt);
-                    ArchLucidInstrumentation.RunsCreatedTotal.Add(1);
-                    LogAgentExecutionStateTransition(run.RunId, "authority_pipeline_start", "run_persisted", "(none)");
-                }
+                run = await ResolvePreAllocatedRunHeaderAsync(scope, runId, pipelineCt);
+                LogAgentExecutionStateTransition(run.RunId, "async_create_admitted", "run_persisted", "(none)");
             }
             else
             {
@@ -224,7 +212,7 @@ public sealed partial class AuthorityRunOrchestrator
                         request.EffectiveModelAliasId,
                         _agentModelAliasRegistry);
 
-                    await SaveRunWithTransientRetryAsync(run, stagesUow, pipelineCt);
+                    await UpdateRunWithTransientRetryAsync(run, stagesUow, pipelineCt);
 
                     RunRecord finalized = await _authorityCommittedPipelineFinalizer.FinalizeAsync(
                         run,
