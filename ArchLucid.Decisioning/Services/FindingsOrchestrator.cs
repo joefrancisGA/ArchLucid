@@ -61,11 +61,11 @@ public partial class FindingsOrchestrator(
 
         IReadOnlyList<EngineAdapter> allAdapters = EngineAdapter.FromEngines(engines, effectfulEngines);
         EngineAdapter[] primaryAdapters = allAdapters
-            .Where(adapter => !string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.Ordinal))
+            .Where(adapter => !string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.OrdinalIgnoreCase))
             .ToArray();
         EngineAdapter? portfolioRecurrenceAdapter = allAdapters
             .FirstOrDefault(adapter =>
-                string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.Ordinal));
+                string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.OrdinalIgnoreCase));
 
         Task<EngineInvocationOutcome>[] invocationTasks = primaryAdapters
             .Select(adapter => InvokeEngineAsync(adapter, graphSnapshot, ct))
