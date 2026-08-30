@@ -1,0 +1,14 @@
+# Real-mode CI is enabled for this repository (committed switch).
+#
+# Workflows treat this marker OR repository variable ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true
+# as opt-in for golden-cohort gate, nightly eval, and full-CI live invoke paths.
+#
+# Required GitHub secrets (protected environment recommended):
+#   AZURE_OPENAI_API_KEY, ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID
+#   ARCHLUCID_CI_REAL_AOAI_ENDPOINT, ARCHLUCID_CI_REAL_AOAI_KEY (or AZURE_OPENAI_*)
+#   ARCHLUCID_GOLDEN_COHORT_API_HOST (live drift against hosted API)
+# Required GitHub variables:
+#   AZURE_OPENAI_ENDPOINT
+#
+# Budget: tests/golden-cohort/budget.config.json ($15/mo cap, 80%/95% warn/kill).
+# Runbook: docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md
