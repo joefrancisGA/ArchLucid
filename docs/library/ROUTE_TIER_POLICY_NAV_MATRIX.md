@@ -205,7 +205,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Findings/FindingRemediationAssignmentController.cs` | `/v1/findings` | standard | ExecuteAuthority | /governance/findings |  |
 | `Governance/GovernanceController.cs` | `/v1/governance` | standard | ReadAuthority | /governance/approval-queue |  |
 | `Governance/GovernanceCoverageController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
-| `Governance/GovernanceEnvironmentCatalogController.cs` | `/v1/governance/environment-catalog` | standard | ReadAuthority |  |  |
+| `Governance/GovernanceEnvironmentCatalogController.cs` | `/v1/governance/environment-catalog` | standard | ReadAuthority | /governance/environments |  |
 | `Governance/GovernancePostureController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-finalize` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreviewController.cs` | `/v1/governance-preview` | standard | ReadAuthority |  |  |
