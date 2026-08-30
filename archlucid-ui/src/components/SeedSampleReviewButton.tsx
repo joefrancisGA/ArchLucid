@@ -10,6 +10,8 @@ import {
   BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS,
 } from "@/lib/buyer/buyer-polish-copy";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
+import { fetchSponsorDashboardBundleCached } from "@/lib/fetch-sponsor-dashboard-bundle-client";
+import { resolveSponsorDashboardLatestFinalizedRunId } from "@/lib/resolve-sponsor-dashboard-latest-finalized-run";
 import {
   invalidateOperatorSponsorRoiCaches,
   invalidateOperatorHomeRunsCaches,
@@ -67,6 +69,34 @@ function pathnameOnly(href: string): string {
   return href.split("?")[0]?.split("#")[0] ?? href;
 }
 
+function appendRunIdToSponsorDashboardHref(href: string, runId: string | null): string {
+  if (runId === null || pathnameOnly(href) !== pathnameOnly(SPONSOR_DASHBOARD_HREF)) {
+    return href;
+  }
+
+  const params = new URLSearchParams();
+  params.set("runId", runId);
+
+  return `${SPONSOR_DASHBOARD_HREF}?${params.toString()}`;
+}
+
+async function resolvePostSeedRedirectTarget(payload: unknown): Promise<string> {
+  const baseTarget = readRedirectTarget(payload) ?? SPONSOR_DASHBOARD_HREF;
+
+  if (pathnameOnly(baseTarget) !== pathnameOnly(SPONSOR_DASHBOARD_HREF)) {
+    return baseTarget;
+  }
+
+  try {
+    const bundle = await fetchSponsorDashboardBundleCached({ force: true });
+    const latestRunId = resolveSponsorDashboardLatestFinalizedRunId(bundle.sponsorReport);
+
+    return appendRunIdToSponsorDashboardHref(baseTarget, latestRunId);
+  } catch {
+    return baseTarget;
+  }
+}
+
 async function readErrorDetail(response: Response): Promise<string> {
   try {
     const body: unknown = await response.json();
@@ -113,13 +143,15 @@ export function SeedSampleReviewButton({
       }
 
       const payload: unknown = await response.json();
-      const target = readRedirectTarget(payload) ?? SPONSOR_DASHBOARD_HREF;
+      const target = await resolvePostSeedRedirectTarget(payload);
       const targetPathname = pathnameOnly(target);
       const currentPathname = pathnameOnly(pathname);
 
       await Promise.all([invalidateOperatorSponsorRoiCaches(), invalidateOperatorHomeRunsCaches()]);
 
-      if (currentPathname !== targetPathname) {
+      if (currentPathname === targetPathname) {
+        router.replace(target, { scroll: false });
+      } else {
         router.push(target);
       }
 
