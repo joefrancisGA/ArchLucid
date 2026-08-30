@@ -2,9 +2,11 @@ using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Host.Core.ProblemDetails;
 
 using FluentAssertions;
 
@@ -12,6 +14,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
+
+using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
 
@@ -74,14 +78,19 @@ public sealed class TenantErasureLegalHoldControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
+        DateTimeOffset frozenNow = DateTimeOffset.UtcNow;
+        Mock<TimeProvider> timeProvider = new();
+        timeProvider.Setup(t => t.GetUtcNow()).Returns(frozenNow);
+
         TenantErasureLegalHoldController controller = CreateController(
             Mock.Of<ITenantErasureCommandService>(),
             TenantExists(),
-            scopeProvider.Object);
+            scopeProvider.Object,
+            timeProvider.Object);
 
         TenantErasureLegalHoldRequest body = new()
         {
-            UntilUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            UntilUtc = frozenNow.AddDays(-1),
             Reason = "hold",
         };
 
@@ -90,7 +99,7 @@ public sealed class TenantErasureLegalHoldControllerTests
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
-        ProblemDetails problem = badRequest.Value.Should().BeOfType<ProblemDetails>().Subject;
+        MvcProblemDetails problem = badRequest.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
         problem.Detail.Should().NotBeNullOrWhiteSpace();
         problem.Detail.Should().Contain("UntilUtc");
@@ -264,14 +273,15 @@ public sealed class TenantErasureLegalHoldControllerTests
     private static TenantErasureLegalHoldController CreateController(
         ITenantErasureCommandService tenantErasureCommands,
         ITenantRepository tenantRepository,
-        IScopeContextProvider scopeProvider)
+        IScopeContextProvider scopeProvider,
+        TimeProvider? timeProvider = null)
     {
         DefaultHttpContext httpContext = new();
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, "user-1"), new Claim(ClaimTypes.Name, "operator@test")],
             authenticationType: "test"));
 
-        return new TenantErasureLegalHoldController(tenantErasureCommands, tenantRepository, scopeProvider)
+        return new TenantErasureLegalHoldController(tenantErasureCommands, tenantRepository, scopeProvider, timeProvider ?? TimeProvider.System)
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext }
         };
