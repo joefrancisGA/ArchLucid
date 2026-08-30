@@ -91,6 +91,28 @@ jobs:
           version: "8.30.1"
           config-path: .gitleaks.toml
 
+  # Resolves committed real-mode marker files for job-level conditions (hashFiles is step-scoped only).
+  real-mode-ci-flags:
+    name: "CI: real-mode flags"
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      aoai_live_opted_in: ${{ steps.flags.outputs.aoai_live_opted_in }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: flags
+        run: |
+          set -euo pipefail
+          opted_in=false
+          if [ "${{ vars.ARCHLUCID_CI_REAL_AOAI_ENABLED }}" = "true" ]; then
+            opted_in=true
+          elif bash scripts/ci/is_real_mode_ci_enabled.sh enabled; then
+            opted_in=true
+          fi
+          echo "aoai_live_opted_in=${opted_in}" >> "${GITHUB_OUTPUT}"
+
   ci-path-lanes:
     name: "CI: path lanes (PR scope)"
     runs-on: ubuntu-latest
@@ -3519,10 +3541,9 @@ jobs:
       - openapi-contract-snapshot
       - dotnet-coverage-merge
       - chaos-tests
+      - real-mode-ci-flags
     # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
-    if: >-
-      ${{ (vars.ARCHLUCID_CI_REAL_AOAI_ENABLED == 'true' || hashFiles('.github/REAL_MODE_CI_ENABLED') != '')
-          && github.event_name != 'pull_request' }}
+    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     environment: dev
