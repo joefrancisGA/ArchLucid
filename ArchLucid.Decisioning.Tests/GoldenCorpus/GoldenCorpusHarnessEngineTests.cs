@@ -42,5 +42,6 @@ public sealed class GoldenCorpusHarnessEngineTests
 
         engineTypes.Should().Contain(typeof(DeclarationSecurityBaselineFindingEngine));
         engineTypes.Should().Contain(typeof(DeclarationPremiseConflictFindingEngine));
+        engineTypes.Count.Should().Be(14, "harness engine registration is a merge-blocking contract (WK-06)");
     }
 }
