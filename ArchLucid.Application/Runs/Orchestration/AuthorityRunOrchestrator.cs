@@ -106,6 +106,38 @@ public sealed partial class AuthorityRunOrchestrator(
             ct);
     }
 
+    private async Task UpdateRunWithTransientRetryAsync(RunRecord run, IArchLucidUnitOfWork uow, CancellationToken ct)
+    {
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            async token =>
+            {
+                if (uow.SupportsExternalTransaction)
+                    await _runRepository.UpdateAsync(run, token, uow.Connection, uow.Transaction);
+                else
+                    await _runRepository.UpdateAsync(run, token);
+            },
+            ct);
+    }
+
+    private async Task<RunRecord> ResolvePreAllocatedRunHeaderAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        RunRecord? existingRun = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
+
+        if (existingRun is not null)
+            return existingRun;
+
+        existingRun = await _runRepository.GetByRunIdAdminAsync(runId, cancellationToken);
+
+        if (existingRun is not null)
+            return existingRun;
+
+        throw new InvalidOperationException(
+            $"Pre-allocated run '{runId:D}' was not found for authority pipeline start.");
+    }
+
     private async Task CommitUnitOfWorkWithTransientRetryAsync(IArchLucidUnitOfWork uow, CancellationToken ct) =>
         await OrchestratorTransientDbRetry.ExecuteAsync(uow.CommitAsync, ct);
 
