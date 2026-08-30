@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
+import { ReviewStartInlineNotice } from "@/components/review-intake/ReviewStartInlineNotice";
 import {
   WizardCreationProgressNotices,
   type WizardCreationProgressState,
@@ -21,6 +22,8 @@ export type WizardStickyFooterProps = {
   readonly onRecheck: () => void;
   /** Client-side step/submit validation copy; rendered on every step. */
   readonly stepValidationMessage?: string | null;
+  /** Low-emphasis success copy near the action row (draft saved, demo loaded, etc.). */
+  readonly successNotice?: string | null;
   /** Server-side submit failure; rendered only when {@link showSubmitError} is true. */
   readonly submitError?: unknown;
   readonly showSubmitError?: boolean;
@@ -38,6 +41,7 @@ export function WizardStickyFooter(props: WizardStickyFooterProps): React.ReactE
     progress,
     onRecheck,
     stepValidationMessage = null,
+    successNotice = null,
     submitError = null,
     showSubmitError = false,
     children,
@@ -51,6 +55,12 @@ export function WizardStickyFooter(props: WizardStickyFooterProps): React.ReactE
       {stepValidationMessage !== null ? (
         <div className="mb-3" data-testid={`${testIdPrefix}-validation-error`}>
           <ReviewStartInlineError message={stepValidationMessage} />
+        </div>
+      ) : null}
+
+      {successNotice !== null ? (
+        <div className="mb-3" data-testid={`${testIdPrefix}-success-notice`}>
+          <ReviewStartInlineNotice message={successNotice} />
         </div>
       ) : null}
 

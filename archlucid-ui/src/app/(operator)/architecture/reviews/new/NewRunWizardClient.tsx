@@ -111,6 +111,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     persistBaselineMetricsIfNeeded,
   } = useWizardBaselineMetricsActions();
   const [stepValidationMessage, setStepValidationMessage] = useState<string | null>(null);
+  const [successNotice, setSuccessNotice] = useState<string | null>(null);
   const liveRef = useRef<HTMLDivElement>(null);
   const wizardReadyRef = useRef<HTMLDivElement>(null);
 
@@ -154,9 +155,11 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
   const showWizardNotice = useCallback(
     (kind: "ok" | "err", message: string) => {
       if (kind === "ok") {
-        showSuccess(message);
+        setSuccessNotice(message);
+        setStepValidationMessage(null);
       } else {
         setStepValidationMessage(message);
+        setSuccessNotice(null);
       }
     },
     [],
@@ -205,6 +208,8 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     templateWizardSession,
     suppressWizardResumePrompt,
     saveWizardDraft,
+    draftSaveFeedback,
+    clearDraftSaveFeedback,
     clearWizardSessionRef,
   } = useNewRunWizardTemplateRestore({
     stepIndex,
@@ -214,6 +219,12 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     setStepIndex,
     getValues,
   });
+
+  useEffect(() => {
+    setStepValidationMessage(null);
+    setSuccessNotice(null);
+    clearDraftSaveFeedback();
+  }, [clearDraftSaveFeedback, stepIndex]);
 
   const {
     submitError,
@@ -281,11 +292,18 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
         return;
       }
 
-      showSuccess("Demo Azure package loaded — it uploads automatically after the review is created.");
+      setSuccessNotice("Demo Azure package loaded — it uploads automatically after the review is created.");
+      setStepValidationMessage(null);
       advance();
     },
-    [advance, evidence.handlePendingEvidenceFileChange, setValue, setStepValidationMessage],
+    [advance, evidence.handlePendingEvidenceFileChange, setValue, setStepValidationMessage, setSuccessNotice],
   );
+
+  const footerValidationMessage =
+    stepValidationMessage ??
+    (draftSaveFeedback?.kind === "err" ? draftSaveFeedback.message : null);
+  const footerSuccessNotice =
+    successNotice ?? (draftSaveFeedback?.kind === "ok" ? draftSaveFeedback.message : null);
 
   const goNext = async () => {
     if (stepIndex === 0) {
@@ -420,7 +438,8 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       showNav={showNav}
       creationProgress={creationProgress}
       recheckUnresolvedRun={recheckUnresolvedRun}
-      stepValidationMessage={stepValidationMessage}
+      stepValidationMessage={footerValidationMessage}
+      successNotice={footerSuccessNotice}
       submitError={submitError}
       isReviewStep={isReviewStep}
       goBack={goBack}

@@ -113,6 +113,7 @@ export type NewRunWizardStepBodyProps = {
   readonly creationProgress: WizardCreationProgressState;
   readonly recheckUnresolvedRun: () => Promise<void>;
   readonly stepValidationMessage: string | null;
+  readonly successNotice: string | null;
   readonly submitError: unknown;
   readonly isReviewStep: boolean;
   readonly goBack: () => void;
@@ -332,6 +333,7 @@ export function NewRunWizardStepBody(props: NewRunWizardStepBodyProps) {
                 void props.recheckUnresolvedRun();
               }}
               stepValidationMessage={props.stepValidationMessage}
+              successNotice={props.successNotice}
               submitError={props.submitError}
               showSubmitError={props.isReviewStep}
             >
