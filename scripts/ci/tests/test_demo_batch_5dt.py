@@ -28,6 +28,10 @@ class TestDemoBatch5Dt(unittest.TestCase):
         )
         self.assertRegex(
             text,
+            r'BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE\s*=\s*\{[\s\S]*?href\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR',
+        )
+        self.assertRegex(
+            text,
             r'["\']review-detail-in-progress["\']\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE',
         )
         self.assertNotIn('href: "#run-actions"', text)
