@@ -130,7 +130,14 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
 
   const environmentOptions = governanceEnvironmentOptionsFromCatalog(environmentCatalog);
   const sourceOptions = environmentOptions.length > 0 ? environmentOptions : GOVERNANCE_ENV_OPTIONS;
-  const allowedTargetSlugs = governanceAllowedTargetSlugs(environmentCatalog, submitSource);
+  const fallbackAllowedTargetSlugs =
+    submitSource.trim().length === 0
+      ? []
+      : sourceOptions.filter((option) => option.value !== submitSource).map((option) => option.value);
+  const allowedTargetSlugs =
+    environmentCatalog === undefined
+      ? fallbackAllowedTargetSlugs
+      : governanceAllowedTargetSlugs(environmentCatalog, submitSource);
   const targetOptions = sourceOptions.filter((option) => allowedTargetSlugs.includes(option.value));
   const resolvedTargetOptions = submitSource.trim().length === 0 ? [] : targetOptions;
   const submitSteps = resolveGovernanceWorkflowSubmitSteps(submitChecklistInput);
