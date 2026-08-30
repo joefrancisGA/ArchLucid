@@ -49,13 +49,11 @@ describe("digest-setup-gap-actions", () => {
     expect(action.href).toBe("/governance/advisory-scans?tab=schedules");
   });
 
-  it("maps disabled-only subscription gap separately from missing subscriptions", () => {
-    const action = mapDigestSetupGap("copy changed on server", "no_enabled_digest_subscriptions");
+  it("maps executive digest setup gap from stable gap code", () => {
+    const action = mapDigestSetupGap("copy changed on server", "executive_email_digest_not_configured");
 
-    expect(action.title).toBe("Subscriptions disabled");
-    expect(action.impact).toContain("none are enabled");
-    expect(action.actionLabel).toBe("Review subscriptions");
-    expect(action.href).toBe("/architecture/digests?tab=subscriptions");
+    expect(action.title).toContain("Executive");
+    expect(action.actionLabel.toLowerCase()).toContain("open");
   });
 
   it("resolveDigestNextBestAction points to subscriptions when rows exist but are disabled", () => {
