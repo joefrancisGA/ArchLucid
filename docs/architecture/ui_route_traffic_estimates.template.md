@@ -66,6 +66,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | DIS | `/digest/sponsor` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | DIU | `/digest/sponsor/run/[runId]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | GOD | `/governance/dashboard` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
+| GOE | `/governance/environments` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
 | HEA | `/help/accelerator-chooser` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HED | `/help/admin-diagnostics` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HAD | `/help/advisory-scans` | 0.02% | 0 | 0 | 2 | Help topic | No | None |

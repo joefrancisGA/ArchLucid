@@ -1,8 +1,8 @@
 # Nightly golden cohort: JSON contract (always) + simulator drift when repository variable
 # ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is "true".
 #
-# PR path keeps only the merge-required jobs: cohort-contract + cohort-real-llm-gate.
-# Faithfulness, RAG signal, simulator drift, and real-mode eval run on schedule /
+# PR path keeps only the merge-required job: cohort-real-llm-gate (~20s budget probe + fixture check).
+# cohort-contract, faithfulness, RAG signal, simulator drift, and real-mode eval run on schedule /
 # workflow_dispatch, not on pull_request (queue relief; live invoke stays off PRs).
 #
 # Optional real-LLM **gate** (cohort-real-llm-gate job): budget probe + fixture presence check only —
@@ -47,6 +47,7 @@ concurrency:
 
 jobs:
   cohort-contract:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -191,7 +192,6 @@ jobs:
           if-no-files-found: warn
 
   cohort-real-llm-gate:
-    needs: cohort-contract
     runs-on: ubuntu-latest
     environment: dev
     outputs:

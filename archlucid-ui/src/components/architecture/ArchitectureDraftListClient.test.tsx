@@ -91,10 +91,12 @@ describe("ArchitectureDraftListClient", () => {
 
     expect(status.className).toMatch(/sky/i);
 
-    const updated = within(row).getByText(/Updated/i);
+    const updated = row.querySelector("time");
 
-    expect(updated.closest("time")?.getAttribute("dateTime")).toBe("2026-07-12T23:42:05.000Z");
-    expect(updated.textContent ?? "").toMatch(/Updated .+ · /);
+    expect(updated).not.toBeNull();
+    expect(updated?.getAttribute("dateTime")).toBe("2026-07-12T23:42:05.000Z");
+    expect(updated?.textContent ?? "").not.toMatch(/^Updated /);
+    expect(updated?.getAttribute("title")?.length ?? 0).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Continue editing Healthcare Claims Platform" })).toBeInTheDocument();
   });
 
@@ -136,6 +138,14 @@ describe("ArchitectureDraftListClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-guidance-disclosure")).toBeInTheDocument();
     });
+  });
+
+  it("uses compact inventory toolbar search height", () => {
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
+
+    render(<ArchitectureDraftListClient />);
+
+    expect(screen.getByTestId("architecture-draft-list-search").className).toContain("h-8");
   });
 
   it("keeps search, filters, and sort in one toolbar", () => {

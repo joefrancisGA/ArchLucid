@@ -16,8 +16,7 @@ import {
   startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { parseIsoUtcMs } from "@/lib/format-iso-utc";
-import { formatRelativeTime } from "@/lib/relative-time";
+import { formatAbsoluteUpdatedAtTitle, formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
 import { REVIEWS_HUB_RESUME_DRAFTS_SECTION_ID } from "./ReviewsHubSummaryRow";
@@ -31,19 +30,6 @@ import {
 import { shouldShowReviewsHubResumeDrafts } from "./reviews-hub-header-primary";
 
 const REVIEWS_HUB_RESUME_DRAFTS_PREVIEW_LIMIT = 3;
-
-function formatAbsoluteUpdatedTitle(updatedUtc: string): string {
-  const parsed = parseIsoUtcMs(updatedUtc);
-
-  if (Number.isNaN(parsed)) {
-    return updatedUtc;
-  }
-
-  return new Date(parsed).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 
 /**
  * Multi-draft supporting strip on `/architecture/reviews`.
@@ -79,7 +65,7 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
       <ul className="m-0 mt-3 list-none divide-y divide-neutral-200 border-y border-neutral-200 p-0 dark:divide-neutral-800 dark:border-neutral-800">
         {previewEntries.map((entry) => {
           const canStartReview = isArchitectureDraftEligibleToStartReview(entry);
-          const absoluteUpdated = formatAbsoluteUpdatedTitle(entry.lastUpdatedUtc);
+          const absoluteUpdated = formatAbsoluteUpdatedAtTitle(entry.lastUpdatedUtc);
 
           return (
             <li
