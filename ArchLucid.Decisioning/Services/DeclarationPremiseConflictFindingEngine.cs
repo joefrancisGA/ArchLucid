@@ -119,22 +119,17 @@ public sealed class DeclarationPremiseConflictFindingEngine(IComplianceRulePackP
         GraphSnapshot graphSnapshot,
         GraphNode topologyNode)
     {
-        List<ApplicableIntentNode> narrowIntentNodes = [];
+        List<ApplicableIntentNode> narrowIntentNodes = CollectIncomingIntentNodes(
+            graphSnapshot,
+            topologyNode,
+            GraphEdgeDecisioningThresholds.MinWeightForSemanticLink);
 
-        foreach (string edgeType in new[] { GraphEdgeTypes.Protects, GraphEdgeTypes.AppliesTo })
-        {
-            foreach (GraphNode source in GetIncomingSourcesWithMinWeight(
-                         graphSnapshot,
-                         topologyNode.NodeId,
-                         edgeType,
-                         GraphEdgeDecisioningThresholds.MinWeightForSemanticLink))
-            {
-                if (!IsIntentNode(source))
-                    continue;
+        if (narrowIntentNodes.Count > 0)
+            return narrowIntentNodes;
 
-                narrowIntentNodes.Add(new ApplicableIntentNode(source, true));
-            }
-        }
+        // Sub-threshold PROTECTS/APPLIES_TO edges still indicate narrow applicability; only fall back to
+        // graph-wide intent when no explicit intent edge targets this resource.
+        narrowIntentNodes = CollectIncomingIntentNodes(graphSnapshot, topologyNode, minWeightInclusive: 0d);
 
         if (narrowIntentNodes.Count > 0)
             return narrowIntentNodes;
@@ -143,6 +138,35 @@ public sealed class DeclarationPremiseConflictFindingEngine(IComplianceRulePackP
             .Where(IsIntentNode)
             .Select(node => new ApplicableIntentNode(node, false))
             .ToList();
+    }
+
+    private static List<ApplicableIntentNode> CollectIncomingIntentNodes(
+        GraphSnapshot graphSnapshot,
+        GraphNode topologyNode,
+        double minWeightInclusive)
+    {
+        List<ApplicableIntentNode> narrowIntentNodes = [];
+
+        foreach (string edgeType in new[] { GraphEdgeTypes.Protects, GraphEdgeTypes.AppliesTo })
+        {
+            foreach (GraphNode source in GetIncomingSourcesWithMinWeight(
+                         graphSnapshot,
+                         topologyNode.NodeId,
+                         edgeType,
+                         minWeightInclusive))
+            {
+                if (!IsIntentNode(source))
+                    continue;
+
+                if (narrowIntentNodes.Any(node =>
+                        string.Equals(node.IntentNode.NodeId, source.NodeId, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                narrowIntentNodes.Add(new ApplicableIntentNode(source, true));
+            }
+        }
+
+        return narrowIntentNodes;
     }
 
     private static IReadOnlyList<GraphNode> GetIncomingSourcesWithMinWeight(
