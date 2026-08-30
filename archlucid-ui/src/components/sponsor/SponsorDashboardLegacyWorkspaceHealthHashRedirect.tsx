@@ -12,6 +12,10 @@ function isLegacyWorkspaceHealthHash(hash: string): boolean {
   return hash === `#${SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID}`;
 }
 
+function legacyWorkspaceHealthRedirectTarget(): string {
+  return `${WORKSPACE_HEALTH_PATH}${window.location.search}`;
+}
+
 /** Sends legacy `#workspace-health` sponsor-dashboard bookmarks to the standalone page. */
 export function SponsorDashboardLegacyWorkspaceHealthHashRedirect(): null {
   const router = useRouter();
@@ -23,7 +27,7 @@ export function SponsorDashboardLegacyWorkspaceHealthHashRedirect(): null {
 
     const redirectIfLegacyHash = (): void => {
       if (isLegacyWorkspaceHealthHash(window.location.hash)) {
-        router.replace(WORKSPACE_HEALTH_PATH);
+        router.replace(legacyWorkspaceHealthRedirectTarget());
       }
     };
 

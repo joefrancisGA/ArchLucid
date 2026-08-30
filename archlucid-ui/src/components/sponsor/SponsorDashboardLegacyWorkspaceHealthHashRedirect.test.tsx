@@ -15,6 +15,7 @@ vi.mock("next/navigation", () => ({
 describe("SponsorDashboardLegacyWorkspaceHealthHashRedirect", () => {
   beforeEach(() => {
     replace.mockClear();
+    window.history.replaceState({}, "", "/");
     window.location.hash = "";
   });
 
@@ -36,6 +37,14 @@ describe("SponsorDashboardLegacyWorkspaceHealthHashRedirect", () => {
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
     expect(replace).toHaveBeenCalledWith(WORKSPACE_HEALTH_PATH);
+  });
+
+  it("preserves the query string when redirecting legacy bookmarks", () => {
+    window.history.replaceState({}, "", "/architecture/sponsor-dashboard?utm=foo#workspace-health");
+
+    render(<SponsorDashboardLegacyWorkspaceHealthHashRedirect />);
+
+    expect(replace).toHaveBeenCalledWith(`${WORKSPACE_HEALTH_PATH}?utm=foo`);
   });
 
   it("does not redirect for unrelated hashes", () => {

@@ -4,7 +4,7 @@ import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
-import { isWorkspaceHealthPath, WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
+import { isWorkspaceHealthPath } from "@/lib/workspace-health-route";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review
@@ -40,7 +40,7 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathnameO
     return true;
   }
 
-  if (pathWithoutQuery === WORKSPACE_HEALTH_PATH || pathWithoutQuery.startsWith(`${WORKSPACE_HEALTH_PATH}/`)) {
+  if (isWorkspaceHealthPath(pathWithoutQuery)) {
     return true;
   }
 
