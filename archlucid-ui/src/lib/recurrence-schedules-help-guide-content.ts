@@ -67,7 +67,7 @@ export const RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS: readonly RecurrenceSche
     href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
   },
   {
-    label: "Resolve outcomes when required",
+    label: "Governance approval when required",
     sourceSurface: "Approval queue",
     href: RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
   },

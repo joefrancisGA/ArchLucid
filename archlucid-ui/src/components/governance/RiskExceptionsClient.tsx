@@ -147,7 +147,7 @@ export default function RiskExceptionsClient() {
             actions={[
               { label: "Open findings", href: "/governance/findings", variant: "primary" },
               {
-                label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open resolve outcomes",
+                label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open governance approval",
                 href: "/governance/approval-queue",
                 variant: "outline",
               },

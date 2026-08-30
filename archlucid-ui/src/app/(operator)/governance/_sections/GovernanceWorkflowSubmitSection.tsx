@@ -40,6 +40,7 @@ import {
   resolveGovernanceWorkflowSubmitEmphasizedStepId,
   resolveGovernanceWorkflowSubmitSteps,
 } from "@/lib/governance-workflow-submit-checklist";
+import { GOVERNANCE_APPROVAL_SUBMIT_LABEL } from "@/lib/vocabulary/governance-approval-vocabulary";
 
 export type GovernanceWorkflowSubmitSectionProps = {
   buyerPolishedShell: boolean;
@@ -267,7 +268,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               {submitBusy
                 ? "Submitting…"
                 : canMutateWorkflow
-                  ? "Submit for resolve outcomes"
+                  ? GOVERNANCE_APPROVAL_SUBMIT_LABEL
                   : governanceWorkflowSubmitForApprovalButtonLabelReaderRank}
             </Button>
             {canMutateWorkflow ? (
@@ -286,7 +287,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                   </>
                 ) : (
                   <>
-                    Submitting for resolve outcomes requires additional permissions on your account. You can still review
+                    Submitting for governance approval requires additional permissions on your account. You can still review
                     approvals below — contact your administrator to enable governance submissions for your workspace.
                   </>
                 )}
