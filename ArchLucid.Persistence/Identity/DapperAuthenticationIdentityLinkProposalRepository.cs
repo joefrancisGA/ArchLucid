@@ -113,9 +113,10 @@ public sealed class DapperAuthenticationIdentityLinkProposalRepository(ISqlConne
         const string sql = """
                            UPDATE dbo.AuthenticationIdentityLinkProposals
                            SET Status = @Status,
-                               ConfirmedUtc = CASE WHEN @Status = 1 THEN @StatusUtc ELSE ConfirmedUtc END,
-                               CancelledUtc = CASE WHEN @Status = 2 THEN @StatusUtc ELSE CancelledUtc END
-                           WHERE Id = @Id;
+                               ConfirmedUtc = CASE WHEN @Status = @ConfirmedStatus THEN @StatusUtc ELSE ConfirmedUtc END,
+                               CancelledUtc = CASE WHEN @Status = @CancelledStatus THEN @StatusUtc ELSE CancelledUtc END
+                           WHERE Id = @Id
+                             AND Status = @PendingStatus;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -123,7 +124,15 @@ public sealed class DapperAuthenticationIdentityLinkProposalRepository(ISqlConne
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { Id = proposalId, Status = status, StatusUtc = statusUtc },
+                new
+                {
+                    Id = proposalId,
+                    Status = status,
+                    StatusUtc = statusUtc,
+                    ConfirmedStatus = AuthenticationIdentityLinkProposalStatus.Confirmed,
+                    CancelledStatus = AuthenticationIdentityLinkProposalStatus.Cancelled,
+                    PendingStatus = AuthenticationIdentityLinkProposalStatus.PendingConfirmation
+                },
                 cancellationToken: cancellationToken));
     }
 }

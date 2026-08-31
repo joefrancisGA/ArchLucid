@@ -41,6 +41,11 @@ public sealed class InMemoryAuthenticationIdentityLinkProposalRepository : IAuth
             return Task.CompletedTask;
         }
 
+        if (existing.Status != AuthenticationIdentityLinkProposalStatus.PendingConfirmation)
+        {
+            return Task.CompletedTask;
+        }
+
         _byId[proposalId] = existing with
         {
             Status = status,
