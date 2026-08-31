@@ -38,6 +38,7 @@ OPENAPI_PREFIXES: tuple[str, ...] = (
     "ArchLucid.AgentRuntime/",
     "ArchLucid.Capabilities.Cost/",
     "schemas/",
+    "archlucid-ui/src/lib/api-types/",
 )
 
 OPENAPI_EXACT_FILES: frozenset[str] = frozenset(

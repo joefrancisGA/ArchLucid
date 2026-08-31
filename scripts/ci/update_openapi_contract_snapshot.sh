@@ -6,7 +6,7 @@
 #   bash scripts/ci/update_openapi_contract_snapshot.sh
 #
 # Optional:
-#   ARCHLUCID_REGENERATE_UI_API_TYPES=1   — refresh archlucid-ui api-types.generated.ts
+#   ARCHLUCID_REGENERATE_UI_API_TYPES=1   — refresh split archlucid-ui/src/lib/api-types/ via generate-api-types-split.mjs
 #
 # Always regenerates ArchLucid.Api.Client via NSwag (output is gitignored) and buyer-contract.openapi.snapshot.json.
 
@@ -29,12 +29,11 @@ echo "Regenerating ArchLucid.Api.Client (NSwag) from v1 baseline..."
 dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
 
 if [ "${ARCHLUCID_REGENERATE_UI_API_TYPES:-0}" = "1" ]; then
-  echo "Regenerating archlucid-ui TypeScript API types..."
-  cd "${ROOT}/archlucid-ui"
-  npx --yes openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json \
-    -o src/lib/api-types.generated.ts
-  cd "$ROOT"
-  echo "Verifying api-types.generated.ts is now in sync..."
+  echo "Regenerating archlucid-ui TypeScript API types (split generator)..."
+  # Must use generate-api-types-split.mjs — writing a monolith to api-types.generated.ts
+  # fails assert_api_types_in_sync.sh, which diffs the split paths/schemas modules.
+  node "${ROOT}/archlucid-ui/scripts/generate-api-types-split.mjs"
+  echo "Verifying split api-types output is now in sync..."
   bash scripts/ci/assert_api_types_in_sync.sh
 fi
 
