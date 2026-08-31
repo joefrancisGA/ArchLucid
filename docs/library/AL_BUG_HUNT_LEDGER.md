@@ -2286,7 +2286,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 94
+- **hunts:** 95
 - **bugs-found:** 237
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
@@ -2550,7 +2550,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (hunt-ready) `TenantCustomerSuccessController.PostProductFeedbackAsync` — omitted `score` binds as `0` (neutral) instead of HTTP 400 — **repro test:** `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_score_omitted`.
 
 2026-08-31 seed hunt #333 (hit): proved environment-catalog ghost tenant, empty `projectId` query validation, and checklist `isCompleted` omission; seeded ghost-workspace posture/coverage and product-feedback score candidates.
-origin/cursor/api-governance-tenancy-seed-333-2cd9
 
 2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
 

@@ -486,4 +486,5 @@
 {"at":"2026-08-31T17:15:45.029233Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-08-31T17:49:27.4942440Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T17:42:37.2094468Z","zoneId":"archlucid-contracts","outcome":"hit"}
-origin/cursor/archlucid-contracts-seed-332-2cd9
+{"at":"2026-08-31T17:29:00Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","note":"seed hunt #331 posture/coverage ghost-workspace and product-feedback score omission"}
+{"at":"2026-08-31T17:35:32.6501836Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
