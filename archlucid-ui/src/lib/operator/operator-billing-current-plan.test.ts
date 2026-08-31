@@ -124,6 +124,24 @@ describe("resolveOperatorBillingCurrentPlan", () => {
     expect(view.supportingLine).not.toContain("Frictionless");
   });
 
+  it("returns paid plan when usage reports commercial tier with omitted isTrialUsage despite stale Active trial", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "Active",
+      trialDaysRemaining: 12,
+      workspaceLabel: "Acme",
+      aiBudgetRemainingPercent: 40,
+      commercialTier: "Team",
+      subscriptionLoadState: "resolved",
+    });
+
+    expect(view.planKind).toBe("paid-plan");
+    expect(view.headline).toBe("Team");
+    expect(view.hasPaidPlan).toBe(true);
+    expect(view.supportingLine).not.toContain("Trial");
+  });
+
   it("returns unavailable copy when subscription data cannot be loaded", () => {
     const view = resolveOperatorBillingCurrentPlan({
       isDemoMode: false,

@@ -3,16 +3,20 @@ import {
   plainLanguageFailureClassLabel,
   plainLanguageTriageTitle,
 } from "@/lib/execution-vs-quality-outcome-copy";
-import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import {
+  AI_MODELS_SETTINGS_CANONICAL_PATH,
+  AI_MODELS_SETTINGS_OPEN_CTA_LABEL,
+} from "@/lib/model-governance-settings-evidence-copy";
 
-export const REVIEW_FAILURE_ADMIN_CONFIGURATION_PATH = MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH;
+export const REVIEW_FAILURE_ADMIN_CONFIGURATION_PATH = AI_MODELS_SETTINGS_CANONICAL_PATH;
 
-export const WORKSPACE_AI_ADMIN_VERIFICATION_LINES = [
-  "Azure OpenAI endpoint URL is configured for this workspace.",
-  "API key or Key Vault secret name is set and reachable.",
-  "Deployment names match the models ArchLucid expects for reviews.",
-  "Connection probe passes on Administration → Model governance.",
-] as const;
+export const REVIEW_FAILURE_AI_USAGE_CONFIGURATION_PATH = AI_USAGE_SETTINGS_PATH;
+
+export type WorkspaceAiRecoveryAudienceInput = {
+  readonly canConfigureWorkspaceAi: boolean;
+  readonly usesCustomerAiConnection: boolean;
+};
 
 export type WorkspaceAiConfigurationSignal = {
   readonly label: string;
@@ -30,6 +34,7 @@ type WorkspaceAiFailureContext = {
   readonly legacyRunStatus?: string | null;
   readonly completedStages?: number;
   readonly realModeFellBackToSimulator?: boolean | null;
+  readonly usesCustomerAiConnection?: boolean;
 };
 
 function normalizeKey(value: string | null | undefined): string {
@@ -69,6 +74,14 @@ export function isWorkspaceAiConfigurationFailure(context: WorkspaceAiFailureCon
   return false;
 }
 
+function managedAiUnavailableDetail(): string {
+  return "Review failure pattern suggests ArchLucid-managed AI may be unavailable — use Check AI availability to confirm before re-running.";
+}
+
+function customerAiConnectionUnavailableDetail(): string {
+  return "Review failure pattern suggests your workspace customer-provided AI connection may be unavailable — use Check AI availability to confirm.";
+}
+
 export function resolveWorkspaceAiConfigurationSignal(
   context: WorkspaceAiFailureContext,
 ): WorkspaceAiConfigurationSignal | null {
@@ -76,11 +89,19 @@ export function resolveWorkspaceAiConfigurationSignal(
     return null;
   }
 
+  const usesCustomerAiConnection = context.usesCustomerAiConnection === true;
   const triageTitle = plainLanguageTriageTitle(context.triageScenarioId);
 
-  if (triageTitle !== null) {
+  if (usesCustomerAiConnection) {
     return {
-      label: "Workspace AI configuration",
+      label: "Workspace AI connection",
+      detail: customerAiConnectionUnavailableDetail(),
+    };
+  }
+
+  if (triageTitle !== null && normalizeKey(context.triageScenarioId) === "budgetCutoff") {
+    return {
+      label: "Workspace AI budget",
       detail: triageTitle,
     };
   }
@@ -88,59 +109,110 @@ export function resolveWorkspaceAiConfigurationSignal(
   if (context.realModeFellBackToSimulator === true) {
     return {
       label: "Workspace AI configuration",
-      detail: "Real-mode AI credentials are not configured — reviews cannot run in production mode.",
+      detail: managedAiUnavailableDetail(),
+    };
+  }
+
+  if (legacyPreStageFailure(context)) {
+    return {
+      label: "Workspace AI availability",
+      detail: managedAiUnavailableDetail(),
+    };
+  }
+
+  if (triageTitle !== null) {
+    return {
+      label: "Workspace AI availability",
+      detail: managedAiUnavailableDetail(),
     };
   }
 
   return {
-    label: "Workspace AI configuration",
+    label: "Workspace AI availability",
     detail:
-      "Review execution stopped before processing began. This is usually workspace AI provider setup or platform configuration — not missing intake fields.",
+      "Review execution stopped before processing began. Use Check AI availability below to validate platform AI before re-running.",
   };
 }
 
-function adminStepsForMissingCredentials(): readonly string[] {
+function legacyPreStageFailure(context: WorkspaceAiFailureContext): boolean {
+  return normalizeKey(context.legacyRunStatus) === "Failed" && (context.completedStages ?? 0) === 0;
+}
+
+function operatorHandoffIntro(): string {
+  return "Share the administrator handoff below with a workspace administrator — this account cannot change workspace AI settings.";
+}
+
+function operatorReportProblemStep(): string {
+  return "If the failure repeats after your administrator confirms setup, open Report a problem and include this review id.";
+}
+
+function managedPlatformAdminSteps(): readonly string[] {
   return [
-    "Open Administration → Model governance and confirm Azure OpenAI credentials, Key Vault secret, and deployment names are configured for this workspace.",
-    "Run the connection probe and resolve any blocking findings, then wait one minute.",
-    "Return here and click Re-run review on this page.",
+    "This review uses ArchLucid-managed AI, which is unavailable right now — changing models on Administration → AI models will not fix a platform outage.",
+    "Open Report a problem and include this review id so support can investigate.",
+    "Return here and click Re-run review after support confirms platform AI is healthy.",
   ];
 }
 
-function operatorStepsForMissingCredentials(): readonly string[] {
+function managedPlatformOperatorSteps(): readonly string[] {
   return [
-    "Share the administrator handoff below with a workspace administrator — this account cannot change AI configuration.",
-    "After your administrator confirms the model-governance connection probe passes, return here and click Re-run review.",
-    "If the failure repeats after setup is confirmed, open Report a problem and include this review id.",
+    operatorHandoffIntro(),
+    "After your administrator contacts support, return here and click Re-run review.",
+    operatorReportProblemStep(),
   ];
 }
 
-function adminStepsForPreStageFailure(): readonly string[] {
+function customerConnectionAdminSteps(): readonly string[] {
   return [
-    "Open Administration → Model governance and confirm Azure OpenAI credentials, Key Vault secret, and deployment names are configured for this workspace.",
-    "Run the connection probe and resolve any blocking findings, then wait one minute.",
-    "Return here and click Re-run review — your submitted intake package below will be reused unchanged.",
-    "If the failure repeats, open Report a problem and include this review id so support can investigate.",
+    "This review uses your workspace customer-provided AI connection, which is unavailable.",
+    "Contact your ArchLucid support contact with this review id — connection credentials are managed outside this workspace UI.",
+    "Return here and click Re-run review after the connection is restored.",
   ];
 }
 
-function operatorStepsForPreStageFailure(): readonly string[] {
+function customerConnectionOperatorSteps(): readonly string[] {
   return [
-    "Share the administrator handoff below with a workspace administrator — this account cannot change AI configuration.",
-    "After your administrator confirms workspace AI setup, return here and click Re-run review.",
-    "If the failure repeats after setup is confirmed, open Report a problem and include this review id.",
+    operatorHandoffIntro(),
+    "After your administrator confirms the workspace AI connection is restored, return here and click Re-run review.",
+    operatorReportProblemStep(),
   ];
+}
+
+function adminAiUsageBudgetSteps(): readonly string[] {
+  return [
+    "Open Administration → AI usage and review workspace AI spend limits and monthly caps.",
+    "After limits are adjusted, click Re-run review on this page.",
+  ];
+}
+
+function operatorAiUsageBudgetSteps(): readonly string[] {
+  return [
+    operatorHandoffIntro(),
+    "After limits are raised, return here and click Re-run review.",
+  ];
+}
+
+function resolveInfrastructureRecoverySteps(input: WorkspaceAiRecoveryAudienceInput): readonly string[] {
+  if (input.usesCustomerAiConnection) {
+    return input.canConfigureWorkspaceAi ? customerConnectionAdminSteps() : customerConnectionOperatorSteps();
+  }
+
+  return input.canConfigureWorkspaceAi ? managedPlatformAdminSteps() : managedPlatformOperatorSteps();
 }
 
 export function recoveryStepsForTriageScenarioWithAudience(input: {
   readonly triageScenarioId: string;
   readonly canConfigureWorkspaceAi: boolean;
+  readonly usesCustomerAiConnection?: boolean;
 }): readonly string[] | null {
+  const audience: WorkspaceAiRecoveryAudienceInput = {
+    canConfigureWorkspaceAi: input.canConfigureWorkspaceAi,
+    usesCustomerAiConnection: input.usesCustomerAiConnection === true,
+  };
+
   switch (input.triageScenarioId) {
     case "missingCredentials":
-      return input.canConfigureWorkspaceAi
-        ? adminStepsForMissingCredentials()
-        : operatorStepsForMissingCredentials();
+      return resolveInfrastructureRecoverySteps(audience);
     case "contentSafetyRejection":
       return [
         "Review your intake text and attachments for content that may trigger safety filters.",
@@ -157,30 +229,14 @@ export function recoveryStepsForTriageScenarioWithAudience(input: {
         "If timeouts repeat, reduce attachment size or split large evidence bundles before re-running.",
       ];
     case "budgetCutoff":
-      return input.canConfigureWorkspaceAi
-        ? [
-            "Open Administration → Model governance or AI usage and raise the token quota or run cost budget for this workspace.",
-            "After saving, click Re-run review on this page.",
-          ]
-        : [
-            "Share the administrator handoff below so a workspace administrator can review AI usage limits and budgets.",
-            "After limits are raised, return here and click Re-run review.",
-          ];
+      return audience.canConfigureWorkspaceAi ? adminAiUsageBudgetSteps() : operatorAiUsageBudgetSteps();
     case "groundingInsufficiency":
       return [
         "Open the Evidence tab and add architecture diagrams, ADRs, or policy documents that support your intake claims.",
         "Return here and click Re-run review so the assessment can evaluate the enriched evidence.",
       ];
     case "fallbackToSimulator":
-      return input.canConfigureWorkspaceAi
-        ? [
-            "Open Administration → Model governance and confirm real-mode Azure OpenAI credentials are configured.",
-            "Click Re-run review after credentials are in place — simulator output cannot be finalized.",
-          ]
-        : [
-            "Share the administrator handoff below so a workspace administrator can configure real-mode Azure OpenAI credentials.",
-            "After credentials are in place, return here and click Re-run review — simulator output cannot be finalized.",
-          ];
+      return resolveInfrastructureRecoverySteps(audience);
     case "partialRequiredAgentsIncomplete":
       return [
         "Click Re-run review to retry the assessments that did not finish.",
@@ -195,14 +251,32 @@ export function recoveryStepsForLegacyStatusWithAudience(input: {
   readonly legacyStatus: string;
   readonly completedStages: number;
   readonly canConfigureWorkspaceAi: boolean;
+  readonly usesCustomerAiConnection?: boolean;
 }): readonly string[] | null {
   if (input.legacyStatus === "Failed" && input.completedStages === 0) {
-    return input.canConfigureWorkspaceAi
-      ? adminStepsForPreStageFailure()
-      : operatorStepsForPreStageFailure();
+    return resolveInfrastructureRecoverySteps({
+      canConfigureWorkspaceAi: input.canConfigureWorkspaceAi,
+      usesCustomerAiConnection: input.usesCustomerAiConnection === true,
+    });
   }
 
   return null;
+}
+
+export function buildManagedPlatformAdminHandoffVerificationLines(): readonly string[] {
+  return [
+    "Confirm this workspace uses ArchLucid-managed AI (not a customer-provided connection).",
+    "Open Report a problem with the review id — platform AI availability is restored by ArchLucid operations.",
+    "After support confirms platform AI is healthy, the operator can click Re-run review on the review page.",
+  ] as const;
+}
+
+export function buildCustomerConnectionAdminHandoffVerificationLines(): readonly string[] {
+  return [
+    "Confirm this workspace has an enabled customer-provided AI connection for review completions.",
+    "Contact ArchLucid support with the review id — connection credentials and probes are managed outside tenant administration.",
+    "After the connection is restored, the operator can click Re-run review on the review page.",
+  ] as const;
 }
 
 export function buildReviewFailureAdminHandoffMarkdown(input: {
@@ -211,6 +285,7 @@ export function buildReviewFailureAdminHandoffMarkdown(input: {
   readonly detail?: string | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly workspaceAiSignal?: WorkspaceAiConfigurationSignal | null;
+  readonly usesCustomerAiConnection?: boolean;
 }): string {
   const lines: string[] = [
     "ArchLucid review execution failed — administrator action needed",
@@ -236,16 +311,45 @@ export function buildReviewFailureAdminHandoffMarkdown(input: {
     lines.push(`Likely cause: ${input.workspaceAiSignal.detail}`);
   }
 
+  const verificationLines =
+    input.usesCustomerAiConnection === true
+      ? buildCustomerConnectionAdminHandoffVerificationLines()
+      : buildManagedPlatformAdminHandoffVerificationLines();
+
   lines.push("", "Please verify for this workspace:");
-  for (const verificationLine of WORKSPACE_AI_ADMIN_VERIFICATION_LINES) {
+  for (const verificationLine of verificationLines) {
     lines.push(`- ${verificationLine}`);
   }
 
   lines.push(
     "",
     "Operator intake was recorded successfully — this is not a missing intake-fields issue.",
-    "After configuration is fixed, the operator can click Re-run review on the review page.",
+    "After the issue is resolved, the operator can click Re-run review on the review page.",
   );
 
   return lines.join("\n");
 }
+
+export function resolveReviewFailureAdminConfigurationLink(input: {
+  readonly workspaceAiConfigurationFailure: boolean;
+  readonly canConfigureWorkspaceAi: boolean;
+  readonly triageScenarioId?: string | null;
+  readonly failureClass?: string | null;
+  readonly legacyRunStatus?: string | null;
+  readonly completedStages?: number;
+}): { readonly href: string | null; readonly label: string | null } {
+  if (!input.canConfigureWorkspaceAi || !input.workspaceAiConfigurationFailure) {
+    return { href: null, label: null };
+  }
+
+  const triageScenarioId = normalizeKey(input.triageScenarioId);
+  const failureClass = normalizeKey(input.failureClass);
+
+  if (triageScenarioId === "budgetCutoff" || failureClass === "quota" || failureClass === "costBudget") {
+    return { href: REVIEW_FAILURE_AI_USAGE_CONFIGURATION_PATH, label: "Open AI usage" };
+  }
+
+  return { href: null, label: null };
+}
+
+export { AI_MODELS_SETTINGS_OPEN_CTA_LABEL };

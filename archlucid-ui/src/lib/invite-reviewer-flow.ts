@@ -19,10 +19,24 @@ export function buildInviteReviewerHref(reviewId?: string | null): string {
   return `${INVITE_REVIEWER_PATH}?${params.toString()}`;
 }
 
-export function buildInviteReviewerPrefillMessage(reviewId: string): string {
-  const trimmed = reviewId.trim();
+export type InviteReviewerPrefillMessageInput = {
+  readonly reviewLabel: string;
+  readonly reviewHref: string;
+};
 
-  return `Please review the finalized architecture package (review ID ${trimmed}).`;
+export function buildInviteReviewerPrefillMessage(input: InviteReviewerPrefillMessageInput): string {
+  const reviewLabel = input.reviewLabel.trim();
+  const reviewHref = input.reviewHref.trim();
+
+  if (reviewLabel.length === 0) {
+    return "Please review the finalized architecture review.";
+  }
+
+  if (reviewHref.length === 0) {
+    return `Please review the finalized architecture review for ${reviewLabel}.`;
+  }
+
+  return `Please review the finalized architecture review [${reviewLabel}](${reviewHref}).`;
 }
 
 /** Users tab on the combined users-and-roles admin page. */

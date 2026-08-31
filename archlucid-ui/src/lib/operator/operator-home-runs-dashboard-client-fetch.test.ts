@@ -28,11 +28,18 @@ function buildModel(
 
 describe("isOperatorHomeRunsDashboardServerSnapshotFresh", () => {
   it("accepts a successful empty server snapshot", () => {
-    expect(isOperatorHomeRunsDashboardServerSnapshotFresh(buildModel(), "default")).toBe(true);
+    expect(
+      isOperatorHomeRunsDashboardServerSnapshotFresh(
+        buildModel({ scopeQueryKeySnapshot: "tenant-a:workspace-a:default" }),
+        "default",
+        "tenant-a:workspace-a:default",
+      ),
+    ).toBe(true);
   });
 
   it("accepts a successful populated server snapshot", () => {
     const model = buildModel({
+      scopeQueryKeySnapshot: "tenant-a:workspace-a:default",
       items: [
         {
           runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
@@ -44,15 +51,22 @@ describe("isOperatorHomeRunsDashboardServerSnapshotFresh", () => {
       totalCount: 1,
     });
 
-    expect(isOperatorHomeRunsDashboardServerSnapshotFresh(model, "default")).toBe(true);
+    expect(
+      isOperatorHomeRunsDashboardServerSnapshotFresh(model, "default", "tenant-a:workspace-a:default"),
+    ).toBe(true);
   });
 
   it("rejects missing, mismatched, or failed snapshots", () => {
-    expect(isOperatorHomeRunsDashboardServerSnapshotFresh(null, "default")).toBe(false);
-    expect(isOperatorHomeRunsDashboardServerSnapshotFresh(buildModel({ projectId: "other" }), "default")).toBe(false);
+    expect(isOperatorHomeRunsDashboardServerSnapshotFresh(null, "default", "tenant-a:workspace-a:default")).toBe(
+      false,
+    );
+    expect(
+      isOperatorHomeRunsDashboardServerSnapshotFresh(buildModel({ projectId: "other" }), "default", ""),
+    ).toBe(false);
     expect(
       isOperatorHomeRunsDashboardServerSnapshotFresh(
         buildModel({
+          scopeQueryKeySnapshot: "tenant-a:workspace-a:default",
           loadFailure: {
             message: "fail",
             problem: null,
@@ -62,18 +76,60 @@ describe("isOperatorHomeRunsDashboardServerSnapshotFresh", () => {
           },
         }),
         "default",
+        "tenant-a:workspace-a:default",
       ),
     ).toBe(false);
-    expect(isOperatorHomeRunsDashboardServerSnapshotFresh(buildModel({ malformedMessage: "bad payload" }), "default")).toBe(
-      false,
-    );
+    expect(
+      isOperatorHomeRunsDashboardServerSnapshotFresh(
+        buildModel({ malformedMessage: "bad payload" }),
+        "default",
+        "tenant-a:workspace-a:default",
+      ),
+    ).toBe(false);
+  });
+
+  it("rejects SSR snapshot when tenant scope changed but project id matches", () => {
+    const model = buildModel({
+      scopeQueryKeySnapshot: "tenant-a:workspace-a:default",
+      items: [
+        {
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          projectId: "default",
+          createdUtc: "2026-01-01T00:00:00Z",
+          hasGoldenManifest: true,
+        },
+      ],
+      totalCount: 1,
+    });
+
+    expect(
+      isOperatorHomeRunsDashboardServerSnapshotFresh(model, "default", "tenant-b:workspace-b:default"),
+    ).toBe(false);
   });
 });
 
 describe("shouldSkipRunsDashboardClientFetchOnMount", () => {
   it("skips when the server snapshot is fresh", () => {
-    expect(shouldSkipRunsDashboardClientFetchOnMount(buildModel(), "default")).toBe(true);
-    expect(shouldSkipRunsDashboardClientFetchOnMount(null, "default")).toBe(false);
+    expect(
+      shouldSkipRunsDashboardClientFetchOnMount(
+        buildModel({ scopeQueryKeySnapshot: "tenant-a:workspace-a:default" }),
+        "default",
+        "tenant-a:workspace-a:default",
+      ),
+    ).toBe(true);
+    expect(shouldSkipRunsDashboardClientFetchOnMount(null, "default", "tenant-a:workspace-a:default")).toBe(
+      false,
+    );
+  });
+
+  it("does not skip when scope changed after SSR", () => {
+    expect(
+      shouldSkipRunsDashboardClientFetchOnMount(
+        buildModel({ scopeQueryKeySnapshot: "tenant-a:workspace-a:default" }),
+        "default",
+        "tenant-b:workspace-b:default",
+      ),
+    ).toBe(false);
   });
 });
 
