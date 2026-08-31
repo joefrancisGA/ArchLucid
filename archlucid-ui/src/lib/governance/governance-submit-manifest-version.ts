@@ -80,7 +80,7 @@ export function validateGovernanceSubmitManifestVersion(
   if (maxTrimmed.length > 0 && isNumericSemverManifestVersion(maxTrimmed)) {
     const comparison = compareNumericSemverManifestVersions(trimmed, maxTrimmed);
 
-    if (comparison < 0) {
+    if (comparison !== null && comparison < 0) {
       return {
         valid: false,
         message: `Review record version cannot be lower than ${maxTrimmed} for this review.`,
