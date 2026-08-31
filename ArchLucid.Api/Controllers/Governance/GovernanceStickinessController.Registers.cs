@@ -160,6 +160,8 @@ public sealed partial class GovernanceStickinessController
         if (filterProblem is not null)
             return filterProblem;
 
+        category = category?.Trim();
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
