@@ -2,19 +2,22 @@ import {
   isProxyDevelopmentCatalogResetRequest,
   isProxyLlmAdvisoryRequest,
   isProxyLargeUploadRequest,
+  isProxyWorkspaceAiAvailabilityRequest,
 } from "@/lib/proxy-constants";
 import {
   PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS,
   PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
   PROXY_UPSTREAM_LLM_ADVISORY_FETCH_TIMEOUT_MS,
   PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS,
+  PROXY_UPSTREAM_WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS,
 } from "@/lib/server-fetch-timeouts";
 
 export type ProxyUpstreamTimeoutKind =
   | "default"
   | "llm-advisory"
   | "large-upload"
-  | "catalog-reset";
+  | "catalog-reset"
+  | "workspace-ai-availability";
 
 export type ResolvedProxyUpstreamFetchTimeout = {
   readonly timeoutMs: number;
@@ -36,6 +39,13 @@ export function resolveProxyUpstreamFetchTimeout(
 
   if (isProxyLlmAdvisoryRequest(pathForLog)) {
     return { timeoutMs: PROXY_UPSTREAM_LLM_ADVISORY_FETCH_TIMEOUT_MS, kind: "llm-advisory" };
+  }
+
+  if (isProxyWorkspaceAiAvailabilityRequest(pathForLog)) {
+    return {
+      timeoutMs: PROXY_UPSTREAM_WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS,
+      kind: "workspace-ai-availability",
+    };
   }
 
   return { timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS, kind: "default" };
