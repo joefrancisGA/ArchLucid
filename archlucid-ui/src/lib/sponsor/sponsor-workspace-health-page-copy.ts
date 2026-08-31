@@ -1,4 +1,4 @@
-/** Copy for the workspace-health KPI section on the sponsor dashboard (`#workspace-health`). */
+/** Copy for the workspace health page (`/insights/workspace-health`). */
 
 import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";

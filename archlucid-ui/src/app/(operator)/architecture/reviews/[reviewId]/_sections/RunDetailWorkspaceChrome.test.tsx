@@ -25,6 +25,7 @@ vi.mock("next/link", () => ({
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
 }));
 
 vi.mock("@/components/CopyIdButton", () => ({
@@ -62,6 +63,12 @@ const workspaceStatus = {
   statusTagKind: "needs-attention" as const,
 };
 
+const executionFailedWorkspaceStatus = {
+  label: "Execution failed",
+  kind: "execution-failed" as const,
+  statusTagKind: "needs-attention" as const,
+};
+
 describe("RunDetailWorkspaceHeader", () => {
   it("renders system title, provenance slots, and review identifier", () => {
     render(
@@ -86,7 +93,9 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("Review ID")).toBeInTheDocument();
     expect(screen.getByText("Finalized review record ID")).toBeInTheDocument();
     expect(screen.getByText("run-1")).toBeInTheDocument();
-    expect(screen.getByText("N/A")).toBeInTheDocument();
+    expect(
+      screen.getByText("Not recorded — this record does not name who recorded the decision"),
+    ).toBeInTheDocument();
     expect(screen.getByText("Not recorded — no review template captured for this package")).toBeInTheDocument();
     expect(screen.getByText("Jan 1, 2026, 12:00 PM")).toBeInTheDocument();
     expect(screen.getByText("v2")).toBeInTheDocument();
@@ -112,9 +121,42 @@ describe("RunDetailWorkspaceHeader", () => {
     );
 
     expect(screen.getByTestId("run-detail-record-metadata-disclosure")).toBeInTheDocument();
-    expect(screen.getByText("Record metadata (3 fields not recorded)")).toBeInTheDocument();
+    expect(screen.getByText("Record metadata (4 fields not recorded)")).toBeInTheDocument();
     expect(screen.getByText("Not recorded — finalization timestamp missing from the finalized review record")).toBeInTheDocument();
     expect(screen.getByText("Not recorded — rule set version missing")).toBeInTheDocument();
+  });
+
+  it("labels sparse metadata as finalization metadata when execution failed pre-stage", () => {
+    render(
+      <RunDetailWorkspaceHeader
+        runId="run-1"
+        h1Title="ArchLucid"
+        eyebrowLabel="Architecture review"
+        reviewIdentifierLabel="run-1"
+        signedReviewRecordId={null}
+        signedReviewRecordIdLabel={null}
+        workspaceStatus={executionFailedWorkspaceStatus}
+        reviewOwner={null}
+        templateLabel={null}
+        finalizedAtLabel={null}
+        packageVersionLabel={null}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-record-metadata-disclosure")).toBeInTheDocument();
+    expect(screen.getByText("Finalization metadata (available after review completes)")).toBeInTheDocument();
+    expect(screen.queryByText(/fields not recorded/i)).toBeNull();
+    expect(
+      screen.getByText("Not applicable — review template is recorded when the review finalizes"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Not applicable — review has not been finalized")).toBeInTheDocument();
+    expect(
+      screen.getByText("Not applicable — package version is recorded when the review finalizes"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Not applicable — no finalized review record yet")).toBeInTheDocument();
+    expect(
+      screen.getByText("Not applicable — no approval decision until the review is finalized"),
+    ).toBeInTheDocument();
   });
 
   it("clamps an oversized h1 title to one line without markdown", () => {

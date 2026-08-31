@@ -8,6 +8,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Governance;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class GovernanceEnvironmentCatalogServiceTests
 {
     private static readonly ScopeContext Scope = new()
@@ -75,7 +77,7 @@ public sealed class GovernanceEnvironmentCatalogServiceTests
         Func<Task> act = async () => await service.ReplaceCatalogAsync(request, CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*At least one transition is required*");
+            .WithMessage("*At least one environment transition is required*");
     }
 
     [Fact]
