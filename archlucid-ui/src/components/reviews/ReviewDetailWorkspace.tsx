@@ -12,7 +12,6 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
 import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageActivityAuditTrailVocabularyRail";
 import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
@@ -154,9 +153,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
   const tabActivityAt = props.tabActivityAt ?? {};
   const {
     isTabNewSinceLastVisit,
-    hasAnyNewSinceLastVisit,
     markTabSeen,
-    markAllTabsSeen,
   } = useReviewDetailLastVisited(props.runId, tabActivityAt);
 
   useEffect(() => {
@@ -250,19 +247,6 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
   return (
     <ReviewDetailWorkspaceTabContext.Provider value={{ navigateTab }}>
       <div className="min-w-0 space-y-4" data-testid="review-detail-workspace">
-        {hasAnyNewSinceLastVisit ? (
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              data-testid="review-detail-mark-all-seen"
-              onClick={markAllTabsSeen}
-            >
-              Mark all as seen
-            </Button>
-          </div>
-        ) : null}
         <ReviewWorkspaceTabStrip
           lifecycle={lifecycle}
           activeTab={activeTab}
