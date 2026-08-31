@@ -89,7 +89,7 @@ test.describe("live-api-error-states", () => {
     });
   });
 
-  test("sponsor dashboard workspace health loads without uncaught errors", async ({ page }) => {
+  test("workspace health page loads without uncaught errors", async ({ page }) => {
     test.setTimeout(60_000);
 
     await page.goto(WORKSPACE_HEALTH_PATH);
