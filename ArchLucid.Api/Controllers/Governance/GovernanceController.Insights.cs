@@ -113,7 +113,7 @@ public sealed partial class GovernanceController
         {
             return this.BadRequestProblem(
                 $"The requested window produces {bucketCount} trend buckets; at most {ComplianceDriftTrendMaxBuckets} are allowed. Narrow the date range or increase bucketMinutes.",
-                ProblemTypes.ValidationFailed);
+                ProblemTypes.BadRequest);
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
