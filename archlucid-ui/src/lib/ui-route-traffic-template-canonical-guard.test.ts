@@ -34,7 +34,6 @@ const REDIRECT_ONLY_PATHS = [
   "/internal/replay",
   "/settings/cost-reporting",
   "/health",
-  "/governance/dashboard",
   "/sponsor/scorecard",
 ];
 
@@ -51,6 +50,8 @@ describe("ui-route-traffic-template-canonical-guard (TB-748)", () => {
     expect(paths).toContain("/internal/health");
     expect(paths).toContain("/insights/sponsor-report");
     expect(paths).toContain("/internal/validate-route");
+    expect(paths).toContain("/insights/workspace-health");
+    expect(paths).toContain("/governance/dashboard");
 
     for (const legacyPath of REDIRECT_ONLY_PATHS) {
       expect(paths).not.toContain(legacyPath);

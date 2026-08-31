@@ -6,8 +6,8 @@
  *   view of engagement and governance posture per tenant scope.
  * - System health (`/administration/system-health`) is the platform readiness
  *   and dependency probe dashboard for this deployment.
- * - Workspace health (`/insights/workspace-health`) is
- *   the sponsor KPI strip for the current workspace / project scope.
+ * - Workspace health (`/insights/workspace-health`) is the standalone Insights
+ *   workspace-health page for the current workspace / project scope.
  *
  * They stay separate because tenant CS scores are not platform probes, and
  * platform probes are not workspace sponsor KPIs. Operators need all three
@@ -43,7 +43,7 @@ export const TENANT_SYSTEM_WORKSPACE_HEALTH_HEADING =
   "Tenant, system, and workspace health are three different views" as const;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_WHY_THREE =
-  "Tenant health tracks customer engagement per tenant. System health shows platform uptime and dependency checks for this deployment. Workspace health is the sponsor KPI strip for the current workspace. One health page does not replace the others — open the peer link when you need that view." as const;
+  "Tenant health tracks customer engagement per tenant. System health shows platform uptime and dependency checks for this deployment. Workspace health is the standalone sponsor KPI dashboard at `/insights/workspace-health` for the current workspace. One health page does not replace the others — open the peer link when you need that view." as const;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_COMPACT_LINE =
   "Tenant health is customer engagement; system health is platform uptime; workspace health is sponsor KPIs — open the other when you need that view." as const;
