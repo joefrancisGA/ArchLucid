@@ -188,9 +188,7 @@ export function CompareResultsPanelDiffStack({
             <summary className={cn("flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               <DisclosureTriangleIndicator />
               <h2 className={cn("m-0 inline text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {buyerPolished
-                  ? "Sponsor narrative (AI-generated)"
-                  : "Sponsor narrative (AI-generated)"}
+                Sponsor narrative (AI-generated)
               </h2>
             </summary>
             <div className="border-t border-neutral-200 px-4 pb-2 dark:border-neutral-700">
