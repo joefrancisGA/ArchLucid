@@ -73,7 +73,7 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
     <>
       {m.buyerPolishedArtifactTable && m.manifestId ? (
         <IntegrationConnectChecklist
-          title="architecture package inspect checklist"
+          title="Architecture package inspect checklist"
           steps={reviewPackageInspectSteps}
           emphasizedStepId={reviewPackageInspectEmphasizedStepId}
           testIdPrefix="run-detail-review-package"
