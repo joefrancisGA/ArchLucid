@@ -1752,7 +1752,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
@@ -1800,6 +1800,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.Read` case-sensitive on `category`, `enforcementTier`, `humanReviewStatus`, and `evaluationConfidenceLevel` — PascalCase exporter labels silently defaulted on reload — **hit 2026-08-31 (#279):** `TryGetPropertyCaseInsensitive` for remaining scalar enum/string fields; regression in `FindingJsonConverterTests.Deserialize_pascal_case_category_maps_value`, `Deserialize_pascal_case_enforcementTier_maps_advisory`, `Deserialize_pascal_case_humanReviewStatus_maps_approved`, `Deserialize_pascal_case_evaluationConfidenceLevel_maps_high`.
 - [x] (proven) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` / `runIdRef` tokens threw or returned null — **hit 2026-08-31 (#279):** coerce number tokens to invariant strings; regression in `FindingJsonConverterTests.Deserialize_numeric_runIdRef_coerces_to_string`, `Deserialize_numeric_agentExecutionTraceId_coerces_to_string`.
 - [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — undefined `AgentOutputQualityGateMode` numeric-strings parsed via bare `Enum.TryParse` and suppressed production-like WarnOnly advisory — **hit 2026-08-31 (#279):** `Enum.IsDefined` guard with fail-open emit for undefined numeric ordinals; regression in `QualityGateWarnOnlyProductionLikeConfigurationLintTests.ShouldEmitFinding_production_real_undefined_quality_gate_numeric_string_emits_rule`.
+
+2026-08-31 thorough hunt #283: re-proved on master the three #279 FindingJsonConverter and quality-gate defects (prior branch unmerged).
 
 2026-08-31 thorough hunt #279: proved remaining FindingJsonConverter PascalCase scalar gaps, numeric optional-string coercion, and quality-gate undefined ordinal lint suppression.
 
