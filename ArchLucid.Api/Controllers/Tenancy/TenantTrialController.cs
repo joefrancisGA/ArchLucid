@@ -169,7 +169,7 @@ public sealed class TenantTrialController(
 
             if (!emailClaimedForTenant)
                 return this.BadRequestProblem(
-                    "That local identity is not registered for this tenant.",
+                    "No local trial identity exists for that email.",
                     ProblemTypes.ValidationFailed);
 
             string requestedOid = body.EntraOid!.Trim();

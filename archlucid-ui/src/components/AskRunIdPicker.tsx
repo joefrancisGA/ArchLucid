@@ -1,6 +1,10 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_FORM_FIELD_STACK_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -282,7 +286,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       const showOrphanDeepLink = trimmedValue.length > 0 && !selectedInSynthetic;
 
       return (
-        <div className="space-y-2">
+        <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
           {reviewFieldLabel}
           <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
             <SelectTrigger id={selectControlId} className="font-mono">
@@ -305,7 +309,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     const showOrphanDeepLink = trimmedValue.length > 0 && !isShowcaseDemoRunId(trimmedValue);
 
     return (
-      <div className="space-y-2">
+      <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
         {reviewFieldLabel}
         <Select disabled value={trimmedValue.length > 0 ? trimmedValue : undefined}>
           <SelectTrigger id={selectControlId} className="font-mono">
@@ -328,7 +332,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     const hasDeepLinkValue = trimmedValue.length > 0;
 
     return (
-      <div className="space-y-2">
+      <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
         {reviewFieldLabel}
         <Select disabled value={hasDeepLinkValue ? trimmedValue : undefined}>
           <SelectTrigger id={selectControlId} className="font-mono">
@@ -357,7 +361,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       const showOrphanDeepLink = trimmedValue.length > 0 && !selectedInSynthetic;
 
       return (
-        <div className="space-y-2">
+        <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
           {reviewFieldLabel}
           <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
             <SelectTrigger id={selectControlId} className="font-mono">
@@ -380,7 +384,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     const showOrphanDeepLink = trimmedValue.length > 0 && !isShowcaseDemoRunId(trimmedValue);
 
     return (
-      <div className="space-y-2">
+      <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
         {reviewFieldLabel}
         <Select disabled value={trimmedValue.length > 0 ? trimmedValue : undefined}>
           <SelectTrigger id={selectControlId} className="font-mono">
@@ -430,7 +434,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   };
 
   return (
-    <div className="space-y-2">
+    <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
       {reviewFieldLabel}
       <Select disabled={disabled} value={selectValue} onValueChange={handleValueChange}>
         <SelectTrigger id={selectControlId} className="font-mono">

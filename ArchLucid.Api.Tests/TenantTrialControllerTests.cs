@@ -443,7 +443,7 @@ public sealed class TenantTrialControllerTests
             Times.Never);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ConvertTrialAsync_accepts_null_body_with_unspecified_tier()
     {
         ScopeContext scope = new()
@@ -492,11 +492,10 @@ public sealed class TenantTrialControllerTests
             Times.Once);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task LinkEntraAsync_returns_bad_request_when_local_email_not_claimed_for_tenant()
     {
         Guid callerTenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-        Guid foreignTenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         ScopeContext scope = new()
         {
             TenantId = callerTenantId,
@@ -533,16 +532,10 @@ public sealed class TenantTrialControllerTests
                     Email = "victim@customer.com",
                 });
 
-        InMemorySelfServiceTrialAbuseRepository abuseRepository = new();
-        await abuseRepository.TryInsertEmailClaimAsync(
-            new SelfServiceTrialEmailClaimInsert
-            {
-                NormalizedEmail = normalizedEmail,
-                TenantId = foreignTenantId,
-                ClaimSource = "api_register",
-                ClaimedUtc = TimeProvider.System.GetUtcNow(),
-            },
-            CancellationToken.None);
+        Mock<ISelfServiceTrialAbuseRepository> abuseRepository = new();
+        abuseRepository
+            .Setup(r => r.HasEmailClaimForTenantAsync(normalizedEmail, callerTenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         TenantTrialController sut = CreateController(
             tenants.Object,
@@ -551,7 +544,7 @@ public sealed class TenantTrialControllerTests
             gate.Object,
             trialUsers.Object,
             schedulerOpts.Object,
-            abuseRepository);
+            abuseRepository.Object);
 
         IActionResult result = await sut.LinkEntraAsync(
             new TenantLinkEntraRequest
@@ -572,7 +565,7 @@ public sealed class TenantTrialControllerTests
             Times.Never);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task LinkEntraAsync_links_local_identity_when_email_claimed_for_tenant()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -618,16 +611,10 @@ public sealed class TenantTrialControllerTests
             .Setup(r => r.TryLinkLocalIdentityToEntraAsync(normalizedEmail, "oid-home", It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        InMemorySelfServiceTrialAbuseRepository abuseRepository = new();
-        await abuseRepository.TryInsertEmailClaimAsync(
-            new SelfServiceTrialEmailClaimInsert
-            {
-                NormalizedEmail = normalizedEmail,
-                TenantId = tenantId,
-                ClaimSource = "api_register",
-                ClaimedUtc = TimeProvider.System.GetUtcNow(),
-            },
-            CancellationToken.None);
+        Mock<ISelfServiceTrialAbuseRepository> abuseRepository = new();
+        abuseRepository
+            .Setup(r => r.HasEmailClaimForTenantAsync(normalizedEmail, tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         TenantTrialController sut = CreateController(
             tenants.Object,
@@ -636,7 +623,7 @@ public sealed class TenantTrialControllerTests
             gate.Object,
             trialUsers.Object,
             schedulerOpts.Object,
-            abuseRepository);
+            abuseRepository.Object);
 
         IActionResult result = await sut.LinkEntraAsync(
             new TenantLinkEntraRequest
@@ -667,7 +654,7 @@ public sealed class TenantTrialControllerTests
             audit,
             gate,
             trialUsers,
-            trialAbuseRepository ?? new InMemorySelfServiceTrialAbuseRepository(),
+            trialAbuseRepository ?? Mock.Of<ISelfServiceTrialAbuseRepository>(),
             schedulerOpts)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },

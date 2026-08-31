@@ -11,6 +11,10 @@ import {
 } from "@/lib/evidence-trace-contextual-help";
 import { SETTINGS_HUB_HELP_TOPIC_LABEL } from "@/lib/contextual-help/administration-rows";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
+import {
+  REVIEW_WORKSPACE_HELP_TOPIC,
+  pathIsReviewWorkspaceDetail,
+} from "@/lib/review-workspace-evidence-copy";
 import { pathIsSettingsHubRoot } from "@/lib/settings-admin-route-paths";
 import {
   ARTIFACT_PREVIEW_HELP_TOPIC,
@@ -50,6 +54,10 @@ export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null
 
   if (pathIsRunProvenance(path)) {
     return PROVENANCE_HELP_TOPIC;
+  }
+
+  if (pathIsReviewWorkspaceDetail(path)) {
+    return REVIEW_WORKSPACE_HELP_TOPIC;
   }
 
   if (pathIsFindingEvidenceTrace(path)) {

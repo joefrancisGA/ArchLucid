@@ -30,6 +30,34 @@ public sealed class InMemorySelfServiceTrialAbuseRepositoryCoverageTests
     }
 
     [Fact]
+    public async Task HasEmailClaimAsync_treats_email_keys_as_case_insensitive_like_sql_pk()
+    {
+        InMemorySelfServiceTrialAbuseRepository sut = new();
+
+        await sut.TryInsertEmailClaimAsync(
+            new SelfServiceTrialEmailClaimInsert
+            {
+                NormalizedEmail = "USER@EXAMPLE.COM",
+                ClaimSource = "trial",
+                ClaimedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        (await sut.HasEmailClaimAsync("user@example.com", CancellationToken.None)).Should().BeTrue();
+
+        await sut.TryInsertEmailClaimAsync(
+            new SelfServiceTrialEmailClaimInsert
+            {
+                NormalizedEmail = "user@example.com",
+                ClaimSource = "trial-repeat",
+                ClaimedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        (await sut.HasEmailClaimAsync("USER@EXAMPLE.COM", CancellationToken.None)).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Email_claim_is_idempotent_and_domain_counts_respect_window()
     {
         InMemorySelfServiceTrialAbuseRepository sut = new();

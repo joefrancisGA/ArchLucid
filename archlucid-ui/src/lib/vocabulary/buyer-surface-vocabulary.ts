@@ -92,7 +92,9 @@ export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
     "Finalize a review to populate sponsor metrics, remediation progress, ROI estimates, and export-ready outputs.",
   emptyStatePrimaryAction: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   emptyStateSecondaryAction: "Load sample dashboard",
+  emptyStateSecondaryActionLoaded: "Unload sample dashboard",
   emptyStateSecondaryHelper: "Populate this workspace with sample review data.",
+  emptyStateSecondaryHelperLoaded: "Remove sample review data and return to the empty dashboard.",
   emptyStateTertiaryAction: "Open reviews",
   metricsPreviewSectionTitle: "At a glance",
   metricsPreviewUnavailableFootnote: "Available after first finalized review",
@@ -158,6 +160,7 @@ export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
   sampleWorkspaceBannerTitle: "Sample workspace data",
   sampleWorkspaceBannerDescription:
     "Figures below come from the demonstration workspace — not your production inventory.",
+  sampleWorkspaceBannerUnloadAction: "Unload sample dashboard",
   nextActionSectionTitle: "Next action",
   nextActionLinkLabel: "Take action",
   primaryMetricsSectionTitle: "At a glance",

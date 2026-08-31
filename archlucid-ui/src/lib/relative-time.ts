@@ -93,3 +93,28 @@ export function formatUpdatedAbsoluteWithRelative(
 
   return `Updated ${absoluteLabel} · ${relative}`;
 }
+
+/** Locale medium date + short time for `title` / tooltip on inventory rows. */
+export function formatAbsoluteUpdatedAtTitle(isoUtc: string): string {
+  const parsed = parseIsoUtcMs(isoUtc);
+
+  if (Number.isNaN(parsed)) {
+    return isoUtc;
+  }
+
+  return new Date(parsed).toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+/** Compact Updated column — relative label in cell, absolute in tooltip (Reviews hub pattern). */
+export function formatInventoryUpdatedAtCell(isoUtc: string): {
+  readonly display: string;
+  readonly absoluteTitle: string;
+} {
+  return {
+    display: formatRelativeTime(isoUtc),
+    absoluteTitle: formatAbsoluteUpdatedAtTitle(isoUtc),
+  };
+}

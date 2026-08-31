@@ -62,7 +62,8 @@ public sealed class TenantWeeklyDigestHealthControllerTests
             ExecutiveEmailDigestIsConfigured = true,
             ExecutiveEmailDigestEnabled = true,
             ExecutiveDigestRecipientCount = 4,
-            SetupGaps = ["missing-slack-webhook"]
+            SetupGaps = ["missing-slack-webhook"],
+            SetupGapCodes = ["missing_slack_webhook"]
         };
 
         Mock<IWeeklyDigestHealthReader> reader = new();
@@ -91,5 +92,6 @@ public sealed class TenantWeeklyDigestHealthControllerTests
         body.EnabledAdvisoryScheduleCount.Should().Be(2);
         body.ExecutiveDigestRecipientCount.Should().Be(4);
         body.SetupGaps.Should().ContainSingle("missing-slack-webhook");
+        body.SetupGapCodes.Should().ContainSingle("missing_slack_webhook");
     }
 }

@@ -10,11 +10,14 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
+import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type {
   ResolveReviewPackageDoThisNextInput,
   ReviewPackageDoThisNext,
 } from "./resolve-review-package-do-this-next";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
+import type { RunSummary } from "@/types/authority";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
@@ -22,6 +25,9 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly finalizeAssumptionGateApplies: boolean;
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   readonly requestAssumptionTexts: readonly string[];
+  readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
+  readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
+  readonly pipelineSummary?: RunSummary | null;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -83,6 +89,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
           compareWithPriorHref: priorCompare.compareWithPriorHref,
           legacyRunStatus: props.legacyRunStatus,
           isDeadLettered: props.isDeadLettered,
+          pipelineDiagnosticContext: props.pipelineDiagnosticContext,
+          lastFailureSummary: props.lastFailureSummary,
+          pipelineSummary: props.pipelineSummary,
         }),
       );
     });
@@ -111,6 +120,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
     props.governanceDecisionRecorded,
     props.legacyRunStatus,
     props.isDeadLettered,
+    props.pipelineDiagnosticContext,
+    props.lastFailureSummary,
+    props.pipelineSummary,
   ]);
 
   if (next === null) {
