@@ -21,7 +21,23 @@ describe("WorkspaceAiAvailabilityPanel", () => {
     fetchWorkspaceAiAvailabilityMock.mockReset();
   });
 
-  it("auto-checks availability and shows validated unavailable diagnostics", async () => {
+  it("does not auto-check availability on mount", () => {
+    render(
+      <WorkspaceAiAvailabilityPanel
+        workspaceAiSignal={{
+          label: "Workspace AI availability",
+          detail: "Review failure pattern suggests ArchLucid-managed AI may be unavailable — use Check AI availability to confirm before re-running.",
+        }}
+      />,
+    );
+
+    expect(fetchWorkspaceAiAvailabilityMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId("review-package-check-ai-availability-button")).toHaveTextContent(
+      "Check AI availability",
+    );
+  });
+
+  it("checks availability when the button is clicked and shows vendor diagnostics", async () => {
     fetchWorkspaceAiAvailabilityMock.mockResolvedValue({
       isAvailable: false,
       validated: true,
@@ -30,14 +46,14 @@ describe("WorkspaceAiAvailabilityPanel", () => {
       asOfUtc: "2026-08-31T18:00:00.000Z",
       checks: [
         {
-          name: "azure_openai_tcp_probe",
+          name: "azure_openai_live_completion_probe",
           status: "failed",
-          detail: "TCP connect to 'example.openai.azure.com' timed out after 2.0s.",
+          detail: "HTTP 401: Unauthorized — invalid API key.",
         },
       ],
       debug: {
-        agentExecutionMode: "Real",
-        azureOpenAiEndpointHost: "example.openai.azure.com",
+        probeDeploymentName: "gpt-4o",
+        probeModelId: "gpt-4o-2024-08-06",
       },
     });
 
@@ -50,27 +66,26 @@ describe("WorkspaceAiAvailabilityPanel", () => {
       />,
     );
 
+    fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
+
     await waitFor(() => {
       expect(screen.getByTestId("review-package-workspace-ai-debug")).toBeInTheDocument();
     });
 
     expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
-    expect(screen.getByTestId("review-package-workspace-ai-detail")).toHaveTextContent(
-      "ArchLucid-managed AI is unavailable",
-    );
-    expect(screen.getByText(/azure_openai_tcp_probe/)).toBeInTheDocument();
-    expect(screen.getByTestId("review-package-workspace-ai-debug")).toHaveTextContent("example.openai.azure.com");
+    expect(screen.getByTestId("review-package-workspace-ai-vendor-error")).toHaveTextContent("HTTP 401");
+    expect(screen.getByTestId("review-package-workspace-ai-model")).toHaveTextContent("gpt-4o");
   });
 
-  it("re-checks availability when the button is clicked", async () => {
+  it("re-checks availability when the button is clicked again", async () => {
     fetchWorkspaceAiAvailabilityMock.mockResolvedValue({
       isAvailable: true,
       validated: true,
       aiSource: "managed-platform",
-      summary: "ArchLucid-managed Azure OpenAI probes succeeded for this host.",
+      summary: "ArchLucid-managed Azure OpenAI live probe succeeded for deployment 'gpt-4o'.",
       asOfUtc: "2026-08-31T18:00:00.000Z",
-      checks: [{ name: "azure_openai_tcp_probe", status: "ok", detail: "TCP connect succeeded." }],
-      debug: {},
+      checks: [{ name: "azure_openai_live_completion_probe", status: "ok", detail: "Live completion probe succeeded." }],
+      debug: { probeDeploymentName: "gpt-4o" },
     });
 
     render(
@@ -81,6 +96,8 @@ describe("WorkspaceAiAvailabilityPanel", () => {
         }}
       />,
     );
+
+    fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
 
     await waitFor(() => {
       expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
