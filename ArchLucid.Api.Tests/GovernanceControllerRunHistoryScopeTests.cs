@@ -1116,7 +1116,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
                 true,
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException(
-                "Governance approval requests must follow environment ordering (dev → test → prod). 'dev' → 'prod' is not a valid step."));
+                "Governance approval requests must follow an allowed environment transition. 'dev' → 'prod' is not permitted."));
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
@@ -1256,7 +1256,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
                 false,
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException(
-                "Promotion must follow environment ordering (dev → test → prod). 'dev' → 'prod' is not a valid promotion step."));
+                "Promotion must follow an allowed environment transition. 'dev' → 'prod' is not permitted."));
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,

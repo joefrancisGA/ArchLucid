@@ -2,19 +2,24 @@
 
 import { useEffect, useState } from "react";
 
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
 import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
+import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type {
   ResolveReviewPackageDoThisNextInput,
   ReviewPackageDoThisNext,
 } from "./resolve-review-package-do-this-next";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
+import type { RunSummary } from "@/types/authority";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
@@ -22,6 +27,12 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly finalizeAssumptionGateApplies: boolean;
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   readonly requestAssumptionTexts: readonly string[];
+  readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
+  readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
+  readonly pipelineSummary?: RunSummary | null;
+  readonly intakeDescription?: string | null;
+  readonly intakeSystemName?: string | null;
+  readonly realModeFellBackToSimulator?: boolean | null;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -44,6 +55,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
 ): React.JSX.Element {
   const [next, setNext] = useState<ReviewPackageDoThisNext | null>(null);
   const priorCompare = usePriorSameRequestCompareHref(props.runId, 25);
+  const callerAuthorityRank = useNavCallerAuthorityRank();
+  const canConfigureWorkspaceAi = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const assumptionAwareCommitBlockedReason = useAssumptionAwareCommitBlockedReason({
     runId: props.runId,
     serverCommitBlockedReason: props.commitBlockedReason,
@@ -83,6 +96,13 @@ export function RunDetailReviewPackageDoThisNextResolved(
           compareWithPriorHref: priorCompare.compareWithPriorHref,
           legacyRunStatus: props.legacyRunStatus,
           isDeadLettered: props.isDeadLettered,
+          pipelineDiagnosticContext: props.pipelineDiagnosticContext,
+          lastFailureSummary: props.lastFailureSummary,
+          pipelineSummary: props.pipelineSummary,
+          intakeDescription: props.intakeDescription,
+          intakeSystemName: props.intakeSystemName,
+          canConfigureWorkspaceAi,
+          realModeFellBackToSimulator: props.realModeFellBackToSimulator === true,
         }),
       );
     });
@@ -111,6 +131,13 @@ export function RunDetailReviewPackageDoThisNextResolved(
     props.governanceDecisionRecorded,
     props.legacyRunStatus,
     props.isDeadLettered,
+    props.pipelineDiagnosticContext,
+    props.lastFailureSummary,
+    props.pipelineSummary,
+    props.intakeDescription,
+    props.intakeSystemName,
+    canConfigureWorkspaceAi,
+    props.realModeFellBackToSimulator,
   ]);
 
   if (next === null) {

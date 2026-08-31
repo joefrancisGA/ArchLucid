@@ -9,6 +9,27 @@ namespace ArchLucid.Persistence.Tests.Identity;
 public sealed class InMemorySelfServiceTrialAbuseRepositoryCoverageTests
 {
     [Fact]
+    public async Task HasEmailClaimForTenantAsync_matches_tenant_id_on_stored_claim()
+    {
+        InMemorySelfServiceTrialAbuseRepository sut = new();
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid otherTenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        await sut.TryInsertEmailClaimAsync(
+            new SelfServiceTrialEmailClaimInsert
+            {
+                NormalizedEmail = "USER@EXAMPLE.COM",
+                TenantId = tenantId,
+                ClaimSource = "trial",
+                ClaimedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        (await sut.HasEmailClaimForTenantAsync("USER@EXAMPLE.COM", tenantId, CancellationToken.None)).Should().BeTrue();
+        (await sut.HasEmailClaimForTenantAsync("USER@EXAMPLE.COM", otherTenantId, CancellationToken.None)).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task HasEmailClaimAsync_treats_email_keys_as_case_insensitive_like_sql_pk()
     {
         InMemorySelfServiceTrialAbuseRepository sut = new();

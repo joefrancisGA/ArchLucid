@@ -108,7 +108,7 @@ export function deriveReviewPipelineTerminalFailureDiagnosis(input: {
       detail:
         lastFailureReason.length > 0
           ? lastFailureReason
-          : "The review stopped before processing began. Check configuration and attachments, then re-run the review.",
+          : "The review stopped before processing began. This is usually a configuration or infrastructure issue — not missing intake fields. Check AI configuration, then re-run the review.",
     };
   }
 
@@ -159,7 +159,7 @@ export function deriveReviewPipelineStallDiagnosis(input: {
         detail:
           lastFailureReason.length > 0
             ? `The review stopped before processing began. ${lastFailureReason}`
-            : "The review stopped before processing began. Check configuration and attachments, then re-run the review.",
+            : "The review stopped before processing began. This is usually a configuration or infrastructure issue — not missing intake fields. Check AI configuration, then re-run the review.",
       };
     }
 

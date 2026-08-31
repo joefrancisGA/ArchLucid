@@ -13,29 +13,35 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type SponsorWorkspaceHealthPageHeroProps = {
   readonly buyerPolishedShell: boolean;
+  readonly standalonePage?: boolean;
 };
 
 /**
- * Section header for workspace health — title, lead, and workflow handoff.
- * This renders inside the sponsor dashboard, which already owns the page `h1`, so the heading is an
- * `h2` carrying the id the enclosing section's `aria-labelledby` points at.
+ * Page or section header for workspace health — title, lead, contextual help, and workflow handoff.
  */
 export function SponsorWorkspaceHealthPageHero({
   buyerPolishedShell,
+  standalonePage = false,
 }: SponsorWorkspaceHealthPageHeroProps): React.JSX.Element {
+  const HeadingTag = standalonePage ? "h1" : "h2";
+  const headingClassName = standalonePage
+    ? cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)
+    : cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle);
+
   return (
     <header
       className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800"
       data-testid="sponsor-workspace-health-page-hero"
+      data-standalone-page={standalonePage ? "true" : "false"}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
-          <h2
+          <HeadingTag
             id={SPONSOR_WORKSPACE_HEALTH_HEADING_ID}
-            className={cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            className={headingClassName}
           >
             {SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE}
-          </h2>
+          </HeadingTag>
           <p className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             {executiveWorkspaceHealthPageLead(buyerPolishedShell)}
           </p>

@@ -93,7 +93,6 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.ValidationFailed);
 
         // Reject year-1 / unspecified defaults ΓÇö OpenAPI date-time + Schemathesis reject "0001-01-01T00:00:00".
-
         if (fromUtc.Year < 1970 || toUtc.Year < 1970)
             return this.BadRequestProblem(
                 "fromUtc and toUtc must be on or after 1970-01-01.",
@@ -105,24 +104,23 @@ public sealed partial class GovernanceController
         DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
         DateTime toUtcNormalized = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
 
-        double bucketCountRaw = Math.Ceiling((toUtcNormalized - fromUtcNormalized).TotalMinutes / bucketMinutes);
+        TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
+        long deltaTicks = (toUtcNormalized - fromUtcNormalized).Ticks;
+        long bucketSizeTicks = bucketSize.Ticks;
+        long bucketCount = (deltaTicks + bucketSizeTicks - 1) / bucketSizeTicks;
 
-        if (bucketCountRaw > ComplianceDriftTrendMaxBuckets || bucketCountRaw > int.MaxValue)
+        if (bucketCount > ComplianceDriftTrendMaxBuckets)
         {
             return this.BadRequestProblem(
-                $"The requested window produces {bucketCountRaw} trend buckets; at most {ComplianceDriftTrendMaxBuckets} are allowed. Narrow the date range or increase bucketMinutes.",
-                ProblemTypes.ValidationFailed);
+                $"The requested window produces {bucketCount} trend buckets; at most {ComplianceDriftTrendMaxBuckets} are allowed. Narrow the date range or increase bucketMinutes.",
+                ProblemTypes.BadRequest);
         }
-
-        int bucketCount = (int)bucketCountRaw;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
-        TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
 
         IReadOnlyList<ComplianceDriftTrendPoint> points = await _complianceDriftTrendService.GetTrendAsync(
             scope.TenantId,

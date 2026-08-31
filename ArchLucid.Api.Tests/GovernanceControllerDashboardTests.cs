@@ -446,6 +446,47 @@ public sealed class GovernanceControllerDashboardTests
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
+    [SkippableFact]
+    public async Task GetComplianceDriftTrend_returns_ok_when_bucket_count_is_exactly_five_hundred()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+        DateTime fromUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = fromUtc.AddHours(500);
+        const int bucketMinutes = 60;
+
+        Mock<IComplianceDriftTrendService> drift = new();
+        drift
+            .Setup(d => d.GetTrendAsync(
+                tenantId,
+                fromUtc,
+                toUtc,
+                TimeSpan.FromMinutes(bucketMinutes),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        GovernanceController sut = CreateControllerForDriftTrend(drift);
+
+        IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, bucketMinutes, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        drift.VerifyAll();
+    }
+
+    [SkippableFact]
+    public async Task GetComplianceDriftTrend_returns_bad_request_when_bucket_count_is_five_hundred_and_one()
+    {
+        DateTime fromUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = fromUtc.AddHours(501);
+        const int bucketMinutes = 60;
+
+        GovernanceController sut = CreateControllerForDriftTrend(drift: new Mock<IComplianceDriftTrendService>(MockBehavior.Strict));
+
+        IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, bucketMinutes, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
     private static GovernanceController CreateControllerForDriftTrend(Mock<IComplianceDriftTrendService> drift)
     {
         Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
