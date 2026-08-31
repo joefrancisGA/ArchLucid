@@ -99,6 +99,7 @@ public sealed class TenantCustomerSuccessController(
     [HttpGet("next-actions")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(IReadOnlyList<OperatorNextBestActionResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetNextBestActionsAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -131,6 +132,7 @@ public sealed class TenantCustomerSuccessController(
     [HttpGet("funnel-snapshot")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(PilotFunnelSnapshotResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFunnelSnapshotAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -162,6 +164,7 @@ public sealed class TenantCustomerSuccessController(
     [HttpGet("stickiness-snapshot")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(OperatorStickinessSnapshotResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetStickinessSnapshotAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
