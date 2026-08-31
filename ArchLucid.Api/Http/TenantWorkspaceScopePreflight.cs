@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Http;
 
 /// <summary>
 ///     Shared tenant + workspace existence checks for scope-bound API reads (parity with
-///     <see cref="Controllers.Tenancy.TenantWorkspacesController" />).
+///     <see cref="ArchLucid.Api.Controllers.Tenancy.TenantWorkspacesController" />).
 /// </summary>
 internal static class TenantWorkspaceScopePreflight
 {
