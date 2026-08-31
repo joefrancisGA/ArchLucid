@@ -230,7 +230,7 @@ export function useRunProgressTracker({
     }
 
     if (pipelineTerminalFailure) {
-      return "Assessment failed — review the error details below and re-run the review when ready.";
+      return "Assessment did not finish — recovery steps are shown in Do this next above.";
     }
 
     if (buyerAssessmentCopy) {

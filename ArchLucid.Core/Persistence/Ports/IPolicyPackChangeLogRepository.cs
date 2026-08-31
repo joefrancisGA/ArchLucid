@@ -23,6 +23,13 @@ public interface IPolicyPackChangeLogRepository
         int maxRows = 100,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int maxRows = 100,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByTenantInRangeAsync(
         Guid tenantId,
         DateTime fromUtc,

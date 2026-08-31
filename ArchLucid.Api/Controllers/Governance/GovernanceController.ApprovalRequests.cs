@@ -62,17 +62,14 @@ public sealed partial class GovernanceController
 
         string requestedBy = actorContext.GetActor();
         string requestedByActorKey = actorContext.GetActorId();
-        string normalizedManifestVersion = request.ManifestVersion.Trim();
-        string normalizedSourceEnvironment = request.SourceEnvironment.Trim();
-        string normalizedTargetEnvironment = request.TargetEnvironment.Trim();
 
         try
         {
             GovernanceApprovalRequest result = await workflowService.SubmitApprovalRequestAsync(
                 normalizedRunId!,
-                normalizedManifestVersion,
-                normalizedSourceEnvironment,
-                normalizedTargetEnvironment,
+                request.ManifestVersion,
+                request.SourceEnvironment,
+                request.TargetEnvironment,
                 requestedBy,
                 requestedByActorKey,
                 request.RequestComment,
@@ -83,15 +80,15 @@ public sealed partial class GovernanceController
                 Response.Headers[ArchLucidHttpHeaders.DryRun] = "true";
 
             if (!dryRun && idempotencyKey is not null)
-                await LogGovernanceApprovalRequestedAuditAsync(
-                    normalizedRunId!,
-                    normalizedManifestVersion,
-                    normalizedSourceEnvironment,
-                    normalizedTargetEnvironment,
-                    idempotencyKey,
-                    cancellationToken);
+                await LogGovernanceApprovalRequestedAuditAsync(request, idempotencyKey, cancellationToken);
 
             return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Workflow stages throw this for illegal environment transitions (and similar validation).
+            logger.LogWarningWithSanitizedUserArg(ex, "SubmitApprovalRequest failed for run '{RunId}'.", request.RunId);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
         catch (RunNotFoundException ex)
         {
@@ -355,7 +352,7 @@ public sealed partial class GovernanceController
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
                         ErrorCode = ProblemTypes.ValidationFailed,
-                        Message = "Duplicate approvalRequestId values are not allowed in a batch after trimming whitespace.",
+                        Message = "duplicate approvalRequestId in batch.",
                     });
 
                 continue;

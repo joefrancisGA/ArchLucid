@@ -36,17 +36,30 @@ const ADVISORY_SCHEDULE_GAP =
   "No enabled advisory scan schedule — weekly architecture digests will not be generated on a cadence.";
 const SUBSCRIPTION_GAP =
   "No digest subscriptions — generated digests have no outbound recipients in this scope.";
-const EXEC_EMAIL_GAP =
+const DISABLED_SUBSCRIPTION_GAP =
+  "No enabled digest subscriptions — all subscription rows in this scope are disabled.";
+const SPONSOR_EMAIL_GAP =
   "Sponsor email digest is not fully configured — sponsor emails will not receive the separate sponsor rollup.";
+const ADVISORY_SCHEDULE_GAP_CODE = "no_enabled_advisory_schedule";
+const SUBSCRIPTION_GAP_CODE = "no_digest_subscriptions";
+const DISABLED_SUBSCRIPTION_GAP_CODE = "no_enabled_digest_subscriptions";
+const SPONSOR_EMAIL_GAP_CODE = "sponsor_email_digest_not_configured";
 
 /**
- * Maps a backend setup-gap string to title, impact, and a next-action link.
+ * Maps backend setup-gap data to title, impact, and a next-action link.
+ * When provided, the stable `gapCode` is preferred so mapping remains resilient to copy changes;
+ * otherwise the function falls back to string and regex matching on the setup-gap text.
  * Unknown gaps fall back to a generic configure action on the Schedule tab.
  */
-export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
+export function mapDigestSetupGap(gap: string, gapCode?: string | null): DigestSetupGapAction {
   const trimmed: string = gap.trim();
+  const normalizedCode: string = gapCode?.trim().toLowerCase() ?? "";
 
-  if (trimmed === ADVISORY_SCHEDULE_GAP || /advisory scan schedule/i.test(trimmed)) {
+  if (
+    normalizedCode === ADVISORY_SCHEDULE_GAP_CODE ||
+    trimmed === ADVISORY_SCHEDULE_GAP ||
+    /advisory scan schedule/i.test(trimmed)
+  ) {
     return {
       title: "No advisory scan schedule",
       impact: "Weekly digests will not be generated automatically.",
@@ -55,7 +68,24 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
     };
   }
 
-  if (trimmed === SUBSCRIPTION_GAP || /digest subscriptions/i.test(trimmed)) {
+  if (
+    normalizedCode === DISABLED_SUBSCRIPTION_GAP_CODE ||
+    trimmed === DISABLED_SUBSCRIPTION_GAP ||
+    /no enabled digest subscriptions/i.test(trimmed)
+  ) {
+    return {
+      title: "Subscriptions disabled",
+      impact: "Digest subscription rows exist in this scope but none are enabled for delivery.",
+      actionLabel: "Review subscriptions",
+      href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
+    };
+  }
+
+  if (
+    normalizedCode === SUBSCRIPTION_GAP_CODE ||
+    trimmed === SUBSCRIPTION_GAP ||
+    /digest subscriptions/i.test(trimmed)
+  ) {
     return {
       title: "No active subscriptions",
       impact: "Generated digests have no outbound recipients in this scope.",
@@ -64,7 +94,11 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
     };
   }
 
-  if (trimmed === EXEC_EMAIL_GAP || /sponsor email digest/i.test(trimmed)) {
+  if (
+    normalizedCode === SPONSOR_EMAIL_GAP_CODE ||
+    trimmed === SPONSOR_EMAIL_GAP ||
+    /sponsor email digest/i.test(trimmed)
+  ) {
     return {
       title: "Sponsor recipients not configured",
       impact: "Sponsor emails will not receive the sponsor rollup.",
@@ -81,8 +115,11 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
   };
 }
 
-export function mapDigestSetupGaps(gaps: readonly string[]): DigestSetupGapAction[] {
-  return gaps.map(mapDigestSetupGap);
+export function mapDigestSetupGaps(
+  gaps: readonly string[],
+  gapCodes?: readonly (string | null | undefined)[],
+): DigestSetupGapAction[] {
+  return gaps.map((gap, index) => mapDigestSetupGap(gap, gapCodes?.[index]));
 }
 
 export type DigestOverallStatus = {
@@ -134,6 +171,15 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
   }
 
   if (snap.enabledDigestSubscriptionCount === 0) {
+    if (snap.digestSubscriptionCount > 0) {
+      return {
+        title: "Subscriptions disabled",
+        impact: "Digest subscription rows exist in this scope but none are enabled for delivery.",
+        actionLabel: "Review subscriptions",
+        href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
+      };
+    }
+
     return {
       title: "Add recipients or subscriptions",
       impact: "Add digest subscriptions so generated digests have outbound recipients.",
@@ -194,6 +240,10 @@ export function formatChecklistRecipientsDetail(snap: WeeklyDigestHealthDto): st
   const channelBreakdown: string = `${email} email · ${teams} Teams · ${slack} Slack`;
 
   if (total === 0) {
+    if (snap.digestSubscriptionCount > 0) {
+      return `${snap.digestSubscriptionCount} digest ${pluralizeCount(snap.digestSubscriptionCount, "subscription", "subscriptions")} in this scope but none are enabled. ${DIGESTS_CHECKLIST_RECIPIENTS_DETAIL_SUFFIX}`;
+    }
+
     return `0 active digest subscriptions (0 email · 0 Teams · 0 Slack). ${DIGESTS_CHECKLIST_RECIPIENTS_DETAIL_SUFFIX}`;
   }
 

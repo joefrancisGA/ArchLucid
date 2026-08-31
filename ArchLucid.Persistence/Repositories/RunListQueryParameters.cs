@@ -267,6 +267,8 @@ internal static class RunListQueryParameters
             scope.WorkspaceId,
             NormalizedSystemName = systemName.Trim().ToUpperInvariant(),
             ExcludeRunId = excludeRunId,
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
         };
     }
 

@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:398 -->
+<!-- audit-core-const-count:399 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -108,6 +108,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Run operator governance disposition (approve / defer / reject) | `AuthorityQueryController` (`POST /v1/authority/runs/{runId}/disposition`); `RunOperatorGovernanceDispositionService` | `AuditEventTypes.RunOperatorGovernanceDispositionRecorded` | RunId | `{ decision, rationale?, actorUserId, occurredUtc }` |
 | Technology Ledger entry approval patch | `TechnologyLedgerController` (`PATCH /v1/runs/{runId}/technology-ledger/{entryId}`) | `AuditEventTypes.TechnologyLedgerEntryUpdated` | RunId | `{ entryId, role, status, isLocked }` |
 | Architect one-click demo review | `ReviewsDemoController` (`POST /v1/reviews/demo`); `OperatorDemoReviewService` | `RunSubmitted`, `RunCompleted` (via service pipeline) | Tenant/Workspace/Project from ambient scope | Built-in flawed brief → finalized architecture package; controller `[MutatingAuditExcluded]` because service emits pipeline audit events |
+| Demo sample run purge (sponsor unload) | `DemoController` (`POST /v1/demo/purge-sample`); `SampleRunPurgeService` | `SampleRunsPurged` (platform `dbo.PlatformAuditEvents`) | Tenant from ambient scope | `{ runsDeleted, trigger }` — same Development / `Demo:SaaSGuestSeedEnabled` guard as seed; controller action is allowlisted because the service emits the platform audit row |
 | Architecture request soft-delete (DELETE alias of archive) | `RunsController` (`DELETE /v1/architecture/request/{requestId}`) | `ArchitectureRequestDeleted` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request restore (un-archive) | `RunsController` (`POST /v1/architecture/request/{requestId}/restore`) | `ArchitectureRequestRestored` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request draft (LLM field suggest, no persistence) | `RunsController` (`POST /v1/architecture/request/draft`); `ArchitectureRequestDraftService` | — | — | Read-auth + execute-auth gated LLM assist; returns suggested wizard chips only — **no** durable audit row (same class as `POST /v1/architecture/request/{requestId}/clone`) |
@@ -146,6 +147,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Policy pack bulk dry-run (many runs, no persistence) | `PolicyPacksController` (`POST /v1/policy-packs/{policyPackId}/simulate-bulk`) | — | — | Read-auth gated what-if per run id; **no** durable audit row (same class as single-run dry-run probes) |
 | Policy pack catalog hub (platform snapshots) | `PolicyPacksController` (`POST /v1/policy-packs/catalog/promote`, `POST /v1/policy-packs/catalog/demote`) | `PolicyPackCatalogPromoted`, `PolicyPackCatalogDemoted` | Tenant/Workspace/Project from ambient scope | promote: `policyPackCatalogEntryId`, `sourcePolicyPackId`, `snapshotVersion`; demote: `policyPackCatalogEntryId` |
 | Governance resolution API | `GovernanceResolutionController` | `GovernanceResolutionExecuted`, `GovernanceConflictDetected` | — | resolution payload summary |
+| Governance environment catalog replace | `GovernanceEnvironmentCatalogController` (`PUT /v1/governance/environment-catalog`) | `GovernanceEnvironmentCatalogReplaced` | Tenant/Workspace/Project from ambient scope | `environmentCount`, `transitionCount` |
 | Governance workflow (approval / promote / activate) | `GovernanceWorkflowService` | `GovernanceApprovalSubmitted`, `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, `GovernanceSelfApprovalBlocked` (segregation-of-duties block), `GovernanceManifestPromoted`, `GovernanceEnvironmentActivated` | RunId when parseable | ids, environments, manifest version (JSON); self-approval block includes `approvalRequestId`, `requestedBy`, `requestedByActorKey`, `attemptedReviewerBy`, `attemptedReviewerActorKey` |
 | Governance approval SLA breach | `ApprovalSlaMonitor` | `GovernanceApprovalSlaBreached` | — | `approvalRequestId`, `runId`, `requestedBy`, `slaDeadlineUtc`, `breachedByMinutes` |
 | Governance policy-pack rule draft (LLM assist, no persistence) | `GovernanceController` (`POST /v1/governance/policy-pack/draft`); `PolicyPackDraftService` | — | — | Execute-auth gated LLM assist; returns suggested rule only — **no** durable audit row |
@@ -574,6 +576,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `GovernanceApprovalRejected` | `GovernanceApprovalRejected` | `GovernanceWorkflowService` |
 | `GovernanceSelfApprovalBlocked` | `GovernanceSelfApprovalBlocked` | `GovernanceWorkflowService` |
 | `GovernanceManifestPromoted` | `GovernanceManifestPromoted` | `GovernanceWorkflowService` |
+| `GovernanceEnvironmentCatalogReplaced` | `GovernanceEnvironmentCatalogReplaced` | `GovernanceEnvironmentCatalogController` (`PUT /v1/governance/environment-catalog`) |
 | `GovernanceEnvironmentActivated` | `GovernanceEnvironmentActivated` | `GovernanceWorkflowService` |
 | `GovernanceDryRunRequested` | `GovernanceDryRunRequested` | `PolicyPackDryRunService` (POST `/v1/governance/policy-packs/{id}/dry-run`; redaction-pipeline mandatory per Q37) |
 | `GovernanceDryRunValidationAttempted` | `GovernanceDryRunValidationAttempted` | `GovernanceWorkflowService` (approval / promotion path with `dryRun=true`; validates write path without committing row/outbox/integration publish) |
@@ -596,7 +599,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ArchitectureProjectSoftDeleted` | `ArchitectureProjectSoftDeleted` | `TenantWorkspacesController` (`DELETE /v1/tenant/workspaces/{workspaceId}/projects/{projectId}`) |
 | `ArchitectureProjectRestored` | `ArchitectureProjectRestored` | `TenantWorkspacesController` (`POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`) |
 | `ArchitectureProjectHardPurgedRetention` | `ArchitectureProjectHardPurgedRetention` | `ArchitectureProjectRetentionPurgeBackgroundWork` (`ArchitectureProjectRetentionPurgeHostedService`; API retention purge worker) |
-| `SampleRunsPurged` | `SampleRunsPurged` | `SampleRunPurgeService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AuthorityDrivenArchitectureRunCommitOrchestrator` first real commit; `SampleRunTtlHostedService` / `SampleRunTtlPurgeWorker` TTL) |
+| `SampleRunsPurged` | `SampleRunsPurged` | `SampleRunPurgeService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `DemoController` `POST /v1/demo/purge-sample`; `AuthorityDrivenArchitectureRunCommitOrchestrator` first real commit; `SampleRunTtlHostedService` / `SampleRunTtlPurgeWorker` TTL) |
 | `TrialProvisioned` | `TrialProvisioned` | `TrialTenantBootstrapService` |
 | `TrialSignupAttempted` | `TrialSignupAttempted` | `RegistrationController`, `TrialLocalIdentityAuthController` |
 | `TrialRegistrationFailed` | `TrialRegistrationFailed` | `RegistrationController` (failed `POST /v1/register` responses) |

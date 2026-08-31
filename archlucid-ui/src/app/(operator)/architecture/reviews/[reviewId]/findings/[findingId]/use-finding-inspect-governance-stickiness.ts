@@ -137,7 +137,7 @@ export function useFindingInspectGovernanceStickiness(
           setErrorMessage(
             buyerPolishedShell
               ? BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE
-              : "Resolve outcomes workflow data unavailable for this finding.",
+              : "Governance approval workflow data unavailable for this finding.",
           );
         }
       }

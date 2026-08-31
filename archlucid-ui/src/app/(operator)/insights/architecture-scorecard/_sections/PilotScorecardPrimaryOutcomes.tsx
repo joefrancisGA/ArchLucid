@@ -72,11 +72,11 @@ export function PilotScorecardPrimaryOutcomes({
                 drillDownLabel="View architecture reviews"
               />
               <ScorecardSummaryTile
-                label="Resolve outcomes"
+                label="Governance approval"
                 value={governanceDisplay.value}
                 detail={
                   governanceDisplay.state === "measured"
-                    ? "Completed resolve outcomes in scope."
+                    ? "Completed governance approval in scope."
                     : governanceDisplay.detail
                 }
                 empty={governanceDisplay.empty}
@@ -159,11 +159,11 @@ export function PilotScorecardPrimaryOutcomes({
                 drillDownLabel="View architecture reviews"
               />
               <ScorecardSummaryTile
-                label="Resolve outcomes"
+                label="Governance approval"
                 value={governanceDisplay.value}
                 detail={
                   governanceDisplay.state === "measured"
-                    ? "Completed resolve outcomes in scope."
+                    ? "Completed governance approval in scope."
                     : governanceDisplay.detail
                 }
                 empty={governanceDisplay.empty}

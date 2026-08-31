@@ -47,18 +47,18 @@ public sealed class CreateGovernanceApprovalRequestValidatorTests
     }
 
     [Fact]
-    public void Validate_fails_when_skipping_environment_order()
+    public void Validate_passes_for_custom_environment_slugs()
     {
         CreateGovernanceApprovalRequest request = new()
         {
             RunId = "run-1",
             ManifestVersion = "v1",
-            SourceEnvironment = GovernanceEnvironment.Dev,
-            TargetEnvironment = GovernanceEnvironment.Prod
+            SourceEnvironment = "draft",
+            TargetEnvironment = "approved",
         };
 
         ValidationResult result = _validator.Validate(request);
 
-        result.IsValid.Should().BeFalse();
+        result.IsValid.Should().BeTrue();
     }
 }

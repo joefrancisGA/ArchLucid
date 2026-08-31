@@ -160,10 +160,10 @@ export type RunDetailAgentResult = {
   evidenceRefs: string[];
   findings?: RunDetailAgentFinding[] | null;
   insightDensityCuration?: null | components["schemas"]["InsightDensityCurationSummary"];
-  proposedChanges?: null | components["schemas"]["AgentTopologyProposal"];
+  proposedChanges?: unknown;
   reasoningTrace?: null | string;
   resultId: string;
-  retrievalGroundingTrace?: null | components["schemas"]["AgentResultRetrievalGroundingTrace"];
+  retrievalGroundingTrace?: unknown;
   runId: string;
   taskId: string;
   taskStructuralExecutionMode?: null | components["schemas"]["StructuralExecutionMode"];

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildClarificationRephraseItems,
+  buildClarificationRephraseItemsForEmptyKeys,
   mergeRephrasedClarificationAnswers,
 } from "@/lib/api/clarification-answer-rephrase-api";
 import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture/architecture-creation-question-definition";
@@ -14,6 +15,45 @@ const SAMPLE_BRIEF =
   "Budget is about $25,000 per month. " +
   "Peak load is 2,000 concurrent users with p95 latency under 300 ms. " +
   "Partner integrations and service accounts also call the API.";
+
+const SPARSE_ARCHLUCID_BRIEF = [
+  "System name: ArchLucid",
+  "Business outcome: Additional actor kinds: Azure OpenAI, Service Bus, and Blob are optional for live models, integration fan-out, and large artifacts.",
+].join("\n\n");
+
+describe("buildClarificationRephraseItemsForEmptyKeys", () => {
+  it("does not attach the full brief blob to every empty clarification", () => {
+    const inferred = inferUniversalIntakeAnswersFromCorpus(SPARSE_ARCHLUCID_BRIEF);
+    const items = buildClarificationRephraseItemsForEmptyKeys({
+      corpus: SPARSE_ARCHLUCID_BRIEF,
+      inferredAnswers: inferred,
+      questions: ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS,
+      currentAnswers: {},
+      lockedQuestionKeys: new Set(),
+    });
+
+    expect(items).toHaveLength(0);
+  });
+
+  it("uses question-specific snippets instead of the Evidence excerpt wrapper", () => {
+    const inferred = inferUniversalIntakeAnswersFromCorpus(SAMPLE_BRIEF);
+    const partialInferred = { ...inferred };
+    delete partialInferred["l0.pillar.cost"];
+    delete partialInferred["l0.pillar.performance"];
+
+    const items = buildClarificationRephraseItemsForEmptyKeys({
+      corpus: SAMPLE_BRIEF,
+      inferredAnswers: partialInferred,
+      questions: ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS,
+      currentAnswers: {},
+      lockedQuestionKeys: new Set(),
+    });
+
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.every((item) => !item.extractedAnswer.startsWith("Evidence excerpt"))).toBe(true);
+    expect(new Set(items.map((item) => item.extractedAnswer)).size).toBeGreaterThan(1);
+  });
+});
 
 describe("buildClarificationRephraseItems", () => {
   it("skips cloud-target enum answers and empty values", () => {

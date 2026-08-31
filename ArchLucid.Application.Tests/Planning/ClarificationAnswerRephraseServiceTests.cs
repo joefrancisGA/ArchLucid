@@ -115,6 +115,35 @@ public sealed class ClarificationAnswerRephraseServiceTests
     }
 
     [Fact]
+    public async Task RephraseAsync_omits_evidence_excerpt_fallback_when_llm_fails()
+    {
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), 900, 0.2f, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("simulated outage"));
+
+        ClarificationAnswerRephraseService sut = new(client.Object, NullLogger<ClarificationAnswerRephraseService>.Instance);
+
+        RephraseClarificationAnswersResponse response = await sut.RephraseAsync(
+            new RephraseClarificationAnswersInput
+            {
+                Items =
+                [
+                    new ClarificationAnswerRephraseItem
+                    {
+                        QuestionKey = "l0.pillar.cost",
+                        QuestionPrompt = "What cost constraints or budgets should the architecture respect?",
+                        ExtractedAnswer =
+                            "Evidence excerpt (answer only from this text):\nSystem name: ArchLucid\nBusiness outcome: Optional spend controls.",
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        response.RephrasedAnswers.Should().NotContainKey("l0.pillar.cost");
+    }
+
+    [Fact]
     public void BuildUserPrompt_includes_question_key_prompt_and_extracted_answer()
     {
         string prompt = ClarificationAnswerRephraseService.BuildUserPrompt(

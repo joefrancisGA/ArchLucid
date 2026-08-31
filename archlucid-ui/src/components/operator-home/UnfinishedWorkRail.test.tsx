@@ -2,6 +2,12 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import {
+  OPERATOR_HOME_YOUR_WORK_COLUMN_NAME,
+  OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS,
+  OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE,
+  OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED,
+} from "@/lib/buyer/buyer-polish-copy";
 import type { RunSummary } from "@/types/authority";
 
 let mockDraftEntries: ArchitectureDraftRegistryEntry[] = [];
@@ -139,6 +145,28 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
     const { container } = render(<UnfinishedWorkRail runs={[] as RunSummary[]} />);
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("renders desktop column headers for work type and activity columns", () => {
+    mockDraftEntries = [];
+    const runs = [
+      {
+        runId: "run-mid",
+        projectId: "default",
+        createdUtc: "2026-08-10T11:00:00Z",
+        description: "Edge review in flight",
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+    ] as RunSummary[];
+
+    render(<UnfinishedWorkRail runs={runs} />);
+
+    expect(screen.getByTestId("unfinished-work-rail-column-headers")).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_NAME)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS)).toBeInTheDocument();
   });
 
   it("uses a shared grid so columns align across rows", () => {

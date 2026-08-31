@@ -69,7 +69,6 @@ public sealed class PolicyPackDryRunService(
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .Take(IPolicyPackDryRunService.MaxEvaluatedRuns)
             .ToList();
-
         Dictionary<string, double> parsedThresholds = ParseThresholds(proposedThresholds);
         string redactedThresholdsJson = RedactProposedThresholdsJson(proposedThresholds);
         List<PolicyPackDryRunRunItem> allItems = [];

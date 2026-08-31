@@ -6,8 +6,8 @@
  *   view of engagement and governance posture per tenant scope.
  * - System health (`/administration/system-health`) is the platform readiness
  *   and dependency probe dashboard for this deployment.
- * - Workspace health (`/architecture/sponsor-dashboard#workspace-health`) is
- *   the sponsor KPI strip for the current workspace / project scope.
+ * - Workspace health (`/insights/workspace-health`) is the standalone Insights
+ *   workspace-health page for the current workspace / project scope.
  *
  * They stay separate because tenant CS scores are not platform probes, and
  * platform probes are not workspace sponsor KPIs. Operators need all three
@@ -15,7 +15,7 @@
  */
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
-import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 import { INTERNAL_TENANT_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 
 export type TenantSystemWorkspaceHealthSurfaceId =
@@ -43,7 +43,7 @@ export const TENANT_SYSTEM_WORKSPACE_HEALTH_HEADING =
   "Tenant, system, and workspace health are three different views" as const;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_WHY_THREE =
-  "Tenant health tracks customer engagement per tenant. System health shows platform uptime and dependency checks for this deployment. Workspace health is the sponsor KPI strip for the current workspace. One health page does not replace the others — open the peer link when you need that view." as const;
+  `Tenant health tracks customer engagement per tenant. System health shows platform uptime and dependency checks for this deployment. Workspace health is the standalone sponsor KPI dashboard at ${WORKSPACE_HEALTH_PATH} for the current workspace. One health page does not replace the others — open the peer link when you need that view.`;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_COMPACT_LINE =
   "Tenant health is customer engagement; system health is platform uptime; workspace health is sponsor KPIs — open the other when you need that view." as const;
@@ -65,7 +65,7 @@ export const TENANT_SYSTEM_WORKSPACE_HEALTH_SYSTEM_LINK: TenantSystemWorkspaceHe
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK: TenantSystemWorkspaceHealthLink = {
   id: "workspace-health",
   label: "Workspace health",
-  href: SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
+  href: WORKSPACE_HEALTH_PATH,
   whenToUse: "Review sponsor KPIs for the current workspace.",
 };
 

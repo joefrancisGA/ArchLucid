@@ -22,12 +22,15 @@ class TestDemoBatch5Dt(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
         text = path.read_text(encoding="utf-8")
 
+        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", text)
         self.assertRegex(
             text,
             r'BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*["\']#finalize-review["\']',
         )
+        self.assertIn("Finalize lives in ReviewPackageDoThisNextStrip and the page header", text)
+        self.assertNotRegex(text, r'href\s*:\s*["\']#run-actions["\']')
 
-        component_path = (
+        run_detail_path = (
             REPO_ROOT
             / "archlucid-ui"
             / "src"
@@ -39,11 +42,14 @@ class TestDemoBatch5Dt(unittest.TestCase):
             / "_sections"
             / "RunDetailArtifactsExportsSection.tsx"
         )
-        component_text = component_path.read_text(encoding="utf-8")
+        run_detail_text = run_detail_path.read_text(encoding="utf-8")
+
+        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", run_detail_text)
         self.assertRegex(
-            component_text,
-            r"href:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR",
+            run_detail_text,
+            r"href\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR",
         )
+        self.assertNotRegex(run_detail_text, r'href\s*:\s*["\']#run-actions["\']')
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor" / "sponsor-roi-kpi-display.ts"

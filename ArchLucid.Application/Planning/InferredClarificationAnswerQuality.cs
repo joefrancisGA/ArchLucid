@@ -23,6 +23,9 @@ public static class InferredClarificationAnswerQuality
 
         string trimmed = answer.Trim();
 
+        if (IsInternalRephrasePayload(trimmed))
+            return false;
+
         if (trimmed.EndsWith("...", StringComparison.Ordinal))
             return false;
 
@@ -91,5 +94,10 @@ public static class InferredClarificationAnswerQuality
     {
         return text.StartsWith("Yes", StringComparison.OrdinalIgnoreCase)
                || text.StartsWith("No", StringComparison.OrdinalIgnoreCase);
+    }
+
+    internal static bool IsInternalRephrasePayload(string text)
+    {
+        return text.StartsWith("Evidence excerpt (answer only from this text):", StringComparison.OrdinalIgnoreCase);
     }
 }
