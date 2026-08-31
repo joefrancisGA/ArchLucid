@@ -16,7 +16,10 @@ import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { formatActionActorName } from "@/lib/action-actor-display";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
-import { REVIEW_METADATA_NOT_RECORDED_REASONS } from "@/lib/run-detail-workspace-derive";
+import {
+  deriveReviewRecordMetadataContext,
+  resolveReviewMetadataAbsentReasons,
+} from "@/lib/run-detail-workspace-derive";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 type ReviewMetadataField = {
@@ -40,43 +43,51 @@ export type RunDetailWorkspaceHeaderProps = {
   readonly packageVersionLabel: string | null;
 };
 
-function buildReviewMetadataFields(props: RunDetailWorkspaceHeaderProps): readonly ReviewMetadataField[] {
+function buildReviewMetadataFields(
+  props: RunDetailWorkspaceHeaderProps,
+  absentReasons: ReturnType<typeof resolveReviewMetadataAbsentReasons>,
+): readonly ReviewMetadataField[] {
+  const reviewOwnerLabel = props.reviewOwner?.trim() ?? "";
+
   return [
     {
       key: "governance-decision-recorded-by",
       label: "Approval decision recorded by",
-      value: formatActionActorName(props.reviewOwner),
-      absentReason: REVIEW_METADATA_NOT_RECORDED_REASONS.governanceDecisionRecordedBy,
+      value: reviewOwnerLabel.length > 0 ? formatActionActorName(reviewOwnerLabel) : null,
+      absentReason: absentReasons.governanceDecisionRecordedBy,
     },
     {
       key: "review-template",
       label: "Review template",
       value: props.templateLabel,
-      absentReason: REVIEW_METADATA_NOT_RECORDED_REASONS.reviewTemplate,
+      absentReason: absentReasons.reviewTemplate,
     },
     {
       key: "finalized-at",
       label: "Finalized at",
       value: props.finalizedAtLabel,
-      absentReason: REVIEW_METADATA_NOT_RECORDED_REASONS.finalizedAt,
+      absentReason: absentReasons.finalizedAt,
     },
     {
       key: "package-version",
       label: "Package version",
       value: props.packageVersionLabel,
-      absentReason: REVIEW_METADATA_NOT_RECORDED_REASONS.packageVersion,
+      absentReason: absentReasons.packageVersion,
     },
   ];
 }
 
-function buildCollapseMetadataFields(props: RunDetailWorkspaceHeaderProps): readonly ReviewMetadataField[] {
+function buildCollapseMetadataFields(
+  props: RunDetailWorkspaceHeaderProps,
+  absentReasons: ReturnType<typeof resolveReviewMetadataAbsentReasons>,
+): readonly ReviewMetadataField[] {
   return [
-    ...buildReviewMetadataFields(props),
+    ...buildReviewMetadataFields(props, absentReasons),
     {
       key: "signed-review-record-id",
       label: "Finalized review record ID",
       value: props.signedReviewRecordIdLabel,
-      absentReason: REVIEW_METADATA_NOT_RECORDED_REASONS.signedReviewRecordId,
+      absentReason: absentReasons.signedReviewRecordId,
     },
   ];
 }
@@ -96,10 +107,16 @@ function renderMetadataField(field: ReviewMetadataField): React.JSX.Element {
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
   const reviewsListNavHref = useReviewsListReturnNavHref(REVIEWS_LIST_PATH);
-  const metadataFields = buildReviewMetadataFields(props);
-  const collapseMetadataFieldSet = buildCollapseMetadataFields(props);
+  const metadataContext = deriveReviewRecordMetadataContext(props.signedReviewRecordId);
+  const absentReasons = resolveReviewMetadataAbsentReasons(metadataContext);
+  const metadataFields = buildReviewMetadataFields(props, absentReasons);
+  const collapseMetadataFieldSet = buildCollapseMetadataFields(props, absentReasons);
   const unrecordedFieldCount = collapseMetadataFieldSet.filter((field) => field.value === null).length;
   const collapseMetadataFields = unrecordedFieldCount >= 3;
+  const metadataDisclosureSummary =
+    metadataContext === "not-finalized"
+      ? "Record metadata (pending finalization)"
+      : `Record metadata (${unrecordedFieldCount} fields not recorded)`;
 
   return (
     <div data-testid="run-detail-workspace-header">
@@ -151,7 +168,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 data-testid="run-detail-record-metadata-disclosure"
               >
                 <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  Record metadata ({unrecordedFieldCount} fields not recorded)
+                  {metadataDisclosureSummary}
                 </summary>
                 <div className="grid gap-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800 sm:grid-cols-2">
                   {collapseMetadataFieldSet.map(renderMetadataField)}
