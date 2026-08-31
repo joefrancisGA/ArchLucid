@@ -346,7 +346,7 @@ public sealed partial class GovernanceController
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
                         ErrorCode = ProblemTypes.ValidationFailed,
-                        Message = $"Duplicate approvalRequestId in request: '{approvalRequestId}'.",
+                        Message = "approvalRequestId is duplicated.",
                     });
 
                 continue;
