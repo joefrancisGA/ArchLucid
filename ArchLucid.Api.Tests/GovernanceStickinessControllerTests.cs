@@ -277,7 +277,7 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
-    public async Task GetDecisionRegister_returns_bad_request_when_buyer_confidence_source_label_is_unrecognized()
+    public async Task GetDecisionRegister_returns_bad_request_when_buyer_confidence_source_is_unknown()
     {
         GovernanceStickinessController sut = BuildSut();
 
