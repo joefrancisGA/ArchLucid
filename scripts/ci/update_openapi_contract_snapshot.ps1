@@ -25,13 +25,6 @@ dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 if ($env:ARCHLUCID_REGENERATE_UI_API_TYPES -eq '1') {
-    Write-Host 'Regenerating archlucid-ui TypeScript API types (split generator)...'
-    # Must use generate-api-types-split.mjs — writing a monolith to api-types.generated.ts
-    # fails assert_api_types_in_sync, which diffs the split paths/schemas modules.
-    node (Join-Path $Root 'archlucid-ui/scripts/generate-api-types-split.mjs')
-
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
     Write-Host 'Verifying split api-types output is now in sync...'
     & (Join-Path $Root 'scripts\ci\assert_api_types_in_sync.ps1')
 
