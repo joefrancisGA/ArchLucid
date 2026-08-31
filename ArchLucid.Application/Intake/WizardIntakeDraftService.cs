@@ -25,6 +25,7 @@ public sealed class WizardIntakeDraftService(
     IArchLucidStorageMode storageMode,
     TimeProvider timeProvider) : IWizardIntakeDraftService
 {
+    private static readonly Lock InMemoryGate = new();
     private static readonly Dictionary<string, WizardIntakeDraftResponse> InMemory = new(StringComparer.Ordinal);
 
     private readonly TimeProvider _timeProvider =
@@ -40,9 +41,12 @@ public sealed class WizardIntakeDraftService(
 
         if (storageMode.IsInMemory)
         {
-            return InMemory.TryGetValue(BuildKey(scope, wizardId), out WizardIntakeDraftResponse? draft)
-                ? draft
-                : null;
+            lock (InMemoryGate)
+            {
+                return InMemory.TryGetValue(BuildKey(scope, wizardId), out WizardIntakeDraftResponse? draft)
+                    ? draft
+                    : null;
+            }
         }
 
         await using DbConnection connection =
