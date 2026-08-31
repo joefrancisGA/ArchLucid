@@ -9375,6 +9375,7 @@ export interface components {
             latestArchitectureDigestId?: null | string;
             /** Format: date-time */
             latestDigestSubscriptionDeliveryUtc?: null | string;
+            setupGapCodes?: string[];
             setupGaps?: string[];
             /** Format: int32 */
             sponsorDigestDayOfWeek?: number;
