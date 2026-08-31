@@ -6,13 +6,14 @@ import { useMemo, useSyncExternalStore } from "react";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { InlineGuidance } from "@/components/InlineGuidance";
 import { Button } from "@/components/ui/button";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
   formatOperatorHomeRecommendedNextTitle,
-  OPERATOR_HOME_RECOMMENDED_NEXT_HEADING,
+  OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_CARD, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
 import {
   listIncompleteWizardSignals,
@@ -126,11 +127,13 @@ export function OperatorHomeRecommendedNextCard(
         id="operator-home-recommended-next-heading"
         className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}
       >
-        {OPERATOR_HOME_RECOMMENDED_NEXT_HEADING}
+        <InlineGuidance
+          label={OPERATOR_HOME_RECOMMENDED_NEXT_LABEL}
+          labelTestId="inline-guidance-recommended-next"
+        >
+          {formatOperatorHomeRecommendedNextTitle(title)}
+        </InlineGuidance>
       </h2>
-      <p className={cn("m-0 mt-1", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-        {formatOperatorHomeRecommendedNextTitle(title)}
-      </p>
       <div className="mt-3">
         <Button asChild variant="primary" size="sm" className="h-8 w-fit">
           <Link href={href} data-testid="operator-home-recommended-next-cta">
