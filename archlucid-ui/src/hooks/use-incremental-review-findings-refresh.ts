@@ -19,7 +19,12 @@ export function useIncrementalReviewFindingsRefresh(
   options: UseIncrementalReviewFindingsRefreshOptions,
 ): void {
   const router = useRouter();
-  const hadFindingsSnapshotRef = useRef(options.initialHasFindingsSnapshot === true);
+  const hadFindingsSnapshotRef = useRef(false);
+
+  useEffect(() => {
+    hadFindingsSnapshotRef.current = options.initialHasFindingsSnapshot === true;
+  }, [options.runId, options.initialHasFindingsSnapshot]);
+
   const { summary } = useRunSummaryStream(options.runId, {
     enabled: options.enabled,
     initialSummary: null,
@@ -36,5 +41,5 @@ export function useIncrementalReviewFindingsRefresh(
       hadFindingsSnapshotRef.current = true;
       router.refresh();
     }
-  }, [options.enabled, router, summary?.hasFindingsSnapshot]);
+  }, [options.enabled, options.runId, router, summary?.hasFindingsSnapshot]);
 }
