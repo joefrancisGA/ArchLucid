@@ -80,7 +80,7 @@ public static class ZipArchiveSafety
 
             if (totalCompressedBytes > 0)
             {
-                long ratio = totalUncompressedBytes / Math.Max(1, totalCompressedBytes);
+                double ratio = (double)totalUncompressedBytes / Math.Max(1, totalCompressedBytes);
 
                 if (ratio > maxCompressionRatio)
                 {
