@@ -151,7 +151,7 @@ public sealed class TenantWorkspacesControllerTests
             .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<TenantWorkspaceListItem> { workspace }.AsReadOnly());
 
-        Guid projectToRestore = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid projectToRestore = scope.ProjectId;
 
         Mock<IArchitectureProjectRepository> projectsMock = new();
 
@@ -499,6 +499,136 @@ public sealed class TenantWorkspacesControllerTests
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        projectsMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DeleteProjectAsync_returns_not_found_when_project_id_is_sibling_in_same_workspace()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        Guid siblingProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem callerWorkspace =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "caller",
+                DefaultProjectId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<TenantWorkspaceListItem> { callerWorkspace }.AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                Mock.Of<IAuditService>(),
+                Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result =
+            await sut.DeleteProjectAsync(scope.WorkspaceId, siblingProjectId, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        projectsMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RestoreProjectAsync_returns_not_found_when_project_id_is_sibling_in_same_workspace()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        Guid siblingProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem callerWorkspace =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "caller",
+                DefaultProjectId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<TenantWorkspaceListItem> { callerWorkspace }.AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                Mock.Of<IAuditService>(),
+                Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result =
+            await sut.RestoreProjectAsync(scope.WorkspaceId, siblingProjectId, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         projectsMock.VerifyNoOtherCalls();
     }
 
