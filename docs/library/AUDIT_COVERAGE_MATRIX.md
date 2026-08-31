@@ -598,7 +598,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ArchitectureProjectSoftDeleted` | `ArchitectureProjectSoftDeleted` | `TenantWorkspacesController` (`DELETE /v1/tenant/workspaces/{workspaceId}/projects/{projectId}`) |
 | `ArchitectureProjectRestored` | `ArchitectureProjectRestored` | `TenantWorkspacesController` (`POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`) |
 | `ArchitectureProjectHardPurgedRetention` | `ArchitectureProjectHardPurgedRetention` | `ArchitectureProjectRetentionPurgeBackgroundWork` (`ArchitectureProjectRetentionPurgeHostedService`; API retention purge worker) |
-| `SampleRunsPurged` | `SampleRunsPurged` | `SampleRunPurgeService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AuthorityDrivenArchitectureRunCommitOrchestrator` first real commit; `SampleRunTtlHostedService` / `SampleRunTtlPurgeWorker` TTL) |
+| `SampleRunsPurged` | `SampleRunsPurged` | `SampleRunPurgeService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `DemoController` `POST /v1/demo/purge-sample`; `AuthorityDrivenArchitectureRunCommitOrchestrator` first real commit; `SampleRunTtlHostedService` / `SampleRunTtlPurgeWorker` TTL) |
 | `TrialProvisioned` | `TrialProvisioned` | `TrialTenantBootstrapService` |
 | `TrialSignupAttempted` | `TrialSignupAttempted` | `RegistrationController`, `TrialLocalIdentityAuthController` |
 | `TrialRegistrationFailed` | `TrialRegistrationFailed` | `RegistrationController` (failed `POST /v1/register` responses) |
