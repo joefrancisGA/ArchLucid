@@ -207,8 +207,7 @@ export function TrialUsageUpgradeNudge() {
         </div>
         {expiredTrial ? null : (
           <DismissControl
-            iconOnly
-            ariaLabel="Dismiss trial upgrade nudge for 24 hours"
+            className="shrink-0"
             onDismiss={() => {
               dismissTrialUpgradeNudge24h(activeTrigger);
               setDismissedLocally(true);

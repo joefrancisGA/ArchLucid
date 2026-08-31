@@ -109,13 +109,6 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
           data-testid="pilot-roi-baseline-readiness-skip"
           onDismiss={dismissPrompt}
         />
-        <DismissControl
-          iconOnly
-          ariaLabel="Dismiss ROI baseline prompt"
-          className="h-7 w-7 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
-          data-testid="pilot-roi-baseline-readiness-dismiss"
-          onDismiss={dismissPrompt}
-        />
       </div>
     </section>
   );
