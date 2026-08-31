@@ -29,7 +29,7 @@ import {
   governanceWorkflowSubmitCardTitleReader,
   governanceWorkflowSubmitForApprovalButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
-import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_FORM_FIELD_STACK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
@@ -185,18 +185,16 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                 testIdPrefix="governance-workflow-submit"
               />
             ) : null}
-            <div className="grid gap-2">
-              <AskRunIdPicker
-                fieldId="gov-submit-run"
-                label="Review"
-                value={submitRunId}
-                onChange={setSubmitRunId}
-                selectedThreadId=""
-                preferAutoPick={preferAutoPick && canMutateWorkflow}
-                disabled={!canMutateWorkflow}
-              />
-            </div>
-            <div className="grid gap-2">
+            <AskRunIdPicker
+              fieldId="gov-submit-run"
+              label="Review"
+              value={submitRunId}
+              onChange={setSubmitRunId}
+              selectedThreadId=""
+              preferAutoPick={preferAutoPick && canMutateWorkflow}
+              disabled={!canMutateWorkflow}
+            />
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <Label htmlFor="gov-submit-version">
                 Review record version (the{" "}
                 <GlossaryTooltip termKey="golden_manifest" pulseOnFirstSession={false}>
@@ -215,7 +213,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="grid gap-2">
+              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                 <Label htmlFor="gov-submit-source-env">Source environment</Label>
                 <Select value={submitSource} onValueChange={setSubmitSource} disabled={!canMutateWorkflow}>
                   <SelectTrigger
@@ -234,7 +232,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-2">
+              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                 <Label htmlFor="gov-submit-target-env">Target environment</Label>
                 <Select
                   value={submitTarget}
@@ -262,7 +260,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               review-pending → approved).
             </p>
           </div>
-            <div className="grid gap-2">
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <Label htmlFor="gov-submit-comment">Request comment (optional)</Label>
               <Textarea
                 id="gov-submit-comment"
