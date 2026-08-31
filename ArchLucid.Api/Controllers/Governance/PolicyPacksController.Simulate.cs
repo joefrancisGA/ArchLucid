@@ -100,7 +100,11 @@ public sealed partial class PolicyPacksController
         foreach (string runId in runIds)
         {
             if (string.IsNullOrWhiteSpace(runId))
-                continue;
+            {
+                return this.BadRequestProblem(
+                    "RunIds must not contain empty or whitespace-only ids.",
+                    ProblemTypes.ValidationFailed);
+            }
 
             if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
             {

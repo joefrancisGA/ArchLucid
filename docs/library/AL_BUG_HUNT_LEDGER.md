@@ -2268,11 +2268,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 82
-- **bugs-found:** 230
+- **hunts:** 83
+- **bugs-found:** 233
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — reviews-awaiting-action echoed foreign sourceRunId
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — simulate-bulk requested count and batch-review case-variant duplicate ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2514,8 +2514,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — padded `runId` accepted by `RequireScopedRunAsync` but repository query may not match when padding differs from stored normalization — **cheap-disproof 2026-08-28:** `RequireScopedRunAsync` trims and returns normalized id for downstream queries; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_items_when_route_run_id_is_padded` (hunt #142).
 - [x] (invalid) `GovernanceController.GetPromotions` / `GetActivations` — padded `runId` handled by shared `RequireScopedRunAsync` but lack dedicated padded-route regression tests — **cheap-disproof 2026-08-28:** shared `RequireScopedRunAsync` normalized id path already proven on `GetApprovalRequests`; added sibling regression tests in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id — **cheap-disproof 2026-08-28:** intentional validation ordering (count cap before per-id GUID parse), aligned with `DryRunPolicyPack`; both return HTTP 400; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
-- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` are silently deduped with no per-item result row (batch client cannot distinguish omitted duplicate from never-sent id).
-- [ ] (candidate) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity on single-manifest reads.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **hit 2026-08-28:** per-item `ValidationFailed` for exact duplicates; **hit 2026-08-31:** `OrdinalIgnoreCase` dedupe for case-variant duplicates; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_when_query_params_are_padded`.
+- [x] (proven) `PolicyPacksController.SimulateBulk` / `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — duplicate `runIds` deduped in evaluation loop but `RequestedRunCount` reported raw `runIds.Count` — **hit 2026-08-31:** count distinct trimmed non-whitespace ids; regression in `PolicyPackWorkflowFacadeTests.TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated`.
+- [x] (proven) `PolicyPacksController.SimulateBulk` — mixed list with whitespace-only `runIds` silently skipped during validation instead of HTTP 400 — **hit 2026-08-31:** reject any whitespace entry (bulk-disposition parity); regression in `PolicyPacksControllerSimulateBulkScopeTests.SimulateBulk_returns_bad_request_when_mixed_run_ids_include_whitespace`.
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `projectId` from a sibling project in the same workspace may mutate foreign projects when only `workspaceId == scope.WorkspaceId` is enforced.
+- [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returns HTTP 200 partial success without per-item failure rows for skipped ids (batch-review parity gap).
+- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — optional `findingRef` bypasses inspect-scope gate while `runId` is scoped.
+
+2026-08-31 seed hunt #271: reseeded workspace sibling-project, bulk-disposition partial-batch, and product-feedback findingRef candidates; proved simulate-bulk requested-run count, mixed-whitespace validation, and batch-review case-variant duplicate ids; cheap-disproved manifest-compare padded-version candidate.
 
 2026-08-28 thorough hunt #190 (dry): cheap-disproved promotions/activations padded-route test gap and simulate-bulk validation-order candidates; seeded batch-review duplicate-id silence and manifest-compare padded-version candidates.
 
