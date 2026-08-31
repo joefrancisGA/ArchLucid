@@ -45,12 +45,9 @@ public sealed class GovernanceCoverageController(
     [MutatingAuditExcluded("Read-only coverage preview; does not persist domain mutations.")]
     [ProducesResponseType(typeof(CoveragePreviewResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> PreviewCoverage(
-        [FromBody] CoveragePreviewRequest? request,
+        [FromBody] CoveragePreviewRequest request,
         CancellationToken cancellationToken)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
