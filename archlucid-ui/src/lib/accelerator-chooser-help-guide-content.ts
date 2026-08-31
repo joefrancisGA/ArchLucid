@@ -8,13 +8,13 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE };
 
 export const ACCELERATOR_CHOOSER_HELP_PAGE_SUBTITLE =
-  "Map stakeholder scenarios to existing accelerator packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.";
+  "Map stakeholder scenarios to accelerator packs — pick a greenfield preset or a specialty pack that preloads architecture context and policy rules for your buyer job.";
 
 export const ACCELERATOR_CHOOSER_HELP_OVERVIEW =
   "Each row maps a stakeholder scenario to an in-product accelerator pack. Pick one primary pack, start the architecture review, attach evidence, finalize, and export the proof checklist.";
 
 export const ACCELERATOR_CHOOSER_HELP_PREREQUISITE =
-  "Specialty packs assume at least one finalized review record in this tenant — finalize your first architecture review before starting a specialty pack.";
+  "Every pack is available from your first review. Cost and orphan packs work best when you already have cloud inventory or a cost baseline from a prior finalized review.";
 
 export const ACCELERATOR_CHOOSER_HELP_PREREQUISITE_TENANT_STATE = {
   checking: "Checking whether this tenant has a finalized review record…",
@@ -51,17 +51,17 @@ export type AcceleratorChooserHelpWorkflowStep = {
 export const ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS: readonly AcceleratorChooserHelpWorkflowStep[] = [
   {
     stepNumber: 1,
-    title: "Confirm a finalized review record",
+    title: "Pick a buyer job pack",
     description:
-      "Specialty packs assume you already finalized at least one architecture review in this tenant.",
-    href: ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.href,
-    ctaLabel: ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.label,
+      "Start with the greenfield preset for a generic first pass, or choose a specialty pack when you already know the stakeholder scenario.",
+    href: ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.baselineReview.href,
+    ctaLabel: ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.baselineReview.label,
   },
   {
     stepNumber: 2,
     title: "Open review intake with the pack preset",
     description:
-      "Use baseline ZIP intake when the pack lists second-pass evidence, or the new-review wizard for greenfield presets.",
+      "Use baseline ZIP intake when the pack lists cloud inventory, or the new-review wizard for greenfield and policy packs.",
     href: ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.baselineReview.href,
     ctaLabel: ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.baselineReview.label,
   },

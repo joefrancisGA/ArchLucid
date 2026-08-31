@@ -219,6 +219,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
+            new PermissiveAgentExecutionReadinessGuard(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 }

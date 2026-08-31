@@ -9,7 +9,7 @@ export const ACCELERATOR_CHOOSER_HOME_CARD_TITLE = ACCELERATOR_CHOOSER_HELP_PAGE
 
 /** Buyer-safe lead — no repository / engineering location jargon (TB-1608). */
 export const ACCELERATOR_CHOOSER_HOME_CARD_LEAD =
-  "Choose the buyer job for your next follow-up review — each specialty row preloads a starter architecture request and matching policy packs. Greenfield is available for first reviews.";
+  "Choose the buyer job for your next review — each specialty row preloads a starter architecture request and matching policy packs. Greenfield is listed first when you want a generic first pass.";
 
 /** Home guidance link label — buyer-safe wording, not internal engineering chooser jargon (TB-1608). */
 export const ACCELERATOR_CHOOSER_HOME_GUIDANCE_LINK_LABEL = "Open the accelerator pack guide";
