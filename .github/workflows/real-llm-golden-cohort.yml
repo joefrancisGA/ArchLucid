@@ -1,4 +1,5 @@
 # Optional credentialed real-LLM golden cohort (Improvement #9).
+# Enabled when .github/REAL_MODE_CI_ENABLED exists or ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true.
 # Skips gracefully when AZURE_OPENAI_* / ARCHLUCID_REAL_AOAI_TEST_* secrets are absent.
 name: real-llm-golden-cohort
 
@@ -12,16 +13,61 @@ permissions:
 
 jobs:
   real-llm-golden-cohort:
+    if: github.event.repository.fork == false
     runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v7
 
+      - name: Real-mode CI eligibility
+        id: eligibility
+        run: |
+          set -euo pipefail
+          if bash scripts/ci/is_real_mode_ci_enabled.sh enabled; then
+            echo "enabled=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "Real-LLM golden cohort skipped — add .github/REAL_MODE_CI_ENABLED or set ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true."
+          fi
+
       - name: Setup .NET
+        if: steps.eligibility.outputs.enabled == 'true'
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: "10.0.x"
 
+      - name: Set up Python (budget probe)
+        if: steps.eligibility.outputs.enabled == 'true'
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install requests (budget probe)
+        if: steps.eligibility.outputs.enabled == 'true'
+        run: python -m pip install "requests==2.32.3"
+
+      - name: Azure login (Cost Management / management plane)
+        if: steps.eligibility.outputs.enabled == 'true'
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - id: budget
+        name: Golden cohort budget probe ($15/mo cap)
+        if: steps.eligibility.outputs.enabled == 'true'
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID }}
+        run: bash scripts/ci/run_golden_cohort_budget_probe_ci.sh "Real-LLM golden cohort"
+
       - name: Real-LLM golden cohort (skip-graceful)
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
         env:
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
@@ -29,9 +75,15 @@ jobs:
           ARCHLUCID_REAL_AOAI_TEST_KEY: ${{ secrets.ARCHLUCID_REAL_AOAI_TEST_KEY }}
           ARCHLUCID_CI_REAL_AOAI_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
           ARCHLUCID_CI_REAL_AOAI_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
-        run: pwsh -NoProfile -File ./scripts/ci/Invoke-RealLlmGoldenCohort.ps1
+          ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT: ${{ vars.ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT }}
+        run: |
+          set -euo pipefail
+          # shellcheck source=/dev/null
+          source scripts/ci/export_real_mode_aoai_env.sh
+          pwsh -NoProfile -File ./scripts/ci/Invoke-RealLlmGoldenCohort.ps1
 
       - name: Enforce Phase B LLM Faithfulness Thresholds
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
         env:
           ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-smoke.real.json
           ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-cost.real.json

@@ -56,6 +56,20 @@ describe("run-detail-evidence-inventory", () => {
     expect(items[0]?.kind).toBe("Architecture brief");
   });
 
+  it("lists intake-attached Word files even when the generated brief is hidden", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-08-30T19:46:00Z",
+      submittedArchitecturePresent: false,
+      attachedFileNames: ["ARCHITECTURE_HANDBOOK.docx"],
+    });
+
+    expect(items).toHaveLength(1);
+    expect(items[0]?.sourceName).toBe("ARCHITECTURE_HANDBOOK.docx");
+    expect(items[0]?.kind).toBe("Document");
+    expect(items[0]?.citingFindingCount).toBe(0);
+  });
+
   it("replaces findings coverage copy when inventory is empty but findings cite pointers", () => {
     const line = deriveEvidenceScopeCoverageLine({
       inventoryCount: 0,

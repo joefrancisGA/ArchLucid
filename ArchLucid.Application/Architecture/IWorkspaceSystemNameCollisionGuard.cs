@@ -6,11 +6,12 @@ namespace ArchLucid.Application.Architecture;
 public interface IWorkspaceSystemNameCollisionGuard
 {
     /// <summary>
-    ///     Throws <see cref="ConflictException" /> when <paramref name="systemName" /> is already used by an active
-    ///     review run or mutable intake draft in <paramref name="scope" />'s workspace.
+    ///     Throws <see cref="ConflictException" /> when <paramref name="systemName" /> is already used by an occupying
+    ///     review run or mutable intake draft in <paramref name="scope" />'s workspace. Failed and quality-rejected
+    ///     runs do not occupy; committed and in-flight runs do.
     /// </summary>
     /// <param name="excludeDraftId">Optional draft to ignore (for in-place renames).</param>
-    /// <param name="excludeRunId">Optional run to ignore (async create completing its own admitted stub).</param>
+    /// <param name="excludeRunId">Optional run to ignore (async create stub or prior run on a replacement intake).</param>
     Task EnsureAvailableAsync(
         ScopeContext scope,
         string systemName,

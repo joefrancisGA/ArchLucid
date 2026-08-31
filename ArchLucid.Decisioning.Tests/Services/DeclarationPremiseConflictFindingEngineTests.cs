@@ -5,6 +5,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.Decisioning.Tests.GoldenCorpus;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
@@ -160,6 +161,58 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Warning);
         GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(findings[0].Title).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_error_when_protects_edge_weight_is_just_below_semantic_link_threshold()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "baseline-private",
+                    NodeType = "SecurityBaseline",
+                    Label = "Private only network access",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["description"] = "Private only network access required",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "obj-storage",
+                    NodeType = "TopologyResource",
+                    Label = "docs",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["tf.public_network_access"] = "enabled",
+                    },
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    FromNodeId = "baseline-private",
+                    ToNodeId = "obj-storage",
+                    EdgeType = "PROTECTS",
+                    Weight = GraphEdgeDecisioningThresholds.MinWeightForSemanticLink - 0.01d,
+                },
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Severity.Should().Be(FindingSeverity.Error);
+
+        DeclarationPremiseConflictFindingPayload? payload =
+            findings[0].Payload as DeclarationPremiseConflictFindingPayload;
+
+        payload.Should().NotBeNull();
+        payload!.IsNarrowApplicability.Should().BeTrue();
     }
 
     [Fact]

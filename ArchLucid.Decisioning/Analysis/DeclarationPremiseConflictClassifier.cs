@@ -318,7 +318,7 @@ public static class DeclarationPremiseConflictClassifier
         {
             int searchStart = 0;
 
-            while (searchStart < normalizedIntentText.Length)
+            while (searchStart <= normalizedIntentText.Length - phrase.Length)
             {
                 int index = normalizedIntentText.IndexOf(phrase, searchStart, StringComparison.Ordinal);
 

@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -185,10 +186,87 @@ public sealed class PortfolioRecurrenceFindingEngineTests
             "SEC-001:" + FindingSnapshotMergeKey.NormalizeFingerprint(sharedFinding.Category, sharedFinding.Title));
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_when_current_snapshot_missing_uses_in_flight_identities()
+    {
+        Guid currentRunId = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        Guid snapshotId = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+        Finding sharedFinding = new()
+        {
+            Category = "Security",
+            Title = "Public storage account endpoint",
+            PolicyRuleId = "SEC-001",
+            EngineType = "security-baseline",
+            FindingType = "SecurityControlFinding",
+            Severity = FindingSeverity.Warning,
+            Rationale = "Storage account allows public network access.",
+        };
+
+        string identityToken =
+            "SEC-001:" + FindingSnapshotMergeKey.NormalizeFingerprint(sharedFinding.Category, sharedFinding.Title);
+
+        FindingsSnapshot sharedSnapshot = new()
+        {
+            FindingsSnapshotId = snapshotId,
+            Findings = [sharedFinding],
+        };
+
+        List<RunSummary> summaries =
+        [
+            CreateCommittedSummary(currentRunId, "Payments", new DateTime(2026, 8, 20, 0, 0, 0, DateTimeKind.Utc)),
+            CreateCommittedSummary(Guid.Parse("cccccccccccccccccccccccccccccccc"), "Claims", new DateTime(2026, 8, 19, 0, 0, 0, DateTimeKind.Utc)),
+            CreateCommittedSummary(Guid.Parse("dddddddddddddddddddddddddddddddd"), "Billing", new DateTime(2026, 8, 18, 0, 0, 0, DateTimeKind.Utc)),
+            CreateCommittedSummary(Guid.Parse("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"), "Identity", new DateTime(2026, 8, 17, 0, 0, 0, DateTimeKind.Utc)),
+            CreateCommittedSummary(Guid.Parse("ffffffffffffffffffffffffffffffff"), "Reporting", new DateTime(2026, 8, 16, 0, 0, 0, DateTimeKind.Utc)),
+        ];
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((summaries, false, null));
+
+        foreach (RunSummary summary in summaries)
+        {
+            if (string.Equals(summary.RunId, currentRunId.ToString("N"), StringComparison.OrdinalIgnoreCase))
+            {
+                runQuery
+                    .Setup(query => query.GetRunDetailForRoiAsync(summary.RunId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(CreateRunDetail(summary.RunId, findingsSnapshotId: null));
+
+                continue;
+            }
+
+            runQuery
+                .Setup(query => query.GetRunDetailForRoiAsync(summary.RunId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(CreateRunDetail(summary.RunId, snapshotId));
+        }
+
+        Mock<IFindingsSnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repository => repository.GetByIdAsync(It.IsAny<ScopeContext>(), snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(sharedSnapshot);
+
+        PortfolioRecurrenceCurrentReviewIdentitySource identitySource = new();
+        identitySource.SetIdentities([identityToken]);
+
+        PortfolioRecurrenceFindingEngine engine = CreateEngine(
+            runQuery,
+            snapshotRepository,
+            enabled: true,
+            identitySource);
+        GraphSnapshot graphSnapshot = new() { RunId = currentRunId };
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Be("Recurs across 5 reviewed systems");
+    }
+
     private static PortfolioRecurrenceFindingEngine CreateEngine(
         Mock<IRunDetailQueryService> runQuery,
         Mock<IFindingsSnapshotRepository> snapshotRepository,
-        bool enabled)
+        bool enabled,
+        IPortfolioRecurrenceCurrentReviewIdentitySource? identitySource = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
@@ -203,6 +281,7 @@ public sealed class PortfolioRecurrenceFindingEngineTests
             runQuery.Object,
             snapshotRepository.Object,
             CreateOptionsResolver(enabled),
+            identitySource,
             NullLogger<PortfolioRecurrenceFindingEngine>.Instance);
     }
 
@@ -232,7 +311,7 @@ public sealed class PortfolioRecurrenceFindingEngineTests
             CurrentManifestVersion = "v1",
         };
 
-    private static ArchitectureRunDetail CreateRunDetail(string runId, Guid findingsSnapshotId) =>
+    private static ArchitectureRunDetail CreateRunDetail(string runId, Guid? findingsSnapshotId) =>
         new()
         {
             Run = new ArchitectureRun
