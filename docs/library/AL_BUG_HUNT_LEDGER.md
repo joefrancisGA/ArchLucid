@@ -2297,6 +2297,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 95
 - **hunts:** 94
 - **bugs-found:** 237
+- **hunts:** 94
+- **bugs-found:** 234
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
 - **last-bug:** 2026-08-31 — environment-catalog ghost tenant; empty projectId query; checklist isCompleted omission
@@ -2580,6 +2582,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `CorePilotTeamChecklistController.PutAsync` — empty `{}` body may PATCH-style upsert with model-binding defaults instead of rejecting incomplete checklist payload.
 
 2026-08-31 seed hunt #328: proved governance posture/stickiness register empty projectId query 400 parity; seeded environment-catalog ghost-tenant and core-pilot checklist empty-body candidates; cheap-disproved record-disposition null omitted runId.
+
+2026-08-31 thorough hunt #321: re-proved and landed on master the four picker candidates (findingRef inspect gate, sibling projectId guard, batch-review OrdinalIgnoreCase dedupe, bulk-disposition all-or-nothing scope validation).
 
 2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
 
