@@ -159,7 +159,7 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         lock (_gate)
         {
             long count = _byId.Values
-                .Count(x => string.Equals(x.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
+                .LongCount(x => string.Equals(x.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
                             || string.Equals(x.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal));
 
             return Task.FromResult(count);
