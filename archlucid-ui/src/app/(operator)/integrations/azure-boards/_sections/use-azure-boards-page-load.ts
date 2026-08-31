@@ -71,8 +71,8 @@ export function useAzureBoardsPageLoad({
       loaded?.lastConnectionTestUtc
         ? (() => {
             const s = loaded.lastConnectionTestSummary?.toLowerCase() ?? "";
+            if (s.includes("failed") || s.includes("error") || s.includes("unauthorized") || s.includes("did not succeed")) return false;
             if (s.includes("succeeded") || s.includes("connection check passed")) return true;
-            if (s.includes("failed") || s.includes("error") || s.includes("unauthorized")) return false;
             return null;
           })()
         : null,
