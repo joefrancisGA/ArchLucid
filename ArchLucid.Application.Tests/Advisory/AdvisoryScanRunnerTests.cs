@@ -214,8 +214,8 @@ public sealed class AdvisoryScanRunnerTests
                     runId,
                     null,
                     It.IsAny<ImprovementPlan>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<IReadOnlyList<AlertRecord>>()))
+                    It.IsAny<IReadOnlyList<AlertRecord>>(),
+                    It.IsAny<string?>()))
             .Returns(builtDigest);
 
         Mock<IArchitectureDigestRepository> digestRepo = new();
