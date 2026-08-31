@@ -12,6 +12,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -27,12 +28,8 @@ public interface IEvidenceAddedIncrementalReReviewCoordinator
 /// </summary>
 public sealed class EvidenceAddedIncrementalReReviewCoordinator(
     IScopeContextProvider scopeContextProvider,
-    IRunRepository runRepository,
-    IArchitectureKnowledgeModelAccess? architectureKnowledgeModelAccess,
-    IIncrementalReReviewService incrementalReReviewService,
-    IAsyncSpecialistReviewService specialistReviewService,
-    IRunStageOutcomesRepository runStageOutcomesRepository,
-    IAuditService auditService,
+    IEvidenceAddedIncrementalReReviewQueue queue,
+    IServiceScopeFactory serviceScopeFactory,
     IOptions<IncrementalReReviewOnEvidenceAddedOptions> options,
     ILogger<EvidenceAddedIncrementalReReviewCoordinator> logger) : IEvidenceAddedIncrementalReReviewCoordinator
 {
@@ -46,10 +43,32 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinator(
         if (uploadedFileCount <= 0 || !options.Value.Enabled)
             return;
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        await queue.EnqueueAsync(
+                ct => ExecuteScheduledAsync(serviceScopeFactory, logger, scope, runId, uploadedFileCount, ct),
+                cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private static async Task ExecuteScheduledAsync(
+        IServiceScopeFactory serviceScopeFactory,
+        ILogger<EvidenceAddedIncrementalReReviewCoordinator> logger,
+        ScopeContext scope,
+        Guid runId,
+        int uploadedFileCount,
+        CancellationToken cancellationToken)
+    {
+        await using AsyncServiceScope asyncScope = serviceScopeFactory.CreateAsyncScope();
+
+        using IDisposable _ = AmbientScopeContext.Push(scope);
+
+        IRunRepository runRepository = asyncScope.ServiceProvider.GetRequiredService<IRunRepository>();
+        IArchitectureKnowledgeModelAccess? architectureKnowledgeModelAccess =
+            asyncScope.ServiceProvider.GetService<IArchitectureKnowledgeModelAccess>();
+
         if (architectureKnowledgeModelAccess is null)
             return;
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
         if (run is null)
@@ -77,6 +96,13 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinator(
             Trigger = ReReviewTrigger.EvidenceAdded,
         };
 
+        IIncrementalReReviewService incrementalReReviewService =
+            asyncScope.ServiceProvider.GetRequiredService<IIncrementalReReviewService>();
+        IAsyncSpecialistReviewService specialistReviewService =
+            asyncScope.ServiceProvider.GetRequiredService<IAsyncSpecialistReviewService>();
+        IRunStageOutcomesRepository runStageOutcomesRepository =
+            asyncScope.ServiceProvider.GetRequiredService<IRunStageOutcomesRepository>();
+        IAuditService auditService = asyncScope.ServiceProvider.GetRequiredService<IAuditService>();
         DateTime startedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         await runStageOutcomesRepository
