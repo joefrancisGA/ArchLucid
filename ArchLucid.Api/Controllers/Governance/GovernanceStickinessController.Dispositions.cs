@@ -122,23 +122,6 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
-        HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (string findingId in findingIds)
-        {
-            if (string.IsNullOrWhiteSpace(findingId))
-                continue;
-
-            string normalizedFindingId = findingId.Trim();
-
-            if (!seenFindingIds.Add(normalizedFindingId))
-            {
-                return this.BadRequestProblem(
-                    "Duplicate findingId in batch.",
-                    ProblemTypes.ValidationFailed);
-            }
-        }
-
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

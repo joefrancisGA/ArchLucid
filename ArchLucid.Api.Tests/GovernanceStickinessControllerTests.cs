@@ -1274,7 +1274,7 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
-    public async Task RecordBulkDisposition_returns_bad_request_when_finding_ids_are_duplicated()
+    public async Task RecordBulkDisposition_deduplicates_finding_ids_and_processes_each_once()
     {
         Mock<IFindingInspectReadRepository> findingInspect = new();
         findingInspect
@@ -1308,11 +1308,11 @@ public sealed class GovernanceStickinessControllerTests
 
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
-            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
-        problem.Detail.Should().Be("Duplicate findingId in batch.");
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        RecordBulkFindingDispositionResponse body =
+            ok.Value.Should().BeOfType<RecordBulkFindingDispositionResponse>().Subject;
+        body.ProcessedCount.Should().Be(1);
+        body.UpdatedFindingIds.Should().Equal("finding-1");
 
         dispositions.Verify(
             d => d.RecordAsync(
@@ -1320,11 +1320,11 @@ public sealed class GovernanceStickinessControllerTests
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.Once);
     }
 
     [Fact]
-    public async Task RecordBulkDisposition_returns_bad_request_when_padded_finding_ids_normalize_to_duplicates()
+    public async Task RecordBulkDisposition_deduplicates_padded_finding_ids_and_processes_each_once()
     {
         Mock<IFindingInspectReadRepository> findingInspect = new();
         findingInspect
@@ -1358,11 +1358,11 @@ public sealed class GovernanceStickinessControllerTests
 
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
-            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
-        problem.Detail.Should().Be("Duplicate findingId in batch.");
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        RecordBulkFindingDispositionResponse body =
+            ok.Value.Should().BeOfType<RecordBulkFindingDispositionResponse>().Subject;
+        body.ProcessedCount.Should().Be(1);
+        body.UpdatedFindingIds.Should().Equal("finding-1");
 
         dispositions.Verify(
             d => d.RecordAsync(
@@ -1370,7 +1370,7 @@ public sealed class GovernanceStickinessControllerTests
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.Once);
     }
 
     [Fact]
@@ -1468,6 +1468,57 @@ public sealed class GovernanceStickinessControllerTests
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
         action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_records_each_distinct_finding_id_once_when_list_contains_duplicates()
+    {
+        const string findingId = "finding-bulk-dup";
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request => request.FindingId == findingId),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId, findingId],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        RecordBulkFindingDispositionResponse body =
+            ok.Value.Should().BeOfType<RecordBulkFindingDispositionResponse>().Subject;
+        body.ProcessedCount.Should().Be(1);
+        body.UpdatedFindingIds.Should().Equal(findingId);
+        dispositions.Verify(
+            d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
