@@ -2278,11 +2278,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 90
-- **bugs-found:** 234
+- **hunts:** 91
+- **bugs-found:** 240
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — bulk-disposition all-or-nothing scope validation
+- **last-bug:** 2026-08-31 — customer-success ghost-workspace preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2527,6 +2527,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **cheap-disproof 2026-08-31:** per-item `ValidationFailed` for exact duplicates since 2026-08-28; **hit 2026-08-31:** `OrdinalIgnoreCase` dedupe for case-variant duplicates; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without per-item failure rows — **hit 2026-08-31 (#281):** validate all finding ids in scope before recording any; map scope misses to HTTP 404; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — whitespace-only body `findingRef` skipped inspect-scope gate and persisted `"   "` — **hit 2026-08-31 (#326):** normalize blank `findingRef` to null before gate/persist; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_omits_finding_ref_when_value_is_whitespace`.
+- [x] (proven) `GovernanceCoverageController.PreviewCoverage` — null body used `ArgumentNullException.ThrowIfNull` (HTTP 500 risk) — **hit 2026-08-31 (#326):** nullable body + HTTP 400 `RequestBodyRequired`; regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_body_is_null`.
+- [x] (proven) `GovernanceEnvironmentCatalogController.Get` / `Replace` — ghost tenant or foreign workspace returned HTTP 200 defaults/persisted catalog while setup/resolution siblings preflight tenant+workspace — **hit 2026-08-31 (#326):** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` on GET/PUT; regression in `GovernanceEnvironmentCatalogControllerTests`.
+- [x] (proven) `GovernanceStickinessFacade.UpdateRecurrenceScheduleAsync` — empty PUT body recomputed `NextRunUtc` from current clock even when cron/enabled unchanged — **hit 2026-08-31 (#326):** recompute next run only when `isEnabled` or `cronExpression` changes; regression in `GovernanceStickinessFacadeTests.UpdateRecurrenceScheduleAsync_preserves_next_run_when_request_has_no_schedule_changes`.
+- [x] (proven) `TenantCustomerSuccessController` reads/mutations — foreign or missing `workspaceId` returned HTTP 200 empty/`isCalculated: false` or HTTP 204 product feedback while homepage/weekly-digest siblings 404 — **hit 2026-08-31 (#326):** `TenantWorkspaceScopePreflight` on all endpoints; regression in `TenantCustomerSuccessControllerTests.GetHealthScoreAsync_returns_not_found_when_workspace_missing`.
+- [x] (invalid) `GovernanceResolutionController.Resolve` — optional `projectId` query returns foreign-project resolution — **cheap-disproof 2026-08-31:** endpoint has no `projectId` query; uses ambient `scope.ProjectId` only (`GovernanceResolutionController.cs`).
+- [ ] (candidate) `TenantWorkspacesController.ListAsync` — lists all active projects in caller workspace while delete/restore require `scope.ProjectId` — may be intentional workspace-admin disclosure vs mutation guard parity.
+
+2026-08-31 seed hunt #326: proved product-feedback whitespace findingRef, coverage preview null body, environment-catalog tenant+workspace preflight, recurrence empty-PUT next-run drift, and customer-success workspace preflight; cheap-disproved resolution optional-project candidate; seeded workspace list sibling-project disclosure candidate.
 
 2026-08-31 thorough hunt #320: re-proved and landed on master the four picker candidates (findingRef inspect gate, sibling projectId guard, batch-review OrdinalIgnoreCase dedupe, bulk-disposition all-or-nothing scope validation).
 

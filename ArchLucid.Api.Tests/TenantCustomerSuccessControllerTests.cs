@@ -56,6 +56,16 @@ public sealed class TenantCustomerSuccessControllerTests
         tenantMock
             .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId });
+        tenantMock
+            .Setup(t => t.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
 
         Mock<IFindingInspectReadRepository> findingInspectMock = new();
         findingInspectMock
@@ -233,6 +243,83 @@ public sealed class TenantCustomerSuccessControllerTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         repo.Verify(
             r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task GetHealthScoreAsync_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId });
+        tenants
+            .Setup(t => t.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object, tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetHealthScoreAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
+    public async Task PostProductFeedbackAsync_omits_finding_ref_when_value_is_whitespace()
+    {
+        ProductFeedbackSubmission? captured = null;
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        repo.Setup(r =>
+                r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()))
+            .Callback<ProductFeedbackSubmission, CancellationToken>((s, _) => captured = s)
+            .Returns(Task.CompletedTask);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            findingInspect: findingInspect.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            FindingRef = "   ",
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        captured.Should().NotBeNull();
+        captured!.FindingRef.Should().BeNull();
+        findingInspect.Verify(
+            r => r.GetInspectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()),
             Times.Never);
     }
 
