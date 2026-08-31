@@ -6,7 +6,7 @@ import {
   AcceleratorCostGovernanceCloudPicker,
   useAcceleratorCostGovernancePackSelection,
 } from "@/components/accelerator/AcceleratorCostGovernanceCloudPicker";
-import { AcceleratorFollowUpPackTag } from "@/components/accelerator/AcceleratorFollowUpPackTag";
+import { AcceleratorCostBaselineRecommendation } from "@/components/accelerator/AcceleratorCostBaselineRecommendation";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
@@ -49,12 +49,12 @@ export function HelpAcceleratorCostGovernancePackCard(
       <p className={cn("m-0 mt-1 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {ACCELERATOR_COST_GOVERNANCE_GROUP.packLabel}
       </p>
-      <AcceleratorFollowUpPackTag
-        testId={`help-accelerator-chooser-pack-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-follow-up-tag`}
-      />
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {ACCELERATOR_COST_GOVERNANCE_GROUP.summary}
       </p>
+      <AcceleratorCostBaselineRecommendation
+        testId={`help-accelerator-chooser-pack-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-baseline-recommendation`}
+      />
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-medium text-al-text-primary">{ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL}: </span>
         <Link href={inAppHelpHref("evidence-intake")} className={OPERATOR_LINK.inline}>

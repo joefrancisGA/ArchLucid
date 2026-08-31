@@ -10,13 +10,14 @@ import {
   resolveExecutionVsQualityAxis,
 } from "@/lib/execution-vs-quality-outcome-copy";
 import {
+  buildCustomerConnectionAdminHandoffVerificationLines,
+  buildManagedPlatformAdminHandoffVerificationLines,
   buildReviewFailureAdminHandoffMarkdown,
   isWorkspaceAiConfigurationFailure,
   recoveryStepsForLegacyStatusWithAudience,
   recoveryStepsForTriageScenarioWithAudience,
+  resolveReviewFailureAdminConfigurationLink,
   resolveWorkspaceAiConfigurationSignal,
-  REVIEW_FAILURE_ADMIN_CONFIGURATION_PATH,
-  WORKSPACE_AI_ADMIN_VERIFICATION_LINES,
   type ReviewFailureAdminHandoff,
   type WorkspaceAiConfigurationSignal,
 } from "@/lib/review-failure-recovery-role-copy";
@@ -28,7 +29,7 @@ import { SUPPORT_REPORT_PROBLEM_HELP_HREF } from "@/lib/support-workspace-presen
 import type { RunSummary } from "@/types/authority";
 
 export const REVIEW_PRE_STAGE_FAILURE_INTACT_SUMMARY =
-  "Your submitted intake package was recorded. Processing stopped before the first pipeline stage — this is usually a configuration or infrastructure issue, not missing intake fields.";
+  "Your submitted intake package was recorded. Processing stopped before the first pipeline stage — this is usually platform AI availability, not missing intake fields.";
 
 export type ReviewFailureRecoveryGuidance = {
   readonly headline: string;
@@ -54,6 +55,8 @@ type RecoveryStepInput = {
   readonly intakeSystemName?: string | null;
   readonly canConfigureWorkspaceAi?: boolean;
   readonly realModeFellBackToSimulator?: boolean | null;
+  readonly usesCustomerAiConnection?: boolean;
+  readonly effectiveSessionMode?: "Simulator" | "Real" | null;
 };
 
 function normalizeKey(value: string | null | undefined): string {
@@ -63,12 +66,14 @@ function normalizeKey(value: string | null | undefined): string {
 function recoveryStepsForFailureClass(
   failureClass: string,
   canConfigureWorkspaceAi: boolean,
+  usesCustomerAiConnection: boolean,
 ): readonly string[] | null {
   switch (failureClass) {
     case "missingCredentials":
       return recoveryStepsForTriageScenarioWithAudience({
         triageScenarioId: "missingCredentials",
         canConfigureWorkspaceAi,
+        usesCustomerAiConnection,
       });
     case "contentSafety":
       return recoveryStepsForTriageScenarioWithAudience({
@@ -90,6 +95,7 @@ function recoveryStepsForFailureClass(
       return recoveryStepsForTriageScenarioWithAudience({
         triageScenarioId: "budgetCutoff",
         canConfigureWorkspaceAi,
+        usesCustomerAiConnection,
       });
     case "qualityGate":
       return recoveryStepsForTriageScenarioWithAudience({
@@ -134,6 +140,7 @@ function recoveryStepsForLegacyStatus(
   legacyStatus: string,
   completedStages: number,
   canConfigureWorkspaceAi: boolean,
+  usesCustomerAiConnection: boolean,
 ): { readonly steps: readonly string[]; readonly specificity: "specific" | "generic" } | null {
   if (isQualityRejectedRunStatus(legacyStatus)) {
     const steps = recoveryStepsForTriageScenarioWithAudience({
@@ -157,6 +164,7 @@ function recoveryStepsForLegacyStatus(
     legacyStatus,
     completedStages,
     canConfigureWorkspaceAi,
+    usesCustomerAiConnection,
   });
 
   if (preStageSteps !== null) {
@@ -216,6 +224,7 @@ export function resolveReviewFailureRecoveryGuidance(
   }
 
   const canConfigureWorkspaceAi = input.canConfigureWorkspaceAi === true;
+  const usesCustomerAiConnection = input.usesCustomerAiConnection === true;
   const lastFailure = input.lastFailureSummary;
   const triageScenarioId = normalizeKey(lastFailure?.triageScenarioId);
   const failureClass = normalizeKey(lastFailure?.failureClass);
@@ -230,6 +239,9 @@ export function resolveReviewFailureRecoveryGuidance(
     const steps = recoveryStepsForTriageScenarioWithAudience({
       triageScenarioId,
       canConfigureWorkspaceAi,
+      usesCustomerAiConnection,
+      failureClass,
+      effectiveSessionMode: input.effectiveSessionMode ?? null,
     });
 
     if (steps !== null) {
@@ -239,7 +251,7 @@ export function resolveReviewFailureRecoveryGuidance(
   }
 
   if (recoverySteps === null && failureClass.length > 0) {
-    const steps = recoveryStepsForFailureClass(failureClass, canConfigureWorkspaceAi);
+    const steps = recoveryStepsForFailureClass(failureClass, canConfigureWorkspaceAi, usesCustomerAiConnection);
 
     if (steps !== null) {
       recoverySteps = steps;
@@ -257,6 +269,7 @@ export function resolveReviewFailureRecoveryGuidance(
       legacyStatus,
       completedStages,
       canConfigureWorkspaceAi,
+      usesCustomerAiConnection,
     );
 
     if (legacyRecovery !== null) {
@@ -313,6 +326,8 @@ export function resolveReviewFailureRecoveryGuidance(
     legacyRunStatus: legacyStatus,
     completedStages,
     realModeFellBackToSimulator: input.realModeFellBackToSimulator,
+    usesCustomerAiConnection,
+    effectiveSessionMode: input.effectiveSessionMode ?? null,
   });
 
   const workspaceAiConfigurationFailure = isWorkspaceAiConfigurationFailure({
@@ -321,6 +336,17 @@ export function resolveReviewFailureRecoveryGuidance(
     legacyRunStatus: legacyStatus,
     completedStages,
     realModeFellBackToSimulator: input.realModeFellBackToSimulator,
+    usesCustomerAiConnection,
+    effectiveSessionMode: input.effectiveSessionMode ?? null,
+  });
+
+  const adminConfigurationLink = resolveReviewFailureAdminConfigurationLink({
+    workspaceAiConfigurationFailure,
+    canConfigureWorkspaceAi,
+    triageScenarioId: lastFailure?.triageScenarioId,
+    failureClass: lastFailure?.failureClass,
+    legacyRunStatus: legacyStatus,
+    completedStages,
   });
 
   const adminHandoff: ReviewFailureAdminHandoff | null =
@@ -335,8 +361,12 @@ export function resolveReviewFailureRecoveryGuidance(
             detail: detail.length > 0 ? detail : null,
             lastFailureSummary: lastFailure ?? null,
             workspaceAiSignal: workspaceAiConfigurationSignal,
+            usesCustomerAiConnection,
           }),
-          verificationLines: WORKSPACE_AI_ADMIN_VERIFICATION_LINES,
+          verificationLines:
+            usesCustomerAiConnection
+              ? buildCustomerConnectionAdminHandoffVerificationLines()
+              : buildManagedPlatformAdminHandoffVerificationLines(),
         }
       : null;
 
@@ -351,11 +381,7 @@ export function resolveReviewFailureRecoveryGuidance(
     submittedIntakeRecap,
     workspaceAiConfigurationSignal,
     adminHandoff,
-    adminConfigurationHref:
-      canConfigureWorkspaceAi && workspaceAiConfigurationFailure
-        ? REVIEW_FAILURE_ADMIN_CONFIGURATION_PATH
-        : null,
-    adminConfigurationLabel:
-      canConfigureWorkspaceAi && workspaceAiConfigurationFailure ? "Open model governance" : null,
+    adminConfigurationHref: adminConfigurationLink.href,
+    adminConfigurationLabel: adminConfigurationLink.label,
   };
 }

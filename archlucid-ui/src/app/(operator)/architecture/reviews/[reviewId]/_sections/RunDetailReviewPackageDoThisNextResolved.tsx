@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
 import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
+import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
+import { fetchLlmMonthlyDollarBudgetStatusCached } from "@/lib/llm-monthly-budget-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { cn } from "@/lib/utils";
@@ -54,7 +56,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
   props: RunDetailReviewPackageDoThisNextResolvedProps,
 ): React.JSX.Element {
   const [next, setNext] = useState<ReviewPackageDoThisNext | null>(null);
+  const [usesCustomerAiConnection, setUsesCustomerAiConnection] = useState(false);
   const priorCompare = usePriorSameRequestCompareHref(props.runId, 25);
+  const sessionAiReadiness = useSessionAiReadiness();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canConfigureWorkspaceAi = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const assumptionAwareCommitBlockedReason = useAssumptionAwareCommitBlockedReason({
@@ -65,6 +69,26 @@ export function RunDetailReviewPackageDoThisNextResolved(
     blockingFindingCount: props.blockingFindingCount,
     requestAssumptionTexts: props.requestAssumptionTexts,
   });
+
+  useEffect(() => {
+    let canceled = false;
+
+    void fetchLlmMonthlyDollarBudgetStatusCached()
+      .then((status) => {
+        if (!canceled) {
+          setUsesCustomerAiConnection(status.customerAiProviderConfigured === true);
+        }
+      })
+      .catch(() => {
+        if (!canceled) {
+          setUsesCustomerAiConnection(false);
+        }
+      });
+
+    return () => {
+      canceled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let canceled = false;
@@ -103,6 +127,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
           intakeSystemName: props.intakeSystemName,
           canConfigureWorkspaceAi,
           realModeFellBackToSimulator: props.realModeFellBackToSimulator === true,
+          usesCustomerAiConnection,
+          effectiveSessionMode: sessionAiReadiness.sessionMode,
         }),
       );
     });
@@ -112,6 +138,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
     };
   }, [
     priorCompare.compareWithPriorHref,
+    usesCustomerAiConnection,
     props.runId,
     props.manifestId,
     props.hasCommitBlockingFailures,

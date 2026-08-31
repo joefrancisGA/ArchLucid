@@ -1,0 +1,112 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { WorkspaceAiAvailabilityPanel } from "./WorkspaceAiAvailabilityPanel";
+
+const fetchWorkspaceAiAvailabilityMock = vi.fn();
+
+vi.mock("@/lib/workspace-ai-availability", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/workspace-ai-availability")>(
+    "@/lib/workspace-ai-availability",
+  );
+
+  return {
+    ...actual,
+    fetchWorkspaceAiAvailability: (...args: unknown[]) => fetchWorkspaceAiAvailabilityMock(...args),
+  };
+});
+
+describe("WorkspaceAiAvailabilityPanel", () => {
+  beforeEach(() => {
+    fetchWorkspaceAiAvailabilityMock.mockReset();
+  });
+
+  it("does not auto-check availability on mount", () => {
+    render(
+      <WorkspaceAiAvailabilityPanel
+        workspaceAiSignal={{
+          label: "Workspace AI availability",
+          detail: "Review failure pattern suggests ArchLucid-managed AI may be unavailable — use Check AI availability to confirm before re-running.",
+        }}
+      />,
+    );
+
+    expect(fetchWorkspaceAiAvailabilityMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId("review-package-check-ai-availability-button")).toHaveTextContent(
+      "Check AI availability",
+    );
+  });
+
+  it("checks availability when the button is clicked and shows vendor diagnostics", async () => {
+    fetchWorkspaceAiAvailabilityMock.mockResolvedValue({
+      isAvailable: false,
+      validated: true,
+      aiSource: "managed-platform",
+      summary: "ArchLucid-managed AI is unavailable — reviews cannot start until platform AI is restored.",
+      asOfUtc: "2026-08-31T18:00:00.000Z",
+      checks: [
+        {
+          name: "azure_openai_live_completion_probe",
+          status: "failed",
+          detail: "HTTP 401: Unauthorized — invalid API key.",
+        },
+      ],
+      debug: {
+        probeDeploymentName: "gpt-4o",
+        probeModelId: "gpt-4o-2024-08-06",
+      },
+    });
+
+    render(
+      <WorkspaceAiAvailabilityPanel
+        workspaceAiSignal={{
+          label: "Workspace AI availability",
+          detail: "Review failure pattern suggests ArchLucid-managed AI may be unavailable — use Check AI availability to confirm before re-running.",
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("review-package-workspace-ai-debug")).toBeInTheDocument();
+    });
+
+    expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("review-package-workspace-ai-vendor-error")).toHaveTextContent("HTTP 401");
+    expect(screen.getByTestId("review-package-workspace-ai-model")).toHaveTextContent("gpt-4o");
+  });
+
+  it("re-checks availability when the button is clicked again", async () => {
+    fetchWorkspaceAiAvailabilityMock.mockResolvedValue({
+      isAvailable: true,
+      validated: true,
+      aiSource: "managed-platform",
+      summary: "ArchLucid-managed Azure OpenAI live probe succeeded for deployment 'gpt-4o'.",
+      asOfUtc: "2026-08-31T18:00:00.000Z",
+      checks: [{ name: "azure_openai_live_completion_probe", status: "ok", detail: "Live completion probe succeeded." }],
+      debug: { probeDeploymentName: "gpt-4o" },
+    });
+
+    render(
+      <WorkspaceAiAvailabilityPanel
+        workspaceAiSignal={{
+          label: "Workspace AI availability",
+          detail: "Pending validation.",
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
+
+    await waitFor(() => {
+      expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
+    });
+
+    fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
+
+    await waitFor(() => {
+      expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(2);
+    });
+  });
+});
