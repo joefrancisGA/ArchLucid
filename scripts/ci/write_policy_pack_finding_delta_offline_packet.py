@@ -122,15 +122,15 @@ def render_markdown(packet: dict) -> str:
         "| --- | ---: | --- |",
         (
             f"| SOC 2 (`{packet['soc2']['path']}`) | {packet['soc2']['ruleKeyCount']} | "
-            f"`{packet['soc2']['advisoryExtras']}` |"
+            f"`{json.dumps(packet['soc2']['advisoryExtras'], sort_keys=True)}` |"
         ),
         (
             f"| CIS Azure (`{packet['cisAzure']['path']}`) | {packet['cisAzure']['ruleKeyCount']} | "
-            f"`{packet['cisAzure']['advisoryExtras']}` |"
+            f"`{json.dumps(packet['cisAzure']['advisoryExtras'], sort_keys=True)}` |"
         ),
         (
             f"| FinOps (`{packet['finOps']['path']}`) | {packet['finOps']['ruleKeyCount']} | "
-            f"`{packet['finOps']['advisoryExtras']}` |"
+            f"`{json.dumps(packet['finOps']['advisoryExtras'], sort_keys=True)}` |"
         ),
         "",
         f"- Keys only in SOC 2: **{packet['onlyInSoc2Count']}** (sample: `{', '.join(packet['onlyInSoc2Sample'])}`)",

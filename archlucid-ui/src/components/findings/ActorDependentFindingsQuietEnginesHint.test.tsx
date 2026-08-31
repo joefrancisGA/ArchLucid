@@ -13,7 +13,7 @@ describe("ActorDependentFindingsQuietEnginesHint", () => {
     render(<ActorDependentFindingsQuietEnginesHint show={true} />);
 
     expect(screen.getByTestId("run-detail-actor-engines-quiet-hint")).toHaveTextContent(
-      "trust-boundary",
+      "Trust-boundary",
     );
     expect(screen.getByTestId("run-detail-actor-engines-quiet-hint")).toHaveTextContent(
       ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_COPY,

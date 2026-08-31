@@ -51,6 +51,7 @@ class TestPolicyPackFindingDeltaOfflinePacket(unittest.TestCase):
             self.assertIn("CIS Azure", text)
             self.assertIn("requireBudgetCap", text)
             self.assertIn("identity", text)
+            self.assertNotIn("{'", text)
 
 
 if __name__ == "__main__":
