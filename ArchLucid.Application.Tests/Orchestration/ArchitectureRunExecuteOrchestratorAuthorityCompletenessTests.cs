@@ -20,6 +20,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.Diagnostics;
 
 using FluentAssertions;
 
@@ -162,6 +163,7 @@ public sealed class ArchitectureRunExecuteOrchestratorAuthorityCompletenessTests
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             stagesRepo.Object,
+            new PermissiveAgentExecutionReadinessGuard(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

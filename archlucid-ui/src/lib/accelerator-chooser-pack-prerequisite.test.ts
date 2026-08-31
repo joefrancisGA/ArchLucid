@@ -1,40 +1,39 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  ACCELERATOR_FOLLOWUP_PACK_TAG_LABEL,
+  ACCELERATOR_COST_BASELINE_RECOMMENDATION,
   ACCELERATOR_GREENFIELD_PACK_ID,
   ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE,
   ACCELERATOR_PACK_CTA_PENDING_UNKNOWN_MESSAGE,
   ACCELERATOR_PACK_CTA_RETRY_LABEL,
-  ACCELERATOR_PACK_START_FOLLOWUP_LABEL,
-  ACCELERATOR_PACK_START_GREENFIELD_LABEL,
-  ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
+  ACCELERATOR_PACK_START_LABEL,
+  acceleratorPackShowsCostBaselineRecommendation,
   resolvePackCtaPresentation,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 
 describe("resolvePackCtaPresentation", () => {
-  it("returns greenfield start link when prerequisite is not met", () => {
+  it("returns start link for greenfield when prerequisite is not met", () => {
     expect(resolvePackCtaPresentation("not-met", ACCELERATOR_GREENFIELD_PACK_ID)).toEqual({
       mode: "start-link",
-      visibleLabel: ACCELERATOR_PACK_START_GREENFIELD_LABEL,
+      visibleLabel: ACCELERATOR_PACK_START_LABEL,
       statusMessage: null,
       usePrimaryVariant: true,
     });
   });
 
-  it("returns locked status for specialty packs when prerequisite is not met", () => {
+  it("returns start link for specialty packs when prerequisite is not met", () => {
     expect(resolvePackCtaPresentation("not-met", "ai-llm-workload")).toEqual({
-      mode: "locked-status",
-      visibleLabel: null,
-      statusMessage: ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
+      mode: "start-link",
+      visibleLabel: ACCELERATOR_PACK_START_LABEL,
+      statusMessage: null,
       usePrimaryVariant: false,
     });
   });
 
-  it("returns follow-up start link when prerequisite is met", () => {
+  it("returns start link when prerequisite is met", () => {
     expect(resolvePackCtaPresentation("met", "ai-llm-workload")).toEqual({
       mode: "start-link",
-      visibleLabel: ACCELERATOR_PACK_START_FOLLOWUP_LABEL,
+      visibleLabel: ACCELERATOR_PACK_START_LABEL,
       statusMessage: null,
       usePrimaryVariant: false,
     });
@@ -58,8 +57,9 @@ describe("resolvePackCtaPresentation", () => {
     });
   });
 
-  it("keeps follow-up taxonomy label separate from unlock copy", () => {
-    expect(ACCELERATOR_FOLLOWUP_PACK_TAG_LABEL).toBe("Follow-up pack");
-    expect(ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE).not.toContain(ACCELERATOR_FOLLOWUP_PACK_TAG_LABEL);
+  it("flags cost governance packs for baseline recommendation copy", () => {
+    expect(acceleratorPackShowsCostBaselineRecommendation("azure-cost-governance")).toBe(true);
+    expect(acceleratorPackShowsCostBaselineRecommendation("ai-llm-workload")).toBe(false);
+    expect(ACCELERATOR_COST_BASELINE_RECOMMENDATION.toLowerCase()).toContain("recommended");
   });
 });
