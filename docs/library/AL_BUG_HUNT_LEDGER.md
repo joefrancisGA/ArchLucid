@@ -2554,6 +2554,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-31 seed hunt #335 (hit): proved environment-catalog ghost tenant, empty `projectId` query validation, and checklist `isCompleted` omission; seeded ghost-workspace posture/coverage and product-feedback score candidates.
 
+- [x] (proven) `GovernancePostureController.GetPosture` — valid tenant + foreign workspace id in scope JWT → HTTP 200 posture summary instead of HTTP 404 — **hit 2026-08-31 (#344):** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` before posture read; regression in `GovernancePostureControllerTests.GetPosture_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernanceCoverageController.GetScopeCoverage` / `PreviewCoverage` — same ghost-workspace scope triple → HTTP 200 coverage payload instead of HTTP 404 — **hit 2026-08-31 (#344):** workspace preflight on both actions; regression in `GovernanceCoverageControllerScopeTests.GetScopeCoverage_returns_not_found_when_workspace_missing` and `PreviewCoverage_returns_not_found_when_workspace_missing`.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — JSON body omits `score` → HTTP 204 and persists `Score = 0` instead of HTTP 400 — **hit 2026-08-31 (#344):** `ProductFeedbackRequest.Score` nullable + `score is required` guard; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_score_omitted`.
+
+- [ ] (hunt-ready) `GovernanceEnvironmentCatalogController.Get` / `Replace` — ghost tenant (JWT tenant id with no `TenantRecord`) returns HTTP 200 default catalog instead of HTTP 404 while sibling governance reads preflight `ITenantRepository.GetByIdAsync`.
+- [ ] (hunt-ready) `GovernancePostureController.GetPosture` / `GovernanceStickinessController` register reads — query `projectId=00000000-0000-0000-0000-000000000000` when ambient scope has a real project id → `GovernanceQueryProjectScope.TryResolve` returns false and surfaces HTTP 200 empty payload instead of HTTP 400 validation.
+- [ ] (hunt-ready) `CorePilotTeamChecklistController.PutAsync` — JSON body omits `isCompleted` → model binder defaults `bool` to `false` and persists incomplete step instead of HTTP 400 (`ProductFeedbackRequest.Score` omission parity).
+
+2026-08-31 seed hunt #344 (hit): re-proved on master ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default; seeded environment-catalog ghost-tenant, empty projectId validation, and checklist `isCompleted` omission candidates.
+
+2026-08-31 seed hunt #342 (hit): re-proved on master ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default; seeded environment-catalog ghost-tenant, empty projectId validation, and checklist `isCompleted` omission candidates.
+
+2026-08-31 seed hunt #340 (hit): re-proved on master ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default; seeded environment-catalog ghost-tenant, empty projectId validation, and checklist `isCompleted` omission candidates.
+
+2026-08-31 seed hunt #338 (hit): re-proved on master ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default; seeded environment-catalog ghost-tenant, empty projectId validation, and checklist `isCompleted` omission candidates.
+
+2026-08-31 seed hunt #336 (hit): re-proved on master ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default; seeded environment-catalog ghost-tenant, empty projectId validation, and checklist `isCompleted` omission candidates.
+
+2026-08-31 seed hunt #334 (hit): proved ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default.
+
 2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
 
 2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.
