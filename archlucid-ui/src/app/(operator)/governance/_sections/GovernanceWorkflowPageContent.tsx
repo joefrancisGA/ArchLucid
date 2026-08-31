@@ -65,6 +65,7 @@ export function GovernanceWorkflowPageContent() {
     setSubmitRunId,
     submitManifestVersion,
     setSubmitManifestVersion,
+    maxPersistedManifestVersion,
     submitSource,
     setSubmitSource,
     submitTarget,
@@ -290,6 +291,7 @@ export function GovernanceWorkflowPageContent() {
               setSubmitRunId={setSubmitRunId}
               submitManifestVersion={submitManifestVersion}
               setSubmitManifestVersion={setSubmitManifestVersion}
+              maxPersistedManifestVersion={maxPersistedManifestVersion}
               submitSource={submitSource}
               setSubmitSource={setSubmitSource}
               submitTarget={submitTarget}

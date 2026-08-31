@@ -26,6 +26,49 @@ public sealed class TenantWeeklyDigestHealthControllerTests
     };
 
     [Fact]
+    public async Task GetAsync_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IWeeklyDigestHealthReader> reader = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenantRepository
+            .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        TenantWeeklyDigestHealthController controller = new(
+            scopeProvider.Object,
+            reader.Object,
+            tenantRepository.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        reader.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetAsync_returns_not_found_when_tenant_missing()
     {
         Mock<IWeeklyDigestHealthReader> reader = new(MockBehavior.Strict);
@@ -78,6 +121,16 @@ public sealed class TenantWeeklyDigestHealthControllerTests
         tenants
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
 
         TenantWeeklyDigestHealthController controller = new(
             scopeProvider.Object,

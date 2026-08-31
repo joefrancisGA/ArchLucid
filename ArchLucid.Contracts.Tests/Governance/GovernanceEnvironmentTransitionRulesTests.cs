@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Contracts.Tests.Governance;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class GovernanceEnvironmentTransitionRulesTests
 {
     [Theory]

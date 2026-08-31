@@ -76,7 +76,7 @@ Operator sidebar groups imply a URL prefix in the address bar. **69** nav hrefs 
 | `operator-admin` | `/administration` | All Administration nav hrefs under `/administration/*` (TB-406). |
 | `operator-system-admin` | `/internal` | Internal operations moved `/admin/*` → `/internal/*`; legacy `/admin/*` are redirects only. |
 
-**Registered exceptions (1):** `operate-analysis` → `GOVERNANCE_WORKSPACE_HEALTH_HREF`. Workspace-health KPIs were merged onto the sponsor dashboard when standalone `/governance/dashboard` was retired, so the Insights nav row deep-links to the `#workspace-health` anchor instead of owning a `/insights/*` page.
+**Registered exceptions (0):** `NAV_ROUTE_NAMESPACE_EXCEPTIONS` is empty. Workspace health lives at `/insights/workspace-health` under the Insights (`operate-analysis`) nav group, so no cross-namespace exception row is required.
 
 **Exception registry (source of truth):** `src/lib/nav-route-namespace-exceptions.ts`  
 **Prefix matcher + policies:** `src/lib/nav-route-namespace-policy.ts`  

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { SPONSOR_DASHBOARD_HREF, SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -21,7 +22,7 @@ describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/reviews/abc/def")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/insights/evidence-graph")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(SPONSOR_DASHBOARD_HREF)).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF)).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(WORKSPACE_HEALTH_PATH)).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/help")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/first-review-guide")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/baseline")).toBe(true);
@@ -34,17 +35,24 @@ describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
   });
 });
 
-describe("filterNavLinksByCommittedArchitectureReviewGate — fragment hrefs", () => {
-  it("keeps governance workspace-health out of pre-commit sidebar while route remains eligible", () => {
+describe("filterNavLinksByCommittedArchitectureReviewGate — workspace health", () => {
+  it("keeps workspace health out of pre-commit sidebar while allowing deep links", () => {
     const workspaceHealth: NavLinkItem = {
-      href: SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
+      href: WORKSPACE_HEALTH_PATH,
       label: "Workspace health",
       title: "Workspace health",
       tier: "extended",
     };
 
     expect(filterNavLinksByCommittedArchitectureReviewGate([workspaceHealth], false)).toHaveLength(0);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF)).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(WORKSPACE_HEALTH_PATH)).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(`${WORKSPACE_HEALTH_PATH}/details`)).toBe(true);
+    expect(
+      filterNavLinksByCommittedArchitectureReviewGate(
+        [{ ...workspaceHealth, href: `${WORKSPACE_HEALTH_PATH}/details` }],
+        false,
+      ),
+    ).toHaveLength(0);
   });
 
   it("sorts sponsor-dashboard fragment anchors with the plain dashboard link before first commit", () => {
