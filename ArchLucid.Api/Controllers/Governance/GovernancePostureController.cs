@@ -35,6 +35,7 @@ public sealed class GovernancePostureController(
 
     [HttpGet("posture")]
     [ProducesResponseType(typeof(ArchitecturePostureSummary), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPosture(
         [FromQuery] Guid? projectId,
@@ -45,6 +46,9 @@ public sealed class GovernancePostureController(
 
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        if (GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId(projectId))
+            return this.BadRequestProblem("projectId is required.", ProblemTypes.ValidationFailed);
 
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return Ok(new ArchitecturePostureSummary());

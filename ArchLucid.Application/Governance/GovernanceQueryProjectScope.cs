@@ -5,6 +5,8 @@ namespace ArchLucid.Application.Governance;
 /// <summary>Resolves optional governance query project ids against the ambient scope.</summary>
 public static class GovernanceQueryProjectScope
 {
+    public static bool IsInvalidEmptyProjectQueryId(Guid? projectId) => projectId == Guid.Empty;
+
     public static bool TryResolve(Guid? projectId, ScopeContext scope, out Guid resolvedProjectId)
     {
         if (projectId.HasValue && projectId.Value != scope.ProjectId)
