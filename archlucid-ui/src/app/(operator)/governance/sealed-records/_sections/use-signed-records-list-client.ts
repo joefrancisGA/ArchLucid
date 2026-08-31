@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -42,9 +42,9 @@ export type UseSignedRecordsListClientResult = {
   readonly retryFailedRunId: string | null;
   readonly retrySucceededRunId: string | null;
   readonly searchQuery: string;
-  readonly setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  readonly setSearchQuery: Dispatch<SetStateAction<string>>;
   readonly integrityFilter: SignedRecordsListIntegrityFilter;
-  readonly setIntegrityFilter: React.Dispatch<React.SetStateAction<SignedRecordsListIntegrityFilter>>;
+  readonly setIntegrityFilter: Dispatch<SetStateAction<SignedRecordsListIntegrityFilter>>;
   readonly page: number;
   readonly cursor: string;
   readonly hasMore: boolean;
@@ -178,13 +178,20 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
       setLoading(false);
       setEnriching(true);
 
-      const enrichedRows = await enrichSignedRecordsListRows(baseRows);
+      try {
+        const enrichedRows = await enrichSignedRecordsListRows(baseRows);
 
-      if (!canApplyState()) {
-        return;
+        if (!canApplyState()) {
+          return;
+        }
+
+        setRows(enrichedRows);
+      } catch {
+        // Enrichment is best-effort; keep baseRows visible when manifest lookup fails.
+        if (!canApplyState()) {
+          return;
+        }
       }
-
-      setRows(enrichedRows);
     } catch (error: unknown) {
       if (!canApplyState()) {
         return;
@@ -218,6 +225,10 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     try {
       const [enrichedRow] = await enrichSignedRecordsListRows([existingRow]);
 
+      if (!mountedRef.current) {
+        return;
+      }
+
       setRows((currentRows) => currentRows.map((row) => (row.runId === runId ? enrichedRow : row)));
 
       if (enrichedRow.recordLookupFailure !== null || enrichedRow.signedRecordHref === null) {
@@ -226,8 +237,16 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
         setRetrySucceededRunId(runId);
       }
     } catch {
+      if (!mountedRef.current) {
+        return;
+      }
+
       setRetryFailedRunId(runId);
     } finally {
+      if (!mountedRef.current) {
+        return;
+      }
+
       setRetryingRunId(null);
     }
   }, [rows]);

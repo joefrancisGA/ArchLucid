@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
+import Link from "next/link";
 
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import {
