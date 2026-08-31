@@ -9,7 +9,7 @@ public static partial class ProblemDetailsExtensions
     /// <summary>
     ///     Returns 500 Internal Server Error with a Problem Details body. Use only for genuine server-side faults
     ///     where the caller cannot recover by changing the request — transient downstream failures should prefer
-    ///     <see cref="ServiceUnavailableProblem(ControllerBase, string, string?, string?)" /> so clients retry.
+    ///     <see cref="ServiceUnavailableProblem" /> so clients retry.
     /// </summary>
     public static IActionResult InternalServerErrorProblem(
         this ControllerBase controller,
