@@ -144,6 +144,41 @@ public sealed class DeclarationPremiseConflictClassifierTests
         signals.Should().BeEmpty();
     }
 
+    [Fact]
+    public void Classify_does_not_match_negated_disable_public_intent()
+    {
+        GraphNode topology = CreateTopology("docs", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.public_network_access"] = "enabled",
+        });
+
+        GraphNode baseline = CreateIntent("baseline-flex", "Do not disable public access for partner integrations");
+
+        IReadOnlyList<DeclarationPremiseConflictSignal> signals = DeclarationPremiseConflictClassifier.Classify(
+            topology,
+            [new ApplicableIntentNode(baseline, true)]);
+
+        signals.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Classify_still_matches_affirmative_disable_public_intent()
+    {
+        GraphNode topology = CreateTopology("docs", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.public_network_access"] = "enabled",
+        });
+
+        GraphNode baseline = CreateIntent("baseline-private", "Organizations must disable public network access");
+
+        IReadOnlyList<DeclarationPremiseConflictSignal> signals = DeclarationPremiseConflictClassifier.Classify(
+            topology,
+            [new ApplicableIntentNode(baseline, true)]);
+
+        signals.Should().ContainSingle();
+        signals[0].ConflictKind.Should().Be(DeclarationPremiseConflictClassifier.PrivateNetworkConflictKind);
+    }
+
     private static GraphNode CreateTopology(string label, Dictionary<string, string> properties) =>
         new()
         {
