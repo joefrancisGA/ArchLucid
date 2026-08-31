@@ -100,6 +100,10 @@ public sealed class CustomRolesAdminController(
                 "Role name or description is not valid JSON-safe text.",
                 ProblemTypes.ValidationFailed);
         }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
     }
 
     [HttpPut("{roleId:guid}")]
