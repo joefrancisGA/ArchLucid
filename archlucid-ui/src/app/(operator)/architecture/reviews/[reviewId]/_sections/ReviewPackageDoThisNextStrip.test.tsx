@@ -7,6 +7,14 @@ vi.mock("@/components/CommitRunButton", () => ({
   CommitRunButton: () => <button type="button">Finalize review</button>,
 }));
 
+vi.mock("@/components/reviews/WorkspaceAiAvailabilityPanel", () => ({
+  WorkspaceAiAvailabilityPanel: (props: {
+    readonly workspaceAiSignal: { readonly label: string; readonly detail: string };
+  }) => (
+    <div data-testid="review-package-workspace-ai-availability-panel">{props.workspaceAiSignal.detail}</div>
+  ),
+}));
+
 describe("ReviewPackageDoThisNextStrip", () => {
   it("renders sentence and link CTA", () => {
     render(
@@ -78,7 +86,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(screen.getByTestId("review-package-failure-detail")).toHaveTextContent(
       "Missing Azure OpenAI deployment configuration",
     );
-    expect(screen.getByTestId("review-package-workspace-ai-signal")).toHaveTextContent(
+    expect(screen.getByTestId("review-package-workspace-ai-availability-panel")).toHaveTextContent(
       "Missing Azure OpenAI credentials or deployment config",
     );
     expect(screen.getByTestId("review-package-failure-intact")).toHaveTextContent("submitted intake package");
