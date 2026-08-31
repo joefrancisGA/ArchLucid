@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Application.CustomerSuccess;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -60,7 +61,8 @@ public sealed class TenantCustomerSuccessControllerTests
         IRunRepository? runRepository = null,
         IOperatorNextBestActionService? next = null,
         IOperatorStickinessSnapshotReader? stickiness = null,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        IFindingInspectReadRepository? findingInspect = null)
     {
         Mock<IOperatorNextBestActionService> nextMock = new();
         nextMock.Setup(n => n.GetActionsAsync(It.IsAny<CancellationToken>()))
@@ -80,13 +82,23 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<ITenantRepository> tenantMock = new();
         SetupTenantExists(tenantMock);
 
+        Mock<IFindingInspectReadRepository> findingInspectMock = new();
+        findingInspectMock
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
         return new TenantCustomerSuccessController(
                 repo,
                 next ?? nextMock.Object,
                 stickiness ?? stickinessMock.Object,
                 scopeProvider,
                 runRepository ?? runMock.Object,
-                tenantRepository ?? tenantMock.Object)
+                tenantRepository ?? tenantMock.Object,
+                findingInspect ?? findingInspectMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -201,6 +213,42 @@ public sealed class TenantCustomerSuccessControllerTests
         ProductFeedbackRequest request = new()
         {
             RunId = foreignRunId,
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.Verify(
+            r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task PostProductFeedbackAsync_returns_not_found_when_finding_ref_is_out_of_scope()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "foreign-finding",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync((FindingInspectResponse?)null);
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            findingInspect: findingInspect.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            FindingRef = "foreign-finding",
             Score = 1,
         };
 

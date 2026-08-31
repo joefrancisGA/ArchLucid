@@ -70,8 +70,7 @@ export function LlmBudgetApproachingLimitBanner() {
         </p>
       </div>
       <DismissControl
-        iconOnly
-        ariaLabel="Dismiss LLM budget warning for this session"
+        className="shrink-0"
         onDismiss={() => {
           setDismissed(true);
         }}

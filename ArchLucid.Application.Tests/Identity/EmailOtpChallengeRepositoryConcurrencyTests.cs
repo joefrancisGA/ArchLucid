@@ -38,4 +38,44 @@ public sealed class EmailOtpChallengeRepositoryConcurrencyTests
 
         Assert.Equal(1, successCount);
     }
+
+    [Fact]
+    public async Task TryCompleteAsync_parallel_wrong_codes_increment_failed_attempt_count()
+    {
+        InMemoryEmailOtpChallengeRepository repository = new();
+        Guid challengeId = Guid.NewGuid();
+        string rawCode = "123456";
+        string codeHash = EmailOtpCodeHasher.Hash(challengeId, rawCode, string.Empty);
+        string wrongCodeHash = EmailOtpCodeHasher.Hash(challengeId, "000000", string.Empty);
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        const int parallelAttempts = 5;
+
+        await repository.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = challengeId,
+                NormalizedEmail = "concurrent-wrong@example.com",
+                CodeHash = codeHash,
+                ExpiresUtc = now.AddMinutes(10)
+            },
+            CancellationToken.None);
+
+        Task<EmailOtpChallengeCompletionOutcome>[] attempts =
+            Enumerable.Range(0, parallelAttempts)
+                .Select(_ => repository.TryCompleteAsync(challengeId, wrongCodeHash, now, 10, CancellationToken.None))
+                .ToArray();
+
+        EmailOtpChallengeCompletionOutcome[] outcomes = await Task.WhenAll(attempts);
+
+        Assert.All(
+            outcomes,
+            outcome => Assert.True(
+                outcome.Result is EmailOtpChallengeCompletionResult.InvalidCode
+                    or EmailOtpChallengeCompletionResult.TooManyAttempts));
+
+        EmailOtpChallengeRecord? final = await repository.GetByIdAsync(challengeId, CancellationToken.None);
+
+        Assert.NotNull(final);
+        Assert.Equal(parallelAttempts, final!.FailedAttemptCount);
+    }
 }

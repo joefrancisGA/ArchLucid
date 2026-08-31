@@ -5753,7 +5753,7 @@ export interface components {
             fromUtc?: string;
             /** Format: int32 */
             governanceApprovals?: number;
-            /** Format: int32 */
+            /** Format: int64 */
             governancePendingApprovalsNow?: number;
             /** Format: int32 */
             governanceRejections?: number;

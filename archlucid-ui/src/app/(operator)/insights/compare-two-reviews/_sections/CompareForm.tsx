@@ -8,7 +8,6 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
 import { CompareContinueLastComparisonRow } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareContinueLastComparisonRow";
@@ -38,7 +37,6 @@ import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_s
 export function CompareForm() {
   const {
     comparePagePath,
-    comparePageShortcuts,
     comparePageSubtitle,
     buyerComparePageTitle,
     buyerComparePrimaryActionLabel,
@@ -108,7 +106,6 @@ export function CompareForm() {
         subtitle={comparePageSubtitle}
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="compare-page-header-actions">
-            <PageShortcutsDisclosure testId="compare-page-shortcuts" entries={comparePageShortcuts} />
             <PageContextualHelpButton />
           </div>
         }

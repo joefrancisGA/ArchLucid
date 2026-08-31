@@ -32,6 +32,7 @@ import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
 import {
   BILLING_CHECKOUT_COMPLETED_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
+import { clearFrictionlessTrialSessionForAuthenticatedOperator } from "@/lib/operator/operator-frictionless-trial-session-cleanup";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { OperatorBillingCheckoutConfirmDialog } from "./OperatorBillingCheckoutConfirmDialog";
@@ -120,6 +121,7 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
     const checkoutState = searchParams.get("checkout");
 
     if (checkoutState === "success") {
+      clearFrictionlessTrialSessionForAuthenticatedOperator();
       setCheckoutSuccessMessage(BILLING_CHECKOUT_COMPLETED_SUCCESS_MESSAGE);
     }
   }, [searchParams]);

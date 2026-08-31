@@ -959,7 +959,7 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
-    public async Task RecordBulkDisposition_returns_bad_request_when_all_findings_are_out_of_scope()
+    public async Task RecordBulkDisposition_returns_not_found_when_all_findings_are_out_of_scope()
     {
         GovernanceStickinessController controller = BuildSut();
         SetIdempotencyKey(controller);
@@ -973,8 +973,43 @@ public sealed class GovernanceStickinessControllerTests
 
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "in-scope-finding",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "in-scope-finding" });
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "foreign-finding",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync((FindingInspectResponse?)null);
+
+        GovernanceStickinessController controller = BuildSut(findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["in-scope-finding", "foreign-finding"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     [Fact]

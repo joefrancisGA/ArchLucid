@@ -36,16 +36,20 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();
+        List<string> normalizedFindingIds = request.FindingIds
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Select(id => id.Trim())
+            .ToList();
         List<string> updated = [];
         HashSet<string> processedFindingIds = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string findingId in request.FindingIds)
+        foreach (string normalizedFindingId in normalizedFindingIds)
         {
-            if (string.IsNullOrWhiteSpace(findingId))
-                continue;
+            await EnsureFindingInScopeAsync(scope, normalizedFindingId, ct);
+        }
 
-            string normalizedFindingId = findingId.Trim();
-
+        foreach (string normalizedFindingId in normalizedFindingIds)
+        {
             if (!processedFindingIds.Add(normalizedFindingId))
                 continue;
 
@@ -60,15 +64,8 @@ public sealed partial class GovernanceStickinessFacade
                     : request.RevisitDueUtc,
             };
 
-            try
-            {
-                await EnsureFindingInScopeAsync(scope, normalizedFindingId, ct);
-                await _findingDispositionService.RecordAsync(normalized, scope, actorId, ct);
-                updated.Add(normalizedFindingId);
-            }
-            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
-            {
-            }
+            await _findingDispositionService.RecordAsync(normalized, scope, actorId, ct);
+            updated.Add(normalizedFindingId);
         }
 
         if (updated.Count == 0)

@@ -7,6 +7,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -29,7 +30,8 @@ public sealed class TenantCustomerSuccessController(
     IOperatorStickinessSnapshotReader stickinessSnapshotReader,
     IScopeContextProvider scopeProvider,
     IRunRepository runRepository,
-    ITenantRepository tenantRepository) : ControllerBase
+    ITenantRepository tenantRepository,
+    IFindingInspectReadRepository findingInspectReadRepository) : ControllerBase
 {
     private readonly ITenantCustomerSuccessRepository _customerSuccessRepository =
         customerSuccessRepository ?? throw new ArgumentNullException(nameof(customerSuccessRepository));
@@ -48,6 +50,9 @@ public sealed class TenantCustomerSuccessController(
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IFindingInspectReadRepository _findingInspectReadRepository =
+        findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
 
     /// <summary>Returns the latest materialized health score row when the worker has populated it.</summary>
     [HttpGet("health-score")]
@@ -245,6 +250,21 @@ public sealed class TenantCustomerSuccessController(
                 return this.NotFoundProblem(
                     $"Run '{runId:D}' was not found.",
                     ProblemTypes.RunNotFound);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.FindingRef))
+        {
+            string findingRef = request.FindingRef.Trim();
+            FindingInspectResponse? finding = await _findingInspectReadRepository
+                .GetInspectAsync(scope, findingRef, cancellationToken, FindingInspectReadOptions.MetadataOnly)
+                .ConfigureAwait(false);
+
+            if (finding is null)
+            {
+                return this.NotFoundProblem(
+                    $"Finding '{findingRef}' was not found.",
+                    ProblemTypes.ResourceNotFound);
             }
         }
 
