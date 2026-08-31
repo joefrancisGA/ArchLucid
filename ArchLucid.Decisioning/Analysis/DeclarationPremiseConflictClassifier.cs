@@ -13,6 +13,8 @@ public static class DeclarationPremiseConflictClassifier
     public const string AdminIngressConflictKind = "admin-ingress-conflict";
     public const string WorkloadIsolationConflictKind = "workload-isolation-conflict";
 
+    private static readonly char[] NegationLookbackTrimChars = [',', ':', ';', '.', '(', ')'];
+
     private static readonly string[] PrivateNetworkIntentPhrases =
     [
         "private only",
@@ -339,7 +341,9 @@ public static class DeclarationPremiseConflictClassifier
     {
         const int maxNegationLookback = 48;
         int windowStart = Math.Max(0, phraseStartIndex - maxNegationLookback);
-        string prefix = normalizedIntentText[windowStart..phraseStartIndex].TrimEnd();
+        string prefix = normalizedIntentText[windowStart..phraseStartIndex]
+            .TrimEnd()
+            .TrimEnd(NegationLookbackTrimChars);
 
         if (prefix.Length == 0)
             return false;
