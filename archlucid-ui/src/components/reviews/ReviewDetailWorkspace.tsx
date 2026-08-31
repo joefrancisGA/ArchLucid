@@ -137,12 +137,12 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
       });
     }
 
-    return {
-      stage: "committed" as const,
-      visibleTabIds: Object.keys(REVIEW_DETAIL_TAB_LABELS) as ReviewDetailTabId[],
-      moreTabIds: [] as ReviewDetailTabId[],
-      defaultTabId: REVIEW_DETAIL_DEFAULT_TAB,
-    };
+    const fallbackInput =
+      lifecycle === "in-review"
+        ? { manifestId: null, showProgressTracker: true, runCompleted: false }
+        : { manifestId: "fallback-manifest", showProgressTracker: false, runCompleted: false };
+
+    return resolveReviewWorkspaceVisibleTabs({ ...fallbackInput, lifecycle });
   }, [lifecycle, props.tabLifecycle]);
   const rawTabParam = searchParams.get(REVIEW_DETAIL_TAB_PARAM);
   const searchParamTab =
