@@ -77,11 +77,10 @@ public interface IGovernanceApprovalRequestRepository
 
     /// <summary>
     ///     Returns the total count of pending approval requests (Draft or Submitted) in the current scope.
-    ///     This count is not limited by a query row cap, but because the return type is <see cref="int" />,
-    ///     values greater than <see cref="int.MaxValue" /> are clamped to <see cref="int.MaxValue" />.
-    ///     Use for metrics that need the aggregate pending total rather than a dashboard list slice.
+    ///     This count is not limited by a query row cap and uses <c>COUNT_BIG</c> so the full 64-bit total
+    ///     is preserved. Use for metrics that need the aggregate pending total rather than a dashboard list slice.
     /// </summary>
-    Task<int> CountPendingApprovalsAsync(CancellationToken cancellationToken = default);
+    Task<long> CountPendingApprovalsAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Returns the most recent decisions (<see cref="GovernanceApprovalStatus.Approved" />,

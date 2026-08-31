@@ -251,7 +251,7 @@ public sealed class PilotValueReportServiceTests
             TrialSeatsUsed = 0
         };
 
-    private static Mock<IGovernanceApprovalRequestRepository> ApprovalsPending(int pending)
+    private static Mock<IGovernanceApprovalRequestRepository> ApprovalsPending(long pending)
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new();
         approvals

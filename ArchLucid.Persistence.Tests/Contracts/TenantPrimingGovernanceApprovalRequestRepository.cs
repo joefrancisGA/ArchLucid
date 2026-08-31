@@ -119,7 +119,7 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
         _inner.GetPendingAsync(maxRows, cancellationToken);
 
     /// <inheritdoc />
-    public Task<int> CountPendingApprovalsAsync(CancellationToken cancellationToken = default) =>
+    public Task<long> CountPendingApprovalsAsync(CancellationToken cancellationToken = default) =>
         _inner.CountPendingApprovalsAsync(cancellationToken);
 
     /// <inheritdoc />

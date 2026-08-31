@@ -242,18 +242,18 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         string idA = "apr-count-a-" + Guid.NewGuid().ToString("N");
         string idB = "apr-count-b-" + Guid.NewGuid().ToString("N");
         string idC = "apr-count-c-" + Guid.NewGuid().ToString("N");
-        DateTime t3 = DateTime.MaxValue.AddTicks(-2);
-        DateTime t2 = DateTime.MaxValue.AddTicks(-3);
-        DateTime t1 = DateTime.MaxValue.AddTicks(-4);
+        DateTime t3 = new DateTime(2030, 1, 3, 0, 0, 0, DateTimeKind.Utc);
+        DateTime t2 = new DateTime(2030, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        DateTime t1 = new DateTime(2030, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         await repo.CreateAsync(NewApproval(idA, runId, t1), CancellationToken.None);
         await repo.CreateAsync(NewApproval(idB, runId, t2), CancellationToken.None);
         await repo.CreateAsync(NewApproval(idC, runId, t3), CancellationToken.None);
 
         IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(2, CancellationToken.None);
-        int totalPending = await repo.CountPendingApprovalsAsync(CancellationToken.None);
+        long totalPending = await repo.CountPendingApprovalsAsync(CancellationToken.None);
         IReadOnlyList<GovernanceApprovalRequest> allPending =
-            await repo.GetPendingAsync(totalPending, CancellationToken.None);
+            await repo.GetPendingAsync((int)totalPending, CancellationToken.None);
 
         pending.Should().HaveCount(2);
         totalPending.Should().BeGreaterThan(pending.Count);

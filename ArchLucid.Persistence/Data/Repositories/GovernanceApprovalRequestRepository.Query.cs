@@ -160,7 +160,7 @@ public sealed partial class GovernanceApprovalRequestRepository
         return [.. rows];
     }
 
-    public async Task<int> CountPendingApprovalsAsync(CancellationToken cancellationToken = default)
+    public async Task<long> CountPendingApprovalsAsync(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
@@ -178,12 +178,10 @@ public sealed partial class GovernanceApprovalRequestRepository
         p.Add("Submitted", GovernanceApprovalStatus.Submitted);
         PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
-        long count = await connection.ExecuteScalarAsync<long>(new CommandDefinition(
+        return await connection.ExecuteScalarAsync<long>(new CommandDefinition(
             sql,
             p,
             cancellationToken: cancellationToken));
-
-        return count > int.MaxValue ? int.MaxValue : (int)count;
     }
 
     public async Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(

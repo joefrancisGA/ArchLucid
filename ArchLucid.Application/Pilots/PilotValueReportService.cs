@@ -79,7 +79,7 @@ public sealed class PilotValueReportService(
         if (tenant is null)
             return null;
 
-        int pendingApprovalsNow =
+        long pendingApprovalsNow =
             await _approvalRequestRepository.CountPendingApprovalsAsync(cancellationToken).ConfigureAwait(false);
 
         DateTime toExclusive = toUtc ?? TimeProvider.System.UtcNowDateTime();
@@ -236,7 +236,7 @@ public sealed class PilotValueReportService(
         }
     }
 
-    private static PilotValueReport EmptyReport(Guid tenantId, DateTime from, DateTime toExclusive, int dashboardPending)
+    private static PilotValueReport EmptyReport(Guid tenantId, DateTime from, DateTime toExclusive, long dashboardPending)
     {
         return new PilotValueReport
         {

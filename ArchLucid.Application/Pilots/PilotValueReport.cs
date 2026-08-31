@@ -114,7 +114,7 @@ public sealed class PilotValueReport
     /// <summary>
     ///     Point-in-time pending approvals in the current scope (uncapped total, not the dashboard list slice).
     /// </summary>
-    public int GovernancePendingApprovalsNow
+    public long GovernancePendingApprovalsNow
     {
         get;
         init;

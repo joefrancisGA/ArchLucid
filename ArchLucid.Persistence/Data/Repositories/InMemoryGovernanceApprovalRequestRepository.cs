@@ -152,13 +152,13 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
     }
 
     /// <inheritdoc />
-    public Task<int> CountPendingApprovalsAsync(CancellationToken cancellationToken = default)
+    public Task<long> CountPendingApprovalsAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
-            int count = _byId.Values
+            long count = _byId.Values
                 .Count(x => string.Equals(x.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
                             || string.Equals(x.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal));
 

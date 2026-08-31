@@ -1,0 +1,1 @@
+global using IGovernanceApprovalRequestRepository = ArchLucid.Persistence.Data.Repositories.IGovernanceApprovalRequestRepository;
