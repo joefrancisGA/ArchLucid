@@ -1334,7 +1334,7 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
-    public async Task RecordBulkDisposition_deduplicates_finding_ids_and_processes_each_once()
+    public async Task RecordBulkDisposition_returns_bad_request_when_finding_ids_are_duplicated()
     {
         Mock<IFindingInspectReadRepository> findingInspect = new();
         findingInspect
@@ -1368,11 +1368,11 @@ public sealed class GovernanceStickinessControllerTests
 
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
-        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
-        RecordBulkFindingDispositionResponse body =
-            ok.Value.Should().BeOfType<RecordBulkFindingDispositionResponse>().Subject;
-        body.ProcessedCount.Should().Be(1);
-        body.UpdatedFindingIds.Should().Equal("finding-1");
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Be("Duplicate findingId in batch.");
 
         dispositions.Verify(
             d => d.RecordAsync(
@@ -1380,11 +1380,11 @@ public sealed class GovernanceStickinessControllerTests
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Never);
     }
 
     [Fact]
-    public async Task RecordBulkDisposition_deduplicates_padded_finding_ids_and_processes_each_once()
+    public async Task RecordBulkDisposition_returns_bad_request_when_padded_finding_ids_normalize_to_duplicates()
     {
         Mock<IFindingInspectReadRepository> findingInspect = new();
         findingInspect
@@ -1418,11 +1418,11 @@ public sealed class GovernanceStickinessControllerTests
 
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
-        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
-        RecordBulkFindingDispositionResponse body =
-            ok.Value.Should().BeOfType<RecordBulkFindingDispositionResponse>().Subject;
-        body.ProcessedCount.Should().Be(1);
-        body.UpdatedFindingIds.Should().Equal("finding-1");
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Be("Duplicate findingId in batch.");
 
         dispositions.Verify(
             d => d.RecordAsync(
@@ -1430,7 +1430,7 @@ public sealed class GovernanceStickinessControllerTests
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Never);
     }
 
     [Fact]
@@ -1531,7 +1531,7 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
-    public async Task RecordBulkDisposition_records_each_distinct_finding_id_once_when_list_contains_duplicates()
+    public async Task RecordBulkDisposition_returns_bad_request_when_list_contains_duplicate_finding_ids()
     {
         const string findingId = "finding-bulk-dup";
 
@@ -1567,18 +1567,19 @@ public sealed class GovernanceStickinessControllerTests
 
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
-        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
-        RecordBulkFindingDispositionResponse body =
-            ok.Value.Should().BeOfType<RecordBulkFindingDispositionResponse>().Subject;
-        body.ProcessedCount.Should().Be(1);
-        body.UpdatedFindingIds.Should().Equal(findingId);
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Be("Duplicate findingId in batch.");
+
         dispositions.Verify(
             d => d.RecordAsync(
                 It.IsAny<RecordFindingDispositionRequest>(),
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Never);
     }
 
     [Fact]

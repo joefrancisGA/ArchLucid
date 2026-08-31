@@ -1763,6 +1763,26 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             Scope.TenantId,
             It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
 
+    private static ITenantRepository TenantExistsRepository()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        return tenants.Object;
+    }
+
     private static GovernanceController CreateController(
         IRunRepository? runRepository = null,
         IGovernanceApprovalRequestRepository? approvalRepository = null,
@@ -1801,9 +1821,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             auditService ?? Mock.Of<IAuditService>(),
             Mock.Of<IPolicyPackDraftService>(),
             Mock.Of<IPolicyPackGeneratorService>(),
-            tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
-                Scope.TenantId,
-                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })),
+            tenantRepository ?? TenantExistsRepository(),
             NullLogger<GovernanceController>.Instance);
     }
 }

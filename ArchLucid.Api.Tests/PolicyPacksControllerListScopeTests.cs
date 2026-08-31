@@ -284,7 +284,7 @@ public sealed class PolicyPacksControllerListScopeTests
         IActionResult result = await sut.Simulate(
             new PolicyPackSimulateRequest
             {
-                RunId = "run-1",
+                RunId = "dddddddd-dddd-dddd-dddd-dddddddddddd",
                 Content = new PolicyPackContentDocument(),
             },
             CancellationToken.None);
@@ -304,7 +304,7 @@ public sealed class PolicyPacksControllerListScopeTests
 
         IActionResult result = await sut.SimulateBulk(
             packId,
-            new PolicyPackSimulateBulkRequest { RunIds = ["run-1"] },
+            new PolicyPackSimulateBulkRequest { RunIds = ["dddddddd-dddd-dddd-dddd-dddddddddddd"] },
             CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
