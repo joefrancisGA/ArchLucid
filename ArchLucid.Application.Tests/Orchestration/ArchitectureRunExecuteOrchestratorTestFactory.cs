@@ -1,3 +1,4 @@
+using ArchLucid.TestSupport.Diagnostics;
 using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Common;

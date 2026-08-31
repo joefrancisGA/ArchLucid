@@ -56,6 +56,7 @@ type RecoveryStepInput = {
   readonly canConfigureWorkspaceAi?: boolean;
   readonly realModeFellBackToSimulator?: boolean | null;
   readonly usesCustomerAiConnection?: boolean;
+  readonly effectiveSessionMode?: "Simulator" | "Real" | null;
 };
 
 function normalizeKey(value: string | null | undefined): string {
@@ -239,6 +240,8 @@ export function resolveReviewFailureRecoveryGuidance(
       triageScenarioId,
       canConfigureWorkspaceAi,
       usesCustomerAiConnection,
+      failureClass,
+      effectiveSessionMode: input.effectiveSessionMode ?? null,
     });
 
     if (steps !== null) {
@@ -324,6 +327,7 @@ export function resolveReviewFailureRecoveryGuidance(
     completedStages,
     realModeFellBackToSimulator: input.realModeFellBackToSimulator,
     usesCustomerAiConnection,
+    effectiveSessionMode: input.effectiveSessionMode ?? null,
   });
 
   const workspaceAiConfigurationFailure = isWorkspaceAiConfigurationFailure({
@@ -333,6 +337,7 @@ export function resolveReviewFailureRecoveryGuidance(
     completedStages,
     realModeFellBackToSimulator: input.realModeFellBackToSimulator,
     usesCustomerAiConnection,
+    effectiveSessionMode: input.effectiveSessionMode ?? null,
   });
 
   const adminConfigurationLink = resolveReviewFailureAdminConfigurationLink({

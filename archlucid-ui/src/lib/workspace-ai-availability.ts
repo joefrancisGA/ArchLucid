@@ -36,6 +36,10 @@ export function workspaceAiAvailabilityStatusLabel(result: WorkspaceAiAvailabili
       : "AI availability probe succeeded";
   }
 
+  if (result.aiSource === "managed-platform" && result.summary.includes("Azure OpenAI")) {
+    return "Real mode — live AI not configured";
+  }
+
   if (result.aiSource === "customer-connection") {
     return "Workspace AI connection unavailable";
   }

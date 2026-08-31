@@ -5,6 +5,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Resilience;
 
@@ -158,6 +159,16 @@ public sealed class AgentExecutionFailureSummaryFactoryTests
 
         summary.FailureClass.Should().Be(AgentExecutionFailureClasses.ContentSafety);
         summary.TriageScenarioId.Should().Be(RealAgentFailureTriageScenarioIds.ContentSafetyRejection);
+    }
+
+    [Fact]
+    public void FromException_when_live_completion_unavailable_CLASSIFIES_missing_credentials_and_triage()
+    {
+        InvalidOperationException inner = new(AgentExecutionReadinessMessages.LiveCompletionUnavailable);
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner);
+
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.MissingCredentials);
+        summary.TriageScenarioId.Should().Be(RealAgentFailureTriageScenarioIds.MissingCredentials);
     }
 
     [Fact]
