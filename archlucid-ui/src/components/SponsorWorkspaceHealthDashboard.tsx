@@ -86,7 +86,16 @@ export function SponsorWorkspaceHealthDashboard() {
   }
 
   if (kpiViewModel === null || decisionsNeeded === undefined) {
-    return null;
+    return (
+      <div className="space-y-4">
+        {layerHeader}
+        <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          {`Loading ${SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE.toLowerCase()}…`}
+        </p>
+      </div>
+    );
   }
 
   const scopeBannerBlock =
