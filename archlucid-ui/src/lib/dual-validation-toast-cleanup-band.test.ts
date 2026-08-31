@@ -33,6 +33,7 @@ describe("dual validation toast cleanup band regression (TB-2009)", () => {
 
     expect(extractUpload).toContain("setUploadError");
     expect(extractUpload).not.toMatch(/setUploadError\([\s\S]{0,220}showError\("Azure upload"/);
+    expect(extractUpload).not.toContain("showSuccess");
 
     const zipField = readSrc(TB_2009_SOURCE_ROOTS[1]);
 

@@ -190,7 +190,7 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (request.EvaluateAgainstRunIds.Count == 0)
+        if (request.EvaluateAgainstRunIds is null || request.EvaluateAgainstRunIds.Count == 0)
             return this.BadRequestProblem(
                 "evaluateAgainstRunIds must contain at least one run id.",
                 ProblemTypes.ValidationFailed);
@@ -229,6 +229,13 @@ public sealed partial class GovernanceController
 
         if (id == Guid.Empty)
             return this.BadRequestProblem("id is required.", ProblemTypes.ValidationFailed);
+
+        if (request.ProposedThresholds is null)
+        {
+            return this.BadRequestProblem(
+                "proposedThresholds is required.",
+                ProblemTypes.ValidationFailed);
+        }
 
         IReadOnlyDictionary<string, string> proposedThresholds =
             request.ProposedThresholds;

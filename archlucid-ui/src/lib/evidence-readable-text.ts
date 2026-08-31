@@ -44,13 +44,27 @@ async function readBinaryDocumentText(file: File): Promise<string | null> {
     return binaryDocumentTextCache.get(file) ?? null;
   }
 
-  const { extractEvidenceDocumentText } = await import("@/lib/extract-evidence-document-text");
-  const result = await extractEvidenceDocumentText(file);
-  const text = result.ok ? result.text : null;
+  try {
+    const { extractEvidenceDocumentText } = await import("@/lib/extract-evidence-document-text");
+    const result = await extractEvidenceDocumentText(file);
+    const text = result.ok ? result.text : null;
 
-  binaryDocumentTextCache.set(file, text);
+    binaryDocumentTextCache.set(file, text);
 
-  return text;
+    return text;
+  } catch {
+    binaryDocumentTextCache.set(file, null);
+    return null;
+  }
+}
+
+/** Sync cache probe so create-run can reuse inference text without a second extract-text call. */
+export function peekBinaryArchitectureDocumentText(file: File): string | null | undefined {
+  if (!binaryDocumentTextCache.has(file)) {
+    return undefined;
+  }
+
+  return binaryDocumentTextCache.get(file) ?? null;
 }
 
 /** Builds a single searchable corpus from the brief, readable files, and API-extracted PDF/DOCX text. */

@@ -103,7 +103,7 @@ describe("operator-scope-storage", () => {
     expect(queryClient.getQueryData(operatorQueryKeys.billingSubscriptionStatus)).toBeUndefined();
   });
 
-  it("writeOperatorScopeToStorage_preserves_browser_level_welcome_onboarding_flag", () => {
+  it("writeOperatorScopeToStorage_clears_welcome_onboarding_dismissal", () => {
     localStorage.setItem(HAS_SEEN_ONBOARDING_STORAGE_KEY, "true");
 
     writeOperatorScopeToStorage({
@@ -114,10 +114,10 @@ describe("operator-scope-storage", () => {
       projectLabel: "PR",
     });
 
-    expect(localStorage.getItem(HAS_SEEN_ONBOARDING_STORAGE_KEY)).toBe("true");
+    expect(localStorage.getItem(HAS_SEEN_ONBOARDING_STORAGE_KEY)).toBeNull();
   });
 
-  it("writeOperatorScopeToStorage_preserves_operator_home_disclosure_prefs", () => {
+  it("writeOperatorScopeToStorage_clears_home_disclosure_prefs", () => {
     localStorage.setItem(
       OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.pilotStartHere,
       OPERATOR_HOME_DISCLOSURE_COLLAPSED_VALUE,
@@ -131,8 +131,6 @@ describe("operator-scope-storage", () => {
       projectLabel: "PR",
     });
 
-    expect(localStorage.getItem(OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.pilotStartHere)).toBe(
-      OPERATOR_HOME_DISCLOSURE_COLLAPSED_VALUE,
-    );
+    expect(localStorage.getItem(OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.pilotStartHere)).toBeNull();
   });
 });
