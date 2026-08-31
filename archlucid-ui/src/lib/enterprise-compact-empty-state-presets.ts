@@ -254,7 +254,7 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   actions: [
     { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
     { label: "Start architecture review", href: "/architecture/reviews/new", variant: "outline" },
-    { label: "Open resolve outcomes", href: GOVERNANCE_APPROVAL_QUEUE_PATH, variant: "outline" },
+    { label: "Open governance approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH, variant: "outline" },
   ],
 };
 
@@ -329,21 +329,21 @@ export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_FILTER_NO_MATCH_COMPACT: Enterpr
     actions: [],
   });
 
-/** Resolve outcomes workflow approvals list when the active review has no requests yet. */
+/** Governance approval workflow approvals list when the active review has no requests yet. */
 export const GOVERNANCE_WORKFLOW_NO_APPROVALS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "governance-workflow-no-approvals",
   title: "No approval requests for this review",
   description: "",
 };
 
-/** Resolve outcomes workflow promotions timeline when no releases exist for the selected review. */
+/** Governance approval workflow promotions timeline when no releases exist for the selected review. */
 export const GOVERNANCE_WORKFLOW_NO_PROMOTIONS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "governance-workflow-no-promotions",
   title: "No environment releases recorded yet",
   description: "",
 };
 
-/** Resolve outcomes workflow activations list when no environment activations exist yet. */
+/** Governance approval workflow activations list when no environment activations exist yet. */
 export const GOVERNANCE_WORKFLOW_NO_ACTIVATIONS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "governance-workflow-no-activations",
   title: "No activations recorded yet",

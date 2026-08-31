@@ -10,9 +10,10 @@ public static class FindingDispositionValidation
     /// <summary>Matches <c>DISPOSITION_RATIONALE_MIN_CHARS</c> in the operator UI.</summary>
     public const int MinimumRationaleLength = 10;
 
-    public static void Validate(RecordFindingDispositionRequest request)
+    public static void Validate(RecordFindingDispositionRequest request, DateTimeOffset? nowUtc = null)
     {
         ArgumentNullException.ThrowIfNull(request);
+        DateTimeOffset effectiveNowUtc = nowUtc ?? TimeProvider.System.GetUtcNow();
 
         if (string.IsNullOrWhiteSpace(request.FindingId))
             throw new ArgumentException("Finding id is required.", nameof(request));
@@ -49,7 +50,7 @@ public static class FindingDispositionValidation
 
         if (request.Disposition == Disposition.Deferred
             && request.RevisitDueUtc is not null
-            && request.RevisitDueUtc <= TimeProvider.System.GetUtcNow())
+            && request.RevisitDueUtc <= effectiveNowUtc)
         {
             throw new ArgumentException("Revisit due date must be in the future when deferring.", nameof(request));
         }

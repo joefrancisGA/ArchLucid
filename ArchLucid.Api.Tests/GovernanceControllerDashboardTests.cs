@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
@@ -313,6 +314,9 @@ public sealed class GovernanceControllerDashboardTests
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
         dashboard.VerifyNoOtherCalls();
     }
 
@@ -406,5 +410,76 @@ public sealed class GovernanceControllerDashboardTests
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         drift.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
+    public async Task GetComplianceDriftTrend_returns_validation_failed_when_fromUtc_is_not_before_toUtc()
+    {
+        DateTime fromUtc = new(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = fromUtc;
+
+        GovernanceController sut = CreateControllerForDriftTrend(drift: new Mock<IComplianceDriftTrendService>(MockBehavior.Strict));
+
+        IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, 1440, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [SkippableFact]
+    public async Task GetComplianceDriftTrend_returns_validation_failed_when_bucket_minutes_out_of_range()
+    {
+        DateTime fromUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = fromUtc.AddDays(7);
+
+        GovernanceController sut = CreateControllerForDriftTrend(drift: new Mock<IComplianceDriftTrendService>(MockBehavior.Strict));
+
+        IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, 30, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    private static GovernanceController CreateControllerForDriftTrend(Mock<IComplianceDriftTrendService> drift)
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = tenantId, Name = "contoso" });
+
+        return new GovernanceController(
+            Mock.Of<IGovernanceWorkflowService>(),
+            Mock.Of<IGovernanceApprovalRequestRepository>(),
+            Mock.Of<IGovernancePromotionRecordRepository>(),
+            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            Mock.Of<IActorContext>(),
+            scope.Object,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<IGovernanceDashboardService>(),
+            Mock.Of<IGovernanceLineageService>(),
+            Mock.Of<IGovernanceRationaleService>(),
+            drift.Object,
+            Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackSchemaKeysService>(),
+            Mock.Of<Core.Audit.IAuditService>(),
+            Mock.Of<IPolicyPackDraftService>(),
+            Mock.Of<IPolicyPackGeneratorService>(),
+            tenants.Object,
+            NullLogger<GovernanceController>.Instance)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
     }
 }

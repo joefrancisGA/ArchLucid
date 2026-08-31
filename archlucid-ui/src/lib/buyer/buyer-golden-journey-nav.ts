@@ -49,7 +49,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   },
   {
     step: 4,
-    label: "Resolve outcomes",
+    label: "Governance approval",
     href: governanceApprovalQueueHref(SHOWCASE_STATIC_DEMO_RUN_ID),
     chipTooltip: "Resolve outcome impact, approvals, and monitoring hooks tied to this review.",
   },

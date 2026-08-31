@@ -1,4 +1,5 @@
 import { ALERTS_CONFIGURE_RULES_LINK_LABEL } from "@/lib/alerts-page-copy";
+import { GOVERNANCE_ENVIRONMENTS_PATH } from "@/lib/governance/governance-environments-route";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF, GOVERNANCE_POLICY_PACKS_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
@@ -42,11 +43,13 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
   {
     stepNumber: 4,
     title: "Define approval expectations",
-    description: "Set the approval path, responsible roles, and expected response times.",
-    outcome: "Approvals have clear owners and response expectations.",
-    tracked: false,
-    primaryActionLabel: "Configure approvals",
-    primaryActionHref: "/governance/approval-queue",
+    description: "Set environment slots, allowed transitions, responsible roles, and expected response times.",
+    outcome: "Approvals have clear owners, environment paths, and response expectations.",
+    tracked: true,
+    primaryActionLabel: "Configure approval environments",
+    primaryActionHref: GOVERNANCE_ENVIRONMENTS_PATH,
+    secondaryActionLabel: "Open approval queue",
+    secondaryActionHref: "/governance/approval-queue",
   },
   {
     stepNumber: 5,
@@ -62,7 +65,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
 export const GOVERNANCE_SETUP_FOUNDATION_INDICATORS: readonly GovernanceSetupFoundationIndicator[] = [
   { id: "policy-baseline", label: "Policy baseline established", stepIndex: 0 },
   { id: "alert-ownership", label: "Alert ownership assigned", stepIndex: 2 },
-  { id: "approval-expectations", label: "Approval expectations documented", stepIndex: 3 },
+  { id: "approval-expectations", label: "Approval environments configured", stepIndex: 3 },
   { id: "sponsor-reporting", label: "Sponsor reporting available", stepIndex: 4 },
 ] as const;
 

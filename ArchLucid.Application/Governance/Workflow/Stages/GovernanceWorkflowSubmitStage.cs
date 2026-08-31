@@ -27,6 +27,7 @@ public sealed class GovernanceWorkflowSubmitStage(
     IBaselineMutationAuditService baselineMutationAudit,
     GovernanceWorkflowAuditSupport auditSupport,
     GovernanceWorkflowIntegrationEventSupport integrationEvents,
+    IGovernanceEnvironmentCatalogService environmentCatalogService,
     IOptions<GovernanceGateOptions> governanceGateOptions,
     ILogger<GovernanceWorkflowSubmitStage> logger) : IGovernanceWorkflowSubmitStage
 {
@@ -47,6 +48,9 @@ public sealed class GovernanceWorkflowSubmitStage(
 
     private readonly GovernanceWorkflowIntegrationEventSupport _integrationEvents =
         integrationEvents ?? throw new ArgumentNullException(nameof(integrationEvents));
+
+    private readonly IGovernanceEnvironmentCatalogService _environmentCatalogService =
+        environmentCatalogService ?? throw new ArgumentNullException(nameof(environmentCatalogService));
 
     private readonly IOptions<GovernanceGateOptions> _governanceGateOptions =
         governanceGateOptions ?? throw new ArgumentNullException(nameof(governanceGateOptions));
@@ -78,12 +82,16 @@ public sealed class GovernanceWorkflowSubmitStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
 
         manifestVersion = manifestVersion.Trim();
+        sourceEnvironment = sourceEnvironment.Trim();
+        targetEnvironment = targetEnvironment.Trim();
 
-        if (!GovernanceEnvironmentOrder.IsValidPromotion(sourceEnvironment, targetEnvironment))
+        if (!await _environmentCatalogService
+                .IsValidTransitionAsync(sourceEnvironment, targetEnvironment, cancellationToken)
+                .ConfigureAwait(false))
         {
             throw new InvalidOperationException(
-                $"Governance approval requests must follow environment ordering (dev → test → prod). " +
-                $"'{sourceEnvironment}' → '{targetEnvironment}' is not a valid step.");
+                $"Governance approval requests must follow an allowed environment transition. " +
+                $"'{sourceEnvironment}' → '{targetEnvironment}' is not permitted.");
         }
 
         ArchitectureRunDetail runDetail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
@@ -163,6 +171,7 @@ public sealed class GovernanceWorkflowSubmitStage(
     private DateTime? ComputeSlaDeadlineUtc()
     {
         int? slaHours = _governanceGateOptions.Value.ApprovalSlaHours;
+
         if (slaHours is null or <= 0)
             return null;
         return TimeProvider.System.UtcNowDateTime().AddHours(slaHours.Value);

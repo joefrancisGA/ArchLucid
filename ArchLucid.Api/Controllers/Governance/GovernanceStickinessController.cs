@@ -48,6 +48,40 @@ public sealed partial class GovernanceStickinessController(
         return null;
     }
 
+    private IActionResult? ValidateDecisionRegisterFilters(
+        string? category,
+        DateTimeOffset? recordedAfterUtc,
+        DateTimeOffset? recordedBeforeUtc,
+        double? minConfidence,
+        double? maxConfidence,
+        string? buyerConfidenceSource)
+    {
+        if (category is not null && string.IsNullOrWhiteSpace(category))
+        {
+            return this.BadRequestProblem(
+                "category cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (recordedAfterUtc is not null
+            && recordedBeforeUtc is not null
+            && recordedAfterUtc > recordedBeforeUtc)
+        {
+            return this.BadRequestProblem(
+                "recordedAfterUtc must be on or before recordedBeforeUtc.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (minConfidence is not null && maxConfidence is not null && minConfidence > maxConfidence)
+        {
+            return this.BadRequestProblem(
+                "minConfidence must be less than or equal to maxConfidence.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return ValidateBuyerConfidenceSource(buyerConfidenceSource);
+    }
+
     private IActionResult? ValidateBuyerConfidenceSource(string? buyerConfidenceSource)
     {
         if (buyerConfidenceSource is null)

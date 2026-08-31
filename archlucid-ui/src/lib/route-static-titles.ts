@@ -64,6 +64,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/governance/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
   "/governance/advisory-scans": OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
   "/governance/recurrence-schedules": OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
+  "/governance/environments": OPERATOR_NAV_LINK_LABELS.governanceEnvironments,
   "/governance/setup": OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
   "/internal/validate-route": OPERATOR_NAV_LINK_LABELS.replayReview,
   "/administration/system-health": OPERATOR_NAV_LINK_LABELS.systemHealth,

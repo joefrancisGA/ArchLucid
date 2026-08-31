@@ -138,7 +138,7 @@ describe("HelpGovernanceApprovalGuideView", () => {
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
 
     expect(screen.getByRole("heading", { name: "Overview" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Resolve outcomes workflow" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Governance approval workflow" })).toBeInTheDocument();
     expect(screen.getByText(GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY)).toBeInTheDocument();
 
     const diagramHost = screen.getByTestId("help-governance-approval-state-diagram");

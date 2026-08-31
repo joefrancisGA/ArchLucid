@@ -1,6 +1,6 @@
 # TB-683 — nightly real-mode eval loop: score committed *.real.json exemplars, emit JSON+Markdown
 # trend artifacts, and warn on two consecutive baseline-regression nights.
-# Gated on repo variable ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true (same as golden-cohort nightly).
+# Gated on .github/REAL_MODE_CI_ENABLED or repo variable ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true.
 name: real-mode-eval-nightly
 
 on:
@@ -22,9 +22,9 @@ jobs:
         id: eligibility
         run: |
           set -euo pipefail
-          if [ "${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM }}" != "true" ]; then
+          if ! bash scripts/ci/is_real_mode_ci_enabled.sh enabled; then
             echo "enabled=false" >> "${GITHUB_OUTPUT}"
-            echo "TB-683 skip: set repository variable ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true to enable nightly real-mode eval."
+            echo "TB-683 skip: add .github/REAL_MODE_CI_ENABLED or set ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true."
             exit 0
           fi
           echo "enabled=true" >> "${GITHUB_OUTPUT}"
