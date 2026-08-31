@@ -244,7 +244,6 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
 
   useIncrementalReviewFindingsRefresh({
     runId: props.runId,
-    initialHasFindingsSnapshot: props.tabLifecycle?.runCompleted === true,
     enabled: pipelineInFlight,
   });
 
