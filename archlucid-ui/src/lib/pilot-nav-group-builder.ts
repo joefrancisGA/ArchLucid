@@ -44,7 +44,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
           href: PACKAGES_NAV_HREF as typeof PACKAGES_NAV_HREF & "/architecture/reviews",
           label: PACKAGES_NAV_LABEL,
-          title: this.shortcutTitle("Browse architecture packages and drafts", "alt+r"),
+          title: this.shortcutTitle("Browse reviews and drafts", "alt+r"),
           keyShortcut: "alt+r",
           icon: ListOrdered,
           tier: "essential",

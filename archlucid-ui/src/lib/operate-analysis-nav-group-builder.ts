@@ -8,6 +8,7 @@ import {
   MessageSquare,
   RefreshCw,
   Search,
+  TrendingUp,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -23,6 +24,7 @@ import { PLANNING_PATH } from "@/lib/planning-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 import { OUTCOMES_HUB_NAV_LABEL, OUTCOMES_HUB_PATH } from "@/lib/usability/usability-consolidation";
+import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 /** Operate · analysis — Q&A, search, and comparison over review evidence. */
 export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
@@ -56,11 +58,18 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         requiredAuthority: "ReadAuthority",
       },
       {
-        // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
         href: OUTCOMES_HUB_PATH as typeof OUTCOMES_HUB_PATH & "/insights/sponsor-report",
         label: OUTCOMES_HUB_NAV_LABEL,
         title: "Sponsor report, ROI summary, scorecard, and workspace health",
         icon: FileText,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: SPONSOR_REPORT_ROI_SUMMARY_PATH as typeof SPONSOR_REPORT_ROI_SUMMARY_PATH & "/insights/roi-summary",
+        label: OPERATOR_NAV_LINK_LABELS.roiReport,
+        title: "ROI summary — also available under Outcomes",
+        icon: TrendingUp,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
