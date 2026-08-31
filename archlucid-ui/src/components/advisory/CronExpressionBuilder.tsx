@@ -73,6 +73,45 @@ export function CronExpressionBuilder({
     enabled: !hidePreview,
   });
 
+  useEffect(() => {
+    if (onPreviewValidityChange === undefined) {
+      return;
+    }
+
+    if (hidePreview) {
+      onPreviewValidityChange(true);
+
+      return;
+    }
+
+    if (trimmedValue.length === 0) {
+      onPreviewValidityChange(false);
+
+      return;
+    }
+
+    const previewLoadingNow = previewQuery.isPending;
+    const validationErrorNow =
+      previewQuery.data !== undefined && !previewQuery.data.isValid
+        ? previewQuery.data.validationError ??
+          "That schedule pattern is not supported. Use a valid five-field UTC expression."
+        : null;
+    const previewRunsCount =
+      previewQuery.data !== undefined && previewQuery.data.isValid
+        ? previewQuery.data.nextRunUtc.length
+        : 0;
+
+    onPreviewValidityChange(
+      !previewLoadingNow && validationErrorNow === null && previewRunsCount > 0,
+    );
+  }, [
+    hidePreview,
+    onPreviewValidityChange,
+    previewQuery.data,
+    previewQuery.isPending,
+    trimmedValue.length,
+  ]);
+
   const previewLoading = !hidePreview && trimmedValue.length > 0 && previewQuery.isPending;
   const validationError = useMemo(() => {
     if (hidePreview || trimmedValue.length === 0 || previewQuery.data === undefined) {
@@ -96,35 +135,6 @@ export function CronExpressionBuilder({
 
     return previewQuery.data.nextRunUtc.map((instant) => new Date(instant));
   }, [hidePreview, previewQuery.data]);
-
-  useEffect(() => {
-    if (onPreviewValidityChange === undefined) {
-      return;
-    }
-
-    if (hidePreview) {
-      onPreviewValidityChange(true);
-
-      return;
-    }
-
-    if (trimmedValue.length === 0) {
-      onPreviewValidityChange(false);
-
-      return;
-    }
-
-    onPreviewValidityChange(
-      !previewLoading && validationError === null && previewRuns.length > 0,
-    );
-  }, [
-    hidePreview,
-    onPreviewValidityChange,
-    previewLoading,
-    previewRuns.length,
-    trimmedValue.length,
-    validationError,
-  ]);
 
   const previewList = useMemo(
     () =>

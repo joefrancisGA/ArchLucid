@@ -108,7 +108,7 @@ describe("LlmBudgetApproachingLimitBanner", () => {
 
     expect(await screen.findByTestId("llm-budget-approaching-limit-banner")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Dismiss LLM budget warning/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
 
     await waitFor(() => {
       expect(screen.queryByTestId("llm-budget-approaching-limit-banner")).not.toBeInTheDocument();
