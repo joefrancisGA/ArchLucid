@@ -26,18 +26,3 @@ public sealed class CorePilotChecklistStepResponse
         set;
     }
 }
-
-public sealed class CorePilotChecklistPutRequest
-{
-    public int StepIndex
-    {
-        get;
-        set;
-    }
-
-    public bool IsCompleted
-    {
-        get;
-        set;
-    }
-}
