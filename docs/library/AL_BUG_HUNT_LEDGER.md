@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 13
-- **bugs-found:** 27
+- **hunts:** 14
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — PascalCase faithfulness aggregate JSON and AgentResult structural validator paths
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — FindingJsonConverter PascalCase scalars, numeric optional-string coercion, quality-gate undefined ordinal lint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1797,9 +1797,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadTrace` case-sensitive on `trace` — PascalCase `"Trace"` dropped explainability trace on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` in `ReadTrace` (`Deserialize_pascal_case_trace_maps_source_agent_execution_trace_id`).
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — case-sensitive `TryGetProperty` on faithfulness fields drops PascalCase aggregate JSON → `ResolveDisposition` returns PASS instead of HOLD/WARN — **hit 2026-08-29 (#262):** case-insensitive lookup for ratio, fallback, warning, citations; regression in `RunExplanationConfidenceCalloutBuilderTests.FromAggregateJson_maps_PascalCase_faithfulness_fields`.
 - [x] (proven) `RealLlmOutputStructuralValidator.ValidateAgentResultStructure` — case-sensitive top-level/finding/trace property lookup rejects PascalCase `AgentResult` envelopes from external LLM tooling — **hit 2026-08-29 (#262):** `TryGetPropertyCaseInsensitive` on required keys; regression in `RealLlmOutputStructuralValidatorTests.ValidateAgentResultStructure_accepts_PascalCase_property_names`.
-- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `category`, `enforcementTier`, `humanReviewStatus`, and `evaluationConfidenceLevel` — PascalCase exporter labels may silently default on reload (sibling fields still use `TryGetProperty`).
-- [ ] (candidate) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` / `runIdRef` tokens may not coerce to string (prior #229 seed on unmerged branch).
-- [ ] (candidate) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — undefined `AgentOutputQualityGateMode` numeric-strings may parse via bare `Enum.TryParse` (verify after hunt #223 quality-gate lint fix scope).
+- [x] (proven) `FindingJsonConverter.Read` case-sensitive on `category`, `enforcementTier`, `humanReviewStatus`, and `evaluationConfidenceLevel` — PascalCase exporter labels silently defaulted on reload — **hit 2026-08-31 (#275):** `TryGetPropertyCaseInsensitive` for remaining scalar enum/string fields; regression in `FindingJsonConverterTests.Deserialize_pascal_case_category_maps_value`, `Deserialize_pascal_case_enforcementTier_maps_advisory`, `Deserialize_pascal_case_humanReviewStatus_maps_approved`, `Deserialize_pascal_case_evaluationConfidenceLevel_maps_high`.
+- [x] (proven) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` / `runIdRef` tokens threw or returned null — **hit 2026-08-31 (#275):** coerce number tokens to invariant strings; regression in `FindingJsonConverterTests.Deserialize_numeric_runIdRef_coerces_to_string`, `Deserialize_numeric_agentExecutionTraceId_coerces_to_string`.
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — undefined `AgentOutputQualityGateMode` numeric-strings parsed via bare `Enum.TryParse` and suppressed production-like WarnOnly advisory — **hit 2026-08-31 (#275):** `Enum.IsDefined` guard with fail-open emit for undefined numeric ordinals; regression in `QualityGateWarnOnlyProductionLikeConfigurationLintTests.ShouldEmitFinding_production_real_undefined_quality_gate_numeric_string_emits_rule`.
+
+2026-08-31 thorough hunt #275: proved remaining FindingJsonConverter PascalCase scalar gaps, numeric optional-string coercion, and quality-gate undefined ordinal lint suppression.
 
 2026-08-28 seed hunt #225: proved policy-pack breach-severity undefined ordinal and finding properties-bag numeric token handling; seeded quality-gate undefined-mode sibling candidate.
 
