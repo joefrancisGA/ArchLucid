@@ -1,0 +1,125 @@
+using System.Text.Json;
+
+using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+namespace ArchLucid.Application.Evidence;
+
+public interface IEvidenceAddedIncrementalReReviewCoordinator
+{
+    Task TryScheduleAfterBulkUploadAsync(Guid runId, int uploadedFileCount, CancellationToken cancellationToken = default);
+}
+
+/// <summary>
+///     Triggers incremental re-review when evidence is attached after execute (robustness #4).
+/// </summary>
+public sealed class EvidenceAddedIncrementalReReviewCoordinator(
+    IScopeContextProvider scopeContextProvider,
+    IRunRepository runRepository,
+    IArchitectureKnowledgeModelAccess? architectureKnowledgeModelAccess,
+    IIncrementalReReviewService incrementalReReviewService,
+    IAsyncSpecialistReviewService specialistReviewService,
+    IRunStageOutcomesRepository runStageOutcomesRepository,
+    IAuditService auditService,
+    IOptions<IncrementalReReviewOnEvidenceAddedOptions> options,
+    ILogger<EvidenceAddedIncrementalReReviewCoordinator> logger) : IEvidenceAddedIncrementalReReviewCoordinator
+{
+    private const string StageName = "incremental-re-review-evidence-added";
+
+    public async Task TryScheduleAfterBulkUploadAsync(
+        Guid runId,
+        int uploadedFileCount,
+        CancellationToken cancellationToken = default)
+    {
+        if (uploadedFileCount <= 0 || !options.Value.Enabled)
+            return;
+
+        if (architectureKnowledgeModelAccess is null)
+            return;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        if (run is null)
+            return;
+
+        string status = run.LegacyRunStatus ?? string.Empty;
+
+        if (!string.Equals(status, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(status, nameof(ArchitectureRunStatus.WaitingForResults), StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        ArchitectureKnowledgeModel? model =
+            await architectureKnowledgeModelAccess.GetForRunAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        if (model is null)
+            return;
+
+        ReReviewScope reReviewScope = new()
+        {
+            AffectedElementIds = model.Elements.Select(static element => element.ElementId).ToList(),
+            IncludeGlobalInvariantChecks = true,
+            FullReReview = false,
+            Trigger = ReReviewTrigger.EvidenceAdded,
+        };
+
+        DateTime startedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+        await runStageOutcomesRepository
+            .RecordStageStartedAsync(runId, StageName, startedUtc, cancellationToken)
+            .ConfigureAwait(false);
+
+        IncrementalReReviewResult result = await incrementalReReviewService
+            .ReReviewAsync(model, reReviewScope, specialistReviewService, cancellationToken)
+            .ConfigureAwait(false);
+
+        await runStageOutcomesRepository
+            .RecordStageCompletedAsync(
+                runId,
+                StageName,
+                "succeeded",
+                TimeProvider.System.GetUtcNow().UtcDateTime,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.Run.IncrementalReReviewCompleted,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runId,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    runId = runId.ToString("N"),
+                    trigger = "evidence-added",
+                    uploadedFileCount,
+                    specialistResultCount = result.SpecialistResults.Count,
+                }),
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Incremental re-review after evidence upload completed for RunId={RunId} with {SpecialistResultCount} specialist results.",
+                runId.ToString("N"),
+                result.SpecialistResults.Count);
+        }
+    }
+}

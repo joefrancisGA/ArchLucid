@@ -13,6 +13,11 @@ import {
   type WizardSessionId,
   type WizardSessionSnapshot,
 } from "@/lib/wizard-session-persistence";
+import {
+  fetchWizardIntakeDraft,
+  upsertWizardIntakeDraft,
+} from "@/lib/api/wizard-intake-draft-api";
+import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
 
 export type WizardSessionSaveState = "idle" | "saved" | "saving" | "unsaved";
 
@@ -62,14 +67,29 @@ export function useWizardSessionPersistence<TState>(
     }
 
     restorePromptCheckedRef.current = true;
-    const snapshot = readWizardSessionSnapshot<TState>(args.wizardId);
 
-    if (snapshot === null || !args.hasSaveableContent(snapshot.state, snapshot.stepIndex)) {
-      return;
-    }
+    void (async () => {
+      const localSnapshot = readWizardSessionSnapshot<TState>(args.wizardId);
+      const remoteDraft = await fetchWizardIntakeDraft(args.wizardId);
 
-    restoreDecisionPendingRef.current = true;
-    setPendingRestore(snapshot);
+      const snapshot =
+        localSnapshot ??
+        (remoteDraft
+          ? ({
+              v: 1,
+              stepIndex: remoteDraft.stepIndex,
+              state: JSON.parse(remoteDraft.stateJson) as TState,
+              savedAtUtc: remoteDraft.updatedUtc,
+            } satisfies WizardSessionSnapshot<TState>)
+          : null);
+
+      if (snapshot === null || !args.hasSaveableContent(snapshot.state, snapshot.stepIndex)) {
+        return;
+      }
+
+      restoreDecisionPendingRef.current = true;
+      setPendingRestore(snapshot);
+    })();
   }, [args.hasSaveableContent, args.wizardId, enabled]);
 
   const acceptRestore = useCallback(() => {
@@ -163,6 +183,14 @@ export function useWizardSessionPersistence<TState>(
       persistedSnapshotRef.current = serialized;
       setLastSavedUtc(savedAtUtc);
       setSaveState("saved");
+
+      void upsertWizardIntakeDraft(args.wizardId, {
+        stepIndex: args.stepIndex,
+        stateJson: serialized,
+        idempotencyKey: getOrCreateWizardIdempotencyKey(),
+      }).catch(() => {
+        // sessionStorage remains the local fallback when tenant draft sync fails
+      });
     }, PERSIST_DEBOUNCE_MS);
 
     return () => {

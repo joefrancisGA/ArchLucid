@@ -1,11 +1,13 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -23,8 +25,11 @@ public sealed class BulkEvidenceUploadService(
     IActorContext actorContext,
     IAuditService auditService,
     IRunRepository runRepository,
+    IAgentTaskRepository agentTaskRepository,
+    IEvidenceBundleRepository evidenceBundleRepository,
     IArtifactBlobStore blobStore,
     IZipEvidenceExpanderService zipEvidenceExpanderService,
+    IEvidenceAddedIncrementalReReviewCoordinator evidenceAddedIncrementalReReviewCoordinator,
     IOptions<EvidenceBulkUploadOptions> options,
     ILogger<BulkEvidenceUploadService> logger) : IBulkEvidenceUploadService
 {
@@ -167,6 +172,13 @@ public sealed class BulkEvidenceUploadService(
                     auditEventTypeForMetrics: auditEvent.EventType)
                 .ConfigureAwait(false);
 
+            await TryUpdateEvidenceBundleMetadataAsync(scope, runId, uploadedIds.Count, cancellationToken)
+                .ConfigureAwait(false);
+
+            await evidenceAddedIncrementalReReviewCoordinator
+                .TryScheduleAfterBulkUploadAsync(runId, uploadedIds.Count, cancellationToken)
+                .ConfigureAwait(false);
+
             return new BulkEvidenceUploadResult
             {
                 Succeeded = true,
@@ -240,5 +252,39 @@ public sealed class BulkEvidenceUploadService(
         }
 
         return false;
+    }
+
+    private async Task TryUpdateEvidenceBundleMetadataAsync(
+        ScopeContext scope,
+        Guid runId,
+        int uploadedCount,
+        CancellationToken cancellationToken)
+    {
+        if (uploadedCount <= 0)
+            return;
+
+        IReadOnlyList<AgentTask> tasks =
+            await agentTaskRepository.GetByRunIdAsync(scope, runId.ToString("N"), cancellationToken).ConfigureAwait(false);
+
+        string? bundleRef = tasks.FirstOrDefault()?.EvidenceBundleRef;
+
+        if (string.IsNullOrWhiteSpace(bundleRef))
+            return;
+
+        EvidenceBundle? bundle = await evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken).ConfigureAwait(false);
+
+        if (bundle is null)
+            return;
+
+        int existingCount = 0;
+
+        if (bundle.Metadata.TryGetValue(BulkEvidenceMetadataKeys.AttachedFileCountKey, out string? rawCount))
+            int.TryParse(rawCount, out existingCount);
+
+        bundle.Metadata[BulkEvidenceMetadataKeys.AttachedFileCountKey] = (existingCount + uploadedCount).ToString();
+        bundle.Metadata[BulkEvidenceMetadataKeys.LastAttachedUtcKey] =
+            TimeProvider.System.GetUtcNow().UtcDateTime.ToString("O");
+
+        await evidenceBundleRepository.UpdateAsync(bundle, cancellationToken).ConfigureAwait(false);
     }
 }

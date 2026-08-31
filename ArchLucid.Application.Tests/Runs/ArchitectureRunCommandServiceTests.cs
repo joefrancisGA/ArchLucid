@@ -199,6 +199,7 @@ public sealed class ArchitectureRunCommandServiceTests
             createOrchestrator ?? Mock.Of<IArchitectureRunCreateOrchestrator>(),
             Mock.Of<IArchitectureRunBatchCreateOrchestrator>(),
             executeOrchestrator ?? Mock.Of<IArchitectureRunExecuteOrchestrator>(),
+            Mock.Of<IExecuteEvidenceReadinessGate>(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             Mock.Of<IReplayRunService>(),
             commitCoordinator ?? Mock.Of<ICommitRunIdempotencyCoordinator>(),

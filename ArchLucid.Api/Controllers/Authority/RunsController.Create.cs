@@ -115,6 +115,35 @@ public sealed partial class RunsController
         }
     }
 
+    [HttpGet("request/idempotency/{idempotencyKey}")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> LookupCreateRunByIdempotencyKey(
+        string idempotencyKey,
+        CancellationToken cancellationToken)
+    {
+        IdempotencyKeyValidationResult validation = runLifecycleCommandService.ValidateIdempotencyKey(idempotencyKey);
+
+        if (!validation.IsValid || string.IsNullOrWhiteSpace(validation.Key))
+            return this.BadRequestProblem(validation.ErrorMessage ?? "Idempotency-Key is required.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        CreateRunResult? result = await runLifecycleCommandService
+            .LookupCreateRunByIdempotencyKeyAsync(scope, validation.Key, cancellationToken);
+
+        if (result is null)
+            return NotFound();
+
+        CreateArchitectureRunResponse response =
+            RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
+
+        Response.Headers.Append("X-Idempotency-Replayed", "true");
+
+        return Ok(response);
+    }
+
     [HttpPost("request/batch")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [RequiresCommercialTenantTier(TenantTier.Standard)]
