@@ -102,8 +102,9 @@ public sealed class PolicyPackDryRunService(
 
     private static List<string> DeduplicateRunIds(IReadOnlyList<string> evaluateAgainstRunIds)
     {
-        List<string> cleanedRunIds = [];
-        HashSet<string> seenRunIds = new(StringComparer.OrdinalIgnoreCase);
+        int initialCapacity = Math.Min(evaluateAgainstRunIds.Count, IPolicyPackDryRunService.MaxEvaluatedRuns);
+        List<string> cleanedRunIds = new(initialCapacity);
+        HashSet<string> seenRunIds = new(initialCapacity, StringComparer.OrdinalIgnoreCase);
 
         foreach (string runIdRaw in evaluateAgainstRunIds)
         {
