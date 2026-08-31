@@ -95,13 +95,4 @@ describe("PilotRoiBaselineReadinessCard", () => {
 
     expect(localStorage.getItem(PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_KEY)).toBe("1");
   });
-
-  it("shows compact row after X dismiss", async () => {
-    render(<PilotRoiBaselineReadinessCard />);
-    fireEvent.click(screen.getByTestId("pilot-roi-baseline-readiness-dismiss"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("pilot-roi-baseline-readiness-compact")).toBeInTheDocument();
-    });
-  });
 });

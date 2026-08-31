@@ -9,10 +9,10 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
+import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 import {
-  fetchLlmMonthlyDollarBudgetStatusCached,
   llmBudgetRemainingPercent,
   llmBudgetUtilizationPercent,
 } from "@/lib/llm-monthly-budget-status";
@@ -76,10 +76,13 @@ export function OperatorBillingCurrentPlanSummary() {
     isPending: usagePending,
     isFetched: usageFetched,
   } = useTenantUsageStatusQuery();
+  const { data: llmBudgetStatus } = useLlmMonthlyBudgetStatusQuery();
   const [workspaceLabel, setWorkspaceLabel] = useState<string | null>(null);
-  const [aiBudgetRemainingPercent, setAiBudgetRemainingPercent] = useState<number | null>(null);
-  const [includedAiBudgetUsd, setIncludedAiBudgetUsd] = useState<number | null>(null);
-  const [aiUsedPercent, setAiUsedPercent] = useState<number | null>(null);
+  const aiBudgetRemainingPercent =
+    llmBudgetStatus !== undefined ? llmBudgetRemainingPercent(llmBudgetStatus) : null;
+  const includedAiBudgetUsd = llmBudgetStatus?.effectiveHardCapUsd ?? null;
+  const aiUsedPercent =
+    llmBudgetStatus !== undefined ? llmBudgetUtilizationPercent(llmBudgetStatus) : null;
 
   useEffect(() => {
     const syncScopeLabel = () => {
@@ -91,32 +94,6 @@ export function OperatorBillingCurrentPlanSummary() {
 
     return () => {
       window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, syncScopeLabel);
-    };
-  }, []);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const status = await fetchLlmMonthlyDollarBudgetStatusCached();
-
-        if (!canceled) {
-          setAiBudgetRemainingPercent(llmBudgetRemainingPercent(status));
-          setIncludedAiBudgetUsd(status.effectiveHardCapUsd);
-          setAiUsedPercent(llmBudgetUtilizationPercent(status));
-        }
-      } catch {
-        if (!canceled) {
-          setAiBudgetRemainingPercent(null);
-          setIncludedAiBudgetUsd(null);
-          setAiUsedPercent(null);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
     };
   }, []);
 

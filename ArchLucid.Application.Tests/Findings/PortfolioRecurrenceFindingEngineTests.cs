@@ -54,6 +54,71 @@ public sealed class PortfolioRecurrenceFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_returns_empty_when_current_system_snapshot_missing_even_if_peers_share_finding()
+    {
+        Guid currentRunId = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        Guid peerSnapshotId = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+        Finding sharedFinding = new()
+        {
+            Category = "Security",
+            Title = "Public storage account endpoint",
+            PolicyRuleId = "SEC-001",
+            EngineType = "security-baseline",
+            FindingType = "SecurityControlFinding",
+            Severity = FindingSeverity.Warning,
+            Rationale = "Storage account allows public network access.",
+        };
+
+        FindingsSnapshot peerSnapshot = new()
+        {
+            FindingsSnapshotId = peerSnapshotId,
+            Findings = [sharedFinding],
+        };
+
+        List<RunSummary> summaries =
+        [
+            CreateCommittedSummary(currentRunId, "Payments", new DateTime(2026, 8, 20, 0, 0, 0, DateTimeKind.Utc)),
+            CreateCommittedSummary(Guid.Parse("cccccccccccccccccccccccccccccccc"), "Claims", new DateTime(2026, 8, 19, 0, 0, 0, DateTimeKind.Utc)),
+            CreateCommittedSummary(Guid.Parse("dddddddddddddddddddddddddddddddd"), "Billing", new DateTime(2026, 8, 18, 0, 0, 0, DateTimeKind.Utc)),
+            CreateCommittedSummary(Guid.Parse("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"), "Identity", new DateTime(2026, 8, 17, 0, 0, 0, DateTimeKind.Utc)),
+        ];
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((summaries, false, null));
+
+        foreach (RunSummary summary in summaries)
+        {
+            Guid snapshotId = string.Equals(summary.RunId, currentRunId.ToString("N"), StringComparison.OrdinalIgnoreCase)
+                ? Guid.Parse("ffffffffffffffffffffffffffffffff")
+                : peerSnapshotId;
+
+            runQuery
+                .Setup(query => query.GetRunDetailForRoiAsync(summary.RunId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(CreateRunDetail(summary.RunId, snapshotId));
+        }
+
+        Mock<IFindingsSnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repository => repository.GetByIdAsync(It.IsAny<ScopeContext>(), peerSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(peerSnapshot);
+        snapshotRepository
+            .Setup(repository => repository.GetByIdAsync(
+                It.IsAny<ScopeContext>(),
+                Guid.Parse("ffffffffffffffffffffffffffffffff"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((FindingsSnapshot?)null);
+
+        PortfolioRecurrenceFindingEngine engine = CreateEngine(runQuery, snapshotRepository, enabled: true);
+        GraphSnapshot graphSnapshot = new() { RunId = currentRunId };
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_when_enabled_and_five_systems_share_violation_emits_recurrence_finding()
     {
         Guid currentRunId = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
