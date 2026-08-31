@@ -71,7 +71,7 @@ export const SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL = `${GUIDED_INTAKE_CREATION_ARCH
 export const SCOPE_ACTORS_SOURCE_DEFAULT_LABEL = `${GUIDED_INTAKE_ACTORS_SECTION_HEADING} above`;
 
 export function scopeReadOnlyHint(contextSourceLabel: string): string {
-  return `Read-only preview — edit this in ${contextSourceLabel}.`;
+  return `Preview only — edit this in ${contextSourceLabel}.`;
 }
 
 export const SCOPE_UNDERSTANDING_READ_ONLY_HINT = scopeReadOnlyHint(
