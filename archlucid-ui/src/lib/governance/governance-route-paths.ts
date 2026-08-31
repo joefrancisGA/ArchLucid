@@ -19,7 +19,12 @@ export const GOVERNANCE_STANDARDS_AND_RULES_PATH = "/governance/standards-and-ru
 /** Alias kept for existing imports — prefer {@link GOVERNANCE_STANDARDS_AND_RULES_PATH}. */
 export const GOVERNANCE_RESOLUTION_PATH = GOVERNANCE_STANDARDS_AND_RULES_PATH;
 
+export const GOVERNANCE_ADVISORY_SCANS_PATH = "/governance/advisory-scans" as const;
+
 export const GOVERNANCE_AUDIT_PATH = "/governance/audit";
+
+/** Governance onboarding / setup guide. */
+export const GOVERNANCE_SETUP_PATH = "/governance/setup" as const;
 
 /** Cross-review risk-register queue (left-nav Findings). */
 export const GOVERNANCE_FINDINGS_PATH = "/governance/findings" as const;
