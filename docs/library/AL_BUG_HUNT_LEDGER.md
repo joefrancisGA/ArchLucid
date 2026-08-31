@@ -1662,6 +1662,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-hunt:** 2026-08-31
 - **last-bug:** 2026-08-31 — OTP concurrent wrong-code RowVersion retry; link-proposal terminal status guard
 - **last-bug:** 2026-08-31 — OTP wrong-code RowVersion retry on concurrent verify
+- **last-bug:** 2026-08-31 — link-proposal terminal status guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1694,6 +1695,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
 
 2026-08-31 seed hunt #318: proved OTP RowVersion retry; retained link-proposal (unmerged #943), trial lockout, and OTP resend race as open hypotheses.
+- [x] (proven) `DapperAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` / `InMemoryAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` — no `Status = PendingConfirmation` guard allowed confirmed proposals to be rewritten to cancelled — **hit 2026-08-31 (#316):** only transition from pending; regression in `InMemoryAuthenticationIdentityLinkProposalRepositoryCoverageTests` and `DapperAuthenticationIdentityLinkProposalRepositorySqlIntegrationTests`.
+- [ ] (hunt-ready) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — read-modify-write at `TrialLocalIdentityService.AuthenticateAsync` with unconditional `UPDATE` can lose lockout increments under parallel failed logins (no optimistic concurrency or atomic increment).
+- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
+
+2026-08-31 seed hunt #314: proved OTP concurrent wrong-code RowVersion retry; seeded trial lockout lost-update, link-proposal status TOCTOU, and OTP resend invalidate/insert race candidates.
+2026-08-31 seed hunt #316: proved link-proposal terminal status guard; seeded OTP RowVersion retry (merged #938), trial lockout lost-update, and OTP resend invalidate/insert race candidates.
 
 ---
 
