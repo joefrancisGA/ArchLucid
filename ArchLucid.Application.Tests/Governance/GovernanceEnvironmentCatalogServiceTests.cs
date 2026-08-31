@@ -77,7 +77,7 @@ public sealed class GovernanceEnvironmentCatalogServiceTests
         Func<Task> act = async () => await service.ReplaceCatalogAsync(request, CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*At least one transition is required*");
+            .WithMessage("*At least one environment transition is required*");
     }
 
     [Fact]
