@@ -47,7 +47,7 @@ public sealed class TenantHomepageSettingsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
@@ -68,7 +68,7 @@ public sealed class TenantHomepageSettingsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListEligibleSamplesAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
@@ -108,7 +108,7 @@ public sealed class TenantHomepageSettingsController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
@@ -116,8 +116,6 @@ public sealed class TenantHomepageSettingsController(
 
         if (scopeProblem is not null)
             return scopeProblem;
-
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         if (body.SelectedRunId == Guid.Empty)
             return this.BadRequestProblem("selectedRunId is required.", ProblemTypes.ValidationFailed);

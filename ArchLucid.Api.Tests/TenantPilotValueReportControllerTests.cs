@@ -221,6 +221,33 @@ public sealed class TenantPilotValueReportControllerTests
         content.Content.Should().Contain("| Committed runs | 1 |");
     }
 
+    [SkippableFact]
+    public async Task GetPilotValueReport_returns_json_when_json_has_higher_accept_quality_than_markdown()
+    {
+        Mock<IPilotValueReportService> svc = new();
+        PilotValueReport body = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = TimeProvider.System.UtcNowDateTime().AddDays(-7),
+            ToUtc = TimeProvider.System.UtcNowDateTime(),
+            TotalRunsCommitted = 2,
+            GovernancePendingApprovalsNow = 0,
+        };
+
+        svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(body);
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Accept = "application/json, text/markdown;q=0.1";
+
+        TenantPilotValueReportController sut = CreateController(svc.Object, httpContext: http);
+
+        IActionResult result = await sut.GetPilotValueReport(null, null, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(body);
+    }
+
     private static TenantPilotValueReportController CreateController(
         IPilotValueReportService service,
         HttpContext? httpContext = null,

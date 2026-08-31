@@ -34,4 +34,10 @@ describe("shouldShowReviewInPipelineBanner (TB-2385)", () => {
       }),
     ).toBe(false);
   });
+
+  it("returns false when the review already failed even if snapshots are missing", () => {
+    expect(
+      shouldShowReviewInPipelineBanner(baseSummary, { legacyRunStatus: "Failed" }),
+    ).toBe(false);
+  });
 });

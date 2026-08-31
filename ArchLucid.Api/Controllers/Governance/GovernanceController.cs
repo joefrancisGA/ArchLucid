@@ -65,6 +65,8 @@ public sealed partial class GovernanceController(
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
+    private const int ComplianceDriftTrendMaxBuckets = 500;
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -98,12 +100,16 @@ public sealed partial class GovernanceController(
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
-    private Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken) =>
-        TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
+    {
+        (IActionResult? problem, _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+
+        return problem;
+    }
 
     private static string NormalizeApprovalRequestId(string approvalRequestId) =>
         approvalRequestId.Trim();

@@ -44,7 +44,7 @@ public sealed class GovernancePostureController(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
@@ -52,8 +52,6 @@ public sealed class GovernancePostureController(
 
         if (scopeProblem is not null)
             return scopeProblem;
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return Ok(new ArchitecturePostureSummary());

@@ -49,7 +49,7 @@ public sealed class TenantLlmCostReportingController(
                 ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,

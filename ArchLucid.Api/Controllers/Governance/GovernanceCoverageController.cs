@@ -54,7 +54,7 @@ public sealed class GovernanceCoverageController(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
@@ -63,7 +63,6 @@ public sealed class GovernanceCoverageController(
         if (scopeProblem is not null)
             return scopeProblem;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         CoveragePreviewInput input = CoveragePreviewMapper.ToInput(request);
         CoveragePreviewResult preview = await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
         CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);
@@ -76,7 +75,7 @@ public sealed class GovernanceCoverageController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetScopeCoverage(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
@@ -85,7 +84,6 @@ public sealed class GovernanceCoverageController(
         if (scopeProblem is not null)
             return scopeProblem;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         CoverageSummary summary = await coverageQueryService.GetByScopeAsync(scope, cancellationToken);
 
         Dictionary<Guid, PolicyPack> packById = summary.Assignments.Count == 0

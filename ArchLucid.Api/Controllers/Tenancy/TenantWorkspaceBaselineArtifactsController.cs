@@ -40,7 +40,7 @@ public sealed class TenantWorkspaceBaselineArtifactsController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
             _tenantRepository,
@@ -48,8 +48,6 @@ public sealed class TenantWorkspaceBaselineArtifactsController(
 
         if (scopeProblem is not null)
             return scopeProblem;
-
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         WorkspaceBaselineExtractorArtifacts baselineArtifacts =
             await _azureExtractorPackageRepository.GetWorkspaceBaselineArtifactsAsync(scope, cancellationToken);

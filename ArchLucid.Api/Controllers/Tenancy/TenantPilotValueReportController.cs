@@ -72,7 +72,7 @@ public sealed class TenantPilotValueReportController(
                 ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
@@ -90,9 +90,7 @@ public sealed class TenantPilotValueReportController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        string accept = Request.Headers.Accept.ToString();
-
-        if (accept.Contains("text/markdown", StringComparison.OrdinalIgnoreCase))
+        if (PilotValueReportAcceptFormat.PrefersMarkdown(Request.Headers.Accept.ToString()))
             return Content(_pilotValueReportMarkdownFormatter.Format(report), "text/markdown; charset=utf-8");
 
         return Ok(report);
@@ -117,7 +115,7 @@ public sealed class TenantPilotValueReportController(
                 ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,

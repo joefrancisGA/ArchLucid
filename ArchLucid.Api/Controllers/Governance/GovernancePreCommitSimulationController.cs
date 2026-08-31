@@ -47,12 +47,16 @@ public sealed class GovernancePreCommitSimulationController(
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
-    private Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken) =>
-        TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
+    {
+        (IActionResult? problem, _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+
+        return problem;
+    }
     // idempotency-posture: dry-run-no-persist
     [HttpGet("checklist/{runId}")]
     [ProducesResponseType(typeof(PreFinalizeChecklistResult), StatusCodes.Status200OK)]
@@ -66,7 +70,7 @@ public sealed class GovernancePreCommitSimulationController(
             return this.BadRequestProblem("Run ID is required.", ProblemTypes.ValidationFailed);
 
         if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
-            return this.BadRequestProblem($"Run ID '{runId}' is not valid.", ProblemTypes.BadRequest);
+            return this.BadRequestProblem($"Run ID '{runId.Trim()}' is not valid.", ProblemTypes.ValidationFailed);
 
         if (Guid.Parse(runIdNormalized) == Guid.Empty)
             return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);
@@ -112,14 +116,21 @@ public sealed class GovernancePreCommitSimulationController(
 
         if (!TryParseRunId(body.RunId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem(
-                $"Run ID '{body.RunId}' is not valid.",
-                ProblemTypes.BadRequest);
+                $"Run ID '{body.RunId.Trim()}' is not valid.",
+                ProblemTypes.ValidationFailed);
 
         if (Guid.Parse(runIdNormalized) == Guid.Empty)
             return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);
 
         if (body.SyntheticCount < 0)
             return this.BadRequestProblem("syntheticCount must be non-negative.", ProblemTypes.ValidationFailed);
+
+        if (body.SyntheticCount > PreCommitSyntheticSimulationRequest.MaxSyntheticCount)
+        {
+            return this.BadRequestProblem(
+                $"syntheticCount must be at most {PreCommitSyntheticSimulationRequest.MaxSyntheticCount}.",
+                ProblemTypes.ValidationFailed);
+        }
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

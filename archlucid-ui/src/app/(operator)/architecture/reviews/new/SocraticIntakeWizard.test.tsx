@@ -44,6 +44,32 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   }),
 }));
 
+const suggestAnswersFromEvidence = vi.fn();
+
+vi.mock("@/hooks/use-agent-execution-mode", () => ({
+  useAgentExecutionMode: () => ({
+    isSimulator: false,
+  }),
+}));
+
+vi.mock("@/hooks/use-inferred-universal-intake-answers", () => ({
+  useInferredUniversalIntakeAnswers: () => ({
+    inferredQuestionKeys: new Set<string>(),
+    rephrasedQuestionKeys: new Set<string>(),
+    isExtractingEvidenceText: false,
+    clarificationSuggestionsUnavailable: false,
+    canSuggestFromEvidence: true,
+    suggestAnswersFromEvidence,
+    markQuestionEdited: vi.fn(),
+    evidenceExtractionProgress: {
+      begin: vi.fn(),
+      reportStage: vi.fn(),
+      reportExtractedCharacters: vi.fn(),
+      complete: vi.fn(),
+    },
+  }),
+}));
+
 vi.mock("@/lib/api/draft-intake-api", () => ({
   admitDraftRequest: (...args: unknown[]) => admitDraftRequest(...args),
   createDraftRequest: (...args: unknown[]) => createDraftRequest(...args),
@@ -246,6 +272,7 @@ describe("SocraticIntakeWizard", () => {
     searchParamsGet.mockImplementation(() => null);
     getDraftRequest.mockReset();
     routerPush.mockReset();
+    suggestAnswersFromEvidence.mockReset();
     tryLoadPriorPackageGuidedIntakePrefill.mockReset();
     tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue(null);
     window.sessionStorage.clear();
@@ -675,6 +702,39 @@ describe("SocraticIntakeWizard", () => {
 
     expect(helper.compareDocumentPosition(reviewButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(stickyFooter).toContainElement(reviewButton);
+  });
+
+  it("shows suggest-from-brief controls on the clarifications step", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [sampleQuestion],
+      requiredMustQuestionKeys: ["l0.pillar.security"],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions.mockResolvedValue({
+      draftId: "draft-1",
+      status: "Admitted",
+      selection: {
+        allQuestions: [sampleQuestion],
+        requiredMustQuestionKeys: ["l0.pillar.security"],
+        pendingMustQuestions: [sampleQuestion],
+      },
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("guided-intake-clarification-suggest-from-brief")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("guided-intake-suggest-from-brief"));
+    expect(suggestAnswersFromEvidence).toHaveBeenCalled();
   });
 
   it("renders related resources in the wizard main column on the clarifications step", async () => {

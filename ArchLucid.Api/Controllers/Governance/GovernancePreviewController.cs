@@ -134,10 +134,14 @@ public sealed class GovernancePreviewController(
         }
     }
 
-    private Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken) =>
-        TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
+    {
+        (IActionResult? problem, _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+
+        return problem;
+    }
 }

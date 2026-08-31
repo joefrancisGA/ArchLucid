@@ -61,12 +61,16 @@ public sealed partial class PolicyPacksController(
     private readonly IValidator<AssignPolicyPackRequest> _assignPolicyPackRequestValidator =
         assignPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(assignPolicyPackRequestValidator));
 
-    private Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken) =>
-        TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+    private async Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken)
+    {
+        (IActionResult? problem, _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
             _tenantRepository,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+
+        return problem;
+    }
 
     private IActionResult? BadRequestWhenRouteIdEmpty(Guid id, string parameterName)
     {
