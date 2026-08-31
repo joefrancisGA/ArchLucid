@@ -2278,7 +2278,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 93
+- **hunts:** 94
 - **bugs-found:** 234
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
@@ -2527,6 +2527,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **cheap-disproof 2026-08-31:** per-item `ValidationFailed` for exact duplicates since 2026-08-28; **hit 2026-08-31:** `OrdinalIgnoreCase` dedupe for case-variant duplicates; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without per-item failure rows — **hit 2026-08-31 (#281):** validate all finding ids in scope before recording any; map scope misses to HTTP 404; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
+
+- [ ] (hunt-ready) `GovernancePostureController.GetPosture` — scope JWT carries a valid tenant id but a workspace id that does not belong to that tenant → HTTP 200 posture summary (or empty summary) instead of HTTP 404 — **mechanism:** action preflights only `ITenantRepository.GetByIdAsync`; sibling reads `GovernanceResolutionController.Resolve` and `GovernanceSetupController.GetSetupGuideBundle` already call `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` — **repro test:** `GovernancePostureControllerTests.GetPosture_returns_not_found_when_workspace_missing`.
+- [ ] (hunt-ready) `GovernanceCoverageController.GetScopeCoverage` / `PreviewCoverage` — same ghost-workspace scope triple as posture → HTTP 200 coverage payload instead of HTTP 404 — **mechanism:** both actions call `GetByIdAsync` on tenant only before `GetByScopeAsync` / `PreviewAsync`; no `WorkspaceExistsAsync` parity with resolution/setup-guide — **repro test:** `GovernanceCoverageControllerScopeTests.GetScopeCoverage_returns_not_found_when_workspace_missing` and `PreviewCoverage_returns_not_found_when_workspace_missing`.
+- [ ] (hunt-ready) `TenantCustomerSuccessController.PostProductFeedbackAsync` — JSON body omits `score` (e.g. `{ "findingRef": "fp-1" }`) → HTTP 204 and persists `Score = 0` (neutral) instead of HTTP 400 — **mechanism:** `ProductFeedbackRequest.Score` is non-nullable `short` (defaults to 0); `[Range(-1,1)]` accepts 0; controller never requires an explicit score before `InsertProductFeedbackAsync` — **repro test:** `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_score_omitted`.
+
+2026-08-31 seed hunt #331: seeded ghost-workspace preflight gaps on posture/coverage reads and product-feedback partial JSON score default; skipped #330 rows still open on master (environment-catalog ghost tenant, empty `projectId` query, checklist `isCompleted` omission).
 
 2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
 
