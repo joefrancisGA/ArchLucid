@@ -40,7 +40,7 @@ public sealed class DapperWarmTenantCatalogStandbyRepository(ISystemSqlConnectio
 
         // Atomically claim the oldest unclaimed standby row in a single UPDATE…OUTPUT statement.
         // Using a subquery with UPDLOCK + READPAST prevents two concurrent callers from
-        // selecting the same row before MarkClaimedAsync runs.
+        // selecting the same row.
         const string sql = """
                            UPDATE dbo.WarmTenantCatalogStandby
                            SET ClaimedUtc = SYSUTCDATETIME()
