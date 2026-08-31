@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { FRICTIONLESS_TRIAL_SESSION_STORAGE_KEY } from "@/lib/frictionless-trial-session";
 import { getEffectiveBrowserProxyScopeHeaders, writeOperatorScopeToStorage, ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
 import { OPERATOR_SCOPE_COOKIE_NAME } from "@/lib/operator/operator-scope-cookie";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
@@ -12,14 +13,17 @@ import {
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { getOperatorQueryClient, resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { clearOidcSession, persistTokenResponse } from "@/lib/oidc/session";
 
 describe("operator-scope-storage", () => {
   beforeEach(() => {
+    clearOidcSession();
     resetOperatorQueryClientForTests();
   });
 
   afterEach(() => {
     vi.unstubAllEnvs();
+    clearOidcSession();
     localStorage.clear();
   });
 
@@ -81,6 +85,51 @@ describe("operator-scope-storage", () => {
 
     expect(localStorage.getItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY)).toBeNull();
     expect(localStorage.getItem(HAS_EXISTING_RUNS_CACHE_KEY)).toBeNull();
+  });
+
+  it("writeOperatorScopeToStorage_clears_llm_monthly_budget_status_cache", () => {
+    const queryClient = getOperatorQueryClient();
+    queryClient.setQueryData(operatorQueryKeys.llmMonthlyBudgetStatus, {
+      monthlyBudgetMonitoringActive: true,
+      blocksAdditionalLlmExecution: false,
+      utcMonth: "2026-08",
+      hardCutoffUsdPerUtcMonth: 100,
+      effectiveHardCapUsd: 100,
+      purchasedCapBumpUsd: null,
+      estimatedUsdPressure: 10,
+      assumedNextCallReservationUsd: null,
+      hardCapUtilizationFraction: 0.25,
+      warnFraction: 0.75,
+    });
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(queryClient.getQueryData(operatorQueryKeys.llmMonthlyBudgetStatus)).toBeUndefined();
+  });
+
+  it("writeOperatorScopeToStorage_clears_frictionless_trial_session_when_signed_in", () => {
+    persistTokenResponse({
+      access_token: "signed-in-access-token",
+      token_type: "Bearer",
+      expires_in: 3600,
+    });
+    localStorage.setItem(FRICTIONLESS_TRIAL_SESSION_STORAGE_KEY, "1");
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(localStorage.getItem(FRICTIONLESS_TRIAL_SESSION_STORAGE_KEY)).toBeNull();
   });
 
   it("writeOperatorScopeToStorage_clears_billing_subscription_status_cache", () => {
