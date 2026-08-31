@@ -6,7 +6,7 @@ import {
   AcceleratorCostGovernanceCloudPicker,
   useAcceleratorCostGovernancePackSelection,
 } from "@/components/accelerator/AcceleratorCostGovernanceCloudPicker";
-import { AcceleratorFollowUpPackTag } from "@/components/accelerator/AcceleratorFollowUpPackTag";
+import { AcceleratorCostBaselineRecommendation } from "@/components/accelerator/AcceleratorCostBaselineRecommendation";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import {
   ACCELERATOR_JOB_CHOOSER_EXPECTED_OUTPUTS_LABEL,
@@ -48,10 +48,12 @@ export function AcceleratorCostGovernancePackRow(props: AcceleratorCostGovernanc
       <p className={cn("m-0 mt-1 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         {ACCELERATOR_COST_GOVERNANCE_GROUP.packLabel}
       </p>
-      <AcceleratorFollowUpPackTag testId={`${rowPrefix}-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-follow-up-tag`} />
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {ACCELERATOR_COST_GOVERNANCE_GROUP.summary}
       </p>
+      <AcceleratorCostBaselineRecommendation
+        testId={`${rowPrefix}-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-baseline-recommendation`}
+      />
       <AcceleratorCostGovernanceCloudPicker
         selectedPackId={selectedPackId}
         onSelectedPackIdChange={setSelectedPackId}

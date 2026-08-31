@@ -9,7 +9,7 @@ export const OPERATOR_HOME_CLAIM_DISCIPLINE =
   "Overview is the home page for next steps and recent reviews — not a full audit export. Open Architecture reviews, Evidence trail, or Trust Center when you need export-ready records.";
 
 export const OPERATOR_HOME_SOURCES_INTRO =
-  "Use these when a completed review needs a sponsor briefing or findings triage. Start, resume, and explore from the cards above.";
+  "Use these when a completed review needs a sponsor briefing or findings triage.";
 
 /** Secondary destinations after on-page create / review / resume work — not the Home hero. */
 export const OPERATOR_HOME_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.operatorHome;
