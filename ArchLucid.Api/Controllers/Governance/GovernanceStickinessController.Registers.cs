@@ -2,7 +2,6 @@ using ArchLucid.Api.Http;
 using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Mvc;
