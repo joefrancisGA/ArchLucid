@@ -87,7 +87,12 @@ export function useWizardSessionPersistence<TState>(
         }
       }
 
-      const snapshot = localSnapshot ?? remoteSnapshot;
+      const snapshot =
+        localSnapshot && remoteSnapshot
+          ? Date.parse(localSnapshot.savedAtUtc) >= Date.parse(remoteSnapshot.savedAtUtc)
+            ? localSnapshot
+            : remoteSnapshot
+          : localSnapshot ?? remoteSnapshot;
 
       if (snapshot === null || !args.hasSaveableContent(snapshot.state, snapshot.stepIndex)) {
         return;
