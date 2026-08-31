@@ -6,7 +6,7 @@ namespace ArchLucid.Api.OpenApi;
 /// <summary>
 ///     Disambiguates colliding <c>QualityDimension</c> CLR enums in <c>/openapi/v1.json</c>.
 ///     MapOpenApi collapses both enums into one integer schema; governance policy packs emit
-///     <see cref="Coverage.QualityDimension" /> strings at runtime.
+///     <see cref="ArchLucid.Contracts.Governance.Coverage.QualityDimension" /> strings at runtime.
 /// </summary>
 public sealed class MicrosoftOpenApiQualityDimensionDocumentTransformer : IOpenApiDocumentTransformer
 {
