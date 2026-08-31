@@ -25,20 +25,9 @@ dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 if ($env:ARCHLUCID_REGENERATE_UI_API_TYPES -eq '1') {
-    Write-Host 'Regenerating archlucid-ui TypeScript API types...'
-    # Prefer npx.cmd on Windows under StrictMode (npx.ps1 can throw on $MyInvocation.Statement).
-    $npx = if (Get-Command npx.cmd -ErrorAction SilentlyContinue) { 'npx.cmd' } else { 'npx' }
-    Push-Location (Join-Path $Root 'archlucid-ui')
-    try {
-        & $npx --yes openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json `
-            -o src/lib/api-types.generated.ts
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    }
-    finally {
-        Pop-Location
-    }
-    Write-Host 'Verifying api-types.generated.ts is now in sync...'
+    Write-Host 'Verifying split api-types output is now in sync...'
     & (Join-Path $Root 'scripts\ci\assert_api_types_in_sync.ps1')
+
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 

@@ -14,6 +14,12 @@ public sealed class WeeklyDigestHealthReader(
     ITenantExecDigestPreferencesRepository execDigestPreferencesRepository,
     ITenantSponsorDigestPreferencesRepository sponsorDigestPreferencesRepository) : IWeeklyDigestHealthReader
 {
+    private const string NoEnabledAdvisoryScheduleGapCode = "no_enabled_advisory_schedule";
+    private const string NoDigestSubscriptionsGapCode = "no_digest_subscriptions";
+    private const string NoEnabledDigestSubscriptionsGapCode = "no_enabled_digest_subscriptions";
+    private const string ExecutiveEmailDigestNotConfiguredGapCode = "executive_email_digest_not_configured";
+    private const string SponsorEmailDigestNotConfiguredGapCode = "sponsor_email_digest_not_configured";
+
     private readonly IAdvisoryScanScheduleRepository _scheduleRepository =
         scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
 
@@ -94,19 +100,49 @@ public sealed class WeeklyDigestHealthReader(
         ArchitectureDigest? latestDigest = latestDigests.Count > 0 ? latestDigests[0] : null;
 
         List<string> gaps = [];
+        List<string> gapCodes = [];
+
+        static void AddGap(List<string> setupGaps, List<string> setupGapCodes, string code, string message)
+        {
+            setupGaps.Add(message);
+            setupGapCodes.Add(code);
+        }
 
         if (enabledSchedules == 0)
-            gaps.Add("No enabled advisory scan schedule — weekly architecture digests will not be generated on a cadence.");
+            AddGap(
+                gaps,
+                gapCodes,
+                NoEnabledAdvisoryScheduleGapCode,
+                "No enabled advisory scan schedule — weekly architecture digests will not be generated on a cadence.");
 
         if (enabledSubs == 0)
-            gaps.Add("No digest subscriptions — generated digests have no outbound recipients in this scope.");
+        {
+            if (subs.Count == 0)
+                AddGap(
+                    gaps,
+                    gapCodes,
+                    NoDigestSubscriptionsGapCode,
+                    "No digest subscriptions — generated digests have no outbound recipients in this scope.");
+            else
+                AddGap(
+                    gaps,
+                    gapCodes,
+                    NoEnabledDigestSubscriptionsGapCode,
+                    "No enabled digest subscriptions — all subscription rows in this scope are disabled.");
+        }
 
         if (!execPrefs.EmailEnabled || execPrefs.RecipientEmails.Count == 0)
-            gaps.Add(
+            AddGap(
+                gaps,
+                gapCodes,
+                ExecutiveEmailDigestNotConfiguredGapCode,
                 "Executive email digest is not fully configured — executive digest emails will not be sent on the configured schedule.");
 
         if (!sponsorPrefs.EmailEnabled || sponsorPrefs.RecipientEmails.Count == 0)
-            gaps.Add(
+            AddGap(
+                gaps,
+                gapCodes,
+                SponsorEmailDigestNotConfiguredGapCode,
                 "Sponsor email digest is not fully configured — sponsor emails will not receive the separate sponsor rollup.");
 
         WeeklyDigestHealthSnapshot snapshot = new()
@@ -137,6 +173,7 @@ public sealed class WeeklyDigestHealthReader(
             SponsorDigestDayOfWeek = sponsorPrefs.DayOfWeek,
             SponsorDigestHourOfDay = sponsorPrefs.HourOfDay,
             SetupGaps = gaps,
+            SetupGapCodes = gapCodes,
         };
 
         return snapshot;

@@ -6,6 +6,14 @@ const ACTORS_TABLE_HEADER_PATTERN = /Actors\s+Actor\s+How they touch/i;
 const DIAGRAM_CAPTION_PATTERN = /Diagram\s*[—\-]/i;
 const TITLE_CASE_FRAGMENT_PATTERN = /(?:\b[A-Z][a-z]+\b\s*){4,}/;
 
+const INTERNAL_REPHRASE_PAYLOAD_PATTERN =
+  /^Evidence excerpt \(answer only from this text\):/i;
+
+/** True when the answer is an internal LLM rephrase payload, not operator-facing prose. */
+export function isInternalClarificationRephrasePayload(answer: string): boolean {
+  return INTERNAL_REPHRASE_PAYLOAD_PATTERN.test(answer.trim());
+}
+
 /** Normalizes extracted document text before deterministic clarification inference. */
 export function normalizeClarificationInferenceCorpus(corpus: string): string {
   const repaired = repairUtf8MojibakeOptional(corpus);
@@ -70,6 +78,10 @@ export function isReadableInferredClarificationAnswer(answer: string): boolean {
   const trimmed = answer.trim();
 
   if (trimmed.length === 0) {
+    return false;
+  }
+
+  if (isInternalClarificationRephrasePayload(trimmed)) {
     return false;
   }
 

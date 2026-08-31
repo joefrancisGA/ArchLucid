@@ -959,12 +959,6 @@ export function resolveDeferredChunkImportLoader(
           (module) => module.SponsorDashboardSupportingMetricsSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
-    case "sponsor-roi-dashboard-workspace-health":
-      return deferredChunkLoader(() =>
-        import("@/components/SponsorWorkspaceHealthDashboard").then(
-          (module) => module.SponsorWorkspaceHealthDashboard,
-        ),
-      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "sponsor-roi-dashboard-page-view":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardPageView").then(

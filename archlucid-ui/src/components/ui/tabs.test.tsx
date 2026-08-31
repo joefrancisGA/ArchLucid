@@ -113,6 +113,7 @@ describe("Tabs primitive (TB-665)", () => {
     const tabA = screen.getByRole("tab", { name: "Tab A" });
 
     expect(tabA.className).toMatch(/border-b-2/);
+    expect(tabA.className).toContain("border-[var(--al-accent-interactive)]");
     expect(tabA.className).not.toMatch(/rounded-full/);
   });
 
