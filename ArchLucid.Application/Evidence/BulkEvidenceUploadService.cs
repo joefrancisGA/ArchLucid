@@ -172,12 +172,22 @@ public sealed class BulkEvidenceUploadService(
                     auditEventTypeForMetrics: auditEvent.EventType)
                 .ConfigureAwait(false);
 
-            await TryUpdateEvidenceBundleMetadataAsync(scope, runId, uploadedIds.Count, cancellationToken)
-                .ConfigureAwait(false);
+            try
+            {
+                await TryUpdateEvidenceBundleMetadataAsync(scope, runId, uploadedIds.Count, cancellationToken)
+                    .ConfigureAwait(false);
 
-            await evidenceAddedIncrementalReReviewCoordinator
-                .TryScheduleAfterBulkUploadAsync(runId, uploadedIds.Count, cancellationToken)
-                .ConfigureAwait(false);
+                await evidenceAddedIncrementalReReviewCoordinator
+                    .TryScheduleAfterBulkUploadAsync(runId, uploadedIds.Count, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Post-upload evidence bundle metadata update / incremental re-review scheduling failed for RunId={RunId}.",
+                    runId);
+            }
 
             return new BulkEvidenceUploadResult
             {
