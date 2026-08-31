@@ -102,6 +102,16 @@ describe("CommandPalette", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
+  it("ignores keydown events with an undefined key without throwing", () => {
+    render(<CommandPalette />);
+
+    expect(() => {
+      fireEvent.keyDown(window, { key: undefined, ctrlKey: true, bubbles: true });
+    }).not.toThrow();
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
   it("opens while a text field has focus, so the header search box is not a dead end", () => {
     render(<CommandPalette />);
 

@@ -30,6 +30,15 @@ describe("OperatorAdminNavGroupBuilder", () => {
     expect(aiUsage?.requiredAuthority).toBe("AdminAuthority");
   });
 
+  it("publishes AI models at AdminAuthority next to AI usage", () => {
+    const links = new OperatorAdminNavGroupBuilder().build().links;
+    const aiModels = links.find((link) => link.href === "/administration/model-governance");
+
+    expect(aiModels).toBeDefined();
+    expect(aiModels?.label).toBe(OPERATOR_NAV_LINK_LABELS.aiModels);
+    expect(aiModels?.requiredAuthority).toBe("AdminAuthority");
+  });
+
   it("exposes notification preference center at ReadAuthority (TB-2203)", () => {
     const links = new OperatorAdminNavGroupBuilder().build().links;
     const notifications = links.find((link) => link.href === SETTINGS_NOTIFICATIONS_PATH);

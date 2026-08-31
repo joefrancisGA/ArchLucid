@@ -8,8 +8,8 @@ import {
   OperatorErrorCallout,
   OperatorWarningCallout,
 } from "@/components/operator/OperatorShellMessage";
+import { WorkspaceAiAvailabilityPanel } from "@/components/reviews/WorkspaceAiAvailabilityPanel";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { StatusTag } from "@/components/ui/status-tag";
 import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-intake-recap";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
@@ -162,12 +162,7 @@ function ReviewFailureRecoveryDetails(props: {
       </Callout>
 
       {workspaceAiSignal !== null && workspaceAiSignal !== undefined ? (
-        <div data-testid="review-package-workspace-ai-signal">
-          <StatusTag kind="needs-attention" label={workspaceAiSignal.label} />
-          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {workspaceAiSignal.detail}
-          </p>
-        </div>
+        <WorkspaceAiAvailabilityPanel workspaceAiSignal={workspaceAiSignal} />
       ) : null}
 
       {intactSummary.length > 0 ? (

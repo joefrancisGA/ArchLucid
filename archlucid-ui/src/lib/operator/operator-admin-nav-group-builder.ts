@@ -34,6 +34,7 @@ import type { NavGroupConfig } from "@/lib/nav-config.types";
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
 import { SETTINGS_NOTIFICATIONS_PATH, SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -201,6 +202,22 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           tier: "extended",
 
           // Tenant LLM cost report — nav gated to AdminAuthority so architects/exec personas do not see vendor cost chrome (TB-648).
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH,
+
+          label: OPERATOR_NAV_LINK_LABELS.aiModels,
+
+          title: "AI models — workspace execution profile, allowed models, and task-to-model mappings",
+
+          icon: ShieldCheck,
+
+          tier: "extended",
+
           requiredAuthority: "AdminAuthority",
 
         },

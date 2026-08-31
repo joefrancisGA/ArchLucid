@@ -4,6 +4,18 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH =
   "/administration/model-governance" as const;
 
+/** Buyer-facing Administration label for the workspace model policy page (route unchanged). */
+export const AI_MODELS_SETTINGS_ADMIN_NAV_LABEL = "AI models" as const;
+
+export const AI_MODELS_SETTINGS_PAGE_TITLE = "AI models" as const;
+
+export const AI_MODELS_SETTINGS_PAGE_SUBTITLE =
+  "See which models run each review task and manage the workspace execution profile and allowed models." as const;
+
+export const AI_MODELS_SETTINGS_CANONICAL_PATH = MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH;
+
+export const AI_MODELS_SETTINGS_OPEN_CTA_LABEL = "Open AI models" as const;
+
 export const MODEL_GOVERNANCE_HELP_TOPIC_LABEL = "How model governance works";
 
 export const MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";

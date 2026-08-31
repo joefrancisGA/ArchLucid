@@ -34,7 +34,7 @@ const SOURCES_COLUMNS_BODY_CLASS =
 
 /** One link row beside the intro should read as a single band — not pinned to the heading. */
 function resolveSourcesColumnsBodyAlignmentClass(linkCount: number): string {
-  return linkCount <= 2 ? "md:items-center" : "md:items-start";
+  return linkCount <= 3 ? "md:items-center" : "md:items-start";
 }
 
 const SOURCES_COLUMNS_LIST_CLASS =
@@ -101,7 +101,7 @@ export function EvidenceOrientationSourcesSection({
   const introParagraph = <p className={style.intro}>{intro}</p>;
   const listClassNameResolved = listClassName ?? OPERATOR_TYPOGRAPHY.body;
   const columnsLinkListClass =
-    resolvedLinks.length <= 1 ? SOURCES_COLUMNS_COMPACT_LIST_CLASS : SOURCES_COLUMNS_LIST_CLASS;
+    resolvedLinks.length <= 3 ? SOURCES_COLUMNS_COMPACT_LIST_CLASS : SOURCES_COLUMNS_LIST_CLASS;
   const columnsLinkClass = layout === "columns" ? SOURCES_LINK_COLUMNS : style.link;
   const linkItems = resolvedLinks.map((link) => {
           const linkLabel = distinguishFollowUpDestinations
