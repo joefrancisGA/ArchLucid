@@ -472,10 +472,8 @@
 {"at":"2026-08-28T17:27:06.3537744Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-08-28T20:36:16.5116629Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-08-29T02:42:20.6001984Z","zoneId":"archlucid-core","outcome":"hit"}
-<<<<<<< HEAD
-{"at":"2026-08-31T05:16:28.3051116Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-08-31T05:25:19.9215176Z","zoneId":"archlucid-core","outcome":"hit"}
-=======
 {"at":"2026-08-31T04:55:06.7649169Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T05:11:08.1234741Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
->>>>>>> 244447ed46 (Fix tenancy scope gates, batch dedupe, and bulk disposition (hunt #281).)
+{"at":"2026-08-31T05:16:28.3051116Z","zoneId":"archlucid-core","outcome":"hit"}
+{"at":"2026-08-31T05:25:19.9215176Z","zoneId":"archlucid-core","outcome":"hit"}
+{"at":"2026-08-31T15:10:16.6107676Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
