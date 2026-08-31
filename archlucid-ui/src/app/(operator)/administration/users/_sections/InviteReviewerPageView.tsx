@@ -1,12 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
 import {
   INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM,
   buildInviteReviewerPrefillMessage,
 } from "@/lib/invite-reviewer-flow";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { buildShareableOperatorUrl } from "@/lib/shareable-operator-link";
+import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -44,8 +49,28 @@ export function InviteReviewerPageView(props: Props) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const searchParams = useSearchParams();
   const reviewIdFromQuery = searchParams.get(INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM)?.trim() ?? "";
-  const invitePrefillMessage =
-    reviewIdFromQuery.length > 0 ? buildInviteReviewerPrefillMessage(reviewIdFromQuery) : undefined;
+  const reviewSummaryQuery = useRunSummaryQuery(reviewIdFromQuery, {
+    enabled: reviewIdFromQuery.length > 0,
+  });
+  const invitePrefillMessage = useMemo(() => {
+    if (reviewIdFromQuery.length === 0) {
+      return undefined;
+    }
+
+    const reviewSummary = reviewSummaryQuery.data;
+
+    if (reviewSummary === undefined) {
+      return undefined;
+    }
+
+    const reviewLabel = buyerFacingReviewTitleFromSummary(reviewSummary);
+    const reviewHref = buildShareableOperatorUrl(reviewDetailPath(reviewIdFromQuery));
+
+    return buildInviteReviewerPrefillMessage({
+      reviewLabel,
+      reviewHref,
+    });
+  }, [reviewIdFromQuery, reviewSummaryQuery.data]);
 
   if (m.surface === "demo") {
     return (

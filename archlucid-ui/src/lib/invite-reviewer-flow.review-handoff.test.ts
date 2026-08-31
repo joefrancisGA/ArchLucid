@@ -16,6 +16,19 @@ describe("invite-reviewer-flow review handoff", () => {
   });
 
   it("builds prefill message for review package handoff", () => {
-    expect(buildInviteReviewerPrefillMessage("run-abc")).toContain("run-abc");
+    expect(
+      buildInviteReviewerPrefillMessage({
+        reviewLabel: "Retail API platform",
+        reviewHref: "https://app.example.com/architecture/reviews/run-abc",
+      }),
+    ).toBe(
+      "Please review the finalized architecture review [Retail API platform](https://app.example.com/architecture/reviews/run-abc).",
+    );
+    expect(buildInviteReviewerPrefillMessage({ reviewLabel: "Retail API platform", reviewHref: "" })).toBe(
+      "Please review the finalized architecture review for Retail API platform.",
+    );
+    expect(buildInviteReviewerPrefillMessage({ reviewLabel: "", reviewHref: "" })).toBe(
+      "Please review the finalized architecture review.",
+    );
   });
 });
