@@ -235,7 +235,7 @@ public sealed class PilotValueReportService(
         }
     }
 
-    private static PilotValueReport EmptyReport(Guid tenantId, DateTime from, DateTime toExclusive, long dashboardPending)
+    private static PilotValueReport EmptyReport(Guid tenantId, DateTime from, DateTime toExclusive, long pendingApprovals)
     {
         return new PilotValueReport
         {
@@ -255,7 +255,7 @@ public sealed class PilotValueReportService(
             ComparisonOrDriftDetections = 0,
             UniqueAgentTypes = [],
             CommittedRunsTimeline = [],
-            GovernancePendingApprovalsNow = dashboardPending,
+            GovernancePendingApprovalsNow = pendingApprovals,
             AuditExportTruncated = false
         };
     }
