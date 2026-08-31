@@ -76,6 +76,7 @@ public sealed class TenantWeeklyDigestHealthController(
             SponsorDigestDayOfWeek = snap.SponsorDigestDayOfWeek,
             SponsorDigestHourOfDay = snap.SponsorDigestHourOfDay,
             SetupGaps = snap.SetupGaps,
+            SetupGapCodes = snap.SetupGapCodes,
         };
 
         return Ok(body);

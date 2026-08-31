@@ -59,6 +59,7 @@ using ArchLucid.Host.Core.Resilience;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Core.Admin;
@@ -104,13 +105,17 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IGovernanceApprovalRequestRepository, InMemoryGovernanceApprovalRequestRepository>();
             services.AddSingleton<IGovernancePromotionRecordRepository, InMemoryGovernancePromotionRecordRepository>();
             services.AddSingleton<IGovernanceEnvironmentActivationRepository, InMemoryGovernanceEnvironmentActivationRepository>();
+            services.AddSingleton<IGovernanceEnvironmentCatalogRepository, InMemoryGovernanceEnvironmentCatalogRepository>();
         }
         else
         {
             services.AddScoped<IGovernanceApprovalRequestRepository, GovernanceApprovalRequestRepository>();
             services.AddScoped<IGovernancePromotionRecordRepository, GovernancePromotionRecordRepository>();
             services.AddScoped<IGovernanceEnvironmentActivationRepository, GovernanceEnvironmentActivationRepository>();
+            services.AddScoped<IGovernanceEnvironmentCatalogRepository, DapperGovernanceEnvironmentCatalogRepository>();
         }
+
+        services.AddScoped<IGovernanceEnvironmentCatalogService, GovernanceEnvironmentCatalogService>();
 
         services.AddScoped<GovernanceWorkflowAuditSupport>();
         services.AddScoped<GovernanceWorkflowIntegrationEventSupport>();

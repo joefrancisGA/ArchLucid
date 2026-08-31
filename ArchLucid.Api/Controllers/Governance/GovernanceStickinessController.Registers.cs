@@ -149,12 +149,16 @@ public sealed partial class GovernanceStickinessController
         if (maxRowsProblem is not null)
             return maxRowsProblem;
 
-        if (category is not null && string.IsNullOrWhiteSpace(category))
-        {
-            return this.BadRequestProblem(
-                "category must not be empty or whitespace.",
-                ProblemTypes.ValidationFailed);
-        }
+        IActionResult? filterProblem = ValidateDecisionRegisterFilters(
+            category,
+            recordedAfterUtc,
+            recordedBeforeUtc,
+            minConfidence,
+            maxConfidence,
+            buyerConfidenceSource);
+
+        if (filterProblem is not null)
+            return filterProblem;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

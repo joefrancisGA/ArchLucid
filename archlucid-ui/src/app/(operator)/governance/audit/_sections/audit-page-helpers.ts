@@ -3,9 +3,43 @@ import {
 } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export const AUDIT_PAGE_SIZE = 200;
+
+export type ResolveAuditScopedRunIdInput = {
+  readonly urlRunId: string;
+  readonly pathname: string;
+  readonly search: string;
+  readonly workspaceActiveRunId: string | null;
+};
+
+/** Review id the audit page should scope to from URL or operator shell context. */
+export function resolveAuditScopedRunId(input: ResolveAuditScopedRunIdInput): string {
+  const fromUrl = input.urlRunId.trim();
+
+  if (fromUrl.length > 0) {
+    return fromUrl;
+  }
+
+  const fromShell = resolveOperatorShellAuditRunId({
+    pathname: input.pathname,
+    search: input.search,
+    workspaceActiveRunId: input.workspaceActiveRunId,
+  });
+
+  return fromShell ?? "";
+}
+
+/** True when auto-search should wait for runId state to match the scoped review. */
+export function shouldDeferAuditAutoSearch(currentRunId: string, scopedRunId: string): boolean {
+  if (scopedRunId.length === 0) {
+    return false;
+  }
+
+  return currentRunId !== scopedRunId;
+}
 
 export function formatUtc(iso: string): string {
   try {

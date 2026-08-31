@@ -1,15 +1,16 @@
 # Differential mutation testing on pull requests (Stryker --since). Full matrix remains
 # weekly in stryker-scheduled.yml. See docs/library/MUTATION_TESTING_STRYKER.md § Per-PR differential.
+#
+# PR trigger disabled 2026-08-30: per-PR Stryker shards were starving ubuntu-latest runners and
+# blocking main CI on open PRs. Re-enable pull_request here when queue capacity recovers, or run
+# manually via workflow_dispatch (requires base/head SHAs in a follow-up if needed).
 name: Stryker (PR differential)
 
 on:
-  pull_request:
-    branches:
-      - main
-      - master
+  workflow_dispatch:
 
 concurrency:
-  group: stryker-pr-${{ github.event.pull_request.number }}
+  group: stryker-pr-manual
   cancel-in-progress: true
 
 env:

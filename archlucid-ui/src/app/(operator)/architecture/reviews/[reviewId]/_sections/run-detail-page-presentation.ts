@@ -14,6 +14,7 @@ import {
 } from "@/lib/quick-decision-summary-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { resolvePartialRunCommitBlockPresentation } from "@/lib/runs/run-detail-partial-run-commit-block";
+import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
 import {
   countRunDetailEvidenceInventoryItems,
   deriveRunDetailEvidenceInventory,
@@ -282,6 +283,7 @@ export async function buildRunDetailPresentation(
     findings: quickDecisionFindings,
     runCreatedUtc: model.resolvedDetail.run.createdUtc,
     submittedArchitecturePresent: hasSubmittedArchitecture,
+    attachedFileNames: extractAttachedIntakeFileNames(runSummaryForBadge.description),
   });
   const evidenceGapsCount = filterUnresolvedFindings(quickDecisionFindings).filter(
     (finding) => (finding.evidenceRefCount ?? 0) === 0,

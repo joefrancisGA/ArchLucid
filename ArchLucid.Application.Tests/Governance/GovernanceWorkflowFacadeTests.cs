@@ -280,6 +280,49 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequestAsync_accepts_padded_environments_when_promotion_is_valid()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new(MockBehavior.Strict);
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        Mock<IUnifiedGoldenManifestReader> manifests = new(MockBehavior.Strict);
+        manifests
+            .Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GoldenManifest
+            {
+                RunId = "run-1",
+                SystemName = "Sys",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow }
+            });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            approvalRepo.Object,
+            runDetail: runDetail.Object,
+            unifiedManifestReader: manifests.Object);
+
+        GovernanceApprovalRequest result = await sut.SubmitApprovalRequestAsync(
+            "run-1",
+            "v1",
+            " dev ",
+            " test ",
+            "alice",
+            null,
+            null,
+            dryRun: true);
+
+        result.SourceEnvironment.Should().Be("dev");
+        result.TargetEnvironment.Should().Be("test");
+        approvalRepo.VerifyNoOtherCalls();
+        manifests.VerifyAll();
+    }
+
+    [Fact]
     public async Task ActivateAsync_throws_when_manifest_version_belongs_to_another_run()
     {
         Mock<IRunDetailQueryService> runDetail = new();
@@ -365,6 +408,61 @@ public sealed class GovernanceWorkflowFacadeTests
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection>(),
                 It.IsAny<IDbTransaction>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ActivateAsync_deactivates_existing_active_records_when_environment_is_padded()
+    {
+        GovernanceEnvironmentActivation existing = new()
+        {
+            ActivationId = "act-existing",
+            RunId = "run-old",
+            ManifestVersion = "v0",
+            Environment = "test",
+            IsActive = true,
+        };
+
+        Mock<IGovernanceEnvironmentActivationRepository> activationRepo = new();
+        activationRepo
+            .Setup(r => r.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([existing]);
+        activationRepo
+            .Setup(r => r.UpdateAsync(
+                It.IsAny<GovernanceEnvironmentActivation>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>()))
+            .Returns(Task.CompletedTask)
+            .Callback<GovernanceEnvironmentActivation, CancellationToken, IDbConnection?, IDbTransaction?>(
+                (activation, _, _, _) =>
+                {
+                    if (activation.ActivationId == existing.ActivationId)
+                        activation.IsActive = false;
+                });
+        activationRepo
+            .Setup(r => r.CreateAsync(
+                It.Is<GovernanceEnvironmentActivation>(activation => activation.Environment == "test"),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            activationRepo: activationRepo.Object,
+            runDetail: runDetail.Object);
+
+        GovernanceEnvironmentActivation activation = await sut.ActivateAsync("run-1", "v1", " test ", "operator");
+
+        activation.Environment.Should().Be("test");
+        existing.IsActive.Should().BeFalse();
+        activationRepo.Verify(
+            r => r.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
