@@ -109,6 +109,8 @@ internal static class AgentCompletionPipelineHelpers
             sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
         IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
             sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+        ILlmCompletionOutputTruncationReporter truncationReporter =
+            sp.GetRequiredService<ILlmCompletionOutputTruncationReporter>();
 
         AzureOpenAiCompletionClient inner = useManagedIdentity
             ? AzureOpenAiCompletionClient.CreateWithManagedIdentity(
@@ -117,7 +119,8 @@ internal static class AgentCompletionPipelineHelpers
                 maxTok,
                 structuredOutputAgentResultSchema: null,
                 completionLogger,
-                llmTelemetryOptions)
+                llmTelemetryOptions,
+                truncationReporter)
             : new AzureOpenAiCompletionClient(
                 endpoint,
                 apiKey,
@@ -125,7 +128,8 @@ internal static class AgentCompletionPipelineHelpers
                 maxTok,
                 structuredOutputAgentResultSchema: null,
                 completionLogger,
-                llmTelemetryOptions);
+                llmTelemetryOptions,
+                truncationReporter);
 
         IContentSafetyGuard contentSafetyGuard = sp.GetRequiredService<IContentSafetyGuard>();
         IOptionsMonitor<ContentSafetyOptions> contentSafetyOpts =
