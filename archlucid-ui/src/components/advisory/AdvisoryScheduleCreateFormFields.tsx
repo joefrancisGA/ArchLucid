@@ -24,12 +24,11 @@ import {
   toStoredIanaTimeZoneId,
 } from "@/lib/iana-time-zone-select";
 
-import {
-  ADVISORY_SCHEDULE_SELECT_CLASS,
-  type useAdvisoryScheduleCreateForm,
-} from "./use-advisory-schedule-create-form";
+import { ADVISORY_SCHEDULE_SELECT_CLASS } from "./use-advisory-schedule-create-form";
 
-type FormViewModel = ReturnType<typeof useAdvisoryScheduleCreateForm>;
+type FormViewModel = ReturnType<
+  typeof import("./use-advisory-schedule-create-form").useAdvisoryScheduleCreateForm
+>;
 
 export type AdvisoryScheduleCreateFormFieldsProps = {
   readonly viewModel: FormViewModel;
