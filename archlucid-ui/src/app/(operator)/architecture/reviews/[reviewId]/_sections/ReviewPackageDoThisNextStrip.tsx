@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
 import {
@@ -8,7 +9,10 @@ import {
   OperatorWarningCallout,
 } from "@/components/operator/OperatorShellMessage";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { StatusTag } from "@/components/ui/status-tag";
+import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-intake-recap";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
 import { cn } from "@/lib/utils";
 
 import type { ReviewPackageDoThisNext } from "./resolve-review-package-do-this-next";
@@ -20,12 +24,129 @@ export type ReviewPackageDoThisNextStripProps = {
   readonly commitBlockedReason: string | null | undefined;
 };
 
+function ReviewFailureAdminHandoffPanel(props: {
+  readonly adminHandoff: ReviewFailureAdminHandoff;
+}): React.JSX.Element {
+  const { adminHandoff } = props;
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+
+  useEffect(() => {
+    if (copyState !== "copied") {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setCopyState("idle");
+    }, 2500);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [copyState]);
+
+  async function onCopyHandoff(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(adminHandoff.markdown);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+  }
+
+  return (
+    <div
+      className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+      data-testid="review-package-admin-handoff"
+    >
+      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+        Share with your workspace administrator
+      </p>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        Copy this summary for the person who can configure workspace AI settings. Your intake package is already recorded.
+      </p>
+
+      <ul className={cn("m-0 mt-3 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        {adminHandoff.verificationLines.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ul>
+
+      <pre
+        className={cn(
+          "m-0 mt-3 max-h-48 overflow-auto rounded-md border border-neutral-200 bg-neutral-50 p-3 whitespace-pre-wrap text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100",
+          OPERATOR_TYPOGRAPHY.helper,
+        )}
+        data-testid="review-package-admin-handoff-markdown"
+      >
+        {adminHandoff.markdown}
+      </pre>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <Button type="button" variant="outline" size="sm" onClick={() => void onCopyHandoff()}>
+          {copyState === "copied" ? "Copied handoff" : "Copy administrator handoff"}
+        </Button>
+        {copyState === "failed" ? (
+          <span className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+            Clipboard unavailable — select the text above and copy manually.
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function ReviewSubmittedIntakeRecapPanel(props: {
+  readonly recap: ReviewSubmittedIntakeRecap;
+}): React.JSX.Element {
+  const { recap } = props;
+
+  return (
+    <div
+      className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+      data-testid="review-package-submitted-intake-recap"
+    >
+      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+        Submitted intake package
+      </p>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        Read-only — this is what was recorded when the review started. Re-run review reuses this package unchanged.
+      </p>
+
+      {recap.fields.length > 0 ? (
+        <dl className={cn("m-0 mt-3 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
+          {recap.fields.map((field) => (
+            <div key={`${field.label}:${field.value}`}>
+              <dt className="font-medium text-neutral-500 dark:text-neutral-400">{field.label}</dt>
+              <dd className="m-0 mt-1 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200">{field.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+
+      {recap.attachedFiles.length > 0 ? (
+        <div className="mt-3">
+          <p className={cn("m-0 font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            Attached files
+          </p>
+          <ul className={cn("m-0 mt-1 list-disc space-y-1 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+            {recap.attachedFiles.map((fileName) => (
+              <li key={fileName}>{fileName}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function ReviewFailureRecoveryDetails(props: {
   readonly failureRecovery: NonNullable<ReviewPackageDoThisNext["failureRecovery"]>;
 }): React.JSX.Element {
   const { failureRecovery } = props;
   const Callout =
     failureRecovery.severity === "warning" ? OperatorWarningCallout : OperatorErrorCallout;
+  const intactSummary = failureRecovery.intactSummary?.trim() ?? "";
+  const workspaceAiSignal = failureRecovery.workspaceAiConfigurationSignal;
 
   return (
     <div className="mt-3 space-y-3" data-testid="review-package-failure-recovery">
@@ -40,6 +161,21 @@ function ReviewFailureRecoveryDetails(props: {
         ) : null}
       </Callout>
 
+      {workspaceAiSignal !== null && workspaceAiSignal !== undefined ? (
+        <div data-testid="review-package-workspace-ai-signal">
+          <StatusTag kind="needs-attention" label={workspaceAiSignal.label} />
+          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {workspaceAiSignal.detail}
+          </p>
+        </div>
+      ) : null}
+
+      {intactSummary.length > 0 ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-failure-intact">
+          <span className="font-semibold text-al-text-primary">What&apos;s intact:</span> {intactSummary}
+        </p>
+      ) : null}
+
       <div data-testid="review-package-failure-recovery-steps">
         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           What to do
@@ -50,6 +186,26 @@ function ReviewFailureRecoveryDetails(props: {
           ))}
         </ol>
       </div>
+
+      {failureRecovery.adminHandoff !== null && failureRecovery.adminHandoff !== undefined ? (
+        <ReviewFailureAdminHandoffPanel adminHandoff={failureRecovery.adminHandoff} />
+      ) : null}
+
+      {failureRecovery.adminConfigurationHref !== null &&
+      failureRecovery.adminConfigurationHref !== undefined &&
+      failureRecovery.adminConfigurationLabel !== null &&
+      failureRecovery.adminConfigurationLabel !== undefined ? (
+        <div data-testid="review-package-admin-configuration-link">
+          <Link href={failureRecovery.adminConfigurationHref} className={cn(OPERATOR_LINK, OPERATOR_TYPOGRAPHY.body)}>
+            {failureRecovery.adminConfigurationLabel}
+          </Link>
+        </div>
+      ) : null}
+
+      {failureRecovery.submittedIntakeRecap !== null &&
+      failureRecovery.submittedIntakeRecap !== undefined ? (
+        <ReviewSubmittedIntakeRecapPanel recap={failureRecovery.submittedIntakeRecap} />
+      ) : null}
 
       {failureRecovery.suggestSupportTicket ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-failure-support-hint">

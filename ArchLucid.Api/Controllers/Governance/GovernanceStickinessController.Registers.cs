@@ -1,4 +1,5 @@
 using ArchLucid.Api.Http;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -158,6 +159,8 @@ public sealed partial class GovernanceStickinessController
 
         if (filterProblem is not null)
             return filterProblem;
+
+        category = category?.Trim();
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

@@ -12,7 +12,7 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
-import { SPONSOR_DASHBOARD_HREF, SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PAGE_TITLE,
 } from "@/lib/demo-readiness-evidence-copy";
@@ -22,6 +22,7 @@ import { PLANNING_PATH } from "@/lib/planning-route";
 import { AUDIT_TRAIL_PAGE_TITLE } from "@/lib/audit-trail-page-copy";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
@@ -51,7 +52,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/insights/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/architecture/architecture-intelligence": "Architecture intelligence",
   [GOVERNANCE_APPROVAL_QUEUE_PATH]: GOVERNANCE_OVERVIEW_PAGE_TITLE,
-  [SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
+  [WORKSPACE_HEALTH_PATH]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
   "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
   "/governance/findings/assigned-to-me": OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
   [GOVERNANCE_EXCEPTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.riskExceptions,

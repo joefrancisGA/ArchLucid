@@ -60,6 +60,10 @@ export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryAct
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly pipelineSummary?: RunSummary | null;
+  readonly intakeDescription?: string | null;
+  readonly intakeSystemName?: string | null;
+  readonly canConfigureWorkspaceAi?: boolean;
+  readonly realModeFellBackToSimulator?: boolean | null;
 };
 
 function clarificationsHref(input: ResolveReviewPackageDoThisNextInput): string {
@@ -179,12 +183,17 @@ export function resolveReviewPackageDoThisNext(
 
   if (input.showProgressTracker && input.manifestId === null && pipelineTerminalFailure) {
     const failureRecovery = resolveReviewFailureRecoveryGuidance({
+      runId: input.runId,
       diagnosticContext: input.pipelineDiagnosticContext ?? {
         legacyRunStatus: input.legacyRunStatus,
         isDeadLettered: input.isDeadLettered,
       },
       lastFailureSummary: input.lastFailureSummary ?? null,
       summary: input.pipelineSummary ?? null,
+      intakeDescription: input.intakeDescription ?? input.pipelineSummary?.description ?? null,
+      intakeSystemName: input.intakeSystemName ?? input.pipelineSummary?.displayName ?? null,
+      canConfigureWorkspaceAi: input.canConfigureWorkspaceAi === true,
+      realModeFellBackToSimulator: input.realModeFellBackToSimulator === true,
     });
 
     return {
