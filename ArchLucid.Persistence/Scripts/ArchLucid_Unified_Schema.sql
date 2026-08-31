@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 336_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 337_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -8968,4 +8968,24 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_GovernanceEnvironmentTransitions_Scope_Source
         ON dbo.GovernanceEnvironmentTransitions (TenantId, WorkspaceId, ProjectId, SourceSlug);
+END;
+
+GO
+
+/* 337 — Tenant-persisted wizard intake drafts for cross-session resume (robustness #7). */
+
+IF OBJECT_ID(N'dbo.WizardIntakeDrafts', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.WizardIntakeDrafts
+    (
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        WizardId NVARCHAR(128) NOT NULL,
+        StepIndex INT NOT NULL,
+        StateJson NVARCHAR(MAX) NOT NULL,
+        IdempotencyKeyHash VARBINARY(32) NULL,
+        UpdatedUtc DATETIME2(3) NOT NULL CONSTRAINT DF_WizardIntakeDrafts_UpdatedUtc DEFAULT (SYSUTCDATETIME()),
+        CONSTRAINT PK_WizardIntakeDrafts PRIMARY KEY (TenantId, WorkspaceId, WizardId),
+        CONSTRAINT CK_WizardIntakeDrafts_StateJson CHECK (ISJSON(StateJson) = 1)
+    );
 END;
