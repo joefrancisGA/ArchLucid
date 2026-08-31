@@ -32,7 +32,7 @@ public sealed class ExecuteEvidenceReadinessGate(
         RunRecord? run = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
         if (run is null)
-            throw new InvalidOperationException($"Run '{runId}' was not found.");
+            throw new global::ArchLucid.Application.RunNotFoundException(runId);
 
         if (string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
             throw new InvalidOperationException($"Run '{runId}' is missing ArchitectureRequestId.");
@@ -43,7 +43,8 @@ public sealed class ExecuteEvidenceReadinessGate(
         if (request is null)
             throw new InvalidOperationException($"Request '{run.ArchitectureRequestId}' not found for run '{runId}'.");
 
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentTask> tasks =
+            await taskRepository.GetByRunIdAsync(scope, runGuid.ToString("N"), cancellationToken);
 
         EvidenceBundle? bundle = null;
         string? bundleRef = tasks.FirstOrDefault()?.EvidenceBundleRef;
