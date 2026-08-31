@@ -33,7 +33,21 @@ export type UseAzureBoardsConnectionMutationsOptions = {
   readonly loadDiscovery: () => Promise<void>;
 };
 
-export function useAzureBoardsConnectionMutations(options: UseAzureBoardsConnectionMutationsOptions) {
+export function useAzureBoardsConnectionMutations({
+  canMutate,
+  organizationUrl,
+  tokenReference,
+  projectName,
+  workItemType,
+  areaPath,
+  iterationPath,
+  defaultTags,
+  connection,
+  applySettings,
+  applyConnection,
+  setHealth,
+  loadDiscovery,
+}: UseAzureBoardsConnectionMutationsOptions) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [connectionSaveError, setConnectionSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
@@ -42,7 +56,7 @@ export function useAzureBoardsConnectionMutations(options: UseAzureBoardsConnect
   const [isSavingConnection, setIsSavingConnection] = useState(false);
 
   const saveConnection = useCallback(async () => {
-    if (!options.canMutate) {
+    if (!canMutate) {
       return;
     }
 
@@ -52,34 +66,42 @@ export function useAzureBoardsConnectionMutations(options: UseAzureBoardsConnect
 
     try {
       const saved = await upsertTenantItsmConnectorConnection("azureboards", {
-        instanceBaseUrl: options.organizationUrl.trim(),
+        instanceBaseUrl: organizationUrl.trim(),
         authMode: "BasicApiToken",
         authUserName: "",
-        credentialKeyVaultSecretName: options.tokenReference.trim() || options.connection?.credentialKeyVaultSecretName || "",
+        credentialKeyVaultSecretName: tokenReference.trim() || connection?.credentialKeyVaultSecretName || "",
         isEnabled: true,
       });
-      options.applyConnection(saved);
+      applyConnection(saved);
       if (isAzureBoardsConnectionSaveSuccessful(saved)) {
         setConnectionSaveSuccess(AZURE_BOARDS_CONNECTION_SAVE_SUCCESS);
       }
 
       // New credentials are unvalidated until the operator runs Test connection.
-      options.setHealth(
+      setHealth(
         mapAzureBoardsHealthFromSettings(isAzureBoardsConnectionSaveSuccessful(saved), {
           lastConnectionTestUtc: null,
           lastConnectionTestSummary: null,
         }),
       );
-      await options.loadDiscovery();
+      await loadDiscovery();
     } catch (error: unknown) {
       setConnectionSaveError(error instanceof Error ? error.message : "Could not save connection.");
     } finally {
       setIsSavingConnection(false);
     }
-  }, [options]);
+  }, [
+    applyConnection,
+    canMutate,
+    connection?.credentialKeyVaultSecretName,
+    loadDiscovery,
+    organizationUrl,
+    setHealth,
+    tokenReference,
+  ]);
 
   const saveSettings = useCallback(async () => {
-    if (!options.canMutate) {
+    if (!canMutate) {
       return;
     }
 
@@ -89,20 +111,28 @@ export function useAzureBoardsConnectionMutations(options: UseAzureBoardsConnect
 
     try {
       const saved = await upsertAzureBoardsSettings({
-        projectName: options.projectName.trim(),
-        defaultWorkItemType: options.workItemType.trim(),
-        areaPath: options.areaPath.trim() || null,
-        iterationPath: options.iterationPath.trim() || null,
-        defaultTags: options.defaultTags.trim() || null,
+        projectName: projectName.trim(),
+        defaultWorkItemType: workItemType.trim(),
+        areaPath: areaPath.trim() || null,
+        iterationPath: iterationPath.trim() || null,
+        defaultTags: defaultTags.trim() || null,
       });
-      options.applySettings(saved);
+      applySettings(saved);
       setSaveSuccess(AZURE_BOARDS_SAVE_SUCCESS);
     } catch (error: unknown) {
       setSaveError(error instanceof Error ? error.message : "Could not save work item settings.");
     } finally {
       setIsSaving(false);
     }
-  }, [options]);
+  }, [
+    applySettings,
+    areaPath,
+    canMutate,
+    defaultTags,
+    iterationPath,
+    projectName,
+    workItemType,
+  ]);
 
   return {
     saveError,

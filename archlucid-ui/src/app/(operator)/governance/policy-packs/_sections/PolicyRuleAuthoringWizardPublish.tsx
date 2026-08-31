@@ -168,7 +168,7 @@ export function PolicyRuleAuthoringWizardTestPanel(
                     committedOnly
                     preferAutoPick={false}
                     autoSelectSyntheticSample={false}
-                    label="architecture package"
+                    label="Architecture package"
                     fieldId="policy-rule-wizard-run-picker"
                     hideFieldHelper
                   />

@@ -152,7 +152,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
                   committedOnly
                   preferAutoPick={false}
                   autoSelectSyntheticSample={false}
-                  label="architecture package"
+                  label="Architecture package"
                   fieldId="visual-builder-run-picker"
                   hideFieldHelper
                 />
