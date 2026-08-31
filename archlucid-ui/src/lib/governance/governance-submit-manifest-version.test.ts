@@ -37,6 +37,8 @@ describe("governance-submit-manifest-version", () => {
     expect(compareNumericSemverManifestVersions("1.0.1", "1.0.0")).toBe(1);
     expect(compareNumericSemverManifestVersions("1.0.0", "2.0.0")).toBe(-1);
     expect(compareNumericSemverManifestVersions("2.4.10", "2.4.10")).toBe(0);
+    expect(compareNumericSemverManifestVersions("1.0", "1.0.0")).toBe(null);
+    expect(compareNumericSemverManifestVersions("1.0.0", "v1.0.0")).toBe(null);
   });
 
   it("rejects versions below the persisted max without another database round trip", () => {
