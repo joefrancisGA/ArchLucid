@@ -44,7 +44,7 @@ export function topicMatchesQuery(topic: HelpTopic, query: string): boolean {
   return (
     topic.title.toLowerCase().includes(q) ||
     topic.summary.toLowerCase().includes(q) ||
-    topic.keywords.some((k) => k.includes(q))
+    topic.keywords.some((k) => k.toLowerCase().includes(q))
   );
 }
 
