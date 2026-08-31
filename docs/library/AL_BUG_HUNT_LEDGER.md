@@ -2268,11 +2268,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 83
-- **bugs-found:** 233
+- **hunts:** 84
+- **bugs-found:** 236
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — workspace sibling-project scope and product-feedback findingRef gate
+- **last-bug:** 2026-08-31 — bulk-disposition all-or-nothing scope and simulate-bulk validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2518,7 +2518,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 - [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `projectId` for a sibling project in the same workspace mutated without `scope.ProjectId` guard — **hit 2026-08-31:** require `projectId == scope.ProjectId` after workspace match; regression in `TenantWorkspacesControllerTests`.
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `findingRef` for a foreign-workspace finding persisted without inspect-scope gate — **hit 2026-08-31:** `IFindingInspectReadRepository.GetInspectAsync` preflight when `FindingRef` provided; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_not_found_when_finding_ref_is_out_of_scope`.
-- [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returns HTTP 200 partial success without per-item failure rows for skipped ids (batch-review parity gap).
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without failing the batch — **hit 2026-08-31:** validate all findings in scope before recording any; controller maps scope miss to 404; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
+- [x] (proven) `PolicyPacksController.SimulateBulk` / `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — duplicate `runIds` deduped in evaluation loop but `RequestedRunCount` reported raw `runIds.Count` — **hit 2026-08-31:** count distinct trimmed non-whitespace ids; regression in `PolicyPackWorkflowFacadeTests`.
+- [x] (proven) `PolicyPacksController.SimulateBulk` — mixed list with whitespace-only `runIds` silently skipped during validation instead of HTTP 400 — **hit 2026-08-31:** reject any whitespace entry (bulk-disposition parity); regression in `PolicyPacksControllerSimulateBulkScopeTests`.
+
+2026-08-31 thorough hunt #273: re-shipped workspace/findingRef/batch fixes from unmerged branches; proved bulk-disposition all-or-nothing scope, simulate-bulk requested-run count, and mixed-whitespace validation.
 
 2026-08-31 thorough hunt #272: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, and batch-review case-variant duplicate ids; seeded bulk-disposition partial-batch candidate.
 
