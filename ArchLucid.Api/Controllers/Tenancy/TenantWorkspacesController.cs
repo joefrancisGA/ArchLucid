@@ -196,6 +196,9 @@ public sealed class TenantWorkspacesController(
         if (workspaceId != scope.WorkspaceId)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
+        if (projectId != scope.ProjectId)
+            return this.NotFoundProblem("Architecture project was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
         if (workspace.DefaultProjectId == projectId)
         {
             return this.BadRequestProblem(
@@ -269,6 +272,9 @@ public sealed class TenantWorkspacesController(
 
         if (workspaceId != scope.WorkspaceId)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
+        if (projectId != scope.ProjectId)
+            return this.NotFoundProblem("Architecture project was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
         ArchitectureProjectRestoreResult outcome =
             await _architectureProjectRepository.TryRestoreAsync(
