@@ -65,6 +65,7 @@ export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryAct
   readonly canConfigureWorkspaceAi?: boolean;
   readonly realModeFellBackToSimulator?: boolean | null;
   readonly usesCustomerAiConnection?: boolean;
+  readonly effectiveSessionMode?: "Simulator" | "Real" | null;
 };
 
 function clarificationsHref(input: ResolveReviewPackageDoThisNextInput): string {
@@ -196,6 +197,7 @@ export function resolveReviewPackageDoThisNext(
       canConfigureWorkspaceAi: input.canConfigureWorkspaceAi === true,
       realModeFellBackToSimulator: input.realModeFellBackToSimulator === true,
       usesCustomerAiConnection: input.usesCustomerAiConnection === true,
+      effectiveSessionMode: input.effectiveSessionMode ?? null,
     });
 
     return {
