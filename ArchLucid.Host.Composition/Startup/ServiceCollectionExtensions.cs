@@ -230,6 +230,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ITenantItsmOutboundSettingsService, TenantItsmOutboundSettingsService>();
         services.AddScoped<ITenantAzureOpenAiConnectionService, TenantAzureOpenAiConnectionService>();
         services.AddScoped<ITenantAzureOpenAiConnectionProbeService, TenantAzureOpenAiConnectionProbeService>();
+        services.AddScoped<Application.Diagnostics.IWorkspaceAiAvailabilityService, WorkspaceAiAvailabilityService>();
         services
             .AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
             {

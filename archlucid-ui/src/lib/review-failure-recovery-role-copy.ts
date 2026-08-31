@@ -75,11 +75,11 @@ export function isWorkspaceAiConfigurationFailure(context: WorkspaceAiFailureCon
 }
 
 function managedAiUnavailableDetail(): string {
-  return "ArchLucid-managed AI is unavailable — reviews cannot start until platform AI is restored.";
+  return "Review failure pattern suggests ArchLucid-managed AI may be unavailable — use Check AI availability to confirm before re-running.";
 }
 
 function customerAiConnectionUnavailableDetail(): string {
-  return "Your workspace customer-provided AI connection is unavailable — reviews cannot start until the connection is restored.";
+  return "Review failure pattern suggests your workspace customer-provided AI connection may be unavailable — use Check AI availability to confirm.";
 }
 
 export function resolveWorkspaceAiConfigurationSignal(
@@ -130,7 +130,7 @@ export function resolveWorkspaceAiConfigurationSignal(
   return {
     label: "Workspace AI availability",
     detail:
-      "Review execution stopped before processing began. This is usually platform AI availability — not missing intake fields.",
+      "Review execution stopped before processing began. Use Check AI availability below to validate platform AI before re-running.",
   };
 }
 
