@@ -45,6 +45,7 @@ public sealed class GovernanceCoverageController(
     [HttpPost("coverage/preview")]
     [MutatingAuditExcluded("Read-only coverage preview; does not persist domain mutations.")]
     [ProducesResponseType(typeof(CoveragePreviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PreviewCoverage(
         [FromBody] CoveragePreviewRequest? request,
         CancellationToken cancellationToken)
