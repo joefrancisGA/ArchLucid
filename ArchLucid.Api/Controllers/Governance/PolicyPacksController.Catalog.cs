@@ -80,6 +80,11 @@ public sealed partial class PolicyPacksController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? routeProblem = BadRequestWhenRouteIdEmpty(policyPackCatalogEntryId, nameof(policyPackCatalogEntryId));
+
+        if (routeProblem is not null)
+            return routeProblem;
+
         PolicyPackCatalogEntryDetail? row = await _workflow.TryGetCatalogEntryAsync(policyPackCatalogEntryId, ct);
 
         if (row is null)
