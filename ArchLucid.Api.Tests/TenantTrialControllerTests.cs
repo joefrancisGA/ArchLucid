@@ -6,7 +6,6 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence.Identity;
 
 using FluentAssertions;
 
