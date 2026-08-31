@@ -1687,7 +1687,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-31 seed hunt #322: proved OTP RowVersion retry; seeded link-proposal terminal status guard, trial lockout lost-update, and OTP resend invalidate/insert race.
 - [x] (proven) `DapperEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong-code attempts lost `FailedAttemptCount` increments on `RowVersion` conflict (`affected == 0` committed without retry) — **hit 2026-08-31 (#318):** retry loop up to `MaxCompleteConcurrencyRetries`; regression in `EmailOtpChallengeRepositoryConcurrencyTests` and `DapperEmailOtpChallengeRepositorySqlIntegrationTests`.
-- [ ] (hunt-ready) `DapperAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` / `InMemoryAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` — no `Status = PendingConfirmation` guard allows confirmed proposals to be rewritten to cancelled (fix on PR #943).
 - [ ] (hunt-ready) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — read-modify-write at `TrialLocalIdentityService.AuthenticateAsync` with unconditional `UPDATE` can lose lockout increments under parallel failed logins.
 - [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
 
@@ -2305,23 +2304,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
 - **hunts:** 95
-- **hunts:** 94
 - **bugs-found:** 237
-- **hunts:** 94
-- **bugs-found:** 234
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — environment-catalog ghost tenant; empty projectId query; checklist isCompleted omission
-- **hunts:** 94
-- **bugs-found:** 235
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — empty projectId query returned 200 empty on governance register/posture GETs
-- **hunts:** 91
-- **bugs-found:** 236
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — coverage preview null body 400 parity
+- **last-bug:** 2026-08-31 — combined al-bug hunts #313–#334: governance scope gates, OTP RowVersion retry, link-proposal status guard, AgentResultJsonConverter evidenceRefs merge, product feedback score and checklist isCompleted validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

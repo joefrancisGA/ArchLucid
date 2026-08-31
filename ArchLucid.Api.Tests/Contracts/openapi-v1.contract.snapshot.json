@@ -8286,7 +8286,10 @@
       "CorePilotChecklistPutRequest": {
         "properties": {
           "isCompleted": {
-            "type": "boolean"
+            "type": [
+              "null",
+              "boolean"
+            ]
           },
           "stepIndex": {
             "format": "int32",
@@ -21645,6 +21648,7 @@
             "minimum": -1,
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
+              "null",
               "integer",
               "string"
             ]
@@ -32418,6 +32422,53 @@
           "runsCreatedTotal": {
             "format": "int64",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "WorkspaceAiAvailabilityCheckRow": {
+        "properties": {
+          "detail": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WorkspaceAiAvailabilityResponse": {
+        "properties": {
+          "aiSource": {
+            "type": "string"
+          },
+          "asOfUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceAiAvailabilityCheckRow"
+            },
+            "type": "array"
+          },
+          "debug": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "validated": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -111268,6 +111319,146 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/diagnostics/workspace-ai-availability": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceAiAvailabilityResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "WorkspaceAiAvailability"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/digest-subscriptions": {
       "get": {
         "responses": {
@@ -121335,21 +121526,41 @@
           "content": {
             "application/*\u002Bjson": {
               "schema": {
-                "$ref": "#/components/schemas/CoveragePreviewRequest"
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CoveragePreviewRequest"
+                  }
+                ]
               }
             },
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CoveragePreviewRequest"
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CoveragePreviewRequest"
+                  }
+                ]
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/CoveragePreviewRequest"
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CoveragePreviewRequest"
+                  }
+                ]
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -121374,13 +121585,28 @@
           },
           "400": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Bad Request (validation or malformed input)."
+            "description": "Bad Request"
           },
           "401": {
             "content": {
@@ -122077,13 +122303,28 @@
           },
           "400": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Bad Request (validation or malformed input)."
+            "description": "Bad Request"
           },
           "401": {
             "content": {
@@ -122262,13 +122503,28 @@
           },
           "404": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Not Found."
+            "description": "Not Found"
           },
           "405": {
             "content": {
@@ -122455,13 +122711,28 @@
           },
           "404": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Not Found."
+            "description": "Not Found"
           },
           "405": {
             "content": {
@@ -124493,13 +124764,28 @@
           },
           "400": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Bad Request (validation or malformed input)."
+            "description": "Bad Request"
           },
           "401": {
             "content": {
@@ -126659,13 +126945,28 @@
           },
           "400": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Bad Request (validation or malformed input)."
+            "description": "Bad Request"
           },
           "401": {
             "content": {
@@ -127584,13 +127885,28 @@
           },
           "400": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Bad Request (validation or malformed input)."
+            "description": "Bad Request"
           },
           "401": {
             "content": {
@@ -168624,6 +168940,9 @@
     },
     {
       "name": "WhyArchlucidMarketingPack"
+    },
+    {
+      "name": "WorkspaceAiAvailability"
     }
   ]
 }

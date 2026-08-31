@@ -409,10 +409,10 @@
 {"at":"2026-08-26T21:46:43.147585Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-26T22:01:57.2005539Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-26T22:13:07.991188Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-26T23:27:58.0115097Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-26T22:46:48.7285673Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-27T00:16:56.6427403Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-26T23:27:58.0115097Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-27T00:08:35.1974896Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-27T00:16:56.6427403Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-27T00:22:53.6533337Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-08-27T00:33:26.769664Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-27T00:40:51.8743432Z","zoneId":"context-ingestion","outcome":"hit"}
@@ -483,21 +483,21 @@
 {"at":"2026-08-31T15:05:00Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","note":"combined PR #892-930 integration branch"}
 {"at":"2026-08-31T15:22:02.5135247Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T15:29:17.1836222Z","zoneId":"persistence-identity","outcome":"hit"}
+{"at":"2026-08-31T15:35:30.9507379Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T15:40:29.4692011Z","zoneId":"persistence-identity","outcome":"hit"}
 {"at":"2026-08-31T15:46:07.6803313Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T15:51:25.8472666Z","zoneId":"persistence-identity","outcome":"hit"}
 {"at":"2026-08-31T15:59:49.9748602Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T16:05:00.4678193Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T16:09:45.6316726Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T16:13:53.9240863Z","zoneId":"persistence-identity","outcome":"hit"}
+{"at":"2026-08-31T16:17:40.6306563Z","zoneId":"persistence-identity","outcome":"hit"}
+{"at":"2026-08-31T16:26:57.3744552Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T16:53:35.5904819Z","zoneId":"ui-operator-lib","outcome":"hit"}
+{"at":"2026-08-31T17:07:36.7855392Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T17:15:45.029233Z","zoneId":"ui-operator-lib","outcome":"hit"}
-{"at":"2026-08-31T17:49:27.4942440Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-31T17:42:37.2094468Z","zoneId":"archlucid-contracts","outcome":"hit"}
+{"at":"2026-08-31T17:26:46.4096051Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T17:29:00Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","note":"seed hunt #331 posture/coverage ghost-workspace and product-feedback score omission"}
 {"at":"2026-08-31T17:35:32.6501836Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-31T17:26:46.4096051Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-31T17:07:36.7855392Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-31T16:26:57.3744552Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-31T16:17:40.6306563Z","zoneId":"persistence-identity","outcome":"hit"}
-{"at":"2026-08-31T16:13:53.9240863Z","zoneId":"persistence-identity","outcome":"hit"}
-{"at":"2026-08-31T16:09:45.6316726Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-31T15:35:30.9507379Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T17:42:37.2094468Z","zoneId":"archlucid-contracts","outcome":"hit"}
+{"at":"2026-08-31T17:49:27.4942440Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
