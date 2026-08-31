@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useState, type RefObject } from "react";
+import { useEffect, useState, type RefObject } from "react";
 
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { ColdInviteUsersInviteVocabularyRail } from "@/components/ColdInviteUsersInviteVocabularyRail";
@@ -25,11 +25,6 @@ import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
-import {
-  resolveInviteReviewerEmphasizedStepId,
-  resolveInviteReviewerSteps,
-} from "@/lib/invite-reviewer-checklist";
 
 import { resolveAdminUserInvitationAcceptLink } from "./settings-roles-pending-invitations";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
@@ -102,16 +97,16 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
   }
 
   const canSubmit = form.email.trim().length > 0 && form.role.length > 0;
-  const inviteReviewerSteps = resolveInviteReviewerSteps({
-    emailConfigured: form.email.trim().length > 0,
-    roleSelected: form.role.length > 0,
-    inviteSent: inviteSentForReviewId !== null,
-  });
-  const inviteReviewerEmphasizedStepId = resolveInviteReviewerEmphasizedStepId({
-    emailConfigured: form.email.trim().length > 0,
-    roleSelected: form.role.length > 0,
-    inviteSent: inviteSentForReviewId !== null,
-  });
+
+  useEffect(() => {
+    const trimmedMessage = initialMessage?.trim() ?? "";
+
+    if (trimmedMessage.length === 0) {
+      return;
+    }
+
+    setForm((current) => (current.message.trim().length > 0 ? current : { ...current, message: trimmedMessage }));
+  }, [initialMessage]);
 
   return (
     <>
@@ -139,12 +134,6 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
       {buyerPolishedShell ? null : (
         <ColdInviteUsersInviteVocabularyRail currentSurfaceId="users-invite" />
       )}
-      <IntegrationConnectChecklist
-        title="Invite checklist"
-        steps={inviteReviewerSteps}
-        emphasizedStepId={inviteReviewerEmphasizedStepId}
-        testIdPrefix="invite-reviewer"
-      />
       <div className="space-y-1">
         <Label htmlFor="invite-email">Email address</Label>
         <Input
@@ -181,9 +170,6 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
             ))}
           </SelectContent>
         </Select>
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Reviewers are usually assigned the <strong>Reader</strong> or <strong>Auditor</strong> role.
-        </p>
       </div>
 
       <div className="space-y-1">
@@ -222,11 +208,6 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
             Clear
           </Button>
         </div>
-        {!canSubmit && !sending ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="settings-roles-invite-readiness">
-            Enter an email address and choose a role to send an invitation.
-          </p>
-        ) : null}
       </div>
     </form>
     </>
