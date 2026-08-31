@@ -76,9 +76,9 @@ internal static partial class TrialFunnelOperationalSummaryBuilder
         TrialFunnelStageMetricResponse[] stages =
         [
             CreateStage(StageTrialStarted, "Trial started", signupAttempts, signupAttempts, null, previousPeriod?.SignupAttempts),
-            CreateStage(StageFirstReviewFinalized, "First review finalized", firstCommits, signupAttempts, signupAttempts, previousPeriod?.FirstCommits, previousDenominator: signupAttempts),
-            CreateStage(StageCheckoutActivity, "Checkout activity", checkouts, signupAttempts, firstCommits, previousPeriod?.Checkouts, previousDenominator: firstCommits),
-            CreateStage(StageConverted, "Converted", conversions, signupAttempts, firstCommits, previousPeriod?.Conversions, previousDenominator: firstCommits),
+            CreateStage(StageFirstReviewFinalized, "First review finalized", firstCommits, signupAttempts, signupAttempts, previousPeriod?.FirstCommits),
+            CreateStage(StageCheckoutActivity, "Checkout activity", checkouts, signupAttempts, firstCommits, previousPeriod?.Checkouts),
+            CreateStage(StageConverted, "Converted", conversions, signupAttempts, firstCommits, previousPeriod?.Conversions),
         ];
 
         return stages;
@@ -90,14 +90,12 @@ internal static partial class TrialFunnelOperationalSummaryBuilder
         int count,
         int trialStartDenominator,
         int? previousStageCount,
-        int? previousPeriodCount,
-        int? previousDenominator = null)
+        int? previousPeriodCount)
     {
         double? percentOfTrials = trialStartDenominator > 0
             ? Math.Round(count * 100.0 / trialStartDenominator, 0)
             : null;
 
-        int priorDenominator = previousDenominator ?? trialStartDenominator;
         double? percentFromPrevious = previousStageCount is > 0
             ? Math.Round(count * 100.0 / previousStageCount.Value, 0)
             : null;

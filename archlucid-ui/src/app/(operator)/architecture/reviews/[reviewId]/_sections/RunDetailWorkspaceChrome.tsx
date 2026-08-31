@@ -10,7 +10,10 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { formatActionActorName } from "@/lib/action-actor-display";
@@ -128,7 +131,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         actions={
           <>
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
-            <PageContextualHelpButton />
+            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           </>
         }
       >

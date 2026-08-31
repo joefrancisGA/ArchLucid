@@ -44,6 +44,7 @@ public sealed partial class SqlTenantSqlCatalogProvisioner
 
         await tenantConnection.OpenAsync(cancellationToken);
 
+        // Seed-once: tenant catalog rows are inserted when missing; mutable control-plane fields are not re-synced on later provisions.
         const string insertSql = """
                                  IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = @Id)
                                  BEGIN

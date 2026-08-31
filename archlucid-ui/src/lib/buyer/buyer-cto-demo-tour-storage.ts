@@ -322,7 +322,7 @@ export function writeBuyerCtoDemoExploreMode(on: boolean): void {
   }
 }
 
-export function readCtoDemoPresenterLayerVisible(): boolean {
+export function readBuyerCtoDemoPresenterLayerVisible(): boolean {
   if (typeof window === "undefined") {
     return false;
   }
@@ -362,7 +362,7 @@ export function writeBuyerCtoDemoPreflightAcknowledged(acknowledged: boolean): v
   }
 }
 
-export function writeCtoDemoPresenterLayerVisible(visible: boolean): void {
+export function writeBuyerCtoDemoPresenterLayerVisible(visible: boolean): void {
   if (typeof window === "undefined") {
     return;
   }

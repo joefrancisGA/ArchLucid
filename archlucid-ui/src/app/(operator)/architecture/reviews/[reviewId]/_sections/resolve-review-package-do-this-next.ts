@@ -6,6 +6,13 @@ import {
   reviewLifecycleNextActionLabel,
   type BuildReviewLifecycleNextActionHrefInput,
 } from "@/lib/review-lifecycle-next-action-registry";
+import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import {
+  resolveReviewFailureRecoveryGuidance,
+  type ReviewFailureRecoveryGuidance,
+} from "@/lib/resolve-review-failure-recovery-guidance";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
+import type { RunSummary } from "@/types/authority";
 
 import {
   resolveReviewPackagePrimaryAction,
@@ -32,6 +39,7 @@ export type ReviewPackageDoThisNext = {
     readonly label: string;
     readonly href: string;
   } | null;
+  readonly failureRecovery?: ReviewFailureRecoveryGuidance | null;
 };
 
 export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryActionInput & {
@@ -49,6 +57,9 @@ export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryAct
   readonly compareWithPriorHref?: string | null;
   readonly legacyRunStatus?: string | null;
   readonly isDeadLettered?: boolean | null;
+  readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
+  readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
+  readonly pipelineSummary?: RunSummary | null;
 };
 
 function clarificationsHref(input: ResolveReviewPackageDoThisNextInput): string {
@@ -93,7 +104,7 @@ function sentenceForPrimaryAction(
     case "send-to-sponsor":
       return "This package is finalized — download or share the sponsor briefing export when you are ready.";
     case "open-governance-decision":
-      return "Resolve outcomes are still pending before this package can move to sponsors.";
+      return "Governance approval is still pending before this package can move to sponsors.";
     default: {
       const unreachable: never = action.kind;
       throw new Error(`Unhandled primary action kind ${unreachable}.`);
@@ -167,16 +178,22 @@ export function resolveReviewPackageDoThisNext(
   });
 
   if (input.showProgressTracker && input.manifestId === null && pipelineTerminalFailure) {
+    const failureRecovery = resolveReviewFailureRecoveryGuidance({
+      diagnosticContext: input.pipelineDiagnosticContext ?? {
+        legacyRunStatus: input.legacyRunStatus,
+        isDeadLettered: input.isDeadLettered,
+      },
+      lastFailureSummary: input.lastFailureSummary ?? null,
+      summary: input.pipelineSummary ?? null,
+    });
+
     return {
       kind: "rerun-review",
       sentence:
-        "Assessment failed — review the error details below, then start a new review with the same intake.",
+        "Assessment failed — follow the recovery steps below, then re-run the review with the same intake.",
       actionLabel: "Re-run review",
       href: resolveRerunHref(input),
-      secondaryAction: {
-        label: "View assessment details",
-        href: viewAssessmentHref(input.runId),
-      },
+      failureRecovery,
     };
   }
 

@@ -139,7 +139,7 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        Guid? excludeRunId = ArchitectureReviewSourceRunResolver.TryParseRunGuid(request.PriorRunId);
+        Guid? excludeRunId = ArchitectureReviewSourceRunResolver.TryResolveSourceRunId(request);
 
         // ReSharper disable once InvertIf
 

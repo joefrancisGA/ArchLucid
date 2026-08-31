@@ -65,6 +65,10 @@ describe("BeforeAfterDeltaSidebarPanel", () => {
     });
 
     expect(screen.getByTestId("delta-sidebar-window")).toHaveTextContent("2");
+    expect(screen.getByText(/Typical last/i)).toBeInTheDocument();
+    expect(screen.getByLabelText("Help: Typical finalized reviews")).toBeInTheDocument();
+    expect(screen.getByText("Findings / review")).toBeInTheDocument();
+    expect(screen.getByText("Time to finalize")).toBeInTheDocument();
     expect(screen.getByTestId("delta-sidebar-median-findings")).toHaveTextContent("5");
     expect(screen.getByTestId("delta-sidebar-median-time")).toHaveTextContent("1.00 h");
   });

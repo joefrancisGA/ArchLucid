@@ -21,6 +21,7 @@ export {
   readBuyerCtoDemoAutoplay,
   readBuyerCtoDemoExploreMode,
   readBuyerCtoDemoPreflightAcknowledged,
+  readBuyerCtoDemoPresenterLayerVisible,
   readBuyerCtoDemoPresenterNotesFullScript,
   readBuyerCtoDemoPresenterNotesVisible,
   readBuyerCtoDemoSpotlight,
@@ -28,10 +29,10 @@ export {
   readBuyerCtoDemoTourActive,
   readBuyerCtoDemoTourCollapsed,
   readBuyerCtoDemoVisitedSteps,
-  readCtoDemoPresenterLayerVisible,
   writeBuyerCtoDemoAutoplay,
   writeBuyerCtoDemoExploreMode,
   writeBuyerCtoDemoPreflightAcknowledged,
+  writeBuyerCtoDemoPresenterLayerVisible,
   writeBuyerCtoDemoPresenterNotesFullScript,
   writeBuyerCtoDemoPresenterNotesVisible,
   writeBuyerCtoDemoSpotlight,
@@ -39,7 +40,6 @@ export {
   writeBuyerCtoDemoTourActive,
   writeBuyerCtoDemoTourCollapsed,
   writeBuyerCtoDemoVisitedStep,
-  writeCtoDemoPresenterLayerVisible,
 } from "@/lib/buyer/buyer-cto-demo-tour-storage";
 
 export type { BuyerCtoDemoTourNavigation } from "@/lib/buyer/buyer-cto-demo-tour-presenter";

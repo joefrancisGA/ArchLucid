@@ -13,7 +13,7 @@ import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
@@ -205,6 +205,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder={REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER}
                 aria-label={REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER}
+                className={OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS}
                 data-testid="reviews-hub-search"
               />
             </div>

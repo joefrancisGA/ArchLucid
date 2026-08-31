@@ -29,7 +29,7 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     id: "governance_quick_approve",
     classification: "permanent",
     confirmationLead:
-      "This records resolve outcomes on the finalized review record. It cannot be undone from this workspace.",
+      "This records governance approval on the finalized review record. It cannot be undone from this workspace.",
   },
   governance_workflow_approve: {
     id: "governance_workflow_approve",

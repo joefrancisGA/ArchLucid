@@ -2,8 +2,10 @@ import {
   clearOperatorScopeCookie,
   writeOperatorScopeCookieFromHeaders,
 } from "@/lib/operator/operator-scope-cookie";
+import { clearOperatorHomeDisclosureStorage } from "@/lib/operator/operator-home-disclosure-storage";
 import { clearOperatorRecentViewsStorage } from "@/lib/operator/operator-recent-views";
 import { clearHasExistingRunsCache } from "@/lib/operator/operator-run-presence";
+import { clearHasSeenWelcomeOnboarding } from "@/lib/operator/operator-welcome-onboarding-storage";
 import { clearOperatorShellStatusScopeAgnosticCaches } from "@/lib/operator/operator-shell-status-scope-cache";
 import { clearOperatorShellStableCache } from "@/lib/operator/operator-shell-stable-cache";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
@@ -77,6 +79,8 @@ function notifyOperatorScopeChanged(): void {
   clearOperatorShellStatusScopeAgnosticCaches(getOperatorQueryClient());
   clearOperatorRecentViewsStorage();
   clearHasExistingRunsCache();
+  clearHasSeenWelcomeOnboarding();
+  clearOperatorHomeDisclosureStorage();
 }
 
 export function writeOperatorScopeToStorage(record: OperatorScopeRecord): void {

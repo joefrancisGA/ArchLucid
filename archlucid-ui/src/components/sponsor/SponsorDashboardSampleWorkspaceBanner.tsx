@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { UnloadSampleReviewButton } from "@/components/UnloadSampleReviewButton";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -22,12 +23,21 @@ export function SponsorDashboardSampleWorkspaceBanner(
       role="status"
       data-testid="sponsor-dashboard-sample-workspace-banner"
     >
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>
-        {v.sampleWorkspaceBannerTitle}
-      </p>
-      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPE_SCALE.helper)}>
-        {v.sampleWorkspaceBannerDescription}
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>
+            {v.sampleWorkspaceBannerTitle}
+          </p>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPE_SCALE.helper)}>
+            {v.sampleWorkspaceBannerDescription}
+          </p>
+        </div>
+        <UnloadSampleReviewButton
+          label={v.sampleWorkspaceBannerUnloadAction}
+          size="sm"
+          className="w-fit shrink-0"
+        />
+      </div>
     </div>
   );
 }

@@ -10,7 +10,7 @@ export type MutableSectionDraft = {
 };
 
 const MODEL_ARTIFACT_LINE_PATTERN =
-  /^\[(?:actor|inferred):|^(?:you are|as an ai|system prompt|assistant:|user:)|^\{[\s"]|^\[[\s"]/i;
+  /^\[(?:actor|inferred):|^(?:you are|as an ai|system prompt|assistant:|user:)/i;
 
 const PIPE_DELIMITED_ROW_PATTERN = /^[^|\n]+\|[^|\n]+(?:\|[^|\n]+)*$/;
 

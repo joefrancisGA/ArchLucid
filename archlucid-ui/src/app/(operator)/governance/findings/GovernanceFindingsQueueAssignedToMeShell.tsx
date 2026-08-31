@@ -432,7 +432,7 @@ export function GovernanceFindingsQueueAssignedToMeShell(
                     {
                       label: buyerPolishedShell
                         ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION
-                        : "Open resolve outcomes",
+                        : "Open governance approval",
                       href: "/governance/approval-queue",
                       variant: "outline",
                     },

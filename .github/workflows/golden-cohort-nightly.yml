@@ -1,8 +1,8 @@
 # Nightly golden cohort: JSON contract (always) + simulator drift when repository variable
 # ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is "true".
 #
-# PR path keeps only the merge-required jobs: cohort-contract + cohort-real-llm-gate.
-# Faithfulness, RAG signal, simulator drift, and real-mode eval run on schedule /
+# PR path keeps only the merge-required job: cohort-real-llm-gate (~20s budget probe + fixture check).
+# cohort-contract, faithfulness, RAG signal, simulator drift, and real-mode eval run on schedule /
 # workflow_dispatch, not on pull_request (queue relief; live invoke stays off PRs).
 #
 # Optional real-LLM **gate** (cohort-real-llm-gate job): budget probe + fixture presence check only —
@@ -47,6 +47,7 @@ concurrency:
 
 jobs:
   cohort-contract:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -191,24 +192,27 @@ jobs:
           if-no-files-found: warn
 
   cohort-real-llm-gate:
-    needs: cohort-contract
     runs-on: ubuntu-latest
     environment: dev
     outputs:
       budget_exit_code: ${{ steps.budget.outputs.exit_code }}
+      real_mode_enabled: ${{ steps.eligibility.outputs.enabled }}
+      live_schedule_enabled: ${{ steps.live_schedule.outputs.enabled }}
     # Improvement 11 (2026-04-24) — issues:write needed by the warn/kill auto-issue step.
     permissions:
       contents: read
       id-token: write
       issues: write
     steps:
+      - uses: actions/checkout@v7
+
       - name: Gate eligibility (var off, fork PR, or disabled path)
         id: eligibility
         run: |
           set -euo pipefail
-          if [ "${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM }}" != "true" ]; then
+          if ! bash scripts/ci/is_real_mode_ci_enabled.sh enabled; then
             echo "enabled=false" >> "${GITHUB_OUTPUT}"
-            echo "ARCHLUCID_GOLDEN_COHORT_REAL_LLM is not true; cohort-real-llm-gate passes as no-op."
+            echo "Real-mode CI disabled — add .github/REAL_MODE_CI_ENABLED or set ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true."
             exit 0
           fi
 
@@ -220,8 +224,15 @@ jobs:
 
           echo "enabled=true" >> "${GITHUB_OUTPUT}"
 
-      - uses: actions/checkout@v7
-        if: steps.eligibility.outputs.enabled == 'true'
+      - name: Live schedule eligibility
+        id: live_schedule
+        run: |
+          set -euo pipefail
+          if bash scripts/ci/is_real_mode_ci_enabled.sh live-schedule; then
+            echo "enabled=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+          fi
 
       - name: Set up Python (golden cohort budget probe)
         if: steps.eligibility.outputs.enabled == 'true'
@@ -335,7 +346,7 @@ jobs:
     needs: cohort-real-llm-gate
     if: >-
       ${{ github.event_name != 'pull_request'
-      && vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
+      && needs.cohort-real-llm-gate.outputs.real_mode_enabled == 'true'
       && (needs['cohort-real-llm-gate'].outputs.budget_exit_code == '0'
         || needs['cohort-real-llm-gate'].outputs.budget_exit_code == '1') }}
     runs-on: ubuntu-latest
@@ -390,7 +401,7 @@ jobs:
       - cohort-contract
       - cohort-real-llm-gate
     if: >-
-      ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
+      ${{ needs.cohort-real-llm-gate.outputs.real_mode_enabled == 'true'
       && (needs['cohort-real-llm-gate'].outputs.budget_exit_code == '0'
         || needs['cohort-real-llm-gate'].outputs.budget_exit_code == '1')
       && (
@@ -398,7 +409,7 @@ jobs:
         || (
           github.event_name == 'schedule'
           && github.event.schedule == '0 6 * * 0'
-          && vars.ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED == 'true'
+          && needs.cohort-real-llm-gate.outputs.live_schedule_enabled == 'true'
         )
       ) }}
     runs-on: ubuntu-latest
@@ -434,10 +445,13 @@ jobs:
           ARCHLUCID_AGENT_EXECUTION_MODE: "Real"
           AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_DEPLOYMENT_NAME: gpt-5.6-terra
-        run: >
-          dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --configuration Release --
-          golden-cohort drift --strict-real --structural-only
+          ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT: ${{ vars.ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT }}
+        run: |
+          set -euo pipefail
+          # shellcheck source=/dev/null
+          source scripts/ci/export_real_mode_aoai_env.sh
+          dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --configuration Release -- \
+            golden-cohort drift --strict-real --structural-only
 
       - name: Scrape token metrics
         env:
