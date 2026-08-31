@@ -40,7 +40,7 @@ export function scopeUnderstandingFingerprint(lines: readonly string[]): string 
   return lines
     .map((line) => line.trim().toLowerCase())
     .filter((line) => line.length > 0)
-    .sort((left, right) => left.localeCompare(right))
+    .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0))
     .join("\n");
 }
 
