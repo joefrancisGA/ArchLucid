@@ -220,6 +220,7 @@ export async function RunDetailPageView(props: {
     pipelineSummary: m.progressForPipelineUi,
     intakeDescription: m.resolvedDetail.run.description ?? m.progressForPipelineUi.description ?? null,
     intakeSystemName: m.resolvedDetail.run.displayName ?? m.progressForPipelineUi.displayName ?? null,
+    realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator === true,
   };
 
   const runDetailBody = (

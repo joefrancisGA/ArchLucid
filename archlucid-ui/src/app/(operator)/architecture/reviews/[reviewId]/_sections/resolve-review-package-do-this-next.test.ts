@@ -74,8 +74,9 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.href).toBe(baseInput.correctionHref);
     expect(next.secondaryAction).toBeUndefined();
     expect(next.failureRecovery?.headline).toContain("Execution failed");
-    expect(next.failureRecovery?.recoverySteps.join(" ")).toContain("AI configuration");
+    expect(next.failureRecovery?.recoverySteps.join(" ")).toContain("administrator handoff");
     expect(next.failureRecovery?.recoverySteps.join(" ")).not.toContain("Confirm intake fields");
+    expect(next.failureRecovery?.adminHandoff?.markdown).toContain("run-abc");
     expect(next.failureRecovery?.submittedIntakeRecap?.attachedFiles).toEqual(["handbook.docx"]);
     expect(next.sentence).not.toContain("running");
     expect(next.sentence).not.toContain("start a new review");

@@ -37,6 +37,7 @@ export type RunDetailPageViewCreateHomeProps = {
     readonly pipelineSummary: RunSummary;
     readonly intakeDescription: string | null;
     readonly intakeSystemName: string | null;
+    readonly realModeFellBackToSimulator: boolean;
   };
 };
 
