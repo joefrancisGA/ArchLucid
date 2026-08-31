@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
@@ -42,10 +43,14 @@ public sealed class GovernancePostureController(
         CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            scope,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         if (GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId(projectId))
             return this.BadRequestProblem("projectId is required.", ProblemTypes.ValidationFailed);
