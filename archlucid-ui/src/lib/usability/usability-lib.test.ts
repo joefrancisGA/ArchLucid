@@ -74,6 +74,9 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/administration/workspace-settings")?.slug).toBe("workspace-settings");
     expect(pageHelpTopicForPathname("/internal/recommendation-learning")?.slug).toBe("pilot-feedback");
     expect(pageHelpTopicForPathname("/architecture/reviews/run-1/artifacts/cost-summary")?.slug).toBe("review-artifacts");
+    expect(pageHelpTopicForPathname("/architecture/reviews/run-1")?.slug).toBe("review-packages");
+    expect(pageHelpTopicForPathname("/architecture/reviews/run-1")?.label).toBe("Review workspace");
+    expect(pageHelpTopicForPathname("/architecture/reviews/run-1")?.hashFragment).toBe("inspect-an-architecture-package");
     expect(pageHelpTopicForPathname("/governance/sealed-records/manifest-1/artifacts/cost-summary")?.slug).toBe(
       "review-artifacts",
     );
