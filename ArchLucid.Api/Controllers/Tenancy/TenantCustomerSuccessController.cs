@@ -252,9 +252,12 @@ public sealed class TenantCustomerSuccessController(
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(request.FindingRef))
+        string? findingRef = string.IsNullOrWhiteSpace(request.FindingRef)
+            ? null
+            : request.FindingRef.Trim();
+
+        if (findingRef is not null)
         {
-            string findingRef = request.FindingRef.Trim();
             FindingInspectResponse? finding = await _findingInspectReadRepository
                 .GetInspectAsync(scope, findingRef, cancellationToken, FindingInspectReadOptions.MetadataOnly)
                 .ConfigureAwait(false);
@@ -272,7 +275,7 @@ public sealed class TenantCustomerSuccessController(
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
-            FindingRef = request.FindingRef,
+            FindingRef = findingRef,
             RunId = request.RunId,
             Score = request.Score,
             Comment = request.Comment
