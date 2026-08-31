@@ -2278,7 +2278,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 94
+- **hunts:** 91
 - **bugs-found:** 234
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
