@@ -38,16 +38,24 @@ public sealed class DapperWarmTenantCatalogStandbyRepository(ISystemSqlConnectio
         if (!await TableExistsAsync(connection, cancellationToken))
             return null;
 
+        // Atomically claim the oldest unclaimed standby row in a single UPDATE…OUTPUT statement.
+        // Using a subquery with UPDLOCK + READPAST prevents two concurrent callers from
+        // selecting the same row before MarkClaimedAsync runs.
         const string sql = """
-                           SELECT TOP (1)
-                               StandbyId,
-                               SqlLogicalDatabaseName,
-                               SchemaReadyUtc,
-                               CreatedUtc,
-                               ClaimedUtc
-                           FROM dbo.WarmTenantCatalogStandby WITH (UPDLOCK, ROWLOCK, READPAST)
-                           WHERE ClaimedUtc IS NULL
-                           ORDER BY CreatedUtc ASC;
+                           UPDATE dbo.WarmTenantCatalogStandby
+                           SET ClaimedUtc = SYSUTCDATETIME()
+                           OUTPUT
+                               INSERTED.StandbyId,
+                               INSERTED.SqlLogicalDatabaseName,
+                               INSERTED.SchemaReadyUtc,
+                               INSERTED.CreatedUtc,
+                               INSERTED.ClaimedUtc
+                           WHERE StandbyId = (
+                               SELECT TOP (1) StandbyId
+                               FROM dbo.WarmTenantCatalogStandby WITH (UPDLOCK, ROWLOCK, READPAST)
+                               WHERE ClaimedUtc IS NULL
+                               ORDER BY CreatedUtc ASC
+                           );
                            """;
 
         Row? row = await connection.QuerySingleOrDefaultAsync<Row>(
