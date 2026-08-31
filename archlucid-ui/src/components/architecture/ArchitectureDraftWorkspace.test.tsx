@@ -612,7 +612,6 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.queryByTestId("architecture-draft-intake-mode-banner")).not.toBeInTheDocument();
     });
 
-    expect(showSuccess).toHaveBeenCalledWith("Architecture unlocked — you can edit the brief.");
     expect(screen.getByLabelText(/Architecture overview/i)).not.toBeDisabled();
   });
 

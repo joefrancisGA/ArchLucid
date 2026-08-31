@@ -149,7 +149,7 @@ public sealed class PolicyPackDryRunServiceTests
     }
 
     [SkippableFact]
-    public async Task EvaluateAsync_deduplicates_evaluate_against_run_ids_after_trim()
+    public async Task EvaluateAsync_DeduplicatesEvaluateAgainstRunIdsAfterTrim()
     {
         FakeRunDetailQueryService runs = new();
         runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);

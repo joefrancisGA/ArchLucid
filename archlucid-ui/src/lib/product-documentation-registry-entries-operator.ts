@@ -94,7 +94,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR: readonly ProductDo
   },
   {
     "slug": "governance-approval",
-    "title": "Resolve outcomes",
+    "title": "Governance approval",
     "summary": "Learn how architecture work moves from submission to approval, revision, or rejection.",
     "audience": "operator",
     "sourcePaths": [

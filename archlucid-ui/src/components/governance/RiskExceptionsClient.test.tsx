@@ -115,7 +115,7 @@ describe("RiskExceptionsClient", () => {
       await screen.findByText("Track active waivers, expirations, owners, and linked approval decisions."),
     ).toBeInTheDocument();
     expect(
-      screen.queryByText("Submit finalized architecture outputs for resolve outcomes review and promotion."),
+      screen.queryByText("Submit finalized architecture outputs for governance approval review and promotion."),
     ).not.toBeInTheDocument();
   });
 

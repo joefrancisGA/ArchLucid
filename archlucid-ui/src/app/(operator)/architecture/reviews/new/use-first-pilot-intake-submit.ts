@@ -5,6 +5,7 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 
 import { REVIEW_CREATION_PROGRESS_TIMEOUT_MS, type ReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
+import type { CreateArchitectureRunDocumentPayload } from "@/lib/api/architecture-runs-mutate";
 import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
@@ -16,11 +17,22 @@ import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { REVIEW_START_CREATION_FAILED_MESSAGE } from "@/lib/review-start-progress-copy";
 import { recheckUnresolvedArchitectureReviewCreate } from "@/lib/review-start-unresolved-recheck";
 import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
+import { buildIntakeContextDocumentsFromEvidenceFiles } from "@/lib/intake-context-documents-from-files";
 import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
 
 /** Create + multipart evidence upload can exceed the default soft-fail budget on slow links. */
 const FIRST_PILOT_WITH_UPLOAD_TIMEOUT_MS =
   REVIEW_CREATION_PROGRESS_TIMEOUT_MS + PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS;
+
+async function tryBuildIntakeContextDocuments(
+  files: readonly File[],
+): Promise<CreateArchitectureRunDocumentPayload[]> {
+  try {
+    return await buildIntakeContextDocumentsFromEvidenceFiles(files);
+  } catch {
+    return [];
+  }
+}
 
 export const FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE =
   "Add a review title and either attach architecture evidence or provide enough context in the description.";
@@ -86,7 +98,12 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
     });
 
     try {
-      const body = buildSubmitBody(filesToUpload);
+      const documents = await tryBuildIntakeContextDocuments(filesToUpload);
+
+      const body = {
+        ...buildSubmitBody(filesToUpload),
+        ...(documents.length > 0 ? { documents } : {}),
+      };
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
 
@@ -148,7 +165,11 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
 
     try {
       const filesToUpload = [...evidenceFiles];
-      const body = buildSubmitBody(filesToUpload);
+      const documents = await tryBuildIntakeContextDocuments(filesToUpload);
+      const body = {
+        ...buildSubmitBody(filesToUpload),
+        ...(documents.length > 0 ? { documents } : {}),
+      };
       const result = await recheckUnresolvedArchitectureReviewCreate(body);
 
       if (result.status === "still-unresolved") {

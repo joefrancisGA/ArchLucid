@@ -169,7 +169,7 @@ public sealed class GovernancePreviewServiceTests
     }
 
     [SkippableFact]
-    public async Task CompareEnvironmentsAsync_accepts_padded_environment_names_when_in_scope()
+    public async Task CompareEnvironmentsAsync_AcceptsPaddedEnvironmentNames_WhenInScope()
     {
         GovernanceEnvironmentActivation act1 = new()
         {

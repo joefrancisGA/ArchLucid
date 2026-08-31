@@ -69,7 +69,7 @@ export function HelpProductGuide() {
             <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("getting-started", "how-archlucid-works")}>
               How ArchLucid works
             </Link>{" "}
-            — workflow from evidence through findings, resolve outcomes, and exports.
+            — workflow from evidence through findings, governance approval, and exports.
           </p>
           <p className="m-0">
             <Link className={OPERATOR_LINK.inline} href="/faq">
@@ -129,7 +129,7 @@ export function HelpProductGuide() {
           <li>
             Review{" "}
             <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("governance-approval")}>
-              resolve outcomes
+              governance approval
             </Link>{" "}
             and the{" "}
             <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("audit-trail")}>
