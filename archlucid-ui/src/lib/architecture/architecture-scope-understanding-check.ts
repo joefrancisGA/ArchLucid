@@ -172,22 +172,61 @@ export type ScopeItemValidation =
   | { readonly status: "valid" }
   | { readonly status: "invalid"; readonly message: string };
 
-export {
-  actorScopeDisplayLabel,
-  deriveScopeUnderstandingBullets,
-  reconcileScopeUnderstandingBullets,
-  scopeBulletText,
-} from "./architecture-scope-understanding-derive";
-export {
-  canConfirmScopeUnderstanding,
-  scopeBriefLines,
-  validateScopeUnderstandingItem,
-} from "./architecture-scope-understanding-validate";
-export {
-  extractScopeUnderstandingLinesFromBrief,
-  mergeScopeBulletsIntoBrief,
-  normalizeScopeUnderstandingBullets,
-  persistedScopeMatchesBullets,
-  scopeBulletsFingerprint,
-  scopeUnderstandingFingerprint,
-} from "./architecture-scope-understanding-persist";
+declare const require: <T = unknown>(modulePath: string) => T;
+
+function loadScopeUnderstandingDeriveModule() {
+  return require<typeof import("./architecture-scope-understanding-derive")>(
+    "./architecture-scope-understanding-derive",
+  );
+}
+
+function loadScopeUnderstandingValidateModule() {
+  return require<typeof import("./architecture-scope-understanding-validate")>(
+    "./architecture-scope-understanding-validate",
+  );
+}
+
+function loadScopeUnderstandingPersistModule() {
+  return require<typeof import("./architecture-scope-understanding-persist")>(
+    "./architecture-scope-understanding-persist",
+  );
+}
+
+export const actorScopeDisplayLabel: typeof import("./architecture-scope-understanding-derive")["actorScopeDisplayLabel"] =
+  ((...args) => loadScopeUnderstandingDeriveModule().actorScopeDisplayLabel(...args)) as typeof import("./architecture-scope-understanding-derive")["actorScopeDisplayLabel"];
+
+export const deriveScopeUnderstandingBullets: typeof import("./architecture-scope-understanding-derive")["deriveScopeUnderstandingBullets"] =
+  ((...args) => loadScopeUnderstandingDeriveModule().deriveScopeUnderstandingBullets(...args)) as typeof import("./architecture-scope-understanding-derive")["deriveScopeUnderstandingBullets"];
+
+export const reconcileScopeUnderstandingBullets: typeof import("./architecture-scope-understanding-derive")["reconcileScopeUnderstandingBullets"] =
+  ((...args) => loadScopeUnderstandingDeriveModule().reconcileScopeUnderstandingBullets(...args)) as typeof import("./architecture-scope-understanding-derive")["reconcileScopeUnderstandingBullets"];
+
+export const scopeBulletText: typeof import("./architecture-scope-understanding-derive")["scopeBulletText"] =
+  ((...args) => loadScopeUnderstandingDeriveModule().scopeBulletText(...args)) as typeof import("./architecture-scope-understanding-derive")["scopeBulletText"];
+
+export const canConfirmScopeUnderstanding: typeof import("./architecture-scope-understanding-validate")["canConfirmScopeUnderstanding"] =
+  ((...args) => loadScopeUnderstandingValidateModule().canConfirmScopeUnderstanding(...args)) as typeof import("./architecture-scope-understanding-validate")["canConfirmScopeUnderstanding"];
+
+export const scopeBriefLines: typeof import("./architecture-scope-understanding-validate")["scopeBriefLines"] =
+  ((...args) => loadScopeUnderstandingValidateModule().scopeBriefLines(...args)) as typeof import("./architecture-scope-understanding-validate")["scopeBriefLines"];
+
+export const validateScopeUnderstandingItem: typeof import("./architecture-scope-understanding-validate")["validateScopeUnderstandingItem"] =
+  ((...args) => loadScopeUnderstandingValidateModule().validateScopeUnderstandingItem(...args)) as typeof import("./architecture-scope-understanding-validate")["validateScopeUnderstandingItem"];
+
+export const extractScopeUnderstandingLinesFromBrief: typeof import("./architecture-scope-understanding-persist")["extractScopeUnderstandingLinesFromBrief"] =
+  ((...args) => loadScopeUnderstandingPersistModule().extractScopeUnderstandingLinesFromBrief(...args)) as typeof import("./architecture-scope-understanding-persist")["extractScopeUnderstandingLinesFromBrief"];
+
+export const mergeScopeBulletsIntoBrief: typeof import("./architecture-scope-understanding-persist")["mergeScopeBulletsIntoBrief"] =
+  ((...args) => loadScopeUnderstandingPersistModule().mergeScopeBulletsIntoBrief(...args)) as typeof import("./architecture-scope-understanding-persist")["mergeScopeBulletsIntoBrief"];
+
+export const normalizeScopeUnderstandingBullets: typeof import("./architecture-scope-understanding-persist")["normalizeScopeUnderstandingBullets"] =
+  ((...args) => loadScopeUnderstandingPersistModule().normalizeScopeUnderstandingBullets(...args)) as typeof import("./architecture-scope-understanding-persist")["normalizeScopeUnderstandingBullets"];
+
+export const persistedScopeMatchesBullets: typeof import("./architecture-scope-understanding-persist")["persistedScopeMatchesBullets"] =
+  ((...args) => loadScopeUnderstandingPersistModule().persistedScopeMatchesBullets(...args)) as typeof import("./architecture-scope-understanding-persist")["persistedScopeMatchesBullets"];
+
+export const scopeBulletsFingerprint: typeof import("./architecture-scope-understanding-persist")["scopeBulletsFingerprint"] =
+  ((...args) => loadScopeUnderstandingPersistModule().scopeBulletsFingerprint(...args)) as typeof import("./architecture-scope-understanding-persist")["scopeBulletsFingerprint"];
+
+export const scopeUnderstandingFingerprint: typeof import("./architecture-scope-understanding-persist")["scopeUnderstandingFingerprint"] =
+  ((...args) => loadScopeUnderstandingPersistModule().scopeUnderstandingFingerprint(...args)) as typeof import("./architecture-scope-understanding-persist")["scopeUnderstandingFingerprint"];
