@@ -2279,10 +2279,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
 - **hunts:** 93
-- **bugs-found:** 234
+- **bugs-found:** 238
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — bulk-disposition all-or-nothing scope validation
+- **last-bug:** 2026-08-31 — environment-catalog ghost-tenant preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2527,6 +2527,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **cheap-disproof 2026-08-31:** per-item `ValidationFailed` for exact duplicates since 2026-08-28; **hit 2026-08-31:** `OrdinalIgnoreCase` dedupe for case-variant duplicates; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without per-item failure rows — **hit 2026-08-31 (#281):** validate all finding ids in scope before recording any; map scope misses to HTTP 404; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — whitespace-only body `findingRef` skipped inspect-scope gate and persisted `"   "` — **hit 2026-08-31 (#325):** normalize blank `findingRef` to null before gate/persist; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_omits_finding_ref_when_value_is_whitespace`.
+- [x] (proven) `GovernanceCoverageController.PreviewCoverage` — null body used `ArgumentNullException.ThrowIfNull` (HTTP 500 risk) — **hit 2026-08-31 (#325):** nullable body + HTTP 400 `RequestBodyRequired`; regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_body_is_null`.
+- [x] (proven) `GovernanceEnvironmentCatalogController.Get` / `Replace` — ghost tenant returned HTTP 200 defaults or reached replace without tenant 404 while sibling governance reads preflighted — **hit 2026-08-31 (#325):** `ITenantRepository.GetByIdAsync` preflight on GET/PUT; regression in `GovernanceEnvironmentCatalogControllerTests`.
+- [x] (proven) `GovernanceStickinessFacade.UpdateRecurrenceScheduleAsync` — empty PUT body recomputed `NextRunUtc` from current clock even when cron/enabled unchanged — **hit 2026-08-31 (#325):** recompute next run only when `isEnabled` or `cronExpression` changes; regression in `GovernanceStickinessFacadeTests.UpdateRecurrenceScheduleAsync_preserves_next_run_when_request_has_no_schedule_changes`.
+- [ ] (candidate) `TenantWorkspacesController.ListAsync` — lists all active projects in caller workspace while delete/restore require `scope.ProjectId` — may be intentional workspace-admin disclosure vs mutation guard parity.
+- [ ] (candidate) `GovernanceResolutionController.Resolve` — optional query `projectId` may return foreign-project resolution within same tenant without `GovernanceQueryProjectScope` gate.
+
+2026-08-31 seed hunt #325: proved product-feedback whitespace findingRef, coverage preview null body, environment-catalog ghost-tenant preflight, and recurrence empty-PUT next-run drift; seeded workspace list sibling-project disclosure and resolution optional-project scope candidates.
 
 2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
 
