@@ -141,4 +141,11 @@ public sealed class WeeklyDigestHealthSnapshot
         get;
         init;
     } = [];
+
+    /// <summary>Stable setup-gap identifiers aligned by index with <see cref="SetupGaps"/>.</summary>
+    public IReadOnlyList<string> SetupGapCodes
+    {
+        get;
+        init;
+    } = [];
 }

@@ -82,6 +82,8 @@ public sealed class GovernanceWorkflowSubmitStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
 
         manifestVersion = manifestVersion.Trim();
+        sourceEnvironment = sourceEnvironment.Trim();
+        targetEnvironment = targetEnvironment.Trim();
 
         if (!await _environmentCatalogService
                 .IsValidTransitionAsync(sourceEnvironment, targetEnvironment, cancellationToken)
