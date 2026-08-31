@@ -52,15 +52,15 @@ public sealed partial class SqlTenantSqlCatalogProvisioner
             await MirrorTenantRowFromSystemAsync(tenantId, tenantConnectionString, cancellationToken);
             await _bindingRepository.MarkActiveAsync(tenantId, cancellationToken);
 
-            if (claimedStandby is not null)
-                await _warmStandbyRepository.MarkClaimedAsync(claimedStandby.StandbyId, cancellationToken);
-
             _tenantDatabaseResolver.InvalidateCachedTenantConnectionString(tenantId);
         }
         catch (Exception ex)
         {
             if (_logger.IsEnabled(LogLevel.Error))
                 _logger.LogError(ex, "Tenant catalog provisioning failed for tenant {TenantId}.", tenantId);
+
+            if (claimedStandby is not null)
+                await _warmStandbyRepository.ReleaseClaimAsync(claimedStandby.StandbyId, cancellationToken);
 
             await _bindingRepository.MarkFailedAsync(tenantId, ex.Message, cancellationToken);
 
