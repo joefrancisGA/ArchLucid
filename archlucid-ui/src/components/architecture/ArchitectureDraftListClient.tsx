@@ -34,7 +34,6 @@ import {
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
-  formatArchitectureDraftCreatedLabel,
   type ArchitectureDraftCustomerStatus,
 } from "@/lib/architecture/architecture-draft-status";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
@@ -70,8 +69,13 @@ import {
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatUpdatedAbsoluteWithRelative } from "@/lib/relative-time";
+import {
+  DESIGN_TOKENS,
+  OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS,
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 import { resolveContinueLastArchitectureDraftEntry } from "@/lib/architecture-draft-continue-last";
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { cn } from "@/lib/utils";
@@ -97,10 +101,6 @@ const SORT_OPTIONS: ReadonlyArray<{ id: ArchitectureSortId; label: string }> = [
   { id: "name-asc", label: ARCHITECTURES_HUB_SORT_NAME_ASC_LABEL },
   { id: "name-desc", label: ARCHITECTURES_HUB_SORT_NAME_DESC_LABEL },
 ];
-
-function formatUpdatedListLabel(updatedUtc: string): string {
-  return formatUpdatedAbsoluteWithRelative(updatedUtc, formatArchitectureDraftCreatedLabel(updatedUtc));
-}
 
 function matchesSearch(entry: ArchitectureDraftRegistryEntry, query: string): boolean {
   const normalized = query.trim().toLowerCase();
@@ -263,7 +263,10 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
           onChange={(event) => setSearchQuery(event.target.value)}
           placeholder={ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER}
           aria-label={ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER}
-          className="w-full lg:min-w-[12rem] lg:max-w-xs lg:flex-1"
+          className={cn(
+            "w-full lg:min-w-[12rem] lg:max-w-xs lg:flex-1",
+            OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS,
+          )}
           data-testid="architecture-draft-list-search"
         />
         <div className="flex flex-wrap items-center gap-3">
@@ -287,7 +290,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
             onChange={(event) => setActiveSort(event.target.value as ArchitectureSortId)}
             className={cn(
               "rounded-md border border-al-border-subtle bg-al-surface-raised px-2 py-1",
-              OPERATOR_TYPOGRAPHY.helper,
+              OPERATOR_TYPOGRAPHY.nativeControlLabel,
             )}
             data-testid="architecture-draft-list-sort"
           >
@@ -322,7 +325,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
           </EnterpriseTableHead>
           <EnterpriseTableBody>
             {filteredEntries.map((entry) => {
-              const updatedLabel = formatUpdatedListLabel(entry.lastUpdatedUtc);
+              const updatedAt = formatInventoryUpdatedAtCell(entry.lastUpdatedUtc);
 
               return (
                 <EnterpriseTableRow
@@ -351,8 +354,10 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                     />
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>{entry.ownerLabel}</EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    <time dateTime={entry.lastUpdatedUtc}>{updatedLabel}</time>
+                  <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+                    <time dateTime={entry.lastUpdatedUtc} title={updatedAt.absoluteTitle}>
+                      {updatedAt.display}
+                    </time>
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     {entry.linkedReviewId !== null ? (

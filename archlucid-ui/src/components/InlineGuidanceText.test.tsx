@@ -13,7 +13,7 @@ describe("InlineGuidanceText", () => {
     const label = screen.getByText("Optional setup:");
 
     expect(label.tagName).toBe("STRONG");
-    expect(label).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
+    expect(label).toHaveClass(...INLINE_GUIDANCE_LABEL_CLASS.split(" "));
     expect(
       screen.getByText(/Finish workspace setup, reviewer access, and optional cloud connections\./),
     ).toBeInTheDocument();
@@ -43,6 +43,16 @@ describe("InlineGuidanceText", () => {
     expect(
       screen.getByText(/Complete the system name, architecture overview, business outcome/i),
     ).toBeInTheDocument();
+  });
+
+  it("emphasizes the missing-fields scan label", () => {
+    render(<InlineGuidanceText text="Missing: review record version, target environment." />);
+
+    const label = screen.getByText("Missing:");
+
+    expect(label.tagName).toBe("STRONG");
+    expect(label).toHaveClass(...INLINE_GUIDANCE_LABEL_CLASS.split(" "));
+    expect(screen.getByText(/review record version, target environment\./)).toBeInTheDocument();
   });
 
   it("renders plain copy when no guidance label prefix is present", () => {

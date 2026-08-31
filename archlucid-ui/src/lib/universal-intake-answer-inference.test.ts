@@ -87,6 +87,14 @@ describe("inferUniversalIntakeAnswersFromCorpus", () => {
     expect(inferred["l0.actor.additional-kinds"]).toBeUndefined();
   });
 
+  it("does not treat business-outcome integration prose as additional actors", () => {
+    const inferred = inferUniversalIntakeAnswersFromCorpus(
+      "System name: ArchLucid\n\nBusiness outcome: Additional actor kinds: Azure OpenAI, Service Bus, and Blob are optional for live models, integration fan-out, and large artifacts.",
+    );
+
+    expect(inferred["l0.actor.additional-kinds"]).toBeUndefined();
+  });
+
   it("infers handbook-shaped answers without table dumps", () => {
     const inferred = inferUniversalIntakeAnswersFromCorpus(HANDBOOK_INTAKE_INFERENCE_FIXTURE);
     const actorAnswer = inferred["l0.actor.additional-kinds"] ?? "";

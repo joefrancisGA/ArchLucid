@@ -219,7 +219,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: "audit-claims-intake-001",
 
-        name: "Resolve outcomes recorded",
+        name: "Governance approval recorded",
 
       },
 

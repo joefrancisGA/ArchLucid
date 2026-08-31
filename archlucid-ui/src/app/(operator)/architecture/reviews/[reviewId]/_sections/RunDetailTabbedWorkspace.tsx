@@ -56,6 +56,7 @@ import {
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { ReviewInPipelineBanner } from "@/components/reviews/ReviewInPipelineBanner";
+import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import { composeRunDetailEvidenceTab } from "./RunDetailEvidenceTabComposition";
 import { composeRunDetailGovernanceTab } from "./RunDetailGovernanceTabComposition";
@@ -180,7 +181,11 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
   }
 
   const inPipelineBannerEl = m.showProgressTracker ? (
-    <ReviewInPipelineBanner runId={m.resolvedDetail.run.runId} initialSummary={m.progressForPipelineUi} />
+    <ReviewInPipelineBanner
+      runId={m.resolvedDetail.run.runId}
+      initialSummary={m.progressForPipelineUi}
+      diagnosticContext={reviewPipelineDiagnosticContextFromRunDetail(m.resolvedDetail.run)}
+    />
   ) : null;
 
   return (
@@ -242,7 +247,14 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
                 recommendedActions={recommendedActions}
                 criticalCount={severityCounts.critical}
                 highCount={severityCounts.high}
-                proofStatusSlot={<RunDetailFirstScreenProofStatusClient key="run-detail-overview-proof-status" runId={m.resolvedDetail.run.runId} />}
+                proofStatusSlot={
+                  <RunDetailFirstScreenProofStatusClient
+                    key="run-detail-overview-proof-status"
+                    runId={m.resolvedDetail.run.runId}
+                    legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
+                    isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
+                  />
+                }
               />
               <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
                 <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>

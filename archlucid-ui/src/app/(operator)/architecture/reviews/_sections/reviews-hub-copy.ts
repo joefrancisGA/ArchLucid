@@ -103,7 +103,7 @@ export const REVIEWS_HUB_INCLUDES_ITEMS = [
   "Findings",
   "Evidence graph",
   "Finalized review record",
-  "Resolve outcomes",
+  "Governance approval",
   "Exports",
 ] as const;
 

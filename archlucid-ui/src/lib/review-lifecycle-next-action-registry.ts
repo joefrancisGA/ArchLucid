@@ -61,7 +61,7 @@ export const REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY: readonly ReviewLifecycleNext
   {
     id: "governance",
     kind: "optional",
-    label: "View resolve outcomes",
+    label: "View governance approval",
     description: "Optional approval workflow after the sample review.",
     surfaces: ["post-commit-habit-loop"],
     phases: ["post-finalize"],

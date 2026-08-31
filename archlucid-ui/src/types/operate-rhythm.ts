@@ -85,7 +85,9 @@ export type WeeklyDigestHealthDto = WeeklyDigestHealthResponseSchema &
       | "executiveDigestHourOfDay"
       | "setupGaps"
     >
-  >;
+  > & {
+    setupGapCodes?: string[];
+  };
 
 type AlertDeliveryAttemptResponseSchema = components["schemas"]["AlertDeliveryAttemptResponse"];
 

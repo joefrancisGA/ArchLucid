@@ -80,13 +80,6 @@ export const SPONSOR_ROI_DASHBOARD_CHUNK_MANIFEST: readonly DeferredChunkManifes
     exportName: "SponsorDashboardSupportingMetricsSection",
   },
   {
-    id: "sponsor-roi-dashboard-workspace-health",
-    label: "Loading workspace health",
-    variant: "section",
-    modulePath: "@/components/SponsorWorkspaceHealthDashboard",
-    exportName: "SponsorWorkspaceHealthDashboard",
-  },
-  {
     id: "sponsor-roi-dashboard-page-view",
     label: "Loading sponsor dashboard",
     variant: "section",
