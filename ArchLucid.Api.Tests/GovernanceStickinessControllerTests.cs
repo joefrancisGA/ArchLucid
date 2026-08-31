@@ -262,6 +262,41 @@ public sealed class GovernanceStickinessControllerTests
         riskRegister.VerifyNoOtherCalls();
     }
 
+    public static TheoryData<string, Func<GovernanceStickinessController, Task<IActionResult>>> EmptyProjectIdActions =>
+        new()
+        {
+            {
+                nameof(GovernanceStickinessController.GetAssignedToMeFindingsCount),
+                sut => sut.GetAssignedToMeFindingsCount(projectId: Guid.Empty, cancellationToken: CancellationToken.None)
+            },
+            {
+                nameof(GovernanceStickinessController.GetDecisionsNeededSummary),
+                sut => sut.GetDecisionsNeededSummary(projectId: Guid.Empty, cancellationToken: CancellationToken.None)
+            },
+            {
+                nameof(GovernanceStickinessController.GetFindingsRegistersBundle),
+                sut => sut.GetFindingsRegistersBundle(projectId: Guid.Empty, maxRows: 200, cancellationToken: CancellationToken.None)
+            },
+            {
+                nameof(GovernanceStickinessController.GetDecisionRegister),
+                sut => sut.GetDecisionRegister(projectId: Guid.Empty, cancellationToken: CancellationToken.None)
+            },
+        };
+
+    [Theory]
+    [MemberData(nameof(EmptyProjectIdActions))]
+    public async Task Register_endpoints_return_bad_request_when_project_id_is_empty_guid(
+        string _,
+        Func<GovernanceStickinessController, Task<IActionResult>> invokeAction)
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await invokeAction(sut);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
     [Fact]
     public async Task GetDecisionRegister_returns_bad_request_when_recorded_after_is_after_recorded_before()
     {
