@@ -1,5 +1,5 @@
-import type { ScopeUnderstandingBullet } from "./architecture-scope-understanding-check";
-import { SCOPE_UNDERSTANDING_SECTION_HEADER } from "./architecture-scope-understanding-check";
+import type { ScopeUnderstandingBullet } from "./architecture-scope-understanding-shared";
+import { SCOPE_UNDERSTANDING_SECTION_HEADER } from "./architecture-scope-understanding-shared";
 import { scopeBriefLines } from "./architecture-scope-understanding-validate";
 
 /** Reads operator-confirmed scope lines already stored on a brief field. */

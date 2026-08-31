@@ -1,15 +1,15 @@
+import {
+  SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
+  scopeBulletBehavior,
+  stripScopeUnderstandingSection,
+} from "./architecture-scope-understanding-shared";
 import type {
   DeriveScopeUnderstandingBulletsInput,
   ReconcileScopeUnderstandingBulletsInput,
   ScopeActorInput,
   ScopeUnderstandingBullet,
   ScopeUnderstandingBulletKind,
-} from "./architecture-scope-understanding-check";
-import {
-  SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
-  scopeBulletBehavior,
-} from "./architecture-scope-understanding-check";
-import { stripScopeUnderstandingSection } from "./architecture-scope-understanding-check";
+} from "./architecture-scope-understanding-shared";
 
 /** Labels each actor for scope mirroring — falls back to kind/trust when the label field is empty. */
 export function actorScopeDisplayLabel(actor: ScopeActorInput): string {

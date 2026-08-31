@@ -2,7 +2,7 @@ import type {
   DeriveScopeUnderstandingBulletsInput,
   ScopeItemValidation,
   ScopeUnderstandingBullet,
-} from "./architecture-scope-understanding-check";
+} from "./architecture-scope-understanding-shared";
 import {
   SCOPE_ITEM_DUPLICATE_MESSAGE,
   SCOPE_ITEM_MAX_LENGTH,
@@ -12,7 +12,7 @@ import {
   SCOPE_ITEM_TOO_SHORT_MESSAGE,
   scopeBulletBehavior,
   stripScopeUnderstandingSection,
-} from "./architecture-scope-understanding-check";
+} from "./architecture-scope-understanding-shared";
 import { scopeBulletText } from "./architecture-scope-understanding-derive";
 
 /** Hard client validation for the add field — the Add button stays disabled unless this returns `valid`. */
