@@ -63,7 +63,7 @@ public sealed class GovernanceCoverageControllerScopeTests
             TenantExistsRepository());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
-        IActionResult action = await controller.PreviewCoverage(null, CancellationToken.None);
+        IActionResult action = await controller.PreviewCoverage(null!, CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
