@@ -15,7 +15,9 @@ describe("invite-reviewer-flow review handoff", () => {
     expect(buildInviteReviewerHref()).toBe(INVITE_REVIEWER_PATH);
   });
 
-  it("builds prefill message for review package handoff", () => {
-    expect(buildInviteReviewerPrefillMessage("run-abc")).toContain("run-abc");
+  it("builds prefill message for architecture package handoff", () => {
+    expect(buildInviteReviewerPrefillMessage("run-abc")).toBe(
+      "Please review the finalized architecture package (review ID run-abc).",
+    );
   });
 });

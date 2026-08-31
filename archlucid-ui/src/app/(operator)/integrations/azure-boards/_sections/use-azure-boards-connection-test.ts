@@ -20,20 +20,29 @@ export type UseAzureBoardsConnectionTestOptions = {
   readonly setLastTestSuccess: React.Dispatch<React.SetStateAction<boolean | null>>;
 };
 
-export function useAzureBoardsConnectionTest(options: UseAzureBoardsConnectionTestOptions) {
+export function useAzureBoardsConnectionTest({
+  nativeEnabled,
+  credentialsReady,
+  settingsReady,
+  isSaving,
+  setHealth,
+  setLastTestAt,
+  setLastTestSummary,
+  setLastTestSuccess,
+}: UseAzureBoardsConnectionTestOptions) {
   const [testError, setTestError] = useState<string | null>(null);
   const [isTesting, setIsTesting] = useState(false);
 
   const testGate = useMemo(
     () =>
       resolveAzureBoardsConnectionTestGate({
-        nativeEnabled: options.nativeEnabled,
-        credentialsReady: options.credentialsReady,
-        settingsReady: options.settingsReady,
+        nativeEnabled,
+        credentialsReady,
+        settingsReady,
         isTesting,
-        isSaving: options.isSaving,
+        isSaving,
       }),
-    [isTesting, options.credentialsReady, options.isSaving, options.nativeEnabled, options.settingsReady],
+    [credentialsReady, isSaving, isTesting, nativeEnabled, settingsReady],
   );
 
   const runConnectionTest = useCallback(async () => {
@@ -48,8 +57,8 @@ export function useAzureBoardsConnectionTest(options: UseAzureBoardsConnectionTe
       const result = await testAzureBoardsConnection();
       const summary = sanitizeCustomerFacingProbeSummary(result.summary);
       const success = result.ok === true;
-      options.setLastTestAt(new Date().toISOString());
-      options.setLastTestSummary(
+      setLastTestAt(new Date().toISOString());
+      setLastTestSummary(
         success
           ? summary.length > 0
             ? summary
@@ -58,23 +67,23 @@ export function useAzureBoardsConnectionTest(options: UseAzureBoardsConnectionTe
             ? summary
             : "Connection check failed. Verify the organization URL and token permissions.",
       );
-      options.setLastTestSuccess(success);
-      options.setHealth(mapAzureBoardsHealthFromConnectionTest(result));
+      setLastTestSuccess(success);
+      setHealth(mapAzureBoardsHealthFromConnectionTest(result));
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Connection test failed.";
       setTestError(message);
-      options.setLastTestAt(new Date().toISOString());
-      options.setLastTestSummary(message);
-      options.setLastTestSuccess(false);
+      setLastTestAt(new Date().toISOString());
+      setLastTestSummary(message);
+      setLastTestSuccess(false);
     } finally {
       setIsTesting(false);
     }
   }, [
+    setHealth,
+    setLastTestAt,
+    setLastTestSummary,
+    setLastTestSuccess,
     testGate.allowed,
-    options.setLastTestAt,
-    options.setLastTestSummary,
-    options.setLastTestSuccess,
-    options.setHealth,
   ]);
 
   return {

@@ -138,18 +138,24 @@ export function tryRenderMarketingAccessibilityMarkdownListOrQuote(
               : cn("my-3 list-none space-y-2 pl-0", ctx.bodyTextClass)
           }
         >
-          {items.map((item, idx) => (
+          {items.map((item, idx) => {
+            const textId = `task-text-${ctx.key}-${idx}`;
+
+            return (
             <li key={`task-li-${ctx.key}-${idx}`} className="flex items-start gap-2">
               <span
-                aria-hidden="true"
+                role="checkbox"
+                aria-checked={item.checked ? "true" : "false"}
+                aria-labelledby={textId}
                 className={cn(
                   "mt-0.5 inline-flex h-4 w-4 shrink-0 rounded border border-neutral-400 dark:border-neutral-500",
                   item.checked && "bg-neutral-700 dark:bg-neutral-300",
                 )}
               />
-              <span>{renderInline(item.text, `task-li-${ctx.key}-${idx}`, ctx.renderOptions)}</span>
+              <span id={textId}>{renderInline(item.text, `task-li-${ctx.key}-${idx}`, ctx.renderOptions)}</span>
             </li>
-          ))}
+            );
+          })}
         </ul>
       ),
       nextIndex: index,

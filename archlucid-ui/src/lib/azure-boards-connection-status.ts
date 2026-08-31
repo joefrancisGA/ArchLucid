@@ -299,3 +299,29 @@ export function isAzureBoardsConnectionSaveSuccessful(
     hasSavedAzureBoardsCredentialReference(saved)
   );
 }
+
+/** Map persisted probe summary text to tri-state success when no explicit boolean exists on settings. */
+export function parseAzureBoardsLastConnectionTestSuccess(
+  summary: string | null | undefined,
+): boolean | null {
+  const normalized = summary?.trim().toLowerCase() ?? "";
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  if (
+    normalized.includes("failed")
+    || normalized.includes("error")
+    || normalized.includes("unauthorized")
+    || normalized.includes("did not succeed")
+  ) {
+    return false;
+  }
+
+  if (normalized.includes("succeeded") || normalized.includes("connection check passed")) {
+    return true;
+  }
+
+  return null;
+}

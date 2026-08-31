@@ -9,6 +9,7 @@ export {
   hasSavedAzureBoardsCredentialReference,
   isAzureBoardsConnectionSaveSuccessful,
   isAzureBoardsCredentialsReady,
+  parseAzureBoardsLastConnectionTestSuccess,
   resolveAzureBoardsConnectionProvenance,
   resolveAzureBoardsConnectionSaveGate,
   resolveAzureBoardsConnectionStatus,

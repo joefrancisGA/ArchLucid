@@ -17,7 +17,7 @@ import { buildAzureBoardsPageLoadResult } from "@/lib/azure-boards-page-load";
 import {
   mapAzureBoardsHealthFromSettings,
 } from "@/lib/azure-boards-stored-health";
-import { isAzureBoardsCredentialsReady } from "@/lib/azure-boards-integration-present";
+import { isAzureBoardsCredentialsReady, parseAzureBoardsLastConnectionTestSuccess } from "@/lib/azure-boards-integration-present";
 import type { IntegrationZoneLoadSlice } from "@/lib/integration-zone-recovery";
 
 export type UseAzureBoardsPageLoadOptions = {
@@ -69,12 +69,7 @@ export function useAzureBoardsPageLoad({
     setLastTestSummary(loaded?.lastConnectionTestSummary ?? null);
     setLastTestSuccess(
       loaded?.lastConnectionTestUtc
-        ? (() => {
-            const s = loaded.lastConnectionTestSummary?.toLowerCase() ?? "";
-            if (s.includes("failed") || s.includes("error") || s.includes("unauthorized") || s.includes("did not succeed")) return false;
-            if (s.includes("succeeded") || s.includes("connection check passed")) return true;
-            return null;
-          })()
+        ? parseAzureBoardsLastConnectionTestSuccess(loaded.lastConnectionTestSummary)
         : null,
     );
   }, [setAreaPath, setDefaultTags, setIterationPath, setLastTestAt, setLastTestSuccess, setLastTestSummary, setProjectName, setWorkItemType]);
