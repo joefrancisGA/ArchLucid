@@ -4201,6 +4201,21 @@
         },
         "type": "object"
       },
+      "ArchitectureQualityDimension": {
+        "enum": [
+          "Reliability",
+          "Security",
+          "PerformanceScalability",
+          "Cost",
+          "Operations",
+          "DataArchitecture",
+          "PrivacyCompliance",
+          "Integration",
+          "Maintainability",
+          "AiSpecificRisk"
+        ],
+        "type": "string"
+      },
       "ArchitectureQuickScanFindingItem": {
         "properties": {
           "confidenceLevel": {
@@ -8411,7 +8426,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/QualityDimension"
+                "$ref": "#/components/schemas/GovernanceQualityDimension"
               }
             ]
           },
@@ -8481,7 +8496,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/QualityDimension"
+                "$ref": "#/components/schemas/GovernanceQualityDimension"
               }
             ]
           },
@@ -14649,6 +14664,17 @@
         },
         "type": "object"
       },
+      "GovernanceQualityDimension": {
+        "enum": [
+          "Security",
+          "ReliabilityAndResilience",
+          "CostEffectiveness",
+          "PerformanceAndScalability",
+          "OperationalExcellence",
+          "SustainabilityAndResourceEfficiency"
+        ],
+        "type": "string"
+      },
       "GovernanceRationaleResult": {
         "properties": {
           "approvalRequestId": {
@@ -20236,7 +20262,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/QualityDimension"
+                "$ref": "#/components/schemas/GovernanceQualityDimension"
               }
             ]
           },
@@ -22266,9 +22292,6 @@
           }
         },
         "type": "object"
-      },
-      "QualityDimension": {
-        "type": "integer"
       },
       "QualityGateDefinitionSnapshotDto": {
         "properties": {
@@ -24316,7 +24339,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/QualityDimension"
+                "$ref": "#/components/schemas/GovernanceQualityDimension"
               }
             ]
           },
@@ -27679,7 +27702,7 @@
             ]
           },
           "dimension": {
-            "$ref": "#/components/schemas/QualityDimension"
+            "$ref": "#/components/schemas/ArchitectureQualityDimension"
           },
           "evidenceArtifactIds": {
             "items": {
@@ -27738,7 +27761,7 @@
       "SpecialistReviewResult": {
         "properties": {
           "dimension": {
-            "$ref": "#/components/schemas/QualityDimension"
+            "$ref": "#/components/schemas/ArchitectureQualityDimension"
           },
           "findings": {
             "items": {
@@ -80927,17 +80950,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/FileContentResult"
                 }
@@ -80947,22 +80960,12 @@
           },
           "400": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -80972,22 +80975,12 @@
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -80997,22 +80990,12 @@
           },
           "403": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -81022,22 +81005,12 @@
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -81427,17 +81400,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/FileContentResult"
                 }
@@ -81447,22 +81410,12 @@
           },
           "400": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -81472,22 +81425,12 @@
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -81497,22 +81440,12 @@
           },
           "403": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -81522,22 +81455,12 @@
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -81927,17 +81850,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/FileContentResult"
                 }
@@ -81947,22 +81860,12 @@
           },
           "400": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -81972,22 +81875,12 @@
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -81997,22 +81890,12 @@
           },
           "403": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -82022,22 +81905,12 @@
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -89612,17 +89485,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/FileContentResult"
                 }
@@ -89632,22 +89495,12 @@
           },
           "400": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -89657,22 +89510,12 @@
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -89682,22 +89525,12 @@
           },
           "403": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -89707,22 +89540,12 @@
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -90112,17 +89935,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/FileContentResult"
                 }
@@ -90132,22 +89945,12 @@
           },
           "400": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -90157,22 +89960,12 @@
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -90182,22 +89975,12 @@
           },
           "403": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -90207,22 +89990,12 @@
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -90612,17 +90385,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileContentResult"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/FileContentResult"
                 }
@@ -90632,22 +90395,12 @@
           },
           "400": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -90657,22 +90410,12 @@
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -90682,22 +90425,12 @@
           },
           "403": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -90707,22 +90440,12 @@
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -164795,12 +164518,7 @@
                   "$ref": "#/components/schemas/PilotValueReport"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PilotValueReport"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/PilotValueReport"
                 }
@@ -164830,12 +164548,7 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -164855,12 +164568,7 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -164880,12 +164588,7 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
