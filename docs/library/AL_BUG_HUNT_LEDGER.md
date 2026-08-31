@@ -1661,8 +1661,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
 - **last-bug:** 2026-08-31 — OTP concurrent wrong-code RowVersion retry; link-proposal terminal status guard
-- **last-bug:** 2026-08-31 — OTP wrong-code RowVersion retry on concurrent verify
-- **last-bug:** 2026-08-31 — link-proposal terminal status guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
