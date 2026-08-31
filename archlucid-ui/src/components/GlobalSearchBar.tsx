@@ -210,6 +210,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
               <li>
                 <button
                   type="button"
+                  role="option"
                   className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                   onClick={() => {
                     window.dispatchEvent(new CustomEvent(OPEN_COMMAND_PALETTE_EVENT));
