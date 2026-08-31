@@ -1,5 +1,3 @@
-using System.Globalization;
-
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -216,6 +214,7 @@ public sealed class RunScopedLlmBudgetReservationService(
                         runId,
                         estimateUsd,
                     }),
+                },
                 cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
