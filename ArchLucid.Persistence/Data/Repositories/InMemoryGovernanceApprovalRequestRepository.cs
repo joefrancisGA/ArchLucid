@@ -152,6 +152,21 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
     }
 
     /// <inheritdoc />
+    public Task<long> CountPendingApprovalsAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            long count = _byId.Values
+                .LongCount(x => string.Equals(x.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
+                            || string.Equals(x.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal));
+
+            return Task.FromResult(count);
+        }
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(
         int maxRows = 50,
         CancellationToken cancellationToken = default)

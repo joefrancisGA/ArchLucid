@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
@@ -62,6 +62,7 @@ import {
   getEffectiveBrowserProxyScopeHeaders,
   readOperatorScopeFromStorage,
 } from "@/lib/operator/operator-scope-storage";
+import { getOperatorScopeQueryKeySnapshot, subscribeOperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -205,7 +206,17 @@ export function useRunsDashboardPanel({
     setPhase(nextFailure !== null && nextItems.length === 0 ? "error" : "ready");
   }, [pageSize, projectId]);
 
-  const skipClientFetchOnMount = shouldSkipRunsDashboardClientFetchOnMount(initialModel, projectId);
+  const scopeQueryKeySnapshot = useSyncExternalStore(
+    subscribeOperatorScopeQueryKey,
+    getOperatorScopeQueryKeySnapshot,
+    () => "",
+  );
+
+  const skipClientFetchOnMount = shouldSkipRunsDashboardClientFetchOnMount(
+    initialModel,
+    projectId,
+    scopeQueryKeySnapshot,
+  );
 
   useEffect(() => {
     const runsSnapshotStale = consumeOperatorHomeRunsSnapshotStale();
@@ -219,7 +230,7 @@ export function useRunsDashboardPanel({
       : resolveRunsDashboardClientLoadMode(initialModel?.items.length ?? 0);
 
     void load({ mode });
-  }, [initialModel, load, skipClientFetchOnMount]);
+  }, [initialModel, load, skipClientFetchOnMount, scopeQueryKeySnapshot]);
 
   useEffect(() => {
     return subscribeOperatorHomeLifecycleRefresh(() => {

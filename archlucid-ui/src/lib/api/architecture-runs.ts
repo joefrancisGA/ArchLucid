@@ -349,6 +349,7 @@ export {
   executeArchitectureRun,
   executeArchitectureRunAsync,
   executeArchitectureRunSelective,
+  executeArchitectureRunSelectiveInFlight,
   seedFakeArchitectureRunResults,
   restoreArchitectureRequest,
 } from "./architecture-runs-mutate";

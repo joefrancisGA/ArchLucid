@@ -172,8 +172,7 @@ export function TrialBanner() {
         </div>
       </div>
       <DismissControl
-        iconOnly
-        ariaLabel="Dismiss trial banner for 24 hours"
+        className="shrink-0"
         onDismiss={() => {
           snoozeTrialBanner24h();
           setDismissed(true);

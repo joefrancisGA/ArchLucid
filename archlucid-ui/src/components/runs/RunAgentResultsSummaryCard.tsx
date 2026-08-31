@@ -7,7 +7,7 @@ import { useState, type ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
-import { executeArchitectureRunSelective } from "@/lib/api/architecture-runs";
+import { executeArchitectureRunSelectiveInFlight } from "@/lib/api/architecture-runs";
 import { resolveFailedAgentTypesForSelectiveRetry } from "@/lib/runs/run-detail-selective-agent-retry";
 import type { RunDetailAgentResult, RunRetrievalGroundingSummary } from "@/types/authority";
 
@@ -73,7 +73,7 @@ export function RunAgentResultsSummaryCard(props: {
     setRetryError(null);
 
     try {
-      await executeArchitectureRunSelective(runId, {
+      await executeArchitectureRunSelectiveInFlight(runId, {
         agentTypes: failedAgentTypes,
         includeDependents: true,
       });

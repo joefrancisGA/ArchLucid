@@ -580,8 +580,61 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         Func<Task> act = () => sut.RecordBulkDispositionAsync(request, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*None of the provided findings were found in the current scope*");
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Finding was not found*");
+    }
+
+    [Fact]
+    public async Task RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope()
+    {
+        Mock<IFindingInspectReadRepository> inspect = new();
+        inspect
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "in-scope-finding",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "in-scope-finding" });
+        inspect
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "foreign-finding",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions>()))
+            .ReturnsAsync((FindingInspectResponse?)null);
+
+        Mock<IFindingDispositionService> disposition = new();
+        disposition
+            .Setup(s => s.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(r => r.FindingId == "in-scope-finding"),
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = "in-scope-finding" });
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: inspect.Object,
+            dispositionService: disposition.Object);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["in-scope-finding", "foreign-finding"],
+            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+            Rationale = "bulk",
+        };
+
+        Func<Task> act = () => sut.RecordBulkDispositionAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Finding was not found*");
+
+        disposition.Verify(
+            s => s.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private static GovernanceStickinessFacade CreateSut(

@@ -83,7 +83,7 @@ export function resolveOperatorBillingCurrentPlan(
   const commercialTier =
     typeof input.commercialTier === "string" ? input.commercialTier.trim() : "";
 
-  if (input.isTrialUsage === false && commercialTier.length > 0) {
+  if (commercialTier.length > 0 && input.isTrialUsage !== true) {
     return {
       planKind: "paid-plan",
       headline: commercialTier,

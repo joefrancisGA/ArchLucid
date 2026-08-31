@@ -37,6 +37,7 @@ import {
   governanceFindingInspectHref,
   navigateGovernanceFindingDetail,
 } from "@/components/governance/findings/governance-findings-navigation";
+import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 
 export type GovernanceFindingRowProps = {
   readonly row: GovernanceFindingQueueRow;
@@ -44,6 +45,7 @@ export type GovernanceFindingRowProps = {
   readonly variant: "buyer" | "operational";
   readonly showNewSinceLastVisit?: boolean;
   readonly onOpenRow?: () => void;
+  readonly onOpenFinding?: (row: GovernanceFindingQueueRow) => void;
 };
 
 function GovernanceFindingRowComponent({
@@ -52,6 +54,7 @@ function GovernanceFindingRowComponent({
   variant,
   showNewSinceLastVisit = false,
   onOpenRow,
+  onOpenFinding,
 }: GovernanceFindingRowProps): ReactElement {
   const router = useRouter();
   const rowIsDecision = row.recordKind === "decision";
@@ -99,7 +102,14 @@ function GovernanceFindingRowComponent({
             <Link
               className={OPERATOR_LINK.inline}
               href={governanceFindingInspectHref(row.runId, row.findingId)}
-              onClick={() => {
+              onClick={(event) => {
+                if (row.recordKind === "finding" && onOpenFinding !== undefined) {
+                  event.preventDefault();
+                  onOpenFinding(row);
+                  onOpenRow?.();
+                  return;
+                }
+
                 onOpenRow?.();
               }}
             >
@@ -148,9 +158,9 @@ function GovernanceFindingRowComponent({
               <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{row.humanReviewStatusLabel}</p>
             ) : null}
             {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-              <p className={cn("m-0 mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                ITSM: {row.itsmLinkedTicketsSummary}
-              </p>
+              <div className="mt-1">
+                <ItsmLinkedTicketStatusChip summary={row.itsmLinkedTicketsSummary} />
+              </div>
             ) : null}
           </div>
           <GovernanceFindingDetailPane row={row} buyerPolishedShell={buyerPolishedShell} variant="buyer" />
