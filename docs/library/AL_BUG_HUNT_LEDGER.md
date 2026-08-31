@@ -1656,13 +1656,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — OTP wrong-code RowVersion retry on concurrent verify
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1674,6 +1674,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DapperAuthenticationIdentityRepository.ReEnableAsync` threw on filtered unique-index violation — **hit 2026-08-24:** re-enabling a disabled identity while another active row held the same external key surfaced `SqlException` 2601/2627 instead of returning `false` like `InMemoryAuthenticationIdentityRepository`.
 - [x] (proven) `InMemoryPlatformTenantAuthRecoveryGrantRepository.RevokeAsync` was not idempotent — **hit 2026-08-24:** second revoke returned `true` while Dapper only updates rows with `RevokedUtc IS NULL`, masking double-revoke regressions in dev/test.
 - [x] (proven) `InMemoryTenantSignInEmailDomainRepository.UpdateAsync` could reassign domains across tenants — **hit 2026-08-24:** update keyed only by `NormalizedDomain`, unlike Dapper's `(TenantId, NormalizedDomain)` predicate, so a mismatched tenant id silently hijacked sign-in routing in memory hosts.
+- [x] (proven) `DapperEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong-code attempts lost `FailedAttemptCount` increments on `RowVersion` conflict (`affected == 0` committed without retry) — **hit 2026-08-31 (#322):** retry loop up to `MaxCompleteConcurrencyRetries`; regression in `EmailOtpChallengeRepositoryConcurrencyTests` and `DapperEmailOtpChallengeRepositorySqlIntegrationTests`.
+- [ ] (hunt-ready) `DapperAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` / `InMemoryAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` — no `Status = PendingConfirmation` guard allows confirmed proposals to be rewritten to cancelled.
+- [ ] (hunt-ready) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — `TrialLocalIdentityService.AuthenticateAsync` read-modify-write with unconditional `UPDATE` can lose lockout increments under parallel failed logins.
+- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
+
+2026-08-31 seed hunt #322: proved OTP RowVersion retry; seeded link-proposal terminal status guard, trial lockout lost-update, and OTP resend invalidate/insert race.
 
 ---
 
