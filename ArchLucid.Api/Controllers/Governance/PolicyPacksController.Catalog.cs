@@ -25,7 +25,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(PolicyPacksPageBundleResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPageBundle(CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -40,7 +40,7 @@ public sealed partial class PolicyPacksController
     public async Task<IActionResult> ListWorkspaceSelection(
         CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -54,7 +54,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPackCatalogListItem>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListCatalog(CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -66,19 +66,19 @@ public sealed partial class PolicyPacksController
     /// <summary>Reads one promoted catalog entry including snapshot JSON for cloning.</summary>
     [HttpGet("catalog/{policyPackCatalogEntryId:guid}")]
     [ProducesResponseType(typeof(PolicyPackCatalogEntryDetail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCatalogEntry(Guid policyPackCatalogEntryId, CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
-        IActionResult? routeIdProblem =
-            BadRequestWhenRouteIdEmpty(policyPackCatalogEntryId, "policyPackCatalogEntryId");
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackCatalogEntryId, "policyPackCatalogEntryId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPackCatalogEntryDetail? row = await _workflow.TryGetCatalogEntryAsync(policyPackCatalogEntryId, ct);
 
@@ -104,7 +104,7 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -143,7 +143,6 @@ public sealed partial class PolicyPacksController
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [MutatingAuditExcluded("Audit: IPolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync logs PolicyPackCatalogDemoted.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DemoteCatalogEntry(
         [FromBody] DemotePolicyPackCatalogEntryRequest? request,
@@ -152,17 +151,10 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
-
-        if (request.PolicyPackCatalogEntryId == Guid.Empty)
-        {
-            return this.BadRequestProblem(
-                "policyPackCatalogEntryId is required.",
-                ProblemTypes.ValidationFailed);
-        }
 
         bool ok = await _workflow.TryDemoteCatalogEntryAsync(request.PolicyPackCatalogEntryId, ct);
 
@@ -177,18 +169,19 @@ public sealed partial class PolicyPacksController
     /// <summary>Lists version metadata for a pack (newest first).</summary>
     [HttpGet("{policyPackId:guid}/versions")]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPackVersion>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListVersions(Guid policyPackId, CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         IReadOnlyList<PolicyPackVersion>? versions = await _workflow.TryListVersionsAsync(policyPackId, ct);
 
@@ -203,24 +196,25 @@ public sealed partial class PolicyPacksController
     /// <summary>Reads one version including full <c>ContentJson</c>.</summary>
     [HttpGet("{policyPackId:guid}/versions/{packVersion}")]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetVersion(
         Guid policyPackId,
         string packVersion,
         CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(packVersion))
-            return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
-
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        if (string.IsNullOrWhiteSpace(packVersion))
+            return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPackVersionLookupResult lookup = await _workflow.TryGetVersionAsync(policyPackId, packVersion, ct);
 
@@ -242,18 +236,19 @@ public sealed partial class PolicyPacksController
     [EnableRateLimiting("expensive")]
     [Produces("text/markdown")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExplainPack(Guid policyPackId, CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         string? markdown = await _workflow.TryExplainPackMarkdownAsync(policyPackId, ct);
 
@@ -272,7 +267,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetEffective(CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -297,7 +292,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetEffectiveContent(CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
