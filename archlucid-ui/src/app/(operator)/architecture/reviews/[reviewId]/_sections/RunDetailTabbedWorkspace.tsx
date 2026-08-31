@@ -247,7 +247,14 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
                 recommendedActions={recommendedActions}
                 criticalCount={severityCounts.critical}
                 highCount={severityCounts.high}
-                proofStatusSlot={<RunDetailFirstScreenProofStatusClient key="run-detail-overview-proof-status" runId={m.resolvedDetail.run.runId} />}
+                proofStatusSlot={
+                  <RunDetailFirstScreenProofStatusClient
+                    key="run-detail-overview-proof-status"
+                    runId={m.resolvedDetail.run.runId}
+                    legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
+                    isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
+                  />
+                }
               />
               <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
                 <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>

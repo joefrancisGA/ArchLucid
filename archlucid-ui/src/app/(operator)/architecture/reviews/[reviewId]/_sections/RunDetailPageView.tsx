@@ -20,7 +20,6 @@ import {
   RunDetailWorkspaceLayout,
 } from "./RunDetailWorkspaceShell";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
-import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import {
   RunDetailBuyerModeFallbackBannerDeferred,
   RunDetailBuyerPilotConversionSectionDeferred,
