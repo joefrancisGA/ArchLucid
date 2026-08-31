@@ -2272,7 +2272,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 83
+- **hunts:** 84
 - **bugs-found:** 234
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
@@ -2523,6 +2523,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without per-item failure rows — **hit 2026-08-31 (#281):** validate all finding ids in scope before recording any; map scope misses to HTTP 404; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
 
 2026-08-31 thorough hunt #281: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
+
+2026-08-31 thorough hunt #321: re-proved and landed on master the four picker candidates (findingRef inspect gate, sibling projectId guard, batch-review OrdinalIgnoreCase dedupe, bulk-disposition all-or-nothing scope validation).
 
 2026-08-28 thorough hunt #190 (dry): cheap-disproved promotions/activations padded-route test gap and simulate-bulk validation-order candidates; seeded batch-review duplicate-id silence and manifest-compare padded-version candidates.
 
