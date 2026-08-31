@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Manifest;
@@ -44,6 +45,14 @@ public sealed partial class GovernanceStickinessController(
 
         if (maxRows > RegisterMaxRowsLimit)
             return this.BadRequestProblem("maxRows must be at most 500.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
+    private IActionResult? BadRequestWhenProjectQueryIdEmpty(Guid? projectId)
+    {
+        if (GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId(projectId))
+            return this.BadRequestProblem("projectId is required.", ProblemTypes.ValidationFailed);
 
         return null;
     }
