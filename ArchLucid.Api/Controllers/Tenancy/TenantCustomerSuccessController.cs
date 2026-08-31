@@ -216,6 +216,8 @@ public sealed class TenantCustomerSuccessController(
     [HttpPost("product-feedback")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PostProductFeedbackAsync(
         [FromBody] ProductFeedbackRequest? request,
         CancellationToken cancellationToken)
