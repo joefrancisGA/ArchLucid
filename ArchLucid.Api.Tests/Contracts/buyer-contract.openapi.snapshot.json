@@ -4201,6 +4201,21 @@
         },
         "type": "object"
       },
+      "ArchitectureQualityDimension": {
+        "enum": [
+          "Reliability",
+          "Security",
+          "PerformanceScalability",
+          "Cost",
+          "Operations",
+          "DataArchitecture",
+          "PrivacyCompliance",
+          "Integration",
+          "Maintainability",
+          "AiSpecificRisk"
+        ],
+        "type": "string"
+      },
       "ArchitectureQuickScanFindingItem": {
         "properties": {
           "confidenceLevel": {
@@ -8411,7 +8426,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/QualityDimension"
+                "$ref": "#/components/schemas/GovernanceQualityDimension"
               }
             ]
           },
@@ -8481,7 +8496,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/QualityDimension"
+                "$ref": "#/components/schemas/GovernanceQualityDimension"
               }
             ]
           },
@@ -14649,6 +14664,17 @@
         },
         "type": "object"
       },
+      "GovernanceQualityDimension": {
+        "enum": [
+          "Security",
+          "ReliabilityAndResilience",
+          "CostEffectiveness",
+          "PerformanceAndScalability",
+          "OperationalExcellence",
+          "SustainabilityAndResourceEfficiency"
+        ],
+        "type": "string"
+      },
       "GovernanceRationaleResult": {
         "properties": {
           "approvalRequestId": {
@@ -20236,7 +20262,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/QualityDimension"
+                "$ref": "#/components/schemas/GovernanceQualityDimension"
               }
             ]
           },
@@ -22266,9 +22292,6 @@
           }
         },
         "type": "object"
-      },
-      "QualityDimension": {
-        "type": "integer"
       },
       "QualityGateDefinitionSnapshotDto": {
         "properties": {
@@ -24316,7 +24339,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/QualityDimension"
+                "$ref": "#/components/schemas/GovernanceQualityDimension"
               }
             ]
           },
@@ -27679,7 +27702,7 @@
             ]
           },
           "dimension": {
-            "$ref": "#/components/schemas/QualityDimension"
+            "$ref": "#/components/schemas/ArchitectureQualityDimension"
           },
           "evidenceArtifactIds": {
             "items": {
@@ -27738,7 +27761,7 @@
       "SpecialistReviewResult": {
         "properties": {
           "dimension": {
-            "$ref": "#/components/schemas/QualityDimension"
+            "$ref": "#/components/schemas/ArchitectureQualityDimension"
           },
           "findings": {
             "items": {
@@ -32418,6 +32441,53 @@
           "runsCreatedTotal": {
             "format": "int64",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "WorkspaceAiAvailabilityCheckRow": {
+        "properties": {
+          "detail": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WorkspaceAiAvailabilityResponse": {
+        "properties": {
+          "aiSource": {
+            "type": "string"
+          },
+          "asOfUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceAiAvailabilityCheckRow"
+            },
+            "type": "array"
+          },
+          "debug": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "validated": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -39208,6 +39278,9 @@
     },
     {
       "name": "WhyArchlucidMarketingPack"
+    },
+    {
+      "name": "WorkspaceAiAvailability"
     }
   ]
 }

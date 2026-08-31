@@ -1240,6 +1240,8 @@ export interface components {
             /** Format: int32 */
             uncategorizedCount?: number;
         };
+        /** @enum {string} */
+        ArchitectureQualityDimension: "Reliability" | "Security" | "PerformanceScalability" | "Cost" | "Operations" | "DataArchitecture" | "PrivacyCompliance" | "Integration" | "Maintainability" | "AiSpecificRisk";
         ArchitectureQuickScanFindingItem: {
             confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
             /** Format: double */
@@ -2403,7 +2405,7 @@ export interface components {
             exclusionReason?: null | string;
             policyPackId?: string;
             policyPackVersion?: string;
-            qualityDimension?: null | components["schemas"]["QualityDimension"];
+            qualityDimension?: null | components["schemas"]["GovernanceQualityDimension"];
             recommendationConfidence?: null | components["schemas"]["RecommendationConfidence"];
             recommendationRationale?: null | string;
             recommendationTrigger?: null | string;
@@ -2418,7 +2420,7 @@ export interface components {
             policyPackDisplayName?: string;
             policyPackId?: string;
             policyPackVersion?: string;
-            qualityDimension?: null | components["schemas"]["QualityDimension"];
+            qualityDimension?: null | components["schemas"]["GovernanceQualityDimension"];
             recommendationConfidence?: null | components["schemas"]["RecommendationConfidence"];
             recommendationRationale?: null | string;
             recommendationTrigger?: null | string;
@@ -4159,6 +4161,8 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        /** @enum {string} */
+        GovernanceQualityDimension: "Security" | "ReliabilityAndResilience" | "CostEffectiveness" | "PerformanceAndScalability" | "OperationalExcellence" | "SustainabilityAndResourceEfficiency";
         GovernanceRationaleResult: {
             approvalRequestId?: string;
             bullets?: string[];
@@ -5873,7 +5877,7 @@ export interface components {
             policyPackId?: string;
             /** Format: uuid */
             projectId?: string;
-            qualityDimension?: null | components["schemas"]["QualityDimension"];
+            qualityDimension?: null | components["schemas"]["GovernanceQualityDimension"];
             status?: string;
             /** Format: uuid */
             tenantId?: string;
@@ -6509,7 +6513,6 @@ export interface components {
             contentJson?: string;
             version?: string;
         };
-        QualityDimension: number;
         QualityGateDefinitionSnapshotDto: {
             contentHashSha256: string;
             definitionVersion: string;
@@ -7105,7 +7108,7 @@ export interface components {
             packType?: string;
             /** Format: uuid */
             policyPackId?: string;
-            qualityDimension?: null | components["schemas"]["QualityDimension"];
+            qualityDimension?: null | components["schemas"]["GovernanceQualityDimension"];
             version?: string;
         };
         RetrievalHit: {
@@ -8040,7 +8043,7 @@ export interface components {
             conclusion?: components["schemas"]["ReviewConclusion"];
             /** Format: double */
             confidence?: number | string;
-            dimension?: components["schemas"]["QualityDimension"];
+            dimension?: components["schemas"]["ArchitectureQualityDimension"];
             evidenceArtifactIds?: string[];
             evidenceCondition?: components["schemas"]["EvidenceCondition"];
             evidenceSupportTier?: components["schemas"]["EvidenceSupportTier"];
@@ -8056,7 +8059,7 @@ export interface components {
             title?: string;
         };
         SpecialistReviewResult: {
-            dimension?: components["schemas"]["QualityDimension"];
+            dimension?: components["schemas"]["ArchitectureQualityDimension"];
             findings?: components["schemas"]["SpecialistReviewFinding"][];
             openQuestions?: string[];
         };
@@ -9422,6 +9425,23 @@ export interface components {
             generatedUtc?: string;
             /** Format: int64 */
             runsCreatedTotal?: number;
+        };
+        WorkspaceAiAvailabilityCheckRow: {
+            detail?: string;
+            name?: string;
+            status?: string;
+        };
+        WorkspaceAiAvailabilityResponse: {
+            aiSource?: string;
+            /** Format: date-time */
+            asOfUtc?: string;
+            checks?: components["schemas"]["WorkspaceAiAvailabilityCheckRow"][];
+            debug?: {
+                [key: string]: string;
+            };
+            isAvailable?: boolean;
+            summary?: string;
+            validated?: boolean;
         };
         WorkspaceAllowedEngineSetResponse: {
             allowedAliasIds?: string[];

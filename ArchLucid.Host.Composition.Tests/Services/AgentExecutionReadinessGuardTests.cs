@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Host.Composition.Tests.Services;
 
+[Trait("Suite", "Core")]
 public sealed class AgentExecutionReadinessGuardTests
 {
     [Fact]
