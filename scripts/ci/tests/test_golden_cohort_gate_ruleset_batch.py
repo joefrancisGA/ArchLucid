@@ -19,7 +19,7 @@ REQUIRED_CONTEXTS = (
 
 
 class TestGoldenCohortGateRulesetBatch(unittest.TestCase):
-    def test_ruleset_lists_push_corset_and_cohort_gate(self) -> None:
+    def test_ruleset_lists_push_corset_cohort_gate_and_beta_readiness(self) -> None:
         payload = json.loads(RULESET.read_text(encoding="utf-8"))
         checks = payload["rules"][0]["parameters"]["required_status_checks"]
         contexts = [entry["context"] for entry in checks]
