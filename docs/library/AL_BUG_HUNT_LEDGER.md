@@ -2278,7 +2278,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 91
+- **hunts:** 93
 - **bugs-found:** 240
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
@@ -2540,6 +2540,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-31 thorough hunt #320: re-proved and landed on master the four picker candidates (findingRef inspect gate, sibling projectId guard, batch-review OrdinalIgnoreCase dedupe, bulk-disposition all-or-nothing scope validation).
 
 2026-08-31 thorough hunt #317: re-proved on master (fixes still unmerged) workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
+
+2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
+
+2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.
 
 2026-08-31 thorough hunt #281: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
 

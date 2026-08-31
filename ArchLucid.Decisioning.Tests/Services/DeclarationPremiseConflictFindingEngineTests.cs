@@ -81,6 +81,52 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_warning_when_protects_edge_below_semantic_weight_threshold()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "baseline-private",
+                    NodeType = "SecurityBaseline",
+                    Label = "Private only network access",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["description"] = "Private only network access required",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "obj-storage",
+                    NodeType = "TopologyResource",
+                    Label = "docs",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["tf.public_network_access"] = "enabled",
+                    },
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    FromNodeId = "baseline-private",
+                    ToNodeId = "obj-storage",
+                    EdgeType = "PROTECTS",
+                    Weight = GraphEdgeDecisioningThresholds.MinWeightForSemanticLink - 0.01d,
+                },
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Severity.Should().Be(FindingSeverity.Error);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_warning_on_graph_wide_fallback()
     {
         GraphSnapshot graph = new()
