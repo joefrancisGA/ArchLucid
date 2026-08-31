@@ -100,6 +100,11 @@ public sealed partial class GovernanceController
             logger.LogWarning(ex, "SubmitApprovalRequest failed: manifest version not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
         }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "SubmitApprovalRequest failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
     }
 
     [HttpPost("approval-requests/{approvalRequestId}/approve")]
@@ -182,7 +187,7 @@ public sealed partial class GovernanceController
                 ex,
                 "Approve failed for approval request '{ApprovalRequestId}'.",
                 approvalRequestId);
-            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }
 
@@ -267,7 +272,7 @@ public sealed partial class GovernanceController
                 ex,
                 "Reject failed for approval request '{ApprovalRequestId}'.",
                 approvalRequestId);
-            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }
 
@@ -471,7 +476,7 @@ public sealed partial class GovernanceController
                     {
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
-                        ErrorCode = ProblemTypes.BadRequest,
+                        ErrorCode = ProblemTypes.ValidationFailed,
                         Message = ex.Message
                     });
             }

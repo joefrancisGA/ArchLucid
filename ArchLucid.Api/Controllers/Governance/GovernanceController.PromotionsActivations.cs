@@ -181,6 +181,11 @@ public sealed partial class GovernanceController
             logger.LogWarning(ex, "Activate failed: manifest version not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
         }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Activate failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
     }
     [HttpGet("runs/{runId}/approval-requests")]
     [ProducesResponseType(typeof(IReadOnlyList<GovernanceApprovalRequest>), StatusCodes.Status200OK)]
