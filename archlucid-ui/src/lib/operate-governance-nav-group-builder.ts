@@ -37,7 +37,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
       caption: "Approve findings, track exceptions and decisions, and monitor audit trail and alerts.",
       links: [
         {
-          href: GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH as typeof GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+          href: "/governance/needs-attention" as typeof GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
           label: OPERATOR_NAV_LINK_LABELS.needsAttentionInbox,
           title: "Single inbox for unfinished work, assigned findings, alerts, and approvals",
           icon: Inbox,
