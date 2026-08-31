@@ -274,18 +274,20 @@ if ($OfflineFindingDelta) {
     Write-Host 'Policy-pack finding-delta offline packet (no live API)' -ForegroundColor Cyan
     $offlineOut = Join-Path $bundleDir 'offline'
     $writer = Join-Path $repoRootForOffline 'scripts/ci/write_policy_pack_finding_delta_offline_packet.py'
-    $python = Get-Command python3 -ErrorAction SilentlyContinue
+    # Prefer Application commands; aliases/functions lack .Path and break under Set-StrictMode.
+    $pythonExe = Get-Command -Name 'python3' -CommandType Application -ErrorAction SilentlyContinue |
+        Select-Object -First 1
 
-    if ($null -eq $python) {
-        $python = Get-Command python -ErrorAction SilentlyContinue
+    if ($null -eq $pythonExe) {
+        $pythonExe = Get-Command -Name 'python' -CommandType Application -ErrorAction SilentlyContinue |
+            Select-Object -First 1
     }
 
-    if ($null -eq $python) {
+    if ($null -eq $pythonExe) {
         throw 'python3 or python is required for -OfflineFindingDelta.'
     }
 
-    $pythonExe = if ($null -ne $python.Path -and -not [string]::IsNullOrWhiteSpace($python.Path)) { $python.Path } else { $python.Source }
-    & $pythonExe $writer --out $offlineOut
+    & $pythonExe.Source $writer --out $offlineOut
 
     if ($LASTEXITCODE -ne 0) {
         throw "write_policy_pack_finding_delta_offline_packet.py failed (exit $LASTEXITCODE)."

@@ -23,7 +23,7 @@ describe("ActorDependentFindingsQuietEnginesHint", () => {
     ).toHaveAttribute("href", REVIEWS_NEW_GUIDED_INTAKE_HREF);
   });
 
-  it("renders nothing when actors are present", () => {
+  it("renders nothing when show is false", () => {
     const { container } = render(<ActorDependentFindingsQuietEnginesHint show={false} />);
 
     expect(container).toBeEmptyDOMElement();
