@@ -17,13 +17,7 @@ export type SponsorWorkspaceHealthPageHeroProps = {
 };
 
 /**
-<<<<<<< HEAD
  * Page or section header for workspace health — title, lead, contextual help, and workflow handoff.
-=======
- * Section header for workspace health — title, lead, and workflow handoff.
- * This renders inside the sponsor dashboard, which already owns the page `h1`, so the heading is an
- * `h2` carrying the id the enclosing section's `aria-labelledby` points at.
->>>>>>> origin/master
  */
 export function SponsorWorkspaceHealthPageHero({
   buyerPolishedShell,
