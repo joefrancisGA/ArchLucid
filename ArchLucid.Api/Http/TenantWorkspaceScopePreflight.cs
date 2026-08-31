@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Http;
 
 /// <summary>
 ///     Shared tenant + workspace existence checks for scope-bound API reads (parity with
-///     <see cref="Controllers.Tenancy.TenantWorkspacesController" />).
+///     <see cref="ArchLucid.Api.Controllers.Tenancy.TenantWorkspacesController" />).
 /// </summary>
 internal static class TenantWorkspaceScopePreflight
 {
@@ -23,19 +23,38 @@ internal static class TenantWorkspaceScopePreflight
         ArgumentNullException.ThrowIfNull(tenantRepository);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        IActionResult? problem = await RequireTenantAndWorkspaceAsync(
+            controller,
+            scope,
+            tenantRepository,
+            cancellationToken).ConfigureAwait(false);
+
+        return (problem, scope);
+    }
+
+    internal static async Task<IActionResult?> RequireTenantAndWorkspaceAsync(
+        ControllerBase controller,
+        ScopeContext scope,
+        ITenantRepository tenantRepository,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(controller);
+        ArgumentNullException.ThrowIfNull(tenantRepository);
+
         TenantRecord? tenant = await tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenant is null)
-            return (controller.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound), scope);
+            return controller.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         bool workspaceExists =
             await WorkspaceExistsAsync(tenantRepository, scope.TenantId, scope.WorkspaceId, cancellationToken)
                 .ConfigureAwait(false);
 
         if (!workspaceExists)
-            return (controller.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound), scope);
+            return controller.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
-        return (null, scope);
+        return null;
     }
 
     internal static async Task<bool> WorkspaceExistsAsync(
