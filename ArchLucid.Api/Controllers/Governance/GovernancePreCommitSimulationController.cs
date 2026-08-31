@@ -72,10 +72,14 @@ public sealed class GovernancePreCommitSimulationController(
         if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem($"Run ID '{runId.Trim()}' is not valid.", ProblemTypes.ValidationFailed);
 
+<<<<<<< HEAD
         if (Guid.Parse(runIdNormalized) == Guid.Empty)
             return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+=======
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+>>>>>>> origin/cursor/api-governance-tenancy-hunt-173-rebase-0dca
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -118,9 +122,6 @@ public sealed class GovernancePreCommitSimulationController(
             return this.BadRequestProblem(
                 $"Run ID '{body.RunId.Trim()}' is not valid.",
                 ProblemTypes.ValidationFailed);
-
-        if (Guid.Parse(runIdNormalized) == Guid.Empty)
-            return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);
 
         if (body.SyntheticCount < 0)
             return this.BadRequestProblem("syntheticCount must be non-negative.", ProblemTypes.ValidationFailed);
