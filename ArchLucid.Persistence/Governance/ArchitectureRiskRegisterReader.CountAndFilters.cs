@@ -56,7 +56,7 @@ public sealed partial class ArchitectureRiskRegisterReader
 
     private static string BuildAssigneeFilter(ArchitectureRiskRegisterListOptions? options)
     {
-        if (options?.AssignedToUserIds is not { Count: > 0 })
+        if (ResolveAssignedToUserIdsLower(options) is not { Count: > 0 })
             return string.Empty;
 
         return """
