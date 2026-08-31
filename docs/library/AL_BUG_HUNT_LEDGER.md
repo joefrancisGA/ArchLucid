@@ -2891,11 +2891,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 9
-- **bugs-found:** 13
+- **hunts:** 10
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — stale frictionless flag hid paid tier
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — frictionless banner persisted after sign-in; billing AI budget stale after scope switch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2918,8 +2918,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `readHasSeenWelcomeOnboarding` — welcome dismissal may survive tenant switch (`hasSeenOnboarding` key not cleared in `notifyOperatorScopeChanged`) — **cheap-disproof 2026-08-28:** intentional browser-level user preference (not tenant-scoped data); scope change clears tenant caches only; regression in `operator-scope-storage.test.ts`.
 - [x] (invalid) `readOperatorHomeDisclosureExpanded` — home disclosure prefs may survive tenant switch (global keys not cleared on scope change) — **cheap-disproof 2026-08-28:** intentional device-level collapse preference; not cleared on scope change by design; regression in `operator-scope-storage.test.ts`.
 - [x] (invalid) `fetchOperatorAiQualitySnapshot` — unvalidated disposition string may crash badge helpers — **cheap-disproof 2026-08-28:** `dispositionLabel` / `dispositionClass` return unknown values without throwing; regression in `operator-ai-quality-snapshot.test.ts`.
-- [ ] (candidate) `writeFrictionlessTrialSessionEnabled(false)` — frictionless session flag may remain set after sign-in or checkout, leaving marketing banner visible for paid workspaces until manual clear.
-- [ ] (candidate) `fetchLlmMonthlyDollarBudgetStatusCached` — AI budget percent on billing summary may not refresh after operator scope switch without full page reload.
+- [x] (proven) `writeFrictionlessTrialSessionEnabled(false)` — frictionless session flag remained set after sign-in or checkout, leaving marketing banner visible for authenticated workspaces — **hit 2026-08-31:** `clearFrictionlessTrialSessionForAuthenticatedOperator` on auth callback, checkout success, and scope change; regression in `operator-frictionless-trial-session-cleanup.test.ts` and `operator-scope-storage.test.ts`.
+- [x] (proven) `fetchLlmMonthlyDollarBudgetStatusCached` — AI budget percent on billing summary did not refresh after operator scope switch without full page reload — **hit 2026-08-31:** `OperatorBillingCurrentPlanSummary` held mount-time local state while TanStack cache cleared on scope change; switched to `useLlmMonthlyBudgetStatusQuery`; regression in `operator-shell-status-scope-cache.test.ts` and `operator-scope-storage.test.ts`.
+
+2026-08-31 thorough hunt #327: proved frictionless session cleanup on sign-in/checkout/scope change and billing summary AI budget refresh via shared query hook after scope cache invalidation.
 
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
