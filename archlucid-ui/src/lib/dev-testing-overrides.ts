@@ -134,6 +134,22 @@ export function resolveEffectiveDevAgentExecutionMode(
   return override ?? "Real";
 }
 
+/** Effective mode for UI chrome when no explicit dev cookie override exists. */
+export function resolveDevUiAgentExecutionMode(
+  override: DevAgentExecutionModeOverride | null,
+  hostAgentExecutionMode?: string | null,
+): DevAgentExecutionModeOverride | null {
+  if (override !== null) {
+    return override;
+  }
+
+  if (hostAgentExecutionMode === "Simulator" || hostAgentExecutionMode === "Real") {
+    return hostAgentExecutionMode;
+  }
+
+  return null;
+}
+
 export function readDevShellExperienceOverrideFromDocument(): DevShellExperienceOverride | null {
   if (!isDevTestingOverridesEnabled()) {
     return null;

@@ -10,6 +10,7 @@ import {
 import {
   isDevTestingOverridesEnabled,
   readDevAgentExecutionModeOverrideFromDocument,
+  resolveDevUiAgentExecutionMode,
   type DevAgentExecutionModeOverride,
 } from "@/lib/dev-testing-overrides";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
@@ -34,11 +35,18 @@ export function useAgentExecutionMode(): AgentExecutionModeState {
   }, []);
 
   const mode = useMemo(
-    () =>
-      resolveClientAgentExecutionMode({
+    () => {
+      const fromHealth = resolveClientAgentExecutionMode({
         healthAgentExecutionMode: healthQuery.data?.agentExecutionMode,
-        devOverride,
-      }),
+        devOverride: null,
+      });
+
+      if (!isDevTestingOverridesEnabled()) {
+        return fromHealth;
+      }
+
+      return resolveDevUiAgentExecutionMode(devOverride, healthQuery.data?.agentExecutionMode) ?? fromHealth;
+    },
     [devOverride, healthQuery.data?.agentExecutionMode],
   );
 

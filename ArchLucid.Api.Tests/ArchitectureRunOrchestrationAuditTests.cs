@@ -23,6 +23,7 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.Diagnostics;
 
 using FluentAssertions;
 
@@ -160,6 +161,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             new OperationRunCancellationMarker(runRepository),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
+            new PermissiveAgentExecutionReadinessGuard(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

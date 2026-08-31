@@ -24,6 +24,7 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.Diagnostics;
 
 using FluentAssertions;
 
@@ -381,6 +382,7 @@ public sealed class MultiAgentFailureModeChaosSuiteTests
             tail.RunCancellationMarker,
             tail.RunExecuteOwnershipLeaseService,
             tail.RunStageOutcomesRepository,
+            new PermissiveAgentExecutionReadinessGuard(),
             tail.Logger);
     }
 

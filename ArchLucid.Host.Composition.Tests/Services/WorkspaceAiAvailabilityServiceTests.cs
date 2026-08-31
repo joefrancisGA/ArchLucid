@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Admin;
 using ArchLucid.Contracts.Diagnostics;
 using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.AiUsage;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Secrets;
 using ArchLucid.Host.Composition.Services;
@@ -43,6 +44,38 @@ public sealed class WorkspaceAiAvailabilityServiceTests
         response.IsAvailable.Should().BeTrue();
         response.AiSource.Should().Be("simulator");
         response.Checks.Should().Contain(row => row.Name == "agent_execution_mode" && row.Status == "ok");
+        response.Debug.Should().ContainKey("configuredAgentExecutionMode");
+        response.Debug.Should().ContainKey("effectiveAgentExecutionMode");
+    }
+
+    [Fact]
+    public async Task ProbeAsync_effective_real_without_azure_openai_reports_unavailable()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["AgentExecution:Mode"] = "Simulator",
+                })
+            .Build();
+
+        WorkspaceAiAvailabilityService sut = BuildSut(
+            configuration,
+            policy: new TenantAiBudgetPolicySnapshot
+            {
+                WorkspaceKind = AiUsageWorkspaceKind.Paid,
+                CustomerAiProviderConfigured = false,
+            },
+            effectiveMode: DevAgentExecutionModeHeaderNames.Real);
+
+        WorkspaceAiAvailabilityResponse response = await sut.ProbeAsync(CancellationToken.None);
+
+        response.Validated.Should().BeTrue();
+        response.IsAvailable.Should().BeFalse();
+        response.AiSource.Should().Be("managed-platform");
+        response.Debug["configuredAgentExecutionMode"].Should().Be("Simulator");
+        response.Debug["effectiveAgentExecutionMode"].Should().Be("Real");
+        response.Checks.Should().Contain(row => row.Name == "azure_openai_configuration" && row.Status == "failed");
     }
 
     [Fact]
@@ -76,7 +109,8 @@ public sealed class WorkspaceAiAvailabilityServiceTests
     private static WorkspaceAiAvailabilityService BuildSut(
         IConfiguration configuration,
         TenantAiBudgetPolicySnapshot policy,
-        FakeSecretProvider? secretProvider = null)
+        FakeSecretProvider? secretProvider = null,
+        string effectiveMode = DevAgentExecutionModeHeaderNames.Simulator)
     {
         FakeScopeContextProvider scopeProvider = new();
         FakeAiBudgetPolicyResolver policyResolver = new(policy);
@@ -89,9 +123,15 @@ public sealed class WorkspaceAiAvailabilityServiceTests
             new FakeConnectionRepository(),
             secretProvider ?? new FakeSecretProvider("test-key"),
             budgetStatusService,
+            new FixedEffectiveAgentExecutionModeAccessor(effectiveMode),
             new ServiceCollection().BuildServiceProvider(),
             NullLogger<AgentRuntime.AzureOpenAiCompletionClient>.Instance,
             TimeProvider.System);
+    }
+
+    private sealed class FixedEffectiveAgentExecutionModeAccessor(string mode) : IEffectiveAgentExecutionModeAccessor
+    {
+        public string GetEffectiveMode() => mode;
     }
 
     private sealed class FakeScopeContextProvider : IScopeContextProvider

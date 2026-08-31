@@ -18,10 +18,18 @@ function createRequest(cookie: string | null): { headers: { get: (name: string) 
 }
 
 describe("dev-agent-execution-mode-upstream", () => {
-  it("defaults to Real when no cookie is present", () => {
+  it("does not forward a header when no cookie is present", () => {
     vi.stubEnv("NODE_ENV", "development");
 
-    expect(resolveDevAgentExecutionModeUpstreamHeader(createRequest(null) as never)).toBe("Real");
+    expect(resolveDevAgentExecutionModeUpstreamHeader(createRequest(null) as never)).toBeNull();
+  });
+
+  it("forwards Real when the dev cookie requests Real", () => {
+    vi.stubEnv("NODE_ENV", "development");
+
+    const cookie = `${DEV_AGENT_EXECUTION_MODE_COOKIE}=Real; Path=/`;
+
+    expect(resolveDevAgentExecutionModeUpstreamHeader(createRequest(cookie) as never)).toBe("Real");
   });
 
   it("forwards Simulator when the dev cookie is set", () => {

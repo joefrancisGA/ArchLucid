@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.DevTesting;
 
 using Microsoft.Extensions.Logging;
@@ -17,9 +18,7 @@ public sealed class DevSwitchableAgentCompletionClient(
     /// <summary>
     ///     Thrown when the effective mode is Real but no live completion pipeline was registered on the host.
     /// </summary>
-    public const string LiveCompletionUnavailableMessage =
-        "Live LLM completions require Azure OpenAI to be configured on this host. " +
-        "Switch to Simulator mode or configure AzureOpenAI credentials.";
+    public const string LiveCompletionUnavailableMessage = AgentExecutionReadinessMessages.LiveCompletionUnavailable;
 
     private readonly IEffectiveAgentExecutionModeAccessor _effectiveModeAccessor =
         effectiveModeAccessor ?? throw new ArgumentNullException(nameof(effectiveModeAccessor));

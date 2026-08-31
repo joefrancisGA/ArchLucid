@@ -1,17 +1,20 @@
 import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
+import { isAcceleratorCostGovernancePackId } from "@/lib/accelerator-chooser";
 
 export const ACCELERATOR_GREENFIELD_PACK_ID = "greenfield-web-app" as const;
 
-/** Persistent pack taxonomy — shown on every specialty pack card regardless of gate state. */
-export const ACCELERATOR_FOLLOWUP_PACK_TAG_LABEL = "Follow-up pack" as const;
+/** Unified start CTA for every accelerator pack — first review or follow-up. */
+export const ACCELERATOR_PACK_START_LABEL = "Start with this pack" as const;
 
-/** Tenant gate only — specialty packs when prerequisite is not met. */
-export const ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE =
-  "Unlocks after you finalize your first architecture review in this tenant." as const;
+/** Soft guidance on cost-governance packs — not a tenant gate. */
+export const ACCELERATOR_COST_BASELINE_RECOMMENDATION =
+  "Recommended after a finalized review with cloud inventory or cost baseline evidence." as const;
 
-/** @deprecated Use {@link ACCELERATOR_FOLLOWUP_PACK_TAG_LABEL} + {@link ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE}. */
-export const ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE =
-  `${ACCELERATOR_FOLLOWUP_PACK_TAG_LABEL} — finalize your first architecture review in this tenant to unlock.` as const;
+/** @deprecated Use {@link ACCELERATOR_PACK_START_LABEL}. */
+export const ACCELERATOR_PACK_START_GREENFIELD_LABEL = ACCELERATOR_PACK_START_LABEL;
+
+/** @deprecated Use {@link ACCELERATOR_PACK_START_LABEL}. */
+export const ACCELERATOR_PACK_START_FOLLOWUP_LABEL = ACCELERATOR_PACK_START_LABEL;
 
 export const ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE =
   "Checking whether this tenant has a finalized review record…" as const;
@@ -19,21 +22,15 @@ export const ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE =
 export const ACCELERATOR_PACK_CTA_PENDING_UNKNOWN_MESSAGE =
   "Finalized review record status is unavailable — verify access, then retry." as const;
 
-export const ACCELERATOR_PACK_START_GREENFIELD_LABEL = "Start with this pack" as const;
-
-export const ACCELERATOR_PACK_START_FOLLOWUP_LABEL = "Start follow-up review" as const;
-
 export const ACCELERATOR_PACK_CTA_RETRY_LABEL = "Retry availability check" as const;
 
 export type AcceleratorPackCtaState =
   | "ready"
-  | "blocked-not-met"
   | "pending-checking"
   | "pending-unknown";
 
 export type AcceleratorPackCtaRenderMode =
   | "start-link"
-  | "locked-status"
   | "checking-status"
   | "retry-button";
 
@@ -44,23 +41,18 @@ export type AcceleratorPackCtaPresentation = {
   readonly usePrimaryVariant: boolean;
 };
 
-export function acceleratorPackRequiresSignedReviewRecord(packId: string): boolean {
-  return packId !== ACCELERATOR_GREENFIELD_PACK_ID;
+export function acceleratorPackShowsCostBaselineRecommendation(packId: string): boolean {
+  return isAcceleratorCostGovernancePackId(packId);
 }
 
 export function resolvePackCtaState(
   status: AcceleratorChooserPrerequisiteStatus,
-  packId: string,
+  _packId: string,
 ): AcceleratorPackCtaState {
-  if (!acceleratorPackRequiresSignedReviewRecord(packId)) {
-    return "ready";
-  }
-
   switch (status) {
     case "met":
-      return "ready";
     case "not-met":
-      return "blocked-not-met";
+      return "ready";
     case "checking":
       return "pending-checking";
     case "unknown":
@@ -84,18 +76,9 @@ export function resolvePackCtaPresentation(
     case "ready":
       return {
         mode: "start-link",
-        visibleLabel: isGreenfield
-          ? ACCELERATOR_PACK_START_GREENFIELD_LABEL
-          : ACCELERATOR_PACK_START_FOLLOWUP_LABEL,
+        visibleLabel: ACCELERATOR_PACK_START_LABEL,
         statusMessage: null,
-        usePrimaryVariant: isGreenfield && status === "not-met",
-      };
-    case "blocked-not-met":
-      return {
-        mode: "locked-status",
-        visibleLabel: null,
-        statusMessage: ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
-        usePrimaryVariant: false,
+        usePrimaryVariant: isGreenfield,
       };
     case "pending-checking":
       return {
@@ -120,10 +103,10 @@ export function resolvePackCtaPresentation(
 }
 
 export function isAcceleratorPackBlockedByPrerequisite(
-  status: AcceleratorChooserPrerequisiteStatus,
-  packId: string,
+  _status: AcceleratorChooserPrerequisiteStatus,
+  _packId: string,
 ): boolean {
-  return resolvePackCtaState(status, packId) === "blocked-not-met";
+  return false;
 }
 
 export function prerequisiteNeedsPrimaryGreenfieldAction(
@@ -147,7 +130,7 @@ export function prerequisiteBorderAccentClass(status: AcceleratorChooserPrerequi
     case "met":
       return "border-l-emerald-600 dark:border-l-emerald-500";
     case "not-met":
-      return "border-l-rose-600 dark:border-l-rose-500";
+      return "border-l-neutral-300 dark:border-l-neutral-600";
     case "checking":
     case "unknown":
       return "border-l-neutral-300 dark:border-l-neutral-600";
