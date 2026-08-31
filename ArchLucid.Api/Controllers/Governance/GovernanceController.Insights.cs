@@ -92,7 +92,7 @@ public sealed partial class GovernanceController
         if (fromUtc >= toUtc)
             return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.ValidationFailed);
 
-        // Reject year-1 / unspecified defaults ΓÇö OpenAPI date-time + Schemathesis reject "0001-01-01T00:00:00".
+        // Reject year-1 / unspecified defaults — OpenAPI date-time + Schemathesis reject "0001-01-01T00:00:00".
 
         if (fromUtc.Year < 1970 || toUtc.Year < 1970)
             return this.BadRequestProblem(
