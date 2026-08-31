@@ -2,7 +2,7 @@ export function governanceLineageApprovalDisplayTitle(requestComment: string | n
   const approvalTitle = (requestComment ?? "").trim();
 
   if (approvalTitle.length === 0) {
-    return "Resolve outcomes request";
+    return "Governance approval request";
   }
 
   if (approvalTitle.length > 80) {
