@@ -11,7 +11,12 @@ import {
 import { GovernanceFindingsQueueAssignedToMeShell } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 import { GovernanceFindingsQueueHeader } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  applyFindingsSavedViewFilters,
+} from "@/components/governance/findings/GovernanceFindingsSavedViewsBar";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
+import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
+import type { FindingsSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
 import { useAssignedToMeFindingsQuery } from "@/components/governance/findings/use-assigned-to-me-findings-query";
 import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
@@ -113,6 +118,7 @@ export default function GovernanceFindingsQueueClient({
     removePreset,
     groupByResource,
     toggleGroupByResource,
+    applyGroupByResource,
   } = useGovernanceFindingsFilter({ mode });
 
   const scopedRunContextQuery = useRunDetailWorkspaceContextBundleQuery(scopedRunId ?? "", {
@@ -290,6 +296,23 @@ export default function GovernanceFindingsQueueClient({
     [registerFilter, jobView, nlFacets, jobViewFilterActive],
   );
 
+  const onLoadFindingsSavedView = useCallback(
+    (view: OperatorSavedView) => {
+      const filters = view.payload.filters as FindingsSavedViewFilters;
+      const applied = applyFindingsSavedViewFilters(filters);
+
+      setRegisterFilter(applied.registerFilter);
+      setJobViewState(applied.jobView);
+      setNlFacetsState(applied.nlFacets);
+      applyGroupByResource(applied.groupByResource);
+
+      if (applied.scopedRunId !== null && applied.scopedRunId.trim().length > 0) {
+        onPickReviewForTriage(applied.scopedRunId);
+      }
+    },
+    [applyGroupByResource, onPickReviewForTriage, setRegisterFilter],
+  );
+
   return (
     <OperatorPageContainer variant="dashboard">
       <GovernanceFindingsQueueHeader
@@ -367,6 +390,7 @@ export default function GovernanceFindingsQueueClient({
         onNaturalLanguageFilterApply={setNlFacets}
         nlFacets={nlFacets}
         onClearAllFilters={clearAllFilters}
+        onLoadFindingsSavedView={onLoadFindingsSavedView}
         loading={loading}
         rows={rows}
         filterNoMatchPreset={filterNoMatchPreset}

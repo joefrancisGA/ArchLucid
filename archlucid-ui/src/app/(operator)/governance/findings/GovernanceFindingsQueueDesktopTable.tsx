@@ -44,6 +44,8 @@ export type GovernanceFindingsQueueDesktopTableProps = {
   readonly onSelectionChange?: (ids: ReadonlySet<string>) => void;
   readonly isRowNewSinceLastVisit?: (row: GovernanceFindingQueueRow) => boolean;
   readonly onRowOpened?: (row: GovernanceFindingQueueRow) => void;
+  /** When set, Enter/row activation opens the triage panel instead of navigating away from the queue. */
+  readonly onActivateRow?: (row: GovernanceFindingQueueRow, index: number) => void;
 };
 
 /** Carbon-style desktop queue for architecture risks and recorded decisions (md+). */
@@ -59,6 +61,7 @@ export function GovernanceFindingsQueueDesktopTable(
     onSelectionChange,
     isRowNewSinceLastVisit,
     onRowOpened,
+    onActivateRow,
   } = props;
   const router = useRouter();
   const scrollParentRef = useRef<HTMLDivElement>(null);
@@ -84,6 +87,12 @@ export function GovernanceFindingsQueueDesktopTable(
       const row = displayRows[index];
 
       if (row === undefined) {
+        return;
+      }
+
+      if (onActivateRow !== undefined) {
+        onActivateRow(row, index);
+        onRowOpened?.(row);
         return;
       }
 

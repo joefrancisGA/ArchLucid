@@ -76,6 +76,13 @@ public interface IGovernanceApprovalRequestRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Returns the total count of pending approval requests (Draft or Submitted) in the current scope.
+    ///     This count is not limited by a query row cap and uses <c>COUNT_BIG</c> so the full 64-bit total
+    ///     is preserved. Use for metrics that need the aggregate pending total rather than a dashboard list slice.
+    /// </summary>
+    Task<long> CountPendingApprovalsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Returns the most recent decisions (<see cref="GovernanceApprovalStatus.Approved" />,
     ///     <see cref="GovernanceApprovalStatus.Rejected" />, <see cref="GovernanceApprovalStatus.Promoted" />)
     ///     ordered by <see cref="GovernanceApprovalRequest.ReviewedUtc" /> descending,
