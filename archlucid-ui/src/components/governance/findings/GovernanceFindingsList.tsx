@@ -5,6 +5,8 @@ import { memo, useState, type ReactElement } from "react";
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
+import { GovernanceFindingTriagePanel } from "@/components/governance/findings/GovernanceFindingTriagePanel";
+import { useGovernanceFindingTriage } from "@/components/governance/findings/use-governance-finding-triage";
 import { resolveGovernanceQueueRowActivityAtUtc } from "@/lib/findings/finding-activity-at-utc";
 import {
   governanceQueueRowWatermarkKey,
@@ -49,6 +51,12 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   const [bulkDispositionSuccessMessage, setBulkDispositionSuccessMessage] = useState<string | null>(null);
   const [bulkDispositionUndo, setBulkDispositionUndo] = useState<(() => Promise<void>) | null>(null);
   const [bulkDispositionUndoBusy, setBulkDispositionUndoBusy] = useState(false);
+  const triage = useGovernanceFindingTriage(displayedRows);
+
+  function openTriageRow(row: GovernanceFindingQueueRow): void {
+    markGovernanceRowSeen(row);
+    triage.openForRow(row);
+  }
 
   function isGovernanceRowNewSinceLastVisit(row: GovernanceFindingQueueRow): boolean {
     const activityAt = resolveGovernanceQueueRowActivityAtUtc(row.lastReviewedUtc, row.revisitDueUtc);
@@ -74,6 +82,19 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
     return (
       <div className="space-y-4">
         <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={onBulkApplied} />
+        <GovernanceFindingTriagePanel
+          open={triage.open}
+          row={triage.activeRow}
+          activeIndex={triage.activeIndex}
+          totalCount={triage.findingRows.length}
+          buyerPolishedShell={buyerPolishedShell}
+          canGoPrevious={triage.canGoPrevious}
+          canGoNext={triage.canGoNext}
+          onOpenChange={triage.setOpen}
+          onPrevious={triage.goPrevious}
+          onNext={triage.goNext}
+          onRowOpened={markGovernanceRowSeen}
+        />
         {findingRows.length > 0 ? (
           <section className="space-y-3" aria-labelledby="governance-findings-risks">
             <h2
@@ -91,8 +112,9 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
                   variant="buyer"
                   showNewSinceLastVisit={isGovernanceRowNewSinceLastVisit(row)}
                   onOpenRow={() => {
-                    markGovernanceRowSeen(row);
+                    openTriageRow(row);
                   }}
+                  onOpenFinding={openTriageRow}
                 />
               ))}
             </div>
@@ -129,6 +151,19 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   return (
     <>
       <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={onBulkApplied} />
+      <GovernanceFindingTriagePanel
+        open={triage.open}
+        row={triage.activeRow}
+        activeIndex={triage.activeIndex}
+        totalCount={triage.findingRows.length}
+        buyerPolishedShell={buyerPolishedShell}
+        canGoPrevious={triage.canGoPrevious}
+        canGoNext={triage.canGoNext}
+        onOpenChange={triage.setOpen}
+        onPrevious={triage.goPrevious}
+        onNext={triage.goNext}
+        onRowOpened={markGovernanceRowSeen}
+      />
       {bulkDispositionSuccessMessage !== null ? (
         <ReversibleMutationSuccessCallout
           message={bulkDispositionSuccessMessage}
@@ -186,6 +221,9 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
         onSelectionChange={onSelectionChange}
         isRowNewSinceLastVisit={isGovernanceRowNewSinceLastVisit}
         onRowOpened={markGovernanceRowSeen}
+        onActivateRow={(row) => {
+          openTriageRow(row);
+        }}
       />
 
       <div className="space-y-3 md:hidden" data-testid="governance-findings-queue-mobile">
@@ -197,8 +235,14 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
             variant="operational"
             showNewSinceLastVisit={isGovernanceRowNewSinceLastVisit(row)}
             onOpenRow={() => {
+              if (row.recordKind === "finding") {
+                openTriageRow(row);
+                return;
+              }
+
               markGovernanceRowSeen(row);
             }}
+            onOpenFinding={openTriageRow}
           />
         ))}
       </div>

@@ -119,6 +119,11 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     });
   }, []);
 
+  const applyGroupByResource = useCallback((next: boolean): void => {
+    setGroupByResource(next);
+    writeGroupByResourcePreference(next);
+  }, []);
+
   return {
     registerFilter,
     setRegisterFilter,
@@ -128,5 +133,6 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     removePreset,
     groupByResource,
     toggleGroupByResource,
+    applyGroupByResource,
   };
 }
