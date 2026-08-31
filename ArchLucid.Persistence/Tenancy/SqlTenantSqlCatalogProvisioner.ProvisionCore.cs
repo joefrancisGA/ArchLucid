@@ -18,11 +18,11 @@ public sealed partial class SqlTenantSqlCatalogProvisioner
         if (snapshot.Mode != SqlTopologyMode.SystemWithPerTenantCatalogs)
             return;
 
+        string effectiveLogicalName = sqlLogicalDatabaseName.Trim();
+        WarmTenantCatalogStandbyRecord? claimedStandby = null;
+
         try
         {
-            string effectiveLogicalName = sqlLogicalDatabaseName.Trim();
-            WarmTenantCatalogStandbyRecord? claimedStandby = null;
-
             if (_warmCatalogOptions.CurrentValue.Enabled)
             {
                 claimedStandby = await _warmStandbyRepository.TryClaimOldestUnclaimedAsync(cancellationToken);
@@ -63,6 +63,9 @@ public sealed partial class SqlTenantSqlCatalogProvisioner
                 _logger.LogError(ex, "Tenant catalog provisioning failed for tenant {TenantId}.", tenantId);
 
             await _bindingRepository.MarkFailedAsync(tenantId, ex.Message, cancellationToken);
+
+            if (claimedStandby is not null)
+                await _warmStandbyRepository.ReleaseClaimAsync(claimedStandby.StandbyId, cancellationToken);
 
             throw;
         }

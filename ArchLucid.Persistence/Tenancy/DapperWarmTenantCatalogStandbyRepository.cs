@@ -108,6 +108,21 @@ public sealed class DapperWarmTenantCatalogStandbyRepository(ISystemSqlConnectio
             new CommandDefinition(sql, new { StandbyId = standbyId }, cancellationToken: cancellationToken));
     }
 
+    public async Task ReleaseClaimAsync(Guid standbyId, CancellationToken cancellationToken)
+    {
+        await using SqlConnection connection =
+            await _systemSqlConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+                           UPDATE dbo.WarmTenantCatalogStandby
+                           SET ClaimedUtc = NULL
+                           WHERE StandbyId = @StandbyId;
+                           """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { StandbyId = standbyId }, cancellationToken: cancellationToken));
+    }
+
     private static async Task<bool> TableExistsAsync(SqlConnection connection, CancellationToken cancellationToken)
     {
         const string sql = """
