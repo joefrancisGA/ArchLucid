@@ -28,7 +28,7 @@ public sealed partial class BackgroundJobRepository
                                             END,
                                CompletedUtc = CASE
                                                   WHEN RetryCount < MaxRetries
-                                                       OR (MaxRetries = 0 AND RetryCount = 0) THEN CompletedUtc
+                                                       OR (MaxRetries = 0 AND RetryCount = 0) THEN NULL
                                                   ELSE SYSUTCDATETIME()
                                               END,
                                RetryCount = CASE
