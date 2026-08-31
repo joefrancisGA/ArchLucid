@@ -204,10 +204,20 @@ public sealed class RunScopedLlmBudgetReservationService(
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            Guid? parsedRunId = Guid.TryParse(runId, out Guid runGuid) ? runGuid : null;
 
             await _auditService.LogAsync(
                 new AuditEvent
                 {
+                    EventType = AuditEventTypes.RunLlmBudgetReserved,
+                    ActorUserId = "system",
+                    ActorUserName = "system",
+                    ExplicitActor = true,
+                    OccurredUtc = _timeProvider.GetUtcNow().UtcDateTime,
+                    TenantId = tenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = parsedRunId,
                     DataJson = System.Text.Json.JsonSerializer.Serialize(new
                     {
                         reservationId = reservationId.ToString("D"),
