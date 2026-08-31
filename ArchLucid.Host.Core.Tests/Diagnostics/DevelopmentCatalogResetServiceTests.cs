@@ -17,6 +17,7 @@ using Moq;
 namespace ArchLucid.Host.Core.Tests.Diagnostics;
 
 [Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class DevelopmentCatalogResetServiceTests
 {
     [Fact]
