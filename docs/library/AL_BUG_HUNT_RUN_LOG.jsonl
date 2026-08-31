@@ -476,7 +476,10 @@
 {"at":"2026-08-31T05:11:08.1234741Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T05:16:28.3051116Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-08-31T05:25:19.9215176Z","zoneId":"archlucid-core","outcome":"hit"}
+{"at":"2026-08-31T05:32:09.0000000Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T13:53:48.9246683Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T15:00:47.6489942Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T15:04:31.6360466Z","zoneId":"archlucid-core","outcome":"dry"}
+{"at":"2026-08-31T15:05:00.0000000Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","note":"combined PR #892-930 integration branch"}
 {"at":"2026-08-31T15:29:17.1836222Z","zoneId":"persistence-identity","outcome":"hit"}
 {"at":"2026-08-31T15:35:30.9507379Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}

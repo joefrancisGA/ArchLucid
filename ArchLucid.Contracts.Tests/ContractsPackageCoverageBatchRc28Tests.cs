@@ -44,7 +44,7 @@ public sealed class ContractsPackageCoverageBatchRc28Tests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    [InlineData("findings")]
+    [InlineData("reviews")]
     public void OperatorSavedViewSurfaces_rejects_unsupported(string? surface)
     {
         OperatorSavedViewSurfaces.IsSupported(surface).Should().BeFalse();
@@ -56,6 +56,8 @@ public sealed class ContractsPackageCoverageBatchRc28Tests
     [InlineData("AUDIT", OperatorSavedViewSurfaces.Audit)]
     [InlineData("graph", OperatorSavedViewSurfaces.Graph)]
     [InlineData("Graph", OperatorSavedViewSurfaces.Graph)]
+    [InlineData("findings", OperatorSavedViewSurfaces.Findings)]
+    [InlineData("Findings", OperatorSavedViewSurfaces.Findings)]
     public void OperatorSavedViewSurfaces_normalizes_supported_surfaces(string surface, string expected)
     {
         OperatorSavedViewSurfaces.IsSupported(surface).Should().BeTrue();
