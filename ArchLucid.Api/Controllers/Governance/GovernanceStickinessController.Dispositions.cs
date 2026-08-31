@@ -95,17 +95,27 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (request.FindingIds is null || request.FindingIds.Count == 0)
+        // Snapshot so later Count/foreach use a stable non-null local (property getters do not flow).
+        IReadOnlyList<string>? findingIds = request.FindingIds;
+
+        if (findingIds is null || findingIds.Count == 0)
             return this.BadRequestProblem("At least one FindingId must be provided.", ProblemTypes.ValidationFailed);
 
-        if (!request.FindingIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
+        if (!findingIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
         {
             return this.BadRequestProblem(
                 "At least one non-empty FindingId must be provided.",
                 ProblemTypes.ValidationFailed);
         }
 
-        if (request.FindingIds.Count > 50)
+        if (findingIds.Any(static id => string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "Each FindingId must be a non-empty string.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (findingIds.Count > 50)
         {
             return this.BadRequestProblem(
                 "At most 50 finding ids are allowed per request.",
@@ -114,7 +124,7 @@ public sealed partial class GovernanceStickinessController
 
         HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string findingId in request.FindingIds)
+        foreach (string findingId in findingIds)
         {
             if (string.IsNullOrWhiteSpace(findingId))
                 continue;

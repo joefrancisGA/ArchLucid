@@ -52,7 +52,7 @@ describe("OperatorStickinessSnapshotCard approval habit links", () => {
 
     render(<OperatorStickinessSnapshotCard />);
 
-    expect(screen.queryByRole("link", { name: "View resolve outcomes" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "View governance approval" })).not.toBeInTheDocument();
   });
 
   it("shows the approval queue link when pending approvals exist", () => {
@@ -62,7 +62,7 @@ describe("OperatorStickinessSnapshotCard approval habit links", () => {
 
     render(<OperatorStickinessSnapshotCard />);
 
-    expect(screen.getByRole("link", { name: "View resolve outcomes" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "View governance approval" })).toHaveAttribute(
       "href",
       GOVERNANCE_APPROVAL_QUEUE_PATH,
     );

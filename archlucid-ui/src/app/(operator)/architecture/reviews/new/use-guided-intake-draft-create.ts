@@ -8,7 +8,6 @@ import {
   getDraftRequest,
   patchDraftRequest,
 } from "@/lib/api/draft-intake-api";
-import { showSuccess } from "@/lib/toast";
 import {
   architectureCreationDefaultActorSet,
   applyArchitectureCreationDraftToFormState,
@@ -126,11 +125,6 @@ export function useGuidedIntakeDraftCreate(options: Options) {
 
       if (isGuidedIntakeAccessBlocked(draft.status)) {
         core.setSourceArchitectureAccessBlocked(true);
-        showSuccess(
-          spawnedRunId !== null
-            ? "This architecture already has a review — opening it now."
-            : "This architecture already started a review — returning to the architecture draft.",
-        );
         navigate(resolveGuidedIntakeBlockedRedirectHref(sourceArchitectureId, spawnedRunId));
 
         return;
@@ -195,7 +189,6 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       core.setSavedLocallyQuestionKeys(new Set());
       applyAdmittedRequiredMustQuestionKeysFromDocument(branch.document);
       await refreshQuestions(branch.draftId);
-      showSuccess("What-if branch created — you are now editing the branch draft.");
     },
     [applyAdmittedRequiredMustQuestionKeysFromDocument, core, refreshQuestions, setActorSet, setBusinessOutcome, setFreeTextIntent, setSystemName],
   );
@@ -236,7 +229,6 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       core.setSavedLocallyQuestionKeys(new Set());
       core.setViewAllClarifications(false);
       setStep(1);
-      showSuccess("Continue with the architecture discovery questions.");
     } catch (error) {
       core.setSubmitError(error);
     } finally {

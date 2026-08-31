@@ -1,7 +1,9 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
@@ -20,6 +22,8 @@ namespace ArchLucid.Api.Controllers.Admin;
 [EnableRateLimiting("expensive")]
 public sealed class DemoController(
     IDemoSeedService demoSeedService,
+    ISampleRunPurgeService sampleRunPurgeService,
+    IScopeContextProvider scopeProvider,
     IOptions<DemoOptions> demoOptions,
     IWebHostEnvironment environment) : ControllerBase
 {
@@ -50,6 +54,35 @@ public sealed class DemoController(
                 ProblemTypes.BadRequest);
 
         await demoSeedService.SeedAsync(cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>Removes seeded sample runs for the current tenant scope. Safe to repeat when no sample rows remain.</summary>
+    /// <remarks>
+    ///     Available under the same guard as <see cref="SeedAsync" /> — OS-1 sponsor dashboard unload control.
+    /// </remarks>
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("purge-sample")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> PurgeSampleAsync(CancellationToken cancellationToken = default)
+    {
+        bool isDevOrSaaSEnabled = environment.IsDevelopment() || demoOptions.Value.SaaSGuestSeedEnabled;
+
+        if (!isDevOrSaaSEnabled)
+            return this.NotFoundProblem(
+                "Demo sample purge is available only in Development environment.",
+                ProblemTypes.ResourceNotFound);
+
+        if (!demoOptions.Value.Enabled)
+            return this.BadRequestProblem(
+                "Demo sample purge is disabled. Set Demo:Enabled to true in configuration.",
+                ProblemTypes.BadRequest);
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        await sampleRunPurgeService.PurgeForTenantAsync(scope.TenantId, cancellationToken);
+
         return NoContent();
     }
 }

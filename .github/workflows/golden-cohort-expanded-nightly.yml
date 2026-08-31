@@ -1,5 +1,5 @@
 # Weekly: score all committed real-mode AgentResult exemplars with quality gates (no --enforce recall).
-# TB-683: daily real-mode eval trend loop when ARCHLUCID_GOLDEN_COHORT_REAL_LLM is enabled.
+# TB-683: daily real-mode eval trend loop when real-mode CI is enabled (marker or repo var).
 # See docs/library/AGENT_EVAL_CORPUS.md — mapping mirrors agent-eval-corpus-rc env vars.
 name: golden-cohort-expanded-nightly
 
@@ -22,9 +22,9 @@ jobs:
         id: eligibility
         run: |
           set -euo pipefail
-          if [ "${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM }}" != "true" ]; then
+          if ! bash scripts/ci/is_real_mode_ci_enabled.sh enabled; then
             echo "enabled=false" >> "${GITHUB_OUTPUT}"
-            echo "TB-683: ARCHLUCID_GOLDEN_COHORT_REAL_LLM is not true; skipping nightly real-mode eval."
+            echo "TB-683: real-mode CI disabled — add .github/REAL_MODE_CI_ENABLED or set ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true."
             exit 0
           fi
           echo "enabled=true" >> "${GITHUB_OUTPUT}"
@@ -32,7 +32,7 @@ jobs:
       - name: Skip notice (credentials not enabled)
         if: steps.eligibility.outputs.enabled != 'true'
         run: |
-          echo "Nightly real-mode eval skipped — set repository variable ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true to enable."
+          echo "Nightly real-mode eval skipped — add .github/REAL_MODE_CI_ENABLED or set ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true."
 
       - uses: actions/setup-python@v7
         if: steps.eligibility.outputs.enabled == 'true'

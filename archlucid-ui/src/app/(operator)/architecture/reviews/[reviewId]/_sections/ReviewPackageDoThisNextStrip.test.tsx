@@ -31,6 +31,44 @@ describe("ReviewPackageDoThisNextStrip", () => {
     );
   });
 
+  it("renders failure recovery details when assessment failed", () => {
+    render(
+      <ReviewPackageDoThisNextStrip
+        runId="run-1"
+        hasGoldenManifest={false}
+        commitBlockedReason={null}
+        next={{
+          kind: "rerun-review",
+          sentence: "Assessment failed — follow the recovery steps below, then re-run the review with the same intake.",
+          actionLabel: "Re-run review",
+          href: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          failureRecovery: {
+            headline: "Execution failed before the first pipeline stage",
+            detail: "Missing Azure OpenAI deployment configuration",
+            recoverySteps: [
+              "Open Administration → AI configuration and confirm Azure OpenAI credentials and deployment names are set for this workspace.",
+              "Save any changes, wait one minute, then click Re-run review on this page.",
+            ],
+            suggestSupportTicket: false,
+            severity: "error",
+            supportHref: "/help/report-a-problem",
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("review-package-failure-recovery")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-failure-headline")).toHaveTextContent(
+      "Execution failed before the first pipeline stage",
+    );
+    expect(screen.getByTestId("review-package-failure-detail")).toHaveTextContent(
+      "Missing Azure OpenAI deployment configuration",
+    );
+    expect(screen.getByTestId("review-package-failure-recovery-steps")).toHaveTextContent("AI configuration");
+    expect(screen.queryByTestId("review-package-failure-support-hint")).toBeNull();
+    expect(screen.getByRole("link", { name: "Re-run review" })).toBeInTheDocument();
+  });
+
   it("renders outline evidence CTA and secondary sponsor link when demoted", () => {
     render(
       <ReviewPackageDoThisNextStrip

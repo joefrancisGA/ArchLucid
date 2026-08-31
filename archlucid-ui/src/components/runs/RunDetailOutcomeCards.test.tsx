@@ -79,4 +79,24 @@ describe("RunDetailOutcomeCards", () => {
     expect(screen.queryByText("Review outcome")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Package state: finalized")).toBeInTheDocument();
   });
+
+  it("renders pre-finalize disposition as unboxed helper text", () => {
+    render(
+      <RunDetailOutcomeCards
+        runId="run-1"
+        hasGoldenManifest={false}
+        findingCountDisplay={0}
+        warningCountDisplay={0}
+        artifactCount={0}
+        unresolvedIssueCountDisplay={0}
+      />,
+    );
+
+    const dispositionLine = screen.getByTestId("buyer-review-disposition-line");
+
+    expect(dispositionLine).toHaveTextContent("Finalize the review to lock findings");
+    expect(dispositionLine.className).not.toContain("border");
+    expect(dispositionLine.className).not.toContain("bg-al-surface-raised");
+    expect(dispositionLine).not.toHaveAttribute("role", "status");
+  });
 });

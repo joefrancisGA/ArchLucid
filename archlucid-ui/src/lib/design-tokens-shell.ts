@@ -151,6 +151,9 @@ export const OPERATOR_SHELL_MAX_WIDTH_CLASS = "w-full max-w-[1600px]";
 /** Shared height for compact top-bar controls (scope switcher, help, account menu). */
 export const OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS = "h-8";
 
+/** Inventory hub toolbars — align search/select height with adjacent filter chips. */
+export const OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS = OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS;
+
 /**
  * Sidebar + main content row beneath the sticky header.
  * Left-aligned with the top bar brand rail — never `mx-auto` (wide viewports otherwise gain a dead left gutter).

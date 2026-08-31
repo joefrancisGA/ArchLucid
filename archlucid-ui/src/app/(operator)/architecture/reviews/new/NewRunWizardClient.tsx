@@ -13,7 +13,6 @@ import {
   resolveNewRunWizardCompleteSetupEmphasizedStepId,
   resolveNewRunWizardCompleteSetupSteps,
 } from "@/lib/new-run-wizard-complete-setup-checklist";
-import { showSuccess } from "@/lib/toast";
 import {
   deriveWizardPolicyPackCloudMismatch,
   type WizardCreateRunPayloadOptions,
@@ -148,10 +147,6 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     onInventoryFileSelected: markCloudProviderFromInventory,
   });
 
-  const showSuccessToast = useCallback((message: string) => {
-    showSuccess(message);
-  }, []);
-
   const showWizardNotice = useCallback(
     (kind: "ok" | "err", message: string) => {
       if (kind === "ok") {
@@ -245,7 +240,6 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     goToStep,
     setRunId,
     setStepValidationMessage,
-    showSuccessToast,
     clearWizardSession: () => {
       clearWizardSessionRef.current();
     },
