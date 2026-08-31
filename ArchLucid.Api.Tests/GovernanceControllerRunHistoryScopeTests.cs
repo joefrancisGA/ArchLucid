@@ -599,7 +599,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             item.ApprovalRequestId == approvalRequestId
             && !item.Succeeded
             && item.ErrorCode == ProblemTypes.ValidationFailed
-            && item.Message == "duplicate approvalRequestId in batch.");
+            && item.Message == $"duplicate approvalRequestId in batch: '{approvalRequestId}'.");
 
         workflow.Verify(
             w => w.ApproveAsync(

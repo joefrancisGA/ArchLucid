@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import unittest
 from pathlib import Path
 
@@ -19,22 +20,41 @@ class TestDemoBatch5Dt(unittest.TestCase):
         self.assertNotIn("Audit trail complete — review package finalized", text)
 
     def test_review_detail_finalize_anchor_targets_header(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
-        text = path.read_text(encoding="utf-8")
+        guidance_path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
+        guidance_text = guidance_path.read_text(encoding="utf-8")
+        exports_path = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "reviews"
+            / "[reviewId]"
+            / "_sections"
+            / "RunDetailArtifactsExportsSection.tsx"
+        )
+        exports_text = exports_path.read_text(encoding="utf-8")
 
         self.assertRegex(
-            text,
+            guidance_text,
             r'BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*["\']#finalize-review["\']',
         )
         self.assertRegex(
-            text,
-            r'BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE\s*=\s*\{[\s\S]*?href\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR',
-        )
-        self.assertRegex(
-            text,
+            guidance_text,
             r'["\']review-detail-in-progress["\']\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE',
         )
-        self.assertNotIn('href: "#run-actions"', text)
+        self.assertRegex(
+            exports_text,
+            r'import\s*\{\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*\}\s*from\s*["\']@/lib/first-week-route-guidance["\']',
+        )
+        self.assertRegex(
+            exports_text,
+            r'href\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR',
+        )
+        self.assertIsNone(
+            re.compile(r'href\s*:\s*["\']#run-actions["\']').search(guidance_text),
+        )
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor" / "sponsor-roi-kpi-display.ts"
