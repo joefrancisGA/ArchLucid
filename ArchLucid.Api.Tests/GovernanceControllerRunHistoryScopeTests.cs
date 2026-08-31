@@ -857,7 +857,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
-    public async Task BatchReviewApprovalRequests_returns_validation_failed_per_item_when_case_variant_approval_request_id_is_duplicated()
+    public async Task BatchReviewApprovalRequests_returns_validation_failed_per_item_when_uppercase_case_variant_of_already_seen_id_is_duplicated()
     {
         const string approvalRequestId = "apr-batch-case-dup";
         const string caseVariantApprovalRequestId = "APR-BATCH-CASE-DUP";
