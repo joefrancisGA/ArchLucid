@@ -37,8 +37,8 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
   const [filters, setFilters] = useState(EMPTY_STANDARDS_RULES_FILTER_STATE);
 
   const onPickReview = useCallback(
-    (reviewId: string) => {
-      const trimmed = reviewId.trim();
+    (runId: string) => {
+      const trimmed = runId.trim();
 
       if (trimmed.length === 0) {
         return;
