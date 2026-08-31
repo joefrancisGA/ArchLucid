@@ -1,4 +1,4 @@
-"""Drift guard: golden-cohort ruleset JSON must require corset + cohort-real-llm-gate."""
+"""Drift guard: golden-cohort ruleset JSON must require corset + cohort-real-llm-gate + beta-readiness."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ REQUIRED_CONTEXTS = (
     "Security: gitleaks (secret scan)",
     ".NET: push corset (build + fast core Core/Decisioning)",
     "Operator UI: typecheck (blocking)",
+    "CI: beta-readiness wiring guards",
 )
 
 

@@ -74,10 +74,11 @@ Give architects a **linear checklist** for creating the first **architecture rev
 2. **Navigate to New architecture review** — Use **`/architecture/reviews/new`** or the primary nav entry **New architecture review**.
 3. **Pick a preset or template** — Choose the closest sample if you are evaluating; customize fields only where you have real system facts.
 4. **Complete each wizard step** — Advance only when required fields validate; note inline errors reference a correlation id when the UI surfaces API failures — see **[Troubleshooting](/help/troubleshooting)**.
-5. **Submit** — Capture the returned review id from the success path or **Reviews** list.
-6. **Execute and finalize** — From **review detail**, drive **Execute**, then **Finalize** when the pipeline reports **Ready to finalize** — see **[Workspace navigation](/help/pilot-guide)**.
-7. **Verify the architecture package** — Confirm the sealed review record and artifacts appear; use **Compare**/**Replay** only after you have two finalized packages or an export need — see **[Architecture packages](/help/review-packages)**.
-8. **Attach to your workflow (optional)** — After finalize, collect sponsor proof per **[Pilot guide](/help/pilot-guide)** when your team uses GitHub or Azure DevOps handoff.
+5. **Add people and systems (actors)** — On **People, systems, and integrations**, add at least one internal human and any external partners. Uploading IaC alone builds topology; trust-boundary, privileged-access, and external-exposure engines stay quiet until Actor nodes exist. Identity resources in IaC may seed machine actors; guided intake still wins when present.
+6. **Submit** — Capture the returned review id from the success path or **Reviews** list.
+7. **Execute and finalize** — From **review detail**, drive **Execute**, then **Finalize** when the pipeline reports **Ready to finalize** — see **[Workspace navigation](/help/pilot-guide)**.
+8. **Verify the architecture package** — Confirm the sealed review record and artifacts appear. If analysis finished with no Actor nodes, the findings panel explains that actor-dependent engines did not run — add actors in guided intake rather than assuming the product found nothing.
+9. **Attach to your workflow (optional)** — After finalize, collect sponsor proof per **[Pilot guide](/help/pilot-guide)** when your team uses GitHub or Azure DevOps handoff.
 
 <details>
 <summary>Administrator details — CLI and HTTP</summary>

@@ -30,17 +30,23 @@
   compliance rule-key sets side by side. Also prints the PP-01 declaration-theme pilot table and
   runs BundledPolicyPackDeclarationThemeTests for offline proof.
 
+.PARAMETER OfflineFindingDelta
+  Skip the live API. Write a sales-engineer cite packet (finding-delta-offline.md/.json) from
+  sample pack JSON and overlay extras. Does not require -RunId.
+
 .PARAMETER DeclarationPriorityFloor
   Used with -ShowFindingDelta. Overrides advisoryDefaults.priorityFloor on the sample pack JSON
   before dry-run (P0 = shipped pilot default; P1 = SOC 2 vs CIS Azure declaration comparison).
 
 .EXAMPLE
   .\scripts\demo-policy-pack-delta.ps1 -RunId eb81dd4972ad429e8d4e214f9934bfc0
+
+.EXAMPLE
+  .\scripts\demo-policy-pack-delta.ps1 -OfflineFindingDelta
 #>
 param(
     [string] $BaseUrl = '',
-    [Parameter(Mandatory = $true)]
-    [string] $RunId,
+    [string] $RunId = '',
     [string] $OutputDirectory = 'artifacts/policy-pack-delta-demo',
     [string] $BearerToken = '',
     [string] $ApiKey = '',
@@ -48,6 +54,7 @@ param(
     [string] $WorkspaceId = '',
     [string] $ProjectId = '',
     [switch] $ShowFindingDelta,
+    [switch] $OfflineFindingDelta,
     [ValidateSet('P0', 'P1', 'P2')]
     [string] $DeclarationPriorityFloor = 'P0'
 )
@@ -259,6 +266,39 @@ function Save-JsonArtifact {
     $path = Join-Path $bundleDir $FileName
     $Object | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $path -Encoding UTF8
     Write-Host "Wrote $path"
+}
+
+$repoRootForOffline = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+
+if ($OfflineFindingDelta) {
+    Write-Host 'Policy-pack finding-delta offline packet (no live API)' -ForegroundColor Cyan
+    $offlineOut = Join-Path $bundleDir 'offline'
+    $writer = Join-Path $repoRootForOffline 'scripts/ci/write_policy_pack_finding_delta_offline_packet.py'
+    $python = Get-Command python3 -ErrorAction SilentlyContinue
+
+    if ($null -eq $python) {
+        $python = Get-Command python -ErrorAction SilentlyContinue
+    }
+
+    if ($null -eq $python) {
+        throw 'python3 or python is required for -OfflineFindingDelta.'
+    }
+
+    & $python.Source $writer --out $offlineOut
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "write_policy_pack_finding_delta_offline_packet.py failed (exit $LASTEXITCODE)."
+    }
+
+    Write-Host "Offline finding-delta packet: $offlineOut"
+    Write-Host 'Talk track: same architecture, SOC 2 vs CIS Azure finding sets at P1; CIS identity extra + FinOps requireBudgetCap overlay.'
+    Write-Host 'Live dry-run is optional: re-run with -RunId <guid> -ShowFindingDelta -DeclarationPriorityFloor P1'
+
+    exit 0
+}
+
+if ([string]::IsNullOrWhiteSpace($RunId)) {
+    throw 'Missing -RunId. Supply a committed run guid, or use -OfflineFindingDelta for the sales-engineer cite packet.'
 }
 
 Write-Host "Policy-pack delta demo — run $runIdNormalized" -ForegroundColor Cyan
