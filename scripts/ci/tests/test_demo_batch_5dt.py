@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 import unittest
 from pathlib import Path
 
@@ -36,6 +35,7 @@ class TestDemoBatch5Dt(unittest.TestCase):
         )
         exports_text = exports_path.read_text(encoding="utf-8")
 
+        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", guidance_text)
         self.assertRegex(
             guidance_text,
             r'BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*["\']#finalize-review["\']',
@@ -44,17 +44,19 @@ class TestDemoBatch5Dt(unittest.TestCase):
             guidance_text,
             r'["\']review-detail-in-progress["\']\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE',
         )
+        self.assertIn("Finalize lives in ReviewPackageDoThisNextStrip and the page header", guidance_text)
+        self.assertNotRegex(guidance_text, r'href\s*:\s*["\']#run-actions["\']')
+
+        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", exports_text)
         self.assertRegex(
             exports_text,
             r'import\s*\{\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*\}\s*from\s*["\']@/lib/first-week-route-guidance["\']',
         )
         self.assertRegex(
             exports_text,
-            r'href\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR',
+            r"href\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR",
         )
-        self.assertIsNone(
-            re.compile(r'href\s*:\s*["\']#run-actions["\']').search(guidance_text),
-        )
+        self.assertNotRegex(exports_text, r'href\s*:\s*["\']#run-actions["\']')
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor" / "sponsor-roi-kpi-display.ts"

@@ -14,10 +14,10 @@ const ACTOR_TABLE_HEADER_LINES = new Set([
 ]);
 
 const ACTOR_ROLE_PATTERN =
-  /\b(?:operators?|architects?|sponsors?|evaluators?|api clients?|service accounts?|machine users?|partner teams?|administrators?|batch jobs?|integrations?|cli\s*\/\s*ci)\b/i;
+  /\b(?:operators?|architects?|sponsors?|evaluators?|api clients?|service accounts?|machine users?|partner teams?|administrators?|batch jobs?|cli\s*\/\s*ci)\b/i;
 
 const PROSE_ACTOR_PATTERN =
-  /\b(?:API clients?|service accounts?|machine users?|partner teams?|partner integrations?|administrators?|operators?|batch jobs?|integrations?)\b/i;
+  /\b(?:API clients?|service accounts?|machine users?|partner teams?|partner integrations?|external integrations?|administrators?|operators?|batch jobs?|cli\s*\/\s*ci)\b/i;
 
 const TOUCHPOINT_PATTERN =
   /\b(?:browser|https|http|ui|workspace|jwt|api|front door|apim|next\.js)\b|→|—/i;
@@ -77,6 +77,10 @@ function synthesizeFromActorTableLines(lines: readonly string[]): string | null 
       continue;
     }
 
+    if (/^Business outcome:/i.test(line)) {
+      continue;
+    }
+
     if (!isActorRoleChunk(line)) {
       continue;
     }
@@ -105,6 +109,10 @@ function synthesizeFromActorTableLines(lines: readonly string[]): string | null 
 function findProseActorSentence(corpus: string): string | null {
   for (const chunk of splitInferenceChunks(corpus)) {
     if (isHeadingOnlyChunk(chunk) || isDiagramCaptionLine(chunk)) {
+      continue;
+    }
+
+    if (/^Business outcome:/i.test(chunk.trim())) {
       continue;
     }
 

@@ -17,10 +17,10 @@ on:
         required: false
         type: string
       regenerate_ui_api_types:
-        description: "Also regenerate archlucid-ui/src/lib/api-types.generated.ts"
+        description: "Also regenerate split archlucid-ui/src/lib/api-types/ (default on; CI assert_api_types_in_sync requires this)"
         required: false
         type: boolean
-        default: false
+        default: true
       commit_and_push:
         description: "Commit and push when generated files differ"
         required: false
@@ -103,26 +103,22 @@ jobs:
             **/*.csproj
 
       - name: Setup Node (UI api-types)
-        if: github.event_name == 'workflow_dispatch' && inputs.regenerate_ui_api_types
+        if: >-
+          github.event_name != 'workflow_dispatch'
+          || inputs.regenerate_ui_api_types
         uses: actions/setup-node@v7
         with:
           node-version: "22"
-          cache: npm
-          cache-dependency-path: archlucid-ui/package-lock.json
 
-      - name: Install archlucid-ui dependencies
-        if: github.event_name == 'workflow_dispatch' && inputs.regenerate_ui_api_types
-        working-directory: archlucid-ui
-        run: npm ci
-
-      - name: Regenerate OpenAPI snapshot (+ optional UI api-types)
+      - name: Regenerate OpenAPI snapshot (+ UI api-types)
         env:
+          # Push/PR must regenerate split api-types or CI assert_api_types_in_sync fails.
+          # workflow_dispatch can opt out via regenerate_ui_api_types=false.
           ARCHLUCID_REGENERATE_UI_API_TYPES: >-
             ${{
-              github.event_name == 'workflow_dispatch'
-              && inputs.regenerate_ui_api_types
-              && '1'
-              || '0'
+              github.event_name == 'workflow_dispatch' && inputs.regenerate_ui_api_types == false
+              && '0'
+              || '1'
             }}
         run: bash scripts/ci/update_openapi_contract_snapshot.sh
 
@@ -143,6 +139,7 @@ jobs:
             ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json
             ArchLucid.Api.Tests/Contracts/buyer-contract.openapi.snapshot.json
             archlucid-ui/src/lib/api-types.generated.ts
+            archlucid-ui/src/lib/api-types
           )
 
           changed=0

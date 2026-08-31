@@ -12,7 +12,7 @@ import {
   resolveTenantSystemWorkspaceHealthPeerLinks,
 } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
-import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 import { INTERNAL_TENANT_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 
 describe("tenant-system-workspace-health-vocabulary (TB-2252)", () => {
@@ -33,7 +33,7 @@ describe("tenant-system-workspace-health-vocabulary (TB-2252)", () => {
     expect(model.systemLink.href).toBe(ADMINISTRATION_SYSTEM_HEALTH_PATH);
 
     expect(model.workspaceLink).toEqual(TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK);
-    expect(model.workspaceLink.href).toBe(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF);
+    expect(model.workspaceLink.href).toBe(WORKSPACE_HEALTH_PATH);
   });
 
   it("resolves current and peer links for each surface", () => {

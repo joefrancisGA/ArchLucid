@@ -190,26 +190,29 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (request.EvaluateAgainstRunIds is null || request.EvaluateAgainstRunIds.Count == 0)
+        // Snapshot so later Count/foreach use a stable non-null local (property getters do not flow).
+        List<string>? evaluateAgainstRunIds = request.EvaluateAgainstRunIds;
+
+        if (evaluateAgainstRunIds is null || evaluateAgainstRunIds.Count == 0)
             return this.BadRequestProblem(
                 "evaluateAgainstRunIds must contain at least one run id.",
                 ProblemTypes.ValidationFailed);
 
-        if (!request.EvaluateAgainstRunIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
+        if (!evaluateAgainstRunIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
         {
             return this.BadRequestProblem(
                 "evaluateAgainstRunIds must contain at least one non-empty run id.",
                 ProblemTypes.ValidationFailed);
         }
 
-        if (request.EvaluateAgainstRunIds.Count > 50)
+        if (evaluateAgainstRunIds.Count > 50)
         {
             return this.BadRequestProblem(
                 "At most 50 run ids are allowed per request.",
                 ProblemTypes.ValidationFailed);
         }
 
-        foreach (string runId in request.EvaluateAgainstRunIds)
+        foreach (string runId in evaluateAgainstRunIds)
         {
             if (string.IsNullOrWhiteSpace(runId))
                 continue;
@@ -230,13 +233,19 @@ public sealed partial class GovernanceController
         if (id == Guid.Empty)
             return this.BadRequestProblem("id is required.", ProblemTypes.ValidationFailed);
 
-        IReadOnlyDictionary<string, string> proposedThresholds =
-            request.ProposedThresholds;
+        Dictionary<string, string>? proposedThresholds = request.ProposedThresholds;
+
+        if (proposedThresholds is null)
+        {
+            return this.BadRequestProblem(
+                "proposedThresholds is required.",
+                ProblemTypes.ValidationFailed);
+        }
 
         PolicyPackDryRunResponse result = await _policyPackDryRunService.EvaluateAsync(
             id,
             proposedThresholds,
-            request.EvaluateAgainstRunIds,
+            evaluateAgainstRunIds,
             pageSize,
             page,
             cancellationToken);

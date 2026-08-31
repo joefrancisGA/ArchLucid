@@ -118,7 +118,7 @@ public sealed partial class GovernanceController
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "Promote failed for run '{RunId}'.", request.RunId);
-            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
         catch (RunNotFoundException ex)
         {

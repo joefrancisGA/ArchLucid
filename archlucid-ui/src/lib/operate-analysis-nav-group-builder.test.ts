@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group-builder";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
-import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 
 describe("OperateAnalysisNavGroupBuilder", () => {
@@ -38,7 +38,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/patterns",
       "/insights/sponsor-report",
       "/insights/roi-summary",
-      SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
+      WORKSPACE_HEALTH_PATH,
     ]);
     expect(group.links.at(-4)?.label).toBe("Pattern library");
     expect(group.links.at(-4)?.navBadge).toBeUndefined();

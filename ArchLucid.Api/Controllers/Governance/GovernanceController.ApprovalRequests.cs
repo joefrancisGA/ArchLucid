@@ -84,6 +84,12 @@ public sealed partial class GovernanceController
 
             return Ok(result);
         }
+        catch (InvalidOperationException ex)
+        {
+            // Workflow stages throw this for illegal environment transitions (and similar validation).
+            logger.LogWarningWithSanitizedUserArg(ex, "SubmitApprovalRequest failed for run '{RunId}'.", request.RunId);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
         catch (RunNotFoundException ex)
         {
             logger.LogWarning(ex, "SubmitApprovalRequest failed: run not found.");
@@ -346,7 +352,7 @@ public sealed partial class GovernanceController
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
                         ErrorCode = ProblemTypes.ValidationFailed,
-                        Message = $"duplicate approvalRequestId in batch: '{approvalRequestId}'.",
+                        Message = "duplicate approvalRequestId in batch.",
                     });
 
                 continue;

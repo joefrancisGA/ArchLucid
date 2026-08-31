@@ -42,6 +42,18 @@ describe("ReviewInPipelineBanner (TB-2385)", () => {
     expect(screen.getByTestId("review-in-pipeline-banner-activity-cta")).toHaveTextContent("View activity");
   });
 
+  it("returns null when the review already failed", () => {
+    const { container } = render(
+      <ReviewInPipelineBanner
+        runId="run-abc"
+        initialSummary={inPipelineSummary}
+        diagnosticContext={{ legacyRunStatus: "Failed" }}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("returns null when summary shows pipeline complete", () => {
     const { container } = render(
       <ReviewInPipelineBanner
