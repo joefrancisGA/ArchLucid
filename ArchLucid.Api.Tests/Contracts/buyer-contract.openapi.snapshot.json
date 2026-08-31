@@ -32425,6 +32425,53 @@
         },
         "type": "object"
       },
+      "WorkspaceAiAvailabilityCheckRow": {
+        "properties": {
+          "detail": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WorkspaceAiAvailabilityResponse": {
+        "properties": {
+          "aiSource": {
+            "type": "string"
+          },
+          "asOfUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceAiAvailabilityCheckRow"
+            },
+            "type": "array"
+          },
+          "debug": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "validated": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "WorkspaceAllowedEngineSetResponse": {
         "properties": {
           "allowedAliasIds": {
@@ -39211,6 +39258,9 @@
     },
     {
       "name": "WhyArchlucidMarketingPack"
+    },
+    {
+      "name": "WorkspaceAiAvailability"
     }
   ]
 }
