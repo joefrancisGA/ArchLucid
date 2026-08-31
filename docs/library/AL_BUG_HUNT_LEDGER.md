@@ -1829,11 +1829,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 10
-- **bugs-found:** 14
+- **hunts:** 11
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — `ArchitectureFindingJsonConverter` ignored PascalCase `EnforcementTier` and dropped object-shaped `evidenceRefs` entries
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — `AgentResultJsonConverter.MergeClaimEvidenceRefs` ignored object-shaped claim `evidenceRefs` entries
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1856,6 +1856,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureFindingJsonConverter.Read` uses case-sensitive `JsonDocument.TryGetProperty("enforcementTier")` while `AgentResultParser` sets `PropertyNameCaseInsensitive = true` — PascalCase `"EnforcementTier":"Advisory"` never matches and stays `PolicyViolation` — **hit 2026-08-26:** fixed with `TryGetPropertyIgnoreCase` (`Deserialize_pascal_case_enforcement_tier_maps_advisory`).
 - [x] (proven) `ArchitectureFindingJsonConverter` evidenceRefs loop keeps only `JsonValueKind.String` items, so `{"evidenceRefs":[{"id":"pol-123"}]}` yields an empty list while eval-corpus payloads use object refs — **hit 2026-08-26:** fixed with `ReadEvidenceRef` extracting `id` from object entries (`Deserialize_object_evidence_refs_extracts_id_property`).
 - [x] (invalid) `RequestStatus` has no defined-value `[JsonConverter]` unlike sibling `ArchitectureRunStatusJsonConverter`, so numeric `99` can deserialize through `ContractJson.Default` / `JsonStringEnumConverter` and reach request-lifecycle switches — enum is forward-looking vocabulary only (`docs/library/STATE_MACHINES.md` §1); no DTO or persistence column references `RequestStatus`, so no JSON deserialization path exists in zone `paths`.
+- [x] (proven) `AgentResultJsonConverter.MergeClaimEvidenceRefs` — object-shaped claim `evidenceRefs` (`{"id":"pol-123"}`) dropped at parse while finding-level `ReadEvidenceRef` already extracts `id` — **hit 2026-08-31 (#332):** loop accepted only `JsonValueKind.String`; fixed with shared `ReadEvidenceRef` object `id` extraction; regression in `AgentResultClaimListJsonConverterEvidenceRefsTests.Deserialize_merges_object_shaped_claim_evidence_refs_into_result_evidence_refs`.
+
+- [ ] (candidate) `ArchitectureFindingJsonConverter.ReadInsightDensityFields` — numeric `treatment` / `classification` ordinals ignored (string-only `Enum.TryParse`) while sibling `enforcementTier` accepts ordinals via `TryReadEnforcementTier` — **repro test:** `ArchitectureFindingJsonConverterTests.Deserialize_numeric_treatment_maps_promote_ordinal`.
+- [ ] (candidate) `ArchitectureFindingJsonConverter.ReadInsightDensityFields` — PascalCase `Severity` / `Treatment` / `Classification` property names ignored (case-sensitive `TryGetProperty`) while `enforcementTier` uses `TryGetPropertyIgnoreCase` — **repro test:** `ArchitectureFindingJsonConverterTests.Deserialize_pascal_case_treatment_maps_promote`.
+- [ ] (candidate) `FindingConfidenceLevel` — out-of-range integer ordinals deserialize via global `JsonStringEnumConverter` without `Enum.IsDefined` guard (unlike `FindingTreatmentJsonConverter` siblings) — **repro test:** `FindingConfidenceLevelJsonConverterTests.Deserialize_integer_out_of_range_throws`.
+- [ ] (candidate) `ArchitectureDraftStructuredBrief.ParseQualityAttributeEntries` — comma-delimited quality-attribute text with embedded unknown sentinel (`"defense in depth, Unknown - confirm before review"`) counts as confirmed chip because chips split only on `;` — **repro test:** `ArchitectureDraftStructuredBriefTests.QualityAttributeMeetsMinimum_rejects_comma_delimited_unknown_sentinel_chip`.
+
+2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 
 ---
 
