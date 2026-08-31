@@ -3,13 +3,15 @@ import { describe, expect, it, vi } from "vitest";
 
 import { OPERATOR_FORM_FIELD_STACK_CLASS } from "@/lib/design-tokens";
 
-vi.mock("@/components/AskRunIdPicker", () => ({
-  AskRunIdPicker: (props: { label?: string }) => (
-    <div data-testid="ask-run-id-picker-mock">
-      <label>{props.label ?? "Review"}</label>
-      <select aria-label="Review picker mock" />
-    </div>
-  ),
+vi.mock("@/hooks/use-ask-project-runs-query", () => ({
+  useAskProjectRunsQuery: () => ({
+    data: {
+      items: [{ runId: "run-1", displayName: "", description: "" }],
+      loadError: false,
+    },
+    isLoading: false,
+    isError: false,
+  }),
 }));
 
 import { GovernanceWorkflowSubmitSection } from "./GovernanceWorkflowSubmitSection";
