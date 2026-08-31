@@ -41,7 +41,7 @@ import {
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { resolveNextArchitectureDraftInList } from "@/lib/resolve-next-architecture-draft-in-list";
-import { showError, showSuccess } from "@/lib/toast";
+import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 import { ArchitectureDraftWorkspaceBody } from "@/components/architecture/ArchitectureDraftWorkspaceBody";
@@ -88,6 +88,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   });
   const [exitPending, setExitPending] = useState(false);
   const [unlockBusy, setUnlockBusy] = useState(false);
+  const [unlockError, setUnlockError] = useState<string | null>(null);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const isDetailDraft = !isNewDraft;
@@ -299,15 +300,16 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }
 
     setUnlockBusy(true);
+    setUnlockError(null);
 
     try {
       const reopened = await reopenDraftRequest(draft.draftId);
       handleDraftLoaded(reopened);
-      showSuccess("Architecture unlocked — you can edit the brief.");
     } catch (error) {
-      showError(
-        "Could not unlock this architecture",
-        isApiRequestError(error) ? error.message : undefined,
+      setUnlockError(
+        isApiRequestError(error)
+          ? error.message
+          : "Could not unlock this architecture. Try again.",
       );
     } finally {
       setUnlockBusy(false);
@@ -330,6 +332,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       briefFrozen={briefFrozen}
       canUnlockBrief={canUnlockBrief}
       unlockBusy={unlockBusy}
+      unlockError={unlockError}
       onUnlockBrief={() => {
         void handleUnlockBrief();
       }}

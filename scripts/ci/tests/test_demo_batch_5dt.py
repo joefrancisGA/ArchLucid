@@ -19,19 +19,37 @@ class TestDemoBatch5Dt(unittest.TestCase):
         self.assertNotIn("Audit trail complete — review package finalized", text)
 
     def test_review_detail_finalize_anchor_targets_header(self) -> None:
-        guidance_path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
-        guidance_text = guidance_path.read_text(encoding="utf-8")
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
+        text = path.read_text(encoding="utf-8")
 
-        exports_path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "reviews" / "[reviewId]" / "_sections" / "RunDetailArtifactsExportsSection.tsx"
-        exports_text = exports_path.read_text(encoding="utf-8")
-
-        self.assertIn(
-            'export const BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR = "#finalize-review";',
-            guidance_text,
+        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", text)
+        self.assertRegex(
+            text,
+            r'BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR\s*=\s*["\']#finalize-review["\']',
         )
-        self.assertIn("href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", exports_text)
-        self.assertNotIn("#run-actions", guidance_text)
-        self.assertNotIn("#run-actions", exports_text)
+        self.assertIn("Finalize lives in ReviewPackageDoThisNextStrip and the page header", text)
+        self.assertNotRegex(text, r'href\s*:\s*["\']#run-actions["\']')
+
+        run_detail_path = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "reviews"
+            / "[reviewId]"
+            / "_sections"
+            / "RunDetailArtifactsExportsSection.tsx"
+        )
+        run_detail_text = run_detail_path.read_text(encoding="utf-8")
+
+        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", run_detail_text)
+        self.assertRegex(
+            run_detail_text,
+            r"href\s*:\s*BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR",
+        )
+        self.assertNotRegex(run_detail_text, r'href\s*:\s*["\']#run-actions["\']')
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor" / "sponsor-roi-kpi-display.ts"

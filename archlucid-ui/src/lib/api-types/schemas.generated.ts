@@ -4071,11 +4071,27 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        GovernanceEnvironmentCatalog: {
+            environments?: components["schemas"]["GovernanceEnvironmentDefinition"][];
+            isAdministratorConfigured?: boolean;
+            transitions?: components["schemas"]["GovernanceEnvironmentTransition"][];
+        };
         GovernanceEnvironmentComparisonResult: {
             differences?: components["schemas"]["GovernanceDiffItem"][];
             notes?: string[];
             sourceEnvironment?: string;
             targetEnvironment?: string;
+        };
+        GovernanceEnvironmentDefinition: {
+            displayName?: string;
+            isActive?: boolean;
+            slug?: string;
+            /** Format: int32 */
+            sortOrder?: number;
+        };
+        GovernanceEnvironmentTransition: {
+            sourceSlug?: string;
+            targetSlug?: string;
         };
         GovernanceFindingsRegistersBundleResponse: {
             decisionRegister?: components["schemas"]["ArchitectureDecisionRegisterResponse"];
@@ -6917,6 +6933,10 @@ export interface components {
                 [key: string]: string;
             };
         };
+        ReplaceGovernanceEnvironmentCatalogRequest: {
+            environments?: components["schemas"]["GovernanceEnvironmentDefinition"][];
+            transitions?: components["schemas"]["GovernanceEnvironmentTransition"][];
+        };
         ReplayComparisonMetadataResponse: {
             comparisonRecordId?: string;
             comparisonType?: string;
@@ -9375,6 +9395,7 @@ export interface components {
             latestArchitectureDigestId?: null | string;
             /** Format: date-time */
             latestDigestSubscriptionDeliveryUtc?: null | string;
+            setupGapCodes?: string[];
             setupGaps?: string[];
             /** Format: int32 */
             sponsorDigestDayOfWeek?: number;

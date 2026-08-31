@@ -27,6 +27,182 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void ExistsActiveRunWithSystemNameInWorkspace_sql_excludes_failed_and_quality_rejected_statuses()
+    {
+        const string sql = RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace;
+
+        sql.Should().Contain("@FailedStatus");
+        sql.Should().Contain("@QualityRejectedStatus");
+        sql.Should().Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)");
+    }
+
+    [Fact]
+    public async Task InMemory_failed_run_does_not_occupy_workspace_system_name()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "ArchLucid",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+                CompletedUtc = TimeProvider.System.UtcNowDateTime(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+            scope,
+            "ArchLucid",
+            ct: CancellationToken.None);
+
+        exists.Should().BeFalse("failed create stubs must not block replacement intake with the same name.");
+    }
+
+    [Fact]
+    public async Task InMemory_quality_rejected_run_does_not_occupy_workspace_system_name()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "ArchLucid",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+            scope,
+            "ArchLucid",
+            ct: CancellationToken.None);
+
+        exists.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task InMemory_committed_run_still_occupies_workspace_system_name()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid committedRunId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "ArchLucid",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+            scope,
+            "ArchLucid",
+            ct: CancellationToken.None);
+
+        exists.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InMemory_committed_run_excluded_by_prior_run_id_does_not_occupy()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid committedRunId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "ArchLucid",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+            scope,
+            "ArchLucid",
+            excludeRunId: committedRunId,
+            ct: CancellationToken.None);
+
+        exists.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task InMemory_created_run_still_occupies_workspace_system_name()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "ArchLucid",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+            scope,
+            "ArchLucid",
+            ct: CancellationToken.None);
+
+        exists.Should().BeTrue();
+    }
+
+    [Fact]
     public void Authority_project_slug_queries_trim_project_id_before_upper_compare()
     {
         RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("UPPER(LTRIM(RTRIM(ProjectId)))");

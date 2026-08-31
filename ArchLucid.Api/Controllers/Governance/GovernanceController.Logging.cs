@@ -59,9 +59,9 @@ public sealed partial class GovernanceController
                 DataJson = JsonSerializer.Serialize(new
                 {
                     idempotencyKeySha256Hex = Convert.ToHexString(keyHash),
-                    manifestVersion = request.ManifestVersion.Trim(),
-                    sourceEnvironment = request.SourceEnvironment.Trim(),
-                    targetEnvironment = request.TargetEnvironment.Trim()
+                    manifestVersion = request.ManifestVersion?.Trim(),
+                    sourceEnvironment = request.SourceEnvironment?.Trim(),
+                    targetEnvironment = request.TargetEnvironment?.Trim()
                 })
             },
             cancellationToken);

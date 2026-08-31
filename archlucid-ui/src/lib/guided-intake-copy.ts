@@ -270,6 +270,12 @@ export function guidedIntakeClarificationsAnsweredCounter(
 export const GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT =
   "Handle all required clarifications before reviewing answers.";
 
+export const GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_LABEL =
+  "Suggest answers from architecture brief";
+
+export const GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_HELPER =
+  "Reads your architecture overview and confirmed brief fields to fill empty clarifications. Review each suggestion before you continue.";
+
 export const GUIDED_INTAKE_REVIEW_ANSWERS_LABEL = "Review answers";
 
 export const GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL = "Start review";
