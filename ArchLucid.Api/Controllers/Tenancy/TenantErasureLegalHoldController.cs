@@ -66,7 +66,7 @@ public sealed class TenantErasureLegalHoldController(
         if (body.UntilUtc <= _timeProvider.GetUtcNow())
         {
             return this.BadRequestProblem(
-                "untilUtc must be in the future.",
+                "UntilUtc must be in the future.",
                 ProblemTypes.ValidationFailed);
         }
 
