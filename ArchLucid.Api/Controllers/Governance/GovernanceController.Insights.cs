@@ -117,13 +117,6 @@ public sealed partial class GovernanceController
                 ProblemTypes.BadRequest);
         }
 
-        if (bucketCount > ComplianceDriftTrendMaxBuckets)
-        {
-            return this.BadRequestProblem(
-                $"The requested window produces {bucketCount} trend buckets; at most {ComplianceDriftTrendMaxBuckets} are allowed. Narrow the date range or increase bucketMinutes.",
-                ProblemTypes.BadRequest);
-        }
-
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
