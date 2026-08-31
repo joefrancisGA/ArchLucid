@@ -1,4 +1,3 @@
-using System.Data.Common;
 
 using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Configuration;
