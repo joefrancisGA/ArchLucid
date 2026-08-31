@@ -139,4 +139,10 @@ public sealed class WeeklyDigestHealthResponse
         get;
         set;
     } = [];
+
+    public IReadOnlyList<string> SetupGapCodes
+    {
+        get;
+        set;
+    } = [];
 }

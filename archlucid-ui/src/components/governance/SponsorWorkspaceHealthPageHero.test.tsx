@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   executiveWorkspaceHealthPageLead,
@@ -7,26 +7,17 @@ import {
   SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE,
   SPONSOR_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL,
 } from "@/lib/sponsor-workspace-health-page-copy";
-import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
-
-vi.mock("next/navigation", () => ({
-  usePathname: () => SPONSOR_DASHBOARD_HREF,
-}));
-
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
-}));
 
 import { SponsorWorkspaceHealthPageHero } from "@/components/governance/SponsorWorkspaceHealthPageHero";
 
 describe("SponsorWorkspaceHealthPageHero", () => {
-  it("renders the section heading, help, and governance workflow handoff", () => {
+  it("renders the section heading and governance workflow handoff", () => {
     render(<SponsorWorkspaceHealthPageHero buyerPolishedShell />);
 
     expect(screen.getByTestId("sponsor-workspace-health-page-hero")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(executiveWorkspaceHealthPageLead(true))).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("sponsor-workspace-health-workflow-link")).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: SPONSOR_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL })).toBeInTheDocument();
   });

@@ -1,3 +1,5 @@
+using ArchLucid.Core.Llm;
+
 namespace ArchLucid.AgentRuntime.Tests.DriftDetection;
 
 /// <summary>
@@ -13,11 +15,14 @@ public static class GoldenCohortRealModeGate
                && !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_KEY"));
     }
 
-    /// <summary>Optional deployment override (defaults to <c>gpt-4o</c>).</summary>
+    /// <summary>Optional deployment override (defaults to golden-cohort budget.config deployment label).</summary>
     public static string ResolveDeploymentName()
     {
-        string raw = (Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT") ?? "gpt-4o").Trim();
+        string raw = (Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT")
+                      ?? Gpt56AzureOpenAiModels.GoldenCohortDeploymentName).Trim();
 
-        return string.IsNullOrWhiteSpace(raw) ? "gpt-4o" : raw;
+        return string.IsNullOrWhiteSpace(raw)
+            ? Gpt56AzureOpenAiModels.GoldenCohortDeploymentName
+            : raw;
     }
 }

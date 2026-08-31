@@ -49,6 +49,8 @@ public static class GovernanceWorkflowTestComposition
         (GovernanceWorkflowAuditSupport auditSupport, GovernanceWorkflowIntegrationEventSupport integrationEvents) =
             CreateSupport(durableAudit, scopeContextProvider, integrationEventOutbox, integrationEventPublisher, integrationEventsOptions);
 
+        IGovernanceEnvironmentCatalogService environmentCatalogService = CreateDefaultEnvironmentCatalogService();
+
         return new GovernanceWorkflowFacade(
             new GovernanceWorkflowSubmitStage(
                 approvalRepo,
@@ -57,6 +59,7 @@ public static class GovernanceWorkflowTestComposition
                 baselineMutationAudit,
                 auditSupport,
                 integrationEvents,
+                environmentCatalogService,
                 governanceGateOptions,
                 NullLogger<GovernanceWorkflowSubmitStage>.Instance),
             new GovernanceWorkflowReviewStage(
@@ -74,6 +77,7 @@ public static class GovernanceWorkflowTestComposition
                 baselineMutationAudit,
                 auditSupport,
                 unitOfWorkFactory,
+                environmentCatalogService,
                 NullLogger<GovernanceWorkflowPromoteStage>.Instance),
             new GovernanceWorkflowActivateStage(
                 activationRepo,
@@ -136,6 +140,32 @@ public static class GovernanceWorkflowTestComposition
             NullLogger<GovernanceWorkflowIntegrationEventSupport>.Instance);
 
         return (auditSupport, integrationEvents);
+    }
+
+    private static IGovernanceEnvironmentCatalogService CreateDefaultEnvironmentCatalogService()
+    {
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new();
+        GovernanceEnvironmentCatalog defaults = GovernanceEnvironmentCatalogDefaults.Create();
+
+        catalogService
+            .Setup(service => service.GetCatalogAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(defaults);
+
+        catalogService
+            .Setup(service => service.GetCatalogAsync(It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(defaults);
+
+        catalogService
+            .Setup(service => service.IsValidTransitionAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string source, string target, CancellationToken _) =>
+                GovernanceEnvironmentTransitionRules.IsValidTransition(source, target, defaults));
+
+        catalogService
+            .Setup(service => service.IsValidTransitionAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, string source, string target, CancellationToken __) =>
+                GovernanceEnvironmentTransitionRules.IsValidTransition(source, target, defaults));
+
+        return catalogService.Object;
     }
 
     private static IUnifiedGoldenManifestReader CreateDefaultUnifiedManifestReader()

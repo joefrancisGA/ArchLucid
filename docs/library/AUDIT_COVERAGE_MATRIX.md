@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:398 -->
+<!-- audit-core-const-count:399 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -146,6 +146,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Policy pack bulk dry-run (many runs, no persistence) | `PolicyPacksController` (`POST /v1/policy-packs/{policyPackId}/simulate-bulk`) | — | — | Read-auth gated what-if per run id; **no** durable audit row (same class as single-run dry-run probes) |
 | Policy pack catalog hub (platform snapshots) | `PolicyPacksController` (`POST /v1/policy-packs/catalog/promote`, `POST /v1/policy-packs/catalog/demote`) | `PolicyPackCatalogPromoted`, `PolicyPackCatalogDemoted` | Tenant/Workspace/Project from ambient scope | promote: `policyPackCatalogEntryId`, `sourcePolicyPackId`, `snapshotVersion`; demote: `policyPackCatalogEntryId` |
 | Governance resolution API | `GovernanceResolutionController` | `GovernanceResolutionExecuted`, `GovernanceConflictDetected` | — | resolution payload summary |
+| Governance environment catalog replace | `GovernanceEnvironmentCatalogController` (`PUT /v1/governance/environment-catalog`) | `GovernanceEnvironmentCatalogReplaced` | Tenant/Workspace/Project from ambient scope | `environmentCount`, `transitionCount` |
 | Governance workflow (approval / promote / activate) | `GovernanceWorkflowService` | `GovernanceApprovalSubmitted`, `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, `GovernanceSelfApprovalBlocked` (segregation-of-duties block), `GovernanceManifestPromoted`, `GovernanceEnvironmentActivated` | RunId when parseable | ids, environments, manifest version (JSON); self-approval block includes `approvalRequestId`, `requestedBy`, `requestedByActorKey`, `attemptedReviewerBy`, `attemptedReviewerActorKey` |
 | Governance approval SLA breach | `ApprovalSlaMonitor` | `GovernanceApprovalSlaBreached` | — | `approvalRequestId`, `runId`, `requestedBy`, `slaDeadlineUtc`, `breachedByMinutes` |
 | Governance policy-pack rule draft (LLM assist, no persistence) | `GovernanceController` (`POST /v1/governance/policy-pack/draft`); `PolicyPackDraftService` | — | — | Execute-auth gated LLM assist; returns suggested rule only — **no** durable audit row |
@@ -574,6 +575,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `GovernanceApprovalRejected` | `GovernanceApprovalRejected` | `GovernanceWorkflowService` |
 | `GovernanceSelfApprovalBlocked` | `GovernanceSelfApprovalBlocked` | `GovernanceWorkflowService` |
 | `GovernanceManifestPromoted` | `GovernanceManifestPromoted` | `GovernanceWorkflowService` |
+| `GovernanceEnvironmentCatalogReplaced` | `GovernanceEnvironmentCatalogReplaced` | `GovernanceEnvironmentCatalogController` (`PUT /v1/governance/environment-catalog`) |
 | `GovernanceEnvironmentActivated` | `GovernanceEnvironmentActivated` | `GovernanceWorkflowService` |
 | `GovernanceDryRunRequested` | `GovernanceDryRunRequested` | `PolicyPackDryRunService` (POST `/v1/governance/policy-packs/{id}/dry-run`; redaction-pipeline mandatory per Q37) |
 | `GovernanceDryRunValidationAttempted` | `GovernanceDryRunValidationAttempted` | `GovernanceWorkflowService` (approval / promotion path with `dryRun=true`; validates write path without committing row/outbox/integration publish) |

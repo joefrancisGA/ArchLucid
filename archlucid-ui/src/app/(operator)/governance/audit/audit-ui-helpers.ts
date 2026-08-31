@@ -91,7 +91,7 @@ export const AUDIT_EVENT_LIFECYCLE_STAGE_ORDER: ReadonlyArray<string> = [
   "Graph created",
   "Findings generated",
   "Review finalized",
-  "Resolve outcomes recorded",
+  "Governance approval recorded",
   "Artifacts bundled",
 ];
 
@@ -116,7 +116,7 @@ function lifecycleStageHeading(stage: ReviewAuditLifecycleStageValue): string | 
       return "Artifacts bundled";
 
     case ReviewAuditLifecycleStage.GovernanceHandoff:
-      return "Resolve outcomes recorded";
+      return "Governance approval recorded";
 
     default:
       return null;
@@ -151,10 +151,10 @@ export function auditEventLifecycleStageLabel(eventType: string): string | null 
       return "Review finalized";
 
     case "GovernanceApprovalRequested":
-      return "Resolve outcomes requested";
+      return "Governance approval requested";
 
     case "com.archlucid.governance.approval.recorded":
-      return "Resolve outcomes recorded";
+      return "Governance approval recorded";
 
     case "artifact.bundle.created":
       return "Artifacts bundled";
@@ -222,7 +222,7 @@ export function formatBuyerAuditTrailSummaryLine(
     uniformRunId ?? (filterRunId.trim().length > 0 ? filterRunId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID);
   const reviewTitle = buyerFacingReviewLinkLabelFromRunId(runKey);
 
-  return `This audit trail shows the lifecycle from review creation through resolve outcomes and packaged deliverables for ${reviewTitle}, with named human actors and automatically recorded lifecycle events.`;
+  return `This audit trail shows the lifecycle from review creation through governance approval and packaged deliverables for ${reviewTitle}, with named human actors and automatically recorded lifecycle events.`;
 }
 
 /** Metric tiles for buyer-polished audit header — same actor classification as {@link formatBuyerAuditTrailSummaryLine}. */

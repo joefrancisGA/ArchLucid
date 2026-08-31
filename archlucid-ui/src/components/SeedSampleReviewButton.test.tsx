@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const pushMock = vi.fn();
+const replaceMock = vi.fn();
 const refreshMock = vi.fn();
 const pathnameMock = vi.fn(() => "/architecture/reviews");
 
@@ -9,8 +10,9 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-    useRouter: (): { push: (path: string) => void; refresh: () => void } => ({
+    useRouter: (): { push: (path: string) => void; replace: (path: string, options?: { scroll?: boolean }) => void; refresh: () => void } => ({
       push: pushMock,
+      replace: replaceMock,
       refresh: refreshMock,
     }),
     usePathname: () => pathnameMock(),
@@ -36,6 +38,17 @@ vi.mock("@/lib/operator/operator-query-invalidation", () => ({
   invalidateOperatorHomeRunsCaches: () => invalidateHomeRunsMock(),
 }));
 
+const fetchSponsorDashboardBundleCachedMock = vi.fn(async () => ({
+  sponsorReport: {
+    systems: [{ runId: "sample-run-1", committedUtc: "2026-01-01T00:00:00Z", systemName: "Sample" }],
+  },
+  complianceDriftTrend: [],
+}));
+
+vi.mock("@/lib/fetch-sponsor-dashboard-bundle-client", () => ({
+  fetchSponsorDashboardBundleCached: (...args: unknown[]) => fetchSponsorDashboardBundleCachedMock(...args),
+}));
+
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS } from "@/lib/buyer/buyer-polish-copy";
 import { SeedSampleReviewButton } from "./SeedSampleReviewButton";
@@ -49,11 +62,13 @@ describe("SeedSampleReviewButton", () => {
 
   beforeEach(() => {
     pushMock.mockReset();
+    replaceMock.mockReset();
     refreshMock.mockReset();
     showErrorMock.mockReset();
     showSuccessMock.mockReset();
     invalidateSponsorMock.mockClear();
     invalidateHomeRunsMock.mockClear();
+    fetchSponsorDashboardBundleCachedMock.mockClear();
     pathnameMock.mockReset();
     pathnameMock.mockReturnValue("/architecture/reviews");
     fetchMock.mockReset();
@@ -99,13 +114,14 @@ describe("SeedSampleReviewButton", () => {
     await waitFor(() => {
       expect(invalidateSponsorMock).toHaveBeenCalledTimes(1);
       expect(invalidateHomeRunsMock).toHaveBeenCalledTimes(1);
-      expect(pushMock).toHaveBeenCalledWith(SPONSOR_DASHBOARD_HREF);
+      expect(fetchSponsorDashboardBundleCachedMock).toHaveBeenCalledWith({ force: true });
+      expect(pushMock).toHaveBeenCalledWith(`${SPONSOR_DASHBOARD_HREF}?runId=sample-run-1`);
       expect(refreshMock).toHaveBeenCalledTimes(1);
       expect(showSuccessMock).toHaveBeenCalledWith(BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS);
     });
   });
 
-  it("refreshes in place without push when already on the redirect target", async () => {
+  it("refreshes in place with run scope when already on the redirect target", async () => {
     pathnameMock.mockReturnValue(SPONSOR_DASHBOARD_HREF);
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify({ redirectTo: SPONSOR_DASHBOARD_HREF }), {
@@ -120,6 +136,7 @@ describe("SeedSampleReviewButton", () => {
 
     await waitFor(() => {
       expect(pushMock).not.toHaveBeenCalled();
+      expect(replaceMock).toHaveBeenCalledWith(`${SPONSOR_DASHBOARD_HREF}?runId=sample-run-1`, { scroll: false });
       expect(refreshMock).toHaveBeenCalledTimes(1);
       expect(showSuccessMock).toHaveBeenCalledWith(BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS);
     });
@@ -138,7 +155,7 @@ describe("SeedSampleReviewButton", () => {
     fireEvent.click(screen.getByRole("button", { name: /load sample workspace/i }));
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith(SPONSOR_DASHBOARD_HREF);
+      expect(pushMock).toHaveBeenCalledWith(`${SPONSOR_DASHBOARD_HREF}?runId=sample-run-1`);
     });
   });
 

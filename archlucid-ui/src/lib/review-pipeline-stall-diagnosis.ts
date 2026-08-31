@@ -64,7 +64,7 @@ export function deriveReviewPipelineTerminalFailureDiagnosis(input: {
       detail:
         lastFailureReason.length > 0
           ? `Last failure: ${lastFailureReason}`
-          : "Server marked this review as dead-lettered. Check API logs and AuthorityPipelineWork outbox for this review id.",
+          : "Processing stopped after repeated failures. Re-run the review or contact your administrator if the problem continues.",
     };
   }
 
@@ -108,7 +108,7 @@ export function deriveReviewPipelineTerminalFailureDiagnosis(input: {
       detail:
         lastFailureReason.length > 0
           ? lastFailureReason
-          : "Run status is Failed with no stage snapshots. Re-execute or inspect API logs for this review id.",
+          : "The review stopped before processing began. Check configuration and attachments, then re-run the review.",
     };
   }
 
@@ -147,7 +147,7 @@ export function deriveReviewPipelineStallDiagnosis(input: {
       detail:
         lastFailureReason.length > 0
           ? `Server marked this review as dead-lettered. Last failure: ${lastFailureReason}`
-          : "Server marked this review as dead-lettered. Check API logs and AuthorityPipelineWork outbox for the review id.",
+          : "Processing stopped after repeated failures. Re-run the review or contact your administrator if the problem continues.",
     };
   }
 
@@ -158,8 +158,8 @@ export function deriveReviewPipelineStallDiagnosis(input: {
         headline: "Execution failed before the first pipeline stage",
         detail:
           lastFailureReason.length > 0
-            ? `Run status is Failed with no stage snapshots. ${lastFailureReason}`
-            : "Run status is Failed with no stage snapshots. Re-execute or inspect API logs for the review id.",
+            ? `The review stopped before processing began. ${lastFailureReason}`
+            : "The review stopped before processing began. Check configuration and attachments, then re-run the review.",
       };
     }
 

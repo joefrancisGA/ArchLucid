@@ -60,6 +60,20 @@ export function writeOperatorHomeDisclosureExpanded(storageKey: string, expanded
   }
 }
 
+export function clearOperatorHomeDisclosureStorage(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    for (const key of Object.values(OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS)) {
+      window.localStorage.removeItem(key);
+    }
+  } catch {
+    /* private mode quota */
+  }
+}
+
 export function collapseAriaLabel(sectionTitle: string): string {
   return `Collapse ${sectionTitle}`;
 }

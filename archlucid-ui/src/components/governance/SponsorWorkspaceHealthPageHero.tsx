@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   executiveWorkspaceHealthPageLead,
   SPONSOR_WORKSPACE_HEALTH_HEADING_ID,
@@ -17,7 +16,7 @@ export type SponsorWorkspaceHealthPageHeroProps = {
 };
 
 /**
- * Section header for workspace health — title, lead, contextual help, and workflow handoff.
+ * Section header for workspace health — title, lead, and workflow handoff.
  * This renders inside the sponsor dashboard, which already owns the page `h1`, so the heading is an
  * `h2` carrying the id the enclosing section's `aria-labelledby` points at.
  */
@@ -45,7 +44,6 @@ export function SponsorWorkspaceHealthPageHero({
           className="flex shrink-0 flex-wrap items-center gap-2"
           data-testid="sponsor-workspace-health-hero-actions"
         >
-          <PageContextualHelpButton />
           <Link
             href="/governance/approval-queue"
                 className={OPERATOR_LINK.optional}

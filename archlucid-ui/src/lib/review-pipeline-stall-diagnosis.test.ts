@@ -76,6 +76,19 @@ describe("deriveReviewPipelineTerminalFailureDiagnosis", () => {
     expect(diagnosis?.detail).toContain("Missing Azure OpenAI deployment configuration");
   });
 
+  it("uses user-facing fallback when zero-stage failed has no server reason", () => {
+    const diagnosis = deriveReviewPipelineTerminalFailureDiagnosis({
+      summary: baseSummary,
+      diagnosticContext: {
+        legacyRunStatus: "Failed",
+      },
+    });
+
+    expect(diagnosis?.detail).toMatch(/stopped before processing began/i);
+    expect(diagnosis?.detail).toMatch(/re-run the review/i);
+    expect(diagnosis?.detail).not.toMatch(/api logs/i);
+  });
+
   it("returns null for in-progress runs", () => {
     const diagnosis = deriveReviewPipelineTerminalFailureDiagnosis({
       summary: baseSummary,
