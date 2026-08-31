@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+from ci_test_helpers import REPO_ROOT, read_controller_union
 
 
 class TestStickinessBatchTb057(unittest.TestCase):
@@ -45,9 +45,7 @@ class TestStickinessBatchTb057(unittest.TestCase):
             / "architecture"
             / "architecture-risk-register-csv.ts"
         )
-        reader = REPO_ROOT / "ArchLucid.Persistence" / "Governance" / "ArchitectureRiskRegisterReader.cs"
         i18n = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "i18n.ts"
-
         client_text = client.read_text(encoding="utf-8")
         findings_query_text = findings_query.read_text(encoding="utf-8")
         page_constants_text = page_constants.read_text(encoding="utf-8")
@@ -69,7 +67,9 @@ class TestStickinessBatchTb057(unittest.TestCase):
         self.assertIn("lastReviewedUtc", csv_text)
         self.assertIn('"Last reviewed"', csv_text)
 
-        reader_text = reader.read_text(encoding="utf-8")
+        reader_text = read_controller_union(
+            REPO_ROOT / "ArchLucid.Persistence" / "Governance" / "ArchitectureRiskRegisterReader.cs",
+        )
         self.assertIn("GoldenManifestId AS ManifestId", reader_text)
 
 
