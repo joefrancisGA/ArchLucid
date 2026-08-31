@@ -92,6 +92,9 @@ public sealed class CorePilotTeamChecklistController(
         if (body.StepIndex is < 0 or > 3)
             return this.BadRequestProblem("stepIndex must be between 0 and 3.", ProblemTypes.ValidationFailed);
 
+        if (!body.IsCompleted.HasValue)
+            return this.BadRequestProblem("isCompleted is required.", ProblemTypes.ValidationFailed);
+
         (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
@@ -109,7 +112,7 @@ public sealed class CorePilotTeamChecklistController(
                 scope.WorkspaceId,
                 scope.ProjectId,
                 body.StepIndex,
-                body.IsCompleted,
+                body.IsCompleted.Value,
                 actor,
                 cancellationToken)
             .ConfigureAwait(false);
@@ -127,7 +130,7 @@ public sealed class CorePilotTeamChecklistController(
                     new
                     {
                         stepIndex = body.StepIndex,
-                        isCompleted = body.IsCompleted
+                        isCompleted = body.IsCompleted.Value
                     })
             },
             cancellationToken);
