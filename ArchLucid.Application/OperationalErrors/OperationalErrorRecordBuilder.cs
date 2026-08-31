@@ -2,7 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.OperationalErrors;
-using ArchLucid.Persistence.Connections;
+using ArchLucid.Core.Persistence.ApplicationPorts.Connections;
 
 namespace ArchLucid.Application.OperationalErrors;
 
