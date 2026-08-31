@@ -5,6 +5,7 @@ import {
   PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
   PROXY_UPSTREAM_LLM_ADVISORY_FETCH_TIMEOUT_MS,
   PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS,
+  PROXY_UPSTREAM_WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS,
 } from "@/lib/server-fetch-timeouts";
 import { resolveProxyUpstreamFetchTimeout } from "@/lib/resolve-proxy-upstream-fetch-timeout";
 
@@ -50,6 +51,13 @@ describe("resolveProxyUpstreamFetchTimeout", () => {
     expect(resolveProxyUpstreamFetchTimeout("v1/diagnostics/reset-development-catalog")).toEqual({
       timeoutMs: PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS,
       kind: "catalog-reset",
+    });
+  });
+
+  it("uses the workspace AI availability budget for live probe diagnostics", () => {
+    expect(resolveProxyUpstreamFetchTimeout("v1/diagnostics/workspace-ai-availability")).toEqual({
+      timeoutMs: PROXY_UPSTREAM_WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS,
+      kind: "workspace-ai-availability",
     });
   });
 });
