@@ -182,6 +182,11 @@ public sealed partial class GovernanceStickinessController
         if (filterProblem is not null)
             return filterProblem;
 
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
         category = category?.Trim();
 
         IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);

@@ -2287,10 +2287,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
 - **hunts:** 95
+- **hunts:** 94
 - **bugs-found:** 237
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — bulk-disposition all-or-nothing scope validation
+- **last-bug:** 2026-08-31 — environment-catalog ghost tenant; empty projectId query; checklist isCompleted omission
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2535,6 +2536,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **cheap-disproof 2026-08-31:** per-item `ValidationFailed` for exact duplicates since 2026-08-28; **hit 2026-08-31:** `OrdinalIgnoreCase` dedupe for case-variant duplicates; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without per-item failure rows — **hit 2026-08-31 (#281):** validate all finding ids in scope before recording any; map scope misses to HTTP 404; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
+- [x] (proven) `GovernanceEnvironmentCatalogController.Get` / `Replace` — ghost tenant returned HTTP 200 default catalog or mutation proceeded without tenant 404 — **hit 2026-08-31 (#330):** `ITenantRepository.GetByIdAsync` preflight (setup-guide/posture parity); regression in `GovernanceEnvironmentCatalogControllerTests`.
+- [x] (proven) `GovernancePostureController.GetPosture` / `GovernanceStickinessController` register reads — optional `projectId=00000000-0000-0000-0000-000000000000` returned HTTP 200 empty payloads instead of HTTP 400 — **hit 2026-08-31 (#330):** `GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId` rejects empty guid before `TryResolve` fail-open; regression in `GovernancePostureControllerTests` and `GovernanceStickinessControllerTests`.
+- [x] (proven) `CorePilotTeamChecklistController.PutAsync` — JSON body omitted `isCompleted` and model-binding defaulted to `false`, clearing checklist completion — **hit 2026-08-31 (#330):** nullable `IsCompleted` with required guard; regression in `CorePilotTeamChecklistControllerTests.PutAsync_returns_bad_request_when_is_completed_omitted`.
+
+2026-08-31 seed hunt #330: proved environment-catalog ghost-tenant preflight, governance register empty `projectId` 400 parity, and core-pilot checklist `isCompleted` required validation.
 
 - [x] (proven) `GovernancePostureController.GetPosture` — valid tenant + foreign workspace id in scope JWT → HTTP 200 posture summary instead of HTTP 404 — **hit 2026-08-31 (#334):** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` before posture read; regression in `GovernancePostureControllerTests.GetPosture_returns_not_found_when_workspace_missing`.
 - [x] (proven) `GovernanceCoverageController.GetScopeCoverage` / `PreviewCoverage` — same ghost-workspace scope triple → HTTP 200 coverage payload instead of HTTP 404 — **hit 2026-08-31 (#334):** workspace preflight on both actions; regression in `GovernanceCoverageControllerScopeTests.GetScopeCoverage_returns_not_found_when_workspace_missing` and `PreviewCoverage_returns_not_found_when_workspace_missing`.

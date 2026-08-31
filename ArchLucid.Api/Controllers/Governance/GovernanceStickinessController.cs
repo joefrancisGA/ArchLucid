@@ -118,6 +118,14 @@ public sealed partial class GovernanceStickinessController(
         || string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.ModelAssisted, StringComparison.OrdinalIgnoreCase)
         || string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.Unknown, StringComparison.OrdinalIgnoreCase);
 
+    private IActionResult? BadRequestWhenProjectQueryIdEmpty(Guid? projectId)
+    {
+        if (!GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId(projectId))
+            return null;
+
+        return this.BadRequestProblem("projectId cannot be an empty GUID.", ProblemTypes.ValidationFailed);
+    }
+
     private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
