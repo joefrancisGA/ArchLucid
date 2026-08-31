@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **213** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **214** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:213 -->
+<!-- route-tier-policy-nav-registry-count:214 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -144,6 +144,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Analytics/PatternInsightsController.cs` | `/v1/analytics/patterns` | none | Authorize |  |  |
 | `Analytics/RoiAnalyticsController.cs` | `/v1/analytics` | none | ReadAuthority |  |  |
 | `Architecture/DraftRequestsController.cs` | `/v1/architecture/draft` | standard | AuthenticatedUserOnly |  |  |
+| `Architecture/WizardIntakeDraftsController.cs` | `/v1/architecture/intake/wizard-draft` | none | AuthenticatedUserOnly |  |  |
 | `ArchitectureIntelligence/ArchitectureIntelligenceController.cs` | `/v1/architecture-intelligence` | standard | ExecuteAuthority |  |  |
 | `Auth/AuthSignInRoutingController.cs` | `/v1/auth/routing` | none | AllowAnonymous |  |  |
 | `Auth/AuthenticationSignInMethodsController.cs` | `/v1/auth/sign-in-methods` | none | AuthenticatedUserOnly |  |  |
@@ -205,7 +206,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Findings/FindingRemediationAssignmentController.cs` | `/v1/findings` | standard | ExecuteAuthority | /governance/findings |  |
 | `Governance/GovernanceController.cs` | `/v1/governance` | standard | ReadAuthority | /governance/approval-queue |  |
 | `Governance/GovernanceCoverageController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
-| `Governance/GovernanceEnvironmentCatalogController.cs` | `/v1/governance/environment-catalog` | standard | ReadAuthority | /governance/environments |  |
+| `Governance/GovernanceEnvironmentCatalogController.cs` | `/v1/governance/environment-catalog` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePostureController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-finalize` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreviewController.cs` | `/v1/governance-preview` | standard | ReadAuthority |  |  |

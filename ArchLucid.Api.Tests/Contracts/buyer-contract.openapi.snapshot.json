@@ -32153,6 +32153,24 @@
         },
         "type": "object"
       },
+      "UpsertWizardIntakeDraftRequest": {
+        "properties": {
+          "idempotencyKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stateJson": {
+            "type": "string"
+          },
+          "stepIndex": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "UsageMeterKind": {
         "enum": [
           "LlmPromptTokens",
@@ -32418,6 +32436,25 @@
           "runsCreatedTotal": {
             "format": "int64",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "WizardIntakeDraftResponse": {
+        "properties": {
+          "stateJson": {
+            "type": "string"
+          },
+          "stepIndex": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "wizardId": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -39208,6 +39245,9 @@
     },
     {
       "name": "WhyArchlucidMarketingPack"
+    },
+    {
+      "name": "WizardIntakeDrafts"
     }
   ]
 }

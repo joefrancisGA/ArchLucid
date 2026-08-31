@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:399 -->
+<!-- audit-core-const-count:400 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -113,6 +113,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Architecture request restore (un-archive) | `RunsController` (`POST /v1/architecture/request/{requestId}/restore`) | `ArchitectureRequestRestored` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request draft (LLM field suggest, no persistence) | `RunsController` (`POST /v1/architecture/request/draft`); `ArchitectureRequestDraftService` | — | — | Read-auth + execute-auth gated LLM assist; returns suggested wizard chips only — **no** durable audit row (same class as `POST /v1/architecture/request/{requestId}/clone`) |
 | Architecture request draft async (Tier C LLM suggest, no persistence) | `RunsController` (`POST /v1/architecture/request/draft/async`); `IAdvisoryDraftOperationAcceptor` | — | — | **202** + operation handle; poll `GET /v1/architecture/request/draft/async/{operationId}/result` — **no** durable audit row (`[MutatingAuditExcluded]` on controller; same advisory class as sync draft) |
+| Wizard intake draft upsert (debounced operator convenience state) | `WizardIntakeDraftsController` (`PUT /v1/architecture/intake/wizard-draft/{wizardId}`) | — | — | Tenant-scoped server-side wizard state persistence — **no** durable audit row (`[MutatingAuditExcluded]` on controller; same convenience class as local draft debounce) |
 | Architecture request create (async Tier C) | `RunsController` (`POST /v1/architecture/request/async`); `IArchitectureRunAsyncOperationAcceptor` | `RequestCreated` (worker after **202**; not on HTTP thread) | Tenant/Workspace/Project from ambient scope | `{ requestId }` — controller `[MutatingAuditExcluded]` so admit is not blocked by audit SQL on the 202 path |
 | Architecture overview rewrite (advisory, no persistence) | `RunsController` (`POST /v1/architecture/request/draft/overview-rewrite`); `ArchitectureOverviewRewriteService` | — | — | Execute-auth gated LLM assist; returns rewritten overview text only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Clarification answer rephrase (advisory, no persistence) | `RunsController` (`POST /v1/architecture/request/draft/clarification-answers/rephrase`); `ClarificationAnswerRephraseService` | — | — | Execute-auth gated LLM assist; returns humanized answer text only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
@@ -291,6 +292,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | LLM prepaid wallet auto-refill succeeded (Stripe PaymentIntent) | `LlmTenantWalletService` | `LlmWalletRefillSucceeded` | TenantId | `{ paymentIntentId, amountUsd }` — actor `system`; no card or payment-method material. |
 | LLM prepaid wallet auto-refill failed | `LlmTenantWalletService` | `LlmWalletRefillFailed` | TenantId | `{ declineCode, errorMessage }` — actor `system`. |
 | LLM prepaid wallet settings updated | `WalletController` (`PUT /v1/billing/wallet`) | `LlmWalletSettingsUpdated` | Tenant/Workspace/Project from ambient scope | `{ autoReplenishEnabled, monthlyCapUsd, hasPaymentMethod }` — Stripe customer/payment-method ids are **not** logged. |
+| Per-run LLM budget reservation (durable spend receipt before agent batch) | `RunScopedLlmBudgetReservationService` (`ArchitectureRunExecuteOrchestrator` execute path) | `RunLlmBudgetReserved` | RunId + Tenant/Workspace/Project from ambient scope | `{ reservationId, runId, estimateUsd }` — recorded before agent batch spend. |
 | LLM prompt truncated (context length guard) | `ContextLengthGuardAgentCompletionClient` | `LlmContextTruncated` | Tenant/Workspace/Project from ambient scope | `{ estimatedTokens, thresholdTokens, maxContextTokens }` — fire-and-forget when estimated prompt tokens exceed the configured threshold before completion. |
 | LLM evidence summarized (context length guard) | `ContextLengthGuardAgentCompletionClient` | `LlmEvidenceSummarized` | Tenant/Workspace/Project from ambient scope | `{ estimatedTokensBefore, estimatedTokensAfter, thresholdTokens, maxContextTokens }` — fire-and-forget when `AgentExecution:EvidenceSummarization:Enabled` and estimated prompt tokens exceed threshold before hard truncation. |
 | Platform identity — email OTP challenge | `EmailOtpAuthController` (`POST /v1/auth/email-otp/challenge`) | `EmailOtpCodeRequested` | Empty tenant scope before identity exists | `{ normalizedEmailHash }` — no OTP material |
@@ -716,6 +718,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `LlmWalletRefillFailed` | `LlmWalletRefillFailed` | `LlmTenantWalletService` (Stripe auto-refill failure; actor `system`) |
 | `LlmWalletSettingsUpdated` | `LlmWalletSettingsUpdated` | `WalletController` (`PUT /v1/billing/wallet`) |
 | `LlmCostTuningUpdated` | `LlmCostTuningUpdated` | `AdminLlmCostTuningController` (persisted USD-per-token rates for cost estimation) |
+| `RunLlmBudgetReserved` | `Run.LlmBudgetReserved` | `RunScopedLlmBudgetReservationService` (per-run LLM budget reservation before agent batch execution) |
 | `ScimTokenIssued` | `ScimTokenIssued` | `ScimTokensAdminController` |
 | `ScimTokenRevoked` | `ScimTokenRevoked` | `ScimTokensAdminController` |
 | `ScimUserProvisioned` | `ScimUserProvisioned` | `ScimUserService` |

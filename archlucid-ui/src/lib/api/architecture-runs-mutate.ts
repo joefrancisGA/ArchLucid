@@ -10,7 +10,7 @@ import {
 } from "@/lib/api/architecture-request-create-guard";
 import { ArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { ApiRequestError, isApiRequestError } from "@/lib/api-request-error";
-import { apiGetJson } from "./http";
+import { apiGet } from "./http";
 import { trackInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 import { parseOperationIdFromLocation } from "@/lib/operations/operation-location";
 import {
@@ -117,7 +117,7 @@ async function tryRecoverCreateRunFromIdempotencyKey(
   idempotencyKey: string,
 ): Promise<CreateArchitectureRunResponsePayload | null> {
   try {
-    return await apiGetJson<CreateArchitectureRunResponsePayload>(
+    return await apiGet<CreateArchitectureRunResponsePayload>(
       `/v1/architecture/request/idempotency/${encodeURIComponent(idempotencyKey)}`,
     );
   } catch (error: unknown) {

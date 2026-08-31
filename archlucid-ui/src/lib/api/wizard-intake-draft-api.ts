@@ -1,4 +1,4 @@
-import { apiGetJson, apiPutJson } from "@/lib/api/http";
+import { apiGet, apiPutJson } from "@/lib/api/http";
 
 export type WizardIntakeDraftResponse = {
   wizardId: string;
@@ -17,7 +17,7 @@ export async function fetchWizardIntakeDraft(
   wizardId: string,
 ): Promise<WizardIntakeDraftResponse | null> {
   try {
-    return await apiGetJson<WizardIntakeDraftResponse>(
+    return await apiGet<WizardIntakeDraftResponse>(
       `/v1/architecture/intake/wizard-draft/${encodeURIComponent(wizardId)}`,
     );
   } catch {
