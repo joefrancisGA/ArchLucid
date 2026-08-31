@@ -234,6 +234,39 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task CountPendingApprovalsAsync_returns_uncapped_total()
+    {
+        SkipIfSqlServerUnavailable();
+        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        string idA = "apr-count-a-" + Guid.NewGuid().ToString("N");
+        string idB = "apr-count-b-" + Guid.NewGuid().ToString("N");
+        string idC = "apr-count-c-" + Guid.NewGuid().ToString("N");
+        DateTime t3 = new DateTime(2030, 1, 3, 0, 0, 0, DateTimeKind.Utc);
+        DateTime t2 = new DateTime(2030, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        DateTime t1 = new DateTime(2030, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        await repo.CreateAsync(NewApproval(idA, runId, t1), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idB, runId, t2), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idC, runId, t3), CancellationToken.None);
+
+        IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(2, CancellationToken.None);
+        long totalPending = await repo.CountPendingApprovalsAsync(CancellationToken.None);
+        IReadOnlyList<GovernanceApprovalRequest> allPending =
+            await repo.GetPendingAsync((int)totalPending, CancellationToken.None);
+
+        pending.Should().HaveCount(2);
+        totalPending.Should().BeGreaterThan(pending.Count);
+
+        GovernanceApprovalRequest[] mine =
+            [.. allPending.Where(r => r.RunId == runId)];
+
+        mine.Should().Contain(r => r.ApprovalRequestId == idA);
+        mine.Should().Contain(r => r.ApprovalRequestId == idB);
+        mine.Should().Contain(r => r.ApprovalRequestId == idC);
+    }
+
+    [SkippableFact]
     public async Task GetRecentDecisionsAsync_orders_by_ReviewedUtc_desc_and_excludes_pending()
     {
         SkipIfSqlServerUnavailable();
