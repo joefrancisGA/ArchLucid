@@ -123,7 +123,7 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
         IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
 
         findings.Should().ContainSingle();
-        findings[0].Severity.Should().Be(FindingSeverity.Warning);
+        findings[0].Severity.Should().Be(FindingSeverity.Error);
     }
 
     [Fact]
