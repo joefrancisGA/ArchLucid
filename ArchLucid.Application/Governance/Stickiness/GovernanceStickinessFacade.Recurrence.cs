@@ -160,9 +160,10 @@ public sealed partial class GovernanceStickinessFacade
             return new RecurrenceScheduleUpdateResult(RecurrenceScheduleUpdateOutcome.NotFound, null);
         }
 
-        bool scheduleTimingChanged = request.IsEnabled.HasValue
-            || !string.IsNullOrWhiteSpace(request.CronExpression);
-
+        bool scheduleTimingChanged =
+            (request.IsEnabled.HasValue && request.IsEnabled.Value != existing.IsEnabled)
+            || (!string.IsNullOrWhiteSpace(request.CronExpression)
+                && !string.Equals(request.CronExpression.Trim(), existing.CronExpression, StringComparison.Ordinal));
         if (request.IsEnabled.HasValue)
             existing.IsEnabled = request.IsEnabled.Value;
 
