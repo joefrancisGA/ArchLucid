@@ -29,7 +29,7 @@ export const DOMAIN_TERMS = {
   findingsSnapshot: "Findings Snapshot",
   artifactBundle: "Deliverables bundle",
   preCommitGate: "Approval check",
-  governanceApproval: "Resolve outcomes",
+  governanceApproval: "Governance approval",
 } as const;
 
 export const ARCHITECTURE_REVIEW_LABELS = {
@@ -148,6 +148,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   governanceWorkflow: "Approval queue",
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
   governanceSetupGuide: "Approval setup",
+  governanceEnvironments: "Approval environments",
   workspaceHealth: "Workspace health",
   securityTrust: "Security & Trust",
   aiUsage: "AI usage",

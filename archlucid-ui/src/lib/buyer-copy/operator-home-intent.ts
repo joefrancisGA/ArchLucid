@@ -138,6 +138,14 @@ export const OPERATOR_HOME_RECOMMENDED_NEXT_HEADING = "Recommended next";
 
 export const OPERATOR_HOME_YOUR_WORK_HEADING = "Your work";
 
+export const OPERATOR_HOME_YOUR_WORK_COLUMN_NAME = "Name";
+
+export const OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE = "Type";
+
+export const OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED = "Updated";
+
+export const OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS = "Status";
+
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY_COMPACT =
   "Describe your system or connect cloud inventory to produce a draft architecture.";
 

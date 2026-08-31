@@ -186,7 +186,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             Decision: Package finalized
           </p>
-          <InlineMetadataLine label="Resolve outcomes" value="Approved with monitoring" />
+          <InlineMetadataLine label="Governance approval" value="Approved with monitoring" />
           <InlineMetadataLine
             label="Remaining monitored risk"
             value={`${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized review record)`}
@@ -297,7 +297,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   </Button>
                 ) : null}
                 <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View resolve outcomes</Link>
+                  <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View governance approval</Link>
                 </Button>
                 <Button variant="outline" size="sm" className="w-full" asChild>
                   <Link href={auditTrailNavHref(run.runId)}>View audit trail</Link>

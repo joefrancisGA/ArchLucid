@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 335_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 336_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -8920,4 +8920,52 @@ BEGIN
         INDEX IX_PlatformOperationalErrors_TenantId_OccurredUtc NONCLUSTERED (TenantId, OccurredUtc DESC),
         INDEX IX_PlatformOperationalErrors_HttpStatusCode_OccurredUtc NONCLUSTERED (HttpStatusCode, OccurredUtc DESC)
     );
+END;
+
+GO
+
+/* ---- DbUp 336 parity: governance environment catalog (see Migrations/336_GovernanceEnvironmentCatalog.sql) ---- */
+
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentDefinitions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.GovernanceEnvironmentDefinitions
+    (
+        EnvironmentDefinitionId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_GovernanceEnvironmentDefinitions PRIMARY KEY,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        Slug NVARCHAR(64) NOT NULL,
+        DisplayName NVARCHAR(200) NOT NULL,
+        SortOrder INT NOT NULL,
+        IsActive BIT NOT NULL,
+        CreatedUtc DATETIME2 NOT NULL,
+        LastModifiedUtc DATETIME2 NULL
+    );
+
+    CREATE UNIQUE NONCLUSTERED INDEX UX_GovernanceEnvironmentDefinitions_Scope_Slug
+        ON dbo.GovernanceEnvironmentDefinitions (TenantId, WorkspaceId, ProjectId, Slug);
+
+    CREATE NONCLUSTERED INDEX IX_GovernanceEnvironmentDefinitions_Scope_SortOrder
+        ON dbo.GovernanceEnvironmentDefinitions (TenantId, WorkspaceId, ProjectId, SortOrder);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentTransitions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.GovernanceEnvironmentTransitions
+    (
+        TransitionId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_GovernanceEnvironmentTransitions PRIMARY KEY,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        SourceSlug NVARCHAR(64) NOT NULL,
+        TargetSlug NVARCHAR(64) NOT NULL
+    );
+
+    CREATE UNIQUE NONCLUSTERED INDEX UX_GovernanceEnvironmentTransitions_Scope_Edge
+        ON dbo.GovernanceEnvironmentTransitions (TenantId, WorkspaceId, ProjectId, SourceSlug, TargetSlug);
+
+    CREATE NONCLUSTERED INDEX IX_GovernanceEnvironmentTransitions_Scope_Source
+        ON dbo.GovernanceEnvironmentTransitions (TenantId, WorkspaceId, ProjectId, SourceSlug);
 END;
