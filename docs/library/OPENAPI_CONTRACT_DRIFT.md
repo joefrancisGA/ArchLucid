@@ -73,7 +73,7 @@ Prevent accidental HTTP surface changes: the generated OpenAPI document for **v1
 **CI regenerate (recommended when local builds are slow):**
 
 1. **Automatic (same-repo PRs):** Push API-surface changes; workflow **Refresh OpenAPI v1 snapshot** (`.github/workflows/openapi-snapshot-refresh.yml`) runs on pull requests when OpenAPI-relevant paths change, regenerates the CI baseline on Linux, and commits back to the PR branch when needed.
-2. **Manual:** Actions → **Refresh OpenAPI v1 snapshot** → **Run workflow** on your branch. Optional inputs: regenerate TypeScript api-types and/or the .NET NSwag client.
+2. **Manual:** Actions → **Refresh OpenAPI v1 snapshot** → **Run workflow** on your branch. Push/PR refreshes also regenerate split TypeScript api-types (`archlucid-ui/src/lib/api-types/`). Manual dispatch defaults that on (`regenerate_ui_api_types`); the .NET NSwag client is always regenerated (gitignored).
 
 **Local regenerate (after you intentionally change routes or OpenAPI metadata):**
 
@@ -99,7 +99,7 @@ Then commit the updated `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snaps
 **Downstream generated clients (same PR as intentional contract changes):**
 
 1. **.NET SDK:** `dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj` — NSwag regenerates gitignored `Generated/ArchLucidApiClient.g.cs` from the snapshot (`ArchLucid.Api.Client/README.md`). CI guard: `scripts/ci/assert_api_client_in_sync.sh` (job **openapi-contract-snapshot**) proves generation + compile succeed.
-2. **TypeScript (architect workspace):** from `archlucid-ui/`, run `npm run generate:api-types` — refreshes `src/lib/api-types.generated.ts` from the same snapshot. CI drift guard: `scripts/ci/assert_api_types_in_sync.sh` (job **openapi-contract-snapshot**, runs after Node setup). Locally on Windows: `.\scripts\ci\assert_api_types_in_sync.ps1` (repo root). Remediation on failure: `cd archlucid-ui && npm run generate:api-types && git add src/lib/api-types.generated.ts && git commit`.
+2. **TypeScript (architect workspace):** from `archlucid-ui/`, run `npm run generate:api-types` — refreshes split `src/lib/api-types/` (and the barrel `src/lib/api-types.generated.ts`) from the same snapshot. CI drift guard: `scripts/ci/assert_api_types_in_sync.sh` (job **openapi-contract-snapshot**, runs after Node setup). Locally on Windows: `.\scripts\ci\assert_api_types_in_sync.ps1` (repo root). Remediation on failure: `cd archlucid-ui && npm run generate:api-types && git add src/lib/api-types/ src/lib/api-types.generated.ts && git commit`.
 3. **Docs:** update operator/integration docs when behavior or DTO semantics change (quality gate, agent evaluation, golden cohort, configuration tables linked from `ConfigurationKeyCatalog`).
 
 Commit baseline + regenerated TypeScript types + doc edits together so CI (`openapi-contract-snapshot`, `assert_api_client_in_sync`, `assert_api_types_in_sync` where wired) stays green. Do **not** commit the NSwag `.g.cs` output.

@@ -81,20 +81,23 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (request.RunIds.Count == 0)
+        // Snapshot so later Count/foreach use a stable non-null local (property getters do not flow).
+        List<string>? runIds = request.RunIds;
+
+        if (runIds is null || runIds.Count == 0)
             return this.BadRequestProblem("RunIds must contain at least one id.", ProblemTypes.ValidationFailed);
 
-        if (request.RunIds.Count > 50)
+        if (runIds.Count > 50)
             return this.BadRequestProblem("At most 50 run ids are allowed per request.", ProblemTypes.ValidationFailed);
 
-        if (!request.RunIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
+        if (!runIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
         {
             return this.BadRequestProblem(
                 "RunIds must contain at least one non-empty id.",
                 ProblemTypes.ValidationFailed);
         }
 
-        foreach (string runId in request.RunIds)
+        foreach (string runId in runIds)
         {
             if (string.IsNullOrWhiteSpace(runId))
                 continue;
@@ -119,7 +122,7 @@ public sealed partial class PolicyPacksController
 
         PolicyPackSimulateBulkSummary? summary = await _workflow.TrySimulateBulkAsync(
             policyPackId,
-            request.RunIds,
+            runIds,
             request.BlockCommitOnCritical,
             request.BlockCommitMinimumSeverity,
             cancellationToken);

@@ -10,7 +10,10 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { formatActionActorName } from "@/lib/action-actor-display";
@@ -103,6 +106,22 @@ function renderMetadataField(field: ReviewMetadataField): React.JSX.Element {
   );
 }
 
+function resolveMetadataDisclosureSummary(
+  unrecordedFieldCount: number,
+  metadataContext: ReturnType<typeof deriveReviewRecordMetadataContext>,
+  workspaceStatus: RunDetailWorkspaceStatus,
+): string {
+  if (metadataContext === "not-finalized") {
+    if (workspaceStatus.kind === "execution-failed") {
+      return "Finalization metadata (available after review completes)";
+    }
+
+    return "Record metadata (pending finalization)";
+  }
+
+  return `Record metadata (${unrecordedFieldCount} fields not recorded)`;
+}
+
 /** Customer-facing review header — title and review identity without repeating sponsor metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
@@ -113,10 +132,11 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   const collapseMetadataFieldSet = buildCollapseMetadataFields(props, absentReasons);
   const unrecordedFieldCount = collapseMetadataFieldSet.filter((field) => field.value === null).length;
   const collapseMetadataFields = unrecordedFieldCount >= 3;
-  const metadataDisclosureSummary =
-    metadataContext === "not-finalized"
-      ? "Record metadata (pending finalization)"
-      : `Record metadata (${unrecordedFieldCount} fields not recorded)`;
+  const metadataDisclosureSummary = resolveMetadataDisclosureSummary(
+    unrecordedFieldCount,
+    metadataContext,
+    props.workspaceStatus,
+  );
 
   return (
     <div data-testid="run-detail-workspace-header">
@@ -145,7 +165,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         actions={
           <>
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
-            <PageContextualHelpButton />
+            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           </>
         }
       >

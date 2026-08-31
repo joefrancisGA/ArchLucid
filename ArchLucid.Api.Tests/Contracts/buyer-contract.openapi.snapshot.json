@@ -32345,6 +32345,12 @@
               "string"
             ]
           },
+          "setupGapCodes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "setupGaps": {
             "items": {
               "type": "string"

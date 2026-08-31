@@ -25,6 +25,7 @@ vi.mock("next/link", () => ({
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
 }));
 
 vi.mock("@/components/CopyIdButton", () => ({
@@ -59,6 +60,12 @@ import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActio
 const workspaceStatus = {
   label: "Finalized · approval blocked",
   kind: "finalized" as const,
+  statusTagKind: "needs-attention" as const,
+};
+
+const executionFailedWorkspaceStatus = {
+  label: "Execution failed",
+  kind: "execution-failed" as const,
   statusTagKind: "needs-attention" as const,
 };
 
@@ -119,20 +126,16 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("Not recorded — rule set version missing")).toBeInTheDocument();
   });
 
-  it("uses not-finalized copy when no finalized review record exists", () => {
+  it("labels sparse metadata as finalization metadata when execution failed pre-stage", () => {
     render(
       <RunDetailWorkspaceHeader
         runId="run-1"
-        h1Title="Claims API"
+        h1Title="ArchLucid"
         eyebrowLabel="Architecture review"
         reviewIdentifierLabel="run-1"
         signedReviewRecordId={null}
         signedReviewRecordIdLabel={null}
-        workspaceStatus={{
-          label: "Execution failed",
-          kind: "execution-failed",
-          statusTagKind: "needs-attention",
-        }}
+        workspaceStatus={executionFailedWorkspaceStatus}
         reviewOwner={null}
         templateLabel={null}
         finalizedAtLabel={null}
@@ -141,7 +144,8 @@ describe("RunDetailWorkspaceHeader", () => {
     );
 
     expect(screen.getByTestId("run-detail-record-metadata-disclosure")).toBeInTheDocument();
-    expect(screen.getByText("Record metadata (pending finalization)")).toBeInTheDocument();
+    expect(screen.getByText("Finalization metadata (available after review completes)")).toBeInTheDocument();
+    expect(screen.queryByText(/fields not recorded/i)).toBeNull();
     expect(
       screen.getByText("Not applicable — review template is recorded when the review finalizes"),
     ).toBeInTheDocument();

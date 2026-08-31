@@ -61,6 +61,23 @@ public sealed class ProblemSupportHintsTests
     }
 
     [SkippableFact]
+    public void AttachForProblemType_WhenConflict_is_workspace_name_occupancy_adds_rerun_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = ProblemTypes.Conflict,
+            Detail = "A review or architecture named 'ArchLucid' already exists in this workspace.",
+        };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("re-run review");
+        hint.ToLowerInvariant().Should().NotContain("idempotency");
+    }
+
+    [SkippableFact]
     public void AttachForProblemType_WhenDatabaseTimeout_adds_health_ready_hint()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.DatabaseTimeout };
