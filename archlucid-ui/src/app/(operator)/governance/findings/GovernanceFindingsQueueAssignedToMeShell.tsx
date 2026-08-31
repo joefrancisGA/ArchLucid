@@ -14,6 +14,7 @@ import { GovernanceFindingsBuyerChrome } from "@/components/governance/findings/
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { FindingsQueuePickReviewBeforeTriageStrip } from "@/components/governance/findings/FindingsQueuePickReviewBeforeTriageStrip";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
+import { GovernanceFindingsSavedViewsBar } from "@/components/governance/findings/GovernanceFindingsSavedViewsBar";
 import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
 import { GovernanceFindingsQueueNextReviewFooterClient } from "@/components/governance/findings/GovernanceFindingsQueueNextReviewFooterClient";
 import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governance/findings/GovernanceFindingsRelatedQueuesDisclosure";
@@ -98,6 +99,7 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly onNaturalLanguageFilterApply: (next: FindingsNaturalLanguageFacets) => void;
   readonly nlFacets: FindingsNaturalLanguageFacets;
   readonly onClearAllFilters: () => void;
+  readonly onLoadFindingsSavedView: (view: import("@/lib/api/operator-saved-views").OperatorSavedView) => void;
   readonly loading: boolean;
   readonly rows: readonly GovernanceFindingQueueRow[];
   readonly filterNoMatchPreset: EnterpriseCompactEmptyStateProps;
@@ -169,6 +171,7 @@ export function GovernanceFindingsQueueAssignedToMeShell(
     onNaturalLanguageFilterApply,
     nlFacets,
     onClearAllFilters,
+    onLoadFindingsSavedView,
     loading,
     rows,
     filterNoMatchPreset,
@@ -299,6 +302,14 @@ export function GovernanceFindingsQueueAssignedToMeShell(
             nlFacets={nlFacets}
             jobViewFilterActive={jobViewFilterActive}
             onClearAll={onClearAllFilters}
+          />
+          <GovernanceFindingsSavedViewsBar
+            registerFilter={registerFilter}
+            jobView={jobView}
+            nlFacets={nlFacets}
+            groupByResource={groupByResource}
+            scopedRunId={scopedRunId}
+            onLoadView={onLoadFindingsSavedView}
           />
         </>
       ) : null}

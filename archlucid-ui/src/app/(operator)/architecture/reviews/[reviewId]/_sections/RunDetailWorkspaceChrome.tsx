@@ -9,6 +9,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
+import { ReviewAskDock } from "@/components/reviews/ReviewAskDock";
+import { ReviewMeetingPacketButton } from "@/components/reviews/ReviewMeetingPacketButton";
+import { ReviewShareCollaboratorStrip } from "@/components/reviews/ReviewShareCollaboratorStrip";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
 import {
   PageContextualHelpButton,
@@ -164,6 +167,15 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         }
         actions={
           <>
+            <ReviewShareCollaboratorStrip
+              runId={props.runId}
+              isCommitted={props.signedReviewRecordId !== null}
+            />
+            <ReviewMeetingPacketButton
+              runId={props.runId}
+              findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
+            />
+            <ReviewAskDock runId={props.runId} reviewTitle={h1Title} />
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
             <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           </>

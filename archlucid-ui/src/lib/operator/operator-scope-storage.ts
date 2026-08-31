@@ -6,6 +6,7 @@ import { clearOperatorHomeDisclosureStorage } from "@/lib/operator/operator-home
 import { clearOperatorRecentViewsStorage } from "@/lib/operator/operator-recent-views";
 import { clearHasExistingRunsCache } from "@/lib/operator/operator-run-presence";
 import { clearHasSeenWelcomeOnboarding } from "@/lib/operator/operator-welcome-onboarding-storage";
+import { clearFrictionlessTrialSessionForAuthenticatedOperator } from "@/lib/operator/operator-frictionless-trial-session-cleanup";
 import { clearOperatorShellStatusScopeAgnosticCaches } from "@/lib/operator/operator-shell-status-scope-cache";
 import { clearOperatorShellStableCache } from "@/lib/operator/operator-shell-stable-cache";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
@@ -75,6 +76,7 @@ function notifyOperatorScopeChanged(): void {
   }
 
   window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
+  clearFrictionlessTrialSessionForAuthenticatedOperator();
   clearOperatorShellStableCache();
   clearOperatorShellStatusScopeAgnosticCaches(getOperatorQueryClient());
   clearOperatorRecentViewsStorage();
