@@ -210,14 +210,12 @@ public sealed class RunScopedLlmBudgetReservationService(
             await _auditService.LogAsync(
                 new AuditEvent
                 {
-                    EventType = AuditEventTypes.RunLlmBudgetReserved,
-                    TenantId = tenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    RunId = Guid.TryParse(runId, out Guid parsedRunId) ? parsedRunId : null,
-                    DataJson =
-                        $"{{\"reservationId\":\"{reservationId:D}\",\"runId\":\"{runId}\",\"estimateUsd\":{estimateUsd}}}",
-                },
+                    DataJson = System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        reservationId = reservationId.ToString("D"),
+                        runId,
+                        estimateUsd,
+                    }),
                 cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
