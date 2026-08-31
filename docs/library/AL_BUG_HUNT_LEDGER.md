@@ -2297,6 +2297,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
 - **last-bug:** 2026-08-31 — empty projectId query returned 200 empty on governance register/posture GETs
+- **hunts:** 91
+- **bugs-found:** 236
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — coverage preview null body 400 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2571,6 +2576,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
 
 2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — whitespace-only body `findingRef` bypassed inspect gate and persisted padded blank `FindingRef` — **hit 2026-08-31 (#324):** normalize to null before gate/persist; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_omits_finding_ref_when_value_is_whitespace`.
+- [x] (proven) `GovernanceCoverageController.PreviewCoverage` — null JSON body threw `ArgumentNullException` (HTTP 500 risk) instead of HTTP 400 — **hit 2026-08-31 (#324):** nullable body guard; regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_body_is_null`.
+- [ ] (candidate) `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` — sibling architecture projects in the same workspace appear in list responses while delete/restore require `scope.ProjectId` (may be intentional workspace picker disclosure).
+- [ ] (candidate) `GovernanceEnvironmentCatalogController.Get` / `Replace` — missing workspace preflight when scope workspace id is invalid for tenant.
+- [ ] (candidate) `GovernanceStickinessController.UpdateRecurrenceSchedule` — empty PUT body recomputes `NextRunUtc` without any user-supplied field change.
+
+2026-08-31 seed hunt #324: proved product-feedback whitespace findingRef normalization and coverage preview null-body 400 parity; seeded workspace project list disclosure, environment-catalog workspace preflight, and recurrence empty-PUT drift candidates.
 
 2026-08-31 thorough hunt #281: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
 
