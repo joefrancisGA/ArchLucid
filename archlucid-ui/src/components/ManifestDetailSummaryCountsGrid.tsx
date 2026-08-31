@@ -25,13 +25,16 @@ export function ManifestDetailSummaryCountsGrid({
 }: ManifestDetailSummaryCountsGridProps): ReactElement {
   const isCuratedDemo = summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
   const includeShowcaseTrailTiles = buyerPolishedLayout && isCuratedDemo;
+  const runIdForNavigation = isCuratedDemo
+    ? canonicalizeDemoRunId(summary.runId)
+    : summary.runId;
 
   const gridClassName = includeShowcaseTrailTiles
     ? "grid grid-cols-2 gap-3 sm:grid-cols-3"
     : "grid grid-cols-2 gap-3 sm:grid-cols-4";
 
-  const graphHref = `/insights/evidence-graph?runId=${encodeURIComponent(summary.runId)}`;
-  const auditHref = auditTrailNavHref(summary.runId);
+  const graphHref = `/insights/evidence-graph?runId=${encodeURIComponent(runIdForNavigation)}`;
+  const auditHref = auditTrailNavHref(runIdForNavigation);
 
   const manifestTileLabelClass = cn("m-0", OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400");
 
