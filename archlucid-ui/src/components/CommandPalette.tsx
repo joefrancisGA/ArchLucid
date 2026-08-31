@@ -184,7 +184,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key.toLowerCase() !== "k") {
+      if (event.key?.toLowerCase() !== "k") {
         return;
       }
 
