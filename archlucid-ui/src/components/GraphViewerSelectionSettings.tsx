@@ -1,5 +1,7 @@
 "use client";
 
+import type * as React from "react";
+
 import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +27,7 @@ export function GraphViewerSelectionSettings({
   onToggleAdvanced,
   edgeInferenceThreshold,
   onEdgeInferenceThresholdChange,
-}: GraphViewerSelectionSettingsProps): JSX.Element {
+}: GraphViewerSelectionSettingsProps): React.JSX.Element {
   return (
     <>
       {interactiveSurfaceReady ? (

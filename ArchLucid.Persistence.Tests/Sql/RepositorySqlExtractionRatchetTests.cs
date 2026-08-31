@@ -157,9 +157,12 @@ public sealed class RepositorySqlExtractionRatchetTests
         string companionClass,
         string companionPath)
     {
-        string source = ReadRepoFile(companionPath);
+        string source = ReadCompanionClassSources(companionPath, companionClass);
 
-        source.Should().Contain("internal static class " + companionClass);
+        (source.Contains("internal static class " + companionClass, StringComparison.Ordinal)
+         || source.Contains("internal static partial class " + companionClass, StringComparison.Ordinal))
+            .Should()
+            .BeTrue($"{companionPath} must declare {companionClass} as an internal static companion");
 
         Regex.IsMatch(source, @"public const string \w+ =")
             .Should()
@@ -167,17 +170,48 @@ public sealed class RepositorySqlExtractionRatchetTests
                 $"{companionClass} must expose the statements used by '{relativePath}' as compile-time constants");
     }
 
+    /// <summary>
+    ///     Reads one companion file, or every partial fragment when the companion is split across multiple sources.
+    /// </summary>
+    private static string ReadCompanionClassSources(string companionPath, string companionClass)
+    {
+        string primarySource = ReadRepoFile(companionPath);
+
+        if (!primarySource.Contains("partial class " + companionClass, StringComparison.Ordinal))
+        {
+            return primarySource;
+        }
+
+        string repoRoot = ResolveRepoRoot();
+        string fullPath = Path.Combine(repoRoot, companionPath.Replace('/', Path.DirectorySeparatorChar));
+        string directory = Path.GetDirectoryName(fullPath)
+                           ?? throw new InvalidOperationException($"Companion directory unavailable for '{companionPath}'.");
+
+        string fileStem = Path.GetFileNameWithoutExtension(fullPath);
+
+        return string.Concat(
+            Directory
+                .GetFiles(directory, fileStem + "*.cs")
+                .OrderBy(path => path, StringComparer.Ordinal)
+                .Select(File.ReadAllText));
+    }
+
     private static string ReadRepoFile(string relativePath, [CallerFilePath] string? callerFilePath = null)
     {
-        string testsSqlDir = Path.GetDirectoryName(callerFilePath)
-                             ?? throw new InvalidOperationException("Caller path unavailable.");
-
-        // <repo>/ArchLucid.Persistence.Tests/Sql/<this file> — two levels up is the repo root.
-        string repoRoot = Path.GetFullPath(Path.Combine(testsSqlDir, "..", ".."));
+        string repoRoot = ResolveRepoRoot(callerFilePath);
         string fullPath = Path.Combine(repoRoot, relativePath.Replace('/', Path.DirectorySeparatorChar));
 
         File.Exists(fullPath).Should().BeTrue($"'{relativePath}' must exist; update the ratchet when files move");
 
         return File.ReadAllText(fullPath);
+    }
+
+    private static string ResolveRepoRoot([CallerFilePath] string? callerFilePath = null)
+    {
+        string testsSqlDir = Path.GetDirectoryName(callerFilePath)
+                             ?? throw new InvalidOperationException("Caller path unavailable.");
+
+        // <repo>/ArchLucid.Persistence.Tests/Sql/<this file> — two levels up is the repo root.
+        return Path.GetFullPath(Path.Combine(testsSqlDir, "..", ".."));
     }
 }

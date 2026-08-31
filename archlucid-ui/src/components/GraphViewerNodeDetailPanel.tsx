@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, type JSX } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";

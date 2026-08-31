@@ -73,7 +73,7 @@ export function CompareResultsPanelVerdictChrome({
         />
       ) : null}
 
-      {showVerdictSummary ? (
+      {showVerdictSummary && golden !== null ? (
         <CompareVerdictSummary
           golden={golden}
           baselinePickedSummary={leftPickedSummary}

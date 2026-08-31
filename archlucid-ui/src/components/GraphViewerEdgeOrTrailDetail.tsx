@@ -1,5 +1,7 @@
 "use client";
 
+import type * as React from "react";
+
 import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -13,7 +15,7 @@ export type GraphViewerEdgeOrTrailDetailProps = {
 export function GraphViewerEdgeOrTrailDetail({
   selectedEdge,
   buyerTrailPanel,
-}: GraphViewerEdgeOrTrailDetailProps): JSX.Element {
+}: GraphViewerEdgeOrTrailDetailProps): React.JSX.Element {
   return (
     <div className="space-y-3">
       <h3 className="mt-0">Edge detail</h3>

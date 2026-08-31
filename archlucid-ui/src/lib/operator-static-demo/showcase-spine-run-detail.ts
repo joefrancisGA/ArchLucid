@@ -23,7 +23,7 @@ import type {
   PipelineTimelineItem,
   RunDetail,
   RunDetailAgentResult,
-  RunDetailAgentFindingWire,
+  RunDetailAgentFinding,
 } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -52,7 +52,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
   const decisionSynopses = getShowcaseDecisionSynopsesForRunId(d.run.runId);
 
   const quickDecisionFindings = (() => {
-    const findings: RunDetailAgentFindingWire[] = [
+    const findings: RunDetailAgentFinding[] = [
       {
         findingId: primaryFindingId,
         message: scenario?.primaryFindingTitle ?? "Sensitive data minimization risk",
@@ -312,7 +312,7 @@ export function buildStaticDemoRunDetailFromCreatedShowcase(urlRunId: string): R
   const manifest = d.manifest;
   const chain = d.authorityChain;
 
-  const quickDecisionFindings: RunDetailAgentFindingWire[] = [
+  const quickDecisionFindings: RunDetailAgentFinding[] = [
     {
       findingId: SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID,
       message: "Private inference egress gap",
