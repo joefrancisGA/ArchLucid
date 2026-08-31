@@ -114,4 +114,12 @@ public sealed partial class GovernanceController(
     private static string NormalizeApprovalRequestId(string approvalRequestId) =>
         approvalRequestId.Trim();
 
+    private IActionResult? BadRequestWhenApprovalRequestIdEmpty(string approvalRequestId)
+    {
+        if (string.IsNullOrWhiteSpace(approvalRequestId))
+            return this.BadRequestProblem("approvalRequestId is required.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
 }
