@@ -6,8 +6,6 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Host.Core.ProblemDetails;
-
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -15,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Moq;
 
+using HostProblemTypes = ArchLucid.Host.Core.ProblemDetails.ProblemTypes;
 using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
@@ -100,9 +99,8 @@ public sealed class TenantErasureLegalHoldControllerTests
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
         MvcProblemDetails problem = badRequest.Value.Should().BeOfType<MvcProblemDetails>().Subject;
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
-        problem.Detail.Should().NotBeNullOrWhiteSpace();
-        problem.Detail.Should().Contain("UntilUtc");
+        problem.Type.Should().Be(HostProblemTypes.ValidationFailed);
+        problem.Detail.Should().Be("UntilUtc must be in the future.");
     }
 
     [Fact]
