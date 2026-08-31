@@ -19,7 +19,7 @@ namespace ArchLucid.Api.Tests;
 ///             mocking <see cref="ITenantRepository" /> and adding <see cref="IWorkspaceQueryTenantRepository" /> via
 ///             Moq's <c>As&lt;T&gt;()</c>.
 ///         </item>
-///         <item><see cref="ITenantWorkspaceRepository.ListWorkspacesAsync" /> fallback — base interface only.</item>
+///         <item><see cref="ITenantRepository.ListWorkspacesAsync" /> fallback — base interface only.</item>
 ///     </list>
 /// </summary>
 [Trait("Category", "Unit")]
@@ -196,4 +196,3 @@ public sealed class TenantWorkspaceScopePreflightTests
 
     private sealed class FakeController : ControllerBase { }
 }
-
