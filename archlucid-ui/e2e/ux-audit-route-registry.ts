@@ -1,4 +1,4 @@
-import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor-dashboard-route";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 
 import { SPONSOR_ROI_DASHBOARD_PATHS } from "./helpers/sponsor-roi-dashboard";
@@ -42,7 +42,7 @@ export const UX_AUDIT_OPERATOR_BUYER_ROUTES: readonly UxAuditRouteEntry[] = [
   { slug: "settings-security-trust", href: "/administration/security-trust", persona: "security-architect" },
   { slug: "policy-packs", href: "/governance/policy-packs", persona: "security-architect" },
   { slug: "governance", href: "/governance/approval-queue", persona: "governance-reviewer" },
-  { slug: "governance-dashboard", href: SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF, persona: "governance-reviewer" },
+  { slug: "governance-dashboard", href: WORKSPACE_HEALTH_PATH, persona: "governance-reviewer" },
   {
     slug: "audit",
     href: auditTrailNavHref(SHOWCASE_DEMO_RUN_ID),
