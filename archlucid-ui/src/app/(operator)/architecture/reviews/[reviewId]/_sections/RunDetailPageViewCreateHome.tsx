@@ -35,6 +35,9 @@ export type RunDetailPageViewCreateHomeProps = {
     readonly pipelineDiagnosticContext: ReviewPipelineDiagnosticContext | null;
     readonly lastFailureSummary: RunDetailLastFailureSummary | null;
     readonly pipelineSummary: RunSummary;
+    readonly intakeDescription: string | null;
+    readonly intakeSystemName: string | null;
+    readonly realModeFellBackToSimulator: boolean;
   };
 };
 

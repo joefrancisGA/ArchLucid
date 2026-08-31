@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
 import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -28,6 +30,9 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly pipelineSummary?: RunSummary | null;
+  readonly intakeDescription?: string | null;
+  readonly intakeSystemName?: string | null;
+  readonly realModeFellBackToSimulator?: boolean | null;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -50,6 +55,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
 ): React.JSX.Element {
   const [next, setNext] = useState<ReviewPackageDoThisNext | null>(null);
   const priorCompare = usePriorSameRequestCompareHref(props.runId, 25);
+  const callerAuthorityRank = useNavCallerAuthorityRank();
+  const canConfigureWorkspaceAi = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const assumptionAwareCommitBlockedReason = useAssumptionAwareCommitBlockedReason({
     runId: props.runId,
     serverCommitBlockedReason: props.commitBlockedReason,
@@ -92,6 +99,10 @@ export function RunDetailReviewPackageDoThisNextResolved(
           pipelineDiagnosticContext: props.pipelineDiagnosticContext,
           lastFailureSummary: props.lastFailureSummary,
           pipelineSummary: props.pipelineSummary,
+          intakeDescription: props.intakeDescription,
+          intakeSystemName: props.intakeSystemName,
+          canConfigureWorkspaceAi,
+          realModeFellBackToSimulator: props.realModeFellBackToSimulator === true,
         }),
       );
     });
@@ -123,6 +134,10 @@ export function RunDetailReviewPackageDoThisNextResolved(
     props.pipelineDiagnosticContext,
     props.lastFailureSummary,
     props.pipelineSummary,
+    props.intakeDescription,
+    props.intakeSystemName,
+    canConfigureWorkspaceAi,
+    props.realModeFellBackToSimulator,
   ]);
 
   if (next === null) {
