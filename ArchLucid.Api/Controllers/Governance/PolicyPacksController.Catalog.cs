@@ -156,6 +156,11 @@ public sealed partial class PolicyPacksController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        if (request.PolicyPackCatalogEntryId == Guid.Empty)
+            return this.BadRequestProblem(
+                "policyPackCatalogEntryId is required.",
+                ProblemTypes.ValidationFailed);
+
         bool ok = await _workflow.TryDemoteCatalogEntryAsync(request.PolicyPackCatalogEntryId, ct);
 
         if (!ok)

@@ -241,6 +241,7 @@ archlucid-ui/src/components/tenancy/TenantMigrationMaintenanceBanner.tsx
 archlucid-ui/src/components/trial/TrialExpiryBanner.tsx
 archlucid-ui/src/components/trial/TrialUsageUpgradeNudge.tsx
 archlucid-ui/src/components/usability/PersistentTrialStatusStrip.tsx
+archlucid-ui/src/components/usability/RealModeAiReadinessShellBanner.tsx
 archlucid-ui/src/components/usability/SetupHealthShellBanner.tsx
 archlucid-ui/src/components/usability/TechnicalIdDisclosure.tsx
 archlucid-ui/src/components/use-email-run-to-sponsor-banner.ts
