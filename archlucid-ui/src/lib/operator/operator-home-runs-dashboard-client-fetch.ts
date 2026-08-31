@@ -2,16 +2,24 @@ import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/
 
 export type RunsDashboardClientLoadMode = "initial" | "background";
 
-/** True when SSR already delivered a trustworthy runs snapshot for this project. */
+/** True when SSR already delivered a trustworthy runs snapshot for this project and scope. */
 export function isOperatorHomeRunsDashboardServerSnapshotFresh(
   initialModel: OperatorHomeRunsDashboardModel | null,
   projectId: string,
+  scopeQueryKeySnapshot: string,
 ): boolean {
   if (initialModel === null) {
     return false;
   }
 
   if (initialModel.projectId !== projectId) {
+    return false;
+  }
+
+  if (
+    initialModel.scopeQueryKeySnapshot !== undefined &&
+    initialModel.scopeQueryKeySnapshot !== scopeQueryKeySnapshot
+  ) {
     return false;
   }
 
@@ -30,8 +38,9 @@ export function isOperatorHomeRunsDashboardServerSnapshotFresh(
 export function shouldSkipRunsDashboardClientFetchOnMount(
   initialModel: OperatorHomeRunsDashboardModel | null,
   projectId: string,
+  scopeQueryKeySnapshot: string,
 ): boolean {
-  return isOperatorHomeRunsDashboardServerSnapshotFresh(initialModel, projectId);
+  return isOperatorHomeRunsDashboardServerSnapshotFresh(initialModel, projectId, scopeQueryKeySnapshot);
 }
 
 /** Prefer skeleton only on true first paint; keep painted rows during background refresh. */

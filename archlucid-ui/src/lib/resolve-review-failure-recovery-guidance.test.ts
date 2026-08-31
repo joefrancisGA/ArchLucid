@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { resolveReviewFailureRecoveryGuidance } from "./resolve-review-failure-recovery-guidance";
 
 describe("resolveReviewFailureRecoveryGuidance", () => {
@@ -15,13 +16,12 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
     expect(guidance?.headline).toContain("Execution failed");
     expect(guidance?.recoverySteps.join(" ")).toContain("administrator handoff");
     expect(guidance?.adminHandoff?.markdown).toContain("Review ID: run-abc");
-    expect(guidance?.workspaceAiConfigurationSignal?.detail).toContain(
-      "Missing Azure OpenAI credentials or deployment config",
-    );
+    expect(guidance?.workspaceAiConfigurationSignal?.detail).toContain("ArchLucid-managed AI is unavailable");
     expect(guidance?.suggestSupportTicket).toBe(false);
+    expect(guidance?.adminConfigurationHref).toBeNull();
   });
 
-  it("returns admin configuration steps when the caller can configure workspace AI", () => {
+  it("returns managed-platform admin steps without linking to AI models", () => {
     const guidance = resolveReviewFailureRecoveryGuidance({
       diagnosticContext: { legacyRunStatus: "Failed", lastFailureReason: "Missing deployment" },
       lastFailureSummary: { triageScenarioId: "missingCredentials", failureClass: "missingCredentials" },
@@ -29,9 +29,22 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
       canConfigureWorkspaceAi: true,
     });
 
-    expect(guidance?.recoverySteps.join(" ")).toContain("Model governance");
+    expect(guidance?.recoverySteps.join(" ")).toContain("ArchLucid-managed AI");
+    expect(guidance?.recoverySteps.join(" ")).toContain("Report a problem");
     expect(guidance?.adminHandoff).toBeNull();
-    expect(guidance?.adminConfigurationHref).toBe("/administration/model-governance");
+    expect(guidance?.adminConfigurationHref).toBeNull();
+  });
+
+  it("links budget failures to AI usage for tenant admins", () => {
+    const guidance = resolveReviewFailureRecoveryGuidance({
+      diagnosticContext: { legacyRunStatus: "Failed" },
+      lastFailureSummary: { triageScenarioId: "budgetCutoff", failureClass: "costBudget" },
+      summary: null,
+      canConfigureWorkspaceAi: true,
+    });
+
+    expect(guidance?.adminConfigurationHref).toBe(AI_USAGE_SETTINGS_PATH);
+    expect(guidance?.adminConfigurationLabel).toBe("Open AI usage");
   });
 
   it("returns pre-stage failure steps when no structured failure is available", () => {
@@ -56,6 +69,19 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
     expect(guidance?.submittedIntakeRecap?.attachedFiles).toEqual(["handbook.docx"]);
     expect(guidance?.adminHandoff?.markdown).toContain("Review ID: run-abc");
     expect(guidance?.suggestSupportTicket).toBe(false);
+  });
+
+  it("uses customer-connection recovery copy when BYO is configured", () => {
+    const guidance = resolveReviewFailureRecoveryGuidance({
+      diagnosticContext: { legacyRunStatus: "Failed" },
+      lastFailureSummary: { triageScenarioId: "missingCredentials", failureClass: "missingCredentials" },
+      summary: null,
+      canConfigureWorkspaceAi: true,
+      usesCustomerAiConnection: true,
+    });
+
+    expect(guidance?.recoverySteps.join(" ")).toContain("customer-provided AI connection");
+    expect(guidance?.recoverySteps.join(" ")).not.toContain("connection probe");
   });
 
   it("suggests support ticket when only generic recovery steps are available", () => {

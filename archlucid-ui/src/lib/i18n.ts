@@ -152,6 +152,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   workspaceHealth: "Workspace health",
   securityTrust: "Security & Trust",
   aiUsage: "AI usage",
+  /** Workspace model policy (`/administration/model-governance`). */
+  aiModels: "AI models",
   /** Internal Operations — buyer-facing nav label (TB-648). */
   knowledgeIndexHealth: "Knowledge index health",
   failedIntegrationMessages: "Failed integration messages",

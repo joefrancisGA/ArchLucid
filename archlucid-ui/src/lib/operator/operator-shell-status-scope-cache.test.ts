@@ -35,7 +35,18 @@ describe("operator-shell-status-scope-cache", () => {
     hydrateOperatorShellStatusCaches(queryClient, SCOPE_A, {
       trialStatus: { status: "Active", daysRemaining: 10 },
       catalogMigration: null,
-      llmMonthlyBudgetStatus: null,
+      llmMonthlyBudgetStatus: {
+        monthlyBudgetMonitoringActive: true,
+        blocksAdditionalLlmExecution: false,
+        utcMonth: "2026-08",
+        hardCutoffUsdPerUtcMonth: 100,
+        effectiveHardCapUsd: 100,
+        purchasedCapBumpUsd: null,
+        estimatedUsdPressure: 10,
+        assumedNextCallReservationUsd: null,
+        hardCapUtilizationFraction: 0.25,
+        warnFraction: 0.75,
+      },
       alertsInboxSummary: null,
       usageStatus: null,
       homepageSettings: {
@@ -59,6 +70,7 @@ describe("operator-shell-status-scope-cache", () => {
     expect(queryClient.getQueryData(operatorQueryKeys.tenantHomepageSettings)?.selectedRunId).toBe(
       "run-from-tenant-a",
     );
+    expect(queryClient.getQueryData(operatorQueryKeys.llmMonthlyBudgetStatus)?.effectiveHardCapUsd).toBe(100);
 
     writeOperatorScopeToStorage({
       tenantId: "tenant-b",
@@ -70,6 +82,7 @@ describe("operator-shell-status-scope-cache", () => {
 
     expect(queryClient.getQueryData(operatorQueryKeys.tenantTrialStatus)).toBeUndefined();
     expect(queryClient.getQueryData(operatorQueryKeys.tenantHomepageSettings)).toBeUndefined();
+    expect(queryClient.getQueryData(operatorQueryKeys.llmMonthlyBudgetStatus)).toBeUndefined();
   });
 
   it("clears session stable cache when operator scope changes so tenant switch-back does not rehydrate stale shell status", () => {
