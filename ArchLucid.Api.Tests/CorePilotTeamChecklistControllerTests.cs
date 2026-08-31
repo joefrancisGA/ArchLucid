@@ -192,6 +192,34 @@ public sealed class CorePilotTeamChecklistControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_returns_bad_request_when_is_completed_omitted()
+    {
+        Mock<ICorePilotTeamChecklistRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IActorContext> actor = new();
+        Mock<IAuditService> audit = new();
+
+        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object, audit.Object);
+        IActionResult result = await sut.PutAsync(
+            new CorePilotChecklistPutRequest { StepIndex = 1 },
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repo.Verify(
+            r => r.UpsertAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PutAsync_valid_persists_and_no_content()
     {
         Mock<ICorePilotTeamChecklistRepository> repo = new();

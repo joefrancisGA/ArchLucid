@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Manifest;
@@ -108,6 +109,14 @@ public sealed partial class GovernanceStickinessController(
         string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.EvidenceBacked, StringComparison.OrdinalIgnoreCase)
         || string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.ModelAssisted, StringComparison.OrdinalIgnoreCase)
         || string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.Unknown, StringComparison.OrdinalIgnoreCase);
+
+    private IActionResult? BadRequestWhenProjectQueryIdEmpty(Guid? projectId)
+    {
+        if (!GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId(projectId))
+            return null;
+
+        return this.BadRequestProblem("projectId cannot be an empty GUID.", ProblemTypes.ValidationFailed);
+    }
 
     private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
     {
