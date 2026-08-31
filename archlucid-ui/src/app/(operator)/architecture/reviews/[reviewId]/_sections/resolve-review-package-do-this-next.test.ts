@@ -51,20 +51,30 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.href).toContain("reviewTab=activity");
   });
 
-  it("surfaces assessment-failure guidance with rerun primary and details secondary", () => {
+  it("surfaces assessment-failure guidance with rerun primary and inline recovery details", () => {
     const next = resolveReviewPackageDoThisNext({
       ...baseInput,
       showProgressTracker: true,
       legacyRunStatus: "Failed",
+      pipelineDiagnosticContext: { legacyRunStatus: "Failed" },
+      pipelineSummary: {
+        hasContextSnapshot: false,
+        hasGraphSnapshot: false,
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
     });
 
     expect(next.kind).toBe("rerun-review");
-    expect(next.sentence).toContain("Assessment failed");
+    expect(next.sentence).toContain("recovery steps");
+    expect(next.sentence).toContain("re-run the review");
     expect(next.actionLabel).toBe("Re-run review");
     expect(next.href).toBe(baseInput.correctionHref);
-    expect(next.secondaryAction?.label).toBe("View assessment details");
-    expect(next.secondaryAction?.href).toContain("reviewTab=activity");
+    expect(next.secondaryAction).toBeUndefined();
+    expect(next.failureRecovery?.headline).toContain("Execution failed");
+    expect(next.failureRecovery?.recoverySteps.length).toBeGreaterThan(0);
     expect(next.sentence).not.toContain("running");
+    expect(next.sentence).not.toContain("start a new review");
   });
 
   it("builds a rerun href when correctionHref is absent on terminal failure", () => {

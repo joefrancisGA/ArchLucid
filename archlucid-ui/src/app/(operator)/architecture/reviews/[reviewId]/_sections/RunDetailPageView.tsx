@@ -216,6 +216,9 @@ export async function RunDetailPageView(props: {
     evidenceCoverageLinkedCount: evidenceCoverageSummary.linkedCount,
     evidenceCoverageTotalCount: evidenceCoverageSummary.totalCount,
     governanceDecisionRecorded,
+    pipelineDiagnosticContext: m.pipelineDiagnosticContext,
+    lastFailureSummary: resolveRunDetailLastFailureSummary(m.resolvedDetail),
+    pipelineSummary: m.progressForPipelineUi,
   };
 
   const runDetailBody = (
