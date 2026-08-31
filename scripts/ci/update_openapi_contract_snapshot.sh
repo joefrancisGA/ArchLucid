@@ -29,10 +29,6 @@ echo "Regenerating ArchLucid.Api.Client (NSwag) from v1 baseline..."
 dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
 
 if [ "${ARCHLUCID_REGENERATE_UI_API_TYPES:-0}" = "1" ]; then
-  echo "Regenerating archlucid-ui TypeScript API types (split generator)..."
-  # Must use generate-api-types-split.mjs — writing a monolith to api-types.generated.ts
-  # fails assert_api_types_in_sync.sh, which diffs the split paths/schemas modules.
-  node "${ROOT}/archlucid-ui/scripts/generate-api-types-split.mjs"
   echo "Verifying split api-types output is now in sync..."
   bash scripts/ci/assert_api_types_in_sync.sh
 fi
