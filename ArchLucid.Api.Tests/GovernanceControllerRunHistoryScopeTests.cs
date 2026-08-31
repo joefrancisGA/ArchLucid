@@ -601,7 +601,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             item.ApprovalRequestId == approvalRequestId
             && !item.Succeeded
             && item.ErrorCode == ProblemTypes.ValidationFailed
-            && item.Message == "duplicate approvalRequestId in batch.");
+            && item.Message == "Duplicate approvalRequestId values are not allowed in a batch after trimming whitespace.");
 
         workflow.Verify(
             w => w.ApproveAsync(

@@ -3,7 +3,6 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Http;
-using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
@@ -38,7 +37,10 @@ public sealed partial class GovernanceController
     }
 
     private async Task LogGovernanceApprovalRequestedAuditAsync(
-        CreateGovernanceApprovalRequest request,
+        string runId,
+        string manifestVersion,
+        string sourceEnvironment,
+        string targetEnvironment,
         string idempotencyKey,
         CancellationToken cancellationToken)
     {
@@ -55,13 +57,13 @@ public sealed partial class GovernanceController
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
-                RunId = TryParseArchitectureRunIdForAudit(request.RunId),
+                RunId = TryParseArchitectureRunIdForAudit(runId),
                 DataJson = JsonSerializer.Serialize(new
                 {
                     idempotencyKeySha256Hex = Convert.ToHexString(keyHash),
-                    manifestVersion = request.ManifestVersion.Trim(),
-                    sourceEnvironment = request.SourceEnvironment.Trim(),
-                    targetEnvironment = request.TargetEnvironment.Trim()
+                    manifestVersion,
+                    sourceEnvironment,
+                    targetEnvironment
                 })
             },
             cancellationToken);

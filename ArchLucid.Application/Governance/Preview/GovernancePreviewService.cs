@@ -148,12 +148,12 @@ public sealed class GovernancePreviewService(
         if (string.IsNullOrWhiteSpace(environment))
             throw new ArgumentException("Environment is required.", paramName);
 
-        string normalized = environment.Trim();
+        string normalized = environment.Trim().ToLowerInvariant();
 
         if (!IsKnownEnvironment(normalized))
             throw new ArgumentException("Environment must be one of: dev, test, prod.", paramName);
 
-        return normalized.ToLowerInvariant();
+        return normalized;
     }
 
     private static bool IsKnownEnvironment(string value)

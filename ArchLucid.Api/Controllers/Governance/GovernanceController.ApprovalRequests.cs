@@ -62,14 +62,17 @@ public sealed partial class GovernanceController
 
         string requestedBy = actorContext.GetActor();
         string requestedByActorKey = actorContext.GetActorId();
+        string normalizedManifestVersion = request.ManifestVersion.Trim();
+        string normalizedSourceEnvironment = request.SourceEnvironment.Trim();
+        string normalizedTargetEnvironment = request.TargetEnvironment.Trim();
 
         try
         {
             GovernanceApprovalRequest result = await workflowService.SubmitApprovalRequestAsync(
                 normalizedRunId!,
-                request.ManifestVersion,
-                request.SourceEnvironment,
-                request.TargetEnvironment,
+                normalizedManifestVersion,
+                normalizedSourceEnvironment,
+                normalizedTargetEnvironment,
                 requestedBy,
                 requestedByActorKey,
                 request.RequestComment,
@@ -80,7 +83,13 @@ public sealed partial class GovernanceController
                 Response.Headers[ArchLucidHttpHeaders.DryRun] = "true";
 
             if (!dryRun && idempotencyKey is not null)
-                await LogGovernanceApprovalRequestedAuditAsync(request, idempotencyKey, cancellationToken);
+                await LogGovernanceApprovalRequestedAuditAsync(
+                    normalizedRunId!,
+                    normalizedManifestVersion,
+                    normalizedSourceEnvironment,
+                    normalizedTargetEnvironment,
+                    idempotencyKey,
+                    cancellationToken);
 
             return Ok(result);
         }
