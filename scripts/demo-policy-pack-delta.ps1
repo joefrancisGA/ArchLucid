@@ -284,7 +284,8 @@ if ($OfflineFindingDelta) {
         throw 'python3 or python is required for -OfflineFindingDelta.'
     }
 
-    & $python.Source $writer --out $offlineOut
+    $pythonExe = if ($null -ne $python.Path -and -not [string]::IsNullOrWhiteSpace($python.Path)) { $python.Path } else { $python.Source }
+    & $pythonExe $writer --out $offlineOut
 
     if ($LASTEXITCODE -ne 0) {
         throw "write_policy_pack_finding_delta_offline_packet.py failed (exit $LASTEXITCODE)."
