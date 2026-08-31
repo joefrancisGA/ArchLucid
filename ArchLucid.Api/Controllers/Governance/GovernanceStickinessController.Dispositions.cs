@@ -38,7 +38,7 @@ public sealed partial class GovernanceStickinessController
         if (string.IsNullOrWhiteSpace(findingId))
             return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -122,7 +122,24 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string findingId in findingIds)
+        {
+            if (string.IsNullOrWhiteSpace(findingId))
+                continue;
+
+            string normalizedFindingId = findingId.Trim();
+
+            if (!seenFindingIds.Add(normalizedFindingId))
+            {
+                return this.BadRequestProblem(
+                    "Duplicate findingId in batch.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -151,7 +168,7 @@ public sealed partial class GovernanceStickinessController
         if (string.IsNullOrWhiteSpace(findingId))
             return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -183,7 +200,7 @@ public sealed partial class GovernanceStickinessController
         if (string.IsNullOrWhiteSpace(findingId))
             return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
