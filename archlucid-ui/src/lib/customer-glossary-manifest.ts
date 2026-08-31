@@ -77,7 +77,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     relatedTermIds: ["review", "sealed-review-record", "deliverable"],
     detail:
       "Stakeholders open an architecture review to triage findings, finalize, export, compare, and audit outcomes. Finalize locks the sealed review record and sponsor-ready exports.",
-    deprecatedAliases: ["architecture package", "architecture package", "Architecture package", "architecture package", "Finalized review"],
+    deprecatedAliases: ["Review package", "review package", "Architecture package", "architecture package", "Finalized review"],
     visibility: "customer",
   },
   {

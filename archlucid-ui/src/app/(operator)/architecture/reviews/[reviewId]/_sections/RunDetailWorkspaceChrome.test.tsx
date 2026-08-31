@@ -25,6 +25,7 @@ vi.mock("next/link", () => ({
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
 }));
 
 vi.mock("@/components/CopyIdButton", () => ({
@@ -59,6 +60,12 @@ import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActio
 const workspaceStatus = {
   label: "Finalized · approval blocked",
   kind: "finalized" as const,
+  statusTagKind: "needs-attention" as const,
+};
+
+const executionFailedWorkspaceStatus = {
+  label: "Execution failed",
+  kind: "execution-failed" as const,
   statusTagKind: "needs-attention" as const,
 };
 
@@ -115,6 +122,27 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("Record metadata (3 fields not recorded)")).toBeInTheDocument();
     expect(screen.getByText("Not recorded — finalization timestamp missing from the finalized review record")).toBeInTheDocument();
     expect(screen.getByText("Not recorded — rule set version missing")).toBeInTheDocument();
+  });
+
+  it("labels sparse metadata as finalization metadata when execution failed pre-stage", () => {
+    render(
+      <RunDetailWorkspaceHeader
+        runId="run-1"
+        h1Title="ArchLucid"
+        eyebrowLabel="Architecture review"
+        reviewIdentifierLabel="run-1"
+        signedReviewRecordId={null}
+        signedReviewRecordIdLabel={null}
+        workspaceStatus={executionFailedWorkspaceStatus}
+        reviewOwner={null}
+        templateLabel={null}
+        finalizedAtLabel={null}
+        packageVersionLabel={null}
+      />,
+    );
+
+    expect(screen.getByText("Finalization metadata (available after review completes)")).toBeInTheDocument();
+    expect(screen.queryByText(/fields not recorded/i)).toBeNull();
   });
 
   it("clamps an oversized h1 title to one line without markdown", () => {

@@ -25,7 +25,7 @@ export async function fetchSponsorDashboardBundleCached(
   const queryClient = getOperatorQueryClient();
 
   if (options?.force === true) {
-    await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.sponsorDashboardBundle });
+    await invalidateSponsorDashboardBundleCache();
   }
 
   return queryClient.fetchQuery({
@@ -33,4 +33,9 @@ export async function fetchSponsorDashboardBundleCached(
     queryFn: fetchSponsorDashboardBundleClient,
     staleTime: OPERATOR_QUERY_STALE_MS,
   });
+}
+
+/** Clears cached sponsor dashboard bundle (for example after demo seed or sample purge). */
+export async function invalidateSponsorDashboardBundleCache(): Promise<void> {
+  await getOperatorQueryClient().invalidateQueries({ queryKey: operatorQueryKeys.sponsorDashboardBundle });
 }

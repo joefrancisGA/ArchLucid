@@ -193,6 +193,26 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task CompareManifests_returns_ok_with_diff_when_query_params_are_padded()
+    {
+        string paddedLeftVersion = $"  {LeftVersion}  ";
+        string paddedRightVersion = $"  {RightVersion}  ";
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.CompareManifests(
+            paddedLeftVersion,
+            paddedRightVersion,
+            CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ArchLucid.Api.Models.ManifestCompareResponse body =
+            ok.Value.Should().BeOfType<ArchLucid.Api.Models.ManifestCompareResponse>().Subject;
+        body.LeftManifest.Metadata.ManifestVersion.Should().Be(LeftVersion);
+        body.RightManifest.Metadata.ManifestVersion.Should().Be(RightVersion);
+        body.Diff.AddedServices.Should().Contain("svc-b");
+    }
+
+    [Fact]
     public async Task CompareManifestsSummary_returns_trimmed_manifest_versions_when_query_params_are_padded()
     {
         string paddedLeftVersion = $"  {LeftVersion}  ";
@@ -254,6 +274,20 @@ public sealed class ManifestsControllerTests
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         GoldenManifest body = ok.Value.Should().BeOfType<GoldenManifest>().Subject;
         body.Metadata.ManifestVersion.Should().Be(ManifestVersion);
+    }
+
+    [Fact]
+    public async Task GetManifestSummary_returns_bad_request_when_max_relationships_is_zero()
+    {
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestSummary(
+            ManifestVersion,
+            maxRelationships: 0,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]

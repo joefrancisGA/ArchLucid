@@ -20,7 +20,6 @@ import {
   RunDetailWorkspaceLayout,
 } from "./RunDetailWorkspaceShell";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
-import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import {
   RunDetailBuyerModeFallbackBannerDeferred,
   RunDetailBuyerPilotConversionSectionDeferred,
@@ -216,6 +215,12 @@ export async function RunDetailPageView(props: {
     evidenceCoverageLinkedCount: evidenceCoverageSummary.linkedCount,
     evidenceCoverageTotalCount: evidenceCoverageSummary.totalCount,
     governanceDecisionRecorded,
+    pipelineDiagnosticContext: m.pipelineDiagnosticContext,
+    lastFailureSummary: resolveRunDetailLastFailureSummary(m.resolvedDetail),
+    pipelineSummary: m.progressForPipelineUi,
+    intakeDescription: m.resolvedDetail.run.description ?? m.progressForPipelineUi.description ?? null,
+    intakeSystemName: m.resolvedDetail.run.displayName ?? m.progressForPipelineUi.displayName ?? null,
+    realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator === true,
   };
 
   const runDetailBody = (

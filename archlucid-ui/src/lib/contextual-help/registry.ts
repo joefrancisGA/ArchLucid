@@ -73,6 +73,10 @@ import {
   PROVENANCE_CONTEXTUAL_HELP,
   pathIsRunProvenance,
 } from "@/lib/provenance-evidence-copy";
+import {
+  REVIEW_WORKSPACE_CONTEXTUAL_HELP,
+  pathIsReviewWorkspaceDetail,
+} from "@/lib/review-workspace-evidence-copy";
 import { pathIsSettingsHubRoot } from "@/lib/settings-admin-route-paths";
 
 function ensureContextualHelpRowDefaults(row: PageContextualHelpRow): PageContextualHelpRow {
@@ -159,6 +163,7 @@ const PARAMETERIZED_ROUTE_MATCHERS: readonly {
   readonly entry: PageContextualHelpEntry;
 }[] = [
   { matches: pathIsRunProvenance, entry: PROVENANCE_CONTEXTUAL_HELP },
+  { matches: pathIsReviewWorkspaceDetail, entry: REVIEW_WORKSPACE_CONTEXTUAL_HELP },
   { matches: pathIsFindingEvidenceTrace, entry: EVIDENCE_TRACE_CONTEXTUAL_HELP },
   { matches: pathIsArchitectureDraftDetail, entry: ARCHITECTURES_DRAFT_CONTEXTUAL_HELP },
   { matches: pathIsSettingsHubRoot, entry: SETTINGS_HUB_CONTEXTUAL_HELP },

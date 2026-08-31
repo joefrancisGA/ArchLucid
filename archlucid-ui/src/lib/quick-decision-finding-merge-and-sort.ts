@@ -5,6 +5,7 @@ import { resolveFindingTraceRowsFromSummary } from "@/lib/quick-decision-wire-sn
 
 import {
   extractQuickDecisionFindingsFromRunDetail,
+  normalizeEvaluationConfidenceScore,
   quickDecisionFindingFromTraceRow,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-finding-from-detail";
@@ -60,11 +61,9 @@ function mergeQuickDecisionFindingsWithExplanationTraces(
     const fromRowLevel = normalizeConfidenceLevelFromWire(row.confidenceLevel);
     const confidenceLevel = f.confidenceLevel ?? fromRowLevel ?? null;
 
-    const fromRowScore =
-      typeof row.evaluationConfidenceScore === "number" && Number.isFinite(row.evaluationConfidenceScore)
-        ? row.evaluationConfidenceScore
-        : null;
-    const evaluationConfidenceScore = f.evaluationConfidenceScore ?? fromRowScore ?? null;
+    const fromRowScore = normalizeEvaluationConfidenceScore(row.evaluationConfidenceScore);
+    const evaluationConfidenceScore =
+      f.evaluationConfidenceScore ?? fromRowScore ?? null;
 
     const traceLabelFromRow =
       typeof row.traceConfidenceLabel === "string" && row.traceConfidenceLabel.trim().length > 0

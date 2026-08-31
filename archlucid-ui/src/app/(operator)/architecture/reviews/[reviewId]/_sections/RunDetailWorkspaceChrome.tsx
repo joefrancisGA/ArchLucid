@@ -10,7 +10,10 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { formatActionActorName } from "@/lib/action-actor-display";
@@ -92,6 +95,17 @@ function renderMetadataField(field: ReviewMetadataField): React.JSX.Element {
   );
 }
 
+function metadataDisclosureSummary(
+  unrecordedFieldCount: number,
+  workspaceStatus: RunDetailWorkspaceStatus,
+): string {
+  if (workspaceStatus.kind === "execution-failed") {
+    return "Finalization metadata (available after review completes)";
+  }
+
+  return `Record metadata (${unrecordedFieldCount} fields not recorded)`;
+}
+
 /** Customer-facing review header — title and review identity without repeating sponsor metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
@@ -128,7 +142,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         actions={
           <>
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
-            <PageContextualHelpButton />
+            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           </>
         }
       >
@@ -151,7 +165,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 data-testid="run-detail-record-metadata-disclosure"
               >
                 <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  Record metadata ({unrecordedFieldCount} fields not recorded)
+                  {metadataDisclosureSummary(unrecordedFieldCount, props.workspaceStatus)}
                 </summary>
                 <div className="grid gap-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800 sm:grid-cols-2">
                   {collapseMetadataFieldSet.map(renderMetadataField)}

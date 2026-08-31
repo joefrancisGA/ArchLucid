@@ -6,10 +6,11 @@ import {
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { GOVERNANCE_APPROVAL_HOW_IT_WORKS_LABEL } from "@/lib/vocabulary/governance-approval-vocabulary";
 
 export const GOVERNANCE_APPROVAL_HELP_CANONICAL_PATH = "/help/governance-approval" as const;
 
-export const GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL = "How resolve outcomes work";
+export const GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL = GOVERNANCE_APPROVAL_HOW_IT_WORKS_LABEL;
 
 export const GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 

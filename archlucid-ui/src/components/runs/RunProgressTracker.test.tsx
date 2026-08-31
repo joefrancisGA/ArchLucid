@@ -454,7 +454,7 @@ describe("RunProgressTracker", () => {
     });
 
     expect(mockGetRunStageTimeline).toHaveBeenCalledTimes(1);
-    expect(screen.getByText(/Assessment failed — review the error details/i)).toBeInTheDocument();
+    expect(screen.getByText(/Assessment did not finish — recovery steps are shown in Do this next above/i)).toBeInTheDocument();
     expect(screen.getByText(/Execution failed before the first pipeline stage/i)).toBeInTheDocument();
     expect(screen.getByText(/authority_pipeline_dead_letter/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Re-run review" })).toHaveAttribute(

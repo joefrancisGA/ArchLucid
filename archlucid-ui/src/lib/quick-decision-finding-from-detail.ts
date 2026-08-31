@@ -60,6 +60,11 @@ function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel 
   );
 }
 
+/** Truncate persisted 0–100-style scores so detail extraction and trace overlays stay aligned. */
+export function normalizeEvaluationConfidenceScore(raw: unknown): number | null {
+  return typeof raw === "number" && Number.isFinite(raw) ? Math.trunc(raw) : null;
+}
+
 function severityValueFromTraceRow(row: FindingTraceConfidenceDto): number {
   const level = normalizeFindingConfidenceLevel(row.confidenceLevel);
 
@@ -124,10 +129,7 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
     isMuted: false,
     muteReason: null,
     confidenceLevel: normalizeConfidenceLevelFromWire(row.confidenceLevel),
-    evaluationConfidenceScore:
-      typeof row.evaluationConfidenceScore === "number" && Number.isFinite(row.evaluationConfidenceScore)
-        ? row.evaluationConfidenceScore
-        : null,
+    evaluationConfidenceScore: normalizeEvaluationConfidenceScore(row.evaluationConfidenceScore),
     traceConfidenceLabel:
       typeof row.traceConfidenceLabel === "string" && row.traceConfidenceLabel.trim().length > 0
         ? row.traceConfidenceLabel.trim()
@@ -222,8 +224,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       }
 
       const evaluationRaw = fr.evaluationConfidenceScore;
-      const evaluationConfidenceScore =
-        typeof evaluationRaw === "number" && Number.isFinite(evaluationRaw) ? Math.trunc(evaluationRaw) : null;
+      const evaluationConfidenceScore = normalizeEvaluationConfidenceScore(evaluationRaw);
 
       const confidenceLevel = normalizeConfidenceLevelFromWire(fr.confidenceLevel);
 

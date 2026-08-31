@@ -26,6 +26,7 @@ public sealed class GovernanceWorkflowPromoteStage(
     IBaselineMutationAuditService baselineMutationAudit,
     GovernanceWorkflowAuditSupport auditSupport,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IGovernanceEnvironmentCatalogService environmentCatalogService,
     ILogger<GovernanceWorkflowPromoteStage> logger) : IGovernanceWorkflowPromoteStage
 {
     private const string OpaqueProdApprovalValidationFailed =
@@ -55,6 +56,9 @@ public sealed class GovernanceWorkflowPromoteStage(
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory =
         unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
+    private readonly IGovernanceEnvironmentCatalogService _environmentCatalogService =
+        environmentCatalogService ?? throw new ArgumentNullException(nameof(environmentCatalogService));
+
     private readonly ILogger<GovernanceWorkflowPromoteStage> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -83,6 +87,8 @@ public sealed class GovernanceWorkflowPromoteStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(promotedBy);
 
         manifestVersion = manifestVersion.Trim();
+        sourceEnvironment = sourceEnvironment.Trim();
+        targetEnvironment = targetEnvironment.Trim();
 
         ArchitectureRunDetail runDetail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
@@ -102,11 +108,13 @@ public sealed class GovernanceWorkflowPromoteStage(
         if (!string.Equals(manifest.RunId, runId, StringComparison.Ordinal))
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
-        if (!GovernanceEnvironmentOrder.IsValidPromotion(sourceEnvironment, targetEnvironment))
+        if (!await _environmentCatalogService
+                .IsValidTransitionAsync(sourceEnvironment, targetEnvironment, cancellationToken)
+                .ConfigureAwait(false))
         {
             throw new InvalidOperationException(
-                $"Promotion must follow environment ordering (dev → test → prod). " +
-                $"'{sourceEnvironment}' → '{targetEnvironment}' is not a valid promotion step.");
+                $"Promotion must follow an allowed environment transition. " +
+                $"'{sourceEnvironment}' → '{targetEnvironment}' is not permitted.");
         }
 
         if (string.Equals(targetEnvironment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase)
@@ -116,6 +124,7 @@ public sealed class GovernanceWorkflowPromoteStage(
         }
 
         GovernanceApprovalRequest? prodApprovalToMarkPromoted = null;
+
         if (!string.IsNullOrWhiteSpace(approvalRequestId))
         {
             GovernanceApprovalRequest? approvalRequest = await _approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);

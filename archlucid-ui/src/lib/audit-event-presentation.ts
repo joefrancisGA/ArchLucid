@@ -63,7 +63,7 @@ export function auditEventFriendlyTitle(eventType: string): string {
       return "Artifacts bundled";
 
     case "GovernanceApprovalRequested":
-      return "Resolve outcomes requested";
+      return "Governance approval requested";
 
     case "SponsorPreliminaryArchitectureShared":
       return "Preliminary architecture shared with sponsor";

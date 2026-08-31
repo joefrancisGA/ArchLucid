@@ -15,24 +15,10 @@ import {
   ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL,
 } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { parseIsoUtcMs } from "@/lib/format-iso-utc";
-import { formatUpdatedRelativeWithAbsoluteParenthetical } from "@/lib/relative-time";
+import { formatAbsoluteUpdatedAtTitle, formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
 const ARCHITECTURE_CREATION_RESUME_PREVIEW_LIMIT = 3;
-
-function formatAbsoluteUpdatedTitle(updatedUtc: string): string {
-  const parsed = parseIsoUtcMs(updatedUtc);
-
-  if (Number.isNaN(parsed)) {
-    return updatedUtc;
-  }
-
-  return new Date(parsed).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 
 function resolveResumeSectionTitle(entryCount: number): string {
   if (entryCount === 1) {
@@ -74,7 +60,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
       </p>
       <ul className="m-0 mt-3 list-none space-y-3 p-0">
         {previewEntries.map((entry) => {
-          const absoluteUpdated = formatAbsoluteUpdatedTitle(entry.lastUpdatedUtc);
+          const absoluteUpdated = formatAbsoluteUpdatedAtTitle(entry.lastUpdatedUtc);
 
           return (
             <li
@@ -86,7 +72,9 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
                 {entry.displayName}
               </p>
               <p className={cn("m-0 mt-1.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {formatUpdatedRelativeWithAbsoluteParenthetical(entry.lastUpdatedUtc, absoluteUpdated)}
+                <time dateTime={entry.lastUpdatedUtc} title={absoluteUpdated}>
+                  Updated {formatRelativeTime(entry.lastUpdatedUtc)}
+                </time>
               </p>
               <div className="mt-2">
                 <ArchitectureDraftResumeControl

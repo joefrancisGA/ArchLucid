@@ -1,3 +1,4 @@
+using ArchLucid.Core.Persistence.ApplicationPorts.Connections;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.TestSupport;
 
