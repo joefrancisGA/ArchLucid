@@ -19912,7 +19912,7 @@
             "type": "integer"
           },
           "governancePendingApprovalsNow": {
-            "format": "int32",
+            "format": "int64",
             "type": "integer"
           },
           "governanceRejections": {
