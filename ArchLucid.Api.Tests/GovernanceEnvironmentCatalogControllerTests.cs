@@ -2,7 +2,9 @@ using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
@@ -24,6 +26,71 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
+    private static ITenantRepository TenantExistsRepository() =>
+        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+            Scope.TenantId,
+            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" }));
+
+    [Fact]
+    public async Task Get_returns_not_found_when_tenant_missing()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            Mock.Of<IAuditService>(),
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        ActionResult<GovernanceEnvironmentCatalog> action = await controller.Get(CancellationToken.None);
+
+        ObjectResult notFound = action.Result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        catalogService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Replace_returns_not_found_when_tenant_missing()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            Mock.Of<IAuditService>(),
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.Replace(
+            new ReplaceGovernanceEnvironmentCatalogRequest(),
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        catalogService.VerifyNoOtherCalls();
+    }
+
     [Fact]
     public async Task Get_returns_effective_catalog()
     {
@@ -42,7 +109,8 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
-            auditService.Object)
+            auditService.Object,
+            TenantExistsRepository())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -72,7 +140,8 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
-            auditService.Object)
+            auditService.Object,
+            TenantExistsRepository())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -132,7 +201,8 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
-            auditService.Object)
+            auditService.Object,
+            TenantExistsRepository())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

@@ -237,7 +237,45 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
-    public async Task PostProductFeedbackAsync_persists_and_returns_no_content()
+    public async Task PostProductFeedbackAsync_omits_finding_ref_when_value_is_whitespace()
+    {
+        ProductFeedbackSubmission? captured = null;
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        repo.Setup(r =>
+                r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()))
+            .Callback<ProductFeedbackSubmission, CancellationToken>((s, _) => captured = s)
+            .Returns(Task.CompletedTask);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            findingInspect: findingInspect.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            FindingRef = "   ",
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        captured.Should().NotBeNull();
+        captured!.FindingRef.Should().BeNull();
+        findingInspect.Verify(
+            r => r.GetInspectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     {
         ProductFeedbackSubmission? captured = null;
         Mock<ITenantCustomerSuccessRepository> repo = new();
