@@ -26,24 +26,3 @@ public sealed class WizardIntakeDraftResponse
         set;
     }
 }
-
-public sealed class UpsertWizardIntakeDraftRequest
-{
-    public int StepIndex
-    {
-        get;
-        set;
-    }
-
-    public string StateJson
-    {
-        get;
-        set;
-    } = "{}";
-
-    public string? IdempotencyKey
-    {
-        get;
-        set;
-    }
-}
