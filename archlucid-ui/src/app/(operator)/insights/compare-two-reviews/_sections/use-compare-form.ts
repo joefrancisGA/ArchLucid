@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
-import { COMPARE_PAGE_SHORTCUTS } from "@/lib/compare-page-shortcuts";
 import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunComparison } from "@/lib/operator/operator-response-guards";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -423,7 +422,6 @@ export function useCompareForm() {
 
   return {
     comparePagePath: COMPARE_TWO_REVIEWS_PATH,
-    comparePageShortcuts: COMPARE_PAGE_SHORTCUTS,
     comparePageSubtitle: COMPARE_PAGE_SUBTITLE,
     buyerComparePageTitle: BUYER_COMPARE_PAGE_TITLE,
     buyerComparePrimaryActionLabel: BUYER_COMPARE_PRIMARY_ACTION_LABEL,
