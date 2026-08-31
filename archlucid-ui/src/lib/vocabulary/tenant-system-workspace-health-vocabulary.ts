@@ -43,7 +43,7 @@ export const TENANT_SYSTEM_WORKSPACE_HEALTH_HEADING =
   "Tenant, system, and workspace health are three different views" as const;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_WHY_THREE =
-  "Tenant health tracks customer engagement per tenant. System health shows platform uptime and dependency checks for this deployment. Workspace health is the standalone sponsor KPI dashboard at /insights/workspace-health for the current workspace. One health page does not replace the others — open the peer link when you need that view." as const;
+  `Tenant health tracks customer engagement per tenant. System health shows platform uptime and dependency checks for this deployment. Workspace health is the standalone sponsor KPI dashboard at ${WORKSPACE_HEALTH_PATH} for the current workspace. One health page does not replace the others — open the peer link when you need that view.`;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_COMPACT_LINE =
   "Tenant health is customer engagement; system health is platform uptime; workspace health is sponsor KPIs — open the other when you need that view." as const;
