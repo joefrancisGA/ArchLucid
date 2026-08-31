@@ -26,21 +26,25 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
-    private static ITenantRepository TenantExistsRepository() =>
-        Mock.Of<ITenantRepository>(repository =>
-            repository.GetByIdAsync(
-                Scope.TenantId,
-                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })
-            && repository.ListWorkspacesAsync(
-                Scope.TenantId,
-                It.IsAny<CancellationToken>()) == Task.FromResult<IReadOnlyList<TenantWorkspaceListItem>>(
-                [
-                    new TenantWorkspaceListItem
-                    {
-                        WorkspaceId = Scope.WorkspaceId,
-                        Name = "primary",
-                    },
-                ]));
+    private static ITenantRepository TenantExistsRepository()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        return tenants.Object;
+    }
 
     [Fact]
     public async Task Get_returns_not_found_when_tenant_missing()
