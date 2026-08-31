@@ -102,7 +102,7 @@ export function resolvePartialRunCommitBlockPresentation(args: {
   if (status === "Failed") {
     return {
       summary:
-        "Review assessment failed — check configuration, then re-run the review before finalizing.",
+        "Assessment failed — follow the recovery steps in Do this next above, then re-run the review before finalizing.",
       technicalDetail: null,
     };
   }

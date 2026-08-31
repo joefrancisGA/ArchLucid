@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Alerts.Delivery;
 using ArchLucid.Contracts.Governance;
@@ -49,10 +50,14 @@ public sealed class GovernanceSetupController(
     public async Task<IActionResult> GetSetupGuideBundle(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            scope,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         Task<EffectivePolicyPackSet> effectiveTask = _resolver.ResolveAsync(
             scope.TenantId,

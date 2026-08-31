@@ -92,10 +92,16 @@ function resolveWorkspaceHealthLoadError(error: unknown): WorkspaceHealthLoadErr
   };
 }
 
+export type SponsorWorkspaceHealthDashboardProps = {
+  readonly standalonePage?: boolean;
+};
+
 /**
  * Sponsor-oriented **Workspace health**: five KPI blocks composed from existing governance, audit, compliance-drift, and pilot-value APIs (current scope only).
  */
-export function SponsorWorkspaceHealthDashboard() {
+export function SponsorWorkspaceHealthDashboard({
+  standalonePage = false,
+}: SponsorWorkspaceHealthDashboardProps = {}) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const callerRank = useNavCallerAuthorityRank();
   const [scopeBanner, setScopeBanner] = useState<string>(DEFAULT_SCOPE_FALLBACK);
@@ -218,9 +224,12 @@ export function SponsorWorkspaceHealthDashboard() {
     return (
       <div className="space-y-4">
         {layerHeader}
-        <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <SponsorWorkspaceHealthPageHero
+          buyerPolishedShell={buyerPolishedShell}
+          standalonePage={standalonePage}
+        />
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
-<p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {`Loading ${SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE.toLowerCase()}…`}
         </p>
       </div>
@@ -231,9 +240,12 @@ export function SponsorWorkspaceHealthDashboard() {
     return (
       <div className="space-y-4">
         {layerHeader}
-        <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <SponsorWorkspaceHealthPageHero
+          buyerPolishedShell={buyerPolishedShell}
+          standalonePage={standalonePage}
+        />
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
-<OperatorApiProblem
+        <OperatorApiProblem
           fallbackMessage={loadError.message}
           problem={loadError.problem}
           correlationId={loadError.correlationId}
@@ -338,9 +350,12 @@ export function SponsorWorkspaceHealthDashboard() {
     <div className="space-y-4">
       {layerHeader}
 
-      <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+      <SponsorWorkspaceHealthPageHero
+        buyerPolishedShell={buyerPolishedShell}
+        standalonePage={standalonePage}
+      />
       <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
-{scopeBannerBlock}
+      {scopeBannerBlock}
 
       <DataArchivalDegradedBanner />
 

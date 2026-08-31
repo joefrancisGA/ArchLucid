@@ -27,6 +27,8 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import type { AuditPageServerLoad } from "./load-audit-page-data";
 import {
   type AuditFilterFields,
+  resolveAuditScopedRunId,
+  shouldDeferAuditAutoSearch,
   toDatetimeLocalInputValue,
 } from "./audit-page-helpers";
 import { resolveAuditSearchPageForUi, shouldInjectAuditDemoOnSearchError } from "./resolve-audit-search-page-for-ui";
@@ -96,7 +98,7 @@ export function useAuditPageSearch(
   const [toUtc, setToUtc] = useState<string>("");
   const [correlationId, setCorrelationId] = useState<string>("");
   const [actorUserId, setActorUserId] = useState<string>("");
-  const [runId, setRunId] = useState<string>("");
+  const [runId, setRunId] = useState<string>(() => searchParams.get("runId")?.trim() ?? "");
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [hasMoreResults, setHasMoreResults] = useState(false);
   const [auditNextCursor, setAuditNextCursor] = useState<string | null>(null);
@@ -106,7 +108,8 @@ export function useAuditPageSearch(
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(null);
-  const demoAuditPrimedRef = useRef(false);
+  const initialAutoSearchPrimedRef = useRef(false);
+  const lastAutoSearchUrlRunIdRef = useRef<string | null>(null);
   const ctoDemoAuditFilterActive = isCtoDemoAuditFilterActive(searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM));
 
   useEffect(() => {
@@ -339,13 +342,29 @@ export function useAuditPageSearch(
   }, [actorUserId, applyDemoAuditFallback, applySearchPageToState, correlationId, eventType, executeSearch, runId]);
 
   useEffect(() => {
-    if (demoAuditPrimedRef.current) {
+    const urlRunIdParam = searchParams.get("runId")?.trim() ?? "";
+    const scopedRunId = resolveAuditScopedRunId({
+      urlRunId: urlRunIdParam,
+      pathname: pathname ?? GOVERNANCE_AUDIT_PATH,
+      search: searchParams.toString(),
+      workspaceActiveRunId: workspaceRun?.activeRunId ?? null,
+    });
+
+    if (shouldDeferAuditAutoSearch(runId, scopedRunId)) {
       return;
     }
 
-    demoAuditPrimedRef.current = true;
+    const shouldAutoSearch =
+      !initialAutoSearchPrimedRef.current || urlRunIdParam !== lastAutoSearchUrlRunIdRef.current;
+
+    if (!shouldAutoSearch) {
+      return;
+    }
+
+    initialAutoSearchPrimedRef.current = true;
+    lastAutoSearchUrlRunIdRef.current = urlRunIdParam;
     void runSearch();
-  }, [runSearch]);
+  }, [pathname, runId, runSearch, searchParams, workspaceRun?.activeRunId]);
 
   const clearFiltersAndSearch = useCallback(async () => {
     setAuditDatePreset(null);

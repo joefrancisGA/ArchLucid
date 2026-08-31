@@ -30,3 +30,15 @@ export function persistHasSeenWelcomeOnboarding(): void {
     /* ignore quota / private mode */
   }
 }
+
+export function clearHasSeenWelcomeOnboarding(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(HAS_SEEN_ONBOARDING_STORAGE_KEY);
+  } catch {
+    /* ignore quota / private mode */
+  }
+}

@@ -29,7 +29,7 @@ import {
   governanceWorkflowSubmitCardTitleReader,
   governanceWorkflowSubmitForApprovalButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
-import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_FORM_FIELD_STACK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
@@ -41,6 +41,7 @@ import {
   governanceAllowedTargetSlugs,
   governanceEnvironmentOptionsFromCatalog,
 } from "@/lib/governance/governance-environment-catalog-helpers";
+import { validateGovernanceSubmitManifestVersion } from "@/lib/governance/governance-submit-manifest-version";
 import type { GovernanceEnvironmentCatalog } from "@/types/governance-environment-catalog";
 import {
   resolveGovernanceWorkflowSubmitEmphasizedStepId,
@@ -59,6 +60,7 @@ export type GovernanceWorkflowSubmitSectionProps = {
   setSubmitRunId: (v: string) => void;
   submitManifestVersion: string;
   setSubmitManifestVersion: (v: string) => void;
+  maxPersistedManifestVersion: string | null;
   submitSource: string;
   setSubmitSource: (v: string) => void;
   submitTarget: string;
@@ -82,6 +84,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
     setSubmitRunId,
     submitManifestVersion,
     setSubmitManifestVersion,
+    maxPersistedManifestVersion,
     submitSource,
     setSubmitSource,
     submitTarget,
@@ -99,12 +102,16 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
   }
 
   const missingSubmitFields: string[] = [];
+  const manifestVersionValidation = validateGovernanceSubmitManifestVersion(
+    submitManifestVersion,
+    maxPersistedManifestVersion,
+  );
 
   if (submitRunId.trim().length === 0) {
     missingSubmitFields.push("review");
   }
 
-  if (submitManifestVersion.trim().length === 0) {
+  if (!manifestVersionValidation.valid) {
     missingSubmitFields.push("review record version");
   }
 
@@ -117,10 +124,14 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
   }
 
   const submitReadinessMessage: string =
-    missingSubmitFields.length === 0 ? "Ready to submit." : `Missing: ${missingSubmitFields.join(", ")}.`;
+    missingSubmitFields.length === 0
+      ? "Ready to submit."
+      : manifestVersionValidation.valid
+        ? `Missing: ${missingSubmitFields.join(", ")}.`
+        : manifestVersionValidation.message;
   const reviewPicked = submitRunId.trim().length > 0;
   const requiredFieldsComplete =
-    submitManifestVersion.trim().length > 0 &&
+    manifestVersionValidation.valid &&
     submitSource.trim().length > 0 &&
     submitTarget.trim().length > 0;
   const submitChecklistInput = {
@@ -185,18 +196,16 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                 testIdPrefix="governance-workflow-submit"
               />
             ) : null}
-            <div className="grid gap-2">
-              <AskRunIdPicker
-                fieldId="gov-submit-run"
-                label="Review"
-                value={submitRunId}
-                onChange={setSubmitRunId}
-                selectedThreadId=""
-                preferAutoPick={preferAutoPick && canMutateWorkflow}
-                disabled={!canMutateWorkflow}
-              />
-            </div>
-            <div className="grid gap-2">
+            <AskRunIdPicker
+              fieldId="gov-submit-run"
+              label="Review"
+              value={submitRunId}
+              onChange={setSubmitRunId}
+              selectedThreadId=""
+              preferAutoPick={preferAutoPick && canMutateWorkflow}
+              disabled={!canMutateWorkflow}
+            />
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <Label htmlFor="gov-submit-version">
                 Review record version (the{" "}
                 <GlossaryTooltip termKey="golden_manifest" pulseOnFirstSession={false}>
@@ -204,18 +213,39 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                 </GlossaryTooltip>{" "}
                 label)
               </Label>
+              <input
+                type="hidden"
+                name="governance-submit-max-manifest-version"
+                value={maxPersistedManifestVersion ?? ""}
+                data-testid="governance-submit-max-manifest-version"
+                readOnly
+              />
               <Input
                 id="gov-submit-version"
                 value={submitManifestVersion}
                 onChange={(e) => setSubmitManifestVersion(e.target.value)}
-                placeholder="e.g. v1.0.0"
+                placeholder="e.g. 1.0.0"
                 autoComplete="off"
                 readOnly={!canMutateWorkflow}
+                aria-invalid={canMutateWorkflow && !manifestVersionValidation.valid}
+                aria-describedby={
+                  canMutateWorkflow && !manifestVersionValidation.valid ? "gov-submit-version-validation" : undefined
+                }
                 title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
               />
+              {canMutateWorkflow && !manifestVersionValidation.valid ? (
+                <p
+                  id="gov-submit-version-validation"
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  role="alert"
+                  data-testid="governance-submit-version-validation"
+                >
+                  {manifestVersionValidation.message}
+                </p>
+              ) : null}
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="grid gap-2">
+              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                 <Label htmlFor="gov-submit-source-env">Source environment</Label>
                 <Select value={submitSource} onValueChange={setSubmitSource} disabled={!canMutateWorkflow}>
                   <SelectTrigger
@@ -234,7 +264,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-2">
+              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                 <Label htmlFor="gov-submit-target-env">Target environment</Label>
                 <Select
                   value={submitTarget}
@@ -256,13 +286,13 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <p className={cn("m-0 sm:col-span-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Source and target describe the review state transitions in your governance process (for example
+                review-pending → approved).
+              </p>
             </div>
-            <p className={cn("m-0 sm:col-span-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Source and target describe the review state transitions in your governance process (for example
-              review-pending → approved).
-            </p>
-          </div>
-            <div className="grid gap-2">
+            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
               <Label htmlFor="gov-submit-comment">Request comment (optional)</Label>
               <Textarea
                 id="gov-submit-comment"
@@ -285,7 +315,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                 submitBusy ||
                 !canMutateWorkflow ||
                 submitRunId.trim().length === 0 ||
-                submitManifestVersion.trim().length === 0 ||
+                !manifestVersionValidation.valid ||
                 submitSource.trim().length === 0 ||
                 submitTarget.trim().length === 0
               }
