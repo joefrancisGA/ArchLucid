@@ -25,5 +25,9 @@ describe("accelerator-chooser cost governance grouping", () => {
     const metItems = buildAcceleratorChooserGridItemsForPrerequisite("met");
 
     expect(metItems).toEqual(defaultItems);
+    expect(metItems[0]).toEqual({
+      kind: "pack",
+      entry: expect.objectContaining({ id: ACCELERATOR_GREENFIELD_PACK_ID }),
+    });
   });
 });
