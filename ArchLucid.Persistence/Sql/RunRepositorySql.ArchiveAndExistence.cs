@@ -119,6 +119,9 @@ internal static partial class RunRepositorySql
                                                                              AND ArchivedUtc IS NULL
                                                                              AND UPPER(LTRIM(RTRIM(ProjectId))) = @NormalizedSystemName
                                                                              AND (@ExcludeRunId IS NULL OR RunId <> @ExcludeRunId)
+                                                                             AND (
+                                                                                 LegacyRunStatus IS NULL
+                                                                                 OR LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus))
                                                                        ) THEN 1
                                                                        ELSE 0
                                                                    END;

@@ -114,8 +114,7 @@ export function ReviewsNewWizardResumeStrip(): React.JSX.Element | null {
           </div>
         </div>
         <DismissControl
-          iconOnly
-          ariaLabel="Dismiss resume draft review strip"
+          className="h-7 shrink-0"
           data-testid="reviews-new-wizard-resume-dismiss"
           onDismiss={onDismiss}
         />

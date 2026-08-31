@@ -1,10 +1,11 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import { previewRecurrenceScheduleRuns } from "@/lib/api/governance-stickiness-api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { OPERATOR_QUERY_GC_MS, OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 
 export type RecurrenceScheduleRunsPreviewResult = {
   readonly isValid: boolean;
@@ -45,7 +46,8 @@ export function useRecurrenceScheduleRunsPreviewQuery(
     };
   }, [debounceMs, trimmed]);
 
-  return createOperatorQueryHook<RecurrenceScheduleRunsPreviewResult>({
+  // Call useQuery directly so React Compiler tracks hook order (createOperatorQueryHook is not a use* hook).
+  return useQuery<RecurrenceScheduleRunsPreviewResult>({
     queryKey: operatorQueryKeys.recurrenceScheduleRunsPreview(debouncedCron, count),
     queryFn: async () => {
       const response = await previewRecurrenceScheduleRuns({
@@ -60,5 +62,8 @@ export function useRecurrenceScheduleRunsPreviewQuery(
       };
     },
     enabled: (options?.enabled ?? true) && debouncedCron.length > 0,
+    staleTime: OPERATOR_QUERY_STALE_MS,
+    gcTime: OPERATOR_QUERY_GC_MS,
+    retry: false,
   });
 }

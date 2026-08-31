@@ -27,6 +27,7 @@ import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPo
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import { GovernanceFindingsQueueOperationalActions } from "@/components/governance/findings/governance-findings-queue-operational-actions";
+import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 import {
   governanceFindingInspectHref,
   governanceQueueGraphEvidenceHref,
@@ -178,11 +179,11 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
                 {row.humanReviewStatusLabel}
               </div>
             ) : null}
-            {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-              <div className={cn("mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                ITSM: {row.itsmLinkedTicketsSummary}
-              </div>
-            ) : null}
+        {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
+          <div className="mt-0.5">
+            <ItsmLinkedTicketStatusChip summary={row.itsmLinkedTicketsSummary} />
+          </div>
+        ) : null}
             {row.isStale ? (
               <span
                 className={cn(

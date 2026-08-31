@@ -1656,13 +1656,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — OTP concurrent wrong-code RowVersion retry
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1674,6 +1674,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DapperAuthenticationIdentityRepository.ReEnableAsync` threw on filtered unique-index violation — **hit 2026-08-24:** re-enabling a disabled identity while another active row held the same external key surfaced `SqlException` 2601/2627 instead of returning `false` like `InMemoryAuthenticationIdentityRepository`.
 - [x] (proven) `InMemoryPlatformTenantAuthRecoveryGrantRepository.RevokeAsync` was not idempotent — **hit 2026-08-24:** second revoke returned `true` while Dapper only updates rows with `RevokedUtc IS NULL`, masking double-revoke regressions in dev/test.
 - [x] (proven) `InMemoryTenantSignInEmailDomainRepository.UpdateAsync` could reassign domains across tenants — **hit 2026-08-24:** update keyed only by `NormalizedDomain`, unlike Dapper's `(TenantId, NormalizedDomain)` predicate, so a mismatched tenant id silently hijacked sign-in routing in memory hosts.
+- [x] (proven) `DapperEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong-code attempts lost `FailedAttemptCount` increments on `RowVersion` conflict (`affected == 0` committed without retry) — **hit 2026-08-31 (#314):** rollback and retry up to eight times on optimistic concurrency miss; regression in `DapperEmailOtpChallengeRepositorySqlIntegrationTests` and `EmailOtpChallengeRepositoryConcurrencyTests`.
+- [ ] (hunt-ready) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — read-modify-write at `TrialLocalIdentityService.AuthenticateAsync` with unconditional `UPDATE` can lose lockout increments under parallel failed logins (no optimistic concurrency or atomic increment).
+- [ ] (hunt-ready) `DapperAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` — no `Status = PendingConfirmation` predicate; TOCTOU with `AuthenticationIdentityLinkProposalService` allows confirmed/cancelled rows to be rewritten.
+- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
+
+2026-08-31 seed hunt #314: proved OTP concurrent wrong-code RowVersion retry; seeded trial lockout lost-update, link-proposal status TOCTOU, and OTP resend invalidate/insert race candidates.
 
 ---
 
@@ -1752,13 +1758,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 30
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-31
 - **last-bug:** 2026-08-31 — FindingJsonConverter PascalCase scalars, numeric optional-string coercion, quality-gate undefined ordinal lint
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1800,6 +1806,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.Read` case-sensitive on `category`, `enforcementTier`, `humanReviewStatus`, and `evaluationConfidenceLevel` — PascalCase exporter labels silently defaulted on reload — **hit 2026-08-31 (#279):** `TryGetPropertyCaseInsensitive` for remaining scalar enum/string fields; regression in `FindingJsonConverterTests.Deserialize_pascal_case_category_maps_value`, `Deserialize_pascal_case_enforcementTier_maps_advisory`, `Deserialize_pascal_case_humanReviewStatus_maps_approved`, `Deserialize_pascal_case_evaluationConfidenceLevel_maps_high`.
 - [x] (proven) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` / `runIdRef` tokens threw or returned null — **hit 2026-08-31 (#279):** coerce number tokens to invariant strings; regression in `FindingJsonConverterTests.Deserialize_numeric_runIdRef_coerces_to_string`, `Deserialize_numeric_agentExecutionTraceId_coerces_to_string`.
 - [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — undefined `AgentOutputQualityGateMode` numeric-strings parsed via bare `Enum.TryParse` and suppressed production-like WarnOnly advisory — **hit 2026-08-31 (#279):** `Enum.IsDefined` guard with fail-open emit for undefined numeric ordinals; regression in `QualityGateWarnOnlyProductionLikeConfigurationLintTests.ShouldEmitFinding_production_real_undefined_quality_gate_numeric_string_emits_rule`.
+
+2026-08-31 thorough hunt #311 (dry): cheap-disproved stale picker candidates — all three #279 rows already on master via PR #900; regression tests pass; no failing repro.
 
 2026-08-31 thorough hunt #279: proved remaining FindingJsonConverter PascalCase scalar gaps, numeric optional-string coercion, and quality-gate undefined ordinal lint suppression.
 
@@ -2270,11 +2278,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 82
-- **bugs-found:** 230
+- **hunts:** 93
+- **bugs-found:** 234
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — reviews-awaiting-action echoed foreign sourceRunId
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — bulk-disposition all-or-nothing scope validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2473,8 +2481,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController.GetReviewsAwaitingAction` / `ReviewsAwaitingActionQueryService.ListAsync` — recurrence item echoed foreign-workspace `sourceRunId` parsed from `architectureRequestId` without scoped run lookup — **hit 2026-08-28:** clear `SourceRunId` when parsed source run is out of scope; regression in `ReviewsAwaitingActionQueryServiceTests`.
 - [x] (invalid) `GovernancePreCommitSimulationController.SimulateAsync` — unbounded `syntheticCount` reaches gate loop — **cheap-disproof 2026-08-28:** `PreCommitSyntheticSimulationRequest.SyntheticCount` has `[Range(0, 500)]`; `[ApiController]` model validation rejects values above 500 before action body handling.
-- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `findingRef` for a foreign-workspace finding may persist without inspect-scope gate (optional `runId` is scoped; `FindingRef` is not).
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `projectId` for a sibling project in the same workspace may mutate without `scope.ProjectId` guard (workspace match only).
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `findingRef` for a foreign-workspace finding persisted without inspect-scope gate — **hit 2026-08-31 (#281):** `IFindingInspectReadRepository.GetInspectAsync` preflight when `FindingRef` provided; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_not_found_when_finding_ref_is_out_of_scope`.
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `projectId` for a sibling project in the same workspace mutated without `scope.ProjectId` guard — **hit 2026-08-31 (#281):** require `projectId == scope.ProjectId` after workspace match; regression in `TenantWorkspacesControllerTests`.
 
 2026-08-28 seed hunt #159: proved reviews-awaiting-action source-run scope gate; seeded product-feedback findingRef and workspace sibling-project mutation candidates; cheap-disproved pre-finalize simulate unbounded `syntheticCount` (`[Range(0, 500)]` on request model).
 
@@ -2516,8 +2524,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — padded `runId` accepted by `RequireScopedRunAsync` but repository query may not match when padding differs from stored normalization — **cheap-disproof 2026-08-28:** `RequireScopedRunAsync` trims and returns normalized id for downstream queries; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_items_when_route_run_id_is_padded` (hunt #142).
 - [x] (invalid) `GovernanceController.GetPromotions` / `GetActivations` — padded `runId` handled by shared `RequireScopedRunAsync` but lack dedicated padded-route regression tests — **cheap-disproof 2026-08-28:** shared `RequireScopedRunAsync` normalized id path already proven on `GetApprovalRequests`; added sibling regression tests in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id — **cheap-disproof 2026-08-28:** intentional validation ordering (count cap before per-id GUID parse), aligned with `DryRunPolicyPack`; both return HTTP 400; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
-- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` are silently deduped with no per-item result row (batch client cannot distinguish omitted duplicate from never-sent id).
-- [ ] (candidate) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity on single-manifest reads.
+- [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **cheap-disproof 2026-08-31:** per-item `ValidationFailed` for exact duplicates since 2026-08-28; **hit 2026-08-31:** `OrdinalIgnoreCase` dedupe for case-variant duplicates; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without per-item failure rows — **hit 2026-08-31 (#281):** validate all finding ids in scope before recording any; map scope misses to HTTP 404; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
+
+2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
+
+2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.
+
+2026-08-31 thorough hunt #281: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
 
 2026-08-28 thorough hunt #190 (dry): cheap-disproved promotions/activations padded-route test gap and simulate-bulk validation-order candidates; seeded batch-review duplicate-id silence and manifest-compare padded-version candidates.
 

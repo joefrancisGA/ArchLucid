@@ -18,6 +18,7 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
 import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
+import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
@@ -190,8 +191,8 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           </div>
         ) : null}
         {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-          <div className={cn("mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-            ITSM: {row.itsmLinkedTicketsSummary}
+          <div className="mt-0.5">
+            <ItsmLinkedTicketStatusChip summary={row.itsmLinkedTicketsSummary} />
           </div>
         ) : null}
         {row.isStale ? (

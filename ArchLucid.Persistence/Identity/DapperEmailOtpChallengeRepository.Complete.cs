@@ -8,7 +8,40 @@ namespace ArchLucid.Persistence.Identity;
 
 public sealed partial class DapperEmailOtpChallengeRepository
 {
+    private const int MaxCompleteConcurrencyRetries = 8;
+
     public async Task<EmailOtpChallengeCompletionOutcome> TryCompleteAsync(
+        Guid challengeId,
+        string codeHash,
+        DateTimeOffset nowUtc,
+        int maxFailedAttempts,
+        CancellationToken cancellationToken)
+    {
+        for (int attempt = 0; attempt < MaxCompleteConcurrencyRetries; attempt++)
+        {
+            EmailOtpChallengeCompletionOutcome? retryableOutcome =
+                await TryCompleteSingleAttemptAsync(
+                    challengeId,
+                    codeHash,
+                    nowUtc,
+                    maxFailedAttempts,
+                    cancellationToken);
+
+            if (retryableOutcome is null)
+            {
+                continue;
+            }
+
+            return retryableOutcome;
+        }
+
+        return new EmailOtpChallengeCompletionOutcome
+        {
+            Result = EmailOtpChallengeCompletionResult.InvalidCode
+        };
+    }
+
+    private async Task<EmailOtpChallengeCompletionOutcome?> TryCompleteSingleAttemptAsync(
         Guid challengeId,
         string codeHash,
         DateTimeOffset nowUtc,
@@ -93,12 +126,14 @@ public sealed partial class DapperEmailOtpChallengeRepository
                     transaction: transaction,
                     cancellationToken: cancellationToken));
 
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
             if (affected == 0)
             {
-                return new EmailOtpChallengeCompletionOutcome { Result = EmailOtpChallengeCompletionResult.InvalidCode };
+                await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+
+                return null;
             }
+
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
             return new EmailOtpChallengeCompletionOutcome
             {

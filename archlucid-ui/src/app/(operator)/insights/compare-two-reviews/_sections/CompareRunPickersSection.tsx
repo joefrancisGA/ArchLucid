@@ -71,7 +71,6 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
       : null,
   ]);
   const showSummarizeForSponsor = (pairAligned && !loading) || aiLoading;
-  const showSelectionHelper = !leftTrim || !rightTrim;
 
   const pickerFields = (
     <>
@@ -158,11 +157,6 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           ) : null}
         </div>
         <WhyDisabledCtaHint reason={compareActionsDisabled ? compareDisabledReason : null} />
-        {showSelectionHelper ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Choose a baseline and updated review to continue.
-          </p>
-        ) : null}
       </div>
     </>
   );
