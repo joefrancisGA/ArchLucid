@@ -35,7 +35,7 @@ public sealed class CorePilotChecklistPutRequest
         set;
     }
 
-    public bool IsCompleted
+    public bool? IsCompleted
     {
         get;
         set;
