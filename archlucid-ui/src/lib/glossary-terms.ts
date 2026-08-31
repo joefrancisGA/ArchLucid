@@ -21,7 +21,7 @@ export const GLOSSARY_TERMS = {
     docLink: "/help/glossary#term-sealed-review-record",
   },
   review_package: {
-    term: "architecture package",
+    term: "Architecture package",
     definition: "A governed architecture review with sealed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/help/glossary#term-review-package",
   },
