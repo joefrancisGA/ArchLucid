@@ -73,18 +73,17 @@ async function readExtractedBinaryDocument(
   file: File,
 ): Promise<CreateArchitectureRunDocumentPayload | null> {
   const cached = peekBinaryArchitectureDocumentText(file);
-  const cachedText = cached?.trim() ?? "";
 
   if (cached !== undefined) {
-    if (cachedText.length === 0) {
-      return null;
-    }
+    const cachedText = cached?.trim() ?? "";
 
-    return {
-      name,
-      contentType: "text/plain",
-      content: cachedText.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
-    };
+    if (cachedText.length > 0) {
+      return {
+        name,
+        contentType: "text/plain",
+        content: cachedText.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+      };
+    }
   }
 
   try {
