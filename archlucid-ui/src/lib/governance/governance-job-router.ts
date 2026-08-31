@@ -20,6 +20,14 @@ import {
 
 } from "@/lib/governance/governance-route-paths";
 
+import {
+
+  GOVERNANCE_APPROVAL_JOB_LABEL,
+
+  GOVERNANCE_APPROVAL_JOB_WHEN_TO_USE,
+
+} from "@/lib/vocabulary/governance-approval-vocabulary";
+
 
 
 export type GovernanceJobId =
@@ -68,11 +76,9 @@ export const GOVERNANCE_JOB_APPROVE_GOVERNANCE: GovernanceJobRouterOption = {
 
   id: "approve-governance",
 
-  label: "Resolve outcomes",
+  label: GOVERNANCE_APPROVAL_JOB_LABEL,
 
-  whenToUse:
-
-    "Use the Approval queue to submit reviews for resolve outcomes and record authorized decisions.",
+  whenToUse: GOVERNANCE_APPROVAL_JOB_WHEN_TO_USE,
 
   href: GOVERNANCE_APPROVAL_QUEUE_PATH,
 

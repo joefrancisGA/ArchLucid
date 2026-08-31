@@ -94,6 +94,32 @@ describe("buildRunDetailPresentation", () => {
     );
   });
 
+  it("lists Word files named in a generated intake brief even when findings are empty", async () => {
+    const generatedBrief = [
+      'Architecture review intake for "Retail API modernization review".',
+      "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.",
+      "Treat each upload as architecture evidence unless a more specific category was supplied.",
+      "\n\nAttached files:\n- ARCHITECTURE_HANDBOOK.docx",
+    ].join(" ");
+    const generated = model();
+    generated.resolvedDetail.run.description = generatedBrief;
+    generated.progressForPipelineUi = {
+      runId: "run-1",
+      projectId: "default",
+      createdUtc: "2026-08-01T12:00:00Z",
+      description: generatedBrief,
+    };
+    generated.headline = "Retail API modernization review";
+
+    const presentation = await buildRunDetailPresentation(generated, true);
+
+    expect(presentation.hasSubmittedArchitecture).toBe(false);
+    expect(presentation.evidenceInventoryItems.map((item) => item.sourceName)).toEqual([
+      "ARCHITECTURE_HANDBOOK.docx",
+    ]);
+    expect(presentation.evidenceInventoryCount).toBe(1);
+  });
+
   it("treats a review with no manifest as the architecture-created home when arriving from creation", async () => {
     const fromCreation = await buildRunDetailPresentation(model(), true);
     const direct = await buildRunDetailPresentation(model(), false);

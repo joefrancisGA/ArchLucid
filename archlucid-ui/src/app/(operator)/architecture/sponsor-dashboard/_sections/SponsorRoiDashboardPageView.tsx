@@ -24,7 +24,6 @@ import {
 } from "@/lib/sponsor/sponsor-dashboard-workspace-state";
 import {
   SPONSOR_DASHBOARD_HREF,
-  SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID,
 } from "@/lib/sponsor/sponsor-dashboard-route";
 import { resolveSponsorDashboardLatestFinalizedRunId } from "@/lib/resolve-sponsor-dashboard-latest-finalized-run";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -47,7 +46,6 @@ import {
   SponsorRoiEnvironmentSavingsSectionDeferred,
   SponsorRoiSummarySectionDeferred,
   SponsorRoiTrendSectionDeferred,
-  SponsorWorkspaceHealthDashboardDeferred,
   OperatorWelcomeOnboardingDeferred,
   SponsorExportsSectionDeferred,
 } from "./sponsor-roi-dashboard-deferred-chunks";
@@ -217,15 +215,6 @@ function SponsorRoiDashboardPortfolioSections({
           showDetailedKpiCards
         />
       ) : null}
-
-      <section
-        id={SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID}
-        aria-labelledby="sponsor-workspace-health-heading"
-        className="scroll-mt-24"
-        data-testid="sponsor-dashboard-workspace-health-section"
-      >
-        <SponsorWorkspaceHealthDashboardDeferred />
-      </section>
 
       <SponsorDashboardBaselineWarningBanner variant="setup" />
 

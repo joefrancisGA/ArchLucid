@@ -23,7 +23,12 @@ function inferEvidenceKind(sourceName: string): string {
     return "Infrastructure as code";
   }
 
-  if (lower.includes("brief") || lower.endsWith(".md")) {
+  if (
+    lower.includes("brief")
+    || lower.endsWith(".md")
+    || lower.endsWith(".docx")
+    || lower.endsWith(".pdf")
+  ) {
     return "Document";
   }
 
@@ -67,6 +72,7 @@ export function deriveRunDetailEvidenceInventory(input: {
   readonly findings: readonly QuickDecisionFinding[];
   readonly runCreatedUtc: string;
   readonly submittedArchitecturePresent: boolean;
+  readonly attachedFileNames?: readonly string[];
 }): RunDetailEvidenceInventoryItem[] {
   const map = new Map<string, { sourceName: string; kind: string; findingIds: Set<string> }>();
 
@@ -74,6 +80,26 @@ export function deriveRunDetailEvidenceInventory(input: {
     map.set(ARCHITECTURE_BRIEF_KEY, {
       sourceName: "Submitted architecture brief",
       kind: "Architecture brief",
+      findingIds: new Set(),
+    });
+  }
+
+  for (const rawName of input.attachedFileNames ?? []) {
+    const sourceName = rawName.trim();
+
+    if (sourceName.length === 0) {
+      continue;
+    }
+
+    const key = sourceName.toLowerCase();
+
+    if (map.has(key)) {
+      continue;
+    }
+
+    map.set(key, {
+      sourceName,
+      kind: inferEvidenceKind(sourceName),
       findingIds: new Set(),
     });
   }

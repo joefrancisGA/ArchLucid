@@ -6,7 +6,8 @@ namespace ArchLucid.Persistence.Identity;
 
 public sealed class InMemorySelfServiceTrialAbuseRepository : ISelfServiceTrialAbuseRepository
 {
-    private readonly ConcurrentDictionary<string, SelfServiceTrialEmailClaimInsert> _emailClaims = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, SelfServiceTrialEmailClaimInsert> _emailClaims =
+        new(StringComparer.OrdinalIgnoreCase);
 
     private readonly ConcurrentBag<SelfServiceTrialDomainClaimRecord> _domainClaims = [];
 
@@ -15,6 +16,19 @@ public sealed class InMemorySelfServiceTrialAbuseRepository : ISelfServiceTrialA
         _ = cancellationToken;
 
         return Task.FromResult(_emailClaims.ContainsKey(normalizedEmail));
+    }
+
+    public Task<bool> HasEmailClaimForTenantAsync(
+        string normalizedEmail,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        if (!_emailClaims.TryGetValue(normalizedEmail, out SelfServiceTrialEmailClaimInsert? claim))
+            return Task.FromResult(false);
+
+        return Task.FromResult(claim.TenantId == tenantId);
     }
 
     public Task TryInsertEmailClaimAsync(SelfServiceTrialEmailClaimInsert claim, CancellationToken cancellationToken)

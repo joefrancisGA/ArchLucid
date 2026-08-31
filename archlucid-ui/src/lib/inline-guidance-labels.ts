@@ -28,6 +28,7 @@ export const INLINE_GUIDANCE_LABELS = [
   "Blocked by:",
   "Optional:",
   "Required:",
+  "Missing:",
   "Audience:",
   "Sidebar:",
   "Warning:",

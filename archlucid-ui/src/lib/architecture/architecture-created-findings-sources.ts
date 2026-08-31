@@ -14,7 +14,7 @@ export const ARCHITECTURE_CREATED_FINDINGS_SOURCES: readonly ArchitectureCreated
   { label: "Findings queue", href: "/governance/findings" },
   { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
-  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
+  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
 ] as const;
 
 export const ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO =

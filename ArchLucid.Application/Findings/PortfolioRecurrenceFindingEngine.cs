@@ -21,6 +21,7 @@ public sealed class PortfolioRecurrenceFindingEngine(
     IRunDetailQueryService runDetailQueryService,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IPortfolioRecurrenceFindingOptionsResolver optionsResolver,
+    IPortfolioRecurrenceCurrentReviewIdentitySource? currentReviewIdentitySource,
     ILogger<PortfolioRecurrenceFindingEngine> logger) : IEffectfulFindingEngine
 {
     private const int RunSummaryPageSize = 100;
@@ -37,6 +38,9 @@ public sealed class PortfolioRecurrenceFindingEngine(
 
     private readonly IPortfolioRecurrenceFindingOptionsResolver _optionsResolver =
         optionsResolver ?? throw new ArgumentNullException(nameof(optionsResolver));
+
+    private readonly IPortfolioRecurrenceCurrentReviewIdentitySource? _currentReviewIdentitySource =
+        currentReviewIdentitySource;
 
     private readonly ILogger<PortfolioRecurrenceFindingEngine> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -78,43 +82,43 @@ public sealed class PortfolioRecurrenceFindingEngine(
         Dictionary<string, HashSet<string>> identitiesBySystem =
             new(StringComparer.OrdinalIgnoreCase);
 
+        string currentRunId = graphSnapshot.RunId.ToString("N");
+
         foreach ((string systemName, RunSummary summary) in scannedSystems)
         {
-            FindingsSnapshot? snapshot = await TryLoadFindingsSnapshotAsync(scope, summary.RunId, ct)
-                .ConfigureAwait(false);
-
-            if (snapshot is null)
-            {
+            if (string.Equals(summary.RunId, currentRunId, StringComparison.OrdinalIgnoreCase))
                 continue;
-            }
 
-            HashSet<string> systemIdentities = new(StringComparer.Ordinal);
-            identitiesBySystem[systemName] = systemIdentities;
+            await AccumulatePersistedSystemIdentitiesAsync(
+                scope,
+                systemName,
+                summary.RunId,
+                identitiesBySystem,
+                recurrenceByIdentity,
+                ct);
+        }
 
-            foreach (Finding finding in DeduplicateByMergeKey(snapshot.Findings))
-            {
-                if (!IsEligiblePortfolioFinding(finding))
-                {
-                    continue;
-                }
+        if (TryGetCurrentSystem(scannedSystems, currentRunId, out string currentSystemName, out RunSummary currentSystemSummary))
+        {
+            await AccumulatePersistedSystemIdentitiesAsync(
+                scope,
+                currentSystemName,
+                currentSystemSummary.RunId,
+                identitiesBySystem,
+                recurrenceByIdentity,
+                ct);
 
-                string identity = FindingSnapshotMergeKey.FromFinding(finding);
-                systemIdentities.Add(identity);
-
-                if (!recurrenceByIdentity.TryGetValue(identity, out RecurrenceAccumulator? accumulator))
-                {
-                    accumulator = new RecurrenceAccumulator(finding);
-                    recurrenceByIdentity[identity] = accumulator;
-                }
-
-                accumulator.SystemNames.Add(systemName);
-            }
+            if (!identitiesBySystem.ContainsKey(currentSystemName))
+                AddInFlightIdentitiesForSystem(currentSystemName, identitiesBySystem, recurrenceByIdentity);
+            else if (identitiesBySystem[currentSystemName].Count == 0)
+                AddInFlightIdentitiesForSystem(currentSystemName, identitiesBySystem, recurrenceByIdentity);
         }
 
         HashSet<string> currentScopeIdentities = ResolveCurrentScopeIdentities(
             graphSnapshot,
             scannedSystems,
-            identitiesBySystem);
+            identitiesBySystem,
+            _currentReviewIdentitySource);
 
         if (currentScopeIdentities.Count == 0)
         {
@@ -187,6 +191,79 @@ public sealed class PortfolioRecurrenceFindingEngine(
         return latestBySystem;
     }
 
+    private async Task AccumulatePersistedSystemIdentitiesAsync(
+        ScopeContext scope,
+        string systemName,
+        string runId,
+        Dictionary<string, HashSet<string>> identitiesBySystem,
+        Dictionary<string, RecurrenceAccumulator> recurrenceByIdentity,
+        CancellationToken ct)
+    {
+        FindingsSnapshot? snapshot = await TryLoadFindingsSnapshotAsync(scope, runId, ct)
+            .ConfigureAwait(false);
+
+        if (snapshot is null)
+            return;
+
+        HashSet<string> systemIdentities = new(StringComparer.Ordinal);
+        identitiesBySystem[systemName] = systemIdentities;
+
+        foreach (Finding finding in DeduplicateByMergeKey(snapshot.Findings))
+        {
+            if (!IsEligiblePortfolioFinding(finding))
+                continue;
+
+            string identity = FindingSnapshotMergeKey.FromFinding(finding);
+            systemIdentities.Add(identity);
+            AddIdentityToRecurrence(systemName, identity, finding, recurrenceByIdentity);
+        }
+    }
+
+    private void AddInFlightIdentitiesForSystem(
+        string systemName,
+        Dictionary<string, HashSet<string>> identitiesBySystem,
+        Dictionary<string, RecurrenceAccumulator> recurrenceByIdentity)
+    {
+        if (_currentReviewIdentitySource is null)
+            return;
+
+        IReadOnlyCollection<string> inFlightIdentities = _currentReviewIdentitySource.GetIdentities();
+
+        if (inFlightIdentities.Count == 0)
+            return;
+
+        if (!identitiesBySystem.TryGetValue(systemName, out HashSet<string>? systemIdentities))
+        {
+            systemIdentities = new HashSet<string>(StringComparer.Ordinal);
+            identitiesBySystem[systemName] = systemIdentities;
+        }
+
+        foreach (string identity in inFlightIdentities)
+        {
+            systemIdentities.Add(identity);
+
+            if (!recurrenceByIdentity.TryGetValue(identity, out RecurrenceAccumulator? accumulator))
+                continue;
+
+            accumulator.SystemNames.Add(systemName);
+        }
+    }
+
+    private static void AddIdentityToRecurrence(
+        string systemName,
+        string identity,
+        Finding finding,
+        Dictionary<string, RecurrenceAccumulator> recurrenceByIdentity)
+    {
+        if (!recurrenceByIdentity.TryGetValue(identity, out RecurrenceAccumulator? accumulator))
+        {
+            accumulator = new RecurrenceAccumulator(finding);
+            recurrenceByIdentity[identity] = accumulator;
+        }
+
+        accumulator.SystemNames.Add(systemName);
+    }
+
     private async Task<FindingsSnapshot?> TryLoadFindingsSnapshotAsync(
         ScopeContext scope,
         string runId,
@@ -209,23 +286,52 @@ public sealed class PortfolioRecurrenceFindingEngine(
     private static HashSet<string> ResolveCurrentScopeIdentities(
         GraphSnapshot graphSnapshot,
         IReadOnlyList<KeyValuePair<string, RunSummary>> scannedSystems,
-        IReadOnlyDictionary<string, HashSet<string>> identitiesBySystem)
+        IReadOnlyDictionary<string, HashSet<string>> identitiesBySystem,
+        IPortfolioRecurrenceCurrentReviewIdentitySource? currentReviewIdentitySource)
     {
         string currentRunId = graphSnapshot.RunId.ToString("N");
-        KeyValuePair<string, RunSummary>? currentSystem = scannedSystems
-            .FirstOrDefault(pair => string.Equals(pair.Value.RunId, currentRunId, StringComparison.OrdinalIgnoreCase));
-
-        if (currentSystem is null)
+        
+        if (!TryGetCurrentSystem(scannedSystems, currentRunId, out string currentSystemName, out _))
         {
             return [];
         }
 
-        if (!identitiesBySystem.TryGetValue(currentSystem.Value.Key, out HashSet<string>? identities))
+        HashSet<string> identities = [];
+
+        if (identitiesBySystem.TryGetValue(currentSystemName, out HashSet<string>? persistedIdentities))
         {
-            return [];
+            foreach (string identity in persistedIdentities)
+                identities.Add(identity);
+        }
+
+        if (currentReviewIdentitySource is not null)
+        {
+            foreach (string identity in currentReviewIdentitySource.GetIdentities())
+                identities.Add(identity);
         }
 
         return identities;
+    }
+
+    private static bool TryGetCurrentSystem(
+        IReadOnlyList<KeyValuePair<string, RunSummary>> scannedSystems,
+        string currentRunId,
+        out string systemName,
+        out RunSummary systemSummary)
+    {
+        foreach ((string scannedSystemName, RunSummary scannedSystemSummary) in scannedSystems)
+        {
+            if (!string.Equals(scannedSystemSummary.RunId, currentRunId, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            systemName = scannedSystemName;
+            systemSummary = scannedSystemSummary;
+            return true;
+        }
+
+        systemName = string.Empty;
+        systemSummary = null!;
+        return false;
     }
 
     private static IEnumerable<Finding> DeduplicateByMergeKey(IEnumerable<Finding> findings)
