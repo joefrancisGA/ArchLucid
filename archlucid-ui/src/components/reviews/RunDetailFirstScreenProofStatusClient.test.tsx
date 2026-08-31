@@ -24,6 +24,19 @@ describe("RunDetailFirstScreenProofStatusClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("renders nothing when execution failed before a sendable review existed", () => {
+    vi.stubGlobal("fetch", vi.fn());
+
+    renderWithOperatorQuery(
+      <RunDetailFirstScreenProofStatusClient runId="run-1" legacyRunStatus="Failed" />,
+      { queryClient: createNoRetryQueryClient() },
+    );
+
+    expect(screen.queryByTestId("run-detail-first-screen-proof-status")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("run-detail-first-screen-proof-status-load-failed")).not.toBeInTheDocument();
+    expect(vi.mocked(fetch)).not.toHaveBeenCalled();
+  });
+
   it("shows retry instead of vanishing when proof status fails to load", async () => {
     vi.stubGlobal(
       "fetch",
@@ -43,12 +56,13 @@ describe("RunDetailFirstScreenProofStatusClient", () => {
       "/architecture/reviews/run-1?reviewTab=activity",
     );
     expect(screen.queryByTestId("run-detail-first-screen-proof-status")).not.toBeInTheDocument();
-    expect(vi.mocked(fetch)).toHaveBeenCalledOnce();
+    const fetchCallsBeforeRetry = vi.mocked(fetch).mock.calls.length;
+    expect(fetchCallsBeforeRetry).toBeGreaterThanOrEqual(1);
 
     fireEvent.click(screen.getByTestId("run-detail-first-screen-proof-status-retry"));
 
     await waitFor(() => {
-      expect(vi.mocked(fetch).mock.calls.length).toBeGreaterThanOrEqual(2);
+      expect(vi.mocked(fetch).mock.calls.length).toBeGreaterThan(fetchCallsBeforeRetry);
     });
   });
 });

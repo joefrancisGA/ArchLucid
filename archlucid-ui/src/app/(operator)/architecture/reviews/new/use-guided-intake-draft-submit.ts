@@ -14,7 +14,6 @@ import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetr
 import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { showSuccess } from "@/lib/toast";
 
 import type { GuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 import type { GuidedIntakeDraftCoreState } from "./use-guided-intake-draft-workflow";
@@ -55,17 +54,10 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
       const compareParentRunId = result.parentSpawnedRunId ?? core.parentSpawnedRunId;
 
       if (compareParentRunId !== null && compareParentRunId.trim().length > 0) {
-        showSuccess("What-if branch review started — open Compare when both reviews are ready.");
         navigate(runDetailHrefWithParentRun(result.runId, compareParentRunId));
 
         return;
       }
-
-      showSuccess(
-        isCreateArchitectureFlow
-          ? "Architecture draft created — opening your architecture workspace."
-          : "Architecture review started from guided intake.",
-      );
 
       if (isCreateArchitectureFlow) {
         recordArchitectureCreationHandoff({

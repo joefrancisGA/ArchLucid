@@ -81,7 +81,7 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (request.RunIds.Count == 0)
+        if (request.RunIds is null || request.RunIds.Count == 0)
             return this.BadRequestProblem("RunIds must contain at least one id.", ProblemTypes.ValidationFailed);
 
         if (request.RunIds.Count > 50)
