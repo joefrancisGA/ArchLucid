@@ -2278,11 +2278,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 82
-- **bugs-found:** 230
+- **hunts:** 93
+- **bugs-found:** 234
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — reviews-awaiting-action echoed foreign sourceRunId
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — bulk-disposition all-or-nothing scope validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2481,8 +2481,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController.GetReviewsAwaitingAction` / `ReviewsAwaitingActionQueryService.ListAsync` — recurrence item echoed foreign-workspace `sourceRunId` parsed from `architectureRequestId` without scoped run lookup — **hit 2026-08-28:** clear `SourceRunId` when parsed source run is out of scope; regression in `ReviewsAwaitingActionQueryServiceTests`.
 - [x] (invalid) `GovernancePreCommitSimulationController.SimulateAsync` — unbounded `syntheticCount` reaches gate loop — **cheap-disproof 2026-08-28:** `PreCommitSyntheticSimulationRequest.SyntheticCount` has `[Range(0, 500)]`; `[ApiController]` model validation rejects values above 500 before action body handling.
-- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `findingRef` for a foreign-workspace finding may persist without inspect-scope gate (optional `runId` is scoped; `FindingRef` is not).
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `projectId` for a sibling project in the same workspace may mutate without `scope.ProjectId` guard (workspace match only).
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `findingRef` for a foreign-workspace finding persisted without inspect-scope gate — **hit 2026-08-31 (#281):** `IFindingInspectReadRepository.GetInspectAsync` preflight when `FindingRef` provided; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_not_found_when_finding_ref_is_out_of_scope`.
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `projectId` for a sibling project in the same workspace mutated without `scope.ProjectId` guard — **hit 2026-08-31 (#281):** require `projectId == scope.ProjectId` after workspace match; regression in `TenantWorkspacesControllerTests`.
 
 2026-08-28 seed hunt #159: proved reviews-awaiting-action source-run scope gate; seeded product-feedback findingRef and workspace sibling-project mutation candidates; cheap-disproved pre-finalize simulate unbounded `syntheticCount` (`[Range(0, 500)]` on request model).
 
@@ -2524,8 +2524,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — padded `runId` accepted by `RequireScopedRunAsync` but repository query may not match when padding differs from stored normalization — **cheap-disproof 2026-08-28:** `RequireScopedRunAsync` trims and returns normalized id for downstream queries; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_items_when_route_run_id_is_padded` (hunt #142).
 - [x] (invalid) `GovernanceController.GetPromotions` / `GetActivations` — padded `runId` handled by shared `RequireScopedRunAsync` but lack dedicated padded-route regression tests — **cheap-disproof 2026-08-28:** shared `RequireScopedRunAsync` normalized id path already proven on `GetApprovalRequests`; added sibling regression tests in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id — **cheap-disproof 2026-08-28:** intentional validation ordering (count cap before per-id GUID parse), aligned with `DryRunPolicyPack`; both return HTTP 400; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
-- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` are silently deduped with no per-item result row (batch client cannot distinguish omitted duplicate from never-sent id).
-- [ ] (candidate) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity on single-manifest reads.
+- [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **cheap-disproof 2026-08-31:** per-item `ValidationFailed` for exact duplicates since 2026-08-28; **hit 2026-08-31:** `OrdinalIgnoreCase` dedupe for case-variant duplicates; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without per-item failure rows — **hit 2026-08-31 (#281):** validate all finding ids in scope before recording any; map scope misses to HTTP 404; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
+
+2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
+
+2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.
+
+2026-08-31 thorough hunt #281: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
 
 2026-08-28 thorough hunt #190 (dry): cheap-disproved promotions/activations padded-route test gap and simulate-bulk validation-order candidates; seeded batch-review duplicate-id silence and manifest-compare padded-version candidates.
 
@@ -2882,11 +2889,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 9
-- **bugs-found:** 13
+- **hunts:** 10
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — stale frictionless flag hid paid tier
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — frictionless banner persisted after sign-in; billing AI budget stale after scope switch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2909,8 +2916,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `readHasSeenWelcomeOnboarding` — welcome dismissal may survive tenant switch (`hasSeenOnboarding` key not cleared in `notifyOperatorScopeChanged`) — **cheap-disproof 2026-08-28:** intentional browser-level user preference (not tenant-scoped data); scope change clears tenant caches only; regression in `operator-scope-storage.test.ts`.
 - [x] (invalid) `readOperatorHomeDisclosureExpanded` — home disclosure prefs may survive tenant switch (global keys not cleared on scope change) — **cheap-disproof 2026-08-28:** intentional device-level collapse preference; not cleared on scope change by design; regression in `operator-scope-storage.test.ts`.
 - [x] (invalid) `fetchOperatorAiQualitySnapshot` — unvalidated disposition string may crash badge helpers — **cheap-disproof 2026-08-28:** `dispositionLabel` / `dispositionClass` return unknown values without throwing; regression in `operator-ai-quality-snapshot.test.ts`.
-- [ ] (candidate) `writeFrictionlessTrialSessionEnabled(false)` — frictionless session flag may remain set after sign-in or checkout, leaving marketing banner visible for paid workspaces until manual clear.
-- [ ] (candidate) `fetchLlmMonthlyDollarBudgetStatusCached` — AI budget percent on billing summary may not refresh after operator scope switch without full page reload.
+- [x] (proven) `writeFrictionlessTrialSessionEnabled(false)` — frictionless session flag remained set after sign-in or checkout, leaving marketing banner visible for authenticated workspaces — **hit 2026-08-31:** `clearFrictionlessTrialSessionForAuthenticatedOperator` on auth callback, checkout success, and scope change; regression in `operator-frictionless-trial-session-cleanup.test.ts` and `operator-scope-storage.test.ts`.
+- [x] (proven) `fetchLlmMonthlyDollarBudgetStatusCached` — AI budget percent on billing summary did not refresh after operator scope switch without full page reload — **hit 2026-08-31:** `OperatorBillingCurrentPlanSummary` held mount-time local state while TanStack cache cleared on scope change; switched to `useLlmMonthlyBudgetStatusQuery`; regression in `operator-shell-status-scope-cache.test.ts` and `operator-scope-storage.test.ts`.
+
+2026-08-31 thorough hunt #327: proved frictionless session cleanup on sign-in/checkout/scope change and billing summary AI budget refresh via shared query hook after scope cache invalidation.
 
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
