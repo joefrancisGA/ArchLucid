@@ -71,6 +71,23 @@ describe("CorePilotCompleteCelebrateStrip", () => {
     );
   });
 
+  it("keeps copy neutral while compare availability is loading", () => {
+    mockCompareAvailability.current = {
+      loading: true,
+      finalizedCount: 0,
+      insufficientForCompare: false,
+    };
+
+    render(<CorePilotCompleteCelebrateStrip />);
+
+    expect(screen.getByTestId("core-pilot-complete-celebrate-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("core-pilot-complete-compare")).toBeNull();
+    expect(screen.getByTestId("core-pilot-complete-sponsor-report")).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-complete-body")).toHaveTextContent(
+      "Explore analysis tools or share outcomes with your sponsor.",
+    );
+  });
+
   it("shows compare when at least two finalized reviews exist", () => {
     mockCompareAvailability.current = {
       loading: false,
