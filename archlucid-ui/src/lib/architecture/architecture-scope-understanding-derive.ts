@@ -104,8 +104,23 @@ function pushUniqueBullet(
 }
 
 /** Stable per-row id so operator edits survive re-derivation when the form above changes. */
+function gapBulletIdSuffix(label: string): string {
+  return Array.from(label, (character) => character.codePointAt(0)?.toString(16) ?? "")
+    .filter((part) => part.length > 0)
+    .join("-");
+}
+
 function gapBulletId(label: string): string {
-  return `gap-${label.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+  const normalizedLabel = label.trim().toLowerCase();
+  const slug = normalizedLabel
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-+|-+$/g, "");
+  const readableSegment = slug.length > 0 ? slug : "item";
+  const uniqueSuffix = gapBulletIdSuffix(normalizedLabel);
+
+  return uniqueSuffix.length > 0
+    ? `gap-${readableSegment}-${uniqueSuffix}`
+    : `gap-${readableSegment}`;
 }
 
 /** Derives typed in-scope rows from intake / create-home context (TB-2176). */
