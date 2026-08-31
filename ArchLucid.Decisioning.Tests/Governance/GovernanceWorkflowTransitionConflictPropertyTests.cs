@@ -171,7 +171,7 @@ public sealed class GovernanceWorkflowTransitionConflictPropertyTests
                 .GetResult();
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*environment transition*");
+            .WithMessage("*allowed environment transition*");
     }
 
     private static GovernanceWorkflowService CreateSubmitSut(Mock<IRunDetailQueryService> runDetail)

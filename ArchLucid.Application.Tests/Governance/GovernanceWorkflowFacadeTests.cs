@@ -818,7 +818,7 @@ public sealed class GovernanceWorkflowFacadeTests
             dryRun: true);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*environment transition*");
+            .WithMessage("*allowed environment transition*");
     }
 
     [Fact]
@@ -842,7 +842,7 @@ public sealed class GovernanceWorkflowFacadeTests
             dryRun: true);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*environment transition*");
+            .WithMessage("*allowed environment transition*");
     }
 
     [Fact]
