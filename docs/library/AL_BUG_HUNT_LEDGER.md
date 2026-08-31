@@ -2278,11 +2278,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 93
-- **bugs-found:** 234
+- **hunts:** 94
+- **bugs-found:** 235
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — bulk-disposition all-or-nothing scope validation
+- **last-bug:** 2026-08-31 — empty projectId query returned 200 empty on governance register/posture GETs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2527,6 +2527,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **cheap-disproof 2026-08-31:** per-item `ValidationFailed` for exact duplicates since 2026-08-28; **hit 2026-08-31:** `OrdinalIgnoreCase` dedupe for case-variant duplicates; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without per-item failure rows — **hit 2026-08-31 (#281):** validate all finding ids in scope before recording any; map scope misses to HTTP 404; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
+- [x] (proven) `GovernancePostureController.GetPosture` / `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetAssignedToMeFindingsCount`, `GetDecisionsNeededSummary`, `GetFindingsRegistersBundle`, `GetDecisionRegister`, `ListRiskExceptions`) — optional `projectId=00000000-0000-0000-0000-000000000000` returned HTTP 200 empty payloads instead of HTTP 400 — **hit 2026-08-31 (#328):** `GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId` rejects empty guid before `TryResolve` fail-open (route/body empty-GUID 400 parity); regression in `GovernancePostureControllerTests.GetPosture_returns_bad_request_when_project_id_is_empty_guid` and `GovernanceStickinessControllerTests.GetRiskRegister_returns_bad_request_when_project_id_is_empty_guid`.
+- [x] (invalid) `GovernanceStickinessController.RecordDisposition` — omitted body `runId` vs `runId=Guid.Empty` returns different status codes — **cheap-disproof 2026-08-31:** optional `runId` is intentional; bulk disposition uses `Guid.Empty`; existing tests omit `RunId`.
+- [ ] (candidate) `GovernanceEnvironmentCatalogController` GET/PUT — missing tenant row may return HTTP 200 empty catalog instead of 404 while sibling governance reads preflight `ITenantRepository`.
+- [ ] (candidate) `CorePilotTeamChecklistController.PutAsync` — empty `{}` body may PATCH-style upsert with model-binding defaults instead of rejecting incomplete checklist payload.
+
+2026-08-31 seed hunt #328: proved governance posture/stickiness register empty projectId query 400 parity; seeded environment-catalog ghost-tenant and core-pilot checklist empty-body candidates; cheap-disproved record-disposition null omitted runId.
 
 2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
 

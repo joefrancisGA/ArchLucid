@@ -1,5 +1,6 @@
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -26,6 +27,11 @@ public sealed partial class GovernanceStickinessController
         if (maxRowsProblem is not null)
             return maxRowsProblem;
 
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -42,11 +48,17 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("risk-register/assigned-to-me-count")]
     [ProducesResponseType(typeof(GovernanceAssignedToMeFindingsCountResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAssignedToMeFindingsCount(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -80,12 +92,18 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("decisions-needed-summary")]
     [ProducesResponseType(typeof(GovernanceDecisionsNeededSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDecisionsNeededSummary(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -117,6 +135,11 @@ public sealed partial class GovernanceStickinessController
 
         if (maxRowsProblem is not null)
             return maxRowsProblem;
+
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -159,6 +182,11 @@ public sealed partial class GovernanceStickinessController
 
         if (filterProblem is not null)
             return filterProblem;
+
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
 
         category = category?.Trim();
 
