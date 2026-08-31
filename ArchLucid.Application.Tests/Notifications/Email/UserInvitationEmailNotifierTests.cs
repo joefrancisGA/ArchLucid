@@ -59,6 +59,40 @@ public sealed class UserInvitationEmailNotifierTests
         sentMessages[0].IdempotencyKey.Should().NotMatchRegex("[0-9a-f]{32}");
     }
 
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_renders_markdown_links_in_personal_message()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        const string personalMessage =
+            "Please review the finalized architecture review [Retail API platform](https://app.example.com/architecture/reviews/run-abc).";
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader",
+            14,
+            personalMessage,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        sentMessage!.HtmlBody.Should().Contain(
+            "<a href=\"https://app.example.com/architecture/reviews/run-abc\">Retail API platform</a>");
+        sentMessage.TextBody.Should().Contain(
+            "Retail API platform (https://app.example.com/architecture/reviews/run-abc)");
+        sentMessage.TextBody.Should().NotContain("[Retail API platform]");
+    }
+
     private static IOptionsMonitor<EmailNotificationOptions> BuildOptions(EmailNotificationOptions value)
     {
         Mock<IOptionsMonitor<EmailNotificationOptions>> mock = new();
