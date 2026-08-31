@@ -26,7 +26,7 @@ export function CorePilotCompleteCelebrateStrip(): React.JSX.Element | null {
   }
 
   const showCompareAction = !compareLoading && !insufficientForCompare;
-  const bodyCopy = showCompareAction
+  const bodyCopy = compareLoading || showCompareAction
     ? CORE_PILOT_COMPLETE_COMPARE_AVAILABLE_BODY
     : CORE_PILOT_COMPLETE_COMPARE_UNAVAILABLE_BODY;
 
