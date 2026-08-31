@@ -221,7 +221,9 @@ public sealed class PolicyPackDryRunService(
             if (string.IsNullOrWhiteSpace(entry.Value))
                 continue;
 
-            if (!double.TryParse(entry.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+            string trimmedValue = entry.Value.Trim();
+
+            if (!double.TryParse(trimmedValue, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
                 continue;
             parsed[entry.Key.Trim()] = value;
         }
