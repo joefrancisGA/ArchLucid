@@ -64,9 +64,6 @@ public sealed partial class SqlTenantSqlCatalogProvisioner
 
             await _bindingRepository.MarkFailedAsync(tenantId, ex.Message, cancellationToken);
 
-            if (claimedStandby is not null)
-                await _warmStandbyRepository.ReleaseClaimAsync(claimedStandby.StandbyId, cancellationToken);
-
             throw;
         }
     }
