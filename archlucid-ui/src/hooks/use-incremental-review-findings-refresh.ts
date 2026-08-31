@@ -20,9 +20,11 @@ export function useIncrementalReviewFindingsRefresh(
 ): void {
   const router = useRouter();
   const hadFindingsSnapshotRef = useRef(false);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
     hadFindingsSnapshotRef.current = options.initialHasFindingsSnapshot === true;
+    initializedRef.current = options.initialHasFindingsSnapshot !== undefined;
   }, [options.runId, options.initialHasFindingsSnapshot]);
 
   const { summary } = useRunSummaryStream(options.runId, {
@@ -37,9 +39,15 @@ export function useIncrementalReviewFindingsRefresh(
 
     const hasFindingsSnapshot = summary?.hasFindingsSnapshot === true;
 
+    if (!initializedRef.current && summary !== null) {
+      initializedRef.current = true;
+      hadFindingsSnapshotRef.current = hasFindingsSnapshot;
+      return;
+    }
+
     if (hasFindingsSnapshot && !hadFindingsSnapshotRef.current) {
       hadFindingsSnapshotRef.current = true;
       router.refresh();
     }
-  }, [options.enabled, options.runId, router, summary?.hasFindingsSnapshot]);
+  }, [options.enabled, router, summary]);
 }
