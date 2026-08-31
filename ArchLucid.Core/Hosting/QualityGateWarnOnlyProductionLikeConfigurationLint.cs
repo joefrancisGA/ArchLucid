@@ -1,3 +1,4 @@
+using System.Globalization;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Configuration;
@@ -52,7 +53,15 @@ public static class QualityGateWarnOnlyProductionLikeConfigurationLint
         if (modeRaw.Length == 0)
             return true;
 
-        if (Enum.TryParse(modeRaw, ignoreCase: true, out AgentOutputQualityGateMode parsed))
+        if (int.TryParse(modeRaw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numeric))
+        {
+            if (!Enum.IsDefined(typeof(AgentOutputQualityGateMode), numeric))
+                return true;
+
+            return (AgentOutputQualityGateMode)numeric == AgentOutputQualityGateMode.WarnOnly;
+        }
+
+        if (Enum.TryParse(modeRaw, ignoreCase: true, out AgentOutputQualityGateMode parsed) && Enum.IsDefined(parsed))
             return parsed == AgentOutputQualityGateMode.WarnOnly;
 
         return string.Equals(modeRaw, "WarnOnly", StringComparison.OrdinalIgnoreCase);
