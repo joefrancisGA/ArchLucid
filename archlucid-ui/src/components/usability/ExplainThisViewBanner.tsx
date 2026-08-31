@@ -75,9 +75,7 @@ export function ExplainThisViewBanner() {
         </p>
       </div>
       <DismissControl
-        iconOnly
-        ariaLabel={`Dismiss ${explanation.title} help`}
-        className="h-7 w-7 shrink-0 p-1 text-neutral-500 hover:bg-neutral-200/80 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+        className="h-7 shrink-0"
         onDismiss={() => {
           try {
             sessionStorage.setItem(explainViewDismissKey(pathname), "1");

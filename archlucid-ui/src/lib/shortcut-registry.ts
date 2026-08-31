@@ -37,9 +37,9 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+p",
-    label: "Validate",
-    route: "/internal/validate-route",
-    description: "Validate review",
+    label: "Policy packs",
+    route: "/governance/policy-packs",
+    description: "Open workspace policy packs (architect-safe — not internal validate route)",
   },
   {
     key: "alt+a",
@@ -73,13 +73,13 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "shift+?",
-    label: "Documentation search",
-    description: "Open curated documentation search (Shift+/)",
+    label: "Find help (Ctrl+K)",
+    description: "Open documentation search (Shift+/) — use Ctrl+K command palette to find any page",
   },
   {
     key: "f1",
-    label: "Help",
-    description: "Open help and documentation (F1)",
+    label: "Page help",
+    description: "Open contextual help for the current page (F1)",
   },
 ];
 

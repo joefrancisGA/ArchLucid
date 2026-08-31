@@ -71,4 +71,38 @@ describe("CronExpressionBuilder", () => {
       expect(governanceApi.previewRecurrenceScheduleRuns).not.toHaveBeenCalled();
     });
   });
+
+  it("keeps hook order when hidePreview and onPreviewValidityChange toggle", async () => {
+    const onPreviewValidityChange = vi.fn();
+    const onChange = vi.fn();
+
+    const { rerender } = render(
+      <CronExpressionBuilder value="0 7 * * *" onChange={onChange} hidePreview />,
+    );
+
+    rerender(
+      <CronExpressionBuilder
+        value="0 7 * * *"
+        onChange={onChange}
+        hidePreview={false}
+        onPreviewValidityChange={onPreviewValidityChange}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(onPreviewValidityChange).toHaveBeenCalledWith(true);
+    });
+
+    rerender(
+      <CronExpressionBuilder
+        value="0 7 * * *"
+        onChange={onChange}
+        hidePreview
+        onPreviewValidityChange={onPreviewValidityChange}
+      />,
+    );
+
+    expect(onPreviewValidityChange).toHaveBeenLastCalledWith(true);
+    expect(screen.queryByTestId("cron-next-runs-preview")).toBeNull();
+  });
 });

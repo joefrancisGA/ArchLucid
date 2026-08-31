@@ -1656,13 +1656,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-31
+- **last-bug:** 2026-08-31 — OTP concurrent wrong-code RowVersion retry
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1674,6 +1674,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DapperAuthenticationIdentityRepository.ReEnableAsync` threw on filtered unique-index violation — **hit 2026-08-24:** re-enabling a disabled identity while another active row held the same external key surfaced `SqlException` 2601/2627 instead of returning `false` like `InMemoryAuthenticationIdentityRepository`.
 - [x] (proven) `InMemoryPlatformTenantAuthRecoveryGrantRepository.RevokeAsync` was not idempotent — **hit 2026-08-24:** second revoke returned `true` while Dapper only updates rows with `RevokedUtc IS NULL`, masking double-revoke regressions in dev/test.
 - [x] (proven) `InMemoryTenantSignInEmailDomainRepository.UpdateAsync` could reassign domains across tenants — **hit 2026-08-24:** update keyed only by `NormalizedDomain`, unlike Dapper's `(TenantId, NormalizedDomain)` predicate, so a mismatched tenant id silently hijacked sign-in routing in memory hosts.
+- [x] (proven) `DapperEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong-code attempts lost `FailedAttemptCount` increments on `RowVersion` conflict (`affected == 0` committed without retry) — **hit 2026-08-31 (#314):** rollback and retry up to eight times on optimistic concurrency miss; regression in `DapperEmailOtpChallengeRepositorySqlIntegrationTests` and `EmailOtpChallengeRepositoryConcurrencyTests`.
+- [ ] (hunt-ready) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — read-modify-write at `TrialLocalIdentityService.AuthenticateAsync` with unconditional `UPDATE` can lose lockout increments under parallel failed logins (no optimistic concurrency or atomic increment).
+- [ ] (hunt-ready) `DapperAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` — no `Status = PendingConfirmation` predicate; TOCTOU with `AuthenticationIdentityLinkProposalService` allows confirmed/cancelled rows to be rewritten.
+- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
+
+2026-08-31 seed hunt #314: proved OTP concurrent wrong-code RowVersion retry; seeded trial lockout lost-update, link-proposal status TOCTOU, and OTP resend invalidate/insert race candidates.
 
 ---
 
@@ -2272,7 +2278,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 84
+- **hunts:** 94
 - **bugs-found:** 234
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
@@ -2522,9 +2528,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without per-item failure rows — **hit 2026-08-31 (#281):** validate all finding ids in scope before recording any; map scope misses to HTTP 404; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
 
-2026-08-31 thorough hunt #281: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
-
 2026-08-31 thorough hunt #321: re-proved and landed on master the four picker candidates (findingRef inspect gate, sibling projectId guard, batch-review OrdinalIgnoreCase dedupe, bulk-disposition all-or-nothing scope validation).
+
+2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
+
+2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.
+
+2026-08-31 thorough hunt #281: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
 
 2026-08-28 thorough hunt #190 (dry): cheap-disproved promotions/activations padded-route test gap and simulate-bulk validation-order candidates; seeded batch-review duplicate-id silence and manifest-compare padded-version candidates.
 

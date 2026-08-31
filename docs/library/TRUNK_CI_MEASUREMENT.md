@@ -12,7 +12,20 @@
 Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord
 ```
 
-## Latest measurement — 2026-08-28 (integration-tier triage + PP-01 batch, cloud agent VM)
+## Latest measurement — 2026-08-31 (beta-readiness corset hardening, cloud agent VM)
+
+| Assembly | Fast-core result | Notes |
+|----------|------------------|-------|
+| `ArchLucid.Application.Tests` | **2031 / 0** | Green |
+| `ArchLucid.Api.Tests` | **1177 / 0** | Green (fast-core slice) |
+| `ArchLucid.AgentRuntime.Tests` | **743 / 0** | Green |
+| `ArchLucid.Host.Composition.Tests` | **276 / 0** | Green |
+| `ArchLucid.Decisioning.Tests` | **8 / 0** | `BundledPolicyPackDeclarationThemeTests` (PP-01 Option B, corset-covered) |
+| `ArchLucid.Api.Tests` (integration) | **SKIP** (no SQL host) | `probe-sql-integration-host.sh` — integration tier requires GHA `sqlserver` service or local `ARCHLUCID_SQL_TEST` |
+
+**Interpretation:** Fast-core slices outside the push corset remain green on current `master`. Tasks **#4–#9** (PP-01 Option B catalog, TB-951 sponsor-export guard, private-beta/release-gate wiring guards, insight-density advisory guards, trunk-matrix workflow) are **shipped on trunk**; this pass adds a **blocking push-corset job** for the four Python wiring guards so regressions cannot merge silently while full `ci.yml` lanes stay `continue-on-error`.
+
+## Prior measurement — 2026-08-28 (integration-tier triage + PP-01 batch, cloud agent VM)
 
 | Assembly | Fast-core result | Notes |
 |----------|------------------|-------|
