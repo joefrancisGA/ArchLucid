@@ -11,6 +11,7 @@ import {
   resolveReviewPipelineBackgroundSafetyMessage,
   shouldShowReviewPipelineBackgroundSafety,
 } from "@/lib/review-execution-background-safety-copy";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import { shouldShowReviewInPipelineBanner } from "@/lib/reviews/should-show-review-in-pipeline-banner";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
@@ -22,13 +23,14 @@ export const REVIEW_IN_PIPELINE_BANNER_ACTIVITY_CTA_LABEL = "View activity";
 export type ReviewInPipelineBannerProps = {
   readonly runId: string;
   readonly initialSummary: RunSummary | null;
+  readonly diagnosticContext?: ReviewPipelineDiagnosticContext | null;
 };
 
 /** TB-2385: compact in-pipeline honesty on non-activity review tabs. */
 export function ReviewInPipelineBanner(props: ReviewInPipelineBannerProps): ReactElement | null {
   const navigateTab = useReviewDetailTabNavigation();
 
-  if (!shouldShowReviewInPipelineBanner(props.initialSummary)) {
+  if (!shouldShowReviewInPipelineBanner(props.initialSummary, props.diagnosticContext)) {
     return null;
   }
 

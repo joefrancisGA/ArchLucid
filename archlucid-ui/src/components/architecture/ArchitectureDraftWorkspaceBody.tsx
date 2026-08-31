@@ -63,6 +63,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly briefFrozen: boolean;
   readonly canUnlockBrief: boolean;
   readonly unlockBusy: boolean;
+  readonly unlockError: string | null;
   readonly onUnlockBrief: () => void;
   readonly draft: DraftRequestResponse | null;
   readonly conflictMessage: string | null;
@@ -127,7 +128,6 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     fields,
     actorSet,
     editorLocked,
-    handoffEditorLocked,
     blocksLlmExecution,
     effectiveArchitectureId,
     linkedReviewId,

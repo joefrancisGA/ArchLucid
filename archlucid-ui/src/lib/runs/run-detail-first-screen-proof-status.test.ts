@@ -2,7 +2,25 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildRunDetailFirstScreenProofSummary,
+  shouldShowRunDetailFirstScreenProofStatus,
 } from "@/lib/runs/run-detail-first-screen-proof-status";
+
+describe("shouldShowRunDetailFirstScreenProofStatus", () => {
+  it("hides sponsor-send proof posture when execution failed or incomplete", () => {
+    expect(shouldShowRunDetailFirstScreenProofStatus({ legacyRunStatus: "Failed" })).toBe(false);
+    expect(shouldShowRunDetailFirstScreenProofStatus({ legacyRunStatus: "FailedPartial" })).toBe(false);
+    expect(shouldShowRunDetailFirstScreenProofStatus({ legacyRunStatus: "PartiallyCompleted" })).toBe(false);
+    expect(shouldShowRunDetailFirstScreenProofStatus({ isDeadLettered: true })).toBe(false);
+  });
+
+  it("shows sponsor-send proof posture when a sendable review exists", () => {
+    expect(shouldShowRunDetailFirstScreenProofStatus({ legacyRunStatus: "Completed" })).toBe(true);
+    expect(shouldShowRunDetailFirstScreenProofStatus({ legacyRunStatus: "ExecutionCompletedQualityRejected" })).toBe(
+      true,
+    );
+    expect(shouldShowRunDetailFirstScreenProofStatus({ legacyRunStatus: null })).toBe(true);
+  });
+});
 
 describe("buildRunDetailFirstScreenProofSummary", () => {
   it("returns READY when sendable and PilotStrict satisfied with classified ROI", () => {

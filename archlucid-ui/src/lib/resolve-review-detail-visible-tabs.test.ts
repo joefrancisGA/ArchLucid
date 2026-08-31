@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   coerceReviewDetailTabToVisible,
-  isReviewDetailTabAdvanced,
   resolveReviewDetailTabForVisit,
   resolveReviewDetailTabLifecycleStage,
   resolveReviewDetailVisibleTabs,
@@ -63,7 +62,7 @@ describe("resolveReviewDetailTabLifecycleStage", () => {
 });
 
 describe("resolveReviewDetailVisibleTabs", () => {
-  it("covers every tab exactly once across primary and advanced", () => {
+  it("shows every tab in the primary strip across lifecycle stages", () => {
     for (const input of [
       { manifestId: null, showProgressTracker: false, runCompleted: false },
       { manifestId: null, showProgressTracker: true, runCompleted: false },
@@ -71,14 +70,13 @@ describe("resolveReviewDetailVisibleTabs", () => {
       { manifestId: "m-1", showProgressTracker: false, runCompleted: true },
     ] as const) {
       const resolved = resolveReviewDetailVisibleTabs(input);
-      const combined = [...resolved.visibleTabIds, ...resolved.advancedCollapsedTabIds];
 
-      expect(new Set(combined).size).toBe(combined.length);
-      expect(combined.sort()).toEqual([...REVIEW_DETAIL_TAB_IDS].sort());
+      expect(new Set(resolved.visibleTabIds).size).toBe(resolved.visibleTabIds.length);
+      expect([...resolved.visibleTabIds].sort()).toEqual([...REVIEW_DETAIL_TAB_IDS].sort());
     }
   });
 
-  it("keeps a consistent primary strip across lifecycle stages", () => {
+  it("keeps a consistent tab strip across lifecycle stages", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: null,
       showProgressTracker: false,
@@ -86,13 +84,7 @@ describe("resolveReviewDetailVisibleTabs", () => {
     });
 
     expect(resolved.stage).toBe("draft");
-    expect(resolved.visibleTabIds).toEqual(["overview", "findings", "evidence", "activity"]);
-    expect(resolved.advancedCollapsedTabIds).toEqual([
-      "policies",
-      "decisions-remediation",
-      "review-package",
-      "architecture",
-    ]);
+    expect(resolved.visibleTabIds).toEqual(REVIEW_DETAIL_TAB_IDS);
     expect(resolved.defaultTabId).toBe("overview");
   });
 
@@ -108,7 +100,7 @@ describe("resolveReviewDetailVisibleTabs", () => {
     expect(resolved.defaultTabId).toBe("findings");
   });
 
-  it("keeps architecture package and decisions under More after commit", () => {
+  it("defaults to the finalized review record tab after commit", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: "manifest-1",
       showProgressTracker: false,
@@ -116,13 +108,7 @@ describe("resolveReviewDetailVisibleTabs", () => {
     });
 
     expect(resolved.stage).toBe("committed");
-    expect(resolved.visibleTabIds).toEqual(["overview", "findings", "evidence", "activity"]);
-    expect(resolved.advancedCollapsedTabIds).toEqual([
-      "policies",
-      "decisions-remediation",
-      "review-package",
-      "architecture",
-    ]);
+    expect(resolved.visibleTabIds).toEqual(REVIEW_DETAIL_TAB_IDS);
     expect(resolved.defaultTabId).toBe("review-package");
   });
 });
@@ -167,7 +153,7 @@ describe("resolveReviewDetailTabForVisit", () => {
 });
 
 describe("coerceReviewDetailTabToVisible", () => {
-  it("keeps deep-linked advanced tabs", () => {
+  it("keeps deep-linked tabs", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: null,
       showProgressTracker: false,
@@ -175,6 +161,7 @@ describe("coerceReviewDetailTabToVisible", () => {
     });
 
     expect(coerceReviewDetailTabToVisible("findings", resolved)).toBe("findings");
+    expect(coerceReviewDetailTabToVisible("architecture", resolved)).toBe("architecture");
   });
 
   it("falls back to stage default for unknown tabs", () => {
@@ -185,18 +172,5 @@ describe("coerceReviewDetailTabToVisible", () => {
     });
 
     expect(coerceReviewDetailTabToVisible("overview", resolved)).toBe("overview");
-  });
-});
-
-describe("isReviewDetailTabAdvanced", () => {
-  it("marks collapsed tabs as advanced", () => {
-    const resolved = resolveReviewDetailVisibleTabs({
-      manifestId: "manifest-1",
-      showProgressTracker: false,
-      runCompleted: true,
-    });
-
-    expect(isReviewDetailTabAdvanced("architecture", resolved)).toBe(true);
-    expect(isReviewDetailTabAdvanced("findings", resolved)).toBe(false);
   });
 });

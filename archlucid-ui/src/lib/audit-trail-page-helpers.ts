@@ -213,7 +213,7 @@ export function auditTrailGovernanceEventLabel(eventType: string): string {
   }
 
   if (normalized.includes("governance.approval.recorded")) {
-    return "Resolve outcomes completed";
+    return "Governance approval completed";
   }
 
   if (normalized.includes("export") || normalized.includes("download")) {

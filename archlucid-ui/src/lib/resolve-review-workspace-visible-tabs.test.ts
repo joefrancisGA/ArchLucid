@@ -16,7 +16,6 @@ describe("resolveReviewWorkspaceVisibleTabs (TB-2367)", () => {
     });
 
     expect(resolved.visibleTabIds).toEqual(CREATE_HOME_REVIEW_WORKSPACE_TAB_IDS);
-    expect(resolved.advancedCollapsedTabIds).toEqual([]);
     expect(resolved.visibleTabIds).not.toContain("review-package");
   });
 
@@ -30,7 +29,16 @@ describe("resolveReviewWorkspaceVisibleTabs (TB-2367)", () => {
 
     expect(resolved.stage).toBe("committed");
     expect(resolved.defaultTabId).toBe("review-package");
-    expect(resolved.advancedCollapsedTabIds.length).toBeGreaterThan(0);
+    expect(resolved.visibleTabIds).toEqual([
+      "overview",
+      "findings",
+      "evidence",
+      "policies",
+      "decisions-remediation",
+      "review-package",
+      "architecture",
+      "activity",
+    ]);
   });
 
   it("keeps canonical reviewTab ids across lifecycles for deep links", () => {

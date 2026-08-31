@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -71,10 +72,14 @@ public sealed class GovernanceResolutionController(
     public async Task<IActionResult> Resolve(CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, ct).ConfigureAwait(false);
+        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            scope,
+            _tenantRepository,
+            ct).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(
             scope.TenantId,
