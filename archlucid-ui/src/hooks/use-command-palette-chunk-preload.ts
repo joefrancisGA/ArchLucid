@@ -26,7 +26,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
 export function useCommandPaletteChunkPreload(): void {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== "k") {
+      if (!(event.ctrlKey || event.metaKey) || event.key?.toLowerCase() !== "k") {
         return;
       }
 
