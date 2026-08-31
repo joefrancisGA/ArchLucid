@@ -30,15 +30,24 @@ public static class ProblemSupportHints
             return;
 
         string? hint = audience == ProblemDetailsAudience.Buyer
-            ? ResolveBuyerSafe(type)
-            : ResolveOperator(type);
+            ? ResolveBuyerSafe(problem)
+            : ResolveOperator(problem);
 
         if (!string.IsNullOrWhiteSpace(hint))
             problem.Extensions["supportHint"] = hint;
     }
 
-    private static string? ResolveBuyerSafe(string typeUri)
+    private static bool IsWorkspaceSystemNameOccupancyConflict(string? detail) =>
+        !string.IsNullOrWhiteSpace(detail)
+        && detail.Contains("already exists in this workspace", StringComparison.OrdinalIgnoreCase);
+
+    private static string? ResolveBuyerSafe(Microsoft.AspNetCore.Mvc.ProblemDetails problem)
     {
+        string? typeUri = problem.Type;
+
+        if (string.IsNullOrWhiteSpace(typeUri))
+            return null;
+
         if (typeUri == ProblemTypes.RunNotFound)
             return "Confirm the review identifier and that you are signed in to the correct organization.";
 
@@ -49,7 +58,17 @@ public static class ProblemSupportHints
             return "Confirm the identifier and that you are authorized for this organization.";
 
         if (typeUri == ProblemTypes.Conflict)
+        {
+            if (IsWorkspaceSystemNameOccupancyConflict(problem.Detail))
+            {
+                return
+                    "An in-progress or committed review or architecture already uses this name in the workspace. "
+                    + "Open that review from the list, or use Re-run review from its detail page. "
+                    + "A failed or quality-rejected review with the same name should not block after you refresh.";
+            }
+
             return "Read the detail above. You may need to start a new review or complete an earlier step before retrying.";
+        }
 
         if (typeUri == ProblemTypes.QualityGateRejected)
             return "Add richer architecture context and re-run the review, or ask your workspace owner to review quality settings.";
@@ -117,8 +136,13 @@ public static class ProblemSupportHints
         return null;
     }
 
-    private static string? ResolveOperator(string typeUri)
+    private static string? ResolveOperator(Microsoft.AspNetCore.Mvc.ProblemDetails problem)
     {
+        string? typeUri = problem.Type;
+
+        if (string.IsNullOrWhiteSpace(typeUri))
+            return null;
+
         if (typeUri == ProblemTypes.RunNotFound)
 
             return "Confirm the run ID. If you use scope headers (x-tenant-id, x-workspace-id, x-project-id), they must match the run's scope.";
@@ -130,8 +154,19 @@ public static class ProblemSupportHints
             return "Confirm the resource identifier and that your caller is authorized for the correct scope.";
 
         if (typeUri == ProblemTypes.Conflict)
+        {
+            if (IsWorkspaceSystemNameOccupancyConflict(problem.Detail))
+            {
+                return
+                    "An in-progress or committed review or architecture already uses this name in the workspace. "
+                    + "Open that review from the list, or use Re-run review from its detail page. "
+                    + "A failed or quality-rejected review with the same name should not block after you refresh; "
+                    + "if it still does, archive the leftover failed row or contact support.";
+            }
+
             return
                 "Read the detail for state or idempotency context. You may need a new run, a different idempotency key, or to complete prior steps (execute before commit).";
+        }
 
         if (typeUri == ProblemTypes.QualityGateRejected)
             return

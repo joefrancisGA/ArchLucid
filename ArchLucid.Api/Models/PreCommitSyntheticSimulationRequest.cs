@@ -21,13 +21,13 @@ public sealed class PreCommitSyntheticSimulationRequest
         init;
     } = FindingSeverity.Warning;
 
-    /// <summary>Server-side maximum synthetic findings per simulation request (matches <see cref="RangeAttribute" />).</summary>
-    public const int MaxSyntheticCount = 500;
-
     [Range(0, MaxSyntheticCount)]
     public int SyntheticCount
     {
         get;
         init;
     } = 1;
+
+    /// <summary>Server-side maximum synthetic findings per simulation request (matches <see cref="RangeAttribute" />).</summary>
+    public const int MaxSyntheticCount = 500;
 }

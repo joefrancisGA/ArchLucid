@@ -89,24 +89,25 @@ public sealed partial class GovernanceController
         [FromQuery] int bucketMinutes = 1440,
         CancellationToken cancellationToken = default)
     {
+        if (fromUtc >= toUtc)
+            return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.ValidationFailed);
+
+        // Reject year-1 / unspecified defaults ΓÇö OpenAPI date-time + Schemathesis reject "0001-01-01T00:00:00".
+        if (fromUtc.Year < 1970 || toUtc.Year < 1970)
+            return this.BadRequestProblem(
+                "fromUtc and toUtc must be on or after 1970-01-01.",
+                ProblemTypes.ValidationFailed);
+
+        if (bucketMinutes is < 60 or > 43_200)
+            return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.ValidationFailed);
+
         DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
         DateTime toUtcNormalized = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
 
-        if (fromUtcNormalized >= toUtcNormalized)
-            return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.BadRequest);
-
-        // Reject year-1 / unspecified defaults ΓÇö OpenAPI date-time + Schemathesis reject "0001-01-01T00:00:00".
-
-        if (fromUtcNormalized.Year < 1970 || toUtcNormalized.Year < 1970)
-            return this.BadRequestProblem(
-                "fromUtc and toUtc must be on or after 1970-01-01.",
-                ProblemTypes.BadRequest);
-
-        if (bucketMinutes is < 60 or > 43_200)
-            return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
-
-        double bucketCountRaw = Math.Ceiling((toUtcNormalized - fromUtcNormalized).TotalMinutes / bucketMinutes);
-        long bucketCount = (long)bucketCountRaw;
+        TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
+        long deltaTicks = (toUtcNormalized - fromUtcNormalized).Ticks;
+        long bucketSizeTicks = bucketSize.Ticks;
+        long bucketCount = (deltaTicks + bucketSizeTicks - 1) / bucketSizeTicks;
 
         if (bucketCount > ComplianceDriftTrendMaxBuckets)
         {
@@ -120,8 +121,6 @@ public sealed partial class GovernanceController
 
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
-        TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
 
         IReadOnlyList<ComplianceDriftTrendPoint> points = await _complianceDriftTrendService.GetTrendAsync(
             scope.TenantId,

@@ -139,9 +139,14 @@ public sealed partial class ManifestsController
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
-        int? clampedMaxRelationships = maxRelationships.HasValue
-            ? Math.Clamp(maxRelationships.Value, 1, ManifestSummaryLimits.MaxRelationships)
-            : null;
+        if (maxRelationships is < 1 or > ManifestSummaryLimits.MaxRelationships)
+        {
+            return this.BadRequestProblem(
+                $"maxRelationships must be between 1 and {ManifestSummaryLimits.MaxRelationships}.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        int? validatedMaxRelationships = maxRelationships;
 
         string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 
@@ -185,7 +190,7 @@ public sealed partial class ManifestsController
                     })
                     .ToList(),
                 Relationships = includeRelationships
-                    ? manifest.Relationships.Take(clampedMaxRelationships ?? int.MaxValue).Select(r =>
+                    ? manifest.Relationships.Take(validatedMaxRelationships ?? int.MaxValue).Select(r =>
                         new ManifestSummaryRelationshipItem
                         {
                             SourceId = r.SourceId,
@@ -207,7 +212,7 @@ public sealed partial class ManifestsController
             IncludeRequiredControls = includeRequiredControls,
             IncludeTags = includeTags,
             IncludeComponentControls = includeComponentControls,
-            MaxRelationships = clampedMaxRelationships
+            MaxRelationships = validatedMaxRelationships
         };
 
         string content = manifestSummaryService.GenerateMarkdown(manifest, options);

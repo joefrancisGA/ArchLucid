@@ -283,7 +283,7 @@ public sealed class GovernanceWorkflowServiceTests
             "run-1", "v1", "dev", GovernanceEnvironment.Prod, "alice", null, null);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*environment ordering*");
+            .WithMessage("*allowed environment transition*");
 
         _approvalRepo.Verify(
             r => r.CreateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
@@ -1149,7 +1149,7 @@ public sealed class GovernanceWorkflowServiceTests
             "alice", null, null);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*environment ordering*");
+            .WithMessage("*allowed environment transition*");
 
         _promotionRepo.Verify(
             r => r.CreateAsync(It.IsAny<GovernancePromotionRecord>(), It.IsAny<CancellationToken>()),

@@ -14,6 +14,10 @@ import {
   deriveRunDetailWorkspaceStatus,
   derivePackageVersionLabel,
   deriveSignedReviewRecordIdLabel,
+  deriveReviewRecordMetadataContext,
+  resolveReviewMetadataAbsentReasons,
+  REVIEW_METADATA_NOT_FINALIZED_REASONS,
+  REVIEW_METADATA_NOT_RECORDED_REASONS,
   deriveSubmittedArchitectureText,
   formatDecisionSnapshotFindingsLine,
   formatDecisionSnapshotGovernanceOutcome,
@@ -344,6 +348,15 @@ describe("run-detail-workspace-derive", () => {
   it("does not invent package version from manifest id", () => {
     expect(derivePackageVersionLabel(null, "9026d565-0000-0000-0000-0000000099e8")).toBeNull();
     expect(derivePackageVersionLabel({ ruleSetVersion: "2.1.0" } as never, "manifest-1")).toBe("2.1.0");
+  });
+
+  it("selects not-finalized metadata absent reasons when no manifest exists", () => {
+    expect(deriveReviewRecordMetadataContext(null)).toBe("not-finalized");
+    expect(deriveReviewRecordMetadataContext("")).toBe("not-finalized");
+    expect(deriveReviewRecordMetadataContext("manifest-1")).toBe("incomplete-record");
+
+    expect(resolveReviewMetadataAbsentReasons("not-finalized")).toEqual(REVIEW_METADATA_NOT_FINALIZED_REASONS);
+    expect(resolveReviewMetadataAbsentReasons("incomplete-record")).toEqual(REVIEW_METADATA_NOT_RECORDED_REASONS);
   });
 
   it("formats Finalized review record id labels without treating them as versions", () => {

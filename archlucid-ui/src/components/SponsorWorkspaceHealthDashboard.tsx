@@ -92,10 +92,16 @@ function resolveWorkspaceHealthLoadError(error: unknown): WorkspaceHealthLoadErr
   };
 }
 
+export type SponsorWorkspaceHealthDashboardProps = {
+  readonly standalonePage?: boolean;
+};
+
 /**
  * Sponsor-oriented **Workspace health**: five KPI blocks composed from existing governance, audit, compliance-drift, and pilot-value APIs (current scope only).
  */
-export function SponsorWorkspaceHealthDashboard() {
+export function SponsorWorkspaceHealthDashboard({
+  standalonePage = false,
+}: SponsorWorkspaceHealthDashboardProps = {}) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const callerRank = useNavCallerAuthorityRank();
   const [scopeBanner, setScopeBanner] = useState<string>(DEFAULT_SCOPE_FALLBACK);
@@ -218,9 +224,12 @@ export function SponsorWorkspaceHealthDashboard() {
     return (
       <div className="space-y-4">
         {layerHeader}
-        <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <SponsorWorkspaceHealthPageHero
+          buyerPolishedShell={buyerPolishedShell}
+          standalonePage={standalonePage}
+        />
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
-<p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {`Loading ${SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE.toLowerCase()}…`}
         </p>
       </div>
@@ -231,9 +240,12 @@ export function SponsorWorkspaceHealthDashboard() {
     return (
       <div className="space-y-4">
         {layerHeader}
-        <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <SponsorWorkspaceHealthPageHero
+          buyerPolishedShell={buyerPolishedShell}
+          standalonePage={standalonePage}
+        />
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
-<OperatorApiProblem
+        <OperatorApiProblem
           fallbackMessage={loadError.message}
           problem={loadError.problem}
           correlationId={loadError.correlationId}
@@ -242,7 +254,7 @@ export function SponsorWorkspaceHealthDashboard() {
           <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Evaluation workspaces may not expose full KPI telemetry yet. Continue from{" "}
             <Link className={OPERATOR_LINK.nav} href="/governance/approval-queue">
-              Resolve outcomes workflow
+              Governance approval workflow
             </Link>{" "}
             for approvals and promotions.
           </p>
@@ -338,9 +350,12 @@ export function SponsorWorkspaceHealthDashboard() {
     <div className="space-y-4">
       {layerHeader}
 
-      <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+      <SponsorWorkspaceHealthPageHero
+        buyerPolishedShell={buyerPolishedShell}
+        standalonePage={standalonePage}
+      />
       <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
-{scopeBannerBlock}
+      {scopeBannerBlock}
 
       <DataArchivalDegradedBanner />
 
@@ -415,7 +430,7 @@ export function SponsorWorkspaceHealthDashboard() {
                 {executiveWorkspaceHealthKpiTitle("complianceDrift", buyerPolishedShell)}
               </h2>
               <Link href="/governance/approval-queue" className={OPERATOR_LINK.nav}>
-                Resolve outcomes workflow
+                Governance approval workflow
               </Link>
             </div>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Daily buckets (1440-minute) from compliance drift API.</p>

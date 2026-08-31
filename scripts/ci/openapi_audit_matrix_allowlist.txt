@@ -67,6 +67,7 @@ POST /v1/billing/webhooks/stripe
 POST /v1/billing/webhooks/stripe/subscriptions
 POST /v1/composite-alert-rules
 POST /v1/demo/quickstart
+POST /v1/demo/purge-sample
 POST /v1/demo/seed
 POST /v1/demo/viewer/{catchAll}
 POST /v1/diagnostics/client-error

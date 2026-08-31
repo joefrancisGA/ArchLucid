@@ -1,4 +1,6 @@
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
@@ -54,17 +56,13 @@ public sealed class GovernanceStickinessControllerTests
         Mock<IFindingInspectReadRepository>? findingInspect = null,
         Mock<IRunRepository>? runRepository = null,
         IRealizedValueAttestationService? attestationService = null,
-        ITenantRepository? tenantRepository = null,
-        Mock<IActorContext>? actor = null,
-        Mock<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>? mergeConflictResolution = null)
+        ITenantRepository? tenantRepository = null)
     {
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        Mock<IActorContext> actorContext = actor ?? new Mock<IActorContext>();
-
-        if (actor is null)
-            actorContext.Setup(a => a.GetActorId()).Returns("reviewer@test");
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns("reviewer@test");
 
         Mock<IFindingDispositionService> dispositions = dispositionService ?? new Mock<IFindingDispositionService>();
         dispositions
@@ -152,7 +150,7 @@ public sealed class GovernanceStickinessControllerTests
         return new GovernanceStickinessController(
                 new GovernanceStickinessFacade(
                     scope.Object,
-                    actorContext.Object,
+                    actor.Object,
                     dispositions.Object,
                     riskExceptionService.Object,
                     riskRegisterService.Object,
@@ -160,8 +158,7 @@ public sealed class GovernanceStickinessControllerTests
                     recurrenceRepository.Object,
                     nextRun.Object,
                     runRepository?.Object ?? Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-                    mergeConflictResolution?.Object
-                        ?? Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
+                    Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
                     digestComposer.Object,
                     reviewsAwaiting.Object,
                     attestationService ?? Mock.Of<IRealizedValueAttestationService>(),
@@ -301,6 +298,20 @@ public sealed class GovernanceStickinessControllerTests
         IActionResult action = await sut.GetDecisionRegister(
             projectId: null,
             maxRows: 0,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetDecisionRegister_returns_bad_request_when_category_is_whitespace()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            category: "   ",
             cancellationToken: CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
@@ -491,6 +502,17 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task ListDispositions_returns_bad_request_when_finding_id_is_whitespace()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        IActionResult action = await controller.ListDispositions("   ", CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task ListDispositions_returns_not_found_when_tenant_missing()
     {
         GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
@@ -499,6 +521,31 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task RevokeRiskException_returns_bad_request_when_risk_exception_id_is_empty()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        IActionResult action = await controller.RevokeRiskException(Guid.Empty, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RenewRiskException_returns_bad_request_when_risk_exception_id_is_empty()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        IActionResult action = await controller.RenewRiskException(
+            Guid.Empty,
+            new RenewRiskExceptionRequest { ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30) },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -557,6 +604,42 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ResolveFindingMergeConflict_returns_bad_request_when_run_id_empty()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.ResolveFindingMergeConflict(
+            Guid.Empty,
+            "finding-1",
+            new ResolveFindingMergeConflictRequest
+            {
+                Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task ResolveFindingMergeConflict_returns_bad_request_when_finding_id_is_whitespace()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.ResolveFindingMergeConflict(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            "   ",
+            new ResolveFindingMergeConflictRequest
+            {
+                Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -866,6 +949,45 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_finding_id_is_whitespace()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "ok",
+        };
+
+        IActionResult action = await controller.RecordDisposition("   ", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_run_id_is_empty()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = Guid.Empty,
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "ok",
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task RecordDisposition_returns_bad_request_when_service_throws_argument_exception()
     {
         Mock<IFindingInspectReadRepository> findingInspect = new();
@@ -902,6 +1024,9 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
     [Fact]
@@ -930,6 +1055,9 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            notFound.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ResourceNotFound);
     }
 
     [Fact]
@@ -966,6 +1094,64 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_finding_id_is_whitespace()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "   ",
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "accepted risk",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_mixed_finding_ids_include_whitespace()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1", "   "],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_run_id_is_empty()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = Guid.Empty,
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "accepted risk",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -1085,6 +1271,106 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_finding_ids_are_duplicated()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request => request.FindingId == "finding-1"),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = "finding-1" });
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1", "finding-1"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk"
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Be("Duplicate findingId in batch.");
+
+        dispositions.Verify(
+            d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_padded_finding_ids_normalize_to_duplicates()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request => request.FindingId == "finding-1"),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = "finding-1" });
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [" finding-1 ", "finding-1"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk"
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Be("Duplicate findingId in batch.");
+
+        dispositions.Verify(
+            d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -1366,6 +1652,22 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task UpdateRecurrenceSchedule_returns_bad_request_when_schedule_id_is_empty()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        UpdateArchitectureReviewRecurrenceScheduleRequest request = new() { Name = "updated" };
+
+        IActionResult action = await controller.UpdateRecurrenceSchedule(
+            Guid.Empty,
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task UpdateRecurrenceSchedule_returns_not_found_when_schedule_missing()
     {
         Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
@@ -1459,71 +1761,6 @@ public sealed class GovernanceStickinessControllerTests
         body.IsValid.Should().BeFalse();
         body.NextRunUtc.Should().BeEmpty();
         body.ValidationError.Should().NotBeNullOrWhiteSpace();
-    }
-
-    [Fact]
-    public async Task GetAssignedToMeFindingsCount_returns_zero_when_project_id_is_out_of_scope()
-    {
-        Guid foreignProjectId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-
-        Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
-
-        Mock<IActorContext> actor = new();
-        actor.Setup(a => a.GetActor()).Returns("reviewer@example.com");
-        actor.Setup(a => a.GetActorId()).Returns("actor-guid-123");
-
-        GovernanceStickinessController sut = BuildSut(
-            riskRegister: riskRegister,
-            actor: actor);
-
-        IActionResult action = await sut.GetAssignedToMeFindingsCount(
-            foreignProjectId,
-            CancellationToken.None);
-
-        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
-        GovernanceAssignedToMeFindingsCountResponse body =
-            ok.Value.Should().BeOfType<GovernanceAssignedToMeFindingsCountResponse>().Subject;
-        body.Count.Should().Be(0);
-        riskRegister.VerifyNoOtherCalls();
-    }
-
-    [Fact]
-    public async Task ResolveFindingMergeConflict_returns_not_found_when_conflict_not_on_run_snapshot()
-    {
-        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
-
-        Mock<IRunRepository> runs = new();
-        runs
-            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord { RunId = runId });
-
-        Mock<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService> merge = new();
-        merge
-            .Setup(s => s.TryResolveAsync(
-                Scope,
-                runId,
-                "foreign-finding",
-                FindingMergeConflictResolutionAction.AcceptPrimary,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        GovernanceStickinessController controller = BuildSut(
-            runRepository: runs,
-            mergeConflictResolution: merge);
-
-        ResolveFindingMergeConflictRequest request = new()
-        {
-            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
-        };
-
-        IActionResult action = await controller.ResolveFindingMergeConflict(
-            runId,
-            "foreign-finding",
-            request,
-            CancellationToken.None);
-
-        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     [Fact]

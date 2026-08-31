@@ -20,7 +20,6 @@ const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 const bannedStaticImports = [
   '@/components/operator/OperatorWelcomeOnboarding"',
   '@/components/sponsor/SponsorDashboardHowItWorks"',
-  '@/components/SponsorWorkspaceHealthDashboard"',
   './SponsorDashboardNextActionSection"',
   './SponsorDashboardPrimaryMetricsSection"',
   './SponsorExportsSection"',
@@ -92,12 +91,12 @@ describe("sponsor dashboard deferred imports (TB-2061 / wave 10)", () => {
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorDashboardSupportingMetricsSection")',
     );
-    expect(manifestLoaderSource).toContain('import("@/components/SponsorWorkspaceHealthDashboard")');
+    expect(manifestLoaderSource).not.toContain('import("@/components/SponsorWorkspaceHealthDashboard")');
     expect(deferredSource).toContain("sponsor-roi-dashboard-welcome-onboarding");
     expect(deferredSource).toContain("sponsor-roi-dashboard-roi-trend");
     expect(deferredSource).toContain("sponsor-roi-dashboard-environment-savings");
     expect(deferredSource).toContain("sponsor-roi-dashboard-supporting-metrics");
-    expect(deferredSource).toContain("sponsor-roi-dashboard-workspace-health");
+    expect(deferredSource).not.toContain("sponsor-roi-dashboard-workspace-health");
     expect(deferredSource).toContain("sponsor-roi-dashboard-page-view");
     expect(deferredSource).toContain("sponsor-roi-dashboard-systemic-issue-trend-chart");
     expect(manifestLoaderSource).toContain(

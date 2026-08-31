@@ -21,6 +21,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   cohort-contract:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
   cohort-faithfulness-phase-b-warn:
     needs: cohort-contract
@@ -35,7 +36,6 @@ jobs:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
   cohort-real-llm-gate:
-    needs: cohort-contract
     runs-on: ubuntu-latest
   cohort-real-mode-eval-corpus:
     needs: cohort-real-llm-gate
@@ -64,11 +64,19 @@ class GoldenCohortJobNamesTests(unittest.TestCase):
 
     def test_pr_skip_on_required_gate_fails(self) -> None:
         text = VALID_WORKFLOW.replace(
-            "  cohort-real-llm-gate:\n    needs: cohort-contract\n",
-            "  cohort-real-llm-gate:\n    needs: cohort-contract\n    if: github.event_name != 'pull_request'\n",
+            "  cohort-real-llm-gate:\n    runs-on: ubuntu-latest\n",
+            "  cohort-real-llm-gate:\n    if: github.event_name != 'pull_request'\n    runs-on: ubuntu-latest\n",
         )
         errors = check_workflow_text(text)
         self.assertTrue(any("cohort-real-llm-gate" in item for item in errors))
+
+    def test_pr_skip_on_contract_fails(self) -> None:
+        text = VALID_WORKFLOW.replace(
+            "  cohort-contract:\n    if: github.event_name != 'pull_request'\n",
+            "  cohort-contract:\n",
+        )
+        errors = check_workflow_text(text)
+        self.assertTrue(any("cohort-contract" in item for item in errors))
 
     def test_preflight_id_still_rejected(self) -> None:
         text = VALID_WORKFLOW.replace("cohort-real-llm-gate:", "cohort-real-llm-preflight:")

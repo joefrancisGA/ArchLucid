@@ -97,8 +97,9 @@ describe("SponsorRoiDashboardPageView sponsor surface", () => {
     expect(screen.getByTestId("sponsor-dashboard-empty-state")).toBeInTheDocument();
     expect(screen.getByTestId("sponsor-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "true");
     expect(screen.queryByTestId("sponsor-dashboard-preview-metrics")).toBeNull();
-    // How-it-works + workspace-health load via next/dynamic; sync tests see deferred loading shells.
+    // How-it-works loads via next/dynamic; sync tests see deferred loading shells.
     expect(screen.getAllByTestId("sponsor-dashboard-deferred-chunk-loading").length).toBeGreaterThan(0);
+    expect(screen.queryByTestId("sponsor-dashboard-workspace-health-section")).toBeNull();
     expect(screen.queryByTestId("sponsor-primary-decisions-needed")).not.toBeInTheDocument();
     expect(screen.queryByTestId("sponsor-exports-section")).toBeNull();
     expect(screen.getByRole("heading", { level: 2, name: "Sponsor dashboard" })).toBeInTheDocument();
