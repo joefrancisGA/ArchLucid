@@ -2528,6 +2528,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-31:** `LoadAndCompareManifestPairAsync` routes through trimming `GetManifestInScopeAsync`; regression in `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed in-scope/out-of-scope `findingIds` returned HTTP 200 partial success without per-item failure rows — **hit 2026-08-31 (#281):** validate all finding ids in scope before recording any; map scope misses to HTTP 404; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
 
+2026-08-31 thorough hunt #320: re-proved and landed on master the four picker candidates (findingRef inspect gate, sibling projectId guard, batch-review OrdinalIgnoreCase dedupe, bulk-disposition all-or-nothing scope validation).
+
 2026-08-31 thorough hunt #317: re-proved on master (fixes still unmerged) workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
 
 2026-08-31 thorough hunt #281: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
