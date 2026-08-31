@@ -25,9 +25,9 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+r",
-    label: "Reviews",
+    label: OPERATOR_NAV_LINK_LABELS.packages,
     route: "/architecture/reviews",
-    description: "Open reviews list",
+    description: "Open packages list",
   },
   {
     key: "alt+c",
