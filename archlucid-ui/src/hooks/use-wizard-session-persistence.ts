@@ -68,6 +68,8 @@ export function useWizardSessionPersistence<TState>(
 
     restorePromptCheckedRef.current = true;
 
+    let canceled = false;
+
     void (async () => {
       const localSnapshot = readWizardSessionSnapshot<TState>(args.wizardId);
       const remoteDraft = await fetchWizardIntakeDraft(args.wizardId);
@@ -87,6 +89,10 @@ export function useWizardSessionPersistence<TState>(
         }
       }
 
+      if (canceled) {
+        return;
+      }
+
       const snapshot =
         localSnapshot && remoteSnapshot
           ? Date.parse(localSnapshot.savedAtUtc) >= Date.parse(remoteSnapshot.savedAtUtc)
@@ -101,6 +107,10 @@ export function useWizardSessionPersistence<TState>(
       restoreDecisionPendingRef.current = true;
       setPendingRestore(snapshot);
     })();
+
+    return () => {
+      canceled = true;
+    };
   }, [args.hasSaveableContent, args.wizardId, enabled]);
 
   const acceptRestore = useCallback(() => {
