@@ -26,13 +26,52 @@ const PRODUCT_BRAND_NAME = "ArchLucid";
 
 import { isProductBrandReviewTitle } from "./review-presentation";
 
-export const REVIEW_METADATA_NOT_RECORDED_REASONS = {
+export type ReviewRecordMetadataContext = "not-finalized" | "incomplete-record";
+
+export type ReviewMetadataAbsentReasons = {
+  readonly governanceDecisionRecordedBy: string;
+  readonly reviewTemplate: string;
+  readonly finalizedAt: string;
+  readonly packageVersion: string;
+  readonly signedReviewRecordId: string;
+};
+
+/** Shown when a finalized review record exists but a specific metadata field is missing. */
+export const REVIEW_METADATA_NOT_RECORDED_REASONS: ReviewMetadataAbsentReasons = {
   governanceDecisionRecordedBy: "Not recorded — this record does not name who recorded the decision",
   reviewTemplate: "Not recorded — no review template captured for this package",
   finalizedAt: "Not recorded — finalization timestamp missing from the finalized review record",
   packageVersion: "Not recorded — rule set version missing",
   signedReviewRecordId: "Not recorded — no finalized review record ID",
-} as const;
+};
+
+/**
+ * Shown when the review has not produced a finalized record yet (draft, in progress, or execution failed).
+ * Avoids implying ArchLucid failed to persist data that only exists after finalization.
+ */
+export const REVIEW_METADATA_NOT_FINALIZED_REASONS: ReviewMetadataAbsentReasons = {
+  governanceDecisionRecordedBy: "Not applicable — no approval decision until the review is finalized",
+  reviewTemplate: "Not applicable — review template is recorded when the review finalizes",
+  finalizedAt: "Not applicable — review has not been finalized",
+  packageVersion: "Not applicable — package version is recorded when the review finalizes",
+  signedReviewRecordId: "Not applicable — no finalized review record yet",
+};
+
+export function deriveReviewRecordMetadataContext(
+  manifestId: string | null | undefined,
+): ReviewRecordMetadataContext {
+  const hasManifest = (manifestId ?? "").trim().length > 0;
+
+  return hasManifest ? "incomplete-record" : "not-finalized";
+}
+
+export function resolveReviewMetadataAbsentReasons(
+  context: ReviewRecordMetadataContext,
+): ReviewMetadataAbsentReasons {
+  return context === "not-finalized"
+    ? REVIEW_METADATA_NOT_FINALIZED_REASONS
+    : REVIEW_METADATA_NOT_RECORDED_REASONS;
+}
 
 export function deriveSignedReviewRecordIdLabel(manifestId: string | null | undefined): string | null {
   const manifest = (manifestId ?? "").trim();

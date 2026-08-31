@@ -26,10 +26,10 @@ export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): Reac
     >
       <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Resolve outcomes
+          Governance approval
         </CardTitle>
         <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-          This review is finalized. Continue in the approval queue to submit source and target environments for resolve outcomes.
+          This review is finalized. Continue in the approval queue to submit source and target environments for governance approval.
         </CardDescription>
       </CardHeader>
       <CardContent className={OPERATOR_CARD.content}>

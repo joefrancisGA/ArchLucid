@@ -39,7 +39,7 @@ function buildSpineSteps(data: GovernanceLineageResult): readonly GovernanceLine
 
   steps.push({
     id: "governance-approval",
-    title: "Resolve outcomes",
+    title: "Governance approval",
     detail: `Reviewed by ${formatActionActorName(data.approvalRequest.reviewedBy)}`,
     statusTag: approvalStatus,
   });

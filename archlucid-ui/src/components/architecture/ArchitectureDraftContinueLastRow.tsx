@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
-import { formatUpdatedAbsoluteWithRelative } from "@/lib/relative-time";
+import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
@@ -16,7 +16,7 @@ export type ArchitectureDraftContinueLastRowProps = {
 /** Pinned continue row for the most recently opened architecture draft. */
 export function ArchitectureDraftContinueLastRow(props: ArchitectureDraftContinueLastRowProps): React.JSX.Element {
   const entry = props.entry;
-  const updatedLabel = formatUpdatedAbsoluteWithRelative(entry.lastUpdatedUtc, entry.lastUpdatedUtc);
+  const updatedAt = formatInventoryUpdatedAtCell(entry.lastUpdatedUtc);
 
   return (
     <section
@@ -35,7 +35,10 @@ export function ArchitectureDraftContinueLastRow(props: ArchitectureDraftContinu
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-medium text-al-text-primary">{entry.displayName}</span>
             {" · "}
-            Last saved {updatedLabel}
+            Last saved{" "}
+            <time dateTime={entry.lastUpdatedUtc} title={updatedAt.absoluteTitle}>
+              {updatedAt.display}
+            </time>
           </p>
         </div>
         <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-draft-continue-last-open">

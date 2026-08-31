@@ -34,6 +34,9 @@ public sealed partial class GovernanceStickinessController
         if (request.RunId == Guid.Empty)
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
+        if (string.IsNullOrWhiteSpace(request.FindingId))
+            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+
         try
         {
             RiskExceptionRecord record = await _facade.CreateRiskExceptionAsync(request, cancellationToken);

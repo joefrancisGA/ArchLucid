@@ -69,7 +69,7 @@ const CURATED_PALETTE_TASK_SOURCES: readonly CuratedPaletteTaskSource[] = [
     searchValue: "task I want architecture intelligence closed-loop reasoning refine AI golden harness",
   },
   { href: "/governance/policy-packs", searchValue: "task I want policy rules" },
-  { href: GOVERNANCE_APPROVAL_QUEUE_PATH, searchValue: "task I want resolve outcomes promotion" },
+  { href: GOVERNANCE_APPROVAL_QUEUE_PATH, searchValue: "task I want governance approval promotion" },
 ];
 
 function toCuratedPaletteTask(source: CuratedPaletteTaskSource): CuratedPaletteTask {

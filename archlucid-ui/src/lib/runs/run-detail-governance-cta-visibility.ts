@@ -1,7 +1,8 @@
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
 import { governanceApprovalQueueHref } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_APPROVAL_REVIEW_DETAIL_CTA_LABEL } from "@/lib/vocabulary/governance-approval-vocabulary";
 
-export const RUN_DETAIL_GOVERNANCE_CTA_LABEL = "Submit for resolve outcomes →";
+export const RUN_DETAIL_GOVERNANCE_CTA_LABEL = GOVERNANCE_APPROVAL_REVIEW_DETAIL_CTA_LABEL;
 
 export type RunDetailGovernanceCtaVisibilityInput = {
   readonly manifestId: string | null | undefined;

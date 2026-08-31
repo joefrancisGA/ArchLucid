@@ -11,6 +11,13 @@ public static class Gpt56AzureOpenAiModels
 
     public const string TerraDeploymentName = "gpt-5.6-terra";
 
+    /// <summary>
+    ///     Azure portal deployment resource label for golden-cohort / CI live invokes (see
+    ///     <c>tests/golden-cohort/budget.config.json</c> <c>deploymentName</c>). Distinct from
+    ///     <see cref="TerraDeploymentName"/> model SKU naming when operators use a custom deploy label.
+    /// </summary>
+    public const string GoldenCohortDeploymentName = "archlucid-golden-cohort";
+
     public const string SolDeploymentName = "gpt-5.6-sol";
 
     /// <summary>Foundry model version shared by Luna, Terra, and Sol GA builds.</summary>

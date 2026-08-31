@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
+import {
+  LEGACY_GOVERNANCE_DASHBOARD_PATH,
+  WORKSPACE_HEALTH_PATH,
+} from "@/lib/workspace-health-route";
 
 describe("canonicalizeLegacyOperatorRoutePath", () => {
   it("maps governance legacy bookmarks to canonical paths", () => {
@@ -8,6 +12,13 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/policy-packs/abc")).toBe("/governance/policy-packs/abc");
     expect(canonicalizeLegacyOperatorRoutePath("/alerts")).toBe("/governance/alerts");
     expect(canonicalizeLegacyOperatorRoutePath("/alert-rules")).toBe("/governance/alert-rules");
+  });
+
+  it("maps the retired governance dashboard bookmark to workspace health", () => {
+    expect(canonicalizeLegacyOperatorRoutePath(LEGACY_GOVERNANCE_DASHBOARD_PATH)).toBe(WORKSPACE_HEALTH_PATH);
+    expect(canonicalizeLegacyOperatorRoutePath(`${LEGACY_GOVERNANCE_DASHBOARD_PATH}/details`)).toBe(
+      `${WORKSPACE_HEALTH_PATH}/details`,
+    );
   });
 
   it("maps reviews namespace bookmarks to architecture reviews", () => {
