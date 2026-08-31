@@ -5,7 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
-import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor-dashboard-route";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 import { liveApiBase } from "./helpers/live-api-client";
 import { auditPageMainHeading, clickAuditSearchAndWaitForSuccessfulResponse, expandAuditBuyerFiltersIfPresent, expectAuditSearchNoResults } from "./helpers/operator-journey";
 
@@ -92,7 +92,7 @@ test.describe("live-api-error-states", () => {
   test("sponsor dashboard workspace health loads without uncaught errors", async ({ page }) => {
     test.setTimeout(60_000);
 
-    await page.goto(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF);
+    await page.goto(WORKSPACE_HEALTH_PATH);
 
     // Heading copy was rebranded to "Sponsor Workspace Health" (full operator) / "Workspace
     // overview" (buyer-polished) in SponsorWorkspaceHealthDashboard.tsx — "Governance dashboard"
