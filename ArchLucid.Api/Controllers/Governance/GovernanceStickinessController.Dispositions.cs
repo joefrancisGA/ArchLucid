@@ -124,7 +124,7 @@ public sealed partial class GovernanceStickinessController
             if (!seenFindingIds.Add(normalizedFindingId))
             {
                 return this.BadRequestProblem(
-                    $"Duplicate findingId in batch: '{normalizedFindingId}'.",
+                    "Duplicate findingId in batch.",
                     ProblemTypes.ValidationFailed);
             }
         }

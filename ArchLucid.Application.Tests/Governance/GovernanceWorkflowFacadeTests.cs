@@ -1305,6 +1305,133 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task ActivateAsync_reads_supplied_integration_options_monitor_per_call()
+    {
+        Mock<IGovernanceEnvironmentActivationRepository> activationRepo = new();
+        activationRepo
+            .Setup(r => r.GetByEnvironmentAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        activationRepo
+            .Setup(r => r.CreateAsync(
+                It.IsAny<GovernanceEnvironmentActivation>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest("run-1", "v1"));
+
+        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher
+            .Setup(p => p.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.EnqueueAsync(
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        IntegrationEventsOptions options = new() { TransactionalOutboxEnabled = false };
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationOptions = new();
+        integrationOptions.Setup(m => m.CurrentValue).Returns(() => options);
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            activationRepo: activationRepo.Object,
+            runDetail: runDetail.Object,
+            unitOfWorkFactory: ArchLucidUnitOfWorkTestDoubles.ExternalTransactionFactory(),
+            integrationEventsOptions: integrationOptions.Object,
+            integrationEventPublisher: publisher.Object,
+            integrationEventOutbox: outbox.Object);
+
+        await sut.ActivateAsync("run-1", "v1", "test-a", "operator");
+
+        options = new IntegrationEventsOptions { TransactionalOutboxEnabled = true };
+
+        await sut.ActivateAsync("run-1", "v1", "test-b", "operator");
+
+        publisher.Verify(
+            p => p.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        outbox.Verify(
+            o => o.EnqueueAsync(
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ActivateAsync_uses_fresh_external_transaction_unit_of_work_per_call()
+    {
+        List<(IDbConnection Connection, IDbTransaction Transaction)> transactions = [];
+        Mock<IGovernanceEnvironmentActivationRepository> activationRepo = new();
+        activationRepo
+            .Setup(r => r.GetByEnvironmentAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        activationRepo
+            .Setup(r => r.CreateAsync(
+                It.IsAny<GovernanceEnvironmentActivation>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>()))
+            .Callback<GovernanceEnvironmentActivation, CancellationToken, IDbConnection, IDbTransaction>((_, _, connection, transaction) => transactions.Add((connection, transaction)))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest("run-1", "v1"));
+
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationOptions = new();
+        integrationOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = true });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            activationRepo: activationRepo.Object,
+            runDetail: runDetail.Object,
+            unitOfWorkFactory: ArchLucidUnitOfWorkTestDoubles.ExternalTransactionFactory(),
+            integrationEventsOptions: integrationOptions.Object);
+
+        await sut.ActivateAsync("run-1", "v1", "test-a", "operator");
+        await sut.ActivateAsync("run-1", "v1", "test-b", "operator");
+
+        transactions.Should().HaveCount(2);
+        transactions[0].Connection.Should().NotBeSameAs(transactions[1].Connection);
+        transactions[0].Transaction.Should().NotBeSameAs(transactions[1].Transaction);
+        transactions[0].Transaction.Connection.Should().BeSameAs(transactions[0].Connection);
+        transactions[1].Transaction.Connection.Should().BeSameAs(transactions[1].Connection);
+    }
+
+    [Fact]
     public async Task PromoteAsync_reads_manifest_from_unified_reader_when_embedded_version_is_stale()
     {
         Mock<IUnifiedGoldenManifestReader> manifests = new(MockBehavior.Strict);
@@ -1470,7 +1597,9 @@ public sealed class GovernanceWorkflowFacadeTests
         IUnifiedGoldenManifestReader? unifiedManifestReader = null,
         IOptions<PreCommitGovernanceGateOptions>? governanceGateOptions = null,
         IArchLucidUnitOfWorkFactory? unitOfWorkFactory = null,
-        IOptionsMonitor<IntegrationEventsOptions>? integrationEventsOptions = null)
+        IOptionsMonitor<IntegrationEventsOptions>? integrationEventsOptions = null,
+        IIntegrationEventPublisher? integrationEventPublisher = null,
+        IIntegrationEventOutboxRepository? integrationEventOutbox = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
@@ -1516,10 +1645,7 @@ public sealed class GovernanceWorkflowFacadeTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationOptions = new();
-        integrationOptions.Setup(m => m.CurrentValue).Returns(
-            integrationEventsOptions?.CurrentValue
-            ?? new IntegrationEventsOptions { TransactionalOutboxEnabled = false });
+        IOptionsMonitor<IntegrationEventsOptions> integrationOptions = integrationEventsOptions ?? CreateDefaultIntegrationOptions();
 
         return GovernanceWorkflowTestComposition.CreateFacade(
             approvalRepo ?? Mock.Of<IGovernanceApprovalRequestRepository>(),
@@ -1529,11 +1655,19 @@ public sealed class GovernanceWorkflowFacadeTests
             Mock.Of<ArchLucid.Application.Common.IBaselineMutationAuditService>(),
             durableAudit ?? audit.Object,
             scopeProvider.Object,
-            publisher.Object,
-            outbox.Object,
-            integrationOptions.Object,
+            integrationEventPublisher ?? publisher.Object,
+            integrationEventOutbox ?? outbox.Object,
+            integrationOptions,
             governanceGateOptions ?? Options.Create(new PreCommitGovernanceGateOptions()),
             unitOfWorkFactory ?? ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             unifiedManifestReader);
+
+        static IOptionsMonitor<IntegrationEventsOptions> CreateDefaultIntegrationOptions()
+        {
+            Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationOptions = new();
+            integrationOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = false });
+
+            return integrationOptions.Object;
+        }
     }
 }
