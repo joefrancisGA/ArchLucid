@@ -2367,7 +2367,11 @@ export interface components {
             workspaceId?: string;
         };
         CorePilotChecklistPutRequest: {
+<<<<<<< HEAD
             isCompleted: null | boolean;
+=======
+            isCompleted?: null | boolean;
+>>>>>>> 3f9605c51c (Refresh OpenAPI snapshots and route tier policy nav for PR CI.)
             /** Format: int32 */
             stepIndex?: number;
         };
