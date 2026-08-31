@@ -1,14 +1,13 @@
-using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
-using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
 
@@ -26,7 +25,7 @@ public interface IPilotValueReportService
 }
 
 /// <summary>
-///     Read-only aggregate: run summaries + run details + scoped audit export + governance dashboard snapshot.
+///     Read-only aggregate: run summaries + run details + scoped audit export + scoped pending-approvals count.
 ///     Durable audit reads use <see cref = "IAuditRepository"/> (existing product pattern; <see cref = "IAuditService"/> is
 ///     append-only).
 /// </summary>
@@ -35,7 +34,7 @@ public sealed class PilotValueReportService(
     IAuditRepository auditRepository,
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeContextProvider,
-    IGovernanceDashboardService governanceDashboardService,
+    IGovernanceApprovalRequestRepository approvalRequestRepository,
     ILogger<PilotValueReportService> logger) : IPilotValueReportService
 {
     /// <summary>
@@ -63,8 +62,8 @@ public sealed class PilotValueReportService(
 
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
 
-    private readonly IGovernanceDashboardService _governanceDashboardService =
-        governanceDashboardService ?? throw new ArgumentNullException(nameof(governanceDashboardService));
+    private readonly IGovernanceApprovalRequestRepository _approvalRequestRepository =
+        approvalRequestRepository ?? throw new ArgumentNullException(nameof(approvalRequestRepository));
 
     private readonly ILogger<PilotValueReportService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
@@ -76,19 +75,24 @@ public sealed class PilotValueReportService(
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
         if (tenant is null)
             return null;
+
+        long pendingApprovalsNow =
+            await _approvalRequestRepository.CountPendingApprovalsAsync(cancellationToken).ConfigureAwait(false);
+
         DateTime toExclusive = toUtc ?? TimeProvider.System.UtcNowDateTime();
         DateTime from = fromUtc ?? tenant.CreatedUtc.UtcDateTime;
+
         if (toExclusive <= from)
-            return EmptyReport(scope.TenantId, from, toExclusive, 0);
+            return EmptyReport(scope.TenantId, from, toExclusive, pendingApprovalsNow);
         List<CommittedRunRef> committedRuns = await CollectCommittedRunsAsync(from, toExclusive, cancellationToken).ConfigureAwait(false);
         committedRuns.Sort(static (a, b) => a.CreatedUtc.CompareTo(b.CreatedUtc));
-        GovernanceDashboardSummary dashboard =
-            await _governanceDashboardService.GetDashboardAsync(scope.TenantId, 50, 50, 50, cancellationToken).ConfigureAwait(false);
         IReadOnlyList<AuditEvent> auditRows = await _auditRepository
             .GetExportAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, from, toExclusive, AuditExportMaxRows, cancellationToken).ConfigureAwait(false);
         bool auditTruncated = auditRows.Count >= AuditExportMaxRows;
+
         if (auditTruncated && _logger.IsEnabled(LogLevel.Warning))
             _logger.LogWarning("Pilot value report: audit export capped at {Cap} for tenant {TenantId}.", AuditExportMaxRows, scope.TenantId);
         int approvals = auditRows.Count(e => ApprovalEventTypes.Contains(e.EventType));
@@ -98,9 +102,11 @@ public sealed class PilotValueReportService(
         int recommendations = auditRows.Count(e => string.Equals(e.EventType, AuditEventTypes.RecommendationGenerated, StringComparison.Ordinal));
         bool runDetailsTruncated = committedRuns.Count > DefaultRunDetailCap;
         List<CommittedRunRef> runsForDetails = committedRuns;
+
         if (runDetailsTruncated)
         {
             runsForDetails = committedRuns.Take(DefaultRunDetailCap).ToList();
+
             if (_logger.IsEnabled(LogLevel.Warning))
             {
                 _logger.LogWarning("Pilot value report: loading run details for {Loaded} of {Total} committed runs (cap {Cap}).", runsForDetails.Count,
@@ -112,6 +118,7 @@ public sealed class PilotValueReportService(
         List<double> completionSeconds = [];
         HashSet<string> agentTypes = new(StringComparer.OrdinalIgnoreCase);
         List<PilotValueReportRunTimelinePoint> timeline = [];
+
         foreach (CommittedRunRef runRef in runsForDetails)
         {
             ArchitectureRunDetail? detail =
@@ -119,13 +126,18 @@ public sealed class PilotValueReportService(
 
             if (detail is null)
                 continue;
+
             AddFindings(detail, severities);
+
             foreach (AgentResult r in detail.Results)
                 agentTypes.Add(r.AgentType.ToString());
+
             DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
+
             if (committedUtc is { } c)
             {
                 TimeSpan wall = c - detail.Run.CreatedUtc;
+
                 if (wall >= TimeSpan.Zero)
                     completionSeconds.Add(wall.TotalSeconds);
             }
@@ -160,7 +172,7 @@ public sealed class PilotValueReportService(
             ComparisonOrDriftDetections = compareDrift,
             UniqueAgentTypes = agentTypes.OrderBy(static s => s, StringComparer.OrdinalIgnoreCase).ToList(),
             CommittedRunsTimeline = timeline,
-            GovernancePendingApprovalsNow = dashboard.PendingCount,
+            GovernancePendingApprovalsNow = pendingApprovalsNow,
             AuditExportTruncated = auditTruncated
         };
     }
@@ -175,6 +187,7 @@ public sealed class PilotValueReportService(
             (IReadOnlyList<RunSummary> items, bool hasMore, string? next) =
                 await _runDetailQuery.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
             bool stopPaging = false;
+
             foreach (RunSummary s in items)
             {
                 if (s.CreatedUtc < fromInclusive)
@@ -223,7 +236,7 @@ public sealed class PilotValueReportService(
         }
     }
 
-    private static PilotValueReport EmptyReport(Guid tenantId, DateTime from, DateTime toExclusive, int dashboardPending)
+    private static PilotValueReport EmptyReport(Guid tenantId, DateTime from, DateTime toExclusive, long pendingApprovals)
     {
         return new PilotValueReport
         {
@@ -243,7 +256,7 @@ public sealed class PilotValueReportService(
             ComparisonOrDriftDetections = 0,
             UniqueAgentTypes = [],
             CommittedRunsTimeline = [],
-            GovernancePendingApprovalsNow = dashboardPending,
+            GovernancePendingApprovalsNow = pendingApprovals,
             AuditExportTruncated = false
         };
     }

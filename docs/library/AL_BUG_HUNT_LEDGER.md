@@ -2278,7 +2278,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 91
+- **hunts:** 94
 - **bugs-found:** 240
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
@@ -2536,6 +2536,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `TenantWorkspacesController.ListAsync` — lists all active projects in caller workspace while delete/restore require `scope.ProjectId` — may be intentional workspace-admin disclosure vs mutation guard parity.
 
 2026-08-31 seed hunt #326: proved product-feedback whitespace findingRef, coverage preview null body, environment-catalog tenant+workspace preflight, recurrence empty-PUT next-run drift, and customer-success workspace preflight; cheap-disproved resolution optional-project candidate; seeded workspace list sibling-project disclosure candidate.
+
+2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
+
+2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.
 
 2026-08-31 thorough hunt #281: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
 

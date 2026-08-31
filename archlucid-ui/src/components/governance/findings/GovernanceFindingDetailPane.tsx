@@ -29,6 +29,7 @@ import {
   governanceQueueStatusTagKind,
 } from "@/components/governance/findings/governance-findings-buyer-labels";
 import { GovernanceFindingsQueueOperationalActions } from "@/components/governance/findings/governance-findings-queue-operational-actions";
+import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 
 export type GovernanceFindingDetailPaneProps = {
   readonly row: GovernanceFindingQueueRow;
@@ -172,9 +173,9 @@ function GovernanceFindingDetailPaneComponent({
           </p>
         ) : null}
         {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-          <p className={cn("m-0 mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-            ITSM: {row.itsmLinkedTicketsSummary}
-          </p>
+          <div className="mt-1">
+            <ItsmLinkedTicketStatusChip summary={row.itsmLinkedTicketsSummary} />
+          </div>
         ) : null}
       </div>
       <div className="flex flex-col gap-2 sm:col-span-2">
