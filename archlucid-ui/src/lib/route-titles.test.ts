@@ -1,8 +1,6 @@
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import {
-  SPONSOR_DASHBOARD_HREF,
-  SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
-} from "@/lib/sponsor/sponsor-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
@@ -22,7 +20,7 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle("/governance/approval-queue")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
     expect(getRouteTitle(SIGNED_RECORDS_LIST_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.sealedReviewRecords);
     expect(getRouteTitle(SPONSOR_DASHBOARD_HREF)).toBe(BUYER_SPONSOR_SUMMARY_VOCABULARY.pageTitle);
-    expect(getRouteTitle(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF)).toBe(
+    expect(getRouteTitle(WORKSPACE_HEALTH_PATH)).toBe(
       OPERATOR_NAV_LINK_LABELS.workspaceHealth,
     );
     expect(getRouteTitle("/internal/validate-route")).toBe(OPERATOR_NAV_LINK_LABELS.replayReview);

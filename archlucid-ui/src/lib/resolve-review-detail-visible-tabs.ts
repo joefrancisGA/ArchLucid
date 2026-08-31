@@ -23,10 +23,8 @@ export type ResolveReviewDetailVisibleTabsInput = {
 
 export type ReviewDetailVisibleTabs = {
   readonly stage: ReviewDetailTabLifecycleStage;
-  /** Always shown in the primary tab strip. */
+  /** All workspace tabs shown in the primary tab strip. */
   readonly visibleTabIds: readonly ReviewDetailTabId[];
-  /** Available under "More sections" so deep links still work. */
-  readonly advancedCollapsedTabIds: readonly ReviewDetailTabId[];
   readonly defaultTabId: ReviewDetailTabId;
 };
 
@@ -54,16 +52,8 @@ export function resolveReviewDetailTabLifecycleStage(
   return "draft";
 }
 
-/** High-frequency tabs — architecture, policies, sealed record, and decisions stay under More. */
-const PRIMARY_REVIEW_DETAIL_TAB_IDS: readonly ReviewDetailTabId[] = [
-  "overview",
-  "findings",
-  "evidence",
-  "activity",
-];
-
-function primaryTabsForStage(_stage: ReviewDetailTabLifecycleStage): readonly ReviewDetailTabId[] {
-  return PRIMARY_REVIEW_DETAIL_TAB_IDS;
+function visibleTabsForStage(_stage: ReviewDetailTabLifecycleStage): readonly ReviewDetailTabId[] {
+  return ALL_TABS;
 }
 
 function defaultTabForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailTabId {
@@ -86,27 +76,16 @@ function defaultTabForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailT
   }
 }
 
-function advancedTabsForStage(
-  _stage: ReviewDetailTabLifecycleStage,
-  primary: readonly ReviewDetailTabId[],
-): readonly ReviewDetailTabId[] {
-  const primarySet = new Set<ReviewDetailTabId>(primary);
-
-  return ALL_TABS.filter((tabId) => !primarySet.has(tabId));
-}
-
 export function resolveReviewDetailVisibleTabs(
   input: ResolveReviewDetailVisibleTabsInput,
 ): ReviewDetailVisibleTabs {
   const stage = resolveReviewDetailTabLifecycleStage(input);
-  const visibleTabIds = primaryTabsForStage(stage);
-  const advancedCollapsedTabIds = advancedTabsForStage(stage, visibleTabIds);
+  const visibleTabIds = visibleTabsForStage(stage);
   const defaultTabId = defaultTabForStage(stage);
 
   return {
     stage,
     visibleTabIds,
-    advancedCollapsedTabIds,
     defaultTabId,
   };
 }
@@ -116,7 +95,7 @@ export function coerceReviewDetailTabToVisible(
   tabId: ReviewDetailTabId,
   resolved: ReviewDetailVisibleTabs,
 ): ReviewDetailTabId {
-  if (resolved.visibleTabIds.includes(tabId) || resolved.advancedCollapsedTabIds.includes(tabId)) {
+  if (resolved.visibleTabIds.includes(tabId)) {
     return tabId;
   }
 
@@ -144,11 +123,4 @@ export function resolveReviewDetailTabForVisit(
   }
 
   return coerceReviewDetailTabToVisible(paramValue, resolved);
-}
-
-export function isReviewDetailTabAdvanced(
-  tabId: ReviewDetailTabId,
-  resolved: ReviewDetailVisibleTabs,
-): boolean {
-  return resolved.advancedCollapsedTabIds.includes(tabId);
 }

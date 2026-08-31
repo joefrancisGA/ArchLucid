@@ -12,6 +12,7 @@ import {
   RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_BODY,
   RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_HEADING,
   RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_RETRY_HINT,
+  shouldShowRunDetailFirstScreenProofStatus,
 } from "@/lib/runs/run-detail-first-screen-proof-status";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -20,11 +21,22 @@ import { RunDetailFirstScreenProofStatus } from "./RunDetailFirstScreenProofStat
 
 type RunDetailFirstScreenProofStatusClientProps = {
   readonly runId: string;
+  readonly legacyRunStatus?: string | null;
+  readonly isDeadLettered?: boolean;
 };
 
 export function RunDetailFirstScreenProofStatusClient(
   props: RunDetailFirstScreenProofStatusClientProps,
 ): React.JSX.Element | null {
+  if (
+    !shouldShowRunDetailFirstScreenProofStatus({
+      legacyRunStatus: props.legacyRunStatus,
+      isDeadLettered: props.isDeadLettered,
+    })
+  ) {
+    return null;
+  }
+
   const { data: payload, isPending, isError, refetch } = usePilotRunDeltasQuery(props.runId);
 
   const retryLoad = useCallback(() => {

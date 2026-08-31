@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Advisory;
@@ -42,12 +43,14 @@ public sealed class TenantWeeklyDigestHealthController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
+        if (scopeProblem is not null)
+            return scopeProblem;
         WeeklyDigestHealthSnapshot snap =
             await _healthReader.GetSnapshotAsync(scope, cancellationToken).ConfigureAwait(false);
 
@@ -76,6 +79,7 @@ public sealed class TenantWeeklyDigestHealthController(
             SponsorDigestDayOfWeek = snap.SponsorDigestDayOfWeek,
             SponsorDigestHourOfDay = snap.SponsorDigestHourOfDay,
             SetupGaps = snap.SetupGaps,
+            SetupGapCodes = snap.SetupGapCodes,
         };
 
         return Ok(body);

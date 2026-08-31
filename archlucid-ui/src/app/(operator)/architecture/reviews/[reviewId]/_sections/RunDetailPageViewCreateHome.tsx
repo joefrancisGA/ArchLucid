@@ -1,5 +1,9 @@
 import { Suspense } from "react";
 
+import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
+import type { RunSummary } from "@/types/authority";
+
 import {
   RunDetailActivitySourcesPanelDeferred,
   RunDetailArchitectureCreateWorkItemSectionDeferred,
@@ -28,6 +32,12 @@ export type RunDetailPageViewCreateHomeProps = {
     readonly evidenceCoverageLinkedCount: number;
     readonly evidenceCoverageTotalCount: number;
     readonly governanceDecisionRecorded: boolean;
+    readonly pipelineDiagnosticContext: ReviewPipelineDiagnosticContext | null;
+    readonly lastFailureSummary: RunDetailLastFailureSummary | null;
+    readonly pipelineSummary: RunSummary;
+    readonly intakeDescription: string | null;
+    readonly intakeSystemName: string | null;
+    readonly realModeFellBackToSimulator: boolean;
   };
 };
 

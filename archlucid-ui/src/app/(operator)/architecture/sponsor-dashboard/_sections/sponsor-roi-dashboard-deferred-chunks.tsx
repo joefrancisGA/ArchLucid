@@ -97,8 +97,3 @@ export const SponsorDashboardSupportingMetricsSectionDeferred: ComponentType<Spo
   createDeferredComponentFromManifest("sponsor-roi-dashboard-supporting-metrics", {
     loadingTestId: "sponsor-dashboard-deferred-chunk-loading",
   });
-
-export const SponsorWorkspaceHealthDashboardDeferred: ComponentType = createDeferredComponentFromManifest(
-  "sponsor-roi-dashboard-workspace-health",
-  { loadingTestId: "sponsor-dashboard-deferred-chunk-loading" },
-);

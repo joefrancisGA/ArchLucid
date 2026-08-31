@@ -53,6 +53,12 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_openapi"])
         self.assertTrue(lanes["run_dotnet"])
 
+    def test_api_types_split_modules_trigger_openapi(self) -> None:
+        lanes = DETECT.classify_paths(["archlucid-ui/src/lib/api-types/paths.generated.ts"])
+
+        self.assertTrue(lanes["run_openapi"])
+        self.assertTrue(lanes["run_dotnet"])
+
     def test_core_change_triggers_openapi_and_dotnet(self) -> None:
         lanes = DETECT.classify_paths(["ArchLucid.Core/Configuration/Foo.cs"])
 

@@ -27,6 +27,10 @@ import {
 import { GOVERNANCE_WORKFLOW_LOAD_REVIEW_REQUIRED } from "@/lib/governance/governance-mutation-outcome-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { governanceWorkflowOutcomeLineForPhase } from "@/lib/governance/governance-workflow-section-copy";
+import {
+  GOVERNANCE_SUBMIT_MANIFEST_VERSION_DEFAULT,
+  resolveDefaultGovernanceSubmitManifestVersion,
+} from "@/lib/governance/governance-submit-manifest-version";
 
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
@@ -41,6 +45,8 @@ export function useGovernanceWorkflowPage() {
   const approvalsSectionRef = useRef<HTMLElement | null>(null);
   const deepLinkFocusHandledRef = useRef<string | null>(null);
   const pendingOverviewSubmitScrollRunIdRef = useRef<string | null>(null);
+  const versionSeedRunIdRef = useRef<string | null>(null);
+  const seededDefaultRef = useRef<string>(GOVERNANCE_SUBMIT_MANIFEST_VERSION_DEFAULT);
 
   const [submitRunId, setSubmitRunId] = useState("");
   const [submitManifestVersion, setSubmitManifestVersion] = useState("");
@@ -54,6 +60,20 @@ export function useGovernanceWorkflowPage() {
 
   const runListsQuery = useGovernanceWorkflowRunListsQuery(activeRunId);
   const reviewContextQuery = useGovernanceReviewContextQuery(activeRunId);
+  const submitRunIdTrimmed = submitRunId.trim();
+  const submitUsesActiveReviewContext =
+    submitRunIdTrimmed.length > 0 && submitRunIdTrimmed === activeRunId;
+  const submitReviewContextRunId =
+    submitRunIdTrimmed.length > 0 && !submitUsesActiveReviewContext
+      ? submitRunIdTrimmed
+      : null;
+  const submitReviewContextQueryResult = useGovernanceReviewContextQuery(
+    submitReviewContextRunId,
+  );
+  const submitReviewContextQuery = submitUsesActiveReviewContext
+    ? reviewContextQuery
+    : submitReviewContextQueryResult;
+  const maxPersistedManifestVersion = submitReviewContextQuery.data?.manifestVersion?.trim() || null;
 
   const {
     approvals,
@@ -174,12 +194,36 @@ export function useGovernanceWorkflowPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    const manifestVersion = reviewContextQuery.data?.manifestVersion?.trim() ?? "";
+    const runId = submitRunIdTrimmed;
 
-    if (manifestVersion.length > 0) {
-      setSubmitManifestVersion(manifestVersion);
+    if (runId.length === 0) {
+      versionSeedRunIdRef.current = null;
+      seededDefaultRef.current = GOVERNANCE_SUBMIT_MANIFEST_VERSION_DEFAULT;
+      setSubmitManifestVersion("");
+
+      return;
     }
-  }, [reviewContextQuery.data?.manifestVersion]);
+
+    const nextDefault = resolveDefaultGovernanceSubmitManifestVersion(maxPersistedManifestVersion);
+
+    if (versionSeedRunIdRef.current !== runId) {
+      versionSeedRunIdRef.current = runId;
+      seededDefaultRef.current = nextDefault;
+      setSubmitManifestVersion(nextDefault);
+
+      return;
+    }
+
+    setSubmitManifestVersion((current) => {
+      if (current.trim().length === 0 || current === seededDefaultRef.current) {
+        seededDefaultRef.current = nextDefault;
+
+        return nextDefault;
+      }
+
+      return current;
+    });
+  }, [submitRunIdTrimmed, maxPersistedManifestVersion]);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId")?.trim() ?? "";
@@ -291,6 +335,7 @@ export function useGovernanceWorkflowPage() {
     setSubmitRunId,
     submitManifestVersion,
     setSubmitManifestVersion,
+    maxPersistedManifestVersion,
     submitSource,
     setSubmitSource,
     submitTarget,

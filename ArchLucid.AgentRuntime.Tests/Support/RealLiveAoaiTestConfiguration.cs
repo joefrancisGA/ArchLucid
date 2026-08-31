@@ -24,10 +24,10 @@ internal static class RealLiveAoaiTestConfiguration
 
         string deployment =
             (Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT")
-             ?? Gpt56AzureOpenAiModels.TerraDeploymentName).Trim();
+             ?? Gpt56AzureOpenAiModels.GoldenCohortDeploymentName).Trim();
 
         if (string.IsNullOrWhiteSpace(deployment))
-            deployment = Gpt56AzureOpenAiModels.TerraDeploymentName;
+            deployment = Gpt56AzureOpenAiModels.GoldenCohortDeploymentName;
 
         credentials = new LiveCredentials(
             AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions(endpoint),

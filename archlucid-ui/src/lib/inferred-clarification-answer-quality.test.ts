@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  isInternalClarificationRephrasePayload,
   isReadableInferredClarificationAnswer,
   normalizeClarificationInferenceCorpus,
 } from "@/lib/inferred-clarification-answer-quality";
@@ -36,5 +37,13 @@ describe("isReadableInferredClarificationAnswer", () => {
     );
     expect(isReadableInferredClarificationAnswer("RPO 15 minutes; RTO 4 hours")).toBe(true);
     expect(isReadableInferredClarificationAnswer("Azure")).toBe(true);
+  });
+
+  it("rejects internal Evidence excerpt rephrase payloads", () => {
+    const payload =
+      "Evidence excerpt (answer only from this text):\nSystem name: ArchLucid\nBusiness outcome: Additional actor kinds.";
+
+    expect(isInternalClarificationRephrasePayload(payload)).toBe(true);
+    expect(isReadableInferredClarificationAnswer(payload)).toBe(false);
   });
 });
