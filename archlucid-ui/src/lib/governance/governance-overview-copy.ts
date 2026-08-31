@@ -1,6 +1,7 @@
 /** Canonical copy for the `/governance/approval-queue` overview landing page. */
 
 import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
+import { GOVERNANCE_APPROVAL_HOW_IT_WORKS_LABEL } from "@/lib/vocabulary/governance-approval-vocabulary";
 
 export const GOVERNANCE_OVERVIEW_PAGE_TITLE = "Approval queue";
 
@@ -38,7 +39,7 @@ export const GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE =
 export const GOVERNANCE_OVERVIEW_SUBMIT_ACTION = "Submit review for approval";
 
 export const GOVERNANCE_OVERVIEW_SUBMIT_DISABLED_HINT =
-  "Select a review before submitting for resolve outcomes.";
+  "Select a review before submitting for governance approval.";
 
 export const GOVERNANCE_OVERVIEW_PENDING_ACTION = "View pending approvals";
 
@@ -123,7 +124,7 @@ export const GOVERNANCE_OVERVIEW_APPROVAL_LIFECYCLE_STEPS = [
   "Released",
 ] as const;
 
-export const GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER = "How resolve outcomes work";
+export const GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER = GOVERNANCE_APPROVAL_HOW_IT_WORKS_LABEL;
 
 export const GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION =
   "Start from pending approvals or open the findings queue to clear blocking items.";

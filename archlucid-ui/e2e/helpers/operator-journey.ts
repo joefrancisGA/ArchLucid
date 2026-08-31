@@ -440,21 +440,7 @@ export async function expectBuyerPolishedReviewDetailWorkspaceCore(
   for (const tab of BUYER_POLISHED_REVIEW_DETAIL_CORE_WORKSPACE_TABS) {
     const tabLocator = page.getByTestId(`review-detail-workspace-tab-${tab}`);
 
-    await expect(async () => {
-      if (!(await tabLocator.isVisible())) {
-        const moreTabs = page.getByTestId("review-detail-workspace-more-tabs");
-
-        if ((await moreTabs.count()) > 0) {
-          await moreTabs.first().evaluate((element) => {
-            if (element instanceof HTMLDetailsElement) {
-              element.open = true;
-            }
-          });
-        }
-      }
-
-      await expect(tabLocator).toBeVisible();
-    }).toPass({ timeout });
+    await expect(tabLocator).toBeVisible({ timeout });
   }
 }
 
@@ -497,7 +483,7 @@ function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator
   return page.getByTestId(`review-detail-workspace-panel-${tab}`);
 }
 
-/** "More sections" collapses advanced workspace tabs — expand before clicking hidden triggers. */
+/** Radix tab panels hide inactive workspace content — open the tab before tab-scoped assertions. */
 async function ensureReviewDetailWorkspaceTabTriggerVisible(
   page: Page,
   tab: ReviewDetailTabId,
@@ -506,21 +492,7 @@ async function ensureReviewDetailWorkspaceTabTriggerVisible(
   const timeout = options?.timeoutMs ?? 15_000;
   const trigger = page.getByTestId(`review-detail-workspace-tab-${tab}`);
 
-  await expect(async () => {
-    if (!(await trigger.isVisible())) {
-      const moreTabs = page.getByTestId("review-detail-workspace-more-tabs");
-
-      if ((await moreTabs.count()) > 0) {
-        await moreTabs.first().evaluate((element) => {
-          if (element instanceof HTMLDetailsElement) {
-            element.open = true;
-          }
-        });
-      }
-    }
-
-    await expect(trigger).toBeVisible();
-  }).toPass({ timeout });
+  await expect(trigger).toBeVisible({ timeout });
 
   return trigger;
 }
@@ -559,15 +531,13 @@ export async function openReviewDetailWorkspaceTab(
   }
 
   await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
-  // Primary tabs use TabsTrigger `data-state`; "More sections" buttons use `aria-current="page"`.
   const activeTab = page.getByTestId(`review-detail-workspace-tab-${tab}`);
 
   await expect
     .poll(async () => {
       const dataState = await activeTab.getAttribute("data-state");
-      const ariaCurrent = await activeTab.getAttribute("aria-current");
 
-      return dataState === "active" || ariaCurrent === "page";
+      return dataState === "active";
     }, { timeout: 15_000 })
     .toBe(true);
 }

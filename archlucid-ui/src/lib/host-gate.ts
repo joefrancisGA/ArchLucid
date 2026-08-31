@@ -34,6 +34,7 @@ import {
 import { LEGACY_ONBOARDING_PATH } from "@/lib/first-review-guide-route";
 import { LEGACY_GETTING_STARTED_PATH } from "@/lib/getting-started-help-guide-content";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
 /** Extra marketing paths not always in the sitemap (noindex / funnel). */
 const EXTRA_MARKETING_EXACT_PATHS: readonly string[] = [
@@ -56,6 +57,7 @@ const CANONICAL_OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/internal",
   "/insights/sponsor-report",
   "/insights/roi-summary",
+  WORKSPACE_HEALTH_PATH,
   "/help",
   "/why-archlucid",
   COMPARE_TWO_REVIEWS_PATH,

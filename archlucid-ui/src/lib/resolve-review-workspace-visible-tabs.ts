@@ -32,7 +32,6 @@ function createHomeVisibleTabs(): ReviewWorkspaceVisibleTabs {
   return {
     stage: "draft",
     visibleTabIds: CREATE_HOME_REVIEW_WORKSPACE_TAB_IDS,
-    advancedCollapsedTabIds: [],
     defaultTabId: REVIEW_DETAIL_DEFAULT_TAB,
   };
 }

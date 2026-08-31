@@ -82,6 +82,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "Review architecture",
     );
     expect(contextualHelpForPathname("/architecture/reviews")?.whatIsThisPage).toContain("architecture reviews");
+    expect(contextualHelpForPathname("/architecture/reviews/run-abc")?.whatIsThisPage).toContain("Review workspace");
     expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("Review architecture");
     expect(contextualHelpForPathname("/architecture/architectures/new")?.whatIsThisPage).toContain(
       "Create architecture",
@@ -407,7 +408,7 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves governance approval help Category-1 help (GO)", () => {
-    expect(contextualHelpForPathname("/help/governance-approval")?.whatIsThisPage).toContain("Resolve outcomes");
+    expect(contextualHelpForPathname("/help/governance-approval")?.whatIsThisPage).toContain("Governance approval");
     expect(contextualHelpForPathname("/help/governance-approval")?.whatToDoNext).toContain("approval queue");
   });
 

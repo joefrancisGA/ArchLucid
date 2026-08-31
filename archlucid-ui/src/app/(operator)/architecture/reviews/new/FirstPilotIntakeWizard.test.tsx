@@ -28,7 +28,7 @@ vi.mock("@/lib/wizard-pending-evidence-upload", () => ({
 vi.mock("@/lib/extract-evidence-document-text", () => ({
   extractEvidenceDocumentText: vi.fn().mockResolvedValue({
     ok: true,
-    text: "",
+    text: "Hub-and-spoke Azure topology with Front Door and private endpoints.",
     truncated: false,
   }),
 }));
@@ -276,6 +276,7 @@ describe("FirstPilotIntakeWizard", () => {
       requestSource?: string;
       wizardPresetUsed?: string;
       intakeQuestionAnswers?: Record<string, string>;
+      documents?: readonly { name: string; contentType: string; content: string }[];
     };
     expect(body.systemName).toBe("Retail API modernization review");
     expect(body.description).toContain("network-topology.pdf");
@@ -283,6 +284,13 @@ describe("FirstPilotIntakeWizard", () => {
     expect(body.policyReferences).toContain(FOCUSED_PILOT_MODE_POLICY_REFERENCE);
     expect(body.requestSource).toBe("wizard");
     expect(body.wizardPresetUsed).toBe("quick-review");
+    expect(body.documents).toEqual([
+      {
+        name: "network-topology.pdf",
+        contentType: "text/plain",
+        content: "Hub-and-spoke Azure topology with Front Door and private endpoints.",
+      },
+    ]);
     expect(body.intakeQuestionAnswers?.["intake.pending-evidence-file-names"]).toBe("network-topology.pdf");
     expect(body.intakeQuestionAnswers?.["intake.operator-brief-character-count"]).toBe("0");
     expect(Object.keys(body.intakeQuestionAnswers ?? {}).length).toBeGreaterThanOrEqual(7);

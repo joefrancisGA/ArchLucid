@@ -88,6 +88,11 @@ const PAGE_HELP_TOPIC_MISMATCH_SURFACES: ReadonlyArray<{
     pageTitle: REVIEWS_HUB_PAGE_TITLE,
     modulePath: "app/(operator)/architecture/reviews/_sections/ReviewsHubHeaderActions.tsx",
   },
+  {
+    pathname: "/architecture/reviews/run-abc",
+    pageTitle: "Customer intake modernization",
+    modulePath: "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceChrome.tsx",
+  },
 ];
 
 function readSrcModule(relativePath: string): string {

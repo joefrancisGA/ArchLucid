@@ -101,7 +101,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
             new CommandDefinition(
                 sql,
                 new { PolicyPackId = policyPackId, MaxRows = maxRows },
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return rows.ToList();
     }
@@ -132,7 +132,48 @@ public sealed class DapperPolicyPackChangeLogRepository(
             new CommandDefinition(
                 sql,
                 new { TenantId = tenantId, MaxRows = maxRows },
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        return rows.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int maxRows = 100,
+        CancellationToken cancellationToken = default)
+    {
+        if (maxRows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
+
+        const string sql = """
+                           SELECT TOP (@MaxRows)
+                               ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           FROM dbo.PolicyPackChangeLog
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY ChangedUtc DESC;
+                           """;
+
+        await using SqlConnection connection =
+            await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    MaxRows = maxRows,
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return rows.ToList();
     }

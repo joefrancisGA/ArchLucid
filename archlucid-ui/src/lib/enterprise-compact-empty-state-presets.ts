@@ -3,4 +3,3 @@ import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCo
 export * from "./enterprise-compact-empty-state-presets-governance";
 export * from "./enterprise-compact-empty-state-presets-reviews";
 export * from "./enterprise-compact-empty-state-presets-integrations";
-
