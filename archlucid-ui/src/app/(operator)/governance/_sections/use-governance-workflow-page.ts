@@ -57,9 +57,18 @@ export function useGovernanceWorkflowPage() {
   const runListsQuery = useGovernanceWorkflowRunListsQuery(activeRunId);
   const reviewContextQuery = useGovernanceReviewContextQuery(activeRunId);
   const submitRunIdTrimmed = submitRunId.trim();
-  const submitReviewContextQuery = useGovernanceReviewContextQuery(
-    submitRunIdTrimmed.length > 0 ? submitRunIdTrimmed : null,
+  const submitUsesActiveReviewContext =
+    submitRunIdTrimmed.length > 0 && submitRunIdTrimmed === activeRunId;
+  const submitReviewContextRunId =
+    submitRunIdTrimmed.length > 0 && !submitUsesActiveReviewContext
+      ? submitRunIdTrimmed
+      : null;
+  const submitReviewContextQueryResult = useGovernanceReviewContextQuery(
+    submitReviewContextRunId,
   );
+  const submitReviewContextQuery = submitUsesActiveReviewContext
+    ? reviewContextQuery
+    : submitReviewContextQueryResult;
   const maxPersistedManifestVersion = submitReviewContextQuery.data?.manifestVersion?.trim() || null;
 
   const {
