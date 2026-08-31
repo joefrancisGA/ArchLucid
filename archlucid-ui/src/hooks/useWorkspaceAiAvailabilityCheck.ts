@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   fetchWorkspaceAiAvailability,
+  WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS,
   type WorkspaceAiAvailabilityResult,
 } from "@/lib/workspace-ai-availability";
 
@@ -38,34 +39,50 @@ export function useWorkspaceAiAvailabilityCheck(input: {
       const controller = new AbortController();
       inFlightRef.current = controller;
 
+      const timeoutId = window.setTimeout(() => {
+        controller.abort();
+      }, WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS);
+
       setState({ status: "loading" });
 
       try {
         const result = await fetchWorkspaceAiAvailability({ signal: controller.signal });
 
-        if (controller.signal.aborted) {
+        if (inFlightRef.current !== controller) {
           return;
         }
 
         setState({ status: "loaded", result });
       } catch (error) {
-        if (controller.signal.aborted) {
+        if (inFlightRef.current !== controller) {
           return;
         }
 
-        const message =
-          error instanceof Error && error.message.trim().length > 0
+        const timedOut =
+          controller.signal.aborted ||
+          (error instanceof Error &&
+            (error.name === "AbortError" || error.message.toLowerCase().includes("abort")));
+
+        const message = timedOut
+          ? `AI availability check timed out after ${WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS / 1000}s. Press Check AI availability to retry.`
+          : error instanceof Error && error.message.trim().length > 0
             ? error.message
             : "Workspace AI availability check failed.";
 
         setState({ status: "error", message });
+      } finally {
+        window.clearTimeout(timeoutId);
+
+        if (inFlightRef.current === controller) {
+          inFlightRef.current = null;
+        }
       }
     },
     [input.enabled, state.status],
   );
 
   useEffect(() => {
-    if (!input.enabled || input.autoCheck === false || autoCheckedRef.current) {
+    if (!input.enabled || input.autoCheck !== true || autoCheckedRef.current) {
       return;
     }
 

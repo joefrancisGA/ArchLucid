@@ -1,23 +1,24 @@
-using ArchLucid.Application.AiProviders;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Contracts.Admin;
 using ArchLucid.Contracts.Diagnostics;
 using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Secrets;
 using ArchLucid.Host.Composition.Services;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Host.Composition.Tests.Services;
 
 public sealed class WorkspaceAiAvailabilityServiceTests
 {
     [Fact]
-    public async Task ProbeAsync_simulator_mode_reports_available_without_tcp_probe()
+    public async Task ProbeAsync_simulator_mode_reports_available_without_live_probe()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
@@ -44,7 +45,7 @@ public sealed class WorkspaceAiAvailabilityServiceTests
     }
 
     [Fact]
-    public async Task ProbeAsync_customer_connection_failure_reports_unavailable()
+    public async Task ProbeAsync_customer_connection_missing_secret_reports_unavailable_without_persisting()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
@@ -54,15 +55,6 @@ public sealed class WorkspaceAiAvailabilityServiceTests
                 })
             .Build();
 
-        FakeCustomerProbe probe = new()
-        {
-            Result = new TenantAzureOpenAiConnectionProbeResponse
-            {
-                Succeeded = false,
-                Message = "Connection probe failed.",
-            },
-        };
-
         WorkspaceAiAvailabilityService sut = BuildSut(
             configuration,
             policy: new TenantAiBudgetPolicySnapshot
@@ -70,38 +62,34 @@ public sealed class WorkspaceAiAvailabilityServiceTests
                 WorkspaceKind = AiUsageWorkspaceKind.Paid,
                 CustomerAiProviderConfigured = true,
             },
-            customerProbe: probe);
+            secretProvider: new FakeSecretProvider(secret: null));
 
         WorkspaceAiAvailabilityResponse response = await sut.ProbeAsync(CancellationToken.None);
 
         response.Validated.Should().BeTrue();
         response.IsAvailable.Should().BeFalse();
         response.AiSource.Should().Be("customer-connection");
-        response.Summary.Should().Contain("customer-provided AI connection is unavailable");
         response.Checks.Should().Contain(row => row.Name == "customer_connection_live_probe" && row.Status == "failed");
     }
 
     private static WorkspaceAiAvailabilityService BuildSut(
         IConfiguration configuration,
         TenantAiBudgetPolicySnapshot policy,
-        FakeCustomerProbe? customerProbe = null)
+        FakeSecretProvider? secretProvider = null)
     {
         FakeScopeContextProvider scopeProvider = new();
         FakeAiBudgetPolicyResolver policyResolver = new(policy);
         FakeBudgetStatusService budgetStatusService = new();
-        FakeCustomerProbe probe = customerProbe ?? new FakeCustomerProbe
-        {
-            Result = new TenantAzureOpenAiConnectionProbeResponse { Succeeded = true, Message = "ok" },
-        };
 
         return new WorkspaceAiAvailabilityService(
             configuration,
             scopeProvider,
             policyResolver,
             new FakeConnectionRepository(),
-            probe,
+            secretProvider ?? new FakeSecretProvider("test-key"),
             budgetStatusService,
             new ServiceCollection().BuildServiceProvider(),
+            NullLogger<AgentRuntime.AzureOpenAiCompletionClient>.Instance,
             TimeProvider.System);
     }
 
@@ -137,13 +125,10 @@ public sealed class WorkspaceAiAvailabilityServiceTests
                 });
     }
 
-    private sealed class FakeCustomerProbe : ITenantAzureOpenAiConnectionProbeService
+    private sealed class FakeSecretProvider(string? secret) : ISecretProvider
     {
-        public TenantAzureOpenAiConnectionProbeResponse Result { get; init; } =
-            new() { Succeeded = true, Message = "ok" };
-
-        public Task<TenantAzureOpenAiConnectionProbeResponse> ProbeAsync(Guid tenantId, CancellationToken cancellationToken) =>
-            Task.FromResult(Result);
+        public Task<string?> GetSecretAsync(string secretName, CancellationToken cancellationToken = default) =>
+            Task.FromResult(secret);
     }
 
     private sealed class FakeConnectionRepository : ITenantAzureOpenAiConnectionRepository
