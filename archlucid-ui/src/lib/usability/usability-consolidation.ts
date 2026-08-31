@@ -1,4 +1,5 @@
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH } from "@/lib/governance/governance-route-paths";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 import type { ReviewDetailTabLifecycleStage } from "@/lib/resolve-review-detail-visible-tabs";
@@ -10,7 +11,7 @@ export const PACKAGES_NAV_LABEL = "Packages" as const;
 export const PACKAGES_NAV_HREF = REVIEWS_LIST_PATH;
 
 /** Single governance inbox aggregating attention queues. */
-export const NEEDS_ATTENTION_INBOX_PATH = "/governance/needs-attention" as const;
+export const NEEDS_ATTENTION_INBOX_PATH = GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH;
 
 export const NEEDS_ATTENTION_INBOX_LABEL = "Needs attention" as const;
 
