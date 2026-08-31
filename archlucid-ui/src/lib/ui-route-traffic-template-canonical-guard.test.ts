@@ -38,7 +38,7 @@ const REDIRECT_ONLY_PATHS = [
 ];
 
 describe("ui-route-traffic-template-canonical-guard (TB-748)", () => {
-  it("tracks canonical nav paths, not redirect-only legacy aliases", () => {
+  it("tracks canonical nav paths and attributed legacy bookmarks, not other redirect-only aliases", () => {
     const paths = extractMasterTablePaths(readUiRouteTrafficEstimatesTemplateMarkdown());
 
     expect(paths.length).toBeGreaterThan(0);
