@@ -72,16 +72,22 @@ export function useWizardSessionPersistence<TState>(
       const localSnapshot = readWizardSessionSnapshot<TState>(args.wizardId);
       const remoteDraft = await fetchWizardIntakeDraft(args.wizardId);
 
-      const snapshot =
-        localSnapshot ??
-        (remoteDraft
-          ? ({
-              v: 1,
-              stepIndex: remoteDraft.stepIndex,
-              state: JSON.parse(remoteDraft.stateJson) as TState,
-              savedAtUtc: remoteDraft.updatedUtc,
-            } satisfies WizardSessionSnapshot<TState>)
-          : null);
+      let remoteSnapshot: WizardSessionSnapshot<TState> | null = null;
+
+      if (remoteDraft) {
+        try {
+          remoteSnapshot = {
+            v: 1,
+            stepIndex: remoteDraft.stepIndex,
+            state: JSON.parse(remoteDraft.stateJson) as TState,
+            savedAtUtc: remoteDraft.updatedUtc,
+          } satisfies WizardSessionSnapshot<TState>;
+        } catch {
+          remoteSnapshot = null;
+        }
+      }
+
+      const snapshot = localSnapshot ?? remoteSnapshot;
 
       if (snapshot === null || !args.hasSaveableContent(snapshot.state, snapshot.stepIndex)) {
         return;
