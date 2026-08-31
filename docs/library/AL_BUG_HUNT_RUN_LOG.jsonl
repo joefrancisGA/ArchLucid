@@ -481,6 +481,7 @@
 {"at":"2026-08-31T15:00:47.6489942Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T15:04:31.6360466Z","zoneId":"archlucid-core","outcome":"dry"}
 {"at":"2026-08-31T15:05:00Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","note":"combined PR #892-930 integration branch"}
+{"at":"2026-08-31T15:22:02.5135247Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T15:29:17.1836222Z","zoneId":"persistence-identity","outcome":"hit"}
 {"at":"2026-08-31T16:05:00.4678193Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T15:59:49.9748602Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}

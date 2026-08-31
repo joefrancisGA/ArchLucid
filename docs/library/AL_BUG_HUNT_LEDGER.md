@@ -2617,6 +2617,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-31 thorough hunt #315: re-proved on master (fixes still unmerged) workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
 
+2026-08-31 thorough hunt #313: re-proved on master (fixes still unmerged) workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
+
 2026-08-31 thorough hunt #281: cheap-disproved stale batch-review silent-dedupe and manifest-compare padded-version candidates; proved workspace sibling-project scope, product-feedback findingRef gate, batch-review case-variant duplicate ids, and bulk-disposition all-or-nothing scope validation.
 
 2026-08-28 thorough hunt #190 (dry): cheap-disproved promotions/activations padded-route test gap and simulate-bulk validation-order candidates; seeded batch-review duplicate-id silence and manifest-compare padded-version candidates.
