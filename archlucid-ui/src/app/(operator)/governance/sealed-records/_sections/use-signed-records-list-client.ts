@@ -36,6 +36,7 @@ export type UseSignedRecordsListClientResult = {
   readonly rows: readonly SignedRecordsListRow[];
   readonly loading: boolean;
   readonly enriching: boolean;
+  readonly enrichmentFailed: boolean;
   readonly loadFailure: ApiLoadFailureState | null;
   readonly usedStaticFallback: boolean;
   readonly retryingRunId: string | null;
@@ -83,6 +84,7 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   const [rows, setRows] = useState<readonly SignedRecordsListRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [enriching, setEnriching] = useState(false);
+  const [enrichmentFailed, setEnrichmentFailed] = useState(false);
   const [loadFailure, setLoadFailure] = useState<ApiLoadFailureState | null>(null);
   const [usedStaticFallback, setUsedStaticFallback] = useState(false);
   const [retryingRunId, setRetryingRunId] = useState<string | null>(null);
@@ -126,6 +128,7 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
 
     setLoading(true);
     setLoadFailure(null);
+    setEnrichmentFailed(false);
     setUsedStaticFallback(false);
     setRetryFailedRunId(null);
     setRetrySucceededRunId(null);
@@ -191,6 +194,8 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
         if (!canApplyState()) {
           return;
         }
+
+        setEnrichmentFailed(true);
       }
     } catch (error: unknown) {
       if (!canApplyState()) {
@@ -327,6 +332,7 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     rows,
     loading,
     enriching,
+    enrichmentFailed,
     loadFailure,
     usedStaticFallback,
     retryingRunId,
