@@ -56,6 +56,7 @@ public sealed class GovernanceCoverageControllerScopeTests
     }
 
     [Fact]
+    public async Task PreviewCoverage_returns_not_found_when_tenant_missing()
     {
         Mock<ICoveragePreviewService> preview = new(MockBehavior.Strict);
 

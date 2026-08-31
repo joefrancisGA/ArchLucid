@@ -47,7 +47,7 @@ public sealed class GovernanceEnvironmentCatalogController(
     [HttpGet]
     [ProducesResponseType(typeof(GovernanceEnvironmentCatalog), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<GovernanceEnvironmentCatalog>> Get(CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);

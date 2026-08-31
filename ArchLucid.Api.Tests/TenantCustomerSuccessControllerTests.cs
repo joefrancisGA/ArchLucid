@@ -276,6 +276,7 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
+    public async Task PostProductFeedbackAsync_persists_and_returns_no_content()
     {
         ProductFeedbackSubmission? captured = null;
         Mock<ITenantCustomerSuccessRepository> repo = new();

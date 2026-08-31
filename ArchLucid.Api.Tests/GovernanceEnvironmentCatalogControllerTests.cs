@@ -53,9 +53,9 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
 
-        ActionResult<GovernanceEnvironmentCatalog> action = await controller.Get(CancellationToken.None);
+        IActionResult action = await controller.Get(CancellationToken.None);
 
-        ObjectResult notFound = action.Result.Should().BeOfType<ObjectResult>().Subject;
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         catalogService.VerifyNoOtherCalls();
     }
@@ -115,9 +115,9 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
 
-        ActionResult<GovernanceEnvironmentCatalog> action = await controller.Get(CancellationToken.None);
+        IActionResult action = await controller.Get(CancellationToken.None);
 
-        OkObjectResult ok = action.Result.Should().BeOfType<OkObjectResult>().Subject;
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         GovernanceEnvironmentCatalog body = ok.Value.Should().BeOfType<GovernanceEnvironmentCatalog>().Subject;
 
         body.Environments.Should().HaveCount(3);
