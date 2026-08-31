@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Host.Composition.Tests.Services;
 
+[Trait("Suite", "Core")]
 public sealed class WorkspaceAiAvailabilityServiceTests
 {
     [Fact]

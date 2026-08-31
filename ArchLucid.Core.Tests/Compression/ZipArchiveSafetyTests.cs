@@ -7,6 +7,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Compression;
 
+[Trait("Suite", "Core")]
 public sealed class ZipArchiveSafetyTests
 {
     [Fact]
