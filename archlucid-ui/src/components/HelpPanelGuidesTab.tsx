@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
@@ -9,7 +11,7 @@ import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-toke
 import { HelpGuideTopicLinkRow, KEY_CONCEPTS } from "./help-panel-topic-filter";
 
 export type HelpPanelGuidesTabProps = {
-  readonly corePilotPinnedHelp: React.ReactNode;
+  readonly corePilotPinnedHelp: ReactNode;
   readonly guidesFiltered: readonly HelpTopic[];
   readonly onNavigate: () => void;
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -97,6 +97,12 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const scopeRecord = useOperatorScopeRecord();
+  const loadRowsRequestVersionRef = useRef(0);
+  const mountedRef = useRef(true);
+
+  useEffect(() => () => {
+    mountedRef.current = false;
+  }, []);
 
   const onPickReviewForFiltering = useCallback(
     (reviewId: string) => {
@@ -114,6 +120,10 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   );
 
   const loadRows = useCallback(async (request: { readonly page: number; readonly cursor: string }) => {
+    const requestVersion = loadRowsRequestVersionRef.current + 1;
+    loadRowsRequestVersionRef.current = requestVersion;
+    const canApplyState = () => mountedRef.current && loadRowsRequestVersionRef.current === requestVersion;
+
     setLoading(true);
     setLoadFailure(null);
     setUsedStaticFallback(false);
@@ -129,6 +139,10 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
         scopeHeaders,
       });
       const coerced = coerceRunSummaryPaged(raw, { page: request.page });
+
+      if (!canApplyState()) {
+        return;
+      }
 
       if (!coerced.ok) {
         setRows([]);
@@ -166,13 +180,25 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
 
       const enrichedRows = await enrichSignedRecordsListRows(baseRows);
 
+      if (!canApplyState()) {
+        return;
+      }
+
       setRows(enrichedRows);
     } catch (error: unknown) {
+      if (!canApplyState()) {
+        return;
+      }
+
       setRows([]);
       setHasMore(false);
       setNextCursor(null);
       setLoadFailure(toApiLoadFailure(error));
     } finally {
+      if (!canApplyState()) {
+        return;
+      }
+
       setEnriching(false);
       setLoading(false);
     }
