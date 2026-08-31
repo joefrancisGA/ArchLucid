@@ -217,7 +217,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               </Label>
               <input
                 type="hidden"
-                name="gov-submit-max-manifest-version"
+                name="governance-submit-max-manifest-version"
                 value={maxPersistedManifestVersion ?? ""}
                 data-testid="governance-submit-max-manifest-version"
                 readOnly
@@ -229,13 +229,13 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                 placeholder="e.g. 1.0.0"
                 autoComplete="off"
                 readOnly={!canMutateWorkflow}
-                aria-invalid={!manifestVersionValidation.valid}
+                aria-invalid={canMutateWorkflow && !manifestVersionValidation.valid}
                 aria-describedby={
-                  !manifestVersionValidation.valid ? "gov-submit-version-validation" : undefined
+                  canMutateWorkflow && !manifestVersionValidation.valid ? "gov-submit-version-validation" : undefined
                 }
                 title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
               />
-              {!manifestVersionValidation.valid ? (
+              {canMutateWorkflow && !manifestVersionValidation.valid ? (
                 <p
                   id="gov-submit-version-validation"
                   className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
