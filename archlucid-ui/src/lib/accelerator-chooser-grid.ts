@@ -36,17 +36,12 @@ export function buildAcceleratorChooserGridItems(
   return items;
 }
 
-/** Hoists the greenfield pack first when prerequisite is not met so the available path is prominent (HAX). */
+/** Grid rows for prerequisite-aware chooser UIs — greenfield is always listed first. */
 export function buildAcceleratorChooserGridItemsForPrerequisite(
-  status: AcceleratorChooserPrerequisiteStatus,
+  _status: AcceleratorChooserPrerequisiteStatus,
   entries: readonly AcceleratorChooserEntry[] = ACCELERATOR_CHOOSER_ENTRIES,
 ): readonly AcceleratorChooserGridItem[] {
   const items = [...buildAcceleratorChooserGridItems(entries)];
-
-  if (status !== "not-met") {
-    return items;
-  }
-
   const greenfieldIndex = items.findIndex(
     (item) => item.kind === "pack" && item.entry.id === ACCELERATOR_GREENFIELD_PACK_ID,
   );

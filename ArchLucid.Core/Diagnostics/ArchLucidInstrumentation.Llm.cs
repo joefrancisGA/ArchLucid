@@ -96,6 +96,12 @@ public static partial class ArchLucidInstrumentation
             "archlucid_llm_completion_tokens_total",
             description: "Cumulative completion tokens reported by Azure OpenAI completions.");
 
+    /// <summary>Azure OpenAI completions that ended with <c>finish_reason=length</c> (label: deployment).</summary>
+    public static readonly Counter<long> LlmCompletionOutputTruncatedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_completion_output_truncated_total",
+            description: "Azure OpenAI completions truncated at MaxOutputTokenCount (finish_reason=length).");
+
     
     /// <summary>Azure AI Content Safety blocks on LLM envelope prompts/responses (labels <c>stage</c>, <c>category</c>).</summary>
     public static readonly Counter<long> LlmContentSafetyBlockedTotal =
@@ -280,6 +286,17 @@ public static partial class ArchLucidInstrumentation
         tags.Add("deployment", label);
 
         LlmCompletionFallbackEngagementsTotal.Add(1, tags);
+    }
+
+    /// <summary>Records <see cref="LlmCompletionOutputTruncatedTotal" /> when output hit <c>MaxOutputTokenCount</c>.</summary>
+    public static void RecordLlmCompletionOutputTruncated(string deploymentLabel)
+    {
+        string label = string.IsNullOrWhiteSpace(deploymentLabel) ? "unknown" : deploymentLabel.Trim();
+
+        TagList tags = [];
+        tags.Add("deployment", label);
+
+        LlmCompletionOutputTruncatedTotal.Add(1, tags);
     }
 
     /// <summary>Records <see cref="LlmPromptRedactionsTotal" /> for a category bucket.</summary>
