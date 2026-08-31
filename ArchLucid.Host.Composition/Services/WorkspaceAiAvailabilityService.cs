@@ -1,20 +1,22 @@
 using System.Globalization;
 
-using ArchLucid.Application.AiProviders;
+using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Diagnostics;
-using ArchLucid.Contracts.Admin;
 using ArchLucid.Contracts.Diagnostics;
 using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Secrets;
 using ArchLucid.Host.Core.Resilience;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Composition.Services;
 
@@ -26,9 +28,11 @@ public sealed class WorkspaceAiAvailabilityService(
     IScopeContextProvider scopeContextProvider,
     ITenantAiBudgetPolicyResolver aiBudgetPolicyResolver,
     ITenantAzureOpenAiConnectionRepository azureOpenAiConnectionRepository,
-    ITenantAzureOpenAiConnectionProbeService customerConnectionProbeService,
+    ISecretProvider secretProvider,
     ILlmMonthlyTenantDollarBudgetStatusService llmBudgetStatusService,
+    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     IServiceProvider serviceProvider,
+    ILogger<AzureOpenAiCompletionClient> completionClientLogger,
     TimeProvider timeProvider) : IWorkspaceAiAvailabilityService
 {
     private readonly IConfiguration _configuration =
@@ -43,14 +47,20 @@ public sealed class WorkspaceAiAvailabilityService(
     private readonly ITenantAzureOpenAiConnectionRepository _azureOpenAiConnectionRepository =
         azureOpenAiConnectionRepository ?? throw new ArgumentNullException(nameof(azureOpenAiConnectionRepository));
 
-    private readonly ITenantAzureOpenAiConnectionProbeService _customerConnectionProbeService =
-        customerConnectionProbeService ?? throw new ArgumentNullException(nameof(customerConnectionProbeService));
+    private readonly ISecretProvider _secretProvider =
+        secretProvider ?? throw new ArgumentNullException(nameof(secretProvider));
 
     private readonly ILlmMonthlyTenantDollarBudgetStatusService _llmBudgetStatusService =
         llmBudgetStatusService ?? throw new ArgumentNullException(nameof(llmBudgetStatusService));
 
+    private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
+        effectiveAgentExecutionModeAccessor ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
+
     private readonly IServiceProvider _serviceProvider =
         serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+    private readonly ILogger<AzureOpenAiCompletionClient> _completionClientLogger =
+        completionClientLogger ?? throw new ArgumentNullException(nameof(completionClientLogger));
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -59,33 +69,41 @@ public sealed class WorkspaceAiAvailabilityService(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        using CancellationTokenSource probeBudget = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        probeBudget.CancelAfter(WorkspaceAiAvailabilityProbeLimits.TotalProbeTimeout);
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTime asOfUtc = _timeProvider.GetUtcNow().UtcDateTime;
 
         List<WorkspaceAiAvailabilityCheckRow> checks = [];
         Dictionary<string, string> debug = new(StringComparer.Ordinal);
 
-        string agentMode = (_configuration["AgentExecution:Mode"] ?? "Simulator").Trim();
+        string configuredMode = (_configuration["AgentExecution:Mode"] ?? "Simulator").Trim();
+        string effectiveMode = _effectiveAgentExecutionModeAccessor.GetEffectiveMode();
         string completionClient = (_configuration["AgentExecution:CompletionClient"] ?? string.Empty).Trim();
 
-        debug["agentExecutionMode"] = agentMode;
+        debug["configuredAgentExecutionMode"] = configuredMode;
+        debug["effectiveAgentExecutionMode"] = effectiveMode;
+        debug["agentExecutionMode"] = effectiveMode;
         debug["completionClient"] = string.IsNullOrWhiteSpace(completionClient) ? "(default)" : completionClient;
         debug["tenantId"] = scope.TenantId.ToString("D");
         debug["workspaceId"] = scope.WorkspaceId.ToString("D");
+        debug["probeBudgetSeconds"] =
+            WorkspaceAiAvailabilityProbeLimits.TotalProbeTimeout.TotalSeconds.ToString(CultureInfo.InvariantCulture);
 
         TenantAiBudgetPolicySnapshot policy =
-            await _aiBudgetPolicyResolver.ResolveAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+            await _aiBudgetPolicyResolver.ResolveAsync(scope.TenantId, probeBudget.Token).ConfigureAwait(false);
 
         debug["workspaceKind"] = policy.WorkspaceKind.ToString();
         debug["customerAiProviderConfigured"] = policy.CustomerAiProviderConfigured.ToString();
 
         if (policy.CustomerAiProviderConfigured)
         {
-            return await ProbeCustomerConnectionAsync(scope, checks, debug, asOfUtc, cancellationToken)
+            return await ProbeCustomerConnectionAsync(scope, checks, debug, asOfUtc, probeBudget.Token)
                 .ConfigureAwait(false);
         }
 
-        if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(effectiveMode, DevAgentExecutionModeHeaderNames.Simulator, StringComparison.OrdinalIgnoreCase))
         {
             checks.Add(
                 new WorkspaceAiAvailabilityCheckRow
@@ -110,7 +128,25 @@ public sealed class WorkspaceAiAvailabilityService(
             };
         }
 
-        return await ProbeManagedPlatformAsync(checks, debug, asOfUtc, cancellationToken).ConfigureAwait(false);
+        if (!AzureOpenAiConfigurationProbe.IsCompletionStackConfigured(_configuration))
+        {
+            checks.Add(
+                new WorkspaceAiAvailabilityCheckRow
+                {
+                    Name = "azure_openai_configuration",
+                    Status = "failed",
+                    Detail = AgentExecutionReadinessMessages.LiveCompletionUnavailable,
+                });
+
+            return Unavailable(
+                "managed-platform",
+                AgentExecutionReadinessMessages.LiveCompletionUnavailable,
+                checks,
+                debug,
+                asOfUtc);
+        }
+
+        return await ProbeManagedPlatformAsync(checks, debug, asOfUtc, probeBudget.Token).ConfigureAwait(false);
     }
 
     private async Task<WorkspaceAiAvailabilityResponse> ProbeCustomerConnectionAsync(
@@ -148,35 +184,77 @@ public sealed class WorkspaceAiAvailabilityService(
             debug["customerConnectionEndpointHost"] = TryHost(row.Endpoint);
         }
 
-        if (row.LastProbeUtc is not null)
+        if (!row.IsEnabled)
         {
-            debug["customerConnectionLastProbeUtc"] = row.LastProbeUtc.Value.ToString("o");
+            checks.Add(
+                new WorkspaceAiAvailabilityCheckRow
+                {
+                    Name = "customer_connection_record",
+                    Status = "failed",
+                    Detail = "Customer-provided AI connection exists but is disabled.",
+                });
+
+            return Unavailable(
+                "customer-connection",
+                "Your workspace customer-provided AI connection is disabled — reviews cannot start until it is enabled.",
+                checks,
+                debug,
+                asOfUtc);
         }
 
-        if (row.LastProbeSucceeded is not null)
+        AppendBudgetCheck(checks, debug, await _llmBudgetStatusService.GetStatusAsync(cancellationToken).ConfigureAwait(false));
+
+        WorkspaceAiLiveCompletionProbeResult liveProbe;
+
+        try
         {
-            debug["customerConnectionLastProbeSucceeded"] = row.LastProbeSucceeded.Value.ToString();
+            (AzureOpenAiCompletionClient Client, string DeploymentName)? customerClient = await WorkspaceAiLiveCompletionProbe
+                .TryCreateCustomerConnectionClientAsync(row, _secretProvider, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (customerClient is null)
+            {
+                checks.Add(
+                    new WorkspaceAiAvailabilityCheckRow
+                    {
+                        Name = "customer_connection_live_probe",
+                        Status = "failed",
+                        Detail = "API key secret is missing or empty.",
+                    });
+
+                return Unavailable(
+                    "customer-connection",
+                    "Your workspace customer-provided AI connection is unavailable — API key secret is missing.",
+                    checks,
+                    debug,
+                    asOfUtc);
+            }
+
+            debug["probeDeploymentName"] = customerClient.Value.DeploymentName;
+
+            using (customerClient.Value.Client)
+            {
+                liveProbe = await WorkspaceAiLiveCompletionProbe
+                    .RunAsync(customerClient.Value.Client, customerClient.Value.DeploymentName, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            liveProbe = WorkspaceAiLiveCompletionProbeResult.Failed("(unknown)", AzureOpenAiVendorProbeErrorFormatter.Format(ex));
         }
 
-        if (!string.IsNullOrWhiteSpace(row.LastProbeMessage))
-        {
-            debug["customerConnectionLastProbeMessage"] = row.LastProbeMessage;
-        }
-
-        TenantAzureOpenAiConnectionProbeResponse probeResult =
-            await _customerConnectionProbeService.ProbeAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        AppendLiveProbeMetadata(debug, liveProbe);
 
         checks.Add(
             new WorkspaceAiAvailabilityCheckRow
             {
                 Name = "customer_connection_live_probe",
-                Status = probeResult.Succeeded ? "ok" : "failed",
-                Detail = probeResult.Message,
+                Status = liveProbe.Succeeded ? "ok" : "failed",
+                Detail = liveProbe.Detail,
             });
 
-        AppendBudgetCheck(checks, debug, await _llmBudgetStatusService.GetStatusAsync(cancellationToken).ConfigureAwait(false));
-
-        if (!probeResult.Succeeded)
+        if (!liveProbe.Succeeded)
         {
             return Unavailable(
                 "customer-connection",
@@ -191,7 +269,7 @@ public sealed class WorkspaceAiAvailabilityService(
             IsAvailable = true,
             Validated = true,
             AiSource = "customer-connection",
-            Summary = "Customer-provided AI connection probe succeeded.",
+            Summary = $"Customer-provided AI connection probe succeeded for deployment '{liveProbe.DeploymentName}'.",
             AsOfUtc = asOfUtc,
             Checks = checks,
             Debug = debug,
@@ -239,71 +317,43 @@ public sealed class WorkspaceAiAvailabilityService(
 
         bool circuitHealthy = AppendCircuitBreakerChecks(checks, debug);
 
-        bool tcpReachable = false;
+        bool completionSucceeded = false;
+        string completionDetail = "Skipped because Azure OpenAI endpoint is not configured.";
 
-        if (configured && !string.IsNullOrWhiteSpace(endpoint) && Uri.TryCreate(endpoint, UriKind.Absolute, out Uri? resourceUri))
+        if (configured && !string.IsNullOrWhiteSpace(deployment))
         {
-            Uri authority = new(resourceUri.GetLeftPart(UriPartial.Authority));
+            debug["probeDeploymentName"] = deployment;
 
-            using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            linked.CancelAfter(AzureOpenAiEndpointConnectivityLintLimits.SocketProbeTimeout);
+            using AzureOpenAiCompletionClient? client = WorkspaceAiLiveCompletionProbe.TryCreateManagedPlatformClient(
+                _configuration,
+                _completionClientLogger);
 
-            try
+            if (client is null)
             {
-                await AzureOpenAiEndpointConnectivitySocketProbe
-                    .IsTcpReachableAsync(authority, linked.Token)
+                completionDetail = "Azure OpenAI client could not be created from configuration.";
+            }
+            else
+            {
+                WorkspaceAiLiveCompletionProbeResult liveProbe = await WorkspaceAiLiveCompletionProbe
+                    .RunAsync(client, deployment, cancellationToken)
                     .ConfigureAwait(false);
 
-                tcpReachable = true;
-                checks.Add(
-                    new WorkspaceAiAvailabilityCheckRow
-                    {
-                        Name = "azure_openai_tcp_probe",
-                        Status = "ok",
-                        Detail = string.Format(
-                            CultureInfo.InvariantCulture,
-                            "TCP connect to '{0}' succeeded.",
-                            authority.Host),
-                    });
+                completionSucceeded = liveProbe.Succeeded;
+                completionDetail = liveProbe.Detail;
+                AppendLiveProbeMetadata(debug, liveProbe);
             }
-            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
-            {
-                checks.Add(
-                    new WorkspaceAiAvailabilityCheckRow
-                    {
-                        Name = "azure_openai_tcp_probe",
-                        Status = "failed",
-                        Detail = string.Format(
-                            CultureInfo.InvariantCulture,
-                            "TCP connect to '{0}' timed out after {1:0.#}s.",
-                            authority.Host,
-                            AzureOpenAiEndpointConnectivityLintLimits.SocketProbeTimeout.TotalSeconds),
-                    });
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                checks.Add(
-                    new WorkspaceAiAvailabilityCheckRow
-                    {
-                        Name = "azure_openai_tcp_probe",
-                        Status = "failed",
-                        Detail = $"{ex.GetType().Name}: {ex.Message}",
-                    });
-            }
-        }
-        else
-        {
-            checks.Add(
-                new WorkspaceAiAvailabilityCheckRow
-                {
-                    Name = "azure_openai_tcp_probe",
-                    Status = "skipped",
-                    Detail = "Skipped because Azure OpenAI endpoint is not configured.",
-                });
         }
 
+        checks.Add(
+            new WorkspaceAiAvailabilityCheckRow
+            {
+                Name = "azure_openai_live_completion_probe",
+                Status = !configured ? "skipped" : completionSucceeded ? "ok" : "failed",
+                Detail = completionDetail,
+            });
+
         bool budgetBlocking = budgetStatus.BlocksAdditionalLlmExecution;
-        bool isAvailable = configured && tcpReachable && circuitHealthy && !budgetBlocking;
+        bool isAvailable = configured && completionSucceeded && circuitHealthy && !budgetBlocking;
 
         if (!isAvailable)
         {
@@ -315,16 +365,33 @@ public sealed class WorkspaceAiAvailabilityService(
                 asOfUtc);
         }
 
+        string modelSuffix = debug.TryGetValue("probeModelId", out string? modelId) && !string.IsNullOrWhiteSpace(modelId)
+            ? $" (model {modelId})"
+            : string.Empty;
+
         return new WorkspaceAiAvailabilityResponse
         {
             IsAvailable = true,
             Validated = true,
             AiSource = "managed-platform",
-            Summary = "ArchLucid-managed Azure OpenAI probes succeeded for this host.",
+            Summary = $"ArchLucid-managed Azure OpenAI live probe succeeded for deployment '{deployment}'{modelSuffix}.",
             AsOfUtc = asOfUtc,
             Checks = checks,
             Debug = debug,
         };
+    }
+
+    private static void AppendLiveProbeMetadata(Dictionary<string, string> debug, WorkspaceAiLiveCompletionProbeResult liveProbe)
+    {
+        if (!string.IsNullOrWhiteSpace(liveProbe.DeploymentName))
+        {
+            debug["probeDeploymentName"] = liveProbe.DeploymentName;
+        }
+
+        if (!string.IsNullOrWhiteSpace(liveProbe.ModelId))
+        {
+            debug["probeModelId"] = liveProbe.ModelId;
+        }
     }
 
     private static void AppendBudgetCheck(

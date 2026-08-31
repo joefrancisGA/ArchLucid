@@ -2,6 +2,9 @@ import { apiGet } from "@/lib/api";
 
 export const WORKSPACE_AI_AVAILABILITY_PATH = "/v1/diagnostics/workspace-ai-availability";
 
+/** Client-side budget aligned with server probe timeout + network margin. */
+export const WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS = 8_000;
+
 export type WorkspaceAiAvailabilityCheckRow = {
   readonly name: string;
   readonly status: "ok" | "failed" | "degraded" | "skipped" | string;
@@ -34,6 +37,10 @@ export function workspaceAiAvailabilityStatusLabel(result: WorkspaceAiAvailabili
     return result.aiSource === "simulator"
       ? "Simulator mode — live platform AI not required"
       : "AI availability probe succeeded";
+  }
+
+  if (result.aiSource === "managed-platform" && result.summary.includes("Azure OpenAI")) {
+    return "Real mode — live AI not configured";
   }
 
   if (result.aiSource === "customer-connection") {

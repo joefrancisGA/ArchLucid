@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
 import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
+import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
 import { fetchLlmMonthlyDollarBudgetStatusCached } from "@/lib/llm-monthly-budget-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
@@ -57,6 +58,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
   const [next, setNext] = useState<ReviewPackageDoThisNext | null>(null);
   const [usesCustomerAiConnection, setUsesCustomerAiConnection] = useState(false);
   const priorCompare = usePriorSameRequestCompareHref(props.runId, 25);
+  const sessionAiReadiness = useSessionAiReadiness();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canConfigureWorkspaceAi = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const assumptionAwareCommitBlockedReason = useAssumptionAwareCommitBlockedReason({
@@ -126,6 +128,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
           canConfigureWorkspaceAi,
           realModeFellBackToSimulator: props.realModeFellBackToSimulator === true,
           usesCustomerAiConnection,
+          effectiveSessionMode: sessionAiReadiness.sessionMode,
         }),
       );
     });

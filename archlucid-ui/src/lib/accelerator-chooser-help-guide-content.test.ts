@@ -20,8 +20,8 @@ describe("accelerator-chooser-help-guide-content", () => {
     expect(ACCELERATOR_CHOOSER_HELP_PAGE_TITLE).toBe("Starter proof packs");
   });
 
-  it("defines workflow steps with signed-review prerequisite first", () => {
-    expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS[0]?.title).toBe("Confirm a finalized review record");
+  it("defines workflow steps with pack selection first", () => {
+    expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS[0]?.title).toBe("Pick a buyer job pack");
     expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS.length).toBe(3);
     expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS.every((step) => step.href.length > 0)).toBe(true);
     expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS[2]?.href).toBe("/help/repeat-review-loop");

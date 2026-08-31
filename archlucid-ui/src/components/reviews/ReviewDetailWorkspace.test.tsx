@@ -83,10 +83,9 @@ describe("ReviewDetailWorkspace", () => {
     );
 
     expect(screen.getByTestId("review-detail-tab-new-findings")).toBeInTheDocument();
-    expect(screen.getByTestId("review-detail-mark-all-seen")).toBeInTheDocument();
   });
 
-  it("clears tab marker after mark all as seen", () => {
+  it("clears tab marker after visiting the tab", () => {
     markLastVisitedNow(reviewTabWatermarkKey(RUN_ID, "findings"), "2026-01-01T00:00:00.000Z");
 
     render(
@@ -97,7 +96,7 @@ describe("ReviewDetailWorkspace", () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId("review-detail-mark-all-seen"));
+    fireEvent.click(screen.getByRole("tab", { name: /Findings/i }));
 
     expect(screen.queryByTestId("review-detail-tab-new-findings")).not.toBeInTheDocument();
     expect(

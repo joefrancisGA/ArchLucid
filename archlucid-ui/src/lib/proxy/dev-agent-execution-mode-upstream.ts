@@ -4,7 +4,6 @@ import {
   DEV_AGENT_EXECUTION_MODE_HEADER,
   isDevTestingOverridesEnabled,
   readDevAgentExecutionModeOverrideFromRequestCookies,
-  resolveEffectiveDevAgentExecutionMode,
 } from "@/lib/dev-testing-overrides";
 
 /** Resolves the upstream dev agent execution mode header from the browser cookie (local dev only). */
@@ -18,7 +17,7 @@ export function resolveDevAgentExecutionModeUpstreamHeader(
   const cookieHeader = request.headers.get("cookie");
 
   if (cookieHeader === null || cookieHeader.trim().length === 0) {
-    return resolveEffectiveDevAgentExecutionMode(null);
+    return null;
   }
 
   const override = readDevAgentExecutionModeOverrideFromRequestCookies({
@@ -37,7 +36,7 @@ export function resolveDevAgentExecutionModeUpstreamHeader(
     },
   });
 
-  return resolveEffectiveDevAgentExecutionMode(override);
+  return override;
 }
 
 export function applyDevAgentExecutionModeUpstreamHeader(headers: Headers, request: NextRequest): void {

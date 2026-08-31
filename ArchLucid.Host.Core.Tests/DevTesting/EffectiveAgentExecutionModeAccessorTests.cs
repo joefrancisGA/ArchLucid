@@ -27,7 +27,7 @@ public sealed class EffectiveAgentExecutionModeAccessorTests
     }
 
     [Fact]
-    public void GetEffectiveMode_when_override_enabled_and_header_missing_defaults_to_real()
+    public void GetEffectiveMode_when_override_enabled_and_header_missing_uses_configured_mode()
     {
         DefaultHttpContext httpContext = new();
         EffectiveAgentExecutionModeAccessor accessor = CreateAccessor(
@@ -36,7 +36,7 @@ public sealed class EffectiveAgentExecutionModeAccessorTests
             isDevelopment: true,
             allowHeaderOverride: true);
 
-        accessor.GetEffectiveMode().Should().Be("Real");
+        accessor.GetEffectiveMode().Should().Be("Simulator");
     }
 
     [Fact]

@@ -5,6 +5,7 @@ using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Diagnostics;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
@@ -76,6 +77,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     OperationRunCancellationMarker runCancellationMarker,
     IRunExecuteOwnershipLeaseService runExecuteOwnershipLeaseService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
+    IAgentExecutionReadinessGuard agentExecutionReadinessGuard,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -161,6 +163,9 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
 
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
         runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
+
+    private readonly IAgentExecutionReadinessGuard _agentExecutionReadinessGuard =
+        agentExecutionReadinessGuard ?? throw new ArgumentNullException(nameof(agentExecutionReadinessGuard));
 
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -345,6 +350,8 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
         await _demoExpensiveActionGate
             .EnsureExpensiveActionAllowedAsync(tenantId, AiUsageFeature.ArchitectureGeneration, cancellationToken)
             .ConfigureAwait(false);
+
+        await _agentExecutionReadinessGuard.EnsureReadyForExecuteAsync(cancellationToken).ConfigureAwait(false);
 
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunStarted, actor, runId, null, cancellationToken);
 
