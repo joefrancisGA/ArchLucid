@@ -9423,6 +9423,23 @@ export interface components {
             /** Format: int64 */
             runsCreatedTotal?: number;
         };
+        WorkspaceAiAvailabilityCheckRow: {
+            detail?: string;
+            name?: string;
+            status?: string;
+        };
+        WorkspaceAiAvailabilityResponse: {
+            aiSource?: string;
+            /** Format: date-time */
+            asOfUtc?: string;
+            checks?: components["schemas"]["WorkspaceAiAvailabilityCheckRow"][];
+            debug?: {
+                [key: string]: string;
+            };
+            isAvailable?: boolean;
+            summary?: string;
+            validated?: boolean;
+        };
         WorkspaceAllowedEngineSetResponse: {
             allowedAliasIds?: string[];
             defaultAliasId?: string;
