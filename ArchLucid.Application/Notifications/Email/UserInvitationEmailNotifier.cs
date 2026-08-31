@@ -24,6 +24,8 @@ public sealed class UserInvitationEmailNotifier(
 {
     private const string DefaultProductName = "ArchLucid";
     private const string TemplateId = "user-workspace-invitation";
+    private static readonly System.Text.RegularExpressions.Regex PersonalMessageMarkdownLinkRegex =
+        new(@"\[(?<label>[^\]]+)\]\((?<url>[^)]+)\)", System.Text.RegularExpressions.RegexOptions.Compiled);
 
     private readonly IEmailProvider _emailProvider =
         emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
@@ -95,7 +97,7 @@ public sealed class UserInvitationEmailNotifier(
 
         if (!string.IsNullOrWhiteSpace(personalMessage))
         {
-            body += $"\nMessage from your administrator:\n{personalMessage.Trim()}\n";
+            body += $"\nMessage from your administrator:\n{FormatPersonalMessageText(personalMessage.Trim())}\n";
         }
 
         body += "\nIf you were not expecting this invitation, you can ignore this email.";
@@ -118,12 +120,45 @@ public sealed class UserInvitationEmailNotifier(
 
         if (!string.IsNullOrWhiteSpace(personalMessage))
         {
-            html += $"<p><strong>Message from your administrator</strong><br/>{System.Net.WebUtility.HtmlEncode(personalMessage.Trim())}</p>";
+            html += $"<p><strong>Message from your administrator</strong><br/>{FormatPersonalMessageHtml(personalMessage.Trim())}</p>";
         }
 
         html += "<p>If you were not expecting this invitation, you can ignore this email.</p>";
 
         return html;
+    }
+
+    private static string FormatPersonalMessageText(string personalMessage)
+    {
+        return PersonalMessageMarkdownLinkRegex.Replace(
+            personalMessage,
+            static match => $"{match.Groups["label"].Value} ({match.Groups["url"].Value})");
+    }
+
+    private static string FormatPersonalMessageHtml(string personalMessage)
+    {
+        int lastIndex = 0;
+        System.Text.StringBuilder builder = new();
+
+        foreach (System.Text.RegularExpressions.Match match in PersonalMessageMarkdownLinkRegex.Matches(personalMessage))
+        {
+            if (match.Index > lastIndex)
+            {
+                builder.Append(System.Net.WebUtility.HtmlEncode(personalMessage[lastIndex..match.Index]));
+            }
+
+            string label = System.Net.WebUtility.HtmlEncode(match.Groups["label"].Value);
+            string url = System.Net.WebUtility.HtmlEncode(match.Groups["url"].Value);
+            builder.Append($"<a href=\"{url}\">{label}</a>");
+            lastIndex = match.Index + match.Length;
+        }
+
+        if (lastIndex < personalMessage.Length)
+        {
+            builder.Append(System.Net.WebUtility.HtmlEncode(personalMessage[lastIndex..]));
+        }
+
+        return builder.ToString();
     }
 
     private static string BuildIdempotencyKey(string displayEmail, string acceptUrl)
