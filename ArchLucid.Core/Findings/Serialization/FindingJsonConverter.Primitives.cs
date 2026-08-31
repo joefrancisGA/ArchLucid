@@ -36,7 +36,13 @@ public sealed partial class FindingJsonConverter
         if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind is JsonValueKind.Null)
             return null;
 
-        return el.GetString();
+        if (el.ValueKind == JsonValueKind.String)
+            return el.GetString();
+
+        if (el.ValueKind == JsonValueKind.Number && el.TryGetInt64(out long numeric))
+            return numeric.ToString(CultureInfo.InvariantCulture);
+
+        return null;
     }
 
     private static void WriteOptionalString(Utf8JsonWriter writer, string name, string? value)
