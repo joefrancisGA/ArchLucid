@@ -77,8 +77,7 @@ export function TrialExpiryBanner() {
         </div>
       </div>
       <DismissControl
-        iconOnly
-        ariaLabel="Dismiss trial countdown for this session"
+        className="shrink-0"
         onDismiss={() => {
           setDismissed(true);
 

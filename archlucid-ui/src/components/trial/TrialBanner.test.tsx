@@ -178,7 +178,7 @@ describe("TrialBanner", () => {
       expect(screen.getByRole("region", { name: /Trial subscription/i })).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Dismiss trial banner for 24 hours/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
 
     await waitFor(() => {
       expect(screen.queryByRole("region", { name: /Trial subscription/i })).not.toBeInTheDocument();
