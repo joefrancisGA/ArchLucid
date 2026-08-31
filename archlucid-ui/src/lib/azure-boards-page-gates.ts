@@ -121,6 +121,6 @@ export function resolveAzureBoardsPageComposition(input: {
     showConnectionTest: true,
     connectionTestCollapsed: false,
     saveSettingsVariant: "default",
-    emphasizedSetupStepId: input.testGateAllowed ? "verify" : "create",
+    emphasizedSetupStepId: "verify",
   };
 }
