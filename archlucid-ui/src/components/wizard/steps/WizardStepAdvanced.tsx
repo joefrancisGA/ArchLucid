@@ -109,7 +109,10 @@ export function WizardStepAdvanced(): ReactElement {
 
         <WizardAdvancedCollapsibleSection title="Security baseline hints" count={securityBaselineHints.length}>
           <WizardAdvancedChipList
+            fieldName="securityBaselineHints"
+            title="Security baseline hints"
             hint="Short control expectation — encryption, identity, segmentation, logging — that reviewers want honored in the proposal."
+            inputId="wizard-security-draft"
           />
         </WizardAdvancedCollapsibleSection>
 

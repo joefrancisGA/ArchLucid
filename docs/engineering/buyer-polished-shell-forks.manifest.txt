@@ -185,7 +185,7 @@ archlucid-ui/src/components/cto-demo/CtoDemoSponsorTenantIsolationCallout.tsx
 archlucid-ui/src/components/cto-demo/CtoDemoSpotlightOverlay.tsx
 archlucid-ui/src/components/cto-demo/CtoDemoStaticFallbackPresenterBanner.tsx
 archlucid-ui/src/components/dev-testing/DevTestingQuickSwitchPanel.tsx
-archlucid-ui/src/components/digests/DigestSubscriptionCreateForm.tsx
+archlucid-ui/src/components/digests/use-digest-subscription-create-form.ts
 archlucid-ui/src/components/digests/DigestsHubClient.tsx
 archlucid-ui/src/components/digests/DigestsPageHeader.tsx
 archlucid-ui/src/components/digests/DigestsScheduleBuyerChrome.tsx
