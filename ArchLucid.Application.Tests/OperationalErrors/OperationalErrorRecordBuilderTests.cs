@@ -6,7 +6,6 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.OperationalErrors;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class OperationalErrorRecordBuilderTests
 {

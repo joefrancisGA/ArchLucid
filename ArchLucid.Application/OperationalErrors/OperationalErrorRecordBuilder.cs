@@ -11,7 +11,7 @@ public static class OperationalErrorRecordBuilder
     public static OperationalErrorRecord Build(OperationalErrorCaptureRequest request, OperationalErrorOptions options)
     {
         Exception? exception = request.Exception;
-        bool hasSqlException = SqlExceptionErrorMetadata.TryRead(exception, out SqlExceptionErrorMetadata sqlMetadata);
+        bool hasSqlException = SqlExceptionInspector.TryFind(exception, out SqlExceptionDetails sqlDetails);
 
         string message = request.MessageOverride ?? exception?.Message ?? "HTTP error";
 
@@ -28,8 +28,8 @@ public static class OperationalErrorRecordBuilder
             ExceptionType = TruncateNullable(LogSanitizer.Sanitize(exception?.GetType().FullName), 512),
             Message = TruncateRequired(LogSanitizer.Sanitize(message), options.MaxMessageLength),
             StackTrace = TruncateNullable(LogSanitizer.Sanitize(exception?.StackTrace), options.MaxStackTraceLength),
-            SqlErrorNumber = hasSqlException ? sqlMetadata.Number : null,
-            SqlErrorState = hasSqlException ? sqlMetadata.State : null,
+            SqlErrorNumber = hasSqlException ? sqlDetails.Number : null,
+            SqlErrorState = hasSqlException ? sqlDetails.State : null,
             CorrelationId = TruncateNullable(LogSanitizer.Sanitize(request.CorrelationId), 128),
             OtelTraceId = TruncateNullable(LogSanitizer.Sanitize(request.OtelTraceId), 64),
             TenantId = request.TenantId,

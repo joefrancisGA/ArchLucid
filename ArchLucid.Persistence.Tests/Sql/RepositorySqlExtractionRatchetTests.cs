@@ -35,7 +35,12 @@ public sealed class RepositorySqlExtractionRatchetTests
         new()
         {
             {
-                "ArchLucid.Persistence/IntegrationOutbox/DapperIntegrationEventOutboxRepository.cs",
+                "ArchLucid.Persistence/IntegrationOutbox/DapperIntegrationEventOutboxRepository.Enqueue.cs",
+                "IntegrationEventOutboxSql",
+                "ArchLucid.Persistence/IntegrationOutbox/IntegrationEventOutboxSql.cs"
+            },
+            {
+                "ArchLucid.Persistence/IntegrationOutbox/DapperIntegrationEventOutboxRepository.DeadLetters.cs",
                 "IntegrationEventOutboxSql",
                 "ArchLucid.Persistence/IntegrationOutbox/IntegrationEventOutboxSql.cs"
             },
@@ -95,12 +100,17 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/Sql/RunRepositorySql.cs"
             },
             {
-                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.cs",
+                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.Daily.cs",
                 "LlmTenantBudgetSql",
                 "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
             },
             {
                 "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.JudgeDaily.cs",
+                "LlmTenantBudgetSql",
+                "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
+            },
+            {
+                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.Monthly.cs",
                 "LlmTenantBudgetSql",
                 "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
             }
@@ -147,49 +157,14 @@ public sealed class RepositorySqlExtractionRatchetTests
         string companionClass,
         string companionPath)
     {
-        string source = ReadCompanionSource(companionClass, companionPath);
+        string source = ReadRepoFile(companionPath);
 
-        (source.Contains("internal static class " + companionClass, StringComparison.Ordinal)
-         || source.Contains("internal static partial class " + companionClass, StringComparison.Ordinal))
-            .Should()
-            .BeTrue($"{companionClass} must be declared as an internal static (partial) companion class");
+        source.Should().Contain("internal static class " + companionClass);
 
         Regex.IsMatch(source, @"public const string \w+ =")
             .Should()
             .BeTrue(
                 $"{companionClass} must expose the statements used by '{relativePath}' as compile-time constants");
-    }
-
-    private static string ReadCompanionSource(
-        string companionClass,
-        string companionPath,
-        [CallerFilePath] string? callerFilePath = null)
-    {
-        string companionDirectory = Path.GetDirectoryName(companionPath)
-                                    ?? throw new InvalidOperationException($"Companion path '{companionPath}' has no directory.");
-
-        string testsSqlDir = Path.GetDirectoryName(callerFilePath)
-                             ?? throw new InvalidOperationException("Caller path unavailable.");
-
-        string repoRoot = Path.GetFullPath(Path.Combine(testsSqlDir, "..", ".."));
-        string companionDirectoryFullPath = Path.Combine(
-            repoRoot,
-            companionDirectory.Replace('/', Path.DirectorySeparatorChar));
-
-        if (!Directory.Exists(companionDirectoryFullPath))
-            return ReadRepoFile(companionPath, callerFilePath);
-
-        string[] companionPaths = Directory
-            .EnumerateFiles(companionDirectoryFullPath, companionClass + "*.cs")
-            .OrderBy(static path => path, StringComparer.Ordinal)
-            .ToArray();
-
-        companionPaths.Should().NotBeEmpty(
-            $"Expected at least one companion source file matching '{companionClass}*.cs' in '{companionDirectoryFullPath}' for companion class '{companionClass}'.");
-
-        return string.Join(
-            Environment.NewLine + Environment.NewLine,
-            companionPaths.Select(File.ReadAllText));
     }
 
     private static string ReadRepoFile(string relativePath, [CallerFilePath] string? callerFilePath = null)

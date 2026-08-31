@@ -5,7 +5,6 @@ using FluentAssertions;
 
 namespace ArchLucid.Decisioning.Tests;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class FindingMergeConflictPresenterTests
 {
