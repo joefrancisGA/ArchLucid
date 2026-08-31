@@ -47,7 +47,7 @@ public sealed class GovernancePreCommitSimulationController(
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
-    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
+    private async Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken)
     {
         (IActionResult? problem, _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
@@ -75,7 +75,7 @@ public sealed class GovernancePreCommitSimulationController(
         if (Guid.Parse(runIdNormalized) == Guid.Empty)
             return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -132,7 +132,7 @@ public sealed class GovernancePreCommitSimulationController(
                 ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;

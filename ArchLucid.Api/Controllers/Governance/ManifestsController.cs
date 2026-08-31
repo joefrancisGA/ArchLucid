@@ -65,7 +65,7 @@ public sealed partial class ManifestsController(
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
-    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
+    private async Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken)
     {
         (IActionResult? problem, _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,

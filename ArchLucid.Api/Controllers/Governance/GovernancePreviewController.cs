@@ -62,7 +62,7 @@ public sealed class GovernancePreviewController(
             return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -111,7 +111,7 @@ public sealed class GovernancePreviewController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -134,7 +134,7 @@ public sealed class GovernancePreviewController(
         }
     }
 
-    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
+    private async Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken)
     {
         (IActionResult? problem, _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
