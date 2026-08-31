@@ -105,12 +105,12 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
             },
             {
-                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.JudgeDaily.cs",
+                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.Monthly.cs",
                 "LlmTenantBudgetSql",
                 "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
             },
             {
-                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.Monthly.cs",
+                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.JudgeDaily.cs",
                 "LlmTenantBudgetSql",
                 "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
             }

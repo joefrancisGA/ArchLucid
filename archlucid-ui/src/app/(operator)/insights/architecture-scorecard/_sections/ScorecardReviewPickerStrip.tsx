@@ -48,7 +48,7 @@ export function ScorecardReviewPickerStrip(props: ScorecardReviewPickerStripProp
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Architecture package"
+          label="architecture package"
           fieldId="scorecard-review-picker"
           hideFieldHelper
         />
