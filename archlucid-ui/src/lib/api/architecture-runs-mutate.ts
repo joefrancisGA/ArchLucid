@@ -336,6 +336,32 @@ export async function executeArchitectureRunSelective(
   });
 }
 
+/**
+ * Selective re-execute with shell in-flight registration (TB-2077) so the review page is not the only progress surface.
+ */
+export async function executeArchitectureRunSelectiveInFlight(
+  runId: string,
+  body: {
+    readonly agentTypes?: readonly string[];
+    readonly taskIds?: readonly string[];
+    readonly includeDependents?: boolean;
+  },
+): Promise<unknown> {
+  const trimmedRunId = runId.trim();
+  const operationId = reviewPipelineOperationId(trimmedRunId);
+
+  trackInFlightOperation({
+    operationId,
+    title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+    href: reviewPipelineDetailHref(trimmedRunId),
+    runId: trimmedRunId,
+    stepLabel: "Selective retry",
+    state: "Running",
+  });
+
+  return executeArchitectureRunSelective(trimmedRunId, body);
+}
+
 /** Seeds deterministic fake agent results for a run (POST /v1/internal/architecture/runs/{runId}/seed-fake-results; operator + ExecuteAuthority). */
 export async function seedFakeArchitectureRunResults(runId: string): Promise<{ resultCount?: number }> {
   return apiPostJson<{ resultCount?: number }>(

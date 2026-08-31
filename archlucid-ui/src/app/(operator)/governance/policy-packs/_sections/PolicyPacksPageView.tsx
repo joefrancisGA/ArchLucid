@@ -32,7 +32,7 @@ import { PolicyPacksPageHeader } from "./PolicyPacksPageHeader";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import { PolicyPacksContinueLastViewedRow } from "./PolicyPacksContinueLastViewedRow";
 import { resolveContinueLastPolicyPack } from "@/lib/resolve-continue-last-policy-pack";
-import { PolicyPacksWorkspaceSelectionSection } from "./PolicyPacksWorkspaceSelectionSection";
+import { PolicyPacksWorkspaceSelectionWithPreview } from "./PolicyPacksWorkspaceSelectionWithPreview";
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
@@ -229,7 +229,7 @@ export function PolicyPacksPageView(props: Props) {
           ) : null}
 
           <div className={cn("flex flex-col gap-8", !m.canMutatePacks && "flex-col-reverse")}>
-            <PolicyPacksWorkspaceSelectionSection
+            <PolicyPacksWorkspaceSelectionWithPreview
               canMutatePacks={m.canMutatePacks}
               items={m.workspaceSelectionItems}
               loading={m.workspaceSelectionLoading || m.loading}

@@ -13,6 +13,8 @@ public static class DeclarationPremiseConflictClassifier
     public const string AdminIngressConflictKind = "admin-ingress-conflict";
     public const string WorkloadIsolationConflictKind = "workload-isolation-conflict";
 
+    private static readonly char[] NegationLookbackTrimChars = [',', ':', ';', '.', '(', ')'];
+
     private static readonly string[] PrivateNetworkIntentPhrases =
     [
         "private only",
@@ -325,31 +327,70 @@ public static class DeclarationPremiseConflictClassifier
                 if (index < 0)
                     break;
 
-                if (!IsNegatedPhraseMatch(normalizedIntentText, index))
+                if (!IsPhraseNegated(normalizedIntentText, index))
                     return true;
 
-                searchStart = index + 1;
+                searchStart = index + phrase.Length;
             }
         }
 
         return false;
     }
 
-    private static bool IsNegatedPhraseMatch(string normalizedIntentText, int phraseStartIndex)
+    private static bool IsPhraseNegated(string normalizedIntentText, int phraseStartIndex)
     {
-        const int lookback = 32;
-        int prefixStart = Math.Max(0, phraseStartIndex - lookback);
-        ReadOnlySpan<char> prefix = normalizedIntentText.AsSpan(prefixStart, phraseStartIndex - prefixStart);
-        int trimmedLength = prefix.Length;
+        const int maxNegationLookback = 48;
+        int windowStart = Math.Max(0, phraseStartIndex - maxNegationLookback);
+        string prefix = normalizedIntentText[windowStart..phraseStartIndex]
+            .TrimEnd()
+            .TrimEnd(NegationLookbackTrimChars);
 
-        while (trimmedLength > 0
-               && (char.IsWhiteSpace(prefix[trimmedLength - 1]) || char.IsPunctuation(prefix[trimmedLength - 1])))
-            trimmedLength--;
+        if (prefix.Length == 0)
+            return false;
 
-        ReadOnlySpan<char> trimmedPrefix = prefix[..trimmedLength];
+        ReadOnlySpan<string> negationSuffixes =
+        [
+            "do not",
+            "don't",
+            "does not",
+            "doesn't",
+            "must not",
+            "mustn't",
+            "shall not",
+            "should not",
+            "shouldn't",
+            "will not",
+            "won't",
+            "cannot",
+            "can't",
+            "never",
+            "not",
+        ];
 
-        return trimmedPrefix.EndsWith("do not", StringComparison.Ordinal)
-            || trimmedPrefix.EndsWith("don't", StringComparison.Ordinal)
-            || trimmedPrefix.EndsWith("never", StringComparison.Ordinal);
+        foreach (string negationSuffix in negationSuffixes)
+        {
+            if (!prefix.EndsWith(negationSuffix, StringComparison.Ordinal))
+                continue;
+
+            if (string.Equals(negationSuffix, "not", StringComparison.Ordinal)
+                && !HasNegationWordBoundary(prefix, negationSuffix.Length))
+                continue;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasNegationWordBoundary(string prefix, int negationLength)
+    {
+        int boundaryIndex = prefix.Length - negationLength - 1;
+
+        if (boundaryIndex < 0)
+            return true;
+
+        char boundaryChar = prefix[boundaryIndex];
+
+        return !char.IsLetterOrDigit(boundaryChar);
     }
 }
