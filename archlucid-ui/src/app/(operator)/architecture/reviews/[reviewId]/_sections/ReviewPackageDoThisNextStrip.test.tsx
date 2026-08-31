@@ -52,6 +52,12 @@ describe("ReviewPackageDoThisNextStrip", () => {
             suggestSupportTicket: false,
             severity: "error",
             supportHref: "/help/report-a-problem",
+            intactSummary:
+              "Your submitted intake package was recorded. Processing stopped before the first pipeline stage — this is usually a configuration or infrastructure issue, not missing intake fields.",
+            submittedIntakeRecap: {
+              fields: [{ label: "Review title", value: "ArchLucid" }],
+              attachedFiles: ["ARCHITECTURE_HANDBOOK.docx"],
+            },
           },
         }}
       />,
@@ -63,6 +69,11 @@ describe("ReviewPackageDoThisNextStrip", () => {
     );
     expect(screen.getByTestId("review-package-failure-detail")).toHaveTextContent(
       "Missing Azure OpenAI deployment configuration",
+    );
+    expect(screen.getByTestId("review-package-failure-intact")).toHaveTextContent("submitted intake package");
+    expect(screen.getByTestId("review-package-submitted-intake-recap")).toHaveTextContent("ArchLucid");
+    expect(screen.getByTestId("review-package-submitted-intake-recap")).toHaveTextContent(
+      "ARCHITECTURE_HANDBOOK.docx",
     );
     expect(screen.getByTestId("review-package-failure-recovery-steps")).toHaveTextContent("AI configuration");
     expect(screen.queryByTestId("review-package-failure-support-hint")).toBeNull();

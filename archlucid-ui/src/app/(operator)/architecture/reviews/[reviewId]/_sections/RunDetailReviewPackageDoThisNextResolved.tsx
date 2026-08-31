@@ -28,6 +28,8 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly pipelineSummary?: RunSummary | null;
+  readonly intakeDescription?: string | null;
+  readonly intakeSystemName?: string | null;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -92,6 +94,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
           pipelineDiagnosticContext: props.pipelineDiagnosticContext,
           lastFailureSummary: props.lastFailureSummary,
           pipelineSummary: props.pipelineSummary,
+          intakeDescription: props.intakeDescription,
+          intakeSystemName: props.intakeSystemName,
         }),
       );
     });
@@ -123,6 +127,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
     props.pipelineDiagnosticContext,
     props.lastFailureSummary,
     props.pipelineSummary,
+    props.intakeDescription,
+    props.intakeSystemName,
   ]);
 
   if (next === null) {

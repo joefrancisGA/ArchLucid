@@ -26,10 +26,15 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
         hasFindingsSnapshot: false,
         hasGoldenManifest: false,
       },
+      intakeDescription:
+        'Architecture review intake for "ArchLucid".\n\nAttached files:\n- handbook.docx',
     });
 
     expect(guidance?.headline).toBe("Execution failed before the first pipeline stage");
-    expect(guidance?.recoverySteps.join(" ")).toContain("Re-run review");
+    expect(guidance?.recoverySteps.join(" ")).toContain("AI configuration");
+    expect(guidance?.recoverySteps.join(" ")).not.toContain("Confirm intake fields");
+    expect(guidance?.intactSummary).toContain("submitted intake package");
+    expect(guidance?.submittedIntakeRecap?.attachedFiles).toEqual(["handbook.docx"]);
     expect(guidance?.suggestSupportTicket).toBe(false);
   });
 

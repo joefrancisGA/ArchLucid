@@ -218,6 +218,8 @@ export async function RunDetailPageView(props: {
     pipelineDiagnosticContext: m.pipelineDiagnosticContext,
     lastFailureSummary: resolveRunDetailLastFailureSummary(m.resolvedDetail),
     pipelineSummary: m.progressForPipelineUi,
+    intakeDescription: m.resolvedDetail.run.description ?? m.progressForPipelineUi.description ?? null,
+    intakeSystemName: m.resolvedDetail.run.displayName ?? m.progressForPipelineUi.displayName ?? null,
   };
 
   const runDetailBody = (

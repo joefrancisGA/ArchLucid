@@ -8,6 +8,7 @@ import {
   OperatorWarningCallout,
 } from "@/components/operator/OperatorShellMessage";
 import { Button, buttonVariants } from "@/components/ui/button";
+import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-intake-recap";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -20,12 +21,57 @@ export type ReviewPackageDoThisNextStripProps = {
   readonly commitBlockedReason: string | null | undefined;
 };
 
+function ReviewSubmittedIntakeRecapPanel(props: {
+  readonly recap: ReviewSubmittedIntakeRecap;
+}): React.JSX.Element {
+  const { recap } = props;
+
+  return (
+    <div
+      className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+      data-testid="review-package-submitted-intake-recap"
+    >
+      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+        Submitted intake package
+      </p>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        Read-only — this is what was recorded when the review started. Re-run review reuses this package unchanged.
+      </p>
+
+      {recap.fields.length > 0 ? (
+        <dl className={cn("m-0 mt-3 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
+          {recap.fields.map((field) => (
+            <div key={`${field.label}:${field.value}`}>
+              <dt className="font-medium text-neutral-500 dark:text-neutral-400">{field.label}</dt>
+              <dd className="m-0 mt-1 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200">{field.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+
+      {recap.attachedFiles.length > 0 ? (
+        <div className="mt-3">
+          <p className={cn("m-0 font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            Attached files
+          </p>
+          <ul className={cn("m-0 mt-1 list-disc space-y-1 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+            {recap.attachedFiles.map((fileName) => (
+              <li key={fileName}>{fileName}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function ReviewFailureRecoveryDetails(props: {
   readonly failureRecovery: NonNullable<ReviewPackageDoThisNext["failureRecovery"]>;
 }): React.JSX.Element {
   const { failureRecovery } = props;
   const Callout =
     failureRecovery.severity === "warning" ? OperatorWarningCallout : OperatorErrorCallout;
+  const intactSummary = failureRecovery.intactSummary?.trim() ?? "";
 
   return (
     <div className="mt-3 space-y-3" data-testid="review-package-failure-recovery">
@@ -40,6 +86,12 @@ function ReviewFailureRecoveryDetails(props: {
         ) : null}
       </Callout>
 
+      {intactSummary.length > 0 ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-failure-intact">
+          <span className="font-semibold text-al-text-primary">What&apos;s intact:</span> {intactSummary}
+        </p>
+      ) : null}
+
       <div data-testid="review-package-failure-recovery-steps">
         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           What to do
@@ -50,6 +102,11 @@ function ReviewFailureRecoveryDetails(props: {
           ))}
         </ol>
       </div>
+
+      {failureRecovery.submittedIntakeRecap !== null &&
+      failureRecovery.submittedIntakeRecap !== undefined ? (
+        <ReviewSubmittedIntakeRecapPanel recap={failureRecovery.submittedIntakeRecap} />
+      ) : null}
 
       {failureRecovery.suggestSupportTicket ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-failure-support-hint">

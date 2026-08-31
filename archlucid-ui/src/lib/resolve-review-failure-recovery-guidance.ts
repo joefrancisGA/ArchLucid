@@ -1,5 +1,9 @@
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import {
+  deriveReviewSubmittedIntakeRecap,
+  type ReviewSubmittedIntakeRecap,
+} from "@/lib/derive-review-submitted-intake-recap";
+import {
   isQualityRejectedRunStatus,
   plainLanguageFailureClassLabel,
   plainLanguageTriageTitle,
@@ -12,6 +16,9 @@ import {
 import { SUPPORT_REPORT_PROBLEM_HELP_HREF } from "@/lib/support-workspace-present";
 import type { RunSummary } from "@/types/authority";
 
+export const REVIEW_PRE_STAGE_FAILURE_INTACT_SUMMARY =
+  "Your submitted intake package was recorded. Processing stopped before the first pipeline stage — this is usually a configuration or infrastructure issue, not missing intake fields.";
+
 export type ReviewFailureRecoveryGuidance = {
   readonly headline: string;
   readonly detail: string | null;
@@ -19,12 +26,16 @@ export type ReviewFailureRecoveryGuidance = {
   readonly suggestSupportTicket: boolean;
   readonly severity: "warning" | "error";
   readonly supportHref: string;
+  readonly intactSummary?: string | null;
+  readonly submittedIntakeRecap?: ReviewSubmittedIntakeRecap | null;
 };
 
 type RecoveryStepInput = {
   readonly diagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly summary?: RunSummary | null;
+  readonly intakeDescription?: string | null;
+  readonly intakeSystemName?: string | null;
 };
 
 function normalizeKey(value: string | null | undefined): string {
@@ -141,9 +152,9 @@ function recoveryStepsForLegacyStatus(
   if (legacyStatus === "Failed" && completedStages === 0) {
     return {
       steps: [
-        "Confirm intake fields are complete and every attachment uploaded successfully.",
-        "Check Administration → AI configuration for valid credentials and deployment names.",
-        "Click Re-run review with the same intake after fixing configuration or attachments.",
+        "Open Administration → AI configuration and confirm Azure OpenAI credentials and deployment names are set for this workspace.",
+        "Save any changes, wait one minute, then click Re-run review on this page — your submitted intake package below will be reused unchanged.",
+        "If the failure repeats, open Report a problem and include this review id so support can investigate.",
       ],
       specificity: "specific",
     };
@@ -273,6 +284,15 @@ export function resolveReviewFailureRecoveryGuidance(
           "Open Report a problem and include this review id so support can investigate.",
         ];
 
+  const isPreStageExecutionFailure = legacyStatus === "Failed" && completedStages === 0;
+  const intactSummary = isPreStageExecutionFailure ? REVIEW_PRE_STAGE_FAILURE_INTACT_SUMMARY : null;
+  const submittedIntakeRecap = isPreStageExecutionFailure
+    ? deriveReviewSubmittedIntakeRecap({
+        description: input.intakeDescription ?? input.summary?.description ?? null,
+        systemName: input.intakeSystemName ?? input.summary?.displayName ?? null,
+      })
+    : null;
+
   return {
     headline: diagnosis.headline,
     detail: detail.length > 0 ? detail : null,
@@ -280,5 +300,7 @@ export function resolveReviewFailureRecoveryGuidance(
     suggestSupportTicket,
     severity: axis === "quality" ? "warning" : diagnosis.severity === "warning" ? "warning" : "error",
     supportHref: SUPPORT_REPORT_PROBLEM_HELP_HREF,
+    intactSummary,
+    submittedIntakeRecap,
   };
 }
