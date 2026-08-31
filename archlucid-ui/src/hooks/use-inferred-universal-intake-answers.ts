@@ -28,6 +28,8 @@ type UseInferredUniversalIntakeAnswersInput = {
   readonly onAnswersChange: (answers: Readonly<Record<string, string>>) => void;
   readonly blocksLlmRephrase?: boolean;
   readonly isSimulator?: boolean;
+  /** When false, skips automatic and manual suggestion runs (for example before clarifications step). */
+  readonly enabled?: boolean;
 };
 
 type UseInferredUniversalIntakeAnswersResult = {
@@ -61,10 +63,14 @@ export function useInferredUniversalIntakeAnswers(
   inputRef.current = input;
   evidenceExtractionProgressRef.current = evidenceExtractionProgress;
 
-  const canSuggestFromEvidence = canSuggestUniversalIntakeAnswersFromEvidence({
-    briefText: input.briefText,
-    evidenceFiles: input.evidenceFiles,
-  });
+  const enabled = input.enabled !== false;
+
+  const canSuggestFromEvidence =
+    enabled
+    && canSuggestUniversalIntakeAnswersFromEvidence({
+      briefText: input.briefText,
+      evidenceFiles: input.evidenceFiles,
+    });
 
   const applyInference = useCallback(async (): Promise<void> => {
     const currentInput = inputRef.current;
@@ -224,7 +230,7 @@ export function useInferredUniversalIntakeAnswers(
     }
 
     void applyInference();
-  }, [applyInference, canSuggestFromEvidence, input.briefText, input.blocksLlmRephrase, input.evidenceFiles]);
+  }, [applyInference, canSuggestFromEvidence, enabled, input.briefText, input.blocksLlmRephrase, input.evidenceFiles]);
 
   const suggestAnswersFromEvidence = useCallback(() => {
     if (!canSuggestFromEvidence || isExtractingEvidenceText) {

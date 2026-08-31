@@ -34,7 +34,6 @@ type UseNewRunWizardSubmitOptions = {
   readonly goToStep: (index: number) => void;
   readonly setRunId: (runId: string) => void;
   readonly setStepValidationMessage: (message: string | null) => void;
-  readonly showSuccessToast: (message: string) => void;
   readonly clearWizardSession: () => void;
   readonly hasPendingEvidence: boolean;
   readonly uploadPendingEvidence: (runId: string) => Promise<void>;
@@ -128,7 +127,6 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
       options.setRunId(id);
       options.goToStep(TRACK_STEP_INDEX);
       options.clearWizardSession();
-      options.showSuccessToast(`Architecture review ${id} created — tracking pipeline below.`);
 
       if (options.hasPendingEvidence) {
         await options.uploadPendingEvidence(id);
@@ -168,7 +166,6 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
       options.setRunId(id);
       options.goToStep(TRACK_STEP_INDEX);
       options.clearWizardSession();
-      options.showSuccessToast(`Architecture review ${id} found — tracking pipeline below.`);
 
       if (options.hasPendingEvidence) {
         await options.uploadPendingEvidence(id);

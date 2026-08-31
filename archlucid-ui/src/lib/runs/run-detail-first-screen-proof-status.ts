@@ -235,6 +235,22 @@ export function runDetailFirstScreenProofDispositionClass(disposition: RunDetail
   }
 }
 
+const NO_SENDABLE_REVIEW_LEGACY_STATUSES = new Set(["Failed", "FailedPartial", "PartiallyCompleted"]);
+
+/** Hide sponsor-send proof posture when execution did not produce a sendable review package. */
+export function shouldShowRunDetailFirstScreenProofStatus(args: {
+  readonly legacyRunStatus?: string | null;
+  readonly isDeadLettered?: boolean;
+}): boolean {
+  if (args.isDeadLettered === true) {
+    return false;
+  }
+
+  const legacyStatus = (args.legacyRunStatus ?? "").trim();
+
+  return !NO_SENDABLE_REVIEW_LEGACY_STATUSES.has(legacyStatus);
+}
+
 export const RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_HEADING = "Proof status unavailable";
 
 export const RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_BODY =

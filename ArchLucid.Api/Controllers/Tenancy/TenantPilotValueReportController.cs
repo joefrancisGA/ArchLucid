@@ -1,3 +1,4 @@
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Application.Pilots;
@@ -75,9 +76,7 @@ public sealed class TenantPilotValueReportController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        string accept = Request.Headers.Accept.ToString();
-
-        if (accept.Contains("text/markdown", StringComparison.OrdinalIgnoreCase))
+        if (PilotValueReportAcceptFormat.PrefersMarkdown(Request.Headers.Accept.ToString()))
             return Content(_pilotValueReportMarkdownFormatter.Format(report), "text/markdown; charset=utf-8");
 
         return Ok(report);

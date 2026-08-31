@@ -11,16 +11,49 @@ namespace ArchLucid.Application.Tests.Governance.FindingDisposition;
 public sealed class FindingDispositionValidationTests
 {
     [Fact]
-    public void Validate_deferred_without_rationale_passes_when_revisit_set()
+    public void Validate_deferred_disposition_rejects_past_revisit_due_date()
     {
+        DateTimeOffset nowUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
         RecordFindingDispositionRequest request = new()
         {
             FindingId = "f1",
             Disposition = Disposition.Deferred,
-            RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(30),
+            RevisitDueUtc = nowUtc.AddDays(-1),
         };
 
-        Action act = () => FindingDispositionValidation.Validate(request);
+        Action act = () => FindingDispositionValidation.Validate(request, nowUtc);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*future*");
+    }
+
+    [Fact]
+    public void Validate_deferred_disposition_rejects_revisit_due_date_at_now()
+    {
+        DateTimeOffset nowUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Deferred,
+            RevisitDueUtc = nowUtc,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request, nowUtc);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*future*");
+    }
+
+    [Fact]
+    public void Validate_deferred_without_rationale_passes_when_revisit_set()
+    {
+        DateTimeOffset nowUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Deferred,
+            RevisitDueUtc = nowUtc.AddDays(30),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request, nowUtc);
 
         act.Should().NotThrow();
     }

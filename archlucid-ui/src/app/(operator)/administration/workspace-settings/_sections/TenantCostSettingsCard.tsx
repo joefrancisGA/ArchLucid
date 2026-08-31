@@ -11,6 +11,7 @@ import { MutatingInTenantChip } from "@/components/MutatingInTenantChip";
 import { Button } from "@/components/ui/button";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +23,6 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
-import { showError } from "@/lib/toast";
 import {
   saveTenantCostSettings,
 } from "@/lib/tenant-cost-settings-client";
@@ -190,6 +190,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
   const [incidentCost, setIncidentCost] = useState("");
   const [eaDiscountPercentage, setEaDiscountPercentage] = useState("0");
   const [saveConfirmation, setSaveConfirmation] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const fieldValidation = useMemo(
     () => validateTenantCostSettingsFields(hourlyRate, incidentCost, eaDiscountPercentage),
@@ -221,10 +222,12 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
         setEaDiscountPercentage,
       });
       setSaveConfirmation("Cost settings saved.");
+      setSaveError(null);
       await queryClient.setQueryData(operatorQueryKeys.tenantCostSettings, saved);
     },
     onError: (error: unknown) => {
-      showError("Could not save cost settings", toApiLoadFailure(error).message);
+      setSaveError(toApiLoadFailure(error).message);
+      setSaveConfirmation(null);
     },
     onSettled: () => {
       setSaving(false);
@@ -251,6 +254,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
 
       setSaving(true);
       setSaveConfirmation(null);
+      setSaveError(null);
       saveMutation.mutate(body);
     },
     [canEdit, demoMode, eaDiscountPercentage, fieldValidation.valid, hourlyRate, incidentCost, saveMutation],
@@ -328,6 +332,14 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
                 message={saveConfirmation}
                 testId="tenant-cost-settings-saved"
                 onDismiss={() => setSaveConfirmation(null)}
+              />
+            ) : null}
+
+            {saveError !== null ? (
+              <OperatorMutationInlineError
+                message={saveError}
+                testId="tenant-cost-settings-save-error"
+                recoveryScenario="api-problem"
               />
             ) : null}
 

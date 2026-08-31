@@ -247,7 +247,7 @@ describe("GovernanceFindingsQueueClient", () => {
       "href",
       "/architecture/reviews",
     );
-    expect(screen.getByRole("link", { name: "Open resolve outcomes" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.getByRole("link", { name: "Open governance approval" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: "View policy packs" })).toHaveAttribute(
       "href",
       "/governance/policy-packs",

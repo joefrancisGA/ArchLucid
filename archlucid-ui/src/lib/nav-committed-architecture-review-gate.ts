@@ -2,14 +2,14 @@ import type { NavLinkItem } from "@/lib/nav-config";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { isWorkspaceHealthPath } from "@/lib/workspace-health-route";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review
  * (`CurrentPrincipal.hasCommittedArchitectureReview`). Allowed: home, architectures, review hub/detail,
- * evidence graph, sponsor dashboard, help/onboarding, and tenant-admin break-glass paths (baseline + tenant).
+ * evidence graph, sponsor dashboard, workspace health deep links, help/onboarding, and tenant-admin break-glass paths (baseline + tenant).
  * Operate destinations (governance, diagnostics, integrations, digests, compare, …) stay out until commit;
  * deep links remain valid at route level.
  */
@@ -40,6 +40,10 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathnameO
     return true;
   }
 
+  if (isWorkspaceHealthPath(pathWithoutQuery)) {
+    return true;
+  }
+
   if (pathWithoutQuery === "/help" || pathWithoutQuery.startsWith("/help/")) {
     return true;
   }
@@ -63,9 +67,9 @@ function navPathWithoutQuery(href: string): string {
   return navHrefPathPart(href);
 }
 
-/** Insights workspace health uses a sponsor-dashboard fragment href but stays post-commit in the sidebar. */
-function isPreCommitOperateInsightsOnlyNavLink(href: string): boolean {
-  return href === GOVERNANCE_WORKSPACE_HEALTH_HREF;
+/** Standalone workspace health stays post-commit in the sidebar while deep links remain eligible. */
+function isPreCommitWorkspaceHealthNavLink(href: string): boolean {
+  return isWorkspaceHealthPath(navHrefPathPart(href));
 }
 
 /**
@@ -140,7 +144,7 @@ export function filterNavLinksByCommittedArchitectureReviewGate(
   }
 
   const eligible = links.filter((link) => {
-    if (isPreCommitOperateInsightsOnlyNavLink(link.href)) {
+    if (isPreCommitWorkspaceHealthNavLink(link.href)) {
       return false;
     }
 
