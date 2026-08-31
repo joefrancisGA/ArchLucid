@@ -87,8 +87,9 @@ export function resolveReviewDetailVisibleTabs(
   input: ResolveReviewDetailVisibleTabsInput,
 ): ReviewDetailVisibleTabs {
   const stage = resolveReviewDetailTabLifecycleStage(input);
-  const visibleTabIds = visibleTabsForStage(stage);
-  const moreTabIds = moreTabsForStage(stage);
+  const split = splitReviewWorkspaceTabsByStage(stage, ALL_TABS);
+  const visibleTabIds = split.primaryTabIds;
+  const moreTabIds = split.moreTabIds;
   const defaultTabId = defaultTabForStage(stage);
 
   return {
