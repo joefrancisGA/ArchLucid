@@ -36,7 +36,7 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
   const scopedRunFilterActive = scopedRunId.length > 0;
   const [filters, setFilters] = useState(EMPTY_STANDARDS_RULES_FILTER_STATE);
 
-  const onPickReview = useCallback(
+  const onPickRun = useCallback(
     (runId: string) => {
       const trimmed = runId.trim();
 
@@ -113,7 +113,7 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
     scopedRunFilterActive,
     filters,
     setFilters,
-    onPickReview,
+    onPickRun,
     allRuleRows,
     filteredRuleRows,
     firstUnmatchedRule,

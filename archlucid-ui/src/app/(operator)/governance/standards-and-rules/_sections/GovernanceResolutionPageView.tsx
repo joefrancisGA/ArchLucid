@@ -126,7 +126,7 @@ export function GovernanceResolutionPageView(props: Props) {
         {m.failure === null ? (
           <>
             {!rows.scopedRunFilterActive ? (
-              <StandardsRulesPickReviewBeforeResolvingStrip selectedReviewId="" onSelectReview={rows.onPickReview} />
+              <StandardsRulesPickReviewBeforeResolvingStrip selectedReviewId="" onSelectReview={rows.onPickRun} />
             ) : (
               <>
                 {scopedRunBanner}
@@ -232,7 +232,7 @@ export function GovernanceResolutionPageView(props: Props) {
       <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="standards" />
       <GovernanceResolutionRankCue className="mb-3" />
       {!rows.scopedRunFilterActive ? (
-        <StandardsRulesPickReviewBeforeResolvingStrip selectedReviewId="" onSelectReview={rows.onPickReview} />
+        <StandardsRulesPickReviewBeforeResolvingStrip selectedReviewId="" onSelectReview={rows.onPickRun} />
       ) : (
         <>
           {scopedRunBanner}
