@@ -1682,7 +1682,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-31 seed hunt #314: proved OTP concurrent wrong-code RowVersion retry; seeded trial lockout lost-update, link-proposal status TOCTOU, and OTP resend invalidate/insert race candidates.
 2026-08-31 seed hunt #323: proved link-proposal terminal status guard; seeded OTP RowVersion retry, trial lockout lost-update, and OTP resend invalidate/insert race.
 - [x] (proven) `DapperEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong-code attempts lost `FailedAttemptCount` increments on `RowVersion` conflict (`affected == 0` committed without retry) — **hit 2026-08-31 (#322):** retry loop up to `MaxCompleteConcurrencyRetries`; regression in `EmailOtpChallengeRepositoryConcurrencyTests` and `DapperEmailOtpChallengeRepositorySqlIntegrationTests`.
-- [ ] (hunt-ready) `DapperAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` / `InMemoryAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` — no `Status = PendingConfirmation` guard allows confirmed proposals to be rewritten to cancelled.
 - [ ] (hunt-ready) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — `TrialLocalIdentityService.AuthenticateAsync` read-modify-write with unconditional `UPDATE` can lose lockout increments under parallel failed logins.
 - [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
 
