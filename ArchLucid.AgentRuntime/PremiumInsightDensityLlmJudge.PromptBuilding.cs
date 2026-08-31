@@ -62,7 +62,7 @@ public sealed partial class PremiumInsightDensityLlmJudge
     }
 
     private static string EscapeJson(string value) =>
-        value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal);
+        System.Text.Json.JsonSerializer.Serialize(value).Trim('"');
 
     private bool IsLlmJudgeOperational()
     {
