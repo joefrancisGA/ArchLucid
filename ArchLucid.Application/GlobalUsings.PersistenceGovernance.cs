@@ -5,7 +5,6 @@ global using ArchLucid.Contracts.Governance.Resolution;
 global using ComplianceDriftFindingsBucketCounts = ArchLucid.Contracts.Governance.ComplianceDrift.ComplianceDriftFindingsBucketCounts;
 global using GovernanceScopeLevel = ArchLucid.Contracts.Governance.Resolution.GovernanceScopeLevel;
 global using IComplianceDriftFindingsTrendReader = ArchLucid.Core.Persistence.Ports.IComplianceDriftFindingsTrendReader;
-global using IGovernanceApprovalRequestRepository = ArchLucid.Persistence.Data.Repositories.IGovernanceApprovalRequestRepository;
 global using IPolicyPackAssignmentRepository = ArchLucid.Core.Persistence.Ports.IPolicyPackAssignmentRepository;
 global using IPolicyPackCatalogRepository = ArchLucid.Core.Persistence.Ports.IPolicyPackCatalogRepository;
 global using IPolicyPackChangeLogRepository = ArchLucid.Core.Persistence.Ports.IPolicyPackChangeLogRepository;

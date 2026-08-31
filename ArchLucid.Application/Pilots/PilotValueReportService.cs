@@ -7,6 +7,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
 
