@@ -4,9 +4,8 @@ import {
   filterQualityGatedInferredAnswers,
   isReadableInferredClarificationAnswer,
 } from "@/lib/inferred-clarification-answer-quality";
+import { extractClarificationEvidenceSnippet } from "@/lib/universal-intake-clarification-evidence-snippet";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
-
-const EVIDENCE_EXCERPT_MAX_CHARS = 6000;
 
 /** One clarification answer to humanize via POST /v1/architecture/request/draft/clarification-answers/rephrase. */
 export type ClarificationAnswerRephraseItem = {
@@ -83,10 +82,6 @@ export function buildClarificationRephraseItemsForEmptyKeys(input: {
     return [];
   }
 
-  const excerpt =
-    trimmedCorpus.length > EVIDENCE_EXCERPT_MAX_CHARS
-      ? trimmedCorpus.slice(0, EVIDENCE_EXCERPT_MAX_CHARS)
-      : trimmedCorpus;
   const items: ClarificationAnswerRephraseItem[] = [];
 
   for (const question of input.questions) {
@@ -108,10 +103,16 @@ export function buildClarificationRephraseItemsForEmptyKeys(input: {
       continue;
     }
 
+    const evidenceSnippet = extractClarificationEvidenceSnippet(trimmedCorpus, question.questionKey);
+
+    if (evidenceSnippet === null || evidenceSnippet.trim().length === 0) {
+      continue;
+    }
+
     items.push({
       questionKey: question.questionKey,
       questionPrompt: question.prompt,
-      extractedAnswer: `Evidence excerpt (answer only from this text):\n${excerpt}`,
+      extractedAnswer: evidenceSnippet.trim(),
     });
   }
 

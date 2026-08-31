@@ -47,7 +47,7 @@ public sealed class GovernanceDashboardServiceTests
 
         Mock<IPolicyPackChangeLogRepository> changes = new();
         changes
-            .Setup(c => c.GetByTenantAsync(tenantId, 20, It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetByScopeAsync(tenantId, Guid.Empty, Guid.Empty, 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<PolicyPackChangeLogEntry> { change });
 
         (Mock<IRunDetailQueryService> runQuery, Mock<IAgentExecutionTraceRepository> traces) = CreateEmptyTokenMocks();
@@ -79,7 +79,9 @@ public sealed class GovernanceDashboardServiceTests
         approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IPolicyPackChangeLogRepository> changes = new();
-        changes.Setup(c => c.GetByTenantAsync(tenantId, 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        changes
+            .Setup(c => c.GetByScopeAsync(tenantId, Guid.Empty, Guid.Empty, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         (Mock<IRunDetailQueryService> runQuery, Mock<IAgentExecutionTraceRepository> traces) = CreateEmptyTokenMocks();
 
@@ -110,7 +112,9 @@ public sealed class GovernanceDashboardServiceTests
         approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IPolicyPackChangeLogRepository> changes = new();
-        changes.Setup(c => c.GetByTenantAsync(tenantId, 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        changes
+            .Setup(c => c.GetByScopeAsync(tenantId, Guid.Empty, Guid.Empty, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         Mock<IRunDetailQueryService> runQuery = new();
         runQuery
@@ -169,7 +173,9 @@ public sealed class GovernanceDashboardServiceTests
         approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IPolicyPackChangeLogRepository> changes = new();
-        changes.Setup(c => c.GetByTenantAsync(tenantId, 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        changes
+            .Setup(c => c.GetByScopeAsync(tenantId, Guid.Empty, Guid.Empty, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         Mock<IRunDetailQueryService> runQuery = new();
         runQuery
@@ -227,7 +233,6 @@ public sealed class GovernanceDashboardServiceTests
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
         Guid workspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
         Guid projectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
-        Guid foreignWorkspaceId = Guid.Parse("dddddddd-eeee-ffff-0000-111122223333");
 
         PolicyPackChangeLogEntry inScope = new()
         {
@@ -241,26 +246,14 @@ public sealed class GovernanceDashboardServiceTests
             ChangedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
-        PolicyPackChangeLogEntry foreign = new()
-        {
-            ChangeLogId = Guid.NewGuid(),
-            PolicyPackId = Guid.NewGuid(),
-            TenantId = tenantId,
-            WorkspaceId = foreignWorkspaceId,
-            ProjectId = Guid.NewGuid(),
-            ChangeType = "Published",
-            ChangedBy = "u2",
-            ChangedUtc = TimeProvider.System.UtcNowDateTime(),
-        };
-
         Mock<IGovernanceApprovalRequestRepository> approvals = new();
         approvals.Setup(a => a.GetPendingAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IPolicyPackChangeLogRepository> changes = new();
         changes
-            .Setup(c => c.GetByTenantAsync(tenantId, 20, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<PolicyPackChangeLogEntry> { foreign, inScope });
+            .Setup(c => c.GetByScopeAsync(tenantId, workspaceId, projectId, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<PolicyPackChangeLogEntry> { inScope });
 
         (Mock<IRunDetailQueryService> runQuery, Mock<IAgentExecutionTraceRepository> traces) = CreateEmptyTokenMocks();
 
@@ -282,6 +275,66 @@ public sealed class GovernanceDashboardServiceTests
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
         summary.RecentChanges.Should().ContainSingle().Which.ChangeLogId.Should().Be(inScope.ChangeLogId);
+    }
+
+    [Fact]
+    public async Task GetDashboard_UsesScopedChangeLogQuery_WhenTenantWideTopWouldStarveInScopeRows()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
+        Guid projectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+
+        PolicyPackChangeLogEntry inScope = new()
+        {
+            ChangeLogId = Guid.NewGuid(),
+            PolicyPackId = Guid.NewGuid(),
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            ChangeType = "Published",
+            ChangedBy = "u1",
+            ChangedUtc = new DateTime(2026, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+        };
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals.Setup(a => a.GetPendingAsync(2, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        approvals.Setup(a => a.GetRecentDecisionsAsync(2, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        Mock<IPolicyPackChangeLogRepository> changes = new();
+        changes
+            .Setup(c => c.GetByScopeAsync(tenantId, workspaceId, projectId, 2, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<PolicyPackChangeLogEntry> { inScope });
+
+        (Mock<IRunDetailQueryService> runQuery, Mock<IAgentExecutionTraceRepository> traces) = CreateEmptyTokenMocks();
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            approvals.Object,
+            changes.Object,
+            runQuery.Object,
+            traces.Object,
+            scope.Object);
+
+        GovernanceDashboardSummary summary = await sut.GetDashboardAsync(
+            tenantId,
+            maxPending: 2,
+            maxDecisions: 2,
+            maxChanges: 2);
+
+        summary.RecentChanges.Should().ContainSingle().Which.ChangeLogId.Should().Be(inScope.ChangeLogId);
+        changes.Verify(
+            c => c.GetByScopeAsync(tenantId, workspaceId, projectId, 2, It.IsAny<CancellationToken>()),
+            Times.Once);
+        changes.Verify(
+            c => c.GetByTenantAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private static IScopeContextProvider CreateScopeProvider()

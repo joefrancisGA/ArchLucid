@@ -4,18 +4,18 @@ import {
   ARCHITECTURE_SPONSOR_DASHBOARD_CANONICAL_PATH,
 } from "@/lib/architecture/architecture-sponsor-dashboard-evidence-copy";
 import { BASELINE_SETTINGS_HELP_CANONICAL_PATH } from "@/lib/baseline-settings-help-evidence-copy";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 import { SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/sponsor-dashboard-help-evidence-copy";
-import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 
 export const SPONSOR_DASHBOARD_HELP_BREADCRUMB_TOPIC_TITLE = "Sponsor dashboard help";
 
 export const SPONSOR_DASHBOARD_HELP_PAGE_TITLE = "Sponsor dashboard";
 
 export const SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE =
-  "How portfolio ROI trends, workspace-health KPI tiles, and sponsor exports fit sponsor briefings.";
+  "How portfolio ROI trends, sponsor exports, and workspace health fit sponsor briefings.";
 
 export const SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE_BUYER =
-  "Portfolio ROI, workspace-health KPIs, and sponsor exports for sponsor briefings in this workspace." as const;
+  "Portfolio ROI, sponsor exports, and workspace health for sponsor briefings in this workspace." as const;
 
 export const SPONSOR_DASHBOARD_HELP_PRIMARY_CONTENT_ID = "help-sponsor-dashboard-primary-content" as const;
 
@@ -28,7 +28,7 @@ export function sponsorDashboardHelpPageSubtitle(buyerPolishedShell: boolean): s
 }
 
 export const SPONSOR_DASHBOARD_HELP_OVERVIEW =
-  "The sponsor dashboard summarizes portfolio ROI trends, workspace-health KPI tiles, and sponsor exports for the selected scope — use it for approval and ROI status at a glance before opening sponsor report help or architecture scorecard follow-ups.";
+  "The sponsor dashboard summarizes portfolio ROI trends and sponsor exports for the selected scope — open workspace health when KPI tiles need approval follow-up before sponsor report help or architecture scorecard follow-ups.";
 
 export const SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION = {
   label: "Open sponsor dashboard",
@@ -68,7 +68,7 @@ export const SPONSOR_DASHBOARD_HELP_FEATURE_ITEMS: readonly SponsorDashboardHelp
   {
     label: "Workspace health",
     detail: "Open workspace health or the approval queue when KPI tiles need approval follow-up.",
-    href: SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
+    href: WORKSPACE_HEALTH_PATH,
   },
   {
     label: "Architecture scorecard",

@@ -29,6 +29,62 @@ public sealed class TenantHomepageSettingsControllerTests
     };
 
     [Fact]
+    public async Task GetAsync_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            workspaceId: foreignWorkspaceId);
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ListEligibleSamplesAsync_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            workspaceId: foreignWorkspaceId);
+
+        IActionResult action = await controller.ListEligibleSamplesAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            workspaceId: foreignWorkspaceId);
+
+        IActionResult action = await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest { SelectedRunId = null },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetAsync_returns_not_found_when_tenant_missing()
     {
         Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
@@ -155,15 +211,37 @@ public sealed class TenantHomepageSettingsControllerTests
 
     private static TenantHomepageSettingsController CreateController(
         IFeaturedCompletedSampleService service,
-        bool tenantExists = true)
+        bool tenantExists = true,
+        Guid? workspaceId = null)
     {
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+        Guid resolvedWorkspaceId = workspaceId ?? Scope.WorkspaceId;
 
-        Mock<ITenantRepository> tenants = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = resolvedWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
         tenants
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(tenantExists ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" } : null);
+
+        if (tenantExists)
+        {
+            tenants
+                .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                [
+                    new TenantWorkspaceListItem
+                    {
+                        WorkspaceId = Scope.WorkspaceId,
+                        Name = "primary",
+                    },
+                ]);
+        }
 
         TenantHomepageSettingsController controller = new(
             service,

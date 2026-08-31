@@ -171,7 +171,7 @@ public sealed class GovernanceWorkflowTransitionConflictPropertyTests
                 .GetResult();
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*environment ordering*");
+            .WithMessage("*allowed environment transition*");
     }
 
     private static GovernanceWorkflowService CreateSubmitSut(Mock<IRunDetailQueryService> runDetail)
@@ -275,21 +275,4 @@ public sealed class GovernanceWorkflowTransitionConflictPropertyTests
     }
 
 #pragma warning restore xUnit1031
-}
-
-/// <summary>Pair of governance environments that is not a valid single-step promotion.</summary>
-public sealed record InvalidPromotionPair(string Source, string Target);
-
-/// <summary>FsCheck arbitraries for invalid promotion pairs.</summary>
-public static class InvalidGovernancePromotionArb
-{
-    public static Arbitrary<InvalidPromotionPair> InvalidPairs()
-    {
-        string[] envs = [GovernanceEnvironment.Dev, GovernanceEnvironment.Test, GovernanceEnvironment.Prod];
-
-        return Gen.Two(Gen.Elements(envs))
-            .Where(pair => !GovernanceEnvironmentOrder.IsValidPromotion(pair.Item1, pair.Item2))
-            .Select(pair => new InvalidPromotionPair(pair.Item1, pair.Item2))
-            .ToArbitrary();
-    }
 }

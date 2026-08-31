@@ -1,12 +1,12 @@
 /** Canonical governance nav URLs (TB-405). */
 
-import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
 /** Approval queue (left-nav). Bare `/governance` is not a page and is not redirected. */
 export const GOVERNANCE_APPROVAL_QUEUE_PATH = "/governance/approval-queue" as const;
 
-/** Workspace health KPIs on the sponsor dashboard (merged from `/governance/dashboard`). */
-export const GOVERNANCE_WORKSPACE_HEALTH_HREF = SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF;
+/** Workspace health KPIs (Insights). Legacy `/governance/dashboard` redirects here. */
+export const GOVERNANCE_WORKSPACE_HEALTH_HREF = WORKSPACE_HEALTH_PATH;
 
 export const GOVERNANCE_POLICY_PACKS_PATH = "/governance/policy-packs";
 
