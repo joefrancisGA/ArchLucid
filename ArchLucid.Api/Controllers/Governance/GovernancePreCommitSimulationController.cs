@@ -119,6 +119,9 @@ public sealed class GovernancePreCommitSimulationController(
                 $"Run ID '{body.RunId.Trim()}' is not valid.",
                 ProblemTypes.ValidationFailed);
 
+        if (Guid.Parse(runIdNormalized) == Guid.Empty)
+            return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);
+
         if (body.SyntheticCount < 0)
             return this.BadRequestProblem("syntheticCount must be non-negative.", ProblemTypes.ValidationFailed);
 
