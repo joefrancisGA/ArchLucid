@@ -47,13 +47,24 @@ public sealed class WizardIntakeDraftService(
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(wizardId);
 
+        if (string.IsNullOrWhiteSpace(request.StateJson))
+            throw new ArgumentException("stateJson is required.", nameof(request.StateJson));
+
+        try
+        {
+            using System.Text.Json.JsonDocument _ = System.Text.Json.JsonDocument.Parse(request.StateJson);
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            throw new ArgumentException("stateJson must be valid JSON.", nameof(request.StateJson));
+        }
+
         DateTime updatedUtc = _timeProvider.GetUtcNow().UtcDateTime;
         byte[]? idempotencyHash = string.IsNullOrWhiteSpace(request.IdempotencyKey)
             ? null
             : ArchitectureRunIdempotencyHashing.HashIdempotencyKey(request.IdempotencyKey.Trim());
 
         string trimmedWizardId = wizardId.Trim();
-
         await _repository.UpsertAsync(
             scope.TenantId,
             scope.WorkspaceId,
