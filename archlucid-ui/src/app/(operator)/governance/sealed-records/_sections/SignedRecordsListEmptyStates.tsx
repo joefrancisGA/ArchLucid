@@ -4,7 +4,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { Button } from "@/components/ui/button";
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
-import type { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
+import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 
 import {
   SIGNED_RECORDS_LIST_EMPTY_BODY,
