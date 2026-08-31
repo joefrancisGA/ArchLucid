@@ -239,6 +239,9 @@ public sealed class TenantCustomerSuccessController(
         if (!request.Score.HasValue)
             return this.BadRequestProblem("score is required.", ProblemTypes.ValidationFailed);
 
+        if (!request.Score.HasValue)
+            return this.BadRequestProblem("score is required.", ProblemTypes.ValidationFailed);
+
         if (request.RunId == Guid.Empty)
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 

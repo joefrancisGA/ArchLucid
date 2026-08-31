@@ -46,6 +46,7 @@ public sealed class GovernanceCoverageControllerScopeTests
 
         return tenants.Object;
     }
+    }
 
     [Fact]
     public async Task PreviewCoverage_returns_bad_request_when_body_is_null()
