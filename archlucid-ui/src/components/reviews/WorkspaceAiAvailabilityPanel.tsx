@@ -18,8 +18,12 @@ export type WorkspaceAiAvailabilityPanelProps = {
 function statusTagKind(
   state: ReturnType<typeof useWorkspaceAiAvailabilityCheck>["state"],
 ): "ready" | "needs-attention" | "blocked" | "in-progress" {
-  if (state.status === "loading" || state.status === "idle") {
+  if (state.status === "loading") {
     return "in-progress";
+  }
+
+  if (state.status === "idle") {
+    return "needs-attention";
   }
 
   if (state.status === "error") {
@@ -29,10 +33,29 @@ function statusTagKind(
   return state.result.isAvailable ? "ready" : "needs-attention";
 }
 
+function resolveProbeModelLabel(debug: Readonly<Record<string, string>>): string | null {
+  const deployment = debug.probeDeploymentName?.trim();
+  const model = debug.probeModelId?.trim();
+
+  if (deployment && model) {
+    return `Deployment ${deployment} · model ${model}`;
+  }
+
+  if (deployment) {
+    return `Deployment ${deployment}`;
+  }
+
+  if (model) {
+    return `Model ${model}`;
+  }
+
+  return null;
+}
+
 /** API-validated workspace AI availability with full probe diagnostics for review failure recovery. */
 export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanelProps): React.JSX.Element {
   const { workspaceAiSignal } = props;
-  const { state, checkAvailability } = useWorkspaceAiAvailabilityCheck({ enabled: true });
+  const { state, checkAvailability } = useWorkspaceAiAvailabilityCheck({ enabled: true, autoCheck: false });
 
   const label =
     state.status === "loaded"
@@ -48,6 +71,17 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
         ? `${workspaceAiSignal.detail} Availability check failed: ${state.message}`
         : workspaceAiSignal.detail;
 
+  const probeModelLabel = state.status === "loaded" ? resolveProbeModelLabel(state.result.debug) : null;
+
+  const liveProbeFailure =
+    state.status === "loaded"
+      ? state.result.checks.find(
+          (row) =>
+            row.status === "failed" &&
+            (row.name === "azure_openai_live_completion_probe" || row.name === "customer_connection_live_probe"),
+        )
+      : null;
+
   return (
     <div
       className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
@@ -59,9 +93,28 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-workspace-ai-detail">
             {detail}
           </p>
-          {state.status === "idle" || state.status === "loading" ? (
+          {state.status === "idle" ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Running live AI availability probes — outage claims appear only after validation completes.
+              Press Check AI availability to run a live probe against your configured model. Outage claims appear only after you validate.
+            </p>
+          ) : null}
+          {state.status === "loading" ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Running a live completion probe (typically a few seconds). You can press the button again to retry.
+            </p>
+          ) : null}
+          {probeModelLabel !== null ? (
+            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-workspace-ai-model">
+              {probeModelLabel}
+            </p>
+          ) : null}
+          {liveProbeFailure !== null && liveProbeFailure !== undefined ? (
+            <p
+              className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="review-package-workspace-ai-vendor-error"
+              role="alert"
+            >
+              Vendor response: {liveProbeFailure.detail}
             </p>
           ) : null}
         </div>
@@ -71,7 +124,6 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
           variant="outline"
           size="sm"
           className="shrink-0"
-          disabled={state.status === "loading"}
           onClick={() => void checkAvailability({ force: true })}
           data-testid="review-package-check-ai-availability-button"
         >
