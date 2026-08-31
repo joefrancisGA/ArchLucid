@@ -5,6 +5,8 @@ export const OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE = 5;
 
 export type OperatorHomeRunsDashboardModel = {
   readonly projectId: string;
+  /** Serialized tenant:workspace:project at SSR time; used to invalidate client skip-fetch after scope switch. */
+  readonly scopeQueryKeySnapshot?: string;
   readonly page: number;
   readonly pageSize: number;
   readonly items: RunSummary[];

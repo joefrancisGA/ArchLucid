@@ -93,6 +93,7 @@ export async function loadOperatorHomeRunsDashboardModel(): Promise<OperatorHome
 
   return {
     projectId,
+    scopeQueryKeySnapshot: `${scopeHeaders["x-tenant-id"] ?? ""}:${scopeHeaders["x-workspace-id"] ?? ""}:${scopeHeaders["x-project-id"] ?? ""}`,
     page,
     pageSize,
     items,
