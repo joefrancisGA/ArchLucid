@@ -17,6 +17,7 @@ import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageAct
 import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
 import { useReviewDetailLastVisited } from "@/hooks/use-review-detail-last-visited";
+import { useIncrementalReviewFindingsRefresh } from "@/hooks/use-incremental-review-findings-refresh";
 import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import {
   REVIEW_DETAIL_DEFAULT_TAB,
@@ -140,6 +141,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     return {
       stage: "committed" as const,
       visibleTabIds: Object.keys(REVIEW_DETAIL_TAB_LABELS) as ReviewDetailTabId[],
+      moreTabIds: [] as ReviewDetailTabId[],
       defaultTabId: REVIEW_DETAIL_DEFAULT_TAB,
     };
   }, [lifecycle, props.tabLifecycle]);
@@ -237,6 +239,14 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
 
   const counts = props.tabCounts ?? {};
   const inPipelineBanner = props.inPipelineBanner ?? null;
+  const pipelineInFlight =
+    props.tabLifecycle?.showProgressTracker === true && props.tabLifecycle.runCompleted !== true;
+
+  useIncrementalReviewFindingsRefresh({
+    runId: props.runId,
+    initialHasFindingsSnapshot: props.tabLifecycle?.runCompleted === true,
+    enabled: pipelineInFlight,
+  });
 
   return (
     <ReviewDetailWorkspaceTabContext.Provider value={{ navigateTab }}>

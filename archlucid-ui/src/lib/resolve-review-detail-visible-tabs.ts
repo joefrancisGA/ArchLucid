@@ -4,6 +4,7 @@ import {
   isReviewDetailTabId,
   type ReviewDetailTabId,
 } from "@/lib/review-detail-workspace-tabs";
+import { splitReviewWorkspaceTabsByStage } from "@/lib/usability/usability-consolidation";
 
 /**
  * Coarse package-detail lifecycle for tab density (TB-2189).
@@ -23,8 +24,10 @@ export type ResolveReviewDetailVisibleTabsInput = {
 
 export type ReviewDetailVisibleTabs = {
   readonly stage: ReviewDetailTabLifecycleStage;
-  /** All workspace tabs shown in the primary tab strip. */
+  /** Primary job tabs shown in the tab strip. */
   readonly visibleTabIds: readonly ReviewDetailTabId[];
+  /** Secondary tabs behind the More sections menu. */
+  readonly moreTabIds: readonly ReviewDetailTabId[];
   readonly defaultTabId: ReviewDetailTabId;
 };
 
@@ -52,8 +55,12 @@ export function resolveReviewDetailTabLifecycleStage(
   return "draft";
 }
 
-function visibleTabsForStage(_stage: ReviewDetailTabLifecycleStage): readonly ReviewDetailTabId[] {
-  return ALL_TABS;
+function visibleTabsForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailVisibleTabs["visibleTabIds"] {
+  return splitReviewWorkspaceTabsByStage(stage, ALL_TABS).primaryTabIds;
+}
+
+function moreTabsForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailVisibleTabs["moreTabIds"] {
+  return splitReviewWorkspaceTabsByStage(stage, ALL_TABS).moreTabIds;
 }
 
 function defaultTabForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailTabId {
@@ -81,25 +88,33 @@ export function resolveReviewDetailVisibleTabs(
 ): ReviewDetailVisibleTabs {
   const stage = resolveReviewDetailTabLifecycleStage(input);
   const visibleTabIds = visibleTabsForStage(stage);
+  const moreTabIds = moreTabsForStage(stage);
   const defaultTabId = defaultTabForStage(stage);
 
   return {
     stage,
     visibleTabIds,
+    moreTabIds,
     defaultTabId,
   };
 }
 
 /** Keep deep-linked tabs; otherwise fall back to the stage default. */
+function allResolvedTabIds(resolved: ReviewDetailVisibleTabs): readonly ReviewDetailTabId[] {
+  return [...resolved.visibleTabIds, ...resolved.moreTabIds];
+}
+
 export function coerceReviewDetailTabToVisible(
   tabId: ReviewDetailTabId,
   resolved: ReviewDetailVisibleTabs,
 ): ReviewDetailTabId {
-  if (resolved.visibleTabIds.includes(tabId)) {
+  const reachableTabs = allResolvedTabIds(resolved);
+
+  if (reachableTabs.includes(tabId)) {
     return tabId;
   }
 
-  if (resolved.visibleTabIds.includes(resolved.defaultTabId)) {
+  if (reachableTabs.includes(resolved.defaultTabId)) {
     return resolved.defaultTabId;
   }
 

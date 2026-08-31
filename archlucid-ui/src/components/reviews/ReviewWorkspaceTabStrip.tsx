@@ -2,6 +2,7 @@
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
+import { ReviewWorkspaceMoreTabsMenu } from "@/components/reviews/ReviewWorkspaceMoreTabsMenu";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveReviewWorkspaceTabLabel } from "@/lib/resolve-review-workspace-tab-label";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
@@ -106,7 +107,7 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
           data-testid={REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID}
           className={cn(
             tabsVariant === "line" ? "overflow-y-hidden" : undefined,
-            "-mx-1 overflow-x-auto px-1",
+            "-mx-1 flex w-max min-w-full items-center gap-1 overflow-x-auto px-1",
           )}
         >
           {props.resolvedTabs.visibleTabIds.map((tabId) => {
@@ -154,6 +155,12 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
               </TabsTrigger>
             );
           })}
+          <ReviewWorkspaceMoreTabsMenu
+            lifecycle={props.lifecycle}
+            moreTabIds={props.resolvedTabs.moreTabIds}
+            activeTab={props.activeTab}
+            onTabChange={props.onTabChange}
+          />
         </TabsList>
       </Tabs>
     </div>

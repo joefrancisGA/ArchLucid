@@ -36,12 +36,6 @@ export const SHORTCUTS: ShortcutEntry[] = [
     description: "Compare two reviews",
   },
   {
-    key: "alt+p",
-    label: "Validate",
-    route: "/internal/validate-route",
-    description: "Validate review",
-  },
-  {
     key: "alt+a",
     label: "Ask review questions",
     route: "/insights/ask-review-questions",

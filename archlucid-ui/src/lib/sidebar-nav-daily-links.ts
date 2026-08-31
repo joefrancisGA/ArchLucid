@@ -37,10 +37,11 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     EVIDENCE_GRAPH_PATH,
     ASK_REVIEW_QUESTIONS_PATH,
     SEARCH_REVIEW_EVIDENCE_PATH,
+    "/insights/sponsor-report",
     COMPARE_TWO_REVIEWS_PATH,
-    ARCHITECTURE_SCORECARD_PATH,
   ],
   "operate-governance": [
+    "/governance/needs-attention",
     "/governance/approval-queue",
     "/governance/setup",
     "/governance/findings",

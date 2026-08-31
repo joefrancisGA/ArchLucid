@@ -5,6 +5,9 @@ import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 /** Approval queue (left-nav). Bare `/governance` is not a page and is not redirected. */
 export const GOVERNANCE_APPROVAL_QUEUE_PATH = "/governance/approval-queue" as const;
 
+/** Unified needs-attention inbox aggregating governance queues. */
+export const GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH = "/governance/needs-attention" as const;
+
 /** Workspace health KPIs (Insights). Legacy `/governance/dashboard` redirects here. */
 export const GOVERNANCE_WORKSPACE_HEALTH_HREF = WORKSPACE_HEALTH_PATH;
 

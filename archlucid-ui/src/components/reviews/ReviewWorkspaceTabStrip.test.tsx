@@ -6,7 +6,7 @@ import { resolveReviewDetailVisibleTabs } from "@/lib/resolve-review-detail-visi
 import { REVIEW_DETAIL_TAB_LABELS, type ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 describe("ReviewWorkspaceTabStrip", () => {
-  it("renders all eight tabs in the primary strip without a More sections affordance", () => {
+  it("renders primary tabs and a More sections affordance for secondary tabs", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: "manifest-1",
       showProgressTracker: false,
@@ -28,8 +28,9 @@ describe("ReviewWorkspaceTabStrip", () => {
       expect(screen.getByRole("tab", { name: new RegExp(REVIEW_DETAIL_TAB_LABELS[tabId], "i") })).toBeInTheDocument();
     }
 
-    expect(screen.queryByText("More sections")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("review-detail-workspace-more-tabs")).not.toBeInTheDocument();
+    expect(screen.getByText("More sections")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-workspace-more-tabs")).toBeInTheDocument();
+    expect(screen.queryByTestId(`review-detail-workspace-tab-${resolved.moreTabIds[0]}`)).not.toBeInTheDocument();
   });
 
   it("switches tabs through the primary strip", () => {
@@ -53,5 +54,29 @@ describe("ReviewWorkspaceTabStrip", () => {
     fireEvent.click(architectureTab);
 
     expect(onTabChange).toHaveBeenCalledWith("architecture" satisfies ReviewDetailTabId);
+  });
+
+  it("switches tabs from the More sections menu", () => {
+    const resolved = resolveReviewDetailVisibleTabs({
+      manifestId: null,
+      showProgressTracker: false,
+      runCompleted: false,
+    });
+    const onTabChange = vi.fn();
+    const moreTab = resolved.moreTabIds[0];
+
+    render(
+      <ReviewWorkspaceTabStrip
+        lifecycle="finalized"
+        activeTab="overview"
+        resolvedTabs={resolved}
+        onTabChange={onTabChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("review-detail-workspace-more-tabs"));
+    fireEvent.click(screen.getByTestId(`review-detail-workspace-more-tab-${moreTab}`));
+
+    expect(onTabChange).toHaveBeenCalledWith(moreTab);
   });
 });

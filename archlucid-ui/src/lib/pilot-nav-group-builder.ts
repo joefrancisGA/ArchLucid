@@ -1,7 +1,6 @@
 import {
   Compass,
   Home,
-  Layers,
   LayoutDashboard,
   ListOrdered,
   Newspaper,
@@ -9,13 +8,17 @@ import {
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer/buyer-polish-copy";
-import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_NAV_HREF } from "@/lib/architecture/architecture-routes";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
-import { resolveArchitecturesListNavTitle } from "@/lib/operator/operator-nav-labels";
+import {
+  FIRST_RUN_GUIDE_NAV_LABEL,
+  FIRST_RUN_GUIDE_NAV_PATH,
+  PACKAGES_NAV_HREF,
+  PACKAGES_NAV_LABEL,
+} from "@/lib/usability/usability-consolidation";
 
 const PORTFOLIO_OVERVIEW_NAV_TITLE = "Track ROI, risks, and approval status";
 
@@ -27,7 +30,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Home → Architectures → Reviews → Sponsor dashboard; then First review guide and approval follow-up.",
+        "Buyer-first path: Home → Packages → Sponsor dashboard; then Getting started and approval follow-up.",
       links: [
         {
           href: "/",
@@ -38,17 +41,10 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           tier: "essential",
         },
         {
-          href: ARCHITECTURES_LIST_PATH,
-          label: OPERATOR_NAV_LINK_LABELS.architectures,
-          title: resolveArchitecturesListNavTitle(),
-          icon: Layers,
-          tier: "essential",
-        },
-        {
           // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
-          href: REVIEWS_LIST_NAV_HREF as typeof REVIEWS_LIST_NAV_HREF & "/architecture/reviews",
-          label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
-          title: this.shortcutTitle("Browse architecture reviews", "alt+r"),
+          href: PACKAGES_NAV_HREF as typeof PACKAGES_NAV_HREF & "/architecture/reviews",
+          label: PACKAGES_NAV_LABEL,
+          title: this.shortcutTitle("Browse architecture packages and drafts", "alt+r"),
           keyShortcut: "alt+r",
           icon: ListOrdered,
           tier: "essential",
@@ -62,8 +58,8 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           tier: "essential",
         },
         {
-          href: FIRST_REVIEW_GUIDE_PATH as typeof FIRST_REVIEW_GUIDE_PATH & "/architecture/first-review-guide",
-          label: OPERATOR_NAV_LINK_LABELS.onboarding,
+          href: FIRST_RUN_GUIDE_NAV_PATH as typeof FIRST_REVIEW_GUIDE_PATH & "/architecture/first-review-guide",
+          label: FIRST_RUN_GUIDE_NAV_LABEL,
           title: BUYER_ONBOARDING_NAV_TOOLTIP,
           // Catalog tier is essential; demoted to extended and moved last after first commit in nav-committed-architecture-review-promotion.ts (TB-524).
           tier: "essential",
