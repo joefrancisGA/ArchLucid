@@ -165,12 +165,7 @@ export function RunDetailOutcomeCards({
       ) : null}
       {!hidePromotedStatus ? (
       <p
-        className={cn(
-          "m-0 rounded-md border border-neutral-200 bg-al-surface-raised font-medium leading-snug dark:border-neutral-800",
-          OPERATOR_CARD.nested,
-          OPERATOR_TYPOGRAPHY.body,
-        )}
-        role="status"
+        className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="buyer-review-disposition-line"
       >
         {buildBuyerReviewPackageDispositionLine({

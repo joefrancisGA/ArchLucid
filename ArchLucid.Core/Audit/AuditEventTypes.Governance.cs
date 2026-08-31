@@ -40,6 +40,9 @@ public static partial class AuditEventTypes
 
     public const string GovernanceApprovalRejected = "GovernanceApprovalRejected";
 
+    /// <summary>Administrator replaced the governance environment catalog for the current scope.</summary>
+    public const string GovernanceEnvironmentCatalogReplaced = "GovernanceEnvironmentCatalogReplaced";
+
     /// <summary>
     ///     Durable audit when a reviewer is blocked from approving or rejecting their own governance request (segregation
     ///     of duties).

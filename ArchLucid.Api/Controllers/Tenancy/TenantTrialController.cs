@@ -32,6 +32,7 @@ public sealed class TenantTrialController(
     IAuditService auditService,
     IBillingTrialConversionGate billingTrialConversionGate,
     ITrialIdentityUserRepository trialIdentityUsers,
+    ISelfServiceTrialAbuseRepository trialAbuseRepository,
     IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleSchedulerOptions) : ControllerBase
 {
     private readonly IAuditService
@@ -48,6 +49,9 @@ public sealed class TenantTrialController(
 
     private readonly ITrialIdentityUserRepository _trialIdentityUsers =
         trialIdentityUsers ?? throw new ArgumentNullException(nameof(trialIdentityUsers));
+
+    private readonly ISelfServiceTrialAbuseRepository _trialAbuseRepository =
+        trialAbuseRepository ?? throw new ArgumentNullException(nameof(trialAbuseRepository));
 
     private readonly IOptionsMonitor<TrialLifecycleSchedulerOptions> _trialLifecycleSchedulerOptions =
         trialLifecycleSchedulerOptions ?? throw new ArgumentNullException(nameof(trialLifecycleSchedulerOptions));
@@ -156,6 +160,16 @@ public sealed class TenantTrialController(
 
             if (localRow is null)
                 return this.BadRequestProblem("No local trial identity exists for that email.",
+                    ProblemTypes.ValidationFailed);
+
+            bool emailClaimedForTenant = await _trialAbuseRepository.HasEmailClaimForTenantAsync(
+                normalizedLocal,
+                scope.TenantId,
+                cancellationToken).ConfigureAwait(false);
+
+            if (!emailClaimedForTenant)
+                return this.BadRequestProblem(
+                    "No local trial identity exists for that email.",
                     ProblemTypes.ValidationFailed);
 
             string requestedOid = body.EntraOid!.Trim();

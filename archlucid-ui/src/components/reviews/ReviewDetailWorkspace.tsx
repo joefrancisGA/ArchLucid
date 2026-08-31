@@ -140,7 +140,6 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     return {
       stage: "committed" as const,
       visibleTabIds: Object.keys(REVIEW_DETAIL_TAB_LABELS) as ReviewDetailTabId[],
-      advancedCollapsedTabIds: [] as ReviewDetailTabId[],
       defaultTabId: REVIEW_DETAIL_DEFAULT_TAB,
     };
   }, [lifecycle, props.tabLifecycle]);

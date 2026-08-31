@@ -1,0 +1,110 @@
+import type { CreateArchitectureRunDocumentPayload } from "@/lib/api/architecture-runs-mutate";
+import {
+  isBinaryArchitectureDocumentFileName,
+  isReadableEvidenceTextFileName,
+  peekBinaryArchitectureDocumentText,
+} from "@/lib/evidence-readable-text";
+import { extractEvidenceDocumentText } from "@/lib/extract-evidence-document-text";
+
+/** Mirrors API `ContextDocumentRequest` content max (500_000). Extraction already caps PDF/DOCX at 100_000. */
+const INTAKE_CONTEXT_DOCUMENT_MAX_CHARS = 500_000;
+
+const INTAKE_CONTEXT_DOCUMENT_NAME_MAX_CHARS = 500;
+
+/**
+ * Turns intake attachments into inline context documents the authority pipeline can parse.
+ *
+ * Context ingestion only accepts text/plain and text/markdown. PDF/DOCX bytes are not parseable
+ * there, so this sends the extracted text under the original file name.
+ */
+export async function buildIntakeContextDocumentsFromEvidenceFiles(
+  files: readonly File[],
+): Promise<CreateArchitectureRunDocumentPayload[]> {
+  const documents = await Promise.all(files.map((file) => toIntakeContextDocument(file)));
+
+  return documents.filter(
+    (document): document is CreateArchitectureRunDocumentPayload => document !== null,
+  );
+}
+
+async function toIntakeContextDocument(file: File): Promise<CreateArchitectureRunDocumentPayload | null> {
+  const trimmedName = file.name.trim();
+  const name = trimmedName.slice(0, INTAKE_CONTEXT_DOCUMENT_NAME_MAX_CHARS);
+
+  if (name.length === 0) {
+    return null;
+  }
+
+  if (isReadableEvidenceTextFileName(trimmedName)) {
+    return readReadableTextDocument(name, trimmedName, file);
+  }
+
+  if (isBinaryArchitectureDocumentFileName(trimmedName)) {
+    return readExtractedBinaryDocument(name, file);
+  }
+
+  return null;
+}
+
+async function readReadableTextDocument(
+  name: string,
+  trimmedName: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  try {
+    const text = (await file.text()).trim();
+
+    if (text.length === 0) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: trimmedName.toLowerCase().endsWith(".md") ? "text/markdown" : "text/plain",
+      content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function readExtractedBinaryDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  const cached = peekBinaryArchitectureDocumentText(file);
+
+  if (cached !== undefined) {
+    const cachedText = cached?.trim() ?? "";
+
+    if (cachedText.length > 0) {
+      return {
+        name,
+        contentType: "text/plain",
+        content: cachedText.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+      };
+    }
+  }
+
+  try {
+    const result = await extractEvidenceDocumentText(file);
+
+    if (!result.ok) {
+      return null;
+    }
+
+    const text = result.text.trim();
+
+    if (text.length === 0) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: "text/plain",
+      content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}

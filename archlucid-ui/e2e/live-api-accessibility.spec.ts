@@ -59,7 +59,7 @@ const PAGES = [
   { name: "Alert rules test-alerts tab", path: "/governance/alert-rules?tab=test-alerts" },
   { name: "Alert rules advanced-rules tab", path: "/governance/alert-rules?tab=advanced-rules" },
   { name: "Sponsor dashboard", path: "/architecture/sponsor-dashboard" },
-  { name: "Sponsor dashboard workspace health", path: "/architecture/sponsor-dashboard#workspace-health" },
+  { name: "Workspace health", path: "/insights/workspace-health" },
   { name: "Approval queue", path: "/governance/approval-queue" },
   { name: "Standards & rules", path: "/governance/standards-and-rules" },
   { name: "Findings queue", path: "/governance/findings" },

@@ -171,6 +171,9 @@ public sealed class ClarificationAnswerRephraseService(
         {
             string trimmed = item.ExtractedAnswer.Trim();
 
+            if (InferredClarificationAnswerQuality.IsInternalRephrasePayload(trimmed))
+                continue;
+
             if (trimmed.Length > 0
                 && InferredClarificationAnswerQuality.IsReadableInferredClarificationAnswer(trimmed))
             {

@@ -81,7 +81,7 @@ export const BUYER_SCOPE_LIST_UNAVAILABLE =
   "Workspace directory is unavailable in this environment. The sample workspace remains active for this session.";
 
 export const BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE =
-  "Resolve outcomes workflow is not configured in this demo workspace.";
+  "Governance approval workflow is not configured in this demo workspace.";
 
 export const BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE =
   "ITSM integration is not connected in this demo workspace.";
@@ -94,6 +94,11 @@ export const BUYER_SEED_SAMPLE_WORKSPACE_CTA = "Load sample workspace";
 
 /** Toast after demo seed succeeds — dashboard may stay on sponsor dashboard while caches refresh. */
 export const BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS = "Sample workspace loaded.";
+
+export const BUYER_UNLOAD_SAMPLE_WORKSPACE_CTA = "Unload sample dashboard";
+
+/** Toast after demo sample purge succeeds — sponsor dashboard returns to the empty state. */
+export const BUYER_UNLOAD_SAMPLE_WORKSPACE_SUCCESS = "Sample dashboard removed.";
 
 export const BUYER_TRY_SAMPLE_REVIEW_CTA = "Try sample review";
 

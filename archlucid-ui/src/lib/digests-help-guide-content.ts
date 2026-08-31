@@ -36,7 +36,7 @@ export const DIGESTS_HELP_CONTENT_ITEMS: readonly DigestsHelpContentItem[] = [
   },
   {
     label: "Approval signals",
-    sourceSurface: "Resolve outcomes queue",
+    sourceSurface: "Approval queue",
     href: "/governance/approval-queue",
   },
   {

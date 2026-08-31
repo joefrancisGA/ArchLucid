@@ -191,6 +191,50 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task DryRunPolicyPack_returns_bad_request_when_proposed_thresholds_is_null()
+    {
+        Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+
+        PolicyPackDryRunRequest request = new()
+        {
+            ProposedThresholds = null!,
+            EvaluateAgainstRunIds = [Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D")],
+        };
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            request,
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_ids_is_null()
+    {
+        Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            new PolicyPackDryRunRequest { EvaluateAgainstRunIds = null! },
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task DryRunPolicyPack_returns_bad_request_when_all_evaluate_against_run_ids_are_whitespace()
     {
         Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
@@ -276,6 +320,41 @@ public sealed class GovernanceControllerSimulateTests
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DryRunPolicyPack_delegates_page_size_to_service_for_documented_server_side_clamp()
+    {
+        Guid policyPackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        string runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D");
+
+        Mock<IPolicyPackDryRunService> dryRun = new();
+        dryRun
+            .Setup(s => s.EvaluateAsync(
+                policyPackId,
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                It.IsAny<IReadOnlyList<string>>(),
+                500,
+                1,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackDryRunResponse
+            {
+                PolicyPackId = policyPackId,
+                PageSize = IPolicyPackDryRunService.MaxPageSize,
+                Page = 1,
+            });
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            policyPackId,
+            new PolicyPackDryRunRequest { EvaluateAgainstRunIds = [runId] },
+            pageSize: 500,
+            page: 1,
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        dryRun.VerifyAll();
     }
 
     [Fact]

@@ -32,6 +32,10 @@ import type {
   PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
+import type {
+  GovernanceEnvironmentCatalog,
+  ReplaceGovernanceEnvironmentCatalogRequest,
+} from "@/types/governance-environment-catalog";
 import { apiGet, apiPostJson, apiPutJson, apiPutNoContent, type ApiGetOptions } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
@@ -268,6 +272,18 @@ export async function listActivations(runId: string): Promise<GovernanceEnvironm
   return apiGet<GovernanceEnvironmentActivation[]>(
     `${governanceBase()}/runs/${encodeURIComponent(runId)}/activations`,
   );
+}
+
+/** Returns the administrator-defined governance environment catalog for the current scope. */
+export async function fetchGovernanceEnvironmentCatalog(): Promise<GovernanceEnvironmentCatalog> {
+  return apiGet<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`);
+}
+
+/** Replaces the governance environment catalog and allowed transitions for the current scope. */
+export async function replaceGovernanceEnvironmentCatalog(
+  body: ReplaceGovernanceEnvironmentCatalogRequest,
+): Promise<GovernanceEnvironmentCatalog> {
+  return apiPutJson<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`, body);
 }
 
 /** Creates a new policy pack with an initial content document. */

@@ -4,19 +4,22 @@ import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } f
 
 import {
   GOVERNANCE_DASHBOARD_TRAFFIC_PATH,
-  GOVERNANCE_DASHBOARD_TRAFFIC_ROW_ID,
+  GOVERNANCE_DASHBOARD_RETIRED_TRAFFIC_ROW_ID,
 } from "@/lib/ui-route-traffic-governance-dashboard";
 import { ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_ROW_ID } from "@/lib/ui-route-traffic-architecture-sponsor-dashboard";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
-describe("ui-route-traffic-governance-dashboard (GDX removed)", () => {
-  it("does not track retired GDX shim; workspace health stays on ARE", () => {
+describe("ui-route-traffic-governance-dashboard", () => {
+  it("tracks the legacy governance dashboard bookmark without reviving the retired GDX row id", () => {
     const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
-    const gdxRow = rows.find((row) => row.id === GOVERNANCE_DASHBOARD_TRAFFIC_ROW_ID);
+    const gdxRow = rows.find((row) => row.id === GOVERNANCE_DASHBOARD_RETIRED_TRAFFIC_ROW_ID);
     const areRow = rows.find((row) => row.id === ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_ROW_ID);
     const retiredPathRow = rows.find((row) => row.path === GOVERNANCE_DASHBOARD_TRAFFIC_PATH);
+    const workspaceHealthRow = rows.find((row) => row.path === WORKSPACE_HEALTH_PATH);
 
     expect(gdxRow).toBeUndefined();
-    expect(retiredPathRow).toBeUndefined();
+    expect(retiredPathRow).toBeDefined();
+    expect(workspaceHealthRow).toBeDefined();
     expect(areRow).toBeDefined();
   });
 });

@@ -1,4 +1,5 @@
 import { invalidateCorePilotCommitContextCache } from "@/lib/core-pilot-commit-context";
+import { invalidateSponsorDashboardBundleCache } from "@/lib/fetch-sponsor-dashboard-bundle-client";
 import { invalidateSponsorRoiSummaryCache } from "@/lib/fetch-sponsor-roi-summary-client";
 import {
   markOperatorHomeRunsSnapshotStale,
@@ -19,7 +20,7 @@ export async function invalidateOperatorHomeRunsCaches(): Promise<void> {
   ]);
 }
 
-/** Invalidates sponsor ROI summary after governance disposition or portfolio changes (TB-562). */
+/** Invalidates sponsor ROI summary and dashboard bundle after portfolio or demo seed changes (TB-562). */
 export async function invalidateOperatorSponsorRoiCaches(): Promise<void> {
-  await invalidateSponsorRoiSummaryCache();
+  await Promise.all([invalidateSponsorRoiSummaryCache(), invalidateSponsorDashboardBundleCache()]);
 }

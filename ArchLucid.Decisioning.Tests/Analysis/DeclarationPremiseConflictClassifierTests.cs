@@ -115,6 +115,23 @@ public sealed class DeclarationPremiseConflictClassifierTests
     }
 
     [Fact]
+    public void Classify_does_not_fire_private_network_conflict_for_negated_disable_public_phrase()
+    {
+        GraphNode topology = CreateTopology("docs", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.public_network_access"] = "enabled",
+        });
+
+        GraphNode baseline = CreateIntent("baseline-private", "Do not disable public access for this dev sandbox");
+
+        IReadOnlyList<DeclarationPremiseConflictSignal> signals = DeclarationPremiseConflictClassifier.Classify(
+            topology,
+            [new ApplicableIntentNode(baseline, true)]);
+
+        signals.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Classify_returns_empty_when_declaration_properties_missing()
     {
         GraphNode topology = CreateTopology("docs", new Dictionary<string, string>());

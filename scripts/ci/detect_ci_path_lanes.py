@@ -38,6 +38,9 @@ OPENAPI_PREFIXES: tuple[str, ...] = (
     "ArchLucid.AgentRuntime/",
     "ArchLucid.Capabilities.Cost/",
     "schemas/",
+    # Split UI OpenAPI types: keep OpenAPI/.NET lanes on when generated types
+    # change so assert_api_types_in_sync still runs in the corset.
+    "archlucid-ui/src/lib/api-types/",
 )
 
 OPENAPI_EXACT_FILES: frozenset[str] = frozenset(

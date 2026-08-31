@@ -16,7 +16,6 @@ import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureE
 import { useExtractUploadBaselineQuery, EXTRACTOR_SCRIPT_CDN_URL } from "@/hooks/use-extract-upload-baseline-query";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
-import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildAdvancedGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import {
@@ -28,7 +27,6 @@ import {
 import { buildArchLucidAzurePackageZipFromFileList, type FolderPackageFileStatus } from "@/lib/read-arch-lucid-azure-folder-package";
 import { readArchLucidAzurePackageZipFromBytes, readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { showError, showSuccess } from "@/lib/toast";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
@@ -48,8 +46,6 @@ import {
   EXTRACT_UPLOAD_STEP_COLLECT_TITLE,
   EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
-  EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE,
-  EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE,
   EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
@@ -205,12 +201,6 @@ export function ExtractUploadSettingsPageClient() {
           problem: apiError.problem,
           correlationId: apiError.correlationId ?? correlationId,
         });
-        const presentation = parseAzureExtractorUploadFailure(
-          apiError.problem,
-          apiError.message,
-          apiError.correlationId ?? correlationId,
-        );
-        showError(EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE, presentation.heading);
 
         return;
       }
@@ -221,8 +211,6 @@ export function ExtractUploadSettingsPageClient() {
       } catch {
         setPackageId(null);
       }
-
-      showSuccess(EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE);
     } finally {
       setBusy(false);
     }

@@ -1,15 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveReviewWorkspaceTabLabel } from "@/lib/resolve-review-workspace-tab-label";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
-import {
-  isReviewDetailTabAdvanced,
-  type ReviewDetailVisibleTabs,
-} from "@/lib/resolve-review-detail-visible-tabs";
+import type { ReviewDetailVisibleTabs } from "@/lib/resolve-review-detail-visible-tabs";
 import {
   resolveReviewDetailTab,
   type ReviewDetailTabId,
@@ -159,52 +155,6 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
             );
           })}
         </TabsList>
-
-        {props.resolvedTabs.advancedCollapsedTabIds.length > 0 ? (
-          <details
-            className="rounded-md border border-neutral-200 p-2 dark:border-neutral-800"
-            open={isReviewDetailTabAdvanced(props.activeTab, props.resolvedTabs) ? true : undefined}
-            data-testid="review-detail-workspace-more-tabs"
-          >
-            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.helper)}>
-              More sections
-            </summary>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {props.resolvedTabs.advancedCollapsedTabIds.map((tabId) => {
-                const count = countForTab(tabId, counts);
-
-                return (
-                  <Button
-                    key={tabId}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    data-testid={`review-detail-workspace-tab-${tabId}`}
-                    aria-current={props.activeTab === tabId ? "page" : undefined}
-                    onClick={() => props.onTabChange(tabId)}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      {resolveReviewWorkspaceTabLabel(props.lifecycle, tabId)}
-                      {props.isTabNewSinceLastVisit?.(tabId) === true ? (
-                        <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
-                      ) : null}
-                    </span>
-                    {count !== null ? (
-                      <span
-                        className={cn(
-                          "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
-                          OPERATOR_TYPOGRAPHY.helper,
-                        )}
-                      >
-                        {count}
-                      </span>
-                    ) : null}
-                  </Button>
-                );
-              })}
-            </div>
-          </details>
-        ) : null}
       </Tabs>
     </div>
   );
