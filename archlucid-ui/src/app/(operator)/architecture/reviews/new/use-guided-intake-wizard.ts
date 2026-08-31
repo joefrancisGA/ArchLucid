@@ -24,6 +24,7 @@ import {
   type GuidedIntakeSessionState,
 } from "./guided-intake-steps";
 import { useGuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
+import { useGuidedIntakeClarificationInference } from "./use-guided-intake-clarification-inference";
 import { useGuidedIntakeDraftWorkflow } from "./use-guided-intake-draft-workflow";
 import { useGuidedIntakePriorRunPrefill } from "./use-guided-intake-prior-run-prefill";
 
@@ -82,6 +83,18 @@ export function useGuidedIntakeWizard() {
     setStep,
     navigate,
     clearSession,
+  });
+
+  const clarificationInference = useGuidedIntakeClarificationInference({
+    step,
+    architectureOverview: form.briefTextForAdmission(),
+    systemName: form.systemName,
+    businessOutcome: form.businessOutcome,
+    structuredBrief: workflow.structuredBrief,
+    actorSet: form.actorSet,
+    answers: workflow.answers,
+    onAnswersChange: workflow.setAnswers,
+    blocksLlmRephrase: blocksLlmExecution,
   });
 
   useGuidedIntakePriorRunPrefill({
@@ -202,5 +215,6 @@ export function useGuidedIntakeWizard() {
     canSubmit,
     policyPackCloudMismatch,
     stepLabel,
+    clarificationInference,
   };
 }

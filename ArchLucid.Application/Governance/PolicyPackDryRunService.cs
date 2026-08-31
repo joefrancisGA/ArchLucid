@@ -59,19 +59,20 @@ public sealed class PolicyPackDryRunService(
     {
         ArgumentNullException.ThrowIfNull(proposedThresholds);
         ArgumentNullException.ThrowIfNull(evaluateAgainstRunIds);
-        if (proposedThresholds is null)
-            throw new ArgumentNullException(nameof(proposedThresholds));
-        if (evaluateAgainstRunIds is null)
-            throw new ArgumentNullException(nameof(evaluateAgainstRunIds));
 
         await EnsurePolicyPackInScopeAsync(policyPackId, cancellationToken);
 
         int clampedPageSize = ClampPageSize(pageSize);
-        List<string> cleanedRunIds = evaluateAgainstRunIds.Where(id => !string.IsNullOrWhiteSpace(id)).Select(id => id.Trim())
-            .Take(IPolicyPackDryRunService.MaxEvaluatedRuns).ToList();
+        List<string> cleanedRunIds = evaluateAgainstRunIds
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Select(id => id.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(IPolicyPackDryRunService.MaxEvaluatedRuns)
+            .ToList();
         Dictionary<string, double> parsedThresholds = ParseThresholds(proposedThresholds);
         string redactedThresholdsJson = RedactProposedThresholdsJson(proposedThresholds);
         List<PolicyPackDryRunRunItem> allItems = [];
+
         foreach (string runId in cleanedRunIds)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -117,6 +118,7 @@ public sealed class PolicyPackDryRunService(
         CancellationToken cancellationToken)
     {
         ArchitectureRunDetail? detail = await TryLoadRunDetailAsync(runId, cancellationToken);
+
         if (detail is null)
             return new PolicyPackDryRunRunItem { RunId = runId, RunMissing = true };
         PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
@@ -160,6 +162,7 @@ public sealed class PolicyPackDryRunService(
         PilotRunDeltas deltas)
     {
         List<PolicyPackDryRunThresholdOutcome> outcomes = [];
+
         foreach (string key in PolicyPackDryRunSupportedThresholdKeys.All)
         {
             if (!parsedThresholds.TryGetValue(key, out double proposed))
@@ -209,12 +212,15 @@ public sealed class PolicyPackDryRunService(
     internal static Dictionary<string, double> ParseThresholds(IReadOnlyDictionary<string, string> proposedThresholds)
     {
         Dictionary<string, double> parsed = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (KeyValuePair<string, string> entry in proposedThresholds)
         {
             if (string.IsNullOrWhiteSpace(entry.Key))
                 continue;
+
             if (string.IsNullOrWhiteSpace(entry.Value))
                 continue;
+
             if (!double.TryParse(entry.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
                 continue;
             parsed[entry.Key.Trim()] = value;

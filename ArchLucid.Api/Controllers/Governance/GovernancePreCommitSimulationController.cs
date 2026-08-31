@@ -69,7 +69,7 @@ public sealed class GovernancePreCommitSimulationController(
             return this.BadRequestProblem("Run ID is required.", ProblemTypes.ValidationFailed);
 
         if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
-            return this.BadRequestProblem($"Run ID '{runId}' is not valid.", ProblemTypes.BadRequest);
+            return this.BadRequestProblem($"Run ID '{runId.Trim()}' is not valid.", ProblemTypes.ValidationFailed);
 
         if (Guid.Parse(runIdNormalized) == Guid.Empty)
             return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);
@@ -115,8 +115,8 @@ public sealed class GovernancePreCommitSimulationController(
 
         if (!TryParseRunId(body.RunId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem(
-                $"Run ID '{body.RunId}' is not valid.",
-                ProblemTypes.BadRequest);
+                $"Run ID '{body.RunId.Trim()}' is not valid.",
+                ProblemTypes.ValidationFailed);
 
         if (Guid.Parse(runIdNormalized) == Guid.Empty)
             return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);

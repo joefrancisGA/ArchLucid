@@ -56,6 +56,7 @@ import {
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { ReviewInPipelineBanner } from "@/components/reviews/ReviewInPipelineBanner";
+import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import { composeRunDetailEvidenceTab } from "./RunDetailEvidenceTabComposition";
 import { composeRunDetailGovernanceTab } from "./RunDetailGovernanceTabComposition";
@@ -180,7 +181,11 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
   }
 
   const inPipelineBannerEl = m.showProgressTracker ? (
-    <ReviewInPipelineBanner runId={m.resolvedDetail.run.runId} initialSummary={m.progressForPipelineUi} />
+    <ReviewInPipelineBanner
+      runId={m.resolvedDetail.run.runId}
+      initialSummary={m.progressForPipelineUi}
+      diagnosticContext={reviewPipelineDiagnosticContextFromRunDetail(m.resolvedDetail.run)}
+    />
   ) : null;
 
   return (

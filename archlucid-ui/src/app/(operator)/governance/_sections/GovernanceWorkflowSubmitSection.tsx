@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
   enterpriseMutationControlDisabledTitle,
@@ -28,7 +29,7 @@ import {
   governanceWorkflowSubmitCardTitleReader,
   governanceWorkflowSubmitForApprovalButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
@@ -37,9 +38,15 @@ import {
 } from "@/lib/governance/governance-workflow-release-copy";
 import { GOVERNANCE_ENV_OPTIONS } from "./governance-workflow-helpers";
 import {
+  governanceAllowedTargetSlugs,
+  governanceEnvironmentOptionsFromCatalog,
+} from "@/lib/governance/governance-environment-catalog-helpers";
+import type { GovernanceEnvironmentCatalog } from "@/types/governance-environment-catalog";
+import {
   resolveGovernanceWorkflowSubmitEmphasizedStepId,
   resolveGovernanceWorkflowSubmitSteps,
 } from "@/lib/governance-workflow-submit-checklist";
+import { GOVERNANCE_APPROVAL_SUBMIT_LABEL } from "@/lib/vocabulary/governance-approval-vocabulary";
 
 export type GovernanceWorkflowSubmitSectionProps = {
   buyerPolishedShell: boolean;
@@ -61,6 +68,7 @@ export type GovernanceWorkflowSubmitSectionProps = {
   submitBusy: boolean;
   submitApprovalComplete?: boolean;
   onSubmitApproval: () => void | Promise<void>;
+  environmentCatalog?: GovernanceEnvironmentCatalog;
 };
 
 export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitSectionProps) {
@@ -83,6 +91,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
     submitBusy,
     submitApprovalComplete = false,
     onSubmitApproval,
+    environmentCatalog,
   } = props;
 
   if (buyerSuppressGovernanceSubmitChrome) {
@@ -119,6 +128,19 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
     requiredFieldsComplete,
     submitComplete: submitApprovalComplete,
   };
+
+  const environmentOptions = governanceEnvironmentOptionsFromCatalog(environmentCatalog);
+  const sourceOptions = environmentOptions.length > 0 ? environmentOptions : GOVERNANCE_ENV_OPTIONS;
+  const fallbackAllowedTargetSlugs =
+    submitSource.trim().length === 0
+      ? []
+      : sourceOptions.filter((option) => option.value !== submitSource).map((option) => option.value);
+  const allowedTargetSlugs =
+    environmentCatalog === undefined
+      ? fallbackAllowedTargetSlugs
+      : governanceAllowedTargetSlugs(environmentCatalog, submitSource);
+  const targetOptions = sourceOptions.filter((option) => allowedTargetSlugs.includes(option.value));
+  const resolvedTargetOptions = submitSource.trim().length === 0 ? [] : targetOptions;
   const submitSteps = resolveGovernanceWorkflowSubmitSteps(submitChecklistInput);
   const submitEmphasizedStepId = resolveGovernanceWorkflowSubmitEmphasizedStepId(submitChecklistInput);
 
@@ -204,7 +226,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                     <SelectValue placeholder="Source" />
                   </SelectTrigger>
                   <SelectContent>
-                    {GOVERNANCE_ENV_OPTIONS.map((o) => (
+                    {sourceOptions.map((o) => (
                       <SelectItem key={o.value} value={o.value}>
                         {o.label}
                       </SelectItem>
@@ -214,7 +236,11 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="gov-submit-target-env">Target environment</Label>
-                <Select value={submitTarget} onValueChange={setSubmitTarget} disabled={!canMutateWorkflow}>
+                <Select
+                  value={submitTarget}
+                  onValueChange={setSubmitTarget}
+                  disabled={!canMutateWorkflow || submitSource.trim().length === 0}
+                >
                   <SelectTrigger
                     id="gov-submit-target-env"
                     className="w-full"
@@ -223,7 +249,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                     <SelectValue placeholder="Target" />
                   </SelectTrigger>
                   <SelectContent>
-                    {GOVERNANCE_ENV_OPTIONS.map((o) => (
+                    {resolvedTargetOptions.map((o) => (
                       <SelectItem key={o.value} value={o.value}>
                         {o.label}
                       </SelectItem>
@@ -249,9 +275,10 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col items-stretch gap-3">
+          <CardFooter className="flex flex-col items-start gap-3">
             <Button
               type="button"
+              className={CTA_WIDTH.content}
               data-testid="governance-submit-approval-button"
               onClick={() => void onSubmitApproval()}
               disabled={
@@ -267,7 +294,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               {submitBusy
                 ? "Submitting…"
                 : canMutateWorkflow
-                  ? "Submit for resolve outcomes"
+                  ? GOVERNANCE_APPROVAL_SUBMIT_LABEL
                   : governanceWorkflowSubmitForApprovalButtonLabelReaderRank}
             </Button>
             {canMutateWorkflow ? (
@@ -275,7 +302,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="governance-submit-readiness"
               >
-                {submitReadinessMessage}
+                <InlineGuidanceText text={submitReadinessMessage} />
               </p>
             ) : null}
             {!canMutateWorkflow ? (
@@ -286,7 +313,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                   </>
                 ) : (
                   <>
-                    Submitting for resolve outcomes requires additional permissions on your account. You can still review
+                    Submitting for governance approval requires additional permissions on your account. You can still review
                     approvals below — contact your administrator to enable governance submissions for your workspace.
                   </>
                 )}

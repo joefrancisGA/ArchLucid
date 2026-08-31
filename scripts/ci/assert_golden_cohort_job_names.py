@@ -12,17 +12,15 @@ PR_SKIP_MARKER = "github.event_name != 'pull_request'"
 
 # Heavy nightly/eval jobs must not consume the PR hot path.
 PR_SKIP_JOBS: tuple[str, ...] = (
+    "cohort-contract",
     "cohort-faithfulness-phase-b-warn",
     "cohort-rag-live-model-faithfulness",
     "cohort-simulator-drift",
     "cohort-real-mode-eval-corpus",
 )
 
-# Required merge path: contract feeds the gate; the gate is a live required check.
-PR_KEEP_JOBS: tuple[str, ...] = (
-    "cohort-contract",
-    "cohort-real-llm-gate",
-)
+# Required merge path: only the gate is a live required check (~20s on PRs).
+PR_KEEP_JOBS: tuple[str, ...] = ("cohort-real-llm-gate",)
 
 _JOB_HEADER = re.compile(r"^  ([a-z0-9-]+):\s*$")
 _JOB_LEVEL_IF = re.compile(r"^    if:")

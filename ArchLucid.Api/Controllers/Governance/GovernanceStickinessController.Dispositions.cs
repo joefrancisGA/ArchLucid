@@ -105,11 +105,35 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.FindingIds.Any(static id => string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "Each FindingId must be a non-empty string.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (request.FindingIds.Count > 50)
         {
             return this.BadRequestProblem(
                 "At most 50 finding ids are allowed per request.",
                 ProblemTypes.ValidationFailed);
+        }
+
+        HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string findingId in request.FindingIds)
+        {
+            if (string.IsNullOrWhiteSpace(findingId))
+                continue;
+
+            string normalizedFindingId = findingId.Trim();
+
+            if (!seenFindingIds.Add(normalizedFindingId))
+            {
+                return this.BadRequestProblem(
+                    $"FindingIds contains a duplicate id: '{normalizedFindingId}'.",
+                    ProblemTypes.ValidationFailed);
+            }
         }
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);

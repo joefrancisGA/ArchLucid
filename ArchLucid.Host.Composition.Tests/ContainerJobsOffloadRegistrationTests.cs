@@ -1,3 +1,5 @@
+using ArchLucid.Application.Planning.AdvisoryDraft;
+using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -397,6 +399,61 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
         hasProcessor.Should().BeFalse(
             "Api-only hosts enqueue durable jobs; Worker or Combined must process them");
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Api_role_registers_in_memory_async_operation_processors()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasAdvisoryDraftProcessor = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AdvisoryDraftOperationHostedService));
+
+        bool hasRunAsyncProcessor = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ArchitectureRunAsyncOperationHostedService));
+
+        hasAdvisoryDraftProcessor.Should().BeTrue(
+            "AdvisoryDraftOperationQueue is an in-process channel; the HTTP host that enqueues must drain its own queue");
+        hasRunAsyncProcessor.Should().BeTrue(
+            "ArchitectureRunAsyncOperationQueue is an in-process channel; async create/execute admits on Api must be processed locally");
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Api_durable_registers_stuck_running_watchdog_without_queue_processor()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+        data["BackgroundJobs:Mode"] = "Durable";
+        data["BackgroundJobs:QueueName"] = "background-jobs";
+        data["ArtifactLargePayload:AzureBlobServiceUri"] = "https://account.blob.core.windows.net/";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasWatchdog = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(BackgroundJobStuckRunningWatchdogHostedService));
+
+        bool hasProcessor = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(BackgroundJobQueueProcessorHostedService));
+
+        hasWatchdog.Should().BeTrue(
+            "Api durable hosts enqueue jobs and the watchdog reclaims stale Running rows via SQL + queue notify for Worker drain");
+        hasProcessor.Should().BeFalse(
+            "Api-only hosts must not drain the durable queue locally");
     }
 
     private static Dictionary<string, string?> CreateWorkerCompositionDictionary()

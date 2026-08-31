@@ -1332,6 +1332,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Governance/GovernanceEnvironmentCatalogController.cs",
+      "class_name": "GovernanceEnvironmentCatalogController",
+      "route_template": "v{version:apiVersion}/governance/environment-catalog",
+      "normalized_prefix": "/v1/governance/environment-catalog",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Governance/GovernancePostureController.cs",
       "class_name": "GovernancePostureController",
       "route_template": "v{version:apiVersion}/governance",
