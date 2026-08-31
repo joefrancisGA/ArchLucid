@@ -49,8 +49,6 @@ public sealed class GovernanceCoverageControllerScopeTests
 
     private static Mock<ITenantRepository> CreateTenantRepositoryWithForeignWorkspace()
     {
-        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-
         Mock<ITenantRepository> tenants = new();
         tenants
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
