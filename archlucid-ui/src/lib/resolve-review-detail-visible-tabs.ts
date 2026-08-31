@@ -55,14 +55,6 @@ export function resolveReviewDetailTabLifecycleStage(
   return "draft";
 }
 
-function visibleTabsForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailVisibleTabs["visibleTabIds"] {
-  return splitReviewWorkspaceTabsByStage(stage, ALL_TABS).primaryTabIds;
-}
-
-function moreTabsForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailVisibleTabs["moreTabIds"] {
-  return splitReviewWorkspaceTabsByStage(stage, ALL_TABS).moreTabIds;
-}
-
 function defaultTabForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailTabId {
   switch (stage) {
     case "draft":

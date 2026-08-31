@@ -185,7 +185,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         onFocus={() => setOpen(true)}
         role="combobox"
         aria-autocomplete="list"
-        aria-haspopup="listbox"
+        aria-haspopup={resultsPanelOpen ? "listbox" : quickActionsPanelOpen ? "true" : undefined}
         aria-expanded={resultsPanelOpen || quickActionsPanelOpen}
         aria-controls={resultsPanelOpen || quickActionsPanelOpen ? `${inputId}-results` : undefined}
         aria-label={GLOBAL_SEARCH_ARIA_LABEL}
@@ -198,7 +198,8 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
       {quickActionsPanelOpen ? (
         <div
           id={`${inputId}-results`}
-          role="listbox"
+          role="group"
+          aria-label="Quick actions"
           className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-md border border-neutral-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-950"
           data-testid="global-search-quick-actions"
         >
@@ -210,7 +211,6 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
               <li>
                 <button
                   type="button"
-                  role="option"
                   className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                   onClick={() => {
                     window.dispatchEvent(new CustomEvent(OPEN_COMMAND_PALETTE_EVENT));
