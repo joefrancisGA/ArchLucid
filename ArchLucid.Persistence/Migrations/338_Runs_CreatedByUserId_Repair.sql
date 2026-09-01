@@ -1,9 +1,9 @@
 /*
-  337 — Capture review-run creator identity for work-ownership delete policy.
+  338 — Repair CreatedByUserId on the physical run/review table after ADR 0064.
 
-  After ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews. COL_LENGTH on the
-  synonym returns NULL, so ALTER TABLE dbo.Runs raises SQL 4909. DDL targets the physical
-  table (dbo.Reviews first, pre-295 dbo.Runs fallback) via sp_executesql.
+  Migration 337 guarded ALTER TABLE with `IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL`.
+  After migration 295, dbo.Runs is a SYNONYM, so 337 was a no-op on post-295 catalogs while
+  DbUp journaled it. This forward script repairs those catalogs.
 */
 
 DECLARE @runTable sysname =
