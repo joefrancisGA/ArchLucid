@@ -50,8 +50,7 @@ public sealed class AgentOutputQualityGatePersistedReadPathArchitectureTests
     [Fact]
     public void Agent_output_evaluation_recorder_persists_quality_gate_passed_to_repository()
     {
-        string path = SourcePathFor(typeof(AgentOutputEvaluationRecorder));
-        string text = File.ReadAllText(path, Encoding.UTF8);
+        string text = SourceTextForPartialType(typeof(AgentOutputEvaluationRecorder));
 
         text.Should().Contain("PatchQualityGateRecordedSnapshotAsync");
         text.Should().Contain("QualityGateRecordedEvaluationSnapshot");
@@ -88,9 +87,26 @@ public sealed class AgentOutputQualityGatePersistedReadPathArchitectureTests
         return match!;
     }
 
+    private static string SourceTextForPartialType(Type anchorType)
+    {
+        string repoRoot = FindRepoRoot();
+
+        IEnumerable<string> paths = Directory
+            .EnumerateFiles(repoRoot, $"{anchorType.Name}*.cs", SearchOption.AllDirectories)
+            .Where(path =>
+                !path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
+                && !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
+                && !path.Contains($"{Path.DirectorySeparatorChar}Tests{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase));
+
+        string text = string.Concat(paths.Select(path => File.ReadAllText(path, Encoding.UTF8)));
+        text.Should().NotBeNullOrWhiteSpace($"Could not locate partial source for {anchorType.FullName}");
+
+        return text;
+    }
+
     private static string FindRepoRoot()
     {
-        for (DirectoryInfo? directory = new(AppContext.BaseDirectory); directory != null; directory = directory.Parent)
+        for (DirectoryInfo? directory = new(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
         {
             string sln = Path.Combine(directory.FullName, "ArchLucid.sln");
 

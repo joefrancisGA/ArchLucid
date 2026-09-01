@@ -161,7 +161,7 @@ archlucid-ui/src/components/RepeatReviewActivationPrompt.tsx
 archlucid-ui/src/components/RunSavingsSummary.tsx
 archlucid-ui/src/components/ScopeSwitcher.tsx
 archlucid-ui/src/components/ScopeSwitcherTenantContextFooter.tsx
-archlucid-ui/src/components/SponsorWorkspaceHealthDashboard.tsx
+archlucid-ui/src/components/use-sponsor-workspace-health-dashboard.ts
 archlucid-ui/src/components/TeamExpansionNudge.tsx
 archlucid-ui/src/components/WelcomeBanner.tsx
 archlucid-ui/src/components/advisory/use-advisory-schedules-page.ts
@@ -185,7 +185,7 @@ archlucid-ui/src/components/cto-demo/CtoDemoSponsorTenantIsolationCallout.tsx
 archlucid-ui/src/components/cto-demo/CtoDemoSpotlightOverlay.tsx
 archlucid-ui/src/components/cto-demo/CtoDemoStaticFallbackPresenterBanner.tsx
 archlucid-ui/src/components/dev-testing/DevTestingQuickSwitchPanel.tsx
-archlucid-ui/src/components/digests/DigestSubscriptionCreateForm.tsx
+archlucid-ui/src/components/digests/use-digest-subscription-create-form.ts
 archlucid-ui/src/components/digests/DigestsHubClient.tsx
 archlucid-ui/src/components/digests/DigestsPageHeader.tsx
 archlucid-ui/src/components/digests/DigestsScheduleBuyerChrome.tsx
@@ -252,7 +252,7 @@ archlucid-ui/src/hooks/useAskReviewAvailability.ts
 archlucid-ui/src/hooks/useOperatorShellNavRows.ts
 archlucid-ui/src/lib/active-tenant-context-display.ts
 archlucid-ui/src/lib/api-error-toast.tsx
-archlucid-ui/src/lib/buyer/buyer-cto-demo-readiness.ts
+archlucid-ui/src/lib/buyer/buyer-cto-demo-readiness-checks.ts
 archlucid-ui/src/lib/buyer/buyer-demo-content-gating.ts
 archlucid-ui/src/lib/buyer/buyer-demo-package-card-meta.ts
 archlucid-ui/src/lib/buyer/buyer-golden-manifest-summary-highlights.ts

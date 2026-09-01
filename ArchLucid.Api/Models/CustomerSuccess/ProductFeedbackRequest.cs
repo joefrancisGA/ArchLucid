@@ -19,8 +19,9 @@ public sealed class ProductFeedbackRequest
     }
 
     /// <summary>-1 = thumbs down, 0 = neutral, 1 = thumbs up.</summary>
+    [Required]
     [Range(-1, 1)]
-    public short? Score
+    public required short Score
     {
         get;
         init;

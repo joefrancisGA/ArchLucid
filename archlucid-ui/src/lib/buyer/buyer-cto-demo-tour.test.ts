@@ -182,6 +182,12 @@ describe("buyerCtoDemoRemainingBudgetMinutes", () => {
 
   });
 
+  it("returns zero when the step index is past the final budgeted step", () => {
+    expect(buyerCtoDemoRemainingBudgetMinutes(5)).toBe(0);
+    expect(formatCtoDemoStepBudgetLabel(5)).toBe("Budget: 0 min");
+    expect(buyerCtoDemoStepBudgetSeconds(5)).toBe(0);
+  });
+
 });
 
 describe("visited step storage", () => {
