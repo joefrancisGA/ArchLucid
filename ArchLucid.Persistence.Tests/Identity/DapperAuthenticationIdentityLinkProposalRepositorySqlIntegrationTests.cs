@@ -16,7 +16,7 @@ namespace ArchLucid.Persistence.Tests.Identity;
 public sealed class DapperAuthenticationIdentityLinkProposalRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
     [SkippableFact]
-    public async Task UpdateStatusAsync_does_not_overwrite_terminal_status()
+    public async Task TryUpdateStatusAsync_does_not_overwrite_terminal_status()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
