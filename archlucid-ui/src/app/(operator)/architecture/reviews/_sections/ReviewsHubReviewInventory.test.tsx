@@ -5,7 +5,7 @@ import type { RunSummary } from "@/types/authority";
 import { writeArchivedReviewsClientCache } from "@/lib/archived-reviews-client-cache";
 import { writeFavoriteReviews } from "@/lib/favorite-reviews";
 
-const listArchitectureDraftRegistryEntries = vi.fn();
+const useArchitectureDraftRegistryEntries = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
 
 vi.mock("@/components/reviews/ReviewArchiveControl", () => ({
@@ -43,17 +43,9 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-vi.mock("@/lib/architecture/architecture-draft-registry", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/architecture/architecture-draft-registry")>();
-
-  return {
-    ...actual,
-    listArchitectureDraftRegistryEntries: () => listArchitectureDraftRegistryEntries(),
-    getArchitectureDraftRegistrySnapshot: () => listArchitectureDraftRegistryEntries(),
-    getArchitectureDraftRegistryServerSnapshot: () => [],
-    subscribeArchitectureDraftRegistry: () => () => undefined,
-  };
-});
+vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
+  useArchitectureDraftRegistryEntries: () => useArchitectureDraftRegistryEntries(),
+}));
 
 vi.mock("@/lib/operator/operator-scope-storage", async () => {
   const actual = await vi.importActual<typeof import("@/lib/operator/operator-scope-storage")>(
@@ -91,8 +83,8 @@ function emptySummary() {
 
 beforeEach(() => {
   window.localStorage.clear();
-  listArchitectureDraftRegistryEntries.mockReset();
-  listArchitectureDraftRegistryEntries.mockReturnValue([]);
+  useArchitectureDraftRegistryEntries.mockReset();
+  useArchitectureDraftRegistryEntries.mockReturnValue([]);
   readOperatorScopeFromStorage.mockReset();
   readOperatorScopeFromStorage.mockReturnValue(null);
 });
@@ -131,7 +123,7 @@ describe("ReviewsHubReviewInventory", () => {
   });
 
   it("keeps rich empty CTAs when drafts exist", () => {
-    listArchitectureDraftRegistryEntries.mockReturnValue([
+    useArchitectureDraftRegistryEntries.mockReturnValue([
       {
         architectureId: "draft-001",
         displayName: "Payments platform draft",
@@ -195,6 +187,27 @@ describe("ReviewsHubReviewInventory", () => {
     expect(titleLink.className).not.toMatch(/no-underline/);
     expect(screen.getByTestId("reviews-hub-open-review-001")).toHaveTextContent("Review findings");
     expect(screen.queryByRole("columnheader", { name: "Action" })).toBeNull();
+  });
+
+  it("renders all review inventory filter chips inline without a more-filters disclosure", () => {
+    render(
+      <ReviewsHubReviewInventory
+        runs={[
+          {
+            runId: "review-001",
+            projectId: "default",
+            createdUtc: "2026-01-15T12:00:00.000Z",
+          } satisfies RunSummary,
+        ]}
+        summary={emptySummary()}
+      />,
+    );
+
+    expect(screen.queryByTestId("reviews-hub-more-filters")).toBeNull();
+    expect(screen.getByRole("button", { name: "Filter reviews: Draft" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter reviews: Active" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter reviews: Awaiting approval" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter reviews: Archived" })).toBeInTheDocument();
   });
 
   it("filters to finalized reviews from the primary FilterChip row", () => {
@@ -303,7 +316,7 @@ describe("ReviewsHubReviewInventory", () => {
     expect(rows[0]).toHaveAttribute("data-testid", "reviews-hub-row-run-pinned");
   });
 
-  it("hides archived reviews by default and shows them when the checkbox is selected", () => {
+  it("hides archived reviews by default and shows them when the Archived filter is selected", () => {
     writeArchivedReviewsClientCache([
       {
         runId: "archived-review",
@@ -338,9 +351,9 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.queryByTestId("reviews-hub-row-archived-review")).toBeNull();
     expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId("reviews-hub-show-archived"));
+    fireEvent.click(screen.getByRole("button", { name: "Filter reviews: Archived" }));
 
     expect(screen.getByTestId("reviews-hub-row-archived-review")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-row-active-review")).toBeNull();
   });
 });
