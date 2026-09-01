@@ -50,6 +50,9 @@ public sealed class WizardIntakeDraftService(
         if (string.IsNullOrWhiteSpace(request.StateJson))
             throw new ArgumentException("stateJson is required.", nameof(request.StateJson));
 
+        if (request.StepIndex < 0)
+            throw new ArgumentException("stepIndex must be >= 0.", nameof(request.StepIndex));
+
         try
         {
             using System.Text.Json.JsonDocument _ = System.Text.Json.JsonDocument.Parse(request.StateJson);
