@@ -46,7 +46,7 @@ public sealed partial class SqlTenantSqlCatalogProvisioner
 
         // Seed-once: tenant catalog rows are inserted when missing; mutable control-plane fields are not re-synced on later provisions.
         const string insertSql = """
-                                 IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = @Id)
+                                 IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WITH (UPDLOCK, HOLDLOCK) WHERE Id = @Id)
                                  BEGIN
                                      INSERT INTO dbo.Tenants (
                                          Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,

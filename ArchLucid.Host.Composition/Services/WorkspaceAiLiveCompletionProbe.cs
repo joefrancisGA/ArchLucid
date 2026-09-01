@@ -110,7 +110,7 @@ public static class WorkspaceAiLiveCompletionProbe
                     ProbeSystemPrompt,
                     ProbeUserPrompt,
                     maxTokens: WorkspaceAiAvailabilityProbeLimits.MaxCompletionTokens,
-                    temperature: 0f,
+                    temperature: null,
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
