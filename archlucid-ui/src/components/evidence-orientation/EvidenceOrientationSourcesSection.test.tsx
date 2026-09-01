@@ -177,14 +177,14 @@ describe("EvidenceOrientationSourcesSection", () => {
     expect(screen.getByRole("heading", { name: "Where to go next" }).parentElement).toBe(section);
   });
 
-  it("uses a compact single-column link list when up to three follow-ups sit beside the intro", () => {
+  it("uses a compact single-column link list when one follow-up sits beside the intro", () => {
     render(
       <EvidenceOrientationSourcesSection
         testId="cloud-connections-sources"
         headingId="where-to-go-next"
         title="Where to go next"
         intro="Follow-ups."
-        links={[LINKS[0]!, LINKS[1]!]}
+        links={[LINKS[0]!]}
         layout="columns"
       />,
     );
@@ -193,6 +193,30 @@ describe("EvidenceOrientationSourcesSection", () => {
     expect(section.querySelector("ul")).toHaveClass("flex-col");
     expect(section.querySelector("ul")).not.toHaveClass("grid-cols-[minmax(0,1fr)_minmax(0,1fr)]");
     expect(section.querySelector("div.md\\:grid")).toHaveClass("md:items-center");
+  });
+
+  it("uses a two-column link index when two or three follow-ups sit beside the intro", () => {
+    render(
+      <EvidenceOrientationSourcesSection
+        testId="model-governance-settings-sources"
+        headingId="where-to-go-next"
+        title="Where to go next"
+        intro="Follow-ups."
+        links={[
+          { label: "Billing help", href: "/help/billing" },
+          { label: "How ArchLucid works", href: "/help/getting-started" },
+          { label: "Assurance status", href: "/assurance-status" },
+        ]}
+        layout="columns"
+      />,
+    );
+
+    const section = screen.getByTestId("model-governance-settings-sources");
+    const body = section.querySelector("div.md\\:grid");
+    expect(section.querySelector("ul")).toHaveClass("grid-cols-[minmax(0,1fr)_minmax(0,1fr)]");
+    expect(section.querySelector("ul")).not.toHaveClass("flex-col");
+    expect(body).toHaveClass("md:items-start");
+    expect(body).not.toHaveClass("md:items-center");
   });
 
   it("uses a dense link grid when many follow-ups need a two-column index", () => {

@@ -68,6 +68,16 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
         postureGet.Should().NotBeNull();
         postureGet["responses"]?["200"]?["content"]?["application/json"]?["schema"]?["$ref"]?.GetValue<string>()
             .Should().Contain("ArchitecturePostureSummary");
+
+        JsonObject? schemas = root["components"]?["schemas"]?.AsObject();
+        schemas.Should().NotBeNull();
+
+        JsonObject? governanceQualityDimension = schemas!["GovernanceQualityDimension"]?.AsObject();
+        governanceQualityDimension.Should().NotBeNull();
+        governanceQualityDimension!["enum"]?.AsArray()
+            .Select(node => node?.GetValue<string>())
+            .Should()
+            .Contain("SustainabilityAndResourceEfficiency");
     }
 
     [SkippableFact]

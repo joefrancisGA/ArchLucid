@@ -90,7 +90,7 @@ public sealed class AlertSimulationController(
 
             return Ok(result);
         }
-        catch (Exception ex) when (ex is ArgumentException or NullReferenceException or InvalidOperationException)
+        catch (Exception ex) when (ex is ArgumentException or NullReferenceException or InvalidOperationException or FormatException or JsonException)
         {
             return this.BadRequestProblem(
                 "Alert simulation request is invalid or incomplete.",
@@ -155,7 +155,7 @@ public sealed class AlertSimulationController(
 
             return Ok(result);
         }
-        catch (Exception ex) when (ex is ArgumentException or NullReferenceException or InvalidOperationException)
+        catch (Exception ex) when (ex is ArgumentException or NullReferenceException or InvalidOperationException or FormatException or JsonException)
         {
             return this.BadRequestProblem(
                 "Alert candidate comparison request is invalid or incomplete.",

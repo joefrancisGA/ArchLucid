@@ -98,7 +98,11 @@ public sealed partial class AzureOpenAiCompletionClient
             maxTokens,
             temperature);
 
+        int resolvedMaxOutputTokens = maxTokens ?? _maxOutputTokens;
         StringBuilder fullText = new();
+        ChatFinishReason? finishReason = null;
+        int outputTokenCount = 0;
+        int reasoningTokenCount = 0;
 
         await foreach (StreamingChatCompletionUpdate update in StreamChatCoreAsync(
                            messages,
@@ -129,6 +133,8 @@ public sealed partial class AzureOpenAiCompletionClient
                 if (inTok > 0 || outTok > 0 || reasoningTok > 0 || cachedTok > 0)
                 {
                     LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok, cachedTok);
+                    outputTokenCount = outTok;
+                    reasoningTokenCount = reasoningTok;
                     AzureOpenAiLlmCompletionTelemetry.CheckTokenEstimationDiscrepancy(
                         _logger,
                         systemPrompt,
@@ -137,9 +143,21 @@ public sealed partial class AzureOpenAiCompletionClient
                 }
             }
 
+            if (update.FinishReason is ChatFinishReason reason)
+                finishReason = reason;
+
             if (!string.IsNullOrWhiteSpace(update.Model))
                 LastModelMetadata.Value = (_deploymentName, update.Model.Trim());
         }
+
+        AzureOpenAiCompletionTruncationDiagnostics.ReportIfOutputTruncated(
+            finishReason,
+            resolvedMaxOutputTokens,
+            _deploymentName,
+            outputTokenCount,
+            reasoningTokenCount,
+            _logger,
+            _truncationReporter);
 
         if (fullText.Length < 1)
 
@@ -156,24 +174,56 @@ public sealed partial class AzureOpenAiCompletionClient
         ChatCompletionOptions options,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
+        bool useMaxCompletionTokensProperty =
+            AzureOpenAiMaxOutputTokenParameterPolicy.DefaultUsesMaxCompletionTokensProperty;
+
+        AzureOpenAiMaxOutputTokenParameterPolicy.Apply(options, useMaxCompletionTokensProperty);
+
+        for (int parameterAttempt = 0; parameterAttempt < 2; parameterAttempt++)
         {
-            IAsyncEnumerable<StreamingChatCompletionUpdate> stream;
-
-            try
+            for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
             {
-                stream = _chatClient.CompleteChatStreamingAsync(messages, options, cancellationToken);
-            }
-            catch (ClientResultException ex) when (ex.Status == 429)
-            {
-                await HandleTooManyRequestsAsync(ex, tooManyRequestsAttempt, cancellationToken).ConfigureAwait(false);
-                continue;
-            }
+                IAsyncEnumerable<StreamingChatCompletionUpdate> stream;
 
-            await foreach (StreamingChatCompletionUpdate update in stream.ConfigureAwait(false))
-                yield return update;
+                try
+                {
+                    stream = _chatClient.CompleteChatStreamingAsync(messages, options, cancellationToken);
+                }
+                catch (ClientResultException ex) when (ex.Status == 429)
+                {
+                    await HandleTooManyRequestsAsync(ex, tooManyRequestsAttempt, cancellationToken)
+                        .ConfigureAwait(false);
 
-            yield break;
+                    continue;
+                }
+                catch (ClientResultException ex) when (ex.Status == 400)
+                {
+                    if (parameterAttempt == 0
+                        && AzureOpenAiMaxOutputTokenParameterPolicy.TryGetAlternateSerialization(
+                            ex,
+                            useMaxCompletionTokensProperty,
+                            out bool alternateUsesMaxCompletionTokensProperty))
+                    {
+                        useMaxCompletionTokensProperty = alternateUsesMaxCompletionTokensProperty;
+
+                        AzureOpenAiMaxOutputTokenParameterPolicy.Apply(
+                            options,
+                            useMaxCompletionTokensProperty);
+
+                        break;
+                    }
+
+                    throw;
+                }
+
+                await foreach (StreamingChatCompletionUpdate update in stream.ConfigureAwait(false))
+                    yield return update;
+
+                yield break;
+            }
         }
+
+        throw new InvalidOperationException(
+            "Azure OpenAI streaming chat completion failed after max output token parameter retries.");
     }
 }
