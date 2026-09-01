@@ -42,4 +42,25 @@ describe("mapDraftSummaryToRegistryEntry", () => {
 
     expect(entry.customerStatus).toBe("ready-for-review");
   });
+
+  it.each(["Admitted", "Submitted"] as const)(
+    "treats %s summaries as ready-for-review like the registry special case",
+    (status) => {
+      const summary: DraftRequestSummary = {
+        draftId: "33333333-3333-3333-3333-333333333333",
+        status,
+        systemName: "Payments platform",
+        freeTextIntent: "Short intent.",
+        spawnedRunId: null,
+        createdByUserId: "user-1",
+        createdUtc: "2026-08-27T12:00:00.000Z",
+        updatedUtc: "2026-08-27T12:30:00.000Z",
+        reviewReadinessValid: false,
+      };
+
+      const entry = mapDraftSummaryToRegistryEntry(summary);
+
+      expect(entry.customerStatus).toBe("ready-for-review");
+    },
+  );
 });

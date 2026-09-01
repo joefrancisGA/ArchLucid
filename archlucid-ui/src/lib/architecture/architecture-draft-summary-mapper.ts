@@ -3,7 +3,10 @@ import {
   type ArchitectureDraftRegistryEntry,
 } from "@/lib/architecture/architecture-draft-registry";
 import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
-import { resolveArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
+import {
+  resolveArchitectureDraftCustomerStatus,
+  type ArchitectureDraftCustomerStatus,
+} from "@/lib/architecture/architecture-draft-status";
 import type { DraftRequestResponse, DraftRequestSummary } from "@/types/draft-intake";
 
 /** Maps a server draft summary row into the shared registry entry shape used by hub and home surfaces. */
@@ -27,13 +30,18 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
 
   const linkedReviewId = architectureDraftSpawnedRunId(draftForSpawnedRun);
 
-  const customerStatus =
-    summary.status === "Abandoned"
-      ? "archived"
-      : resolveArchitectureDraftCustomerStatus({
-          linkedReviewId,
-          reviewReadinessValid: summary.reviewReadinessValid,
-        });
+  const fieldBasedStatus = resolveArchitectureDraftCustomerStatus({
+    linkedReviewId,
+    reviewReadinessValid: summary.reviewReadinessValid,
+    registryStatus: summary.status === "Abandoned" ? "archived" : null,
+  });
+
+  // Mirror deriveRegistryCustomerStatus: admitted/submitted drafts are review-ready
+  // even when the summary-derived readiness fields say otherwise.
+  const customerStatus: ArchitectureDraftCustomerStatus =
+    fieldBasedStatus === "draft" && (summary.status === "Admitted" || summary.status === "Submitted")
+      ? "ready-for-review"
+      : fieldBasedStatus;
 
   const entry = buildArchitectureDraftRegistryEntry(
     draftForSpawnedRun,
