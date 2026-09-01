@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:400 -->
+<!-- audit-core-const-count:401 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -610,6 +610,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TrialBaselineManualPrepUpdated` | `TrialBaselineManualPrepUpdated` | `TenantBaselineController` (subsequent edits after first capture) |
 | `TenantCostSettingsUpdated` | `TenantCostSettingsUpdated` | `TenantCostSettingsController` (`PUT /v1/tenant/cost-settings`; per-tenant ROI cost assumptions on `dbo.TenantCostSettings`) |
 | `TenantHomepageSettingsUpdated` | `TenantHomepageSettingsUpdated` | `TenantHomepageSettingsController` (`PUT /v1/tenant/homepage-settings`; workspace featured completed sample on `dbo.TenantSettings`) |
+| `TenantWorkOwnershipDeletePolicyUpdated` | `Tenant.WorkOwnershipDeletePolicyUpdated` | `SettingsController` (`PUT /v1/admin/settings/work-ownership-delete-policy`; creator delete/archive policy on `dbo.TenantSettings`) |
 | `TrialSignupFailed` | `TrialSignupFailed` | `TrialLocalIdentityAuthController`, `TrialTenantBootstrapService` |
 | `TrialFirstRunCompleted` | `TrialFirstRunCompleted` | `SqlTrialFunnelCommitHook` |
 | `TrialArchitecturePreseedFailed` | `TrialArchitecturePreseedFailed` | `TrialArchitecturePreseedExecutor` |
