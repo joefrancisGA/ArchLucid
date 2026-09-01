@@ -112,6 +112,7 @@ export type DraftRequestResponse = {
   createdByUserId?: string;
   redirectReason?: string;
   spawnedRunId?: string;
+  createdByUserId?: string;
   createdUtc: string;
   updatedUtc: string;
 };
