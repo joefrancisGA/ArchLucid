@@ -777,8 +777,8 @@ describe("SocraticIntakeWizard", () => {
     const clarificationsStep = screen.getByTestId("socratic-clarifications-step");
     const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
 
-    expect(clarificationsStep.className).not.toContain("pb-24");
-    expect(primaryPanel.className).not.toContain("pb-24");
+    expect(clarificationsStep.getElementsByClassName("pb-24").length).toBe(0);
+    expect(primaryPanel.getElementsByClassName("pb-24").length).toBe(0);
 
     const wizard = screen.getByTestId("socratic-intake-wizard");
     const mainColumn = wizard.firstElementChild as HTMLElement;
@@ -1059,6 +1059,66 @@ describe("SocraticIntakeWizard", () => {
     expect(
       screen.queryByText(/your answers will be included when you review and submit/i),
     ).not.toBeInTheDocument();
+
+    const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
+    expect(primaryPanel.getElementsByClassName("pb-24").length).toBe(0);
+    expect(screen.queryByTestId("socratic-view-all-clarifications")).not.toBeInTheDocument();
+  });
+
+  it("drops sticky-footer scroll clearance after all clarifications are handled in show-all mode", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [sampleQuestion, secondQuestion],
+      requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        status: "Admitted",
+        selection: {
+          allQuestions: [sampleQuestion, secondQuestion],
+          requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+          pendingMustQuestions: [sampleQuestion, secondQuestion],
+        },
+      })
+      .mockResolvedValue({
+        draftId: "draft-1",
+        status: "Admitted",
+        selection: {
+          allQuestions: [sampleQuestion, secondQuestion],
+          requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+          pendingMustQuestions: [],
+        },
+      });
+    skipDraftQuestion.mockResolvedValue({ draftId: "draft-1", status: "Admitted" });
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-view-all-clarifications")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("socratic-view-all-clarifications"));
+
+    const skipButtons = await screen.findAllByRole("button", { name: "Skip this clarification" });
+    for (const skipButton of skipButtons) {
+      fireEvent.click(skipButton);
+    }
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-questions-done")).toBeEnabled();
+    });
+
+    const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
+    expect(primaryPanel.getElementsByClassName("pb-24").length).toBe(0);
+    expect(screen.queryByTestId("socratic-view-all-clarifications")).not.toBeInTheDocument();
   });
 
   it("opens the create-review step when a saved admitted architecture has no pending clarifications", async () => {
