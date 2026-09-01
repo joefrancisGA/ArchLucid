@@ -16,10 +16,30 @@ namespace ArchLucid.Api.Controllers.Architecture;
 [Authorize(Policy = ArchLucidPolicies.AuthenticatedUserOnly)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture/intake/wizard-draft")]
+using ArchLucid.Api.Http;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Intake;
+using ArchLucid.Contracts.Intake;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ArchLucid.Api.Controllers.Architecture;
+
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.AuthenticatedUserOnly)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/architecture/intake/wizard-draft")]
 public sealed class WizardIntakeDraftsController(
     IScopeContextProvider scopeProvider,
+    ITenantRepository tenantRepository,
     IWizardIntakeDraftService wizardIntakeDraftService) : ControllerBase
-{
     [HttpGet("{wizardId}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(WizardIntakeDraftResponse), StatusCodes.Status200OK)]
