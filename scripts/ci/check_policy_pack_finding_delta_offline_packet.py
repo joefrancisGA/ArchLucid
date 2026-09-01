@@ -31,8 +31,13 @@ def main(argv: list[str] | None = None) -> int:
 
     root = repo_root()
     errors: list[str] = []
-    packet = build_packet(root)
 
+    try:
+        packet = build_packet(root)
+    except FileNotFoundError as ex:
+        missing = ex.filename or str(ex)
+        print(f"missing input file for offline finding-delta packet: {missing}", file=sys.stderr)
+        return 1
     if packet["onlyInSoc2Count"] < 1 or packet["onlyInCisAzureCount"] < 1:
         errors.append("SOC 2 vs CIS Azure sample packs must differ in complianceRuleKeys")
 
