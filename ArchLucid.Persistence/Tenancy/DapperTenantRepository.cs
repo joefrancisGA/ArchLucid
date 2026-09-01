@@ -22,7 +22,7 @@ public sealed partial class DapperTenantRepository(
     ISqlConnectionFactory tenantPlaneConnectionFactory,
     IOptionsMonitor<SqlTopologyOptions> topologyOptions,
     ITenantDatabaseBindingRepository tenantDatabaseBindingRepository,
-    ITenantDatabaseResolver tenantDatabaseResolver) : ITenantRepository
+    ITenantDatabaseResolver tenantDatabaseResolver) : ITenantRepository, IWorkspaceQueryTenantRepository
 {
     private readonly ISystemSqlConnectionFactory _catalogConnectionFactory =
         catalogConnectionFactory ?? throw new ArgumentNullException(nameof(catalogConnectionFactory));
