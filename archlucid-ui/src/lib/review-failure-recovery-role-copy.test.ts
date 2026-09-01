@@ -56,8 +56,8 @@ describe("review-failure-recovery-role-copy", () => {
       canConfigureWorkspaceAi: true,
     });
 
-    expect(steps?.join(" ")).toContain("ArchLucid-managed AI");
-    expect(steps?.join(" ")).toContain("Report a problem");
+    expect(steps?.join(" ")).toContain("Check AI availability");
+    expect(steps?.join(" ")).toContain("live probe");
     expect(steps?.join(" ")).not.toContain("Key Vault");
     expect(steps?.join(" ")).not.toContain("connection probe");
     expect(steps?.join(" ")).not.toContain("administrator handoff");
@@ -79,8 +79,8 @@ describe("review-failure-recovery-role-copy", () => {
     });
 
     expect(operatorSteps?.join(" ")).toContain("administrator handoff");
-    expect(managedAdminSteps?.join(" ")).toContain("ArchLucid-managed AI");
-    expect(customerAdminSteps?.join(" ")).toContain("customer-provided AI connection");
+    expect(managedAdminSteps?.join(" ")).toContain("Check AI availability");
+    expect(customerAdminSteps?.join(" ")).toContain("workspace AI connection");
     expect(customerAdminSteps?.join(" ")).not.toContain("connection probe");
   });
 
