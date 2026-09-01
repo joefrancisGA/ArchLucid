@@ -4,18 +4,19 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>Emits audit, log, and metric signals when Azure OpenAI stops due to <c>finish_reason=length</c>.</summary>
 public sealed class AuditLlmCompletionOutputTruncationReporter(
-    IAuditService auditService,
+    IServiceScopeFactory scopeFactory,
     IScopeContextProvider scopeContextProvider,
     ILogger<AuditLlmCompletionOutputTruncationReporter> logger) : ILlmCompletionOutputTruncationReporter
 {
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IServiceScopeFactory _scopeFactory =
+        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -53,15 +54,34 @@ public sealed class AuditLlmCompletionOutputTruncationReporter(
                 reasoningTokenCount = detail.ReasoningTokenCount,
             });
 
-        _ = _auditService.LogAsync(
-            new AuditEvent
+        AuditEvent auditEvent = new()
+        {
+            EventType = AuditEventTypes.LlmCompletionOutputTruncated,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            DataJson = dataJson,
+        };
+
+        _ = Task.Run(async () =>
+        {
+            try
             {
-                EventType = AuditEventTypes.LlmCompletionOutputTruncated,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = dataJson,
-            },
-            CancellationToken.None);
+                using IServiceScope serviceScope = _scopeFactory.CreateScope();
+                IAuditService auditService = serviceScope.ServiceProvider.GetRequiredService<IAuditService>();
+
+                await auditService.LogAsync(auditEvent, CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
+            {
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "LLM completion output truncation audit append failed for deployment {DeploymentName}",
+                        detail.DeploymentName);
+                }
+            }
+        });
     }
 }

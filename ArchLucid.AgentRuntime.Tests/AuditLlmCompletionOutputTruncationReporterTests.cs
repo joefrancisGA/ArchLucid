@@ -5,6 +5,7 @@ using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
@@ -15,7 +16,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 public sealed class AuditLlmCompletionOutputTruncationReporterTests
 {
     [Fact]
-    public void Report_writes_audit_event_with_truncation_metadata()
+    public async Task Report_writes_audit_event_with_truncation_metadata()
     {
         Mock<IAuditService> auditService = new();
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -28,12 +29,18 @@ public sealed class AuditLlmCompletionOutputTruncationReporterTests
                 TenantId = tenantId,
             });
 
+        ServiceCollection services = new();
+        services.AddSingleton(auditService.Object);
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
+
         AuditLlmCompletionOutputTruncationReporter reporter = new(
-            auditService.Object,
+            serviceProvider.GetRequiredService<IServiceScopeFactory>(),
             scopeProvider.Object,
             NullLogger<AuditLlmCompletionOutputTruncationReporter>.Instance);
 
         reporter.Report(new LlmCompletionOutputTruncationEvent("gpt-5.6-terra", 4096, 4096, 0));
+
+        await Task.Delay(250);
 
         auditService.Verify(
             a => a.LogAsync(

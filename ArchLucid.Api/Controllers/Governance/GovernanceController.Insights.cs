@@ -57,12 +57,12 @@ public sealed partial class GovernanceController
         if (maxChanges > 50)
             return this.BadRequestProblem("maxChanges must be at most 50.", ProblemTypes.ValidationFailed);
 
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
         GovernanceDashboardSummary summary = await _governanceDashboardService.GetDashboardAsync(
             scope.TenantId,
             maxPending,
@@ -92,7 +92,8 @@ public sealed partial class GovernanceController
         if (fromUtc >= toUtc)
             return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.ValidationFailed);
 
-        // Reject year-1 / unspecified defaults ΓÇö OpenAPI date-time + Schemathesis reject "0001-01-01T00:00:00".
+        // Reject year-1 / unspecified defaults — OpenAPI date-time + Schemathesis reject "0001-01-01T00:00:00".
+
         if (fromUtc.Year < 1970 || toUtc.Year < 1970)
             return this.BadRequestProblem(
                 "fromUtc and toUtc must be on or after 1970-01-01.",
@@ -116,11 +117,12 @@ public sealed partial class GovernanceController
                 ProblemTypes.BadRequest);
         }
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         IReadOnlyList<ComplianceDriftTrendPoint> points = await _complianceDriftTrendService.GetTrendAsync(
             scope.TenantId,
@@ -139,7 +141,7 @@ public sealed partial class GovernanceController
         [FromRoute] string approvalRequestId,
         CancellationToken cancellationToken)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -189,7 +191,7 @@ public sealed partial class GovernanceController
         [FromRoute] string approvalRequestId,
         CancellationToken cancellationToken)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;

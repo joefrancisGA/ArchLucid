@@ -14,10 +14,13 @@ public sealed class RetrievalEmbeddingModelOptions
         set;
     } = "fake-local";
 
-    /// <summary>Expected vector dimension (32 for fake-local; 1536 typical for Azure text-embedding-ada-002).</summary>
+    /// <summary>
+    ///     Expected vector dimension. Unset (0) until host post-configuration: 32 for <c>fake-local</c>,
+    ///     1536 for Azure <c>text-embedding-3-small</c> / <c>text-embedding-ada-002</c>.
+    /// </summary>
     public int ExpectedDimension
     {
         get;
         set;
-    } = 32;
+    }
 }

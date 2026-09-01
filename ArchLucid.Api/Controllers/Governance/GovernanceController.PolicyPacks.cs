@@ -83,7 +83,7 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -130,7 +130,7 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -225,7 +225,7 @@ public sealed partial class GovernanceController
             }
         }
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -270,7 +270,7 @@ public sealed partial class GovernanceController
         if (input.FreeTextIntent.Trim().Length < 20)
             return this.BadRequestProblem("FreeTextIntent must be at least 20 characters.", ProblemTypes.ValidationFailed);
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -300,7 +300,7 @@ public sealed partial class GovernanceController
         if (input.Prompt.Trim().Length < 20)
             return this.BadRequestProblem("Prompt must be at least 20 characters.", ProblemTypes.ValidationFailed);
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
