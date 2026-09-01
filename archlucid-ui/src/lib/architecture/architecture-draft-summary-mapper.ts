@@ -30,7 +30,7 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
   const draft = mapDraftSummaryToDraftRequestResponse(summary);
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
 
-  const customerStatus =
+  const fieldBasedStatus =
     summary.status === "Abandoned"
       ? "archived"
       : resolveArchitectureDraftCustomerStatus({
@@ -38,11 +38,18 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
           reviewReadinessValid: summary.reviewReadinessValid,
         });
 
-  return buildArchitectureDraftRegistryEntry(draft, {
+  const customerStatus =
+    fieldBasedStatus === "draft" && (summary.status === "Admitted" || summary.status === "Submitted")
+      ? "ready-for-review"
+      : fieldBasedStatus;
+
+  const entry = buildArchitectureDraftRegistryEntry(draft, {
     customerStatus,
     linkedReviewId,
     ownerLabel: "You",
   });
+
+  return { ...entry, customerStatus };
 }
 
 export function mapDraftSummariesToRegistryEntries(

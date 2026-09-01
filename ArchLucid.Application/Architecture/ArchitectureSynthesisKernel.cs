@@ -105,6 +105,7 @@ public sealed class ArchitectureSynthesisKernel(
             .EnsureAvailableAsync(
                 scope,
                 request.SystemName,
+                WorkspaceSystemNameOccupancyKind.Review,
                 excludeRunId: excludeRunId,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);

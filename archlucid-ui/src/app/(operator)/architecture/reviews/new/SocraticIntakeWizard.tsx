@@ -380,7 +380,9 @@ export function SocraticIntakeWizard() {
           <CardContent
             className={cn(
               OPERATOR_LAYOUT.sectionStack,
-              viewAllClarifications ? WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS : undefined,
+              viewAllClarifications && activePendingQuestions.length > 1
+                ? WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS
+                : undefined,
             )}
           >
             {primaryPendingQuestion !== null
@@ -451,7 +453,7 @@ export function SocraticIntakeWizard() {
               </p>
             ) : null}
 
-            {pendingQuestions.length > 1 ? (
+            {activePendingQuestions.length > 1 ? (
               <Button
                 type="button"
                 variant="outline"

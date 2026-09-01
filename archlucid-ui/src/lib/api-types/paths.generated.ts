@@ -28954,8 +28954,8 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: {
-                    mine?: boolean;
+                query: {
+                    mine: boolean;
                     status?: string;
                     page?: number;
                     pageSize?: number;
