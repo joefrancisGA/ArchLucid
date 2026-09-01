@@ -91,12 +91,14 @@ public sealed class AgentOutputQualityGatePersistedReadPathArchitectureTests
     {
         string repoRoot = FindRepoRoot();
 
-        IEnumerable<string> paths = Directory
+        List<string> paths = Directory
             .EnumerateFiles(repoRoot, $"{anchorType.Name}*.cs", SearchOption.AllDirectories)
             .Where(path =>
                 !path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
                 && !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
-                && !path.Contains($"{Path.DirectorySeparatorChar}Tests{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase));
+                && !path.Contains($"{Path.DirectorySeparatorChar}Tests{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
         string text = string.Concat(paths.Select(path => File.ReadAllText(path, Encoding.UTF8)));
         text.Should().NotBeNullOrWhiteSpace($"Could not locate partial source for {anchorType.FullName}");

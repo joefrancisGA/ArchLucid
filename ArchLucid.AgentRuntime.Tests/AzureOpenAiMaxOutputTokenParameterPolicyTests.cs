@@ -18,6 +18,20 @@ namespace ArchLucid.AgentRuntime.Tests;
 public sealed class AzureOpenAiMaxOutputTokenParameterPolicyTests
 {
     [Fact]
+    public void Apply_on_fresh_chat_completion_options_does_not_throw()
+    {
+        ChatCompletionOptions options = new()
+        {
+            MaxOutputTokenCount = 16,
+            ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat(),
+        };
+
+        Action act = () => AzureOpenAiMaxOutputTokenParameterPolicy.Apply(options, useMaxCompletionTokensProperty: true);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void TryGetAlternateSerialization_when_max_tokens_unsupported_switches_to_max_completion_tokens()
     {
         ClientResultException ex = CreateBadRequest(

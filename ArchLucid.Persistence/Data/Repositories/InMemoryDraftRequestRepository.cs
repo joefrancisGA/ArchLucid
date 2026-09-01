@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Pagination;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -183,6 +184,40 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             .ToList();
 
         return Task.FromResult<IReadOnlyList<DraftRequestResponse>>(matches);
+    }
+
+    /// <inheritdoc />
+    public Task<PagedResponse<DraftRequestResponse>> ListForCreatorInWorkspaceAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        string createdByUserId,
+        IReadOnlyList<DraftRequestStatus> statuses,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(createdByUserId);
+
+        if (statuses is null || statuses.Count == 0)
+            throw new ArgumentException("At least one status filter is required.", nameof(statuses));
+
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+        HashSet<DraftRequestStatus> statusFilter = statuses.ToHashSet();
+
+        List<DraftRequestResponse> matches = _drafts.Values
+            .Where(stored =>
+                stored.TenantId == tenantId
+                && stored.WorkspaceId == workspaceId
+                && string.Equals(stored.CreatedByUserId, createdByUserId, StringComparison.Ordinal)
+                && statusFilter.Contains(stored.Status))
+            .OrderByDescending(stored => stored.UpdatedUtc)
+            .Select(Map)
+            .ToList();
+
+        IReadOnlyList<DraftRequestResponse> pageItems = matches.Skip(skip).Take(safePageSize).ToList();
+
+        return Task.FromResult(PagedResponseBuilder.FromDatabasePage(pageItems, matches.Count, safePage, safePageSize));
     }
 
     private const int MaxPriorDraftsCap = 25;

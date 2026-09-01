@@ -14,7 +14,7 @@ export function isNullBodyStatus(status: number): boolean {
 
 /**
  * Passes the upstream response body and key headers (Content-Type, Content-Disposition) to the browser.
- * Optional **private** cache hints apply only to successful GET responses when callers opt in (e.g. `/api/auth/me`).
+ * Optional **private** cache hints apply to successful responses when callers opt in (e.g. `/api/auth/me`).
  */
 export async function passThrough(res: Response, cacheControlPrivateMaxAgeSeconds?: number): Promise<NextResponse> {
   let body: BodyInit | null;
