@@ -138,7 +138,7 @@ public async Task<IActionResult> LookupCreateRunByIdempotencyKey(
         CreateRunResult? result = await runLifecycleCommandService
             .LookupCreateRunByIdempotencyKeyAsync(scope, validation.Key, cancellationToken);
 
-if (result is null)
+        if (result is null)
             return this.NotFoundProblem("Idempotency-Key not found.", ProblemTypes.ResourceNotFound);
 
         CreateArchitectureRunResponse response =
