@@ -16,7 +16,7 @@ export function buildPackagePrintSources(runId: string): readonly EvidenceSource
   const encRun = encodeURIComponent(runId.trim());
 
   return [
-    { label: "Review package", href: buildPackagePrintBackHref(runId) },
+    { label: "Architecture package", href: buildPackagePrintBackHref(runId) },
     { label: "Review provenance", href: `/architecture/reviews/${encRun}/provenance` },
     { label: "Architecture reviews", href: "/architecture/reviews" },
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },

@@ -6,8 +6,8 @@ using FluentAssertions;
 
 namespace ArchLucid.KnowledgeGraph.Tests;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class ArchitectureKnowledgeModelGraphProjectorTests
 {
   [Fact]

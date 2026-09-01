@@ -8,47 +8,29 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 
-import React, { useRef, useState } from "react";
-import { AlertCircle, CheckCircle2, UploadCloud, X } from "lucide-react";
+import React from "react";
+import { AlertCircle, CheckCircle2, UploadCloud } from "lucide-react";
 
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
-import { postBulkEvidenceMultipartWithProgress } from "@/lib/bulk-evidence-upload-client";
 import {
   BULK_EVIDENCE_UPLOAD_CANCEL_RECOVERY,
   BULK_EVIDENCE_UPLOAD_FAILURE_RECOVERY,
-  BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON,
   BULK_EVIDENCE_UPLOAD_MAX_FILES,
   RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE,
 } from "@/lib/bulk-evidence-upload-copy";
-import {
-  buildBulkEvidenceUploadSummary,
-  parsePartialUploadCountFromDetail,
-  parseSuccessUploadedCount,
-  type BulkEvidenceUploadSummary,
-} from "@/lib/bulk-evidence-upload-outcome";
-import { formatUploadEta, estimateUploadSecondsRemaining } from "@/lib/format-upload-eta";
-import { readProblemDetailFromBody } from "@/lib/api-problem";
+import type { BulkEvidenceUploadSummary } from "@/lib/bulk-evidence-upload-outcome";
 
 import { Button } from "./ui/button";
-import { Progress } from "./ui/progress";
-import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import { FolderAwareFileInput } from "@/components/FolderAwareFileInput";
+import { BulkEvidenceFileList } from "@/components/BulkEvidenceFileList";
+import { BulkEvidenceUploadProgress } from "@/components/BulkEvidenceUploadProgress";
+import { type BulkEvidenceUploadError, useBulkEvidenceUpload } from "@/components/use-bulk-evidence-upload";
 
 export interface BulkEvidenceUploadProps {
   runId: string;
   /** When true, renders body only — parent owns card chrome and heading. */
   embedded?: boolean;
   readonly onUploadSummary?: (summary: BulkEvidenceUploadSummary) => void;
-}
-
-type BulkEvidenceUploadError = {
-  readonly kind: "max-files" | "upload-failed" | "canceled" | "unexpected";
-  readonly userMessage: string;
-  readonly rawDetail?: string | null;
-};
-
-function countNonEmptyFiles(files: File[]): number {
-  return files.filter((file) => file.size > 0).length;
 }
 
 function recoveryPresentationForError(error: BulkEvidenceUploadError) {
@@ -64,169 +46,25 @@ function recoveryPresentationForError(error: BulkEvidenceUploadError) {
  * @see `BulkEvidenceUpload.test.tsx`
  */
 export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }: BulkEvidenceUploadProps) {
-  const [files, setFiles] = useState<File[]>([]);
-  const [error, setError] = useState<BulkEvidenceUploadError | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [progressPercent, setProgressPercent] = useState(0);
-  const [etaLabel, setEtaLabel] = useState<string | null>(null);
-  const [uploadSummary, setUploadSummary] = useState<BulkEvidenceUploadSummary | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const folderInputRef = useRef<HTMLInputElement>(null);
-  const uploadStartedAtRef = useRef<number>(0);
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  const isMaxFilesBlocked = error?.kind === "max-files";
-
-  const handleFiles = (selectedFiles: FileList | File[]) => {
-    setError(null);
-    setUploadSummary(null);
-
-    const newFiles = Array.from(selectedFiles);
-    const totalFiles = files.length + newFiles.length;
-
-    if (totalFiles > BULK_EVIDENCE_UPLOAD_MAX_FILES) {
-      const excess = totalFiles - BULK_EVIDENCE_UPLOAD_MAX_FILES;
-
-      setError({
-        kind: "max-files",
-        userMessage: `Maximum ${BULK_EVIDENCE_UPLOAD_MAX_FILES} files per upload. Please remove ${excess} files or upload in multiple batches.`,
-      });
-
-      return;
-    }
-
-    setFiles((prev) => [...prev, ...newFiles]);
-  };
-
-  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    handleFiles(e.dataTransfer.files);
-  };
-
-  const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
-  const removeFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-
-    if (error !== null) {
-      setError(null);
-    }
-  };
-
-  const cancelUpload = () => {
-    abortControllerRef.current?.abort();
-  };
-
-  const uploadFiles = async () => {
-    if (files.length === 0) {
-      return;
-    }
-
-    setUploading(true);
-    setProgressPercent(0);
-    setEtaLabel(null);
-    setError(null);
-    setUploadSummary(null);
-    uploadStartedAtRef.current = Date.now();
-
-    const batch = [...files];
-    const controller = new AbortController();
-
-    abortControllerRef.current = controller;
-
-    try {
-      const result = await postBulkEvidenceMultipartWithProgress(
-        runId,
-        batch,
-        (progress) => {
-          setProgressPercent(Math.round(progress.percent));
-
-          const etaSeconds = estimateUploadSecondsRemaining(
-            progress.loadedBytes,
-            progress.totalBytes,
-            uploadStartedAtRef.current,
-            Date.now(),
-          );
-
-          setEtaLabel(formatUploadEta(etaSeconds));
-        },
-        controller.signal,
-      );
-
-      setProgressPercent(100);
-      setEtaLabel(null);
-
-      if (result.status >= 200 && result.status < 300) {
-        const uploadedNonEmptyCount = parseSuccessUploadedCount(result.bodyText);
-        const expectedNonEmpty = countNonEmptyFiles(batch);
-        const summary = buildBulkEvidenceUploadSummary(
-          batch,
-          uploadedNonEmptyCount,
-          BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON,
-          uploadedNonEmptyCount === expectedNonEmpty
-            ? "Evidence successfully uploaded."
-            : "Upload completed with warnings.",
-        );
-
-        setUploadSummary(summary);
-        onUploadSummary?.(summary);
-
-        if (!summary.isPartial) {
-          setFiles([]);
-        }
-
-        return;
-      }
-
-      const detail = readProblemDetailFromBody(result.bodyText);
-      const partialUploaded = parsePartialUploadCountFromDetail(detail);
-
-      if (partialUploaded !== null && partialUploaded > 0) {
-        const summary = buildBulkEvidenceUploadSummary(
-          batch,
-          partialUploaded,
-          detail ?? "Upload failed",
-          "Upload partially completed.",
-        );
-
-        setUploadSummary(summary);
-        onUploadSummary?.(summary);
-
-        return;
-      }
-
-      setError({
-        kind: "upload-failed",
-        userMessage: "Evidence upload could not be completed.",
-        rawDetail: detail ?? result.bodyText,
-      });
-    } catch (uploadError) {
-      if (uploadError instanceof DOMException && uploadError.name === "AbortError") {
-        setError({
-          kind: "canceled",
-          userMessage: "Upload canceled.",
-        });
-      } else {
-        setError({
-          kind: "unexpected",
-          userMessage: "An unexpected error occurred during upload.",
-          rawDetail: uploadError instanceof Error ? uploadError.message : null,
-        });
-      }
-    } finally {
-      abortControllerRef.current = null;
-      setUploading(false);
-    }
-  };
-
-  const showProgress = uploading;
-  const uploadButtonLabel = uploading
-    ? "Uploading…"
-    : error !== null && !isMaxFilesBlocked
-      ? "Retry upload"
-      : "Upload evidence";
+  const {
+    files,
+    error,
+    uploading,
+    progressPercent,
+    etaLabel,
+    uploadSummary,
+    inputRef,
+    folderInputRef,
+    isMaxFilesBlocked,
+    showProgress,
+    uploadButtonLabel,
+    handleFiles,
+    onDrop,
+    onDragOver,
+    removeFile,
+    cancelUpload,
+    uploadFiles,
+  } = useBulkEvidenceUpload(runId, onUploadSummary);
 
   const body = (
     <div className={embedded ? "space-y-4" : "space-y-4 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"}>
@@ -377,59 +215,14 @@ export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }:
         </div>
       ) : null}
 
-      {files.length > 0 ? (
-        <ul className="max-h-48 space-y-2 overflow-y-auto rounded border border-neutral-200 bg-al-surface-raised p-2 dark:border-neutral-700">
-          {files.map((f, i) => (
-            <li
-              key={`${f.name}-${i}`}
-              className={cn(
-                "flex items-center justify-between gap-2 p-1 hover:bg-[var(--al-layer-hover)]",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              <span className="min-w-0 flex-1 break-all text-al-text-primary">{f.name}</span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeFile(i);
-                }}
-                className="shrink-0 p-1 text-neutral-500 hover:text-red-500"
-                aria-label={`Remove ${f.name}`}
-                disabled={uploading}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      <BulkEvidenceFileList files={files} uploading={uploading} onRemoveFile={removeFile} />
 
-      {showProgress ? (
-        <div className="space-y-2" data-testid="bulk-evidence-upload-progress">
-          <LongOperationWaitNotice
-            active={uploading}
-            operationLabel="Uploading evidence"
-            stageLabel="Transferring files to ArchLucid"
-            testId="bulk-evidence-long-wait"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={cancelUpload}
-            className={CTA_WIDTH.content}
-            data-testid="bulk-evidence-upload-cancel"
-          >
-            Cancel upload
-          </Button>
-          <Progress value={progressPercent} className="h-2 w-full" aria-label="Upload progress" />
-          <div className={cn("flex justify-between text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <span>{progressPercent}%</span>
-            {etaLabel ? <span>{etaLabel}</span> : null}
-          </div>
-        </div>
-      ) : null}
+      <BulkEvidenceUploadProgress
+        uploading={showProgress}
+        progressPercent={progressPercent}
+        etaLabel={etaLabel}
+        onCancelUpload={cancelUpload}
+      />
 
       <Button
         onClick={uploadFiles}

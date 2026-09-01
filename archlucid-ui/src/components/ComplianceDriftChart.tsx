@@ -3,7 +3,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 export interface ComplianceDriftChartProps {
-  points: ComplianceDriftTrendPoint[];
+  points: readonly ComplianceDriftTrendPoint[];
 }
 
 function safeNonNegativeCount(value: unknown): number {

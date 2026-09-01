@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Drafts;
@@ -35,4 +36,12 @@ public interface IDraftRequestCrudService
     Task<DraftRequestResponse?> AbandonAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken);
 
     Task<DraftRequestResponse?> ReopenAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken);
+
+    Task<PagedResponse<DraftRequestSummaryResponse>> ListAsync(
+        ScopeContext scope,
+        string actorUserId,
+        IReadOnlyList<DraftRequestStatus> statuses,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken);
 }
