@@ -2,7 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { useWorkspaceAiAvailabilityCheck } from "@/hooks/useWorkspaceAiAvailabilityCheck";
+import {
+  useWorkspaceAiAvailabilityCheck,
+  type WorkspaceAiAvailabilityCheck,
+} from "@/hooks/useWorkspaceAiAvailabilityCheck";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { WorkspaceAiConfigurationSignal } from "@/lib/review-failure-recovery-role-copy";
 import {
@@ -13,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 export type WorkspaceAiAvailabilityPanelProps = {
   readonly workspaceAiSignal: WorkspaceAiConfigurationSignal;
+  readonly availabilityCheck?: WorkspaceAiAvailabilityCheck;
 };
 
 function statusTagKind(
@@ -54,8 +58,12 @@ function resolveProbeModelLabel(debug: Readonly<Record<string, string>>): string
 
 /** API-validated workspace AI availability with full probe diagnostics for review failure recovery. */
 export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanelProps): React.JSX.Element {
-  const { workspaceAiSignal } = props;
-  const { state, checkAvailability } = useWorkspaceAiAvailabilityCheck({ enabled: true, autoCheck: false });
+  const { workspaceAiSignal, availabilityCheck } = props;
+  const internalCheck = useWorkspaceAiAvailabilityCheck({
+    enabled: availabilityCheck === undefined,
+    autoCheck: false,
+  });
+  const { state, checkAvailability } = availabilityCheck ?? internalCheck;
 
   const label =
     state.status === "loaded"
@@ -95,7 +103,9 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
           </p>
           {state.status === "idle" ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Press Check AI availability to run a live probe against your configured model. Outage claims appear only after you validate.
+              {availabilityCheck !== undefined
+                ? "Validating live AI availability for this session…"
+                : "Press Check AI availability to run a live probe against your configured model. Outage claims appear only after you validate."}
             </p>
           ) : null}
           {state.status === "loading" ? (

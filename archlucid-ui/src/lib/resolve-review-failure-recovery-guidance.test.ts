@@ -81,7 +81,7 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
       usesCustomerAiConnection: true,
     });
 
-    expect(guidance?.recoverySteps.join(" ")).toContain("customer-provided AI connection");
+    expect(guidance?.recoverySteps.join(" ")).toContain("workspace AI connection");
     expect(guidance?.recoverySteps.join(" ")).not.toContain("connection probe");
   });
 

@@ -1,7 +1,23 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import type { SessionAiReadinessState } from "@/hooks/use-session-ai-readiness";
+
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
+
+const readySessionAiReadiness: SessionAiReadinessState = {
+  sessionMode: "Simulator",
+  hostMode: "Simulator",
+  hasDevOverride: false,
+  isSessionReal: false,
+  isLoading: false,
+  isReady: true,
+  blocksExecute: false,
+  detail: null,
+  availability: null,
+  probeState: { status: "idle" },
+  checkAvailability: vi.fn(),
+};
 
 vi.mock("@/components/CommitRunButton", () => ({
   CommitRunButton: () => <button type="button">Finalize review</button>,
@@ -22,6 +38,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
         runId="run-1"
         hasGoldenManifest={false}
         commitBlockedReason={null}
+        sessionAiReadiness={readySessionAiReadiness}
         next={{
           kind: "add-evidence",
           sentence: "Evidence is still thin — add architecture evidence before expecting full findings.",
@@ -45,6 +62,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
         runId="run-1"
         hasGoldenManifest={false}
         commitBlockedReason={null}
+        sessionAiReadiness={readySessionAiReadiness}
         next={{
           kind: "rerun-review",
           sentence: "Assessment failed — follow the recovery steps below, then re-run the review with the same intake.",
@@ -108,6 +126,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
         runId="run-1"
         hasGoldenManifest
         commitBlockedReason={null}
+        sessionAiReadiness={readySessionAiReadiness}
         next={{
           kind: "send-to-sponsor",
           sentence:
