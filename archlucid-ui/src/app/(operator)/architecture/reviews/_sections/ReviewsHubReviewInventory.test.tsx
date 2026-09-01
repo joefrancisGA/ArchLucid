@@ -303,7 +303,7 @@ describe("ReviewsHubReviewInventory", () => {
     expect(rows[0]).toHaveAttribute("data-testid", "reviews-hub-row-run-pinned");
   });
 
-  it("hides archived reviews by default and shows them when the checkbox is selected", () => {
+  it("hides archived reviews by default and shows them when the Archived filter is selected", () => {
     writeArchivedReviewsClientCache([
       {
         runId: "archived-review",
@@ -338,9 +338,9 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.queryByTestId("reviews-hub-row-archived-review")).toBeNull();
     expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId("reviews-hub-show-archived"));
+    fireEvent.click(screen.getByRole("button", { name: "Filter reviews: Archived" }));
 
     expect(screen.getByTestId("reviews-hub-row-archived-review")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-row-active-review")).toBeNull();
   });
 });
