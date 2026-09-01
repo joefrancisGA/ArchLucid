@@ -29,7 +29,7 @@ class TestAiReadinessBatch5BM(unittest.TestCase):
         self.assertIn("_explainGovernanceBlocksOptions.Value.Enabled", text)
 
     def test_tb_184_problem_details_extension(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Api" / "ProblemDetails" / "ProblemDetailsExtensions.cs"
+        path = REPO_ROOT / "ArchLucid.Api" / "ProblemDetails" / "ProblemDetailsExtensions.GovernanceProblems.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("blockExplanation", text)
 

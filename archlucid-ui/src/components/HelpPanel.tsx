@@ -1,13 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ChevronRight, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
-import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
-import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import {
   Dialog,
@@ -17,253 +13,37 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { KeyboardShortcutsTabContent, matchesShortcutQuery } from "@/components/KeyboardShortcutsHelpContent";
-import {
-  ALERTS_PAGE_SHORTCUTS,
-  FINDINGS_PAGE_SHORTCUTS,
-  SHELL_COMMAND_SHORTCUTS,
-  SHORTCUTS,
-} from "@/lib/shortcut-registry";
-import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
-import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
-import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
-import {
-  getDocHref,
-  getHelpTopicHref,
-  helpTopicsForGuidesTab,
-  helpTopicsForTroubleshootingTab,
-  type HelpTopic,
-} from "@/lib/help/help-topics";
-import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { getHelpTopicHref, type HelpTopic } from "@/lib/help/help-topics";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { OperatorShellSupportQuickLinks } from "@/components/help/OperatorShellSupportQuickLinks";
-import { Button } from "@/components/ui/button";
-import { DismissControl } from "@/components/usability/DismissControl";
 
-export type HelpTabId = "guides" | "shortcuts" | "troubleshooting";
+import { HelpGuideTopicLinkRow } from "./help-panel-topic-filter";
+import { HelpPanelGuidesTab } from "./HelpPanelGuidesTab";
+import { HelpPanelShortcutsTab } from "./HelpPanelShortcutsTab";
+import { useHelpPanel, type HelpPanelProps, type HelpTabId } from "./use-help-panel";
 
-export type HelpPanelProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  /** When the panel opens, select this tab (defaults to Guides). */
-  initialTab?: HelpTabId;
-};
-
-const HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY = "archlucid_help_core_pilot_pin_dismissed_session";
-
-const KEY_CONCEPTS: { label: string; text: string }[] = [
-  { label: "Request", text: "The architecture intent you submit." },
-  { label: "Architecture review", text: "The packaged review created from a request (context, graph, findings, finalized review record)." },
-  { label: SIGNED_MANIFEST_LABEL, text: "The finalized architecture output produced when a review is finalized." },
-  { label: "Artifacts", text: "Supporting files, findings, and review materials." },
-];
-
-/** Every row the Shortcuts tab can render, so a query never hides a shortcut the tab would show. */
-function allShortcutRowsForSearch(): { key: string; description: string }[] {
-  return [...SHELL_COMMAND_SHORTCUTS, ...SHORTCUTS, ...ALERTS_PAGE_SHORTCUTS, ...FINDINGS_PAGE_SHORTCUTS].map(
-    (entry) => ({ key: entry.key, description: entry.description }),
-  );
-}
-
-type HelpGuideTopicLinkRowProps = {
-  readonly topic: HelpTopic;
-  readonly href: string;
-  readonly onNavigate: () => void;
-};
-
-function HelpGuideTopicLinkRow({ topic, href, onNavigate }: HelpGuideTopicLinkRowProps): React.JSX.Element {
-  return (
-    <li className="list-none">
-      <Link
-        href={href}
-        title={topic.docPath.length > 0 ? topic.docPath : href}
-        className={cn(
-          "flex w-full items-start gap-3 rounded-md border border-neutral-200/90 bg-white p-3 text-left shadow-sm transition-colors hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900/50 dark:hover:border-neutral-500 dark:hover:bg-neutral-900",
-          OPERATOR_LINK.nav,
-        )}
-        onClick={onNavigate}
-      >
-        <span className="min-w-0 flex-1">
-          <span className="block font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</span>
-          <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            {topic.summary}
-          </span>
-        </span>
-        <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500" aria-hidden />
-      </Link>
-    </li>
-  );
-}
+export type { HelpTabId, HelpPanelProps } from "./use-help-panel";
 
 /**
  * Contextual help guides drawer: guides, keyboard shortcuts, and troubleshooting in one right-edge panel.
  */
-export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPanelProps) {
-  const pathname = usePathname() ?? "/";
-  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const [query, setQuery] = useState("");
-  const [tab, setTab] = useState<HelpTabId>(initialTab);
-  const [corePilotPinDismissedThisSession, setCorePilotPinDismissedThisSession] = useState(false);
-
-  useEffect(() => {
-    if (open) {
-      setTab(initialTab);
-    }
-  }, [open, initialTab]);
-
-  useLayoutEffect(() => {
-    try {
-      if (typeof window === "undefined") {
-        return;
-      }
-
-      if (sessionStorage.getItem(HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY) === "1") {
-        setCorePilotPinDismissedThisSession(true);
-      }
-    } catch {
-      /* private mode */
-    }
-  }, []);
-
-  const dismissCorePilotPinForSession = useCallback(() => {
-    try {
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem(HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY, "1");
-      }
-    } catch {
-      /* private mode */
-    }
-
-    setCorePilotPinDismissedThisSession(true);
-  }, []);
-
-  const allShortcutRows = useMemo(() => allShortcutRowsForSearch(), []);
-
-  const topicMatchesQuery = useCallback(
-    (t: HelpTopic) => {
-      const q = query.trim().toLowerCase();
-
-      if (q.length === 0) {
-        return true;
-      }
-
-      return (
-        t.title.toLowerCase().includes(q) ||
-        t.summary.toLowerCase().includes(q) ||
-        t.keywords.some((k) => k.includes(q))
-      );
-    },
-    [query],
-  );
-
-  const guidesBase = useMemo(() => helpTopicsForGuidesTab(), []);
-  const troubleshootingBase = useMemo(() => helpTopicsForTroubleshootingTab(), []);
-
-  const guidesFiltered = useMemo(() => {
-    const q = query.trim();
-
-    if (q.length === 0) {
-      const byRoute = guidesBase.filter((topic) =>
-        topic.routes.some((route) => pathname === route || pathname.startsWith(`${route}/`)),
-      );
-
-      return byRoute.length > 0 ? byRoute : guidesBase;
-    }
-
-    return guidesBase.filter(topicMatchesQuery);
-  }, [guidesBase, pathname, query, topicMatchesQuery]);
-
-  const troubleshootingFiltered = useMemo(() => {
-    if (query.trim().length === 0) {
-      return troubleshootingBase;
-    }
-
-    return troubleshootingBase.filter(topicMatchesQuery);
-  }, [query, topicMatchesQuery, troubleshootingBase]);
-
-  const shortcutsSearchHits = useMemo(() => {
-    const q = query.trim();
-
-    if (q.length === 0) {
-      return allShortcutRows;
-    }
-
-    return allShortcutRows.filter((row) => matchesShortcutQuery(q, row.description, row.key));
-  }, [allShortcutRows, query]);
-
-  const corePilotPinnedHelp = useMemo(() => {
-    if (hasCommittedArchitectureReview || corePilotPinDismissedThisSession) {
-      return null;
-    }
-
-    if (query.trim().length > 0) {
-      return null;
-    }
-
-    const pilotCtx = corePilotHelpStepForPath(pathname);
-
-    if (pilotCtx === null) {
-      return null;
-    }
-
-    const corePilotGuideHref = getDocHref("docs/CORE_PILOT.md");
-
-    return (
-      <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800">
-        <h3 className={cn("m-0 font-semibold text-al-text-primary dark:text-neutral-100", OPERATOR_NAV_GROUP_LABEL)}>
-          {FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE} — suggested next step
-        </h3>
-        <p className={cn("m-0 mt-2 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-          Step {pilotCtx.stepIndex + 1} of {CORE_PILOT_STEPS.length}: {pilotCtx.step.title}
-        </p>
-        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pilotCtx.step.shortBody}</p>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm" variant="primary">
-              <Link href={pilotCtx.step.primaryHref} onClick={() => onOpenChange(false)}>
-                {pilotCtx.step.primaryLabel}
-              </Link>
-            </Button>
-            {corePilotGuideHref ? (
-              <Button asChild size="sm" variant="outline">
-                <Link href={corePilotGuideHref} onClick={() => onOpenChange(false)}>
-                  {FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}
-                </Link>
-              </Button>
-            ) : null}
-          </div>
-          <DismissControl
-            className={cn(
-              "h-8 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
-              OPERATOR_TYPOGRAPHY.button,
-            )}
-            label="Dismiss for this session"
-            onDismiss={dismissCorePilotPinForSession}
-          />
-        </div>
-      </div>
-    );
-  }, [
-    corePilotPinDismissedThisSession,
-    dismissCorePilotPinForSession,
-    hasCommittedArchitectureReview,
-    onOpenChange,
-    pathname,
+export function HelpPanel(props: HelpPanelProps) {
+  const {
     query,
-  ]);
-
-  function handleOpenChange(next: boolean): void {
-    if (!next) {
-      setQuery("");
-      setTab("guides");
-    }
-
-    onOpenChange(next);
-  }
+    setQuery,
+    tab,
+    setTab,
+    guidesFiltered,
+    troubleshootingFiltered,
+    shortcutsSearchHits,
+    corePilotPinnedHelp,
+    handleOpenChange,
+    onOpenChange,
+  } = useHelpPanel(props);
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={props.open} onOpenChange={handleOpenChange}>
       <HelpDrawerContent
         data-testid="help-guides-panel"
         closeAriaLabel="Close help guides"
@@ -315,52 +95,11 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
 
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
             <TabsContent value="guides" className="space-y-4 pt-0" data-testid="help-panel-tabpanel-guides">
-              {corePilotPinnedHelp}
-              <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800">
-                <h3 className={cn("m-0 font-semibold text-al-text-primary dark:text-neutral-100", OPERATOR_NAV_GROUP_LABEL)}>
-                  Key concepts
-                </h3>
-                <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-                  {KEY_CONCEPTS.map((row) => (
-                    <li key={row.label}>
-                      <InlineGuidanceLabel label={`${row.label}:`} /> {row.text}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <h3 className={cn("m-0 font-semibold text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
-                Topics
-              </h3>
-              {guidesFiltered.length === 0 ? (
-                <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No topics match your search.</p>
-              ) : (
-                <ul className="m-0 space-y-2 p-0">
-                  {guidesFiltered.map((topic) => {
-                    const href = getHelpTopicHref(topic);
-
-                    if (href === null) {
-                      return (
-                        <li
-                          key={topic.id}
-                          className="rounded-md border border-neutral-200/90 bg-white p-3 dark:border-neutral-600 dark:bg-neutral-900/50"
-                        >
-                          <div className="font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</div>
-                          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{topic.summary}</p>
-                        </li>
-                      );
-                    }
-
-                    return (
-                      <HelpGuideTopicLinkRow
-                        key={topic.id}
-                        topic={topic}
-                        href={href}
-                        onNavigate={() => onOpenChange(false)}
-                      />
-                    );
-                  })}
-                </ul>
-              )}
+              <HelpPanelGuidesTab
+                corePilotPinnedHelp={corePilotPinnedHelp}
+                guidesFiltered={guidesFiltered}
+                onNavigate={() => onOpenChange(false)}
+              />
             </TabsContent>
 
             <TabsContent value="troubleshooting" className="space-y-3 pt-0" data-testid="help-panel-tabpanel-troubleshooting">
@@ -375,7 +114,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No topics match your search.</p>
               ) : (
                 <ul className="m-0 space-y-2 p-0">
-                  {troubleshootingFiltered.map((topic) => {
+                  {troubleshootingFiltered.map((topic: HelpTopic) => {
                     const href = getHelpTopicHref(topic);
 
                     if (href === null) {
@@ -404,30 +143,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
             </TabsContent>
 
             <TabsContent value="shortcuts" className="space-y-3 pt-0" data-testid="help-panel-tabpanel-shortcuts">
-              {query.trim().length > 0 && shortcutsSearchHits.length === 0 ? (
-                <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No shortcuts match your search.</p>
-              ) : query.trim().length > 0 ? (
-                <div>
-                  <h3 className={cn("mb-2 font-semibold text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
-                    Search results
-                  </h3>
-                  <div className="space-y-2 rounded-md border border-neutral-200/80 p-2 dark:border-neutral-600">
-                    {shortcutsSearchHits.map((row) => (
-                      <div key={row.key} className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-                        <kbd className={cn(
-                          "mr-2 rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono dark:border-neutral-600 dark:bg-neutral-800",
-                          OPERATOR_TYPOGRAPHY.micro,
-                        )}>
-                          {row.key}
-                        </kbd>
-                        {row.description}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <KeyboardShortcutsTabContent />
-              )}
+              <HelpPanelShortcutsTab query={query} shortcutsSearchHits={shortcutsSearchHits} />
             </TabsContent>
           </div>
         </Tabs>

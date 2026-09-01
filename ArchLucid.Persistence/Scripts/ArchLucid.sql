@@ -10611,9 +10611,22 @@ BEGIN
 END
 GO
 
-IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.Runs', N'CreatedByUserId') IS NULL
-    ALTER TABLE dbo.Runs ADD CreatedByUserId NVARCHAR(256) NULL;
+/* 337: Review-run creator identity (ADR 0064 synonym-safe). */
+DECLARE @createdByUserRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @createdByUserRunSql NVARCHAR(MAX);
+
+IF @createdByUserRunTable IS NOT NULL
+   AND COL_LENGTH(@createdByUserRunTable, N'CreatedByUserId') IS NULL
+BEGIN
+    SET @createdByUserRunSql = N'ALTER TABLE ' + @createdByUserRunTable + N' ADD CreatedByUserId NVARCHAR(256) NULL;';
+
+    EXEC sp_executesql @createdByUserRunSql;
+END
 GO
 
 /* 334: Platform-scoped operational error inbox for internal staff review (HTTP, database, and unhandled exceptions). */
