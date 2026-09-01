@@ -286,7 +286,7 @@ public sealed class BulkEvidenceUploadService(
         if (bundle is null)
             return;
 
-if (bundle.Metadata.TryGetValue(BulkEvidenceMetadataKeys.AttachedFileCountKey, out string? existingRaw)
+        if (bundle.Metadata.TryGetValue(BulkEvidenceMetadataKeys.AttachedFileCountKey, out string? existingRaw)
             && int.TryParse(existingRaw, out int existingCount))
         {
             bundle.Metadata[BulkEvidenceMetadataKeys.AttachedFileCountKey] = (existingCount + uploadedCount).ToString();
