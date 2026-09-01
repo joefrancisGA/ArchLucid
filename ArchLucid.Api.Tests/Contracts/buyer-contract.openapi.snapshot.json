@@ -8301,13 +8301,19 @@
       "CorePilotChecklistPutRequest": {
         "properties": {
           "isCompleted": {
-            "type": "boolean"
+            "type": [
+              "null",
+              "boolean"
+            ]
           },
           "stepIndex": {
             "format": "int32",
             "type": "integer"
           }
         },
+        "required": [
+          "isCompleted"
+        ],
         "type": "object"
       },
       "CorePilotChecklistStepResponse": {
@@ -21671,6 +21677,7 @@
             "minimum": -1,
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
+              "null",
               "integer",
               "string"
             ]

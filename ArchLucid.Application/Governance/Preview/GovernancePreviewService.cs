@@ -38,7 +38,7 @@ public sealed class GovernancePreviewService(
             throw new ArgumentException("ManifestVersion is required.", nameof(request));
         string runId = request.RunId.Trim();
         string manifestVersion = request.ManifestVersion.Trim();
-        string environment = NormalizeAndValidateEnvironment(request.Environment, nameof(request.Environment));
+        string environment = GovernanceEnvironment.NormalizeAndValidate(request.Environment, nameof(request.Environment));
         // Use the canonical run detail path to validate run existence and load its manifest.
         ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) ??
                                           throw new RunNotFoundException(runId);
@@ -88,8 +88,8 @@ public sealed class GovernancePreviewService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        string source = NormalizeAndValidateEnvironment(request.SourceEnvironment, nameof(request.SourceEnvironment));
-        string target = NormalizeAndValidateEnvironment(request.TargetEnvironment, nameof(request.TargetEnvironment));
+        string source = GovernanceEnvironment.NormalizeAndValidate(request.SourceEnvironment, nameof(request.SourceEnvironment));
+        string target = GovernanceEnvironment.NormalizeAndValidate(request.TargetEnvironment, nameof(request.TargetEnvironment));
 
         if (string.Equals(source, target, StringComparison.Ordinal))
             throw new ArgumentException("SourceEnvironment and TargetEnvironment must be different.", nameof(request));
@@ -141,25 +141,5 @@ public sealed class GovernancePreviewService(
         }
 
         return manifest;
-    }
-
-    private static string NormalizeAndValidateEnvironment(string environment, string paramName)
-    {
-        if (string.IsNullOrWhiteSpace(environment))
-            throw new ArgumentException("Environment is required.", paramName);
-
-        string normalized = environment.Trim();
-
-        if (!IsKnownEnvironment(normalized))
-            throw new ArgumentException("Environment must be one of: dev, test, prod.", paramName);
-
-        return normalized.ToLowerInvariant();
-    }
-
-    private static bool IsKnownEnvironment(string value)
-    {
-        return string.Equals(value, GovernanceEnvironment.Dev, StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(value, GovernanceEnvironment.Test, StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(value, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase);
     }
 }
