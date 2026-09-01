@@ -12,9 +12,9 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Bootstrap.Seeders;
 
-internal static class DemoSeedSeederServiceCollectionExtensions
+public static class DemoSeedSeederServiceCollectionExtensions
 {
-    internal static IServiceCollection AddDemoSeedScenarioSeeders(this IServiceCollection services)
+    public static IServiceCollection AddDemoSeedScenarioSeeders(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
 
