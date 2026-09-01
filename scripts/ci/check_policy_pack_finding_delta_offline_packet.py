@@ -59,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
         errors.append(f"{_DEMO_SCRIPT}: {ex}")
         demo_script = ""
 
-    if "OfflineFindingDelta" not in demo_script:
+    if demo_script and "OfflineFindingDelta" not in demo_script:
         errors.append(f"{_DEMO_SCRIPT}: missing -OfflineFindingDelta switch")
 
     try:
