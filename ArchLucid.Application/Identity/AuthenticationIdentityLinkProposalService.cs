@@ -170,11 +170,21 @@ public sealed class AuthenticationIdentityLinkProposalService(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        // Attachment is idempotent for this user's key; a lost finalization race means the identity is
-        // already linked, so return it and skip the confirmed-audit for the losing transition.
+        // Attachment is idempotent for this user's key. A lost finalization race is only an
+        // idempotent retry when the proposal is already Confirmed; re-read it and fail the
+        // confirm otherwise so a terminal (cancelled/expired) proposal is not left with a
+        // linked identity. The confirmed-audit is skipped for the losing transition.
         if (!confirmed)
         {
-            return attached;
+            AuthenticationIdentityLinkProposalRecord? current =
+                await _proposals.GetByIdAsync(proposalId, cancellationToken).ConfigureAwait(false);
+
+            if (current?.Status == AuthenticationIdentityLinkProposalStatus.Confirmed)
+            {
+                return attached;
+            }
+
+            throw new AuthenticationIdentityLinkProposalNotFoundException(proposalId);
         }
 
         await AuthAuditEmitter.LogIdentityEventAsync(
