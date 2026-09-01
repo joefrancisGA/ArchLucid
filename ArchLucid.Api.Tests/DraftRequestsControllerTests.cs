@@ -151,11 +151,11 @@ public sealed class DraftRequestsControllerTests
     }
 
     [Fact]
-    public async Task ListDrafts_MineOmitted_ReturnsBadRequest()
+    public async Task ListDrafts_MineNull_ReturnsBadRequest()
     {
         DraftRequestsController sut = BuildSut();
 
-        IActionResult result = await sut.ListDrafts(cancellationToken: CancellationToken.None);
+        IActionResult result = await sut.ListDrafts(mine: null, cancellationToken: CancellationToken.None);
 
         ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
