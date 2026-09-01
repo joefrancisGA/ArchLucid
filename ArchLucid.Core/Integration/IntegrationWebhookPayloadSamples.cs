@@ -70,7 +70,7 @@ public static class IntegrationWebhookPayloadSamples
             _ when KnownEventTypes.Contains(canonicalLegacy) => canonicalLegacy,
             _ => throw new ArgumentException(
                 $"Unknown event type alias '{eventTypeAlias}'. "
-                + "Try RunCommitted, RunCompleted, ManifestFinalized, or a com.archlucid.* constant.",
+                + "Try RunCommitted, RunCompleted, ManifestFinalized, or a com.archlucid.* (legacy com.archiforge.* supported) constant.",
                 nameof(eventTypeAlias))
         };
     }
