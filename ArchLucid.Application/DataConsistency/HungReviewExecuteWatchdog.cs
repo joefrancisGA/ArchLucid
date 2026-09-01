@@ -53,7 +53,7 @@ public sealed class HungReviewExecuteWatchdog(
         int maxRows = Math.Clamp(settings.MaxRowsPerPass, 1, 200);
         int staleHours = Math.Clamp(settings.StaleHours, 1, 72);
 
-await using DbConnection connection =
+        await using DbConnection connection =
             (await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false)) as DbConnection
             ?? throw new InvalidOperationException("IDbConnectionFactory returned a connection that is not a DbConnection.");
         List<Guid> candidateIds = await ReadCandidateIdsAsync(connection, maxRows, staleHours, cancellationToken)
