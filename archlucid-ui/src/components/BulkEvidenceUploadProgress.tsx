@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
