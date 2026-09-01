@@ -37,7 +37,13 @@ public sealed partial class DraftAdmissionService
             Guid? excludeRunId = ArchitectureReviewSourceRunResolver.TryParseRunGuid(existing.Document.PriorRunId);
 
             await _workspaceSystemNameCollisionGuard
-                .EnsureAvailableAsync(scope, existing.Document.SystemName, excludeDraftId: draftId, excludeRunId: excludeRunId, cancellationToken: cancellationToken)
+                .EnsureAvailableAsync(
+                    scope,
+                    existing.Document.SystemName,
+                    WorkspaceSystemNameOccupancyKind.Review,
+                    excludeDraftId: draftId,
+                    excludeRunId: excludeRunId,
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
 

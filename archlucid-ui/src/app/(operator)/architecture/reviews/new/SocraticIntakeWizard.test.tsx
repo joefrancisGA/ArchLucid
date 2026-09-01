@@ -1261,7 +1261,7 @@ describe("SocraticIntakeWizard", () => {
     fetchWorkspaceSystemNameAvailability.mockResolvedValue({
       systemName: "ArchLucid",
       isAvailable: false,
-      conflictMessage: "A review or architecture named 'ArchLucid' already exists in this workspace.",
+      conflictMessage: "A review named 'ArchLucid' already exists in this workspace.",
     });
 
     render(<SocraticIntakeWizard />);
@@ -1280,7 +1280,7 @@ describe("SocraticIntakeWizard", () => {
   it("shows a failed admission inline above the CTA instead of a toast", async () => {
     createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
     patchDraftRequest.mockRejectedValue(
-      new ApiRequestError("A review or architecture named 'ArchLucid' already exists in this workspace.", {
+      new ApiRequestError("A review named 'ArchLucid' already exists in this workspace.", {
         problem: null,
         correlationId: "corr-1",
         httpStatus: 409,

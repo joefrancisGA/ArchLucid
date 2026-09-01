@@ -3,6 +3,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Drafts.QuestionSelection;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -34,6 +35,7 @@ public sealed class DraftRequestCrudServiceWorkspaceNameCollisionTests
             .Setup(g => g.EnsureAvailableAsync(
                 Scope,
                 "ArchLucid",
+                WorkspaceSystemNameOccupancyKind.Architecture,
                 It.IsAny<Guid?>(),
                 priorRunId,
                 It.IsAny<CancellationToken>()))
@@ -68,6 +70,7 @@ public sealed class DraftRequestCrudServiceWorkspaceNameCollisionTests
             g => g.EnsureAvailableAsync(
                 Scope,
                 "ArchLucid",
+                WorkspaceSystemNameOccupancyKind.Architecture,
                 created.DraftId,
                 priorRunId,
                 It.IsAny<CancellationToken>()),
