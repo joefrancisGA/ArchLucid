@@ -2,7 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.OperationalErrors;
-using ArchLucid.Core.Persistence.ApplicationPorts.Connections;
+using ArchLucid.Persistence.Connections;
 
 namespace ArchLucid.Application.OperationalErrors;
 
@@ -11,7 +11,7 @@ public static class OperationalErrorRecordBuilder
     public static OperationalErrorRecord Build(OperationalErrorCaptureRequest request, OperationalErrorOptions options)
     {
         Exception? exception = request.Exception;
-        bool hasSqlError = SqlExceptionTraversal.TryFind(exception, out SqlErrorSnapshot sqlError);
+        bool hasSqlError = SqlExceptionErrorMetadata.TryRead(exception, out SqlExceptionErrorMetadata sqlError);
 
         string message = request.MessageOverride ?? exception?.Message ?? "HTTP error";
 
