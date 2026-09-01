@@ -67,7 +67,7 @@ public sealed partial class SqlTenantSqlCatalogProvisioner
                 _logger.LogError(ex, "Tenant catalog provisioning failed for tenant {TenantId}.", tenantId);
 
             if (claimedStandby is not null)
-                await _warmStandbyRepository.ReleaseClaimAsync(claimedStandby.StandbyId, cancellationToken);
+                await _warmStandbyRepository.ReleaseClaimAsync(claimedStandby.StandbyId, CancellationToken.None);
 
             await _bindingRepository.MarkFailedAsync(tenantId, ex.Message, cancellationToken);
 

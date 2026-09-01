@@ -1,33 +1,27 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  listArchitectureDraftRegistryEntries,
-  upsertArchitectureDraftRegistryEntry,
-} from "@/lib/architecture/architecture-draft-registry";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
+
+const invalidateArchitectureDraftListQueries = vi.fn();
+
+vi.mock("@/lib/architecture/architecture-draft-list-client", () => ({
+  invalidateArchitectureDraftListQueries: () => invalidateArchitectureDraftListQueries(),
+}));
 
 describe("syncArchitectureDraftRegistryForFinalizedReview", () => {
   beforeEach(() => {
-    window.localStorage.clear();
+    invalidateArchitectureDraftListQueries.mockReset();
   });
 
-  it("updates linked draft rows to review-linked status", () => {
-    upsertArchitectureDraftRegistryEntry({
-      architectureId: "arch-vertex",
-      displayName: "Vertex",
-      customerStatus: "ready-for-review",
-      ownerLabel: "You",
-      lastUpdatedUtc: "2026-08-27T12:00:00.000Z",
-      linkedReviewId: "run-vertex",
-      serverUpdatedUtc: "2026-08-27T12:00:00.000Z",
-      serverDraftStatus: "RunSpawned",
-    });
-
+  it("invalidates the server-backed draft inventory when a linked review finalizes", () => {
     syncArchitectureDraftRegistryForFinalizedReview("run-vertex");
 
-    const [entry] = listArchitectureDraftRegistryEntries();
+    expect(invalidateArchitectureDraftListQueries).toHaveBeenCalledTimes(1);
+  });
 
-    expect(entry?.customerStatus).toBe("review-linked");
-    expect(entry?.linkedReviewId).toBe("run-vertex");
+  it("ignores blank run ids", () => {
+    syncArchitectureDraftRegistryForFinalizedReview("   ");
+
+    expect(invalidateArchitectureDraftListQueries).not.toHaveBeenCalled();
   });
 });

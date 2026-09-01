@@ -63,7 +63,7 @@ X-Workspace-Id: {workspaceId}
 X-Project-Id: {projectId}
 ```
 
-**Talk track:** *"At P0 floor we enforce the must-have rule subset first — this is how pilots start without blocking on every advisory."*
+**Talk track:** *"At P0 floor we enforce the must-have rule subset first — this is how pilots start without blocking on every advisory. Overlay extras are separate: CIS Azure stamps topology identity; FinOps stamps cost.requireBudgetCap; SOC 2 assignment alone does neither."*
 
 ---
 
@@ -74,7 +74,7 @@ X-Project-Id: {projectId}
 | Proof path | What it demonstrates |
 | --- | --- |
 | **Offline (CI)** | `PolicyFilteredGoldenCorpusTests` — SOC 2 vs CIS Azure changes compliance rule ids; `PolicyFilteredDeclarationGoldenCorpusTests` — `soc2-004` vs `cis-az-006` changes declaration titles; `PolicyExpectationCoverageGoldenCorpusTests` — stamped `identity` extra changes topology missing categories |
-| **Talk track** | Same graph, two filtered packs → different finding rule ids / severities; overlay extras (FinOps budget cap, CIS identity) change coverage/cost rows when bundled JSON contains the keys |
+| **Talk track** | Same graph, two filtered packs → different finding rule ids / severities; overlay extras (FinOps `cost.requireBudgetCap`, CIS `expectation.topologyCategories.add=identity`) change coverage/cost rows when bundled JSON contains the keys |
 | **Screenshot checklist** | Findings list, severity column, pre-finalize verdict, audit `FindingsSnapshotSealed` / policy assignment rows |
 
 **Honesty:** SOC 2 assignment alone does **not** add topology `identity` unless that pack's `advisoryDefaults` includes `expectation.topologyCategories.add=identity`. See [`docs/quality/policy-filter-golden-delta.md`](../quality/policy-filter-golden-delta.md).
@@ -104,7 +104,21 @@ Optional: `.\scripts\demo-policy-pack-delta.ps1 -RunId … -ShowFindingDelta` dr
   -OutputDirectory artifacts/policy-pack-delta-demo
 ```
 
-**Offline-only (no API):** run the declaration guard directly:
+**Offline-only (no API, no founder, no committed run):** write the sales-engineer cite packet from sample pack JSON (SOC 2 vs CIS Azure keys + FinOps `cost.requireBudgetCap` + CIS identity overlay extra):
+
+```powershell
+.\scripts\demo-policy-pack-delta.ps1 -OfflineFindingDelta
+```
+
+Or:
+
+```bash
+python3 scripts/ci/write_policy_pack_finding_delta_offline_packet.py --out artifacts/policy-pack-delta-demo/offline
+```
+
+Output: `finding-delta-offline.md` + `finding-delta-offline.json`. Honesty: SOC 2 does **not** stamp topology identity; CIS Azure sample includes `expectation.topologyCategories.add=identity`; FinOps overlay is `cost.requireBudgetCap`.
+
+**Offline golden tests (declaration graph fixtures):**
 
 ```powershell
 dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~BundledPolicyPackDeclarationThemeTests"
