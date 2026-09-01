@@ -297,7 +297,7 @@ if ($OfflineFindingDelta) {
     Write-Host 'Talk track: same architecture, SOC 2 vs CIS Azure finding sets at P1; CIS identity extra + FinOps requireBudgetCap overlay.'
     Write-Host 'Live dry-run is optional: re-run with -RunId <guid> -ShowFindingDelta -DeclarationPriorityFloor P1'
 
-    exit 0
+    return
 }
 
 if ([string]::IsNullOrWhiteSpace($RunId)) {
