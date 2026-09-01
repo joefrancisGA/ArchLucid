@@ -39,7 +39,8 @@ public sealed class WorkspaceSystemNameAvailabilityController(
         [FromQuery] string? systemName,
         [FromQuery] Guid? excludeDraftId,
         [FromQuery] Guid? excludeRunId,
-        CancellationToken cancellationToken)
+        [FromQuery] WorkspaceSystemNameOccupancyKind occupancyKind = WorkspaceSystemNameOccupancyKind.Review,
+        CancellationToken cancellationToken = default)
     {
         string trimmedName = systemName?.Trim() ?? string.Empty;
 
@@ -54,7 +55,7 @@ public sealed class WorkspaceSystemNameAvailabilityController(
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         bool isAvailable = await _collisionGuard
-            .IsAvailableAsync(scope, trimmedName, excludeDraftId, excludeRunId, cancellationToken)
+            .IsAvailableAsync(scope, trimmedName, occupancyKind, excludeDraftId, excludeRunId, cancellationToken)
             .ConfigureAwait(false);
 
         return Ok(new WorkspaceSystemNameAvailabilityResponse
@@ -63,7 +64,7 @@ public sealed class WorkspaceSystemNameAvailabilityController(
             IsAvailable = isAvailable,
             ConflictMessage = isAvailable
                 ? null
-                : WorkspaceSystemNameCollisionGuard.BuildConflictMessage(trimmedName),
+                : WorkspaceSystemNameCollisionGuard.BuildConflictMessage(trimmedName, occupancyKind),
         });
     }
 }

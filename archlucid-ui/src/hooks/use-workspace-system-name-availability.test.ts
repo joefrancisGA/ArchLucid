@@ -37,7 +37,7 @@ describe("useWorkspaceSystemNameAvailability", () => {
     vi.mocked(fetchWorkspaceSystemNameAvailability).mockResolvedValue({
       systemName: "ArchLucid",
       isAvailable: false,
-      conflictMessage: "A review or architecture named 'ArchLucid' already exists in this workspace.",
+      conflictMessage: "A review named 'ArchLucid' already exists in this workspace.",
     });
 
     const { result } = renderHook(() =>
@@ -53,7 +53,7 @@ describe("useWorkspaceSystemNameAvailability", () => {
     expect(result.current.blocksSubmit).toBe(true);
     expect(result.current.conflictMessage).toContain("ArchLucid");
     expect(fetchWorkspaceSystemNameAvailability).toHaveBeenCalledWith(
-      expect.objectContaining({ systemName: "ArchLucid" }),
+      expect.objectContaining({ systemName: "ArchLucid", occupancyKind: "review" }),
     );
   });
 

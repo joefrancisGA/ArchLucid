@@ -59,6 +59,7 @@ public sealed class DraftRequestRerunSystemNameCollisionTests
             .Setup(static g => g.EnsureAvailableAsync(
                 It.IsAny<ScopeContext>(),
                 It.IsAny<string>(),
+                It.IsAny<WorkspaceSystemNameOccupancyKind>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
@@ -105,6 +106,7 @@ public sealed class DraftRequestRerunSystemNameCollisionTests
             g => g.EnsureAvailableAsync(
                 It.IsAny<ScopeContext>(),
                 "ArchLucid",
+                WorkspaceSystemNameOccupancyKind.Architecture,
                 draftId,
                 PriorRunId,
                 It.IsAny<CancellationToken>()),
@@ -125,6 +127,7 @@ public sealed class DraftRequestRerunSystemNameCollisionTests
             g => g.EnsureAvailableAsync(
                 It.IsAny<ScopeContext>(),
                 "ArchLucid",
+                WorkspaceSystemNameOccupancyKind.Review,
                 draftId,
                 PriorRunId,
                 It.IsAny<CancellationToken>()),

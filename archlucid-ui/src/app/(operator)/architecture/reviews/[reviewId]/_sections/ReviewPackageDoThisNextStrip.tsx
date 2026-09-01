@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
+import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import {
   OperatorErrorCallout,
   OperatorWarningCallout,
@@ -280,6 +281,13 @@ export function ReviewPackageDoThisNextStrip(
               disabled={hasGoldenManifest}
               commitBlockedReason={commitBlockedReason}
               buttonVariant="primary"
+            />
+          ) : next.kind === "rerun-review" && !blockRerun ? (
+            <ReRunReviewButton
+              runId={runId}
+              variant={buttonVariant}
+              size="sm"
+              data-testid="review-package-re-run-review"
             />
           ) : next.href !== null && !blockRerun ? (
             <Button type="button" variant={buttonVariant} size="sm" asChild>

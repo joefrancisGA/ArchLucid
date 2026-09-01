@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Application.Common;
@@ -162,6 +163,7 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
                 .EnsureAvailableAsync(
                     scope,
                     request.SystemName,
+                    WorkspaceSystemNameOccupancyKind.Review,
                     excludeRunId: excludeRunId,
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
@@ -180,6 +182,7 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
             .EnsureAvailableAsync(
                 scope,
                 request.SystemName,
+                WorkspaceSystemNameOccupancyKind.Review,
                 excludeRunId: excludeRunId,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
@@ -226,7 +229,12 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         await _workspaceSystemNameCollisionGuard
-            .EnsureAvailableAsync(scope, request.SystemName, excludeRunId: runId, cancellationToken: cancellationToken)
+            .EnsureAvailableAsync(
+                scope,
+                request.SystemName,
+                WorkspaceSystemNameOccupancyKind.Review,
+                excludeRunId: runId,
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         // Do not open the completion UoW until coordination returns. Dapper begins a SQL
