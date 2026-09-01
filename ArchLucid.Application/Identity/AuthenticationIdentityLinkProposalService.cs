@@ -149,15 +149,6 @@ public sealed class AuthenticationIdentityLinkProposalService(
         await EnsureExternalKeyAvailableAsync(userId, proposal.ToExternalKey(), actorId, cancellationToken)
             .ConfigureAwait(false);
 
-        DateTimeOffset now = _timeProvider.GetUtcNow();
-
-        await UpdatePendingProposalStatusAsync(
-                proposalId,
-                AuthenticationIdentityLinkProposalStatus.Confirmed,
-                now,
-                cancellationToken)
-            .ConfigureAwait(false);
-
         VerifiedExternalIdentityCreateRequest attachRequest = new()
         {
             ExternalKey = proposal.ToExternalKey(),
@@ -169,6 +160,22 @@ public sealed class AuthenticationIdentityLinkProposalService(
         AuthenticationIdentityRecord attached = await _platformIdentity
             .AttachIdentityToExistingUserAsync(userId, attachRequest, cancellationToken)
             .ConfigureAwait(false);
+
+        // Finalize the proposal only after attachment succeeded so a failed attach leaves it retryable.
+        bool confirmed = await _proposals
+            .TryUpdateStatusAsync(
+                proposalId,
+                AuthenticationIdentityLinkProposalStatus.Confirmed,
+                _timeProvider.GetUtcNow(),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        // Attachment is idempotent for this user's key; a lost finalization race means the identity is
+        // already linked, so return it and skip the confirmed-audit for the losing transition.
+        if (!confirmed)
+        {
+            return attached;
+        }
 
         await AuthAuditEmitter.LogIdentityEventAsync(
                 _auditService,

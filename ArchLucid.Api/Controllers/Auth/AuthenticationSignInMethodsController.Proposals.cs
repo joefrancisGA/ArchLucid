@@ -63,6 +63,12 @@ public sealed partial class AuthenticationSignInMethodsController
                 "This sign-in method is already linked to another account.",
                 ProblemTypes.ValidationFailed);
         }
+        catch (DuplicateAuthenticationIdentityException)
+        {
+            return this.BadRequestProblem(
+                "This sign-in method is already linked to another account.",
+                ProblemTypes.ValidationFailed);
+        }
     }
 
     [HttpDelete("proposals/{proposalId:guid}")]
