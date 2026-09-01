@@ -9,7 +9,7 @@ import { EvidenceExtractionAwaitingSkeleton } from "@/components/evidence/Eviden
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
@@ -362,180 +362,185 @@ export function SocraticIntakeWizard() {
       {step === 1 ? (
         <div data-testid="socratic-clarifications-step">
           <Card data-testid="guided-intake-primary-panel">
-            <CardHeader>
-            <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
-            <CardDescription>
-              {isCreateArchitectureFlow ? (
-                <>
-                  {GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION}{" "}
-                  Your answers stay with the architecture draft until you choose to start a review.
-                </>
-              ) : activePendingQuestions.length === 0 ? (
-                "All required clarifications are answered or skipped. You can continue."
-              ) : (
-                `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`
+            <CardHeader className="pb-2">
+              <CardTitle className="sr-only">{INTAKE_STEPS[1].cardTitle}</CardTitle>
+              <CardDescription>
+                {isCreateArchitectureFlow ? (
+                  <>
+                    {GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION}{" "}
+                    Your answers stay with the architecture draft until you choose to start a review.
+                  </>
+                ) : activePendingQuestions.length === 0 ? (
+                  "All required clarifications are answered or skipped. You can continue."
+                ) : (
+                  `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`
+                )}
+              </CardDescription>
+            </CardHeader>
+            <CardContent
+              className={cn(
+                OPERATOR_LAYOUT.sectionStack,
+                viewAllClarifications ? WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS : undefined,
               )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent
-            className={cn(
-              OPERATOR_LAYOUT.sectionStack,
-              viewAllClarifications ? WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS : undefined,
-            )}
-          >
-            {primaryPendingQuestion !== null
-              ? renderClarificationField(primaryPendingQuestion, {
-                  isPrimary: true,
-                  isFocused: !viewAllClarifications,
-                })
-              : null}
+            >
+              {primaryPendingQuestion !== null
+                ? renderClarificationField(primaryPendingQuestion, {
+                    isPrimary: true,
+                    isFocused: !viewAllClarifications,
+                  })
+                : null}
 
-            {isExtractingEvidenceText ? <EvidenceExtractionAwaitingSkeleton /> : null}
+              {isExtractingEvidenceText ? <EvidenceExtractionAwaitingSkeleton /> : null}
 
-            {canSuggestFromEvidence ? (
-              <div className="space-y-4" data-testid="guided-intake-clarification-suggest-from-brief">
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                  {GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_HELPER}
-                </p>
-                {isSimulator ? (
-                  <p
-                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="guided-intake-clarification-simulator-suggest-helper"
-                  >
-                    {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER}
+              {canSuggestFromEvidence ? (
+                <div
+                  className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
+                  data-testid="guided-intake-clarification-suggest-from-brief"
+                >
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    {GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_HELPER}
                   </p>
-                ) : null}
+                  {isSimulator ? (
+                    <p
+                      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="guided-intake-clarification-simulator-suggest-helper"
+                    >
+                      {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER}
+                    </p>
+                  ) : null}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={busy || isExtractingEvidenceText}
+                    data-testid="guided-intake-suggest-from-brief"
+                    onClick={() => {
+                      suggestAnswersFromEvidence();
+                    }}
+                  >
+                    {isExtractingEvidenceText
+                      ? "Suggesting answers…"
+                      : GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_LABEL}
+                  </Button>
+                </div>
+              ) : null}
+
+              {suggestedDraftCount > 0 && !viewAllClarifications ? (
+                <p
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="guided-intake-clarification-inferred-helper"
+                >
+                  {hasRephrasedSuggestions
+                    ? UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER
+                    : UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER}
+                </p>
+              ) : null}
+
+              {suggestedDraftCount > 0 && !viewAllClarifications ? (
+                <p
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="guided-intake-clarification-suggested-draft-count"
+                >
+                  {suggestedDraftCount} suggested from your architecture brief — review and save each.
+                </p>
+              ) : null}
+
+              {clarificationSuggestionsUnavailable ? (
+                <p
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="guided-intake-clarification-inference-unavailable"
+                >
+                  {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER}
+                </p>
+              ) : null}
+
+              {pendingQuestions.length > 1 ? (
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  disabled={busy || isExtractingEvidenceText}
-                  data-testid="guided-intake-suggest-from-brief"
+                  disabled={busy}
+                  data-testid="socratic-view-all-clarifications"
                   onClick={() => {
-                    suggestAnswersFromEvidence();
+                    setViewAllClarifications((current) => !current);
                   }}
                 >
-                  {isExtractingEvidenceText
-                    ? "Suggesting answers…"
-                    : GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_LABEL}
+                  {viewAllClarifications
+                    ? "Show one at a time"
+                    : `Show all ${totalRequiredClarifications} clarifications`}
                 </Button>
-              </div>
-            ) : null}
+              ) : null}
 
-            {suggestedDraftCount > 0 ? (
-              <p
-                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="guided-intake-clarification-inferred-helper"
-              >
-                {hasRephrasedSuggestions
-                  ? UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER
-                  : UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER}
-              </p>
-            ) : null}
+              {otherPendingQuestions.length > 0 ? (
+                <div className="space-y-4" data-testid="socratic-other-clarifications">
+                  <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.tab)}>
+                    Other required clarifications
+                  </p>
+                  {otherPendingQuestions.map((question) =>
+                    renderClarificationField(question, {
+                      isPrimary: false,
+                      isFocused: false,
+                    }),
+                  )}
+                </div>
+              ) : null}
 
-            {suggestedDraftCount > 0 ? (
-              <p
-                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="guided-intake-clarification-suggested-draft-count"
-              >
-                {suggestedDraftCount} suggested from your architecture brief — review and save each.
-              </p>
-            ) : null}
-
-            {clarificationSuggestionsUnavailable ? (
-              <p
-                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="guided-intake-clarification-inference-unavailable"
-              >
-                {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER}
-              </p>
-            ) : null}
-
-            {pendingQuestions.length > 1 ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={busy}
-                data-testid="socratic-view-all-clarifications"
-                onClick={() => {
-                  setViewAllClarifications((current) => !current);
-                }}
-              >
-                {viewAllClarifications
-                  ? "Show one at a time"
-                  : `Show all ${totalRequiredClarifications} clarifications`}
-              </Button>
-            ) : null}
-
-            {otherPendingQuestions.length > 0 ? (
-              <div className="space-y-3" data-testid="socratic-other-clarifications">
-                <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.tab)}>
-                  Other required clarifications
-                </p>
-                {otherPendingQuestions.map((question) =>
-                  renderClarificationField(question, {
-                    isPrimary: false,
-                    isFocused: false,
-                  }),
-                )}
-              </div>
-            ) : null}
-
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="socratic-clarification-helper">
-              Answer or skip each clarification. You can review everything before starting the architecture review.
-            </p>
-
-            {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
-          </CardContent>
-        </Card>
-
-        <div
-          className={WIZARD_STICKY_FOOTER_CLASS}
-          data-testid={WIZARD_STICKY_FOOTER_TEST_ID}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="space-y-1">
-              <p
-                className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="socratic-clarifications-answered-counter"
-              >
-                {guidedIntakeClarificationsAnsweredCounter(
-                  handledClarificationCount,
-                  totalRequiredClarifications,
-                )}
-              </p>
-              {!allClarificationsHandled ? (
-                <p
-                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="socratic-review-answers-hint"
-                >
-                  {GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT}
+              {!viewAllClarifications ? (
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="socratic-clarification-helper">
+                  Answer or skip each clarification. You can review everything before starting the architecture review.
                 </p>
               ) : null}
-            </div>
-            <Button
-              type="button"
-              variant="primary"
-              disabled={!canReviewAnswers}
-              onClick={() => {
-                if (isSubmitBlocked) {
-                  return;
-                }
 
-                if (pendingQuestions.length === 0) {
-                  setStep(2);
-                  return;
-                }
+              {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
+            </CardContent>
 
-                void reviewAnswers();
-              }}
-              data-testid="socratic-questions-done"
+            <CardFooter
+              className={cn(WIZARD_STICKY_FOOTER_CLASS, "flex-col items-stretch gap-0 p-4 pt-0")}
+              data-testid={WIZARD_STICKY_FOOTER_TEST_ID}
             >
-              {resolveGuidedIntakeClarificationsDoneLabel(allClarificationsHandled, busy)}
-            </Button>
-          </div>
-        </div>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <p
+                    className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
+                    data-testid="socratic-clarifications-answered-counter"
+                  >
+                    {guidedIntakeClarificationsAnsweredCounter(
+                      handledClarificationCount,
+                      totalRequiredClarifications,
+                    )}
+                  </p>
+                  {!allClarificationsHandled ? (
+                    <p
+                      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="socratic-review-answers-hint"
+                    >
+                      {GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT}
+                    </p>
+                  ) : null}
+                </div>
+                <Button
+                  type="button"
+                  variant="primary"
+                  disabled={!canReviewAnswers}
+                  onClick={() => {
+                    if (isSubmitBlocked) {
+                      return;
+                    }
+
+                    if (pendingQuestions.length === 0) {
+                      setStep(2);
+                      return;
+                    }
+
+                    void reviewAnswers();
+                  }}
+                  data-testid="socratic-questions-done"
+                >
+                  {resolveGuidedIntakeClarificationsDoneLabel(allClarificationsHandled, busy)}
+                </Button>
+              </div>
+            </CardFooter>
+          </Card>
         </div>
       ) : null}
 
