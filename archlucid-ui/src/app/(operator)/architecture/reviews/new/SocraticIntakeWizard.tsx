@@ -234,14 +234,18 @@ export function SocraticIntakeWizard() {
           onDismiss={wizardSession.dismissRestore}
         />
       ) : null}
-      <div className="flex justify-end">
+      <div
+        className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+        data-testid="socratic-intake-stepper-row"
+      >
+        <WizardStepper
+          steps={[...INTAKE_WIZARD_STEPPER_STEPS]}
+          currentStep={step}
+          completedSteps={completedWizardSteps}
+          className="min-w-0 flex-1"
+        />
         <WizardSessionSaveStatus saveState={wizardSession.saveState} />
       </div>
-      <WizardStepper
-        steps={[...INTAKE_WIZARD_STEPPER_STEPS]}
-        currentStep={step}
-        completedSteps={completedWizardSteps}
-      />
       {draftId !== null && step >= 1 ? (
         <div data-testid="socratic-intake-advanced-options">
           <SocraticIntakeWizardAdvancedRail
