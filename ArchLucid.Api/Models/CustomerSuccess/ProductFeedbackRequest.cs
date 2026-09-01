@@ -20,7 +20,7 @@ public sealed class ProductFeedbackRequest
 
     /// <summary>-1 = thumbs down, 0 = neutral, 1 = thumbs up.</summary>
     [Range(-1, 1)]
-    public short Score
+    public short? Score
     {
         get;
         init;
