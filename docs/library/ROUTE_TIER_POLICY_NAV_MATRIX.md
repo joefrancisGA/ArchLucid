@@ -144,6 +144,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Analytics/PatternInsightsController.cs` | `/v1/analytics/patterns` | none | Authorize |  |  |
 | `Analytics/RoiAnalyticsController.cs` | `/v1/analytics` | none | ReadAuthority |  |  |
 | `Architecture/DraftRequestsController.cs` | `/v1/architecture/draft` | standard | AuthenticatedUserOnly |  |  |
+| `Architecture/WorkspaceSystemNameAvailabilityController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Architecture/WizardIntakeDraftsController.cs` | `/v1/architecture/intake/wizard-draft` | none | AuthenticatedUserOnly |  |  |
 | `ArchitectureIntelligence/ArchitectureIntelligenceController.cs` | `/v1/architecture-intelligence` | standard | ExecuteAuthority |  |  |
 | `Auth/AuthSignInRoutingController.cs` | `/v1/auth/routing` | none | AllowAnonymous |  |  |
