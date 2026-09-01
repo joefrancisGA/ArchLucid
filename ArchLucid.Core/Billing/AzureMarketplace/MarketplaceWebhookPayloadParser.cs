@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Core.Tenancy;
@@ -50,6 +51,20 @@ public static class MarketplaceWebhookPayloadParser
         {
             if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
                 continue;
+
+            if (property.Value.ValueKind == JsonValueKind.Number && property.Value.TryGetInt64(out long numeric))
+            {
+                value = numeric.ToString(CultureInfo.InvariantCulture);
+
+                return true;
+            }
+
+            if (property.Value.ValueKind != JsonValueKind.String)
+            {
+                value = null;
+
+                return false;
+            }
 
             value = property.Value.GetString();
 

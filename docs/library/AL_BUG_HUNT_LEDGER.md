@@ -1758,13 +1758,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 15
-- **bugs-found:** 30
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — FindingJsonConverter PascalCase scalars, numeric optional-string coercion, quality-gate undefined ordinal lint
+- **hunts:** 16
+- **bugs-found:** 35
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-01
+- **last-bug:** 2026-09-01 — FindingJsonConverter PascalCase severity/scalars, numeric relatedNodeIds, legacy webhook alias MapToCanonical, numeric marketplace planId
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1806,6 +1806,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.Read` case-sensitive on `category`, `enforcementTier`, `humanReviewStatus`, and `evaluationConfidenceLevel` — PascalCase exporter labels silently defaulted on reload — **hit 2026-08-31 (#279):** `TryGetPropertyCaseInsensitive` for remaining scalar enum/string fields; regression in `FindingJsonConverterTests.Deserialize_pascal_case_category_maps_value`, `Deserialize_pascal_case_enforcementTier_maps_advisory`, `Deserialize_pascal_case_humanReviewStatus_maps_approved`, `Deserialize_pascal_case_evaluationConfidenceLevel_maps_high`.
 - [x] (proven) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` / `runIdRef` tokens threw or returned null — **hit 2026-08-31 (#279):** coerce number tokens to invariant strings; regression in `FindingJsonConverterTests.Deserialize_numeric_runIdRef_coerces_to_string`, `Deserialize_numeric_agentExecutionTraceId_coerces_to_string`.
 - [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — undefined `AgentOutputQualityGateMode` numeric-strings parsed via bare `Enum.TryParse` and suppressed production-like WarnOnly advisory — **hit 2026-08-31 (#279):** `Enum.IsDefined` guard with fail-open emit for undefined numeric ordinals; regression in `QualityGateWarnOnlyProductionLikeConfigurationLintTests.ShouldEmitFinding_production_real_undefined_quality_gate_numeric_string_emits_rule`.
+- [x] (proven) `FindingJsonConverter.ReadSeverity` — PascalCase `"Severity"` defaulted to `Info` while sibling enum fields used case-insensitive lookup — **hit 2026-09-01 (#417):** `TryGetPropertyCaseInsensitive` in `ReadSeverity`; regression in `FindingJsonConverterTests.Deserialize_pascal_case_severity_maps_error`.
+- [x] (proven) `FindingJsonConverter.Read` — PascalCase `ConfidenceScore` / `InsightDensityScore` (and sibling numeric scalars) silently dropped on snapshot reload — **hit 2026-09-01 (#417):** case-insensitive lookup for remaining numeric scalar fields; regression in `FindingJsonConverterTests.Deserialize_pascal_case_confidenceScore_maps_value`.
+- [x] (proven) `FindingJsonConverter.ReadStringList` — numeric `relatedNodeIds` array entries threw and aborted full finding deserialize — **hit 2026-09-01 (#417):** coerce number tokens via `ReadStringDictValue`; regression in `FindingJsonConverterTests.Deserialize_relatedNodeIds_numeric_entries_coerce_to_strings`.
+- [x] (proven) `IntegrationWebhookPayloadSamples.ResolveEventType` — legacy `com.archiforge.*` vendor aliases threw before `IntegrationEventTypes.MapToCanonical` — **hit 2026-09-01 (#417):** map legacy alias before known-set lookup; regression in `CorePackageCoverageBatchRc27Tests.ResolveEventType_maps_legacy_vendor_alias_before_known_set_lookup`.
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryGetPlanId` — numeric `planId` threw via `GetString()` instead of coercing like `ReadQuantity` — **hit 2026-09-01 (#417):** accept string or number tokens in `TryGetStringPropertyCaseInsensitive`; regression in `MarketplaceWebhookPayloadParserTests.TryGetPlanId_reads_numeric_planId`.
+- [ ] (candidate) `AlertRoutingCriteriaMetadata.ReadStringArray` — numeric severity ordinals in `severities` array silently dropped; only string entries survive routing filter parse.
+
+2026-09-01 seed hunt #417 (hit): reseeded from ArchLucid.Core; proved PascalCase severity/scalar gaps, numeric relatedNodeIds coercion, legacy webhook alias MapToCanonical wiring, and numeric marketplace planId; seeded alert-routing numeric severity ordinal candidate.
 
 2026-08-31 thorough hunt #311 (dry): cheap-disproved stale picker candidates — all three #279 rows already on master via PR #900; regression tests pass; no failing repro.
 
