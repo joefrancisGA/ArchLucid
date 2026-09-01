@@ -68,6 +68,29 @@ public sealed class GovernanceCoverageControllerScopeTests
     }
 
     [Fact]
+    public async Task PreviewCoverage_returns_bad_request_when_body_is_null()
+    {
+        Mock<ICoveragePreviewService> preview = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        GovernanceCoverageController controller = new(
+            Mock.Of<ICoverageQueryService>(),
+            preview.Object,
+            Mock.Of<IPolicyPackRepository>(),
+            scopeProvider.Object,
+            TenantExistsRepository());
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await controller.PreviewCoverage(null, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task PreviewCoverage_returns_not_found_when_workspace_missing()
     {
         Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
@@ -258,7 +281,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             Mock.Of<ICoveragePreviewService>(),
             packs.Object,
             scopeProvider.Object,
-            TenantExistsRepository());
+            TenantExistsRepository())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
 
         IActionResult action = await controller.GetScopeCoverage(CancellationToken.None);
 
