@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
@@ -50,11 +51,14 @@ public sealed class CorePilotTeamChecklistController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         IReadOnlyList<CorePilotChecklistStepRow> rows = await _repository
             .ListAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
@@ -88,11 +92,17 @@ public sealed class CorePilotTeamChecklistController(
         if (body.StepIndex is < 0 or > 3)
             return this.BadRequestProblem("stepIndex must be between 0 and 3.", ProblemTypes.ValidationFailed);
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        if (!body.IsCompleted.HasValue)
+            return this.BadRequestProblem("isCompleted is required.", ProblemTypes.ValidationFailed);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         string actor = _actorContext.GetActorId();
 
@@ -102,7 +112,7 @@ public sealed class CorePilotTeamChecklistController(
                 scope.WorkspaceId,
                 scope.ProjectId,
                 body.StepIndex,
-                body.IsCompleted,
+                body.IsCompleted.Value,
                 actor,
                 cancellationToken)
             .ConfigureAwait(false);
@@ -120,7 +130,7 @@ public sealed class CorePilotTeamChecklistController(
                     new
                     {
                         stepIndex = body.StepIndex,
-                        isCompleted = body.IsCompleted
+                        isCompleted = body.IsCompleted.Value
                     })
             },
             cancellationToken);

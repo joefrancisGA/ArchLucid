@@ -22,6 +22,7 @@ public sealed class AzureOpenAiBatchCompletionClientJsonTests
         jsonl.Should().Contain("\"custom_id\":\"req-1\"");
         jsonl.Should().Contain("\"custom_id\":\"req-2\"");
         jsonl.Should().Contain("\"model\":\"economy-deployment\"");
+        jsonl.Should().Contain("\"max_completion_tokens\":128");
         jsonl.Should().Contain("system-a");
         jsonl.Should().Contain("user-b");
     }

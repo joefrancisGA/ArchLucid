@@ -74,6 +74,11 @@ public static partial class AuditEventTypes
     /// <summary>LLM evidence summarized because estimated prompt tokens exceeded the configured context threshold.</summary>
     public const string LlmEvidenceSummarized = "LlmEvidenceSummarized";
 
+    /// <summary>
+    ///     Azure OpenAI returned <c>finish_reason=length</c>; structured JSON may be truncated. Run processing continues.
+    /// </summary>
+    public const string LlmCompletionOutputTruncated = "LlmCompletionOutputTruncated";
+
     /// <summary>Azure AI Content Safety circuit is open/unhealthy; analyzer fell back to local deny-list redaction.</summary>
     public const string ContentSafetyCircuitDegradedFallback = "ContentSafetyCircuitDegradedFallback";
 

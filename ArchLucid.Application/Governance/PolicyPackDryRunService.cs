@@ -63,12 +63,7 @@ public sealed class PolicyPackDryRunService(
         await EnsurePolicyPackInScopeAsync(policyPackId, cancellationToken);
 
         int clampedPageSize = ClampPageSize(pageSize);
-        List<string> cleanedRunIds = evaluateAgainstRunIds
-            .Where(id => !string.IsNullOrWhiteSpace(id))
-            .Select(id => id.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .Take(IPolicyPackDryRunService.MaxEvaluatedRuns)
-            .ToList();
+        List<string> cleanedRunIds = DeduplicateRunIds(evaluateAgainstRunIds);
         Dictionary<string, double> parsedThresholds = ParseThresholds(proposedThresholds);
         string redactedThresholdsJson = RedactProposedThresholdsJson(proposedThresholds);
         List<PolicyPackDryRunRunItem> allItems = [];
@@ -103,6 +98,31 @@ public sealed class PolicyPackDryRunService(
     private static int ClampPageSize(int? pageSize)
     {
         return pageSize is null ? IPolicyPackDryRunService.DefaultPageSize : Math.Clamp(pageSize.Value, 1, IPolicyPackDryRunService.MaxPageSize);
+    }
+
+    private static List<string> DeduplicateRunIds(IReadOnlyList<string> evaluateAgainstRunIds)
+    {
+        int initialCapacity = Math.Min(evaluateAgainstRunIds.Count, IPolicyPackDryRunService.MaxEvaluatedRuns);
+        List<string> cleanedRunIds = new(initialCapacity);
+        HashSet<string> seenRunIds = new(initialCapacity, StringComparer.OrdinalIgnoreCase);
+
+        foreach (string runIdRaw in evaluateAgainstRunIds)
+        {
+            if (string.IsNullOrWhiteSpace(runIdRaw))
+                continue;
+
+            string runId = runIdRaw.Trim();
+
+            if (!seenRunIds.Add(runId))
+                continue;
+
+            cleanedRunIds.Add(runId);
+
+            if (cleanedRunIds.Count >= IPolicyPackDryRunService.MaxEvaluatedRuns)
+                break;
+        }
+
+        return cleanedRunIds;
     }
 
     private static int ClampPage(int? page, int totalItems, int pageSize)
@@ -221,7 +241,9 @@ public sealed class PolicyPackDryRunService(
             if (string.IsNullOrWhiteSpace(entry.Value))
                 continue;
 
-            if (!double.TryParse(entry.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+            string trimmedValue = entry.Value.Trim();
+
+            if (!double.TryParse(trimmedValue, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
                 continue;
             parsed[entry.Key.Trim()] = value;
         }
