@@ -6,7 +6,10 @@ import { ArchitectureDraftResumeControl } from "@/components/architecture/Archit
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { isArchitectureDraftEligibleToStartReview } from "@/lib/architecture/architecture-draft-ready-for-review";
+import {
+  filterArchitectureDraftsEligibleToStartReview,
+  isArchitectureDraftEligibleToStartReview,
+} from "@/lib/architecture/architecture-draft-ready-for-review";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
@@ -37,12 +40,13 @@ const REVIEWS_HUB_RESUME_DRAFTS_PREVIEW_LIMIT = 3;
  */
 export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
   const entries = useArchitectureDraftRegistryEntries();
+  const eligibleEntries = filterArchitectureDraftsEligibleToStartReview(entries);
 
-  if (!shouldShowReviewsHubResumeDrafts(entries.length)) {
+  if (!shouldShowReviewsHubResumeDrafts(eligibleEntries.length)) {
     return null;
   }
 
-  const previewEntries = entries.slice(0, REVIEWS_HUB_RESUME_DRAFTS_PREVIEW_LIMIT);
+  const previewEntries = eligibleEntries.slice(0, REVIEWS_HUB_RESUME_DRAFTS_PREVIEW_LIMIT);
 
   return (
     <section
@@ -55,7 +59,7 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
         <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {REVIEWS_HUB_RESUME_DRAFTS_TITLE}
           <span className={cn("ml-2 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            — {entries.length}
+            — {eligibleEntries.length}
           </span>
         </h2>
       </div>

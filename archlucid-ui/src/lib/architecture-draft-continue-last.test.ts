@@ -37,4 +37,21 @@ describe("architecture-draft-continue-last", () => {
 
     expect(resolveContinueLastArchitectureDraftEntry([older, newer])?.architectureId).toBe("draft-newer");
   });
+
+  it("ignores archived drafts remembered in session when no active drafts remain", () => {
+    writeArchitectureCreationDraftId("draft-archived");
+
+    expect(resolveContinueLastArchitectureDraftEntry([entry("draft-archived", "archived")])).toBeNull();
+  });
+
+  it("ignores archived session draft and falls back to an active draft", () => {
+    writeArchitectureCreationDraftId("draft-archived");
+
+    expect(
+      resolveContinueLastArchitectureDraftEntry([
+        entry("draft-archived", "archived"),
+        entry("draft-active"),
+      ])?.architectureId,
+    ).toBe("draft-active");
+  });
 });
