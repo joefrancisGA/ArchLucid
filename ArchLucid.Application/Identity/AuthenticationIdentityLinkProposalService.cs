@@ -184,6 +184,13 @@ public sealed class AuthenticationIdentityLinkProposalService(
                 return attached;
             }
 
+            if (current?.Status == AuthenticationIdentityLinkProposalStatus.Expired
+                || (current?.Status == AuthenticationIdentityLinkProposalStatus.PendingConfirmation
+                    && current.ExpiresUtc <= _timeProvider.GetUtcNow()))
+            {
+                throw new AuthenticationIdentityLinkProposalExpiredException(proposalId);
+            }
+
             throw new AuthenticationIdentityLinkProposalNotFoundException(proposalId);
         }
 
