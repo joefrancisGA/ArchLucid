@@ -82,6 +82,26 @@ export type DraftBranchQuotaResponse = {
   estimatedBranchRunCostUsd: number;
 };
 
+export type DraftRequestSummary = {
+  draftId: string;
+  status: DraftRequestStatus;
+  systemName?: string | null;
+  freeTextIntent: string;
+  spawnedRunId?: string | null;
+  createdByUserId: string;
+  createdUtc: string;
+  updatedUtc: string;
+  reviewReadinessValid: boolean;
+};
+
+export type DraftRequestSummaryPage = {
+  items: DraftRequestSummary[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+};
+
 export type DraftRequestResponse = {
   draftId: string;
   tenantId: string;

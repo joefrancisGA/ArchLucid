@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -99,6 +100,54 @@ public sealed class DraftRequestsControllerTests
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.DraftIntakeCreated),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task ListDrafts_ReturnsPagedSummaries()
+    {
+        PagedResponse<DraftRequestSummaryResponse> page = new()
+        {
+            Items =
+            [
+                new DraftRequestSummaryResponse
+                {
+                    DraftId = DraftId,
+                    Status = DraftRequestStatus.Drafting,
+                    FreeTextIntent = "Intent",
+                },
+            ],
+            TotalCount = 1,
+            Page = 1,
+            PageSize = 50,
+        };
+
+        _service
+            .Setup(static s => s.ListAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<DraftRequestStatus>>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(page);
+
+        DraftRequestsController sut = BuildSut();
+
+        IActionResult result = await sut.ListDrafts(cancellationToken: CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(page);
+    }
+
+    [Fact]
+    public async Task ListDrafts_MineFalse_ReturnsBadRequest()
+    {
+        DraftRequestsController sut = BuildSut();
+
+        IActionResult result = await sut.ListDrafts(mine: false, cancellationToken: CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
