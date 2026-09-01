@@ -56,22 +56,16 @@ describe("form helper breathing room band regression (TB-2003)", () => {
   });
 
   it("keeps guided intake step-0 field stacks on TB-2000 tokens (TB-2003 golden)", () => {
-    const guidedIntake = readUiUtf8(
-      "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx",
+    const stepScope = readUiUtf8(
+      "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizardStepScope.tsx",
     );
 
-    const step0Start = guidedIntake.indexOf("{step === 0 ? (");
-    const step1Start = guidedIntake.indexOf("{step === 1 ? (");
-
-    expect(step0Start).toBeGreaterThan(-1);
-    expect(step1Start).toBeGreaterThan(step0Start);
-
-    const step0Block = guidedIntake.slice(step0Start, step1Start);
-
-    expect(step0Block).toContain("OPERATOR_FORM_FIELD_STACK_CLASS");
-    expect(step0Block).toContain("OPERATOR_FORM_FIELD_HELPER_CLASS");
-    expect(step0Block).not.toContain("space-y-1");
-    expect(step0Block).not.toMatch(/\bmt-1\b/);
+    expect(stepScope).toContain("OPERATOR_FORM_FIELD_STACK_CLASS");
+    expect(stepScope).toContain("OPERATOR_FORM_FIELD_HELPER_CLASS");
+    expect(stepScope).toContain("CardFooter");
+    expect(stepScope).toContain("border-t border-neutral-200");
+    expect(stepScope).not.toContain("space-y-1");
+    expect(stepScope).not.toMatch(/\bmt-1\b/);
   });
 
   it("keeps guided intake create-review confirm card on layout tokens (step 3 hero)", () => {

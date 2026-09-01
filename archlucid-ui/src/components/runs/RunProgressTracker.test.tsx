@@ -463,10 +463,8 @@ describe("RunProgressTracker", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/Execution failed before the first pipeline stage/i)).toBeInTheDocument();
     expect(screen.getByText(/authority_pipeline_dead_letter/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Re-run review" })).toHaveAttribute(
-      "href",
-      "/architecture/reviews/new?path=guided-intake&rerun=failed-1",
-    );
+    expect(screen.getByRole("button", { name: "Re-run review" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Re-run review" })).toBeNull();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(30_000);

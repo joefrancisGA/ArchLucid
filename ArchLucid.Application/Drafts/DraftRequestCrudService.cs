@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Contracts.Drafts;
@@ -122,6 +123,7 @@ public sealed class DraftRequestCrudService(
                     .EnsureAvailableAsync(
                         scope,
                         trimmedName,
+                        WorkspaceSystemNameOccupancyKind.Architecture,
                         excludeDraftId: draftId,
                         excludeRunId: excludeRunId,
                         cancellationToken: cancellationToken)

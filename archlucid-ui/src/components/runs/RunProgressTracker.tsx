@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { ReviewPipelineStopAnalysisButton } from "@/components/runs/ReviewPipelineStopAnalysisButton";
@@ -11,7 +10,7 @@ import {
   REVIEW_PIPELINE_KEEP_WATCHING_CTA,
   REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL,
 } from "@/lib/review-execution-background-safety-copy";
-import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
+import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { renderDoThisNextReferenceCopy } from "@/lib/usability/do-this-next-reference-copy";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
@@ -121,9 +120,10 @@ export function RunProgressTracker({
 
       {tracker.pipelineTerminalFailure ? (
         <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
-          <Button type="button" variant="primary" size="sm" asChild>
-            <Link href={buildArchitectureCorrectionHref(runId, null)}>Re-run review</Link>
-          </Button>
+          <ReRunReviewButton runId={runId} data-testid="run-progress-re-run-review" />
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Re-invokes agent execution for this review with the same intake.
+          </p>
         </div>
       ) : null}
 

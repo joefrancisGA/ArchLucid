@@ -6,6 +6,7 @@ import { fetchWorkspaceSystemNameAvailability } from "@/lib/api/workspace-system
 import {
   workspaceSystemNameConflictMessage,
   WORKSPACE_SYSTEM_NAME_VALIDATION_UNAVAILABLE_HELPER,
+  type WorkspaceSystemNameOccupancyKind,
 } from "@/lib/workspace-system-name-availability-copy";
 
 /** Debounce window before calling workspace name availability while typing. */
@@ -13,6 +14,7 @@ export const WORKSPACE_SYSTEM_NAME_AVAILABILITY_DEBOUNCE_MS = 450;
 
 export type WorkspaceSystemNameAvailabilityOptions = {
   readonly systemName: string;
+  readonly occupancyKind?: WorkspaceSystemNameOccupancyKind;
   readonly excludeDraftId?: string | null;
   readonly excludeRunId?: string | null;
   /** When false, skips remote checks (e.g. field hidden or form disabled). Defaults to true. */
@@ -71,6 +73,7 @@ export function useWorkspaceSystemNameAvailability(
   const [state, setState] = useState<WorkspaceSystemNameAvailabilityState>(idleAvailableState);
   const enabled = options.enabled ?? true;
   const minTrimmedLength = options.minTrimmedLength ?? 1;
+  const occupancyKind = options.occupancyKind ?? "review";
   const trimmedName = options.systemName.trim();
   const excludeDraftId = options.excludeDraftId ?? null;
   const excludeRunId = options.excludeRunId ?? null;
@@ -103,6 +106,7 @@ export function useWorkspaceSystemNameAvailability(
         try {
           const response = await fetchWorkspaceSystemNameAvailability({
             systemName: trimmedName,
+            occupancyKind,
             excludeDraftId,
             excludeRunId,
             signal: controller.signal,
@@ -116,7 +120,7 @@ export function useWorkspaceSystemNameAvailability(
           const conflictMessage =
             isAvailable
               ? null
-              : response.conflictMessage?.trim() || workspaceSystemNameConflictMessage(trimmedName);
+              : response.conflictMessage?.trim() || workspaceSystemNameConflictMessage(trimmedName, occupancyKind);
 
           setState(
             buildState({
@@ -154,7 +158,7 @@ export function useWorkspaceSystemNameAvailability(
       window.clearTimeout(timer);
       cleanupRequest?.();
     };
-  }, [enabled, excludeDraftId, excludeRunId, minTrimmedLength, trimmedName]);
+  }, [enabled, excludeDraftId, excludeRunId, minTrimmedLength, occupancyKind, trimmedName]);
 
   return useMemo(() => state, [state]);
 }

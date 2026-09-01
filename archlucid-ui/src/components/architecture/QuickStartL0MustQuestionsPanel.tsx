@@ -294,7 +294,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
             </p>
           )}
 
-        {total > 1 && activePendingQuestions.length > 0 ? (
+        {activePendingQuestions.length > 1 ? (
           <Button
             type="button"
             variant="outline"
