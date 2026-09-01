@@ -286,8 +286,15 @@ public sealed class BulkEvidenceUploadService(
         if (bundle is null)
             return;
 
-        if (!bundle.Metadata.ContainsKey(BulkEvidenceMetadataKeys.AttachedFileCountKey))
+if (bundle.Metadata.TryGetValue(BulkEvidenceMetadataKeys.AttachedFileCountKey, out string? existingRaw)
+            && int.TryParse(existingRaw, out int existingCount))
+        {
+            bundle.Metadata[BulkEvidenceMetadataKeys.AttachedFileCountKey] = (existingCount + uploadedCount).ToString();
+        }
+        else
+        {
             bundle.Metadata[BulkEvidenceMetadataKeys.AttachedFileCountKey] = uploadedCount.ToString();
+        }
 
         bundle.Metadata[BulkEvidenceMetadataKeys.LastAttachedUtcKey] =
             TimeProvider.System.GetUtcNow().UtcDateTime.ToString("O");
