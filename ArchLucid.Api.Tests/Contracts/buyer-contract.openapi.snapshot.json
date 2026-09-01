@@ -8301,13 +8301,19 @@
       "CorePilotChecklistPutRequest": {
         "properties": {
           "isCompleted": {
-            "type": "boolean"
+            "type": [
+              "null",
+              "boolean"
+            ]
           },
           "stepIndex": {
             "format": "int32",
             "type": "integer"
           }
         },
+        "required": [
+          "isCompleted"
+        ],
         "type": "object"
       },
       "CorePilotChecklistStepResponse": {
@@ -10658,6 +10664,9 @@
       },
       "DraftRequestResponse": {
         "properties": {
+          "createdByUserId": {
+            "type": "string"
+          },
           "createdUtc": {
             "format": "date-time",
             "type": "string"
@@ -21676,6 +21685,9 @@
             ]
           }
         },
+        "required": [
+          "score"
+        ],
         "type": "object"
       },
       "ProductLearningArtifactOutcomeTrendsResponse": {
@@ -26542,6 +26554,12 @@
               "string"
             ]
           },
+          "createdByUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdUtc": {
             "format": "date-time",
             "type": "string"
@@ -27008,6 +27026,12 @@
       },
       "RunSummaryResponse": {
         "properties": {
+          "createdByUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdUtc": {
             "format": "date-time",
             "type": "string"
@@ -31117,6 +31141,22 @@
           "totalQuantity": {
             "format": "int64",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "TenantWorkOwnershipDeletePolicyResponse": {
+        "properties": {
+          "allowCreatorDeleteOwnedWork": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TenantWorkOwnershipDeletePolicyUpdateRequest": {
+        "properties": {
+          "allowCreatorDeleteOwnedWork": {
+            "type": "boolean"
           }
         },
         "type": "object"

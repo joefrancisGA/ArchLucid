@@ -14,6 +14,7 @@ import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
 import { TenantFindingEngineControlsCard } from "./TenantFindingEngineControlsCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
+import { TenantWorkOwnershipDeletePolicyCard } from "./TenantWorkOwnershipDeletePolicyCard";
 
 type SectionHeadingProps = { readonly children: ReactNode };
 
@@ -77,6 +78,19 @@ export function TenantSettingsBusinessSection({
             Download a redacted diagnostics bundle to include with a support ticket.
           </p>
           <SupportBundleDownloadButton showDiagnosticsLink />
+        </CardContent>
+      </Card>
+
+      <SectionHeading>Governance</SectionHeading>
+
+      <Card>
+        <CardHeader>
+          <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            Work ownership delete policy
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TenantWorkOwnershipDeletePolicyCard />
         </CardContent>
       </Card>
 

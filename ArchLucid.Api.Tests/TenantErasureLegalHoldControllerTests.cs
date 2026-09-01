@@ -2,10 +2,10 @@ using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -13,12 +13,17 @@ using Microsoft.AspNetCore.Mvc;
 
 using Moq;
 
+using HostProblemTypes = ArchLucid.Host.Core.ProblemDetails.ProblemTypes;
+using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
+
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class TenantErasureLegalHoldControllerTests
 {
+    private static readonly DateTimeOffset FixedNow = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
     private static readonly ScopeContext Scope = new()
     {
         TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -32,7 +37,8 @@ public sealed class TenantErasureLegalHoldControllerTests
         TenantErasureLegalHoldController controller = CreateController(
             Mock.Of<ITenantErasureCommandService>(),
             Mock.Of<ITenantRepository>(),
-            Mock.Of<IScopeContextProvider>());
+            Mock.Of<IScopeContextProvider>(),
+            new FixedTimeProvider(FixedNow));
 
         IActionResult action = await controller.SetLegalHoldAsync(null!, CancellationToken.None);
 
@@ -54,11 +60,12 @@ public sealed class TenantErasureLegalHoldControllerTests
         TenantErasureLegalHoldController controller = CreateController(
             Mock.Of<ITenantErasureCommandService>(),
             tenants.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow));
 
         TenantErasureLegalHoldRequest body = new()
         {
-            UntilUtc = DateTimeOffset.UtcNow.AddDays(30),
+            UntilUtc = FixedNow.AddDays(30),
             Reason = "hold"
         };
 
@@ -66,6 +73,37 @@ public sealed class TenantErasureLegalHoldControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past()
+    {
+        Mock<ITenantErasureCommandService> commands = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantErasureLegalHoldController controller = CreateController(
+            commands.Object,
+            TenantExists(),
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow));
+
+        TenantErasureLegalHoldRequest body = new()
+        {
+            UntilUtc = FixedNow.AddDays(-1),
+            Reason = "hold",
+        };
+
+        IActionResult action = await controller.SetLegalHoldAsync(body, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        commands.VerifyNoOtherCalls();
+
+        MvcProblemDetails problem = badRequest.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        problem.Type.Should().Be(HostProblemTypes.ValidationFailed);
+        problem.Detail.Should().Be("UntilUtc must be in the future.");
     }
 
     [Fact]
@@ -90,11 +128,12 @@ public sealed class TenantErasureLegalHoldControllerTests
         TenantErasureLegalHoldController controller = CreateController(
             commands.Object,
             TenantExists(),
-            scopeProvider.Object);
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow));
 
         TenantErasureLegalHoldRequest body = new()
         {
-            UntilUtc = DateTimeOffset.UtcNow.AddDays(30),
+            UntilUtc = FixedNow.AddDays(30),
             Reason = "litigation hold"
         };
 
@@ -126,11 +165,12 @@ public sealed class TenantErasureLegalHoldControllerTests
         TenantErasureLegalHoldController controller = CreateController(
             commands.Object,
             TenantExists(),
-            scopeProvider.Object);
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow));
 
         TenantErasureLegalHoldRequest body = new()
         {
-            UntilUtc = DateTimeOffset.UtcNow.AddDays(30),
+            UntilUtc = FixedNow.AddDays(30),
             Reason = "hold"
         };
 
@@ -153,7 +193,8 @@ public sealed class TenantErasureLegalHoldControllerTests
         TenantErasureLegalHoldController controller = CreateController(
             Mock.Of<ITenantErasureCommandService>(),
             tenants.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow));
 
         IActionResult action = await controller.ApproveErasureAsync(CancellationToken.None);
 
@@ -180,7 +221,8 @@ public sealed class TenantErasureLegalHoldControllerTests
         TenantErasureLegalHoldController controller = CreateController(
             commands.Object,
             TenantExists(),
-            scopeProvider.Object);
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow));
 
         IActionResult action = await controller.ApproveErasureAsync(CancellationToken.None);
 
@@ -207,7 +249,8 @@ public sealed class TenantErasureLegalHoldControllerTests
         TenantErasureLegalHoldController controller = CreateController(
             commands.Object,
             TenantExists(),
-            scopeProvider.Object);
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow));
 
         IActionResult action = await controller.ApproveErasureAsync(CancellationToken.None);
 
@@ -236,16 +279,26 @@ public sealed class TenantErasureLegalHoldControllerTests
     private static TenantErasureLegalHoldController CreateController(
         ITenantErasureCommandService tenantErasureCommands,
         ITenantRepository tenantRepository,
-        IScopeContextProvider scopeProvider)
+        IScopeContextProvider scopeProvider,
+        TimeProvider? timeProvider = null)
     {
         DefaultHttpContext httpContext = new();
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, "user-1"), new Claim(ClaimTypes.Name, "operator@test")],
             authenticationType: "test"));
 
-        return new TenantErasureLegalHoldController(tenantErasureCommands, tenantRepository, scopeProvider)
+        return new TenantErasureLegalHoldController(
+            tenantErasureCommands,
+            tenantRepository,
+            scopeProvider,
+            timeProvider)
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext }
         };
+    }
+
+    private sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
     }
 }

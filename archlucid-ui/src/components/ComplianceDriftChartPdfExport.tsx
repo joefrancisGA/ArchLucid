@@ -30,7 +30,7 @@ async function blobToLandscapePdf(canvas: HTMLCanvasElement, fileStem: string): 
 }
 
 type Props = {
-  readonly points: ComplianceDriftTrendPoint[];
+  readonly points: readonly ComplianceDriftTrendPoint[];
 };
 
 /**

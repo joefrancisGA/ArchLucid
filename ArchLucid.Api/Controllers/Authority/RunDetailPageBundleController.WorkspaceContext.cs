@@ -135,6 +135,7 @@ public sealed partial class RunDetailPageBundleController
             IsSample = summary.IsSample,
             IsPinned = summary.IsPinned,
             CreatedUtc = summary.CreatedUtc,
+            CreatedByUserId = summary.CreatedByUserId,
             HasContextSnapshot = summary.HasContextSnapshot,
             HasGraphSnapshot = summary.HasGraphSnapshot,
             HasFindingsSnapshot = summary.HasFindingsSnapshot,

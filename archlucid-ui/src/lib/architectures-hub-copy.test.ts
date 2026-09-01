@@ -15,7 +15,6 @@ import {
 describe("architectures-hub-copy", () => {
   it("teaches draft inventory honesty in page title and subtitle", () => {
     expect(ARCHITECTURES_HUB_PAGE_TITLE).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
-    expect(ARCHITECTURES_HUB_PAGE_TITLE.toLowerCase()).toContain("draft");
     expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("draft");
     expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("account");
     expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("sync");

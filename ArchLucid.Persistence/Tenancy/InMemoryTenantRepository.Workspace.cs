@@ -61,6 +61,48 @@ public sealed partial class InMemoryTenantRepository
 
 
     /// <inheritdoc />
+    public Task<bool> WorkspaceExistsAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
+            return Task.FromResult(false);
+
+        bool exists;
+
+        lock (list)
+            exists = list.Any(w => w.Id == workspaceId);
+
+        return Task.FromResult(exists);
+    }
+
+    /// <inheritdoc />
+    public Task<TenantWorkspaceListItem?> GetWorkspaceByIdAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
+            return Task.FromResult<TenantWorkspaceListItem?>(null);
+
+        TenantWorkspaceRow? row;
+
+        lock (list)
+            row = list.FirstOrDefault(w => w.Id == workspaceId);
+
+        if (row is null)
+            return Task.FromResult<TenantWorkspaceListItem?>(null);
+
+        return Task.FromResult<TenantWorkspaceListItem?>(new TenantWorkspaceListItem
+        {
+            WorkspaceId = row.Id,
+            TenantId = row.TenantId,
+            Name = row.Name,
+            DefaultProjectId = row.DefaultProjectId,
+            CreatedUtc = row.CreatedUtc
+        });
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<TenantWorkspaceListItem>> ListWorkspacesAsync(Guid tenantId, CancellationToken ct)
     {
         _ = ct;

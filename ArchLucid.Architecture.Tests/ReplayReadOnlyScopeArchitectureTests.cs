@@ -60,8 +60,11 @@ public sealed class ReplayReadOnlyScopeArchitectureTests
     public void ReplayRunService_commits_authority_chain_under_replay_run_id_not_original()
     {
         string root = FindRepoRoot();
-        string path = Path.Combine(root, "ArchLucid.Application", "ReplayRunService.cs");
-        string source = File.ReadAllText(path);
+        string applicationDir = Path.Combine(root, "ArchLucid.Application");
+        string[] partialPaths = Directory.GetFiles(applicationDir, "ReplayRunService*.cs");
+        partialPaths.Should().NotBeEmpty("ReplayRunService partial class files must exist under ArchLucid.Application.");
+
+        string source = string.Concat(partialPaths.OrderBy(static path => path, StringComparer.Ordinal).Select(File.ReadAllText));
         // Collapse whitespace so multiline PersistCommittedChainAsync calls still match.
         string compact = System.Text.RegularExpressions.Regex.Replace(source, @"\s+", " ");
 

@@ -1,4 +1,4 @@
-"""Drift guard: golden-cohort ruleset JSON must require corset + cohort-real-llm-gate."""
+"""Drift guard: golden-cohort ruleset JSON must require corset + cohort-real-llm-gate + beta-readiness."""
 
 from __future__ import annotations
 
@@ -14,11 +14,12 @@ REQUIRED_CONTEXTS = (
     "Security: gitleaks (secret scan)",
     ".NET: push corset (build + fast core Core/Decisioning)",
     "Operator UI: typecheck (blocking)",
+    "CI: beta-readiness wiring guards",
 )
 
 
 class TestGoldenCohortGateRulesetBatch(unittest.TestCase):
-    def test_ruleset_lists_push_corset_and_cohort_gate(self) -> None:
+    def test_ruleset_lists_push_corset_cohort_gate_and_beta_readiness(self) -> None:
         payload = json.loads(RULESET.read_text(encoding="utf-8"))
         checks = payload["rules"][0]["parameters"]["required_status_checks"]
         contexts = [entry["context"] for entry in checks]

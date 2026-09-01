@@ -174,24 +174,64 @@ public sealed partial class AzureOpenAiCompletionClient
         ChatCompletionOptions options,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
+        bool useMaxCompletionTokensProperty =
+            AzureOpenAiMaxOutputTokenParameterPolicy.DefaultUsesMaxCompletionTokensProperty;
+
+        bool maxTokenSerializationRetried = false;
+        bool temperatureOmitted = false;
+
+        for (int requestAttempt = 0; requestAttempt < 4; requestAttempt++)
         {
-            IAsyncEnumerable<StreamingChatCompletionUpdate> stream;
+            AzureOpenAiMaxOutputTokenParameterPolicy.Apply(options, useMaxCompletionTokensProperty);
 
-            try
+            for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
             {
-                stream = _chatClient.CompleteChatStreamingAsync(messages, options, cancellationToken);
-            }
-            catch (ClientResultException ex) when (ex.Status == 429)
-            {
-                await HandleTooManyRequestsAsync(ex, tooManyRequestsAttempt, cancellationToken).ConfigureAwait(false);
-                continue;
-            }
+                IAsyncEnumerable<StreamingChatCompletionUpdate> stream;
 
-            await foreach (StreamingChatCompletionUpdate update in stream.ConfigureAwait(false))
-                yield return update;
+                try
+                {
+                    stream = _chatClient.CompleteChatStreamingAsync(messages, options, cancellationToken);
+                }
+                catch (ClientResultException ex) when (ex.Status == 429)
+                {
+                    await HandleTooManyRequestsAsync(ex, tooManyRequestsAttempt, cancellationToken)
+                        .ConfigureAwait(false);
 
-            yield break;
+                    continue;
+                }
+                catch (ClientResultException ex) when (ex.Status == 400)
+                {
+                    if (!temperatureOmitted && AzureOpenAiTemperatureParameterPolicy.TryOmitTemperature(ex))
+                    {
+                        AzureOpenAiTemperatureParameterPolicy.Omit(options);
+                        temperatureOmitted = true;
+
+                        break;
+                    }
+
+                    if (!maxTokenSerializationRetried
+                        && AzureOpenAiMaxOutputTokenParameterPolicy.TryGetAlternateSerialization(
+                            ex,
+                            useMaxCompletionTokensProperty,
+                            out bool alternateUsesMaxCompletionTokensProperty))
+                    {
+                        useMaxCompletionTokensProperty = alternateUsesMaxCompletionTokensProperty;
+                        maxTokenSerializationRetried = true;
+
+                        break;
+                    }
+
+                    throw;
+                }
+
+                await foreach (StreamingChatCompletionUpdate update in stream.ConfigureAwait(false))
+                    yield return update;
+
+                yield break;
+            }
         }
+
+        throw new InvalidOperationException(
+            "Azure OpenAI streaming chat completion failed after request parameter retries.");
     }
 }
