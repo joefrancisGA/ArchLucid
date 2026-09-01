@@ -24,4 +24,22 @@ describe("mapDraftSummaryToRegistryEntry", () => {
     expect(entry.customerStatus).toBe("review-linked");
     expect(entry.linkedReviewId).toBe("run-claims");
   });
+
+  it("keeps the summary-derived ready-for-review status when the partial document fails readiness", () => {
+    const summary: DraftRequestSummary = {
+      draftId: "22222222-2222-2222-2222-222222222222",
+      status: "Draft",
+      systemName: "Billing modernization",
+      freeTextIntent: "Short intent.",
+      spawnedRunId: null,
+      createdByUserId: "user-1",
+      createdUtc: "2026-08-27T12:00:00.000Z",
+      updatedUtc: "2026-08-27T12:30:00.000Z",
+      reviewReadinessValid: true,
+    };
+
+    const entry = mapDraftSummaryToRegistryEntry(summary);
+
+    expect(entry.customerStatus).toBe("ready-for-review");
+  });
 });

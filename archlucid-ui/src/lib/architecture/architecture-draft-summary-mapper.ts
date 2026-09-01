@@ -35,7 +35,7 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
           reviewReadinessValid: summary.reviewReadinessValid,
         });
 
-  return buildArchitectureDraftRegistryEntry(
+  const entry = buildArchitectureDraftRegistryEntry(
     draftForSpawnedRun,
     {
       customerStatus,
@@ -43,6 +43,10 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
       ownerLabel: "You",
     },
   );
+
+  // The partial summary document cannot reproduce server readiness, so the
+  // summary-derived status wins over the document-derived one.
+  return { ...entry, customerStatus };
 }
 
 export function mapDraftSummariesToRegistryEntries(
