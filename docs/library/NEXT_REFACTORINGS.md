@@ -9,6 +9,8 @@
 
 **Tracking:** Deferred engineering IDs live in **[`TECH_BACKLOG.md`](TECH_BACKLOG.md)**. This doc lists **cross-cutting structural refactors** that span multiple areas.
 
+**Note:** The 2026-09-01 refresh began as a docs-only suggestion list, but subsequent commits on the same branch implemented several of the listed refactors (composition modules, backfill core, instrumentation meter split, execute-orchestrator stages, demo seeders, closed-loop stages, compare/governance thinning, UI intake splits); the PR description has been updated to reflect that this change-set now includes product code.
+
 ## Completed (removed from active list)
 
 | Item | Status |
