@@ -198,7 +198,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
       {quickActionsPanelOpen ? (
         <div
           id={`${inputId}-results`}
-          role="group"
+          role="listbox"
           aria-label="Quick actions"
           className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-md border border-neutral-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-950"
           data-testid="global-search-quick-actions"
