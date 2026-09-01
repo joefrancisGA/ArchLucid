@@ -67383,6 +67383,7 @@
           {
             "in": "query",
             "name": "mine",
+            "required": true,
             "schema": {
               "type": "boolean"
             }

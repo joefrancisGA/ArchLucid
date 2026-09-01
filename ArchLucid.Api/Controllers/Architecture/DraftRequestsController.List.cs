@@ -10,6 +10,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ArchLucid.Api.Controllers.Architecture;
 
@@ -21,7 +22,7 @@ public sealed partial class DraftRequestsController
     [ProducesResponseType(typeof(PagedResponse<DraftRequestSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ListDrafts(
-        [FromQuery] bool? mine = null,
+        [FromQuery][BindRequired] bool? mine = null,
         [FromQuery] string? status = null,
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
