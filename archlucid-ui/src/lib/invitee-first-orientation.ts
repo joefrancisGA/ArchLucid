@@ -17,7 +17,6 @@ export function resolveInviteeOrientationContext(principal: CurrentPrincipal): I
 }
 
 export type InviteeFirstOrientationCopy = {
-  readonly heading: string;
   readonly jobSentence: string;
   readonly findingsCtaHref: string;
   readonly findingsCtaLabel: string;
@@ -33,7 +32,6 @@ export function resolveInviteeFirstOrientationCopy(input: {
       : "the architecture owner";
 
   return {
-    heading: "You are reviewing someone else's architecture review",
     jobSentence: `Your job is to review findings from ${ownerPhrase}, record dispositions, and add comments — not to run intake or start a new review.`,
     findingsCtaHref: buildReviewDetailTabHref(input.runId, "findings"),
     findingsCtaLabel: "Open findings to review",
@@ -42,7 +40,6 @@ export function resolveInviteeFirstOrientationCopy(input: {
 
 export function resolveInviteeHomeOrientationCopy(): InviteeFirstOrientationCopy {
   return {
-    heading: "You were invited to review architecture reviews",
     jobSentence:
       "Your job is to read findings, record dispositions, and add comments — not to run intake or start new reviews.",
     findingsCtaHref: "/governance/findings",
