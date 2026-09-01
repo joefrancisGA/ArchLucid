@@ -1,3 +1,5 @@
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { getOperatorScopeQueryKeySnapshot } from "@/lib/operator/operator-scope-query-key";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
@@ -5,6 +7,26 @@ import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 export async function invalidateArchitectureDraftListQueries(): Promise<void> {
   await getOperatorQueryClient().invalidateQueries({
     queryKey: ["operator", "architecture", "draft-list"],
+  });
+}
+
+/** Drops one draft from the cached hub inventory immediately after abandon/delete. */
+export function removeArchitectureDraftFromListCache(architectureId: string): void {
+  const trimmedId = architectureId.trim();
+
+  if (trimmedId.length === 0) {
+    return;
+  }
+
+  const scopeKey = getOperatorScopeQueryKeySnapshot();
+  const queryKey = operatorQueryKeys.architectureDraftList(scopeKey);
+
+  getOperatorQueryClient().setQueryData<ArchitectureDraftRegistryEntry[]>(queryKey, (current) => {
+    if (current === undefined) {
+      return current;
+    }
+
+    return current.filter((entry) => entry.architectureId !== trimmedId);
   });
 }
 

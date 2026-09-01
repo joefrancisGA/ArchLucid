@@ -1,4 +1,5 @@
 import { ensureAppInsights } from "@/lib/telemetry";
+import type { DraftRequestResponse } from "@/types/draft-intake";
 
 const ACK_STORAGE_PREFIX = "archlucid.architecture_draft_handoff_ack.v1.";
 
@@ -8,9 +9,9 @@ export const ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD =
 export const ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL =
   "Edit draft anyway — changes will not update the review";
 
-type DraftSpawnedRunIdSource = { readonly spawnedRunId?: string | null };
-
-export function architectureDraftSpawnedRunId(draft: DraftSpawnedRunIdSource | null | undefined): string | null {
+export function architectureDraftSpawnedRunId(
+  draft: Pick<DraftRequestResponse, "spawnedRunId"> | null | undefined,
+): string | null {
   const spawnedRunId = draft?.spawnedRunId?.trim() ?? "";
 
   if (spawnedRunId.length === 0) {

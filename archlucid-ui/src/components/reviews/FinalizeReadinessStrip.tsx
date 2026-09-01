@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { renderDoThisNextReferenceCopy } from "@/lib/usability/do-this-next-reference-copy";
 
 export type FinalizeReadinessStripProps = {
   readonly commitBlockedReason: string | null | undefined;
@@ -25,7 +26,9 @@ export function FinalizeReadinessStrip(props: FinalizeReadinessStripProps): Reac
       <p className={cn("m-0 font-medium text-amber-950 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
         Finalize is blocked until you resolve the following
       </p>
-      <p className={cn("m-0 mt-1 text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>{reason}</p>
+      <p className={cn("m-0 mt-1 text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
+        {renderDoThisNextReferenceCopy(reason)}
+      </p>
     </div>
   );
 }
