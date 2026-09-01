@@ -7,6 +7,8 @@ using FluentAssertions;
 
 using Moq;
 
+using OpenAI.Chat;
+
 using System.ClientModel.Primitives;
 
 namespace ArchLucid.AgentRuntime.Tests;
@@ -43,6 +45,18 @@ public sealed class AzureOpenAiMaxOutputTokenParameterPolicyTests
 
         retry.Should().BeTrue();
         alternateUsesMaxCompletionTokensProperty.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Apply_does_not_throw_when_options_created_via_CreateOptions()
+    {
+        ChatCompletionOptions options = AzureOpenAiMaxOutputTokenParameterPolicy.CreateOptions();
+
+        Action act = () => AzureOpenAiMaxOutputTokenParameterPolicy.Apply(
+            options,
+            AzureOpenAiMaxOutputTokenParameterPolicy.DefaultUsesMaxCompletionTokensProperty);
+
+        act.Should().NotThrow();
     }
 
     [Fact]
