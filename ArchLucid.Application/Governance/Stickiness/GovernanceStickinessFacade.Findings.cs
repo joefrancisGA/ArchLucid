@@ -39,6 +39,7 @@ public sealed partial class GovernanceStickinessFacade
         List<string> normalizedFindingIds = request.FindingIds
             .Where(id => !string.IsNullOrWhiteSpace(id))
             .Select(id => id.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
         List<string> updated = [];
 
@@ -49,6 +50,7 @@ public sealed partial class GovernanceStickinessFacade
 
         foreach (string normalizedFindingId in normalizedFindingIds)
         {
+
             RecordFindingDispositionRequest normalized = new()
             {
                 FindingId = normalizedFindingId,
