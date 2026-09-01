@@ -8301,10 +8301,7 @@
       "CorePilotChecklistPutRequest": {
         "properties": {
           "isCompleted": {
-            "type": [
-              "null",
-              "boolean"
-            ]
+            "type": "boolean"
           },
           "stepIndex": {
             "format": "int32",
