@@ -24,7 +24,8 @@ public sealed class TenantAzureOpenAiCompletionClientFactory(
     ISecretProvider secretProvider,
     IConfiguration configuration,
     IOptions<AzureOpenAiOptions> azureOpenAiOptions,
-    ILogger<TenantAzureOpenAiCompletionClientFactory> logger) : ITenantAzureOpenAiCompletionClientFactory
+    ILogger<TenantAzureOpenAiCompletionClientFactory> logger,
+    ILlmCompletionOutputTruncationReporter truncationReporter) : ITenantAzureOpenAiCompletionClientFactory
 {
     private readonly ITenantAzureOpenAiConnectionRepository _repository =
         repository ?? throw new ArgumentNullException(nameof(repository));
@@ -39,6 +40,9 @@ public sealed class TenantAzureOpenAiCompletionClientFactory(
 
     private readonly ILogger<TenantAzureOpenAiCompletionClientFactory> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly ILlmCompletionOutputTruncationReporter _truncationReporter =
+        truncationReporter ?? throw new ArgumentNullException(nameof(truncationReporter));
 
     public async Task<AzureOpenAiCompletionClient?> TryCreateAsync(
         Guid tenantId,
@@ -88,6 +92,7 @@ public sealed class TenantAzureOpenAiCompletionClientFactory(
             deployment,
             maxTokens,
             schema,
-            logger: null);
+            logger: null,
+            truncationReporter: _truncationReporter);
     }
 }
