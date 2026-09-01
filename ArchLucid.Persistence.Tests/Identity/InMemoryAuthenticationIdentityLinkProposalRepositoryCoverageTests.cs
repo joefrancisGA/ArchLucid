@@ -61,7 +61,7 @@ public sealed class InMemoryAuthenticationIdentityLinkProposalRepositoryCoverage
     }
 
     [Fact]
-    public async Task UpdateStatusAsync_allows_pending_to_expired_transition()
+    public async Task TryUpdateStatusAsync_allows_pending_to_expired_transition()
     {
         InMemoryAuthenticationIdentityLinkProposalRepository sut = new();
         Guid id = Guid.NewGuid();
