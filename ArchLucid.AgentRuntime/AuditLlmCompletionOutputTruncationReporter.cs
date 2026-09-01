@@ -24,6 +24,7 @@ public sealed class AuditLlmCompletionOutputTruncationReporter(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
+    [InformationalAudit]
     public void Report(LlmCompletionOutputTruncationEvent detail)
     {
         ArgumentNullException.ThrowIfNull(detail);

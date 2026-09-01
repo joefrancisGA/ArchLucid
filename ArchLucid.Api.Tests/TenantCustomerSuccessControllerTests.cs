@@ -1,4 +1,6 @@
-﻿using ArchLucid.Api.Controllers.Tenancy;
+﻿using System.Text.Json;
+
+using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Application.CustomerSuccess;
 using ArchLucid.Contracts.Findings;
@@ -132,24 +134,11 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
-    public async Task PostProductFeedbackAsync_returns_bad_request_when_score_omitted()
+    public void ProductFeedbackRequest_rejects_json_without_score()
     {
-        Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Action act = () => JsonSerializer.Deserialize<ProductFeedbackRequest>("""{"findingRef":"fp-1"}""");
 
-        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object);
-
-        ProductFeedbackRequest request = new()
-        {
-            FindingRef = "fp-1",
-        };
-
-        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
-
-        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        repo.VerifyNoOtherCalls();
+        act.Should().Throw<JsonException>();
     }
 
     [SkippableFact]
