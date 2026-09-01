@@ -151,6 +151,8 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (request.PolicyPackCatalogEntryId == Guid.Empty)
+            return this.BadRequestProblem("policyPackCatalogEntryId is required.", ProblemTypes.ValidationFailed);
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
