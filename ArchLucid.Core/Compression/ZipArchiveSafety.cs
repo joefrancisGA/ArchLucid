@@ -69,9 +69,18 @@ public static class ZipArchiveSafety
             if (uncompressed < 0)
                 uncompressed = 0;
 
-            totalUncompressedBytes += uncompressed;
-            totalCompressedBytes += Math.Max(0, entry.CompressedLength);
-
+try
+{
+    checked
+    {
+        totalUncompressedBytes += uncompressed;
+        totalCompressedBytes += Math.Max(0, entry.CompressedLength);
+    }
+}
+catch (OverflowException)
+{
+    return ZipArchiveSafetyResult.Reject("ZIP archive size counters overflowed.");
+}
             if (totalUncompressedBytes > maxTotalUncompressedBytes)
             {
                 return ZipArchiveSafetyResult.Reject(
