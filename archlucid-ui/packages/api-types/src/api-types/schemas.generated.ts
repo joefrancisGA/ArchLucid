@@ -2367,11 +2367,7 @@ export interface components {
             workspaceId?: string;
         };
         CorePilotChecklistPutRequest: {
-<<<<<<< HEAD
-            isCompleted: null | boolean;
-=======
             isCompleted: boolean;
->>>>>>> 53be1312b3 (fix(api): make CorePilotChecklistPutRequest.isCompleted a required non-null boolean in OpenAPI contract)
             /** Format: int32 */
             stepIndex?: number;
         };
