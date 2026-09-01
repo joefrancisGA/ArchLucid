@@ -1,4 +1,5 @@
 using System.ClientModel;
+using System.ClientModel.Primitives;
 
 using Azure.AI.OpenAI.Chat;
 
@@ -15,6 +16,13 @@ internal static class AzureOpenAiMaxOutputTokenParameterPolicy
 {
     /// <summary>Prefer <c>max_completion_tokens</c> for GPT-5 / o-series deployments.</summary>
     internal const bool DefaultUsesMaxCompletionTokensProperty = true;
+
+    /// <summary>
+    ///     SDK workaround: <c>new ChatCompletionOptions()</c> leaves internal <c>additionalProperties</c> null, so
+    ///     <see cref="Apply" /> throws until the instance is deserialized once (Azure SDK #48287).
+    /// </summary>
+    internal static ChatCompletionOptions CreateOptions() =>
+        ModelReaderWriter.Read<ChatCompletionOptions>(BinaryData.FromString("{}")!)!;
 
     internal static void Apply(ChatCompletionOptions options, bool useMaxCompletionTokensProperty)
     {

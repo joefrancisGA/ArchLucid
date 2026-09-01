@@ -69,6 +69,13 @@ public class RunSummaryResponse
         set;
     }
 
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.CreatedByUserId" />
+    public string? CreatedByUserId
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     Operator-facing flags mirroring <see cref="ArchLucid.Persistence.Queries.RunSummaryDto" /> computed properties
     ///     (JSON for UI without null inference).

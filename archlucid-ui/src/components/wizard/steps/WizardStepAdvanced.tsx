@@ -1,15 +1,12 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import type { ReactNode } from "react";
-import { useState } from "react";
+import type { ReactElement } from "react";
 import type { FieldPath } from "react-hook-form";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
-import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,176 +20,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
-import { useModelEngineSelectionOptionsQuery } from "@/hooks/use-wizard-advanced-queries";
 import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
-import type { ModelEngineSelectionOptionsResponse } from "@/lib/model-governance-types";
 import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
-import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
-type StringListName = "policyReferences" | "topologyHints" | "securityBaselineHints";
-
-function WizardEngineAliasPicker() {
-  const { control } = useFormContext<WizardFormValues>();
-  const { data: options } = useModelEngineSelectionOptionsQuery();
-
-  if (options == null || options.options.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
-      <WizardFieldHint
-        label="Engine alias"
-        hint="Optional per-review engine within the workspace allowed set. Defaults to the workspace standard engine."
-      />
-      <Controller
-        name="modelAliasOverride"
-        control={control}
-        render={({ field }) => (
-          <Select value={field.value.length > 0 ? field.value : "__workspace_default__"} onValueChange={(value) => {
-            field.onChange(value === "__workspace_default__" ? "" : value);
-          }}>
-            <SelectTrigger id="wizard-model-alias-override" data-testid="wizard-model-alias-override">
-              <SelectValue placeholder="Workspace default" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__workspace_default__">Workspace default</SelectItem>
-              {options.options.map((option) => (
-                <SelectItem key={option.aliasId} value={option.aliasId}>
-                  {option.aliasId}
-                  {option.taskEvaluations.some((evaluation) => evaluation.evaluationState === "NotEvaluated")
-                    ? " · Not evaluated"
-                    : ""}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      />
-    </div>
-  );
-}
-
-function AdvancedChipList(props: {
-  fieldName: StringListName;
-  title: string;
-  hint: string;
-  inputId: string;
-}) {
-  const { watch, setValue, formState, clearErrors } = useFormContext<WizardFormValues>();
-  const { isAiSuggested, clearAiSuggested } = useWizardAiSuggestedFields();
-  const { errors } = formState;
-  const items: string[] = watch(props.fieldName) ?? [];
-  const [draft, setDraft] = useState("");
-  const listErr = errors[props.fieldName]?.message;
-
-  const addItem = () => {
-    const trimmed = draft.trim();
-
-    if (!trimmed) {
-      return;
-    }
-
-    clearErrors(props.fieldName);
-    setValue(props.fieldName, [...items, trimmed], { shouldValidate: true, shouldDirty: true });
-    setDraft("");
-  };
-
-  const removeItem = (index: number) => {
-    clearAiSuggested(props.fieldName as WizardAiSuggestedFieldName, items[index] ?? "");
-    clearErrors(props.fieldName);
-    setValue(
-      props.fieldName,
-      items.filter((_, idx) => idx !== index),
-      { shouldValidate: true, shouldDirty: true },
-    );
-  };
-
-  return (
-    <div className="space-y-2">
-      <WizardFieldHint htmlFor={props.inputId} label={props.title} hint={props.hint} />
-      <div className="flex flex-wrap gap-2">
-        <Input
-          id={props.inputId}
-          value={draft}
-          onChange={(e) => {
-            setDraft(e.target.value);
-            clearErrors(props.fieldName);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              addItem();
-            }
-          }}
-          className="max-w-md flex-1 min-w-[12rem]"
-        />
-        <Button type="button" variant="secondary" onClick={addItem}>
-          Add
-        </Button>
-      </div>
-      <WizardFieldError
-        id={`err-wizard-adv-${props.fieldName}`}
-        message={listErr != null ? String(listErr) : undefined}
-      />
-      {items.length > 0 ? (
-        <ul className="m-0 flex flex-wrap gap-2 p-0 list-none">
-          {items.map((item, index) => (
-            <li key={`${props.fieldName}-${index}`}>
-              <Badge variant="outline" className="gap-1 py-1 pl-2 pr-1 font-normal">
-                <span className="max-w-[220px] truncate">{item}</span>
-                {isAiSuggested(props.fieldName as WizardAiSuggestedFieldName, item) ? (
-                  <span className={cn("rounded bg-violet-100 px-1 font-semibold uppercase tracking-wide text-violet-900 dark:bg-violet-950 dark:text-violet-100", OPERATOR_NAV_GROUP_LABEL)}>
-                    AI
-                  </span>
-                ) : null}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-6 px-1"
-                  onClick={() => removeItem(index)}
-                  aria-label={`Remove ${item}`}
-                >
-                  ×
-                </Button>
-              </Badge>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
-}
-
-function CollapsibleSection(props: {
-  title: string;
-  count: number;
-  children: ReactNode;
-}) {
-  return (
-    <details className="group rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
-      <summary className="flex cursor-pointer list-none items-center gap-2 font-medium text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
-        <DisclosureTriangleIndicator />
-        <span className="flex flex-wrap items-center gap-2">
-          <span>{props.title}</span>
-          {props.count > 0 ? (
-            <Badge variant="secondary" className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-              {props.count}
-            </Badge>
-          ) : null}
-        </span>
-      </summary>
-      <div className="mt-4 space-y-4">{props.children}</div>
-    </details>
-  );
-}
+import { WizardAdvancedChipList } from "./WizardAdvancedChipList";
+import { WizardAdvancedCollapsibleSection } from "./WizardAdvancedCollapsibleSection";
+import { WizardEngineAliasPicker } from "./WizardEngineAliasPicker";
 
 /**
  * Step 5: optional policy hints, architecture structure, security, documents, infrastructure declarations.
  */
-export function WizardStepAdvanced() {
+export function WizardStepAdvanced(): ReactElement {
   const { control, watch, register, formState, clearErrors } = useFormContext<WizardFormValues>();
   const { errors } = formState;
   const policyReferences = watch("policyReferences") ?? [];
@@ -250,34 +89,34 @@ export function WizardStepAdvanced() {
 
         <WizardEngineAliasPicker />
 
-        <CollapsibleSection title="Policy references (Custom Policy Overrides)" count={policyReferences.length}>
-          <AdvancedChipList
+        <WizardAdvancedCollapsibleSection title="Policy references (Custom Policy Overrides)" count={policyReferences.length}>
+          <WizardAdvancedChipList
             fieldName="policyReferences"
             title="Policy references"
             hint="e.g. policy-pack:enterprise-default — packs that must be evaluated against the proposal."
             inputId="wizard-policy-draft"
           />
-        </CollapsibleSection>
+        </WizardAdvancedCollapsibleSection>
 
-        <CollapsibleSection title={ARCHITECTURE_HINTS_BUYER_LABEL} count={topologyHints.length}>
-          <AdvancedChipList
+        <WizardAdvancedCollapsibleSection title={ARCHITECTURE_HINTS_BUYER_LABEL} count={topologyHints.length}>
+          <WizardAdvancedChipList
             fieldName="topologyHints"
             title={ARCHITECTURE_HINTS_BUYER_LABEL}
             hint="Optional patterns to prefer or avoid (for example hub-spoke, strangler, regional pairs) to steer architecture-structure analysis."
             inputId="wizard-topology-draft"
           />
-        </CollapsibleSection>
+        </WizardAdvancedCollapsibleSection>
 
-        <CollapsibleSection title="Security baseline hints" count={securityBaselineHints.length}>
-          <AdvancedChipList
+        <WizardAdvancedCollapsibleSection title="Security baseline hints" count={securityBaselineHints.length}>
+          <WizardAdvancedChipList
             fieldName="securityBaselineHints"
             title="Security baseline hints"
-            hint="Short control expectation — ncryption, identity, segmentation, loggin — hat reviewers want honored in the proposal."
+            hint="Short control expectation — encryption, identity, segmentation, logging — that reviewers want honored in the proposal."
             inputId="wizard-security-draft"
           />
-        </CollapsibleSection>
+        </WizardAdvancedCollapsibleSection>
 
-        <CollapsibleSection title="Documents" count={documents.filter((d) => d.name.trim() || d.content.trim()).length}>
+        <WizardAdvancedCollapsibleSection title="Documents" count={documents.filter((d) => d.name.trim() || d.content.trim()).length}>
           <WizardFieldHint
             label="Documents"
             hint="Each row is a named UTF-8 attachment (name, content type, body) merged into agent context alongside the main brief."
@@ -362,9 +201,9 @@ export function WizardStepAdvanced() {
           >
             Add document
           </Button>
-        </CollapsibleSection>
+        </WizardAdvancedCollapsibleSection>
 
-        <CollapsibleSection
+        <WizardAdvancedCollapsibleSection
           title="Infrastructure declarations (Raw JSON Editors)"
           count={infrastructureDeclarations.filter((d) => d.name.trim() || d.content.trim()).length}
         >
@@ -461,7 +300,7 @@ export function WizardStepAdvanced() {
           <Button type="button" variant="secondary" onClick={() => appendInfra({ name: "", format: "json", content: "" })}>
             Add declaration
           </Button>
-        </CollapsibleSection>
+        </WizardAdvancedCollapsibleSection>
       </AdvancedOptionsAccordion>
     </WizardStepPanel>
   );

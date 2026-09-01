@@ -92,6 +92,7 @@ public sealed partial class DapperDraftRequestRepository
             Document = document,
             RedirectReason = row.RedirectReason,
             SpawnedRunId = row.SpawnedRunId,
+            CreatedByUserId = row.CreatedByUserId,
             // SQL datetime2 has no Kind; leave Unspecified and System.Text.Json omits Z, so browsers
             // treat UTC wall-clock as local and relative labels jump into the future by the offset.
             CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
@@ -124,6 +125,12 @@ public sealed partial class DapperDraftRequestRepository
             get;
             set;
         }
+
+        public string CreatedByUserId
+        {
+            get;
+            set;
+        } = string.Empty;
 
         public string Status
         {
