@@ -87,7 +87,7 @@ public sealed class UserInvitationEmailNotifierTests
 
         sentMessage.Should().NotBeNull();
         sentMessage!.HtmlBody.Should().Contain(
-            "<a href=\"https://app.example.com/architecture/reviews/run-abc\">Retail API platform</a>");
+            "<a href=\"https://app.example.com/architecture/reviews/run-abc\" rel=\"noopener noreferrer\">Retail API platform</a>");
         sentMessage.TextBody.Should().Contain(
             "Retail API platform (https://app.example.com/architecture/reviews/run-abc)");
         sentMessage.TextBody.Should().NotContain("[Retail API platform]");
