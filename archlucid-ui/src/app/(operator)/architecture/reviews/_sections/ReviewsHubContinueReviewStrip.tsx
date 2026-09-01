@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatElapsedMinutesProse } from "@/lib/format-elapsed-minutes";
 import type { ReviewsHubContinueReviewCandidate } from "@/lib/reviews-hub-continue-review";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +17,7 @@ export function ReviewsHubContinueReviewStrip(props: ReviewsHubContinueReviewStr
     candidate.kind === "awaiting-disposition"
       ? "Findings are ready — finish disposition or finalize the package."
       : candidate.isStalled
-        ? `In progress for ${candidate.elapsedMinutes} minutes — pick up where you left off.`
+        ? `In progress for ${formatElapsedMinutesProse(candidate.elapsedMinutes)} — pick up where you left off.`
         : "Continue the review you started most recently.";
 
   return (
