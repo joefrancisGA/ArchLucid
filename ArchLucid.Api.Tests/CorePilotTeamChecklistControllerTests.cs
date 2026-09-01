@@ -164,6 +164,14 @@ public sealed class CorePilotTeamChecklistControllerTests
     }
 
     [Fact]
+    public void CorePilotChecklistPutRequest_rejects_json_without_is_completed()
+    {
+        Action act = () => System.Text.Json.JsonSerializer.Deserialize<CorePilotChecklistPutRequest>("""{"stepIndex":1}""");
+
+        act.Should().Throw<System.Text.Json.JsonException>();
+    }
+
+    [Fact]
     public async Task PutAsync_null_body_returns_bad_request()
     {
         Mock<ICorePilotTeamChecklistRepository> repo = new();
