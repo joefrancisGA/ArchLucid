@@ -72,6 +72,9 @@ public sealed class WizardIntakeDraftService(
             : ArchitectureRunIdempotencyHashing.HashIdempotencyKey(request.IdempotencyKey.Trim());
 
         string trimmedWizardId = wizardId.Trim();
+        if (trimmedWizardId.Length > 128)
+            throw new ArgumentException("wizardId must be <= 128 characters.", nameof(wizardId));
+
         await _repository.UpsertAsync(
             scope.TenantId,
             scope.WorkspaceId,
