@@ -21,8 +21,20 @@ public sealed class InMemoryWizardIntakeDraftRepository : IWizardIntakeDraftRepo
         ArgumentException.ThrowIfNullOrWhiteSpace(wizardId);
         cancellationToken.ThrowIfCancellationRequested();
 
-        lock (_gate)
-            return Task.FromResult(_rows.GetValueOrDefault(Key(tenantId, workspaceId, wizardId)));
+lock (_gate)
+{
+    WizardIntakeDraftResponse? existing = _rows.GetValueOrDefault(Key(tenantId, workspaceId, wizardId));
+
+    return Task.FromResult(existing is null
+        ? null
+        : new WizardIntakeDraftResponse
+        {
+            WizardId = existing.WizardId,
+            StepIndex = existing.StepIndex,
+            StateJson = existing.StateJson,
+            UpdatedUtc = existing.UpdatedUtc,
+        });
+}
     }
 
     /// <inheritdoc />
