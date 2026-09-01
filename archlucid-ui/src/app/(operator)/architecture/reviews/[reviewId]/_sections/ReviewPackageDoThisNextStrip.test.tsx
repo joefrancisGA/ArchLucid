@@ -201,6 +201,70 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
   });
 
+  it("renders in-place rerun button when live AI is ready", () => {
+    render(
+      <ReviewPackageDoThisNextStrip
+        runId="run-1"
+        hasGoldenManifest={false}
+        commitBlockedReason={null}
+        sessionAiReadiness={readySessionAiReadiness}
+        next={{
+          kind: "rerun-review",
+          sentence: "Assessment failed — follow the recovery steps below, then re-run the review with the same intake.",
+          actionLabel: "Re-run review",
+          href: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("review-package-re-run-review")).toBeInTheDocument();
+  });
+
+  it("disables rerun CTA when live AI blocks execute", () => {
+    render(
+      <ReviewPackageDoThisNextStrip
+        runId="run-1"
+        hasGoldenManifest={false}
+        commitBlockedReason={null}
+        sessionAiReadiness={loadedUnavailableSessionAiReadiness}
+        next={{
+          kind: "rerun-review",
+          sentence: "Assessment failed — follow the recovery steps below, then re-run the review with the same intake.",
+          actionLabel: "Re-run review",
+          href: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          failureRecovery: {
+            headline: "Execution failed before the first pipeline stage",
+            detail: "Missing Azure OpenAI deployment configuration",
+            recoverySteps: [
+              "Share the administrator handoff below with a workspace administrator — this account cannot change AI configuration.",
+              "After your administrator confirms workspace AI setup, return here and click Re-run review.",
+            ],
+            suggestSupportTicket: false,
+            severity: "error",
+            supportHref: "/help/report-a-problem",
+            intactSummary:
+              "Your submitted intake package was recorded. Processing stopped before the first pipeline stage — this is usually a configuration or infrastructure issue, not missing intake fields.",
+            workspaceAiConfigurationSignal: {
+              label: "Workspace AI configuration",
+              detail: "Missing Azure OpenAI credentials or deployment config",
+            },
+            adminHandoff: {
+              markdown: "Review ID: run-1\nFailure: Execution failed before the first pipeline stage",
+              verificationLines: ["Connection probe passes on Administration → Model governance."],
+            },
+            submittedIntakeRecap: {
+              fields: [{ label: "Review title", value: "ArchLucid" }],
+              attachedFiles: ["ARCHITECTURE_HANDBOOK.docx"],
+            },
+          },
+        }}
+      />,
+    );
+
+    expect(screen.queryByTestId("review-package-re-run-review")).toBeNull();
+    expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
+  });
+
   it("renders outline evidence CTA and secondary sponsor link when demoted", () => {
     render(
       <ReviewPackageDoThisNextStrip

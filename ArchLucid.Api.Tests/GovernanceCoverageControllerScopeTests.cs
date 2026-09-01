@@ -78,7 +78,7 @@ public sealed class GovernanceCoverageControllerScopeTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        Mock<ITenantRepository> tenants = new();
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
         tenants
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantRecord?)null);
