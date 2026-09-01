@@ -18,6 +18,7 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
         ApplyManifestSummaryResponse(document);
         ApplyArchitectureRequest(document);
         ApplyContextDocumentRequest(document);
+        ApplyProductFeedbackRequest(document);
 
         return Task.CompletedTask;
     }
@@ -96,5 +97,13 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
         OpenApiSchemaContractMutator.SetDescriptionIfMissing(
             schema,
             "When present in ArchitectureRequest.documents[], name, contentType, and content are required by FluentValidation (empty arrays are allowed on the parent request).");
+    }
+
+    private static void ApplyProductFeedbackRequest(OpenApiDocument document)
+    {
+        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, "ProductFeedbackRequest", out OpenApiSchema schema))
+            return;
+
+        OpenApiSchemaContractMutator.EnsureRequired(schema, "score");
     }
 }

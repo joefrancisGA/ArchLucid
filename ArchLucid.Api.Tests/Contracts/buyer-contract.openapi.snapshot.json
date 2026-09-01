@@ -8311,6 +8311,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "isCompleted"
+        ],
         "type": "object"
       },
       "CorePilotChecklistStepResponse": {
@@ -21680,6 +21683,9 @@
             ]
           }
         },
+        "required": [
+          "score"
+        ],
         "type": "object"
       },
       "ProductLearningArtifactOutcomeTrendsResponse": {

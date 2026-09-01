@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
@@ -51,7 +49,7 @@ public sealed class GovernanceCoverageController(
     [MutatingAuditExcluded("Read-only coverage preview; does not persist domain mutations.")]
     [ProducesResponseType(typeof(CoveragePreviewResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> PreviewCoverage(
-        [AllowNull][FromBody] CoveragePreviewRequest request,
+        [FromBody] CoveragePreviewRequest? request,
         CancellationToken cancellationToken)
     {
         if (request is null)
