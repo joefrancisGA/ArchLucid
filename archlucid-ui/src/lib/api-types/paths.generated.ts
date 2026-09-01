@@ -70295,11 +70295,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
+            requestBody: {
                 content: {
-                    "application/*+json": null | components["schemas"]["CoveragePreviewRequest"];
-                    "application/json": null | components["schemas"]["CoveragePreviewRequest"];
-                    "text/json": null | components["schemas"]["CoveragePreviewRequest"];
+                    "application/*+json": components["schemas"]["CoveragePreviewRequest"];
+                    "application/json": components["schemas"]["CoveragePreviewRequest"];
+                    "text/json": components["schemas"]["CoveragePreviewRequest"];
                 };
             };
             responses: {

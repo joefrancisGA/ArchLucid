@@ -160,8 +160,8 @@ public sealed partial class GovernanceStickinessFacade
             return new RecurrenceScheduleUpdateResult(RecurrenceScheduleUpdateOutcome.NotFound, null);
         }
 
-        bool scheduleTimingChanged = request.IsEnabled.HasValue
-            || !string.IsNullOrWhiteSpace(request.CronExpression);
+        bool originalIsEnabled = existing.IsEnabled;
+        string originalCron = existing.CronExpression;
 
         if (request.IsEnabled.HasValue)
             existing.IsEnabled = request.IsEnabled.Value;
@@ -180,6 +180,9 @@ public sealed partial class GovernanceStickinessFacade
 
             existing.CronExpression = cron;
         }
+
+        bool scheduleTimingChanged = (request.IsEnabled.HasValue && request.IsEnabled.Value != originalIsEnabled)
+            || (!string.IsNullOrWhiteSpace(request.CronExpression) && request.CronExpression.Trim() != originalCron);
 
         if (scheduleTimingChanged)
         {

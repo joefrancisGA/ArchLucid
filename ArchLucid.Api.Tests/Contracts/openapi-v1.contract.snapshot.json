@@ -21685,6 +21685,9 @@
             ]
           }
         },
+        "required": [
+          "score"
+        ],
         "type": "object"
       },
       "ProductLearningArtifactOutcomeTrendsResponse": {
@@ -122180,41 +122183,21 @@
           "content": {
             "application/*\u002Bjson": {
               "schema": {
-                "anyOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/CoveragePreviewRequest"
-                  }
-                ]
+                "$ref": "#/components/schemas/CoveragePreviewRequest"
               }
             },
             "application/json": {
               "schema": {
-                "anyOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/CoveragePreviewRequest"
-                  }
-                ]
+                "$ref": "#/components/schemas/CoveragePreviewRequest"
               }
             },
             "text/json": {
               "schema": {
-                "anyOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/CoveragePreviewRequest"
-                  }
-                ]
+                "$ref": "#/components/schemas/CoveragePreviewRequest"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
