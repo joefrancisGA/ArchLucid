@@ -42,7 +42,7 @@ class TestAdoptionBatch5AF(unittest.TestCase):
         self.assertIn("/architecture/reviews/new?preset=greenfield", (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "demo-explain-page-copy.ts").read_text(encoding="utf-8"))
 
     def test_tb_218_evaluator_workbook_help_slug(self) -> None:
-        registry = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "product-documentation-registry-entries-operator.ts"
+        registry = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "product-documentation-registry-entries-operator-workspace.ts"
         alias = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "ui-route-traffic-evaluator-workbook-help-alias.ts"
         registry_text = registry.read_text(encoding="utf-8")
         alias_text = alias.read_text(encoding="utf-8")

@@ -75,7 +75,10 @@ public sealed class TenantAzureOpenAiConnectionProbeService(
                 maxTokens);
 
             string response = await client
-                .CompleteJsonAsync("Reply with OK.", "Health probe", cancellationToken: cancellationToken)
+                .CompleteJsonAsync(
+                    WorkspaceAiLiveCompletionProbe.ProbeSystemPrompt,
+                    WorkspaceAiLiveCompletionProbe.ProbeUserPrompt,
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             bool ok = !string.IsNullOrWhiteSpace(response);

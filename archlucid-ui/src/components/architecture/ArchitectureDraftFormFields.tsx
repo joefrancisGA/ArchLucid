@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 import { ArchitectureDraftOverviewRewritePanel } from "@/components/architecture/ArchitectureDraftOverviewRewritePanel";
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
+import { WorkspaceSystemNameAvailabilityFeedback } from "@/components/intake/WorkspaceSystemNameAvailabilityFeedback";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,6 +26,7 @@ import {
   guidedIntakeCreationArchitectureOverviewHelperText,
 } from "@/lib/guided-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system-name-availability";
 import type { ActorSet } from "@/types/draft-intake";
 
 const MIN_OUTCOME_CHARS = 10;
@@ -52,6 +54,16 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
   const outcomeMeetsMinimum = outcomeTrimmedLength >= MIN_OUTCOME_CHARS;
   const markInvalid = props.markReviewReadinessInvalid === true;
   const systemNameInvalid = markInvalid && props.fields.systemName.trim().length === 0;
+  const systemNameAvailability = useWorkspaceSystemNameAvailability({
+    systemName: props.fields.systemName,
+    excludeDraftId: props.architectureId ?? null,
+    enabled: props.disabled !== true,
+    minTrimmedLength: 1,
+  });
+  const systemNameConflict =
+    systemNameAvailability.validationReady &&
+    !systemNameAvailability.isAvailable &&
+    systemNameAvailability.conflictMessage !== null;
   const overviewInvalid = markInvalid && intentTrimmedLength < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS;
   const outcomeInvalid = markInvalid && outcomeTrimmedLength < MIN_OUTCOME_CHARS;
 
@@ -73,7 +85,11 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           placeholder={GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER}
           data-testid="architecture-draft-system-name"
           aria-required
-          aria-invalid={systemNameInvalid}
+          aria-invalid={systemNameInvalid || systemNameConflict}
+        />
+        <WorkspaceSystemNameAvailabilityFeedback
+          availability={systemNameAvailability}
+          testId="architecture-draft-system-name-availability"
         />
       </div>
 

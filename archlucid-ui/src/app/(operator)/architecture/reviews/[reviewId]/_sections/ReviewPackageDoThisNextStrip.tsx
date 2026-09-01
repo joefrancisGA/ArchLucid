@@ -10,9 +10,10 @@ import {
 } from "@/components/operator/OperatorShellMessage";
 import { WorkspaceAiAvailabilityPanel } from "@/components/reviews/WorkspaceAiAvailabilityPanel";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
+import type { SessionAiReadinessState } from "@/hooks/use-session-ai-readiness";
 import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-intake-recap";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveProbeAwareRecoverySteps } from "@/lib/resolve-probe-aware-recovery-steps";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,9 @@ export type ReviewPackageDoThisNextStripProps = {
   readonly runId: string;
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
+  readonly sessionAiReadiness: SessionAiReadinessState;
+  readonly canConfigureWorkspaceAi?: boolean;
+  readonly usesCustomerAiConnection?: boolean;
 };
 
 function ReviewFailureAdminHandoffPanel(props: {
@@ -142,12 +146,24 @@ function ReviewSubmittedIntakeRecapPanel(props: {
 
 function ReviewFailureRecoveryDetails(props: {
   readonly failureRecovery: NonNullable<ReviewPackageDoThisNext["failureRecovery"]>;
+  readonly sessionAiReadiness: SessionAiReadinessState;
+  readonly canConfigureWorkspaceAi: boolean;
+  readonly usesCustomerAiConnection: boolean;
 }): React.JSX.Element {
-  const { failureRecovery } = props;
+  const { failureRecovery, sessionAiReadiness, canConfigureWorkspaceAi, usesCustomerAiConnection } = props;
   const Callout =
     failureRecovery.severity === "warning" ? OperatorWarningCallout : OperatorErrorCallout;
   const intactSummary = failureRecovery.intactSummary?.trim() ?? "";
   const workspaceAiSignal = failureRecovery.workspaceAiConfigurationSignal;
+  const recoverySteps =
+    workspaceAiSignal !== null && workspaceAiSignal !== undefined
+      ? resolveProbeAwareRecoverySteps({
+          baseSteps: failureRecovery.recoverySteps,
+          probeState: sessionAiReadiness.probeState,
+          usesCustomerAiConnection,
+          canConfigureWorkspaceAi,
+        })
+      : failureRecovery.recoverySteps;
 
   return (
     <div className="mt-3 space-y-3" data-testid="review-package-failure-recovery">
@@ -163,7 +179,13 @@ function ReviewFailureRecoveryDetails(props: {
       </Callout>
 
       {workspaceAiSignal !== null && workspaceAiSignal !== undefined ? (
-        <WorkspaceAiAvailabilityPanel workspaceAiSignal={workspaceAiSignal} />
+        <WorkspaceAiAvailabilityPanel
+          workspaceAiSignal={workspaceAiSignal}
+          availabilityCheck={{
+            state: sessionAiReadiness.probeState,
+            checkAvailability: sessionAiReadiness.checkAvailability,
+          }}
+        />
       ) : null}
 
       {intactSummary.length > 0 ? (
@@ -177,7 +199,7 @@ function ReviewFailureRecoveryDetails(props: {
           What to do
         </p>
         <ol className={cn("m-0 mt-2 list-decimal space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {failureRecovery.recoverySteps.map((step) => (
+          {recoverySteps.map((step) => (
             <li key={step}>{step}</li>
           ))}
         </ol>
@@ -220,10 +242,17 @@ function ReviewFailureRecoveryDetails(props: {
 export function ReviewPackageDoThisNextStrip(
   props: ReviewPackageDoThisNextStripProps,
 ): React.JSX.Element {
-  const { next, runId, hasGoldenManifest, commitBlockedReason } = props;
-  const readiness = useSessionAiReadiness();
+  const {
+    next,
+    runId,
+    hasGoldenManifest,
+    commitBlockedReason,
+    sessionAiReadiness,
+    canConfigureWorkspaceAi = false,
+    usesCustomerAiConnection = false,
+  } = props;
   const buttonVariant = next.buttonVariant ?? "primary";
-  const blockRerun = next.kind === "rerun-review" && readiness.blocksExecute;
+  const blockRerun = next.kind === "rerun-review" && sessionAiReadiness.blocksExecute;
 
   return (
     <section
@@ -259,7 +288,7 @@ export function ReviewPackageDoThisNextStrip(
           ) : (
             <span
               className={cn(buttonVariants({ variant: buttonVariant, size: "sm" }), "pointer-events-none opacity-60")}
-              title={blockRerun ? readiness.detail ?? "Live AI is not ready for Real mode." : undefined}
+              title={blockRerun ? sessionAiReadiness.detail ?? "Live AI is not ready for Real mode." : undefined}
             >
               {next.actionLabel}
             </span>
@@ -275,7 +304,12 @@ export function ReviewPackageDoThisNextStrip(
       </div>
 
       {next.failureRecovery !== null && next.failureRecovery !== undefined ? (
-        <ReviewFailureRecoveryDetails failureRecovery={next.failureRecovery} />
+        <ReviewFailureRecoveryDetails
+          failureRecovery={next.failureRecovery}
+          sessionAiReadiness={sessionAiReadiness}
+          canConfigureWorkspaceAi={canConfigureWorkspaceAi}
+          usesCustomerAiConnection={usesCustomerAiConnection}
+        />
       ) : null}
     </section>
   );

@@ -45,8 +45,6 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURES_HUB_EMPTY_BODY,
-  ARCHITECTURES_HUB_EMPTY_FILTER_BODY,
-  ARCHITECTURES_HUB_EMPTY_FILTER_TITLE,
   ARCHITECTURES_HUB_EMPTY_TITLE,
   ARCHITECTURES_HUB_FILTER_ALL_LABEL,
   ARCHITECTURES_HUB_FILTER_ARCHIVED_LABEL,
@@ -116,11 +114,13 @@ function matchesSearch(entry: ArchitectureDraftRegistryEntry, query: string): bo
 
 function matchesFilter(entry: ArchitectureDraftRegistryEntry, filter: ArchitectureFilterId): boolean {
   if (filter === "all") {
-    return true;
+    // Abandoned drafts live under Archived; the default inventory hides them after delete.
+    return entry.customerStatus !== "archived";
   }
 
   if (filter === "no-review") {
-    return entry.linkedReviewId === null;
+    // Abandoned drafts are archived — they must not also appear under "No review yet".
+    return entry.linkedReviewId === null && entry.customerStatus !== "archived";
   }
 
   return entry.customerStatus === filter;
@@ -281,7 +281,10 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2 lg:ml-auto">
-          <label htmlFor="architecture-draft-list-sort" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <label
+            htmlFor="architecture-draft-list-sort"
+            className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.nativeControlLabel)}
+          >
             Sort by
           </label>
           <select
@@ -289,7 +292,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
             value={activeSort}
             onChange={(event) => setActiveSort(event.target.value as ArchitectureSortId)}
             className={cn(
-              "rounded-md border border-al-border-subtle bg-al-surface-raised px-2 py-1",
+              "h-8 max-w-[12rem] rounded-md border border-al-border-subtle bg-al-surface-raised px-2 text-al-text-primary",
               OPERATOR_TYPOGRAPHY.nativeControlLabel,
             )}
             data-testid="architecture-draft-list-sort"
@@ -303,12 +306,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
         </div>
       </div>
 
-      {filteredEntries.length === 0 ? (
-        <EnterpriseCompactEmptyState
-          title={ARCHITECTURES_HUB_EMPTY_FILTER_TITLE}
-          description={ARCHITECTURES_HUB_EMPTY_FILTER_BODY}
-        />
-      ) : (
+      {filteredEntries.length > 0 ? (
         <EnterpriseTable
           ariaLabel={ARCHITECTURES_HUB_PAGE_TITLE}
           data-testid="architecture-draft-list-table"
@@ -390,6 +388,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                         displayName={entry.displayName}
                         linkedReviewId={entry.linkedReviewId}
                         customerStatus={entry.customerStatus}
+                        createdByUserId={entry.createdByUserId ?? null}
                         testId={`architecture-draft-delete-${entry.architectureId}`}
                       />
                     </div>
@@ -399,7 +398,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
             })}
           </EnterpriseTableBody>
         </EnterpriseTable>
-      )}
+      ) : null}
     </div>
   );
 }

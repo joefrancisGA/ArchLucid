@@ -1,7 +1,9 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -12,7 +14,8 @@ public sealed class DraftRequestCrudService(
     IDraftRequestRepository draftRepository,
     IQuestionSelectionEngine questionSelectionEngine,
     IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
-    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard) : IDraftRequestCrudService
+    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
+    IWorkOwnershipDeleteAuthorizationService workOwnershipDeleteAuthorizationService) : IDraftRequestCrudService
 {
     private readonly IDraftRequestRepository _draftRepository =
         draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
@@ -26,6 +29,10 @@ public sealed class DraftRequestCrudService(
 
     private readonly IWorkspaceSystemNameCollisionGuard _workspaceSystemNameCollisionGuard =
         workspaceSystemNameCollisionGuard ?? throw new ArgumentNullException(nameof(workspaceSystemNameCollisionGuard));
+
+    private readonly IWorkOwnershipDeleteAuthorizationService _workOwnershipDeleteAuthorizationService =
+        workOwnershipDeleteAuthorizationService
+        ?? throw new ArgumentNullException(nameof(workOwnershipDeleteAuthorizationService));
 
     /// <inheritdoc />
     public async Task<DraftRequestResponse> CreateAsync(
@@ -244,6 +251,10 @@ public sealed class DraftRequestCrudService(
         if (!DraftRequestStateMachine.AllowsAbandon(existing.Status))
             throw new InvalidOperationException($"Draft '{draftId}' cannot be abandoned from status '{existing.Status}'.");
 
+        await _workOwnershipDeleteAuthorizationService
+            .EnsureCanDeleteOwnedWorkAsync(existing.CreatedByUserId, cancellationToken)
+            .ConfigureAwait(false);
+
         return await _draftRepository.UpdateAsync(
             scope.TenantId,
             scope.WorkspaceId,
@@ -279,5 +290,42 @@ public sealed class DraftRequestCrudService(
             existing.RedirectReason,
             existing.SpawnedRunId,
             cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<PagedResponse<DraftRequestSummaryResponse>> ListAsync(
+        ScopeContext scope,
+        string actorUserId,
+        IReadOnlyList<DraftRequestStatus> statuses,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actorUserId);
+
+        if (statuses is null || statuses.Count == 0)
+            throw new ArgumentException("At least one status filter is required.", nameof(statuses));
+
+        PagedResponse<DraftRequestResponse> draftPage = await _draftRepository.ListForCreatorInWorkspaceAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            actorUserId,
+            statuses,
+            page,
+            pageSize,
+            cancellationToken);
+
+        IReadOnlyList<DraftRequestSummaryResponse> summaries = draftPage.Items
+            .Select(DraftRequestSummaryMapper.FromResponse)
+            .ToList();
+
+        return new PagedResponse<DraftRequestSummaryResponse>
+        {
+            Items = summaries,
+            TotalCount = draftPage.TotalCount,
+            Page = draftPage.Page,
+            PageSize = draftPage.PageSize,
+        };
     }
 }

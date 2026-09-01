@@ -2367,7 +2367,7 @@ export interface components {
             workspaceId?: string;
         };
         CorePilotChecklistPutRequest: {
-            isCompleted?: boolean;
+            isCompleted: null | boolean;
             /** Format: int32 */
             stepIndex?: number;
         };
@@ -3070,6 +3070,7 @@ export interface components {
             workflowIntent?: null | string;
         };
         DraftRequestResponse: {
+            createdByUserId?: string;
             /** Format: date-time */
             createdUtc?: string;
             document?: components["schemas"]["DraftRequestDocument"];
@@ -3089,6 +3090,20 @@ export interface components {
         };
         /** @enum {string} */
         DraftRequestStatus: "Drafting" | "Admitted" | "Submitted" | "RunSpawned" | "Redirected" | "Abandoned";
+        DraftRequestSummaryResponse: {
+            createdByUserId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            draftId?: string;
+            freeTextIntent?: string;
+            reviewReadinessValid?: boolean;
+            spawnedRunId?: null | string;
+            status?: components["schemas"]["DraftRequestStatus"];
+            systemName?: null | string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
         DriftAnalysisResponse: {
             driftDetected?: boolean;
             items?: components["schemas"]["DriftItemResponse"][];
@@ -5457,6 +5472,16 @@ export interface components {
             /** Format: int32 */
             totalCount?: number;
         };
+        PagedResponseOfDraftRequestSummaryResponse: {
+            hasMore?: boolean;
+            items?: components["schemas"]["DraftRequestSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
             businessOutcome?: null | string;
@@ -6311,7 +6336,7 @@ export interface components {
             /** Format: uuid */
             runId?: null | string;
             /** Format: int16 */
-            score?: number | string;
+            score: number | string;
         };
         ProductLearningArtifactOutcomeTrendsResponse: {
             /** Format: date-time */
@@ -7705,6 +7730,7 @@ export interface components {
             completedUtc?: null | string;
             /** Format: uuid */
             contextSnapshotId?: null | string;
+            createdByUserId?: null | string;
             /** Format: date-time */
             createdUtc: string;
             currentManifestVersion?: null | string;
@@ -7838,6 +7864,7 @@ export interface components {
             runId: string;
         };
         RunSummaryResponse: {
+            createdByUserId?: null | string;
             /** Format: date-time */
             createdUtc: string;
             degradedExecutionAgents?: string[];
@@ -9031,6 +9058,12 @@ export interface components {
             /** Format: int64 */
             totalQuantity?: number;
         };
+        TenantWorkOwnershipDeletePolicyResponse: {
+            allowCreatorDeleteOwnedWork?: boolean;
+        };
+        TenantWorkOwnershipDeletePolicyUpdateRequest: {
+            allowCreatorDeleteOwnedWork?: boolean;
+        };
         TenantWorkspaceApiDto: {
             /** Format: uuid */
             defaultProjectId?: string;
@@ -9462,6 +9495,11 @@ export interface components {
         };
         WorkspaceModelExecutionProfileUpdateRequest: {
             profile?: string;
+        };
+        WorkspaceSystemNameAvailabilityResponse: {
+            conflictMessage?: null | string;
+            isAvailable?: boolean;
+            systemName?: string;
         };
     };
     responses: never;

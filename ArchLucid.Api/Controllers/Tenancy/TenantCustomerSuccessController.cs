@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.CustomerSuccess;
@@ -59,12 +60,14 @@ public sealed class TenantCustomerSuccessController(
     [ProducesResponseType(typeof(TenantHealthScoreResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHealthScoreAsync(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenantError is not null)
-            return tenantError;
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         TenantHealthScoreRecord? row = await _customerSuccessRepository.GetHealthScoreAsync(
                 scope.TenantId,
@@ -99,12 +102,14 @@ public sealed class TenantCustomerSuccessController(
     [ProducesResponseType(typeof(IReadOnlyList<OperatorNextBestActionResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetNextBestActionsAsync(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenantError is not null)
-            return tenantError;
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         IReadOnlyList<OperatorNextBestActionItem> items =
             await _nextBestActionService.GetActionsAsync(cancellationToken).ConfigureAwait(false);
@@ -131,12 +136,14 @@ public sealed class TenantCustomerSuccessController(
     [ProducesResponseType(typeof(PilotFunnelSnapshotResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFunnelSnapshotAsync(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenantError is not null)
-            return tenantError;
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         PilotFunnelSnapshot snap = await _stickinessSnapshotReader
             .GetFunnelSnapshotAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
@@ -162,12 +169,14 @@ public sealed class TenantCustomerSuccessController(
     [ProducesResponseType(typeof(OperatorStickinessSnapshotResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetStickinessSnapshotAsync(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenantError is not null)
-            return tenantError;
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         PilotFunnelSnapshot funnel = await _stickinessSnapshotReader
             .GetFunnelSnapshotAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
@@ -198,16 +207,6 @@ public sealed class TenantCustomerSuccessController(
         return Ok(body);
     }
 
-    private async Task<IActionResult?> EnsureTenantExistsAsync(Guid tenantId, CancellationToken cancellationToken)
-    {
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
-        return null;
-    }
-
     private static DateTimeOffset? ToOffset(DateTime? utc)
     {
         if (utc is null)
@@ -228,15 +227,14 @@ public sealed class TenantCustomerSuccessController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenantError is not null)
-            return tenantError;
-
-        if (!request.Score.HasValue)
-            return this.BadRequestProblem("score is required.", ProblemTypes.ValidationFailed);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         if (request.RunId == Guid.Empty)
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
@@ -255,9 +253,12 @@ public sealed class TenantCustomerSuccessController(
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(request.FindingRef))
+        string? findingRef = string.IsNullOrWhiteSpace(request.FindingRef)
+            ? null
+            : request.FindingRef.Trim();
+
+        if (findingRef is not null)
         {
-            string findingRef = request.FindingRef.Trim();
             FindingInspectResponse? finding = await _findingInspectReadRepository
                 .GetInspectAsync(scope, findingRef, cancellationToken, FindingInspectReadOptions.MetadataOnly)
                 .ConfigureAwait(false);
@@ -275,9 +276,9 @@ public sealed class TenantCustomerSuccessController(
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
-            FindingRef = request.FindingRef,
+            FindingRef = findingRef,
             RunId = request.RunId,
-            Score = request.Score.Value,
+            Score = request.Score,
             Comment = request.Comment
         };
 

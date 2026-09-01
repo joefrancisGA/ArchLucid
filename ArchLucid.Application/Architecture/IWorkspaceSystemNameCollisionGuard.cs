@@ -18,4 +18,16 @@ public interface IWorkspaceSystemNameCollisionGuard
         Guid? excludeDraftId = null,
         Guid? excludeRunId = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Returns <see langword="false" /> when <paramref name="systemName" /> is already used by an occupying review run
+    ///     or mutable intake draft in <paramref name="scope" />'s workspace. Empty names after trim are treated as
+    ///     available.
+    /// </summary>
+    Task<bool> IsAvailableAsync(
+        ScopeContext scope,
+        string systemName,
+        Guid? excludeDraftId = null,
+        Guid? excludeRunId = null,
+        CancellationToken cancellationToken = default);
 }

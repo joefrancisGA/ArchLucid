@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 336_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 338_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -8885,6 +8885,25 @@ BEGIN
     SET @knowledgeModelRunSql = N'ALTER TABLE ' + @knowledgeModelRunTable + N' ADD KnowledgeModelId NVARCHAR(64) NULL;';
 
     EXEC sp_executesql @knowledgeModelRunSql;
+END
+
+GO
+
+/* 337: Review-run creator identity (ADR 0064 synonym-safe). */
+DECLARE @createdByUserRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @createdByUserRunSql NVARCHAR(MAX);
+
+IF @createdByUserRunTable IS NOT NULL
+   AND COL_LENGTH(@createdByUserRunTable, N'CreatedByUserId') IS NULL
+BEGIN
+    SET @createdByUserRunSql = N'ALTER TABLE ' + @createdByUserRunTable + N' ADD CreatedByUserId NVARCHAR(256) NULL;';
+
+    EXEC sp_executesql @createdByUserRunSql;
 END
 
 GO

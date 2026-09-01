@@ -321,10 +321,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       </ul>
 
       <div
-        className={cn(
-          OPERATOR_FORM_FIELD_STACK_CLASS,
-          "border-t border-al-border-subtle pt-4",
-        )}
+        className={OPERATOR_FORM_FIELD_STACK_CLASS}
         data-testid="architecture-scope-understanding-add"
       >
         <Label htmlFor="architecture-scope-understanding-new">

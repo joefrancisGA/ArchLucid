@@ -26,6 +26,54 @@ public sealed class GovernanceResolutionControllerTests
     };
 
     [Fact]
+    public async Task Resolve_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        Mock<IEffectiveGovernanceResolver> resolver = new(MockBehavior.Strict);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        GovernanceResolutionController controller = new(
+            scopeProvider.Object,
+            resolver.Object,
+            audit.Object,
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await controller.Resolve(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        resolver.VerifyNoOtherCalls();
+        audit.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Resolve_returns_not_found_when_tenant_missing()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -108,53 +156,5 @@ public sealed class GovernanceResolutionControllerTests
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeSameAs(expected);
-    }
-
-    [Fact]
-    public async Task Resolve_returns_not_found_when_workspace_missing()
-    {
-        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
-
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
-        {
-            TenantId = Scope.TenantId,
-            WorkspaceId = foreignWorkspaceId,
-            ProjectId = Scope.ProjectId,
-        });
-
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
-        tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
-
-        Mock<IEffectiveGovernanceResolver> resolver = new(MockBehavior.Strict);
-        Mock<IAuditService> audit = new(MockBehavior.Strict);
-
-        GovernanceResolutionController controller = new(
-            scopeProvider.Object,
-            resolver.Object,
-            audit.Object,
-            tenants.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
-
-        IActionResult result = await controller.Resolve(CancellationToken.None);
-
-        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        resolver.VerifyNoOtherCalls();
-        audit.VerifyNoOtherCalls();
     }
 }

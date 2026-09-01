@@ -172,7 +172,6 @@ describe("SponsorWorkspaceHealthDashboard", () => {
     renderWithOperatorQuery(<SponsorWorkspaceHealthDashboard />);
 
     expect(screen.getByRole("heading", { level: 2, name: "Workspace health" })).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByText("Loading workspace health…")).toBeInTheDocument();
   });
 

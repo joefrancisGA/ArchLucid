@@ -16,8 +16,12 @@ namespace ArchLucid.Host.Composition.Services;
 /// </summary>
 public static class WorkspaceAiLiveCompletionProbe
 {
-    private const string ProbeSystemPrompt = "Reply with OK.";
-    private const string ProbeUserPrompt = "Health probe";
+    /// <summary>
+    ///     Azure OpenAI requires the word &quot;json&quot; in chat messages when <c>response_format</c> is
+    ///     <c>json_object</c> (see <see cref="AzureOpenAiCompletionClient.CompleteJsonAsync" />).
+    /// </summary>
+    public const string ProbeSystemPrompt = "Reply with a minimal JSON object.";
+    public const string ProbeUserPrompt = "Health probe — respond in json.";
 
     public static AzureOpenAiCompletionClient? TryCreateManagedPlatformClient(
         IConfiguration configuration,
@@ -110,7 +114,7 @@ public static class WorkspaceAiLiveCompletionProbe
                     ProbeSystemPrompt,
                     ProbeUserPrompt,
                     maxTokens: WorkspaceAiAvailabilityProbeLimits.MaxCompletionTokens,
-                    temperature: 0f,
+                    temperature: null,
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
