@@ -113,11 +113,14 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinator(
             .ReReviewAsync(model, reReviewScope, specialistReviewService, cancellationToken)
             .ConfigureAwait(false);
 
+        bool allGlobalInvariantsPassed = result.GlobalInvariantResults.All(check => check.Passed);
+        string outcomeStatus = allGlobalInvariantsPassed ? "succeeded" : "completed-with-invariant-warnings";
+
         await runStageOutcomesRepository
             .RecordStageCompletedAsync(
                 runId,
                 StageName,
-                "succeeded",
+                outcomeStatus,
                 TimeProvider.System.GetUtcNow().UtcDateTime,
                 cancellationToken)
             .ConfigureAwait(false);
