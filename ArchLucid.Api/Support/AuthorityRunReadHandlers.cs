@@ -178,6 +178,7 @@ public sealed class AuthorityRunReadHandlers(
             IsSample = x.IsSample,
             IsPinned = x.IsPinned,
             CreatedUtc = x.CreatedUtc,
+            CreatedByUserId = x.CreatedByUserId,
             HasContextSnapshot = x.HasContextSnapshot,
             HasGraphSnapshot = x.HasGraphSnapshot,
             HasFindingsSnapshot = x.HasFindingsSnapshot,

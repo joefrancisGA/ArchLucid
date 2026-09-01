@@ -50,7 +50,7 @@ public sealed class GovernanceCoverageController(
     [ProducesResponseType(typeof(CoveragePreviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PreviewCoverage(
-        [FromBody] CoveragePreviewRequest request,
+        [FromBody] CoveragePreviewRequest? request,
         CancellationToken cancellationToken)
     {
         if (request is null)

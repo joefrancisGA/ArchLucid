@@ -294,6 +294,7 @@ return (
             displayName={workspaceHeading}
             linkedReviewId={linkedReviewId}
             serverStatus={draft?.status ?? null}
+            createdByUserId={draft?.createdByUserId ?? null}
             testId="architecture-draft-delete-workspace"
           />
         </div>

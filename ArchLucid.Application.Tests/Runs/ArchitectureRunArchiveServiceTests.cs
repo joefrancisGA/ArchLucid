@@ -1,3 +1,4 @@
+using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Core.Audit;
@@ -104,6 +105,7 @@ public sealed class ArchitectureRunArchiveServiceTests
             scopeProvider.Object,
             auditService ?? new Mock<IAuditService>().Object,
             actor.Object,
+            Mock.Of<IWorkOwnershipDeleteAuthorizationService>(),
             NullLogger<ArchitectureRunArchiveService>.Instance);
     }
 }

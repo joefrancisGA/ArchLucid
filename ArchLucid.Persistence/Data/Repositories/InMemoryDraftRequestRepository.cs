@@ -198,6 +198,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             Document = CloneDocument(stored.Document),
             RedirectReason = stored.RedirectReason,
             SpawnedRunId = stored.SpawnedRunId,
+            CreatedByUserId = stored.CreatedByUserId,
             CreatedUtc = stored.CreatedUtc,
             UpdatedUtc = stored.UpdatedUtc,
         };
