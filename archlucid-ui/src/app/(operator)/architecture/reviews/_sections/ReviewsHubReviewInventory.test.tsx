@@ -197,6 +197,27 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.queryByRole("columnheader", { name: "Action" })).toBeNull();
   });
 
+  it("renders all review inventory filter chips inline without a more-filters disclosure", () => {
+    render(
+      <ReviewsHubReviewInventory
+        runs={[
+          {
+            runId: "review-001",
+            projectId: "default",
+            createdUtc: "2026-01-15T12:00:00.000Z",
+          } satisfies RunSummary,
+        ]}
+        summary={emptySummary()}
+      />,
+    );
+
+    expect(screen.queryByTestId("reviews-hub-more-filters")).toBeNull();
+    expect(screen.getByRole("button", { name: "Filter reviews: Draft" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter reviews: Active" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter reviews: Awaiting approval" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter reviews: Archived" })).toBeInTheDocument();
+  });
+
   it("filters to finalized reviews from the primary FilterChip row", () => {
     render(
       <ReviewsHubReviewInventory
