@@ -10,6 +10,7 @@ import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthor
 import { archiveReview } from "@/lib/api/review-archive-api";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { useWorkOwnershipDeletePolicyQuery } from "@/hooks/use-work-ownership-delete-policy-query";
 import { canArchiveReview } from "@/lib/review-archive-eligibility";
 import {
   REVIEW_ARCHIVE_CONFIRM_ACTION_LABEL,
@@ -28,7 +29,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
 
 export type ReviewArchiveControlProps = {
-  readonly run: Pick<RunSummary, "runId" | "hasGoldenManifest" | "isArchived">;
+  readonly run: Pick<RunSummary, "runId" | "hasGoldenManifest" | "isArchived" | "createdByUserId">;
   readonly reviewTitle: string;
   readonly buttonLabel?: string;
   readonly testId?: string;
@@ -43,12 +44,17 @@ export type ReviewArchiveControlProps = {
 /** Soft-archives an in-flight review with irreversibility warnings. */
 export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JSX.Element | null {
   const router = useRouter();
-  const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
+  const { callerAuthorityRank, currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
+  const policyQuery = useWorkOwnershipDeletePolicyQuery();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const eligible = canArchiveReview(props.run);
+  const eligible = canArchiveReview(props.run, {
+    callerAuthorityRank,
+    allowCreatorDeleteOwnedWork: policyQuery.data?.allowCreatorDeleteOwnedWork ?? true,
+    callerPrincipal: currentPrincipal,
+  });
 
   const finishArchive = useCallback(async () => {
     if (props.archivedRunSnapshot !== undefined) {
