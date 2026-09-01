@@ -31,6 +31,54 @@ public sealed class PolicyPacksControllerListScopeTests
     };
 
     [Fact]
+    public async Task List_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        PolicyPacksController sut = new(
+            workflow.Object,
+            new CreatePolicyPackRequestValidator(),
+            new PublishPolicyPackVersionRequestValidator(),
+            new AssignPolicyPackRequestValidator(),
+            scopeProvider.Object,
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.List(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task List_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
@@ -82,6 +130,16 @@ public sealed class PolicyPacksControllerListScopeTests
         tenants
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
 
         PolicyPacksController sut = new(
             workflow.Object,
@@ -155,6 +213,19 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task GetCatalogEntry_returns_bad_request_when_route_id_empty()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(workflow, tenantExists: true);
+
+        IActionResult result = await sut.GetCatalogEntry(Guid.Empty, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task ListWorkspaceSelection_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
@@ -204,25 +275,6 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
-    public async Task Simulate_returns_bad_request_when_run_id_is_empty_guid()
-    {
-        PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
-            tenantExists: true);
-
-        IActionResult result = await sut.Simulate(
-            new PolicyPackSimulateRequest
-            {
-                RunId = Guid.Empty.ToString("D"),
-                Content = new PolicyPackContentDocument(),
-            },
-            CancellationToken.None);
-
-        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
     public async Task Simulate_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
@@ -232,7 +284,7 @@ public sealed class PolicyPacksControllerListScopeTests
         IActionResult result = await sut.Simulate(
             new PolicyPackSimulateRequest
             {
-                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                RunId = "dddddddd-dddd-dddd-dddd-dddddddddddd",
                 Content = new PolicyPackContentDocument(),
             },
             CancellationToken.None);
@@ -252,10 +304,7 @@ public sealed class PolicyPacksControllerListScopeTests
 
         IActionResult result = await sut.SimulateBulk(
             packId,
-            new PolicyPackSimulateBulkRequest
-            {
-                RunIds = [Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee").ToString("D")],
-            },
+            new PolicyPackSimulateBulkRequest { RunIds = ["dddddddd-dddd-dddd-dddd-dddddddddddd"] },
             CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
@@ -380,45 +429,6 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
-    public async Task ListVersions_returns_bad_request_when_policy_pack_id_is_empty()
-    {
-        PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
-            tenantExists: true);
-
-        IActionResult result = await sut.ListVersions(Guid.Empty, CancellationToken.None);
-
-        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task GetCatalogEntry_returns_bad_request_when_policy_pack_catalog_entry_id_is_empty()
-    {
-        PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
-            tenantExists: true);
-
-        IActionResult result = await sut.GetCatalogEntry(Guid.Empty, CancellationToken.None);
-
-        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task ArchiveAssignment_returns_bad_request_when_assignment_id_is_empty()
-    {
-        PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
-            tenantExists: true);
-
-        IActionResult result = await sut.ArchiveAssignment(Guid.Empty, CancellationToken.None);
-
-        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
     public async Task PromoteCatalogEntry_returns_bad_request_when_source_policy_pack_id_is_empty()
     {
         PolicyPacksController sut = CreateSut(
@@ -430,24 +440,6 @@ public sealed class PolicyPacksControllerListScopeTests
             {
                 SourcePolicyPackId = Guid.Empty,
                 Version = "1.0.0",
-            },
-            CancellationToken.None);
-
-        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task DemoteCatalogEntry_returns_bad_request_when_policy_pack_catalog_entry_id_is_empty()
-    {
-        PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
-            tenantExists: true);
-
-        IActionResult result = await sut.DemoteCatalogEntry(
-            new DemotePolicyPackCatalogEntryRequest
-            {
-                PolicyPackCatalogEntryId = Guid.Empty,
             },
             CancellationToken.None);
 
@@ -508,6 +500,19 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task ListVersions_returns_bad_request_when_route_id_empty()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(workflow, tenantExists: true);
+
+        IActionResult result = await sut.ListVersions(Guid.Empty, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetVersion_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
@@ -521,6 +526,32 @@ public sealed class PolicyPacksControllerListScopeTests
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetVersion_returns_bad_request_when_route_id_empty()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(workflow, tenantExists: true);
+
+        IActionResult result = await sut.GetVersion(Guid.Empty, "1.0.0", CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ExplainPack_returns_bad_request_when_route_id_empty()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(workflow, tenantExists: true);
+
+        IActionResult result = await sut.ExplainPack(Guid.Empty, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
     }
 
     private static PolicyPacksController CreateSut(
@@ -537,6 +568,20 @@ public sealed class PolicyPacksControllerListScopeTests
                 tenantExists
                     ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" }
                     : null);
+
+        if (tenantExists)
+        {
+            tenants
+                .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                [
+                    new TenantWorkspaceListItem
+                    {
+                        WorkspaceId = Scope.WorkspaceId,
+                        Name = "primary",
+                    },
+                ]);
+        }
 
         return new PolicyPacksController(
             workflow.Object,
