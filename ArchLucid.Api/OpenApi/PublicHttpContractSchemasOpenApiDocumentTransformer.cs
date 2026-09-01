@@ -19,6 +19,7 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
         ApplyArchitectureRequest(document);
         ApplyContextDocumentRequest(document);
         ApplyProductFeedbackRequest(document);
+        ApplyCorePilotChecklistPutRequest(document);
 
         return Task.CompletedTask;
     }
@@ -101,17 +102,20 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
 
     private static void ApplyProductFeedbackRequest(OpenApiDocument document)
     {
-        if (OpenApiSchemaContractMutator.TryGetMutableSchema(document, "ProductFeedbackRequest", out OpenApiSchema feedbackSchema))
-        {
-            OpenApiSchemaContractMutator.EnsureRequired(feedbackSchema, "score");
-            RemoveNullFromPropertySchema(feedbackSchema, "score");
-        }
+        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, "ProductFeedbackRequest", out OpenApiSchema feedbackSchema))
+            return;
 
-        if (OpenApiSchemaContractMutator.TryGetMutableSchema(document, "CorePilotChecklistPutRequest", out OpenApiSchema checklistSchema))
-        {
-            OpenApiSchemaContractMutator.EnsureRequired(checklistSchema, "isCompleted");
-            RemoveNullFromPropertySchema(checklistSchema, "isCompleted");
-        }
+        OpenApiSchemaContractMutator.EnsureRequired(feedbackSchema, "score");
+        RemoveNullFromPropertySchema(feedbackSchema, "score");
+    }
+
+    private static void ApplyCorePilotChecklistPutRequest(OpenApiDocument document)
+    {
+        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, "CorePilotChecklistPutRequest", out OpenApiSchema checklistSchema))
+            return;
+
+        OpenApiSchemaContractMutator.EnsureRequired(checklistSchema, "isCompleted");
+        RemoveNullFromPropertySchema(checklistSchema, "isCompleted");
     }
 
     private static void RemoveNullFromPropertySchema(OpenApiSchema schema, string propertyName)
