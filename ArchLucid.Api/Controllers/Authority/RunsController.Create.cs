@@ -138,8 +138,8 @@ public sealed partial class RunsController
         CreateRunResult? result = await runLifecycleCommandService
             .LookupCreateRunByIdempotencyKeyAsync(scope, validation.Key, cancellationToken);
 
-        if (result is null)
-            return NotFound();
+if (result is null)
+            return this.NotFoundProblem("Idempotency-Key not found.", ProblemTypes.ResourceNotFound);
 
         CreateArchitectureRunResponse response =
             RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
