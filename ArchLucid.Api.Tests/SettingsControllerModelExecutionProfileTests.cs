@@ -188,6 +188,7 @@ public sealed class SettingsControllerModelExecutionProfileTests
         new(
             Mock.Of<ITenantAgentOutputQualityGateModeService>(),
             Mock.Of<ITenantFindingEngineControlsService>(),
+            Mock.Of<ITenantWorkOwnershipDeletePolicyService>(),
             profileService,
             Mock.Of<IWorkspaceAllowedEngineSetService>(),
             Mock.Of<IExternalSubprocessorEngineAcknowledgmentService>(),
