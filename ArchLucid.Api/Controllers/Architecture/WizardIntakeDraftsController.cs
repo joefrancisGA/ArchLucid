@@ -1,9 +1,11 @@
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Intake;
 using ArchLucid.Contracts.Intake;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
