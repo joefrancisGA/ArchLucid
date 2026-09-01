@@ -21,21 +21,19 @@ export function HelpTopicTitleRow(props: HelpTopicTitleRowProps): React.JSX.Elem
   const Icon = HELP_TOPIC_PAGE_ICON;
 
   return (
-    <div className={cn("flex flex-wrap items-start gap-3", props.className)}>
-      <Icon className={HELP_TOPIC_PAGE_ICON_CLASS} data-testid="help-topic-page-icon" aria-hidden />
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <HeadingTag
-            className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
-            {...(props.titleTestId !== undefined ? { "data-testid": props.titleTestId } : {})}
-          >
-            {props.title}
-          </HeadingTag>
-          {props.actions !== undefined && props.actions !== null ? (
-            <div className="ml-auto flex flex-wrap items-center gap-2">{props.actions}</div>
-          ) : null}
-        </div>
-      </div>
+    <div className={cn("flex flex-wrap items-center gap-2", props.className)}>
+      <span className="flex h-7 shrink-0 items-center" aria-hidden>
+        <Icon className={HELP_TOPIC_PAGE_ICON_CLASS} data-testid="help-topic-page-icon" />
+      </span>
+      <HeadingTag
+        className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
+        {...(props.titleTestId !== undefined ? { "data-testid": props.titleTestId } : {})}
+      >
+        {props.title}
+      </HeadingTag>
+      {props.actions !== undefined && props.actions !== null ? (
+        <div className="ml-auto flex flex-wrap items-center gap-2">{props.actions}</div>
+      ) : null}
     </div>
   );
 }

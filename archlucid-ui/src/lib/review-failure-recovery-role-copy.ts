@@ -77,14 +77,14 @@ export function isWorkspaceAiConfigurationFailure(context: WorkspaceAiFailureCon
 
 function managedAiUnavailableDetail(context: WorkspaceAiFailureContext): string {
   if (context.effectiveSessionMode === "Simulator") {
-    return "Review execution stopped before the first pipeline stage. Check AI availability below — if the session is in Simulator mode, re-run should not require live Azure OpenAI.";
+    return "Review execution stopped before the first pipeline stage. Live AI availability is checked automatically when you open this page — re-run should not require live Azure OpenAI in Simulator mode.";
   }
 
-  return "Review failure pattern suggests ArchLucid-managed AI may be unavailable — use Check AI availability to confirm before re-running.";
+  return "Review failure pattern suggests ArchLucid-managed AI may be unavailable. Live availability is checked automatically when you open this page.";
 }
 
 function customerAiConnectionUnavailableDetail(): string {
-  return "Review failure pattern suggests your workspace customer-provided AI connection may be unavailable — use Check AI availability to confirm.";
+  return "Review failure pattern suggests your workspace customer-provided AI connection may be unavailable. Live availability is checked automatically when you open this page.";
 }
 
 export function resolveWorkspaceAiConfigurationSignal(
@@ -135,7 +135,7 @@ export function resolveWorkspaceAiConfigurationSignal(
   return {
     label: "Workspace AI availability",
     detail:
-      "Review execution stopped before processing began. Use Check AI availability below to validate platform AI before re-running.",
+      "Review execution stopped before processing began. Live AI availability is checked automatically when you open this page.",
   };
 }
 
@@ -161,32 +161,34 @@ function managedPlatformAdminSteps(context: WorkspaceAiFailureContext): readonly
   }
 
   return [
-    "This review uses ArchLucid-managed AI, which is unavailable right now — changing models on Administration → AI models will not fix a platform outage.",
-    "Open Report a problem and include this review id so support can investigate.",
-    "Return here and click Re-run review after support confirms platform AI is healthy.",
+    "Review execution stopped before the first pipeline stage. Check AI availability below to confirm whether platform AI is healthy.",
+    "If the live probe reports an outage, open Report a problem and include this review id so support can investigate.",
+    "When the live probe succeeds, click Re-run review to retry with the same intake.",
   ];
 }
 
 function managedPlatformOperatorSteps(): readonly string[] {
   return [
     operatorHandoffIntro(),
-    "After your administrator contacts support, return here and click Re-run review.",
+    "Check AI availability below to confirm whether platform AI is healthy before re-running.",
+    "When the live probe succeeds, return here and click Re-run review.",
     operatorReportProblemStep(),
   ];
 }
 
 function customerConnectionAdminSteps(): readonly string[] {
   return [
-    "This review uses your workspace customer-provided AI connection, which is unavailable.",
-    "Contact your ArchLucid support contact with this review id — connection credentials are managed outside this workspace UI.",
-    "Return here and click Re-run review after the connection is restored.",
+    "Review execution stopped before the first pipeline stage. Check AI availability below to confirm whether your workspace AI connection is healthy.",
+    "If the live probe reports an outage, contact your ArchLucid support contact with this review id — connection credentials are managed outside this workspace UI.",
+    "When the live probe succeeds, click Re-run review to retry with the same intake.",
   ];
 }
 
 function customerConnectionOperatorSteps(): readonly string[] {
   return [
     operatorHandoffIntro(),
-    "After your administrator confirms the workspace AI connection is restored, return here and click Re-run review.",
+    "Check AI availability below to confirm whether your workspace AI connection is healthy before re-running.",
+    "When the live probe succeeds, return here and click Re-run review.",
     operatorReportProblemStep(),
   ];
 }
