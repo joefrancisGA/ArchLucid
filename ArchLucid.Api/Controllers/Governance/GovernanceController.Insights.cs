@@ -1,28 +1,11 @@
-using System.Text.Json;
-
-using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
-using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application;
-using ArchLucid.Application.Common;
-using ArchLucid.Application.Governance;
 using ArchLucid.Application.Http;
-using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Core.Audit;
-using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence.Data.Repositories;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.AspNetCore.RateLimiting;
-
 
 namespace ArchLucid.Api.Controllers.Governance;
 
@@ -63,7 +46,7 @@ public sealed partial class GovernanceController
             return tenantProblem;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        GovernanceDashboardSummary summary = await _governanceDashboardService.GetDashboardAsync(
+        GovernanceDashboardSummary summary = await _insightsFacade.GetDashboardAsync(
             scope.TenantId,
             maxPending,
             maxDecisions,
@@ -124,7 +107,7 @@ public sealed partial class GovernanceController
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        IReadOnlyList<ComplianceDriftTrendPoint> points = await _complianceDriftTrendService.GetTrendAsync(
+        IReadOnlyList<ComplianceDriftTrendPoint> points = await _insightsFacade.GetComplianceDriftTrendAsync(
             scope.TenantId,
             fromUtcNormalized,
             toUtcNormalized,
@@ -153,35 +136,33 @@ public sealed partial class GovernanceController
         if (approvalRequestIdProblem is not null)
             return approvalRequestIdProblem;
 
-        GovernanceApprovalRequest? approval = await approvalRepo
-            .GetByIdAsync(approvalRequestId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (approval is null)
+        try
         {
-            return this.NotFoundProblem(
-                $"Approval request '{approvalRequestId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+            GovernanceLineageResult? result = await _insightsFacade.GetApprovalRequestLineageAsync(
+                approvalRequestId,
+                cancellationToken);
+
+            if (result is null)
+            {
+                return this.NotFoundProblem(
+                    $"Approval request '{approvalRequestId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(result);
         }
-
-        (IActionResult? scopeError, _) =
-            await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
-
-        if (scopeError is not null)
-            return scopeError;
-
-        GovernanceLineageResult? result = await _governanceLineageService.GetApprovalRequestLineageAsync(
-            approvalRequestId,
-            cancellationToken);
-
-        if (result is null)
+        catch (KeyNotFoundException ex)
         {
-            return this.NotFoundProblem(
-                $"Approval request '{approvalRequestId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
         }
-
-        return Ok(result);
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (Application.RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
     }
 
     [HttpGet("approval-requests/{approvalRequestId}/rationale")]
@@ -203,34 +184,32 @@ public sealed partial class GovernanceController
         if (approvalRequestIdProblem is not null)
             return approvalRequestIdProblem;
 
-        GovernanceApprovalRequest? approval = await approvalRepo
-            .GetByIdAsync(approvalRequestId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (approval is null)
+        try
         {
-            return this.NotFoundProblem(
-                $"Approval request '{approvalRequestId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+            GovernanceRationaleResult? result = await _insightsFacade.GetApprovalRequestRationaleAsync(
+                approvalRequestId,
+                cancellationToken);
+
+            if (result is null)
+            {
+                return this.NotFoundProblem(
+                    $"Approval request '{approvalRequestId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(result);
         }
-
-        (IActionResult? scopeError, _) =
-            await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
-
-        if (scopeError is not null)
-            return scopeError;
-
-        GovernanceRationaleResult? result = await _governanceRationaleService.GetApprovalRequestRationaleAsync(
-            approvalRequestId,
-            cancellationToken);
-
-        if (result is null)
+        catch (KeyNotFoundException ex)
         {
-            return this.NotFoundProblem(
-                $"Approval request '{approvalRequestId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
         }
-
-        return Ok(result);
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (Application.RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
     }
 }
