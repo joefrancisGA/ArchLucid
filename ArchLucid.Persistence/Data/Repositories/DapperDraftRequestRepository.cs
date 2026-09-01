@@ -49,6 +49,7 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
             ProjectId = projectId,
             Status = DraftRequestStatus.Drafting,
             Document = document,
+            CreatedByUserId = createdByUserId,
             CreatedUtc = now,
             UpdatedUtc = now,
         };

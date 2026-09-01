@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Common;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Exports;
@@ -9,6 +10,8 @@ using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+
+using ArchLucid.Host.Core.ProblemDetails;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -237,6 +240,13 @@ public sealed partial class DraftRequestsController
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (WorkOwnershipDeleteForbiddenException ex)
+        {
+            return this.ForbiddenProblemWithErrorCode(
+                "Delete not permitted",
+                ex.Message,
+                ProblemErrorCodes.Forbidden);
         }
     }
 

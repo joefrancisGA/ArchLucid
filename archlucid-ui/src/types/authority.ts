@@ -17,6 +17,8 @@ type RunSummaryWireExtensions = {
   structuralExecutionMode?: components["schemas"]["StructuralExecutionMode"] | number | null;
   /** Architecture request id when returned by list/detail endpoints (used for restore from archive). */
   requestId?: string | null;
+  /** Creator identity when returned by list/detail endpoints. */
+  createdByUserId?: string | null;
   /** When true, the backing architecture request is archived and hidden from default lists. */
   isArchived?: boolean | null;
   /** When true, the run was created via an idempotency replay. */

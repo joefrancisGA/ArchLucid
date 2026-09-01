@@ -390,6 +390,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                         displayName={entry.displayName}
                         linkedReviewId={entry.linkedReviewId}
                         customerStatus={entry.customerStatus}
+                        createdByUserId={entry.createdByUserId ?? null}
                         testId={`architecture-draft-delete-${entry.architectureId}`}
                       />
                     </div>

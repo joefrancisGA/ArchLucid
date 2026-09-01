@@ -52,7 +52,8 @@ internal static class RunRecordParameters
             run.EngineProvenanceJson,
             run.GovernanceScopeJson,
             run.ImproveLoopEvidenceJson,
-            run.PackageOrigin
+            run.PackageOrigin,
+            run.CreatedByUserId
         };
     }
 

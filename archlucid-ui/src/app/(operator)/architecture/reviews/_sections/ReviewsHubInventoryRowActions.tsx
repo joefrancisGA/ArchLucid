@@ -8,6 +8,7 @@ import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl"
 import { Button } from "@/components/ui/button";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { useWorkOwnershipDeletePolicyQuery } from "@/hooks/use-work-ownership-delete-policy-query";
 import { canArchiveReview } from "@/lib/review-archive-eligibility";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -24,9 +25,15 @@ type ReviewsHubInventoryRowActionsProps = {
 export function ReviewsHubInventoryRowActions(
   props: ReviewsHubInventoryRowActionsProps,
 ): React.JSX.Element {
-  const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
+  const { callerAuthorityRank, currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
+  const policyQuery = useWorkOwnershipDeletePolicyQuery();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
-  const archiveEligible = canArchiveReview(props.run) && canExecute;
+  const archiveEligible =
+    canArchiveReview(props.run, {
+      callerAuthorityRank,
+      allowCreatorDeleteOwnedWork: policyQuery.data?.allowCreatorDeleteOwnedWork ?? true,
+      callerPrincipal: currentPrincipal,
+    }) && canExecute;
   const overflowLabel = useMemo(
     () => `More actions for ${props.row.reviewTitlePrimary}`,
     [props.row.reviewTitlePrimary],

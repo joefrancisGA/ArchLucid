@@ -17,6 +17,7 @@ import {
   ARCHITECTURE_DRAFT_DELETE_SUCCESS_TOAST,
   architectureDraftDeleteConfirmDescription,
 } from "@/lib/architecture/architecture-draft-delete-copy";
+import { useWorkOwnershipDeletePolicyQuery } from "@/hooks/use-work-ownership-delete-policy-query";
 import { canDeleteArchitectureDraft } from "@/lib/architecture/architecture-draft-delete-eligibility";
 import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
 import { removeArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
@@ -29,6 +30,7 @@ export type ArchitectureDraftDeleteControlProps = {
   readonly linkedReviewId: string | null;
   readonly customerStatus?: ArchitectureDraftCustomerStatus;
   readonly serverStatus?: string | null;
+  readonly createdByUserId?: string | null;
   readonly buttonLabel?: string;
   readonly testId?: string;
   readonly onDeleted?: () => void;
@@ -38,7 +40,8 @@ export type ArchitectureDraftDeleteControlProps = {
 export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteControlProps): React.JSX.Element | null {
   const router = useRouter();
   const pathname = usePathname();
-  const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
+  const { callerAuthorityRank, currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
+  const policyQuery = useWorkOwnershipDeletePolicyQuery();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -47,6 +50,10 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
     linkedReviewId: props.linkedReviewId,
     customerStatus: props.customerStatus,
     serverStatus: props.serverStatus,
+    createdByUserId: props.createdByUserId,
+    callerAuthorityRank,
+    allowCreatorDeleteOwnedWork: policyQuery.data?.allowCreatorDeleteOwnedWork ?? true,
+    callerPrincipal: currentPrincipal,
   });
 
   const finishDelete = useCallback(() => {

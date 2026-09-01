@@ -24,6 +24,8 @@ public static partial class AuditEventTypes
 
     public const string TenantFindingEngineControlsUpdated = "Tenant.FindingEngineControlsUpdated";
 
+    public const string TenantWorkOwnershipDeletePolicyUpdated = "Tenant.WorkOwnershipDeletePolicyUpdated";
+
     public const string TenantFindingEngineControlsOverridesCleared = "Tenant.FindingEngineControlsOverridesCleared";
 
     /// <summary>Quality-gate definition version deprecated with successor (TB-974 wrong-definition playbook).</summary>
