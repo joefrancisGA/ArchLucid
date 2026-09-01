@@ -26,7 +26,12 @@ public sealed partial class GovernanceStickinessController
         if (maxRowsProblem is not null)
             return maxRowsProblem;
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -42,12 +47,18 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("risk-register/assigned-to-me-count")]
     [ProducesResponseType(typeof(GovernanceAssignedToMeFindingsCountResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAssignedToMeFindingsCount(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -63,7 +74,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetReviewsAwaitingAction(CancellationToken cancellationToken = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -80,13 +91,19 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("decisions-needed-summary")]
     [ProducesResponseType(typeof(GovernanceDecisionsNeededSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDecisionsNeededSummary(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -118,7 +135,12 @@ public sealed partial class GovernanceStickinessController
         if (maxRowsProblem is not null)
             return maxRowsProblem;
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
@@ -162,7 +184,12 @@ public sealed partial class GovernanceStickinessController
 
         category = category?.Trim();
 
-        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;

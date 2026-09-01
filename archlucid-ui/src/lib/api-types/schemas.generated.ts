@@ -2367,7 +2367,7 @@ export interface components {
             workspaceId?: string;
         };
         CorePilotChecklistPutRequest: {
-            isCompleted?: boolean;
+            isCompleted?: null | boolean;
             /** Format: int32 */
             stepIndex?: number;
         };
