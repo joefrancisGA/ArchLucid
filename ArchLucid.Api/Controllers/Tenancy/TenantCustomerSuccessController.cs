@@ -237,9 +237,6 @@ public sealed class TenantCustomerSuccessController(
         if (scopeProblem is not null)
             return scopeProblem;
 
-        if (!request.Score.HasValue)
-            return this.BadRequestProblem("score is required.", ProblemTypes.ValidationFailed);
-
         if (request.RunId == Guid.Empty)
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
@@ -282,7 +279,7 @@ public sealed class TenantCustomerSuccessController(
             ProjectId = scope.ProjectId,
             FindingRef = findingRef,
             RunId = request.RunId,
-            Score = request.Score.Value,
+            Score = request.Score,
             Comment = request.Comment
         };
 

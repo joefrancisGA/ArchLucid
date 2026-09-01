@@ -47,26 +47,6 @@ public sealed class GovernanceCoverageControllerScopeTests
         return tenants.Object;
     }
 
-    private static Mock<ITenantRepository> CreateTenantRepositoryWithForeignWorkspace()
-    {
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
-        tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
-
-        return tenants;
-    }
-
     [Fact]
     public async Task PreviewCoverage_returns_bad_request_when_body_is_null()
     {
@@ -88,72 +68,6 @@ public sealed class GovernanceCoverageControllerScopeTests
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         preview.VerifyNoOtherCalls();
-    }
-
-    [Fact]
-    public async Task PreviewCoverage_returns_not_found_when_workspace_missing()
-    {
-        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-
-        Mock<ICoveragePreviewService> preview = new(MockBehavior.Strict);
-
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
-        {
-            TenantId = Scope.TenantId,
-            WorkspaceId = foreignWorkspaceId,
-            ProjectId = Scope.ProjectId,
-        });
-
-        GovernanceCoverageController controller = new(
-            Mock.Of<ICoverageQueryService>(),
-            preview.Object,
-            Mock.Of<IPolicyPackRepository>(),
-            scopeProvider.Object,
-            CreateTenantRepositoryWithForeignWorkspace().Object);
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
-
-        CoveragePreviewRequest request = new()
-        {
-            CloudProvider = CloudProvider.Azure,
-            FocusedPilotModeEnabled = true,
-        };
-
-        IActionResult action = await controller.PreviewCoverage(request, CancellationToken.None);
-
-        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        preview.VerifyNoOtherCalls();
-    }
-
-    [Fact]
-    public async Task GetScopeCoverage_returns_not_found_when_workspace_missing()
-    {
-        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-
-        Mock<ICoverageQueryService> coverage = new(MockBehavior.Strict);
-
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
-        {
-            TenantId = Scope.TenantId,
-            WorkspaceId = foreignWorkspaceId,
-            ProjectId = Scope.ProjectId,
-        });
-
-        GovernanceCoverageController controller = new(
-            coverage.Object,
-            Mock.Of<ICoveragePreviewService>(),
-            Mock.Of<IPolicyPackRepository>(),
-            scopeProvider.Object,
-            CreateTenantRepositoryWithForeignWorkspace().Object);
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
-
-        IActionResult action = await controller.GetScopeCoverage(CancellationToken.None);
-
-        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        coverage.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -216,6 +130,102 @@ public sealed class GovernanceCoverageControllerScopeTests
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         coverage.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetScopeCoverage_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<ICoverageQueryService> coverage = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        GovernanceCoverageController controller = new(
+            coverage.Object,
+            Mock.Of<ICoveragePreviewService>(),
+            Mock.Of<IPolicyPackRepository>(),
+            scopeProvider.Object,
+            tenants.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await controller.GetScopeCoverage(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        coverage.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task PreviewCoverage_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<ICoveragePreviewService> preview = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        GovernanceCoverageController controller = new(
+            Mock.Of<ICoverageQueryService>(),
+            preview.Object,
+            Mock.Of<IPolicyPackRepository>(),
+            scopeProvider.Object,
+            tenants.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        CoveragePreviewRequest request = new()
+        {
+            CloudProvider = CloudProvider.Azure,
+            FocusedPilotModeEnabled = true,
+        };
+
+        IActionResult action = await controller.PreviewCoverage(request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        preview.VerifyNoOtherCalls();
     }
 
     [Fact]

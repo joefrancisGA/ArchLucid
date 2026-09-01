@@ -28,7 +28,7 @@ public sealed class IntegrationEventOutboxMessageIdArchitectureTests
             "BuildAuthorityRunCompletedMessageId"),
         ("ArchLucid.Application/Governance/Workflow/Stages/GovernanceWorkflowIntegrationEventSupport.cs", "string messageId ="),
         ("ArchLucid.Persistence/Alerts/AlertIntegrationEventPublishing.cs", "messageId = $"),
-        ("ArchLucid.Application/Advisory/AdvisoryScanRunner.cs", "messageId = $"),
+        ("ArchLucid.Application/Advisory/AdvisoryScanRunner.Lifecycle.cs", "messageId = $"),
         ("ArchLucid.Application/Billing/MarketplaceWebhookIntegrationEventPublisher.cs", "messageId = $"),
         ("ArchLucid.Application/Notifications/Email/TrialLifecycleIntegrationEventPublisher.cs",
             "ArgumentException.ThrowIfNullOrWhiteSpace(messageId)"),
