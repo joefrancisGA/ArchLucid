@@ -172,4 +172,33 @@ public sealed class WorkspaceSystemNameCollisionGuardTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task IsAvailableAsync_returns_false_when_active_run_exists()
+    {
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+                Scope,
+                "Claims API",
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        WorkspaceSystemNameCollisionGuard sut = new(runs.Object, Mock.Of<IDraftRequestRepository>());
+
+        bool available = await sut.IsAvailableAsync(Scope, "Claims API", cancellationToken: CancellationToken.None);
+
+        available.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task IsAvailableAsync_returns_true_when_name_is_empty_after_trim()
+    {
+        WorkspaceSystemNameCollisionGuard sut = new(Mock.Of<IRunRepository>(), Mock.Of<IDraftRequestRepository>());
+
+        bool available = await sut.IsAvailableAsync(Scope, "   ", cancellationToken: CancellationToken.None);
+
+        available.Should().BeTrue();
+    }
 }
