@@ -29,7 +29,7 @@ public static class MarketplaceWebhookPayloadParser
         return nameof(TenantTier.Standard);
     }
 
-    /// <summary>Reads <c>planId</c> when present (string).</summary>
+    /// <summary>Reads <c>planId</c> when present (string or number, coerced to invariant string).</summary>
     public static bool TryGetPlanId(JsonElement root, out string? planId)
     {
         planId = null;
