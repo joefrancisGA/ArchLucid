@@ -648,7 +648,7 @@ describe("SocraticIntakeWizard", () => {
 
     const wizardColumn = screen.getByTestId("socratic-intake-wizard").firstElementChild;
     const stepperIndex = Array.from(wizardColumn?.children ?? []).findIndex(
-      (child) => child.getAttribute("data-testid") === WIZARD_STICKY_PROGRESS_TEST_ID,
+      (child) => child.getAttribute("data-testid") === "socratic-intake-stepper-row",
     );
     const advancedOptionsIndex = Array.from(wizardColumn?.children ?? []).findIndex(
       (child) => child.getAttribute("data-testid") === "socratic-intake-advanced-options",
