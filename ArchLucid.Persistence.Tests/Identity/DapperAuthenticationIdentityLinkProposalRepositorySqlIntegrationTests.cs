@@ -39,13 +39,13 @@ public sealed class DapperAuthenticationIdentityLinkProposalRepositorySqlIntegra
             },
             CancellationToken.None);
 
-        await sut.UpdateStatusAsync(
+        bool firstUpdate = await sut.TryUpdateStatusAsync(
             id,
             AuthenticationIdentityLinkProposalStatus.Confirmed,
             now.AddMinutes(1),
             CancellationToken.None);
 
-        await sut.UpdateStatusAsync(
+        bool secondUpdate = await sut.TryUpdateStatusAsync(
             id,
             AuthenticationIdentityLinkProposalStatus.Cancelled,
             now.AddMinutes(2),
@@ -53,6 +53,8 @@ public sealed class DapperAuthenticationIdentityLinkProposalRepositorySqlIntegra
 
         AuthenticationIdentityLinkProposalRecord? record = await sut.GetByIdAsync(id, CancellationToken.None);
 
+        firstUpdate.Should().BeTrue();
+        secondUpdate.Should().BeFalse();
         record.Should().NotBeNull();
         record!.Status.Should().Be(AuthenticationIdentityLinkProposalStatus.Confirmed);
         record.CancelledUtc.Should().BeNull();

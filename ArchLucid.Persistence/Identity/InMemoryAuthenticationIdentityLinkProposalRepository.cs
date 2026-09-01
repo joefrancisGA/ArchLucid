@@ -28,7 +28,7 @@ public sealed class InMemoryAuthenticationIdentityLinkProposalRepository : IAuth
         return Task.FromResult(record);
     }
 
-    public Task UpdateStatusAsync(
+    public Task<bool> TryUpdateStatusAsync(
         Guid proposalId,
         AuthenticationIdentityLinkProposalStatus status,
         DateTimeOffset statusUtc,
@@ -38,21 +38,21 @@ public sealed class InMemoryAuthenticationIdentityLinkProposalRepository : IAuth
 
         if (!_byId.TryGetValue(proposalId, out AuthenticationIdentityLinkProposalRecord? existing))
         {
-            return Task.CompletedTask;
+            return Task.FromResult(false);
         }
 
         if (existing.Status != AuthenticationIdentityLinkProposalStatus.PendingConfirmation)
         {
-            return Task.CompletedTask;
+            return Task.FromResult(false);
         }
 
-        _byId[proposalId] = existing with
+        bool updated = _byId.TryUpdate(proposalId, existing with
         {
             Status = status,
             ConfirmedUtc = status == AuthenticationIdentityLinkProposalStatus.Confirmed ? statusUtc : existing.ConfirmedUtc,
             CancelledUtc = status == AuthenticationIdentityLinkProposalStatus.Cancelled ? statusUtc : existing.CancelledUtc
-        };
+        }, existing);
 
-        return Task.CompletedTask;
+        return Task.FromResult(updated);
     }
 }

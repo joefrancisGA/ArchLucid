@@ -149,6 +149,15 @@ public sealed class AuthenticationIdentityLinkProposalService(
         await EnsureExternalKeyAvailableAsync(userId, proposal.ToExternalKey(), actorId, cancellationToken)
             .ConfigureAwait(false);
 
+        DateTimeOffset now = _timeProvider.GetUtcNow();
+
+        await UpdatePendingProposalStatusAsync(
+                proposalId,
+                AuthenticationIdentityLinkProposalStatus.Confirmed,
+                now,
+                cancellationToken)
+            .ConfigureAwait(false);
+
         VerifiedExternalIdentityCreateRequest attachRequest = new()
         {
             ExternalKey = proposal.ToExternalKey(),
@@ -159,12 +168,6 @@ public sealed class AuthenticationIdentityLinkProposalService(
 
         AuthenticationIdentityRecord attached = await _platformIdentity
             .AttachIdentityToExistingUserAsync(userId, attachRequest, cancellationToken)
-            .ConfigureAwait(false);
-
-        DateTimeOffset now = _timeProvider.GetUtcNow();
-
-        await _proposals
-            .UpdateStatusAsync(proposalId, AuthenticationIdentityLinkProposalStatus.Confirmed, now, cancellationToken)
             .ConfigureAwait(false);
 
         await AuthAuditEmitter.LogIdentityEventAsync(
@@ -192,8 +195,7 @@ public sealed class AuthenticationIdentityLinkProposalService(
         AuthenticationIdentityLinkProposalRecord proposal =
             await RequirePendingProposalAsync(userId, proposalId, cancellationToken).ConfigureAwait(false);
 
-        await _proposals
-            .UpdateStatusAsync(
+        await UpdatePendingProposalStatusAsync(
                 proposal.Id,
                 AuthenticationIdentityLinkProposalStatus.Cancelled,
                 _timeProvider.GetUtcNow(),
@@ -329,8 +331,8 @@ public sealed class AuthenticationIdentityLinkProposalService(
 
         if (proposal.ExpiresUtc <= _timeProvider.GetUtcNow())
         {
-            await _proposals
-                .UpdateStatusAsync(
+            _ = await _proposals
+                .TryUpdateStatusAsync(
                     proposalId,
                     AuthenticationIdentityLinkProposalStatus.Expired,
                     _timeProvider.GetUtcNow(),
@@ -341,5 +343,33 @@ public sealed class AuthenticationIdentityLinkProposalService(
         }
 
         return proposal;
+    }
+
+    private async Task UpdatePendingProposalStatusAsync(
+        Guid proposalId,
+        AuthenticationIdentityLinkProposalStatus status,
+        DateTimeOffset statusUtc,
+        CancellationToken cancellationToken)
+    {
+        bool updated = await _proposals
+            .TryUpdateStatusAsync(proposalId, status, statusUtc, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (updated)
+        {
+            return;
+        }
+
+        AuthenticationIdentityLinkProposalRecord? current =
+            await _proposals.GetByIdAsync(proposalId, cancellationToken).ConfigureAwait(false);
+
+        if (current?.Status == AuthenticationIdentityLinkProposalStatus.Expired
+            || (current?.Status == AuthenticationIdentityLinkProposalStatus.PendingConfirmation
+                && current.ExpiresUtc <= _timeProvider.GetUtcNow()))
+        {
+            throw new AuthenticationIdentityLinkProposalExpiredException(proposalId);
+        }
+
+        throw new AuthenticationIdentityLinkProposalNotFoundException(proposalId);
     }
 }

@@ -296,4 +296,121 @@ public sealed class AuthenticationIdentityLinkingServiceTests
         await Assert.ThrowsAsync<SignInMethodRemovalBlockedException>(() =>
             sut.RemoveSignInMethodAsync(user.Id, identity.Id, user.Id.ToString("D"), CancellationToken.None));
     }
+
+    [Fact]
+    public async Task ConfirmLinkProposalAsync_does_not_attach_identity_when_status_transition_loses_race()
+    {
+        AuthenticationIdentityLinkProposalRecord pendingProposal = new()
+        {
+            Id = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            ProviderType = AuthenticationProviderType.EmailOneTimeCode,
+            NormalizedIssuer = IdentityIssuerNormalizer.Normalize(IdentityIssuerConstants.EmailOneTimeCode),
+            Subject = "recovery@example.com",
+            NormalizedEmail = "recovery@example.com",
+            DisplayEmail = "recovery@example.com",
+            EmailVerified = true,
+            Status = AuthenticationIdentityLinkProposalStatus.PendingConfirmation,
+            CreatedUtc = DateTimeOffset.UtcNow,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(15)
+        };
+
+        Mock<IPlatformIdentityService> platformIdentity = new();
+        Mock<IPlatformUserRepository> users = new();
+        Mock<IAuthenticationIdentityRepository> identities = new();
+        Mock<IAuthenticationIdentityLinkProposalRepository> proposals = new();
+        Mock<IIdentityMigrationReviewRepository> reviews = new();
+        Mock<IAuditService> audit = new();
+
+        identities.Setup(repository => repository.FindAnyByExternalKeyAsync(
+                It.IsAny<ExternalIdentityKey>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AuthenticationIdentityRecord?)null);
+        proposals.SetupSequence(repository => repository.GetByIdAsync(
+                pendingProposal.Id,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pendingProposal)
+            .ReturnsAsync(pendingProposal with { Status = AuthenticationIdentityLinkProposalStatus.Cancelled });
+        proposals.Setup(repository => repository.TryUpdateStatusAsync(
+                pendingProposal.Id,
+                AuthenticationIdentityLinkProposalStatus.Confirmed,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        AuthenticationIdentityLinkProposalService sut = new(
+            platformIdentity.Object,
+            users.Object,
+            identities.Object,
+            proposals.Object,
+            reviews.Object,
+            audit.Object,
+            TimeProvider.System);
+
+        await Assert.ThrowsAsync<AuthenticationIdentityLinkProposalNotFoundException>(() =>
+            sut.ConfirmLinkProposalAsync(
+                pendingProposal.UserId,
+                pendingProposal.Id,
+                pendingProposal.UserId.ToString("D"),
+                CancellationToken.None));
+
+        platformIdentity.Verify(service => service.AttachIdentityToExistingUserAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<VerifiedExternalIdentityCreateRequest>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+        audit.Verify(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CancelLinkProposalAsync_does_not_audit_when_status_transition_loses_race()
+    {
+        AuthenticationIdentityLinkProposalRecord pendingProposal = new()
+        {
+            Id = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            ProviderType = AuthenticationProviderType.EmailOneTimeCode,
+            NormalizedIssuer = IdentityIssuerNormalizer.Normalize(IdentityIssuerConstants.EmailOneTimeCode),
+            Subject = "recovery@example.com",
+            Status = AuthenticationIdentityLinkProposalStatus.PendingConfirmation,
+            CreatedUtc = DateTimeOffset.UtcNow,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(15)
+        };
+
+        Mock<IPlatformIdentityService> platformIdentity = new();
+        Mock<IPlatformUserRepository> users = new();
+        Mock<IAuthenticationIdentityRepository> identities = new();
+        Mock<IAuthenticationIdentityLinkProposalRepository> proposals = new();
+        Mock<IIdentityMigrationReviewRepository> reviews = new();
+        Mock<IAuditService> audit = new();
+
+        proposals.SetupSequence(repository => repository.GetByIdAsync(
+                pendingProposal.Id,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pendingProposal)
+            .ReturnsAsync(pendingProposal with { Status = AuthenticationIdentityLinkProposalStatus.Cancelled });
+        proposals.Setup(repository => repository.TryUpdateStatusAsync(
+                pendingProposal.Id,
+                AuthenticationIdentityLinkProposalStatus.Cancelled,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        AuthenticationIdentityLinkProposalService sut = new(
+            platformIdentity.Object,
+            users.Object,
+            identities.Object,
+            proposals.Object,
+            reviews.Object,
+            audit.Object,
+            TimeProvider.System);
+
+        await Assert.ThrowsAsync<AuthenticationIdentityLinkProposalNotFoundException>(() =>
+            sut.CancelLinkProposalAsync(
+                pendingProposal.UserId,
+                pendingProposal.Id,
+                pendingProposal.UserId.ToString("D"),
+                CancellationToken.None));
+
+        audit.Verify(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

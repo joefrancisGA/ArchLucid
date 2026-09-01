@@ -104,7 +104,7 @@ public sealed class DapperAuthenticationIdentityLinkProposalRepository(ISqlConne
             new CommandDefinition(sql, new { Id = proposalId }, cancellationToken: cancellationToken));
     }
 
-    public async Task UpdateStatusAsync(
+    public async Task<bool> TryUpdateStatusAsync(
         Guid proposalId,
         AuthenticationIdentityLinkProposalStatus status,
         DateTimeOffset statusUtc,
@@ -121,7 +121,7 @@ public sealed class DapperAuthenticationIdentityLinkProposalRepository(ISqlConne
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await connection.ExecuteAsync(
+        int rows = await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
                 new
@@ -134,5 +134,7 @@ public sealed class DapperAuthenticationIdentityLinkProposalRepository(ISqlConne
                     PendingStatus = AuthenticationIdentityLinkProposalStatus.PendingConfirmation
                 },
                 cancellationToken: cancellationToken));
+
+        return rows > 0;
     }
 }
