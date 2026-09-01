@@ -2,6 +2,7 @@ using System.Diagnostics;
 
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Data.Repositories;
@@ -148,6 +149,26 @@ public sealed class CachingDraftRequestRepository(
             projectId,
             excludeDraftId,
             maxCount,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<PagedResponse<DraftRequestResponse>> ListForCreatorInWorkspaceAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        string createdByUserId,
+        IReadOnlyList<DraftRequestStatus> statuses,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        return _inner.ListForCreatorInWorkspaceAsync(
+            tenantId,
+            workspaceId,
+            createdByUserId,
+            statuses,
+            page,
+            pageSize,
             cancellationToken);
     }
 

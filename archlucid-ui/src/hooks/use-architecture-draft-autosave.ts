@@ -7,6 +7,7 @@ import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
 } from "@/lib/architecture/architecture-draft-registry";
+import { invalidateArchitectureDraftListQueries } from "@/lib/architecture/architecture-draft-list-client";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import {
   buildArchitectureDraftPatchPayload,
@@ -221,6 +222,7 @@ export function useArchitectureDraftAutosave(
           architectureId = created.draftId;
           setHasPersistedDraft(true);
           args.onDraftCreated?.(created.draftId);
+          void invalidateArchitectureDraftListQueries();
         }
 
         const latestServer = await getDraftRequest(architectureId);
@@ -265,6 +267,7 @@ export function useArchitectureDraftAutosave(
         serverUpdatedUtcRef.current = patched.updatedUtc;
         setLastSavedUtc(patched.updatedUtc);
         upsertArchitectureDraftRegistryEntry(buildArchitectureDraftRegistryEntry(patched));
+        void invalidateArchitectureDraftListQueries();
         setSaveState("saved");
 
         return true;
