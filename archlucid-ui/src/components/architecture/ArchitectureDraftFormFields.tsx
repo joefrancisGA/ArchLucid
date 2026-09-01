@@ -56,6 +56,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
   const systemNameInvalid = markInvalid && props.fields.systemName.trim().length === 0;
   const systemNameAvailability = useWorkspaceSystemNameAvailability({
     systemName: props.fields.systemName,
+    occupancyKind: "architecture",
     excludeDraftId: props.architectureId ?? null,
     enabled: props.disabled !== true,
     minTrimmedLength: 1,
@@ -89,6 +90,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         />
         <WorkspaceSystemNameAvailabilityFeedback
           availability={systemNameAvailability}
+          occupancyKind="architecture"
           testId="architecture-draft-system-name-availability"
         />
       </div>

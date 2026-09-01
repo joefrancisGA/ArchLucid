@@ -1,4 +1,5 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Scoping;
 
 using Moq;
@@ -14,6 +15,7 @@ internal static class WorkspaceSystemNameCollisionGuardTestDoubles
             .Setup(g => g.EnsureAvailableAsync(
                 It.IsAny<ScopeContext>(),
                 It.IsAny<string>(),
+                It.IsAny<WorkspaceSystemNameOccupancyKind>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
@@ -22,6 +24,7 @@ internal static class WorkspaceSystemNameCollisionGuardTestDoubles
             .Setup(g => g.IsAvailableAsync(
                 It.IsAny<ScopeContext>(),
                 It.IsAny<string>(),
+                It.IsAny<WorkspaceSystemNameOccupancyKind>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
