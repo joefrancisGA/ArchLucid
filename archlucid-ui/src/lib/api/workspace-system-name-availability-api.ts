@@ -1,4 +1,5 @@
 import { apiGet } from "./http";
+import type { WorkspaceSystemNameOccupancyKind } from "@/lib/workspace-system-name-availability-copy";
 
 export type WorkspaceSystemNameAvailabilityResponse = {
   readonly systemName?: string;
@@ -8,6 +9,7 @@ export type WorkspaceSystemNameAvailabilityResponse = {
 
 export type WorkspaceSystemNameAvailabilityQuery = {
   readonly systemName: string;
+  readonly occupancyKind?: WorkspaceSystemNameOccupancyKind;
   readonly excludeDraftId?: string | null;
   readonly excludeRunId?: string | null;
   readonly signal?: AbortSignal;
@@ -19,6 +21,7 @@ export async function fetchWorkspaceSystemNameAvailability(
 ): Promise<WorkspaceSystemNameAvailabilityResponse> {
   const params = new URLSearchParams();
   params.set("systemName", query.systemName);
+  params.set("occupancyKind", query.occupancyKind ?? "review");
 
   const trimmedExcludeDraftId = query.excludeDraftId?.trim() ?? "";
   if (trimmedExcludeDraftId.length > 0) {

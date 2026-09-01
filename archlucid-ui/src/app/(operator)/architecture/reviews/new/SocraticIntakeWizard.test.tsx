@@ -556,6 +556,58 @@ describe("SocraticIntakeWizard", () => {
     expect(createDraftRequest).not.toHaveBeenCalled();
   });
 
+  it("auto-submits guided intake when rerun= reaches the create review step", async () => {
+    searchParamsGet.mockImplementation((key: string) => (key === "rerun" ? "run-failed-1" : null));
+    mockAdmittedDraftWithoutClarifications();
+    submitDraftRequest.mockResolvedValue({
+      draftId: "draft-1",
+      status: "RunSpawned",
+      runId: "rerun-spawned-run",
+      requestId: "req-rerun",
+      parentSpawnedRunId: "run-failed-1",
+    });
+    getDraftRequest
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        status: "Admitted",
+        document: {
+          freeTextIntent: VALID_GUIDED_INTENT,
+          businessOutcome: "Reduce manual triage time by thirty percent.",
+          actorSet: { actors: [] },
+          requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+        },
+        createdUtc: "2026-08-05T12:00:00Z",
+        updatedUtc: "2026-08-05T12:00:00Z",
+      })
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        status: "RunSpawned",
+        spawnedRunId: "rerun-spawned-run",
+        document: {
+          freeTextIntent: VALID_GUIDED_INTENT,
+          businessOutcome: "Reduce manual triage time by thirty percent.",
+          actorSet: { actors: [] },
+        },
+        createdUtc: "2026-08-05T12:00:00Z",
+        updatedUtc: "2026-08-05T12:00:00Z",
+      });
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1");
+    });
+  });
+
   it("shows guided placeholders and Continue to clarifications on step 1", () => {
     render(<SocraticIntakeWizard />);
 
@@ -1321,7 +1373,7 @@ describe("SocraticIntakeWizard", () => {
     fetchWorkspaceSystemNameAvailability.mockResolvedValue({
       systemName: "ArchLucid",
       isAvailable: false,
-      conflictMessage: "A review or architecture named 'ArchLucid' already exists in this workspace.",
+      conflictMessage: "A review named 'ArchLucid' already exists in this workspace.",
     });
 
     render(<SocraticIntakeWizard />);
@@ -1340,7 +1392,7 @@ describe("SocraticIntakeWizard", () => {
   it("shows a failed admission inline above the CTA instead of a toast", async () => {
     createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
     patchDraftRequest.mockRejectedValue(
-      new ApiRequestError("A review or architecture named 'ArchLucid' already exists in this workspace.", {
+      new ApiRequestError("A review named 'ArchLucid' already exists in this workspace.", {
         problem: null,
         correlationId: "corr-1",
         httpStatus: 409,
