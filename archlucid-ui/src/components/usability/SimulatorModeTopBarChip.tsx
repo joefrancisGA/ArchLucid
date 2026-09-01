@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ReactElement } from "react";
 
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
+import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { OPERATOR_TYPOGRAPHY, enterpriseStatusTagClass } from "@/lib/design-tokens";
 import {
@@ -18,6 +19,7 @@ import {
 import {
   REAL_MODE_TOP_BAR_CHIP_DETAIL,
   REAL_MODE_TOP_BAR_CHIP_LABEL,
+  REAL_MODE_TOP_BAR_CHIP_NOT_READY_DETAIL,
   SIMULATOR_MODE_TOP_BAR_CHIP_DETAIL,
   SIMULATOR_MODE_TOP_BAR_CHIP_LABEL,
 } from "@/lib/simulator-mode-chrome-copy";
@@ -33,6 +35,7 @@ export type SimulatorModeTopBarChipProps = {
  */
 export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): ReactElement | null {
   const { mode, isSimulator, isLoading } = useAgentExecutionMode();
+  const readiness = useSessionAiReadiness();
   const healthQuery = useHealthReadySummaryQuery();
   const [devOverride, setDevOverride] = useState<DevAgentExecutionModeOverride | null>(null);
 
@@ -60,14 +63,22 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
 
   const canToggle = isDevTestingOverridesEnabled();
   const label = isSimulator ? SIMULATOR_MODE_TOP_BAR_CHIP_LABEL : REAL_MODE_TOP_BAR_CHIP_LABEL;
-  const detail = isSimulator ? SIMULATOR_MODE_TOP_BAR_CHIP_DETAIL : REAL_MODE_TOP_BAR_CHIP_DETAIL;
+  const realNotReady = !isSimulator && readiness.isSessionReal && !readiness.isLoading && !readiness.isReady;
+  const detail = isSimulator
+    ? SIMULATOR_MODE_TOP_BAR_CHIP_DETAIL
+    : realNotReady
+      ? REAL_MODE_TOP_BAR_CHIP_NOT_READY_DETAIL
+      : REAL_MODE_TOP_BAR_CHIP_DETAIL;
 
   const simulatorChipClassName =
     "border-red-700 bg-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.55)] dark:border-red-300 dark:bg-red-600";
   const simulatorDotClassName = "bg-red-100 dark:bg-red-200";
 
-  const realChipClassName = cn(enterpriseStatusTagClass("ready"), "border");
-  const realDotClassName = "bg-[var(--al-status-ready-fg)]";
+  const realChipClassName = cn(
+    realNotReady ? "border-amber-700 bg-amber-100 dark:border-amber-300 dark:bg-amber-900/40" : enterpriseStatusTagClass("ready"),
+    "border",
+  );
+  const realDotClassName = realNotReady ? "bg-amber-700 dark:bg-amber-300" : "bg-[var(--al-status-ready-fg)]";
 
   const chipClassName = isSimulator ? simulatorChipClassName : realChipClassName;
   const dotClassName = isSimulator ? simulatorDotClassName : realDotClassName;

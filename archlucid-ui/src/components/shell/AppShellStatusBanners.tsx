@@ -13,6 +13,7 @@ import { TrialExpiryBanner } from "@/components/trial/TrialExpiryBanner";
 import { TrialUsageUpgradeNudge } from "@/components/trial/TrialUsageUpgradeNudge";
 import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTrialStatusStrip";
 import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
+import { RealModeAiReadinessShellBanner } from "@/components/usability/RealModeAiReadinessShellBanner";
 
 type AppShellStatusBannersProps = {
   readonly variant: "minimal" | "full";
@@ -29,6 +30,7 @@ export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
       <PublicDemoAiUsageBanner />
       <ServiceBusHealthBanner />
       {variant === "full" ? <SetupHealthShellBanner /> : null}
+      {variant === "full" ? <RealModeAiReadinessShellBanner /> : null}
       <LlmBudgetApproachingLimitBanner />
       <TrialAiBudgetStatusBanner />
       <TrialUsageUpgradeNudge />
