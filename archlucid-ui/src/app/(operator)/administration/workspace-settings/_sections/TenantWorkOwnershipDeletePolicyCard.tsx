@@ -20,8 +20,8 @@ function PolicyToggle(props: {
   return (
     <label className="flex items-start justify-between gap-4 rounded-md border border-border p-4">
       <span className="space-y-1">
-        <span className={OPERATOR_TYPOGRAPHY.sectionLabel}>{props.label}</span>
-        <span className={`block ${OPERATOR_TYPOGRAPHY.bodyMuted}`}>{props.description}</span>
+        <span className="font-medium text-al-text-primary">{props.label}</span>
+        <span className="block text-al-text-secondary">{props.description}</span>
       </span>
       <input
         type="checkbox"
@@ -58,15 +58,16 @@ export function TenantWorkOwnershipDeletePolicyCard(): React.JSX.Element {
     },
   });
 
-  if (policyQuery.isLoading || draft === null) {
-    return <p className={OPERATOR_TYPOGRAPHY.bodyMuted}>Loading work ownership delete policy…</p>;
+  if (policyQuery.isLoading || draft === null || policyQuery.data === undefined) {
+    return <p className={OPERATOR_TYPOGRAPHY.helper}>Loading work ownership delete policy…</p>;
   }
 
   if (policyQuery.isError) {
-    return <p className={OPERATOR_TYPOGRAPHY.bodyMuted}>Work ownership delete policy is unavailable.</p>;
+    return <p className={OPERATOR_TYPOGRAPHY.helper}>Work ownership delete policy is unavailable.</p>;
   }
 
-  const dirty = draft.allowCreatorDeleteOwnedWork !== policyQuery.data.allowCreatorDeleteOwnedWork;
+  const saved = policyQuery.data;
+  const dirty = draft.allowCreatorDeleteOwnedWork !== saved.allowCreatorDeleteOwnedWork;
 
   return (
     <div className="space-y-4" data-testid="tenant-work-ownership-delete-policy-card">

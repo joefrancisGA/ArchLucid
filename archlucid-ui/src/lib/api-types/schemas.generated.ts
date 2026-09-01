@@ -2367,7 +2367,7 @@ export interface components {
             workspaceId?: string;
         };
         CorePilotChecklistPutRequest: {
-            isCompleted?: null | boolean;
+            isCompleted: null | boolean;
             /** Format: int32 */
             stepIndex?: number;
         };
@@ -6312,7 +6312,7 @@ export interface components {
             /** Format: uuid */
             runId?: null | string;
             /** Format: int16 */
-            score?: null | number | string;
+            score: null | number | string;
         };
         ProductLearningArtifactOutcomeTrendsResponse: {
             /** Format: date-time */
