@@ -162,7 +162,7 @@ public sealed class AzureOpenAiBatchCompletionClient : IBatchAgentCompletionClie
             };
 
             if (request.MaxTokens is { } maxTokens && maxTokens > 0)
-                body["max_tokens"] = maxTokens;
+                body["max_completion_tokens"] = maxTokens;
 
             if (request.Temperature is { } temperature)
                 body["temperature"] = temperature;
