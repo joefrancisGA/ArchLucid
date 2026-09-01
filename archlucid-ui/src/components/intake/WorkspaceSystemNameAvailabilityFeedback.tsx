@@ -5,13 +5,15 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_FORM_FIELD_HELPER_CLASS } from "@/lib/design-tokens";
 import {
   WORKSPACE_SYSTEM_NAME_CHECKING_HELPER,
-  WORKSPACE_SYSTEM_NAME_CONFLICT_RECOVERY_HELPER,
+  workspaceSystemNameConflictRecoveryHelper,
+  type WorkspaceSystemNameOccupancyKind,
 } from "@/lib/workspace-system-name-availability-copy";
 import type { WorkspaceSystemNameAvailabilityState } from "@/hooks/use-workspace-system-name-availability";
 import { WORKSPACE_SYSTEM_NAME_VALIDATION_UNAVAILABLE_HELPER } from "@/hooks/use-workspace-system-name-availability";
 
 type WorkspaceSystemNameAvailabilityFeedbackProps = {
   readonly availability: WorkspaceSystemNameAvailabilityState;
+  readonly occupancyKind?: WorkspaceSystemNameOccupancyKind;
   readonly testId?: string;
 };
 
@@ -20,6 +22,7 @@ export function WorkspaceSystemNameAvailabilityFeedback(
   props: WorkspaceSystemNameAvailabilityFeedbackProps,
 ): React.JSX.Element | null {
   const { availability } = props;
+  const occupancyKind = props.occupancyKind ?? "review";
   const testId = props.testId ?? "workspace-system-name-availability-feedback";
 
   if (availability.validating) {
@@ -57,7 +60,7 @@ export function WorkspaceSystemNameAvailabilityFeedback(
           {availability.conflictMessage}
         </p>
         <p className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-neutral-600 dark:text-neutral-400")}>
-          {WORKSPACE_SYSTEM_NAME_CONFLICT_RECOVERY_HELPER}
+          {workspaceSystemNameConflictRecoveryHelper(occupancyKind)}
         </p>
       </div>
     );

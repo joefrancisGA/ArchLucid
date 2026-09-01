@@ -205,6 +205,43 @@ export function useGuidedIntakeWizard() {
     !blocksLlmExecution &&
     policyPackCloudMismatch === null;
 
+  const rerunAutoSubmitStartedRef = useRef(false);
+
+  useEffect(() => {
+    if (priorRunId === null || workflow.busy || rerunAutoSubmitStartedRef.current) {
+      return;
+    }
+
+    if (workflow.draftId === null || !workflow.allClarificationsHandled) {
+      return;
+    }
+
+    if (step < 2) {
+      if (workflow.pendingQuestions.length === 0) {
+        setStep(2);
+      }
+
+      return;
+    }
+
+    if (!canSubmit) {
+      return;
+    }
+
+    rerunAutoSubmitStartedRef.current = true;
+    void workflow.submitDraft();
+  }, [
+    canSubmit,
+    priorRunId,
+    setStep,
+    step,
+    workflow.allClarificationsHandled,
+    workflow.busy,
+    workflow.draftId,
+    workflow.pendingQuestions.length,
+    workflow.submitDraft,
+  ]);
+
   const stepLabel = useMemo(() => `Step ${step + 1} of ${INTAKE_STEPS.length}`, [step]);
 
   // Prefer system name / intent for the saved-architecture banner; keep the GUID in the draft href only.
