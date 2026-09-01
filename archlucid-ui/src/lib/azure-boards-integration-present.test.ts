@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   AZURE_BOARDS_LOAD_FAILURE_STATUS_EXPLANATION,
   isAzureBoardsCredentialsReady,
+  parseAzureBoardsLastConnectionTestSuccess,
   resolveAzureBoardsConnectionSaveGate,
   resolveAzureBoardsConnectionStatus,
   resolveAzureBoardsConnectionTestGate,
@@ -150,5 +151,12 @@ describe("azure-boards-integration-present", () => {
     );
 
     expect(label).toBe("In progress");
+  });
+
+  it("parses persisted connection test summaries without substring false positives", () => {
+    expect(parseAzureBoardsLastConnectionTestSuccess("Connection check succeeded.")).toBe(true);
+    expect(parseAzureBoardsLastConnectionTestSuccess("Connection did not succeed.")).toBe(false);
+    expect(parseAzureBoardsLastConnectionTestSuccess("Unauthorized for organization.")).toBe(false);
+    expect(parseAzureBoardsLastConnectionTestSuccess("Waiting for operator action.")).toBeNull();
   });
 });

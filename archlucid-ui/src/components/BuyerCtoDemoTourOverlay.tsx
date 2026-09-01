@@ -33,14 +33,14 @@ import {
   readBuyerCtoDemoPresenterNotesFullScript,
   readBuyerCtoDemoPresenterNotesVisible,
   readBuyerCtoDemoVisitedSteps,
-  readCtoDemoPresenterLayerVisible,
+  readBuyerCtoDemoPresenterLayerVisible,
   resolveBuyerCtoDemoTourNavigation,
   writeBuyerCtoDemoAutoplay,
   writeBuyerCtoDemoExploreMode,
   writeBuyerCtoDemoPreflightAcknowledged,
   writeBuyerCtoDemoTourActive,
   writeBuyerCtoDemoTourCollapsed,
-  writeCtoDemoPresenterLayerVisible,
+  writeBuyerCtoDemoPresenterLayerVisible,
   writeBuyerCtoDemoVisitedStep,
 } from "@/lib/buyer/buyer-cto-demo-tour";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
@@ -121,7 +121,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
     setStoryId(readBuyerCtoDemoStoryId());
     setPanicEnabled(readOperatorDemoPanicOffline());
     setExploreMode(readBuyerCtoDemoExploreMode());
-    setPresenterLayerVisible(readCtoDemoPresenterLayerVisible());
+    setPresenterLayerVisible(readBuyerCtoDemoPresenterLayerVisible());
     setPreflightAcknowledged(readBuyerCtoDemoPreflightAcknowledged());
   }, []);
 
@@ -136,7 +136,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
   const togglePresenterLayer = useCallback(() => {
     setPresenterLayerVisible((previous) => {
       const next = !previous;
-      writeCtoDemoPresenterLayerVisible(next);
+      writeBuyerCtoDemoPresenterLayerVisible(next);
       return next;
     });
   }, []);

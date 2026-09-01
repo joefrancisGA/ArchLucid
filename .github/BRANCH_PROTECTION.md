@@ -45,14 +45,17 @@ Checks from **`.NET: full regression (SQL)`** through **`Containers: Docker buil
 
 ### Live ruleset (do not guess from JSON alone)
 
-GitHub cannot apply rulesets from files in the repo. As of 2026-08-29, ruleset **`Golden cohort real-LLM gate`** (id `21654724`) requires exactly:
+GitHub cannot apply rulesets from files in the repo. As of 2026-08-31, the **intended** list in [`.github/rulesets/golden-cohort-gate-required-check.json`](rulesets/golden-cohort-gate-required-check.json) is five contexts. Live ruleset **`Golden cohort real-LLM gate`** (id `21654724`) still needs an owner apply of the fifth check after a green `master` push produces `CI: beta-readiness wiring guards`:
 
 - `cohort-real-llm-gate`
 - `Security: gitleaks (secret scan)`
-- `.NET: fast core (corset)`
+- `.NET: push corset (build + fast core Core/Decisioning)` (live autocomplete may show `.NET: fast core (corset)`)
 - `Operator UI: typecheck (blocking)`
+- `CI: beta-readiness wiring guards` — **add in GitHub** (JSON already lists it; live ruleset may lag)
 
-[`.github/rulesets/golden-cohort-gate-required-check.json`](rulesets/golden-cohort-gate-required-check.json) is the intended four-check list (check names in that JSON may lag the live `.NET: fast core (corset)` display name). [`.github/rulesets/push-corset-codeql-required-check.json`](rulesets/push-corset-codeql-required-check.json) would also require `CodeQL (csharp)` and `CodeQL (javascript)`. **Do not apply that CodeQL-inclusive JSON** while CodeQL is off the PR hot path, or PRs will sit pending those checks forever.
+Owner apply: `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` after one green `ui-typecheck-on-push.yml` run that includes the beta-readiness job.
+
+[`.github/rulesets/push-corset-codeql-required-check.json`](rulesets/push-corset-codeql-required-check.json) would also require `CodeQL (csharp)` and `CodeQL (javascript)`. **Do not apply that CodeQL-inclusive JSON** while CodeQL is off the PR hot path, or PRs will sit pending those checks forever.
 
 ### If you use Rulesets
 
