@@ -5,13 +5,13 @@ namespace ArchLucid.Core.Diagnostics;
 /// </summary>
 public static class LlmCompletionRequestParamsAmbient
 {
-    private static readonly AsyncLocal<(float Temperature, int MaxOutputTokens, float? TopP)?> LastRequestParams = new();
+    private static readonly AsyncLocal<(float? Temperature, int MaxOutputTokens, float? TopP)?> LastRequestParams = new();
 
     /// <summary>Clears any recorded request parameters for the current async flow.</summary>
     public static void Clear() => LastRequestParams.Value = null;
 
     /// <summary>Records the parameters actually sent to the provider for the completion call.</summary>
-    public static void Record(float temperature, int maxOutputTokens, float? topP = null) =>
+    public static void Record(int maxOutputTokens, float? temperature = null, float? topP = null) =>
         LastRequestParams.Value = (temperature, maxOutputTokens, topP);
 
     /// <summary>
@@ -19,7 +19,7 @@ public static class LlmCompletionRequestParamsAmbient
     /// </summary>
     public static void TryConsume(out float? temperature, out int? maxOutputTokens, out float? topP)
     {
-        (float Temperature, int MaxOutputTokens, float? TopP)? raw = LastRequestParams.Value;
+        (float? Temperature, int MaxOutputTokens, float? TopP)? raw = LastRequestParams.Value;
         LastRequestParams.Value = null;
 
         if (raw is { } value)

@@ -181,13 +181,12 @@ public sealed partial class AzureOpenAiCompletionClient
     }
     private ChatCompletionOptions CreateCompletionOptions(ChatResponseFormat format, int? maxTokens, float? temperature)
     {
-        float resolvedTemperature = temperature ?? 0.1f;
         int resolvedMaxOutputTokens = maxTokens ?? _maxOutputTokens;
 
-        LlmCompletionRequestParamsAmbient.Record(resolvedTemperature, resolvedMaxOutputTokens);
+        LlmCompletionRequestParamsAmbient.Record(resolvedMaxOutputTokens, temperature);
 
         ChatCompletionOptions options = AzureOpenAiMaxOutputTokenParameterPolicy.CreateOptions();
-        options.Temperature = resolvedTemperature;
+        AzureOpenAiTemperatureParameterPolicy.ApplyRequested(options, temperature);
         options.MaxOutputTokenCount = resolvedMaxOutputTokens;
         options.ResponseFormat = format;
 
@@ -205,10 +204,13 @@ public sealed partial class AzureOpenAiCompletionClient
         bool useMaxCompletionTokensProperty =
             AzureOpenAiMaxOutputTokenParameterPolicy.DefaultUsesMaxCompletionTokensProperty;
 
-        AzureOpenAiMaxOutputTokenParameterPolicy.Apply(options, useMaxCompletionTokensProperty);
+        bool maxTokenSerializationRetried = false;
+        bool temperatureOmitted = false;
 
-        for (int parameterAttempt = 0; parameterAttempt < 2; parameterAttempt++)
+        for (int requestAttempt = 0; requestAttempt < 4; requestAttempt++)
         {
+            AzureOpenAiMaxOutputTokenParameterPolicy.Apply(options, useMaxCompletionTokensProperty);
+
             for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
             {
                 try
@@ -227,17 +229,22 @@ public sealed partial class AzureOpenAiCompletionClient
                 }
                 catch (ClientResultException ex) when (ex.Status == 400)
                 {
-                    if (parameterAttempt == 0
+                    if (!temperatureOmitted && AzureOpenAiTemperatureParameterPolicy.TryOmitTemperature(ex))
+                    {
+                        AzureOpenAiTemperatureParameterPolicy.Omit(options);
+                        temperatureOmitted = true;
+
+                        break;
+                    }
+
+                    if (!maxTokenSerializationRetried
                         && AzureOpenAiMaxOutputTokenParameterPolicy.TryGetAlternateSerialization(
                             ex,
                             useMaxCompletionTokensProperty,
                             out bool alternateUsesMaxCompletionTokensProperty))
                     {
                         useMaxCompletionTokensProperty = alternateUsesMaxCompletionTokensProperty;
-
-                        AzureOpenAiMaxOutputTokenParameterPolicy.Apply(
-                            options,
-                            useMaxCompletionTokensProperty);
+                        maxTokenSerializationRetried = true;
 
                         break;
                     }
@@ -248,7 +255,7 @@ public sealed partial class AzureOpenAiCompletionClient
         }
 
         throw new InvalidOperationException(
-            "Azure OpenAI chat completion failed after max output token parameter retries.");
+            "Azure OpenAI chat completion failed after request parameter retries.");
     }
     private static string? BuildReasoningTraceSnippet(ChatCompletion completion)
     {

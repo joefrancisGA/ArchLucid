@@ -612,6 +612,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TrialBaselineManualPrepUpdated` | `TrialBaselineManualPrepUpdated` | `TenantBaselineController` (subsequent edits after first capture) |
 | `TenantCostSettingsUpdated` | `TenantCostSettingsUpdated` | `TenantCostSettingsController` (`PUT /v1/tenant/cost-settings`; per-tenant ROI cost assumptions on `dbo.TenantCostSettings`) |
 | `TenantHomepageSettingsUpdated` | `TenantHomepageSettingsUpdated` | `TenantHomepageSettingsController` (`PUT /v1/tenant/homepage-settings`; workspace featured completed sample on `dbo.TenantSettings`) |
+| `TenantWorkOwnershipDeletePolicyUpdated` | `Tenant.WorkOwnershipDeletePolicyUpdated` | `SettingsController` (`PUT /v1/admin/settings/work-ownership-delete-policy`; creator delete/archive policy on `dbo.TenantSettings`) |
 | `TrialSignupFailed` | `TrialSignupFailed` | `TrialLocalIdentityAuthController`, `TrialTenantBootstrapService` |
 | `TrialFirstRunCompleted` | `TrialFirstRunCompleted` | `SqlTrialFunnelCommitHook` |
 | `TrialArchitecturePreseedFailed` | `TrialArchitecturePreseedFailed` | `TrialArchitecturePreseedExecutor` |

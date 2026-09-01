@@ -20,6 +20,10 @@ import {
 import { useWorkOwnershipDeletePolicyQuery } from "@/hooks/use-work-ownership-delete-policy-query";
 import { canDeleteArchitectureDraft } from "@/lib/architecture/architecture-draft-delete-eligibility";
 import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
+import {
+  invalidateArchitectureDraftListQueries,
+  removeArchitectureDraftFromListCache,
+} from "@/lib/architecture/architecture-draft-list-client";
 import { removeArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -58,6 +62,8 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
 
   const finishDelete = useCallback(() => {
     removeArchitectureDraftRegistryEntry(props.architectureId);
+    removeArchitectureDraftFromListCache(props.architectureId);
+    void invalidateArchitectureDraftListQueries();
     toast.success(ARCHITECTURE_DRAFT_DELETE_SUCCESS_TOAST);
     props.onDeleted?.();
     setConfirmOpen(false);

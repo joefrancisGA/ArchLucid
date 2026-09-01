@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Pagination;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -71,5 +72,18 @@ public interface IDraftRequestRepository
         Guid workspaceId,
         string systemName,
         Guid? excludeDraftId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Lists drafts for the signed-in creator across all projects in a workspace,
+    ///     newest <see cref="DraftRequestResponse.UpdatedUtc" /> first.
+    /// </summary>
+    Task<PagedResponse<DraftRequestResponse>> ListForCreatorInWorkspaceAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        string createdByUserId,
+        IReadOnlyList<DraftRequestStatus> statuses,
+        int page,
+        int pageSize,
         CancellationToken cancellationToken);
 }

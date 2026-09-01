@@ -1,10 +1,13 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { OPERATOR_FORM_FIELD_STACK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Controller, useFormContext } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
+import { WorkspaceSystemNameAvailabilityFeedback } from "@/components/intake/WorkspaceSystemNameAvailabilityFeedback";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -17,11 +20,13 @@ import { Separator } from "@/components/ui/separator";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system-name-availability";
 import {
   CLOUD_NEUTRAL_PRIMARY_COPY,
   WIZARD_CLOUD_PROVIDER_OPTIONS,
 } from "@/lib/cloud-neutral-primary-copy";
 import { GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL } from "@/lib/guided-intake-copy";
+import { readPriorRunIdFromSearch } from "@/lib/second-review-prior-package";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 const ENVIRONMENT_OPTIONS = [
@@ -39,10 +44,43 @@ const wizardSelectTriggerClassName =
  * Step 2: system name, environment, cloud target (None, Azure, Aws, or Gcp).
  */
 export function WizardStepIdentity() {
-  const { register, control, formState, clearErrors, watch } = useFormContext<WizardFormValues>();
+  const searchParams = useSearchParams();
+  const priorRunId = readPriorRunIdFromSearch(searchParams);
+  const { register, control, formState, clearErrors, watch, setError } = useFormContext<WizardFormValues>();
   const { errors } = formState;
   const systemNameValue = watch("systemName") ?? "";
+  const systemNameAvailability = useWorkspaceSystemNameAvailability({
+    systemName: systemNameValue,
+    excludeRunId: priorRunId,
+    minTrimmedLength: 2,
+  });
   const systemErr = errors.systemName?.message;
+  const systemNameConflict =
+    systemNameAvailability.validationReady &&
+    !systemNameAvailability.isAvailable &&
+    systemNameAvailability.conflictMessage !== null;
+
+  useEffect(() => {
+    if (systemNameAvailability.blocksSubmit && systemNameAvailability.conflictMessage !== null) {
+      setError("systemName", {
+        type: "availability",
+        message: systemNameAvailability.conflictMessage,
+      });
+
+      return;
+    }
+
+    if (errors.systemName?.type === "availability") {
+      clearErrors("systemName");
+    }
+  }, [
+    clearErrors,
+    errors.systemName?.type,
+    setError,
+    systemNameAvailability.blocksSubmit,
+    systemNameAvailability.conflictMessage,
+  ]);
+
   const priorErr = errors.priorManifestVersion?.message;
   const environmentErr = errors.environment?.message;
   const cloudErr = errors.cloudProvider?.message;
@@ -59,8 +97,10 @@ export function WizardStepIdentity() {
           <Input
             id="wizard-systemName"
             autoComplete="off"
-            aria-invalid={systemErr != null && String(systemErr).length > 0}
-            aria-describedby={systemErr ? "err-wizard-systemName" : undefined}
+            aria-invalid={(systemErr != null && String(systemErr).length > 0) || systemNameConflict}
+            aria-describedby={
+              systemErr || systemNameConflict ? "err-wizard-systemName wizard-system-name-availability" : undefined
+            }
             {...register("systemName", {
               onChange: () => {
                 clearErrors("systemName");
@@ -68,6 +108,10 @@ export function WizardStepIdentity() {
             })}
           />
           <WizardFieldError id="err-wizard-systemName" message={systemErr != null ? String(systemErr) : undefined} />
+          <WorkspaceSystemNameAvailabilityFeedback
+            availability={systemNameAvailability}
+            testId="wizard-system-name-availability"
+          />
           <p className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {systemNameValue.trim().length} characters (minimum 2)
           </p>

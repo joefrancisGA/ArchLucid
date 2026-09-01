@@ -3,6 +3,7 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -289,5 +290,42 @@ public sealed class DraftRequestCrudService(
             existing.RedirectReason,
             existing.SpawnedRunId,
             cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<PagedResponse<DraftRequestSummaryResponse>> ListAsync(
+        ScopeContext scope,
+        string actorUserId,
+        IReadOnlyList<DraftRequestStatus> statuses,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actorUserId);
+
+        if (statuses is null || statuses.Count == 0)
+            throw new ArgumentException("At least one status filter is required.", nameof(statuses));
+
+        PagedResponse<DraftRequestResponse> draftPage = await _draftRepository.ListForCreatorInWorkspaceAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            actorUserId,
+            statuses,
+            page,
+            pageSize,
+            cancellationToken);
+
+        IReadOnlyList<DraftRequestSummaryResponse> summaries = draftPage.Items
+            .Select(DraftRequestSummaryMapper.FromResponse)
+            .ToList();
+
+        return new PagedResponse<DraftRequestSummaryResponse>
+        {
+            Items = summaries,
+            TotalCount = draftPage.TotalCount,
+            Page = draftPage.Page,
+            PageSize = draftPage.PageSize,
+        };
     }
 }

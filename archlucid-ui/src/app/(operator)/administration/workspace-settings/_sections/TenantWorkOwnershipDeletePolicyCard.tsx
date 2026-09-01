@@ -9,6 +9,7 @@ import {
   updateTenantWorkOwnershipDeletePolicy,
 } from "@/lib/tenant-work-ownership-delete-policy-client";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 function PolicyToggle(props: {
   readonly label: string;
@@ -21,7 +22,7 @@ function PolicyToggle(props: {
     <label className="flex items-start justify-between gap-4 rounded-md border border-border p-4">
       <span className="space-y-1">
         <span className={OPERATOR_TYPOGRAPHY.label}>{props.label}</span>
-        <span className={`block text-al-text-secondary ${OPERATOR_TYPOGRAPHY.helper}`}>{props.description}</span>
+        <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.description}</span>
       </span>
       <input
         type="checkbox"
@@ -59,11 +60,11 @@ export function TenantWorkOwnershipDeletePolicyCard(): React.JSX.Element {
   });
 
   if (policyQuery.isError) {
-    return <p className={`text-al-text-secondary ${OPERATOR_TYPOGRAPHY.helper}`}>Work ownership delete policy is unavailable.</p>;
+    return <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Work ownership delete policy is unavailable.</p>;
   }
 
   if (policyQuery.isLoading || draft === null || policyQuery.data === undefined) {
-    return <p className={`text-al-text-secondary ${OPERATOR_TYPOGRAPHY.helper}`}>Loading work ownership delete policy…</p>;
+    return <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Loading work ownership delete policy…</p>;
   }
 
   const savedPolicy = policyQuery.data;
