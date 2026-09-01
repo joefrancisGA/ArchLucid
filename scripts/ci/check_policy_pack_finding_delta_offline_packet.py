@@ -48,12 +48,20 @@ def main(argv: list[str] | None = None) -> int:
     if "identity" in json.dumps(packet["soc2"]["advisoryExtras"]):
         errors.append(f"{SOC2_REL}: must not stamp topology identity (honesty)")
 
-    demo_script = (root / _DEMO_SCRIPT).read_text(encoding="utf-8", errors="replace")
+    try:
+        demo_script = (root / _DEMO_SCRIPT).read_text(encoding="utf-8", errors="replace")
+    except OSError as ex:
+        errors.append(f"{_DEMO_SCRIPT}: {ex}")
+        demo_script = ""
 
     if "OfflineFindingDelta" not in demo_script:
         errors.append(f"{_DEMO_SCRIPT}: missing -OfflineFindingDelta switch")
 
-    demo_doc = (root / _DEMO_DOC).read_text(encoding="utf-8", errors="replace")
+    try:
+        demo_doc = (root / _DEMO_DOC).read_text(encoding="utf-8", errors="replace")
+    except OSError as ex:
+        errors.append(f"{_DEMO_DOC}: {ex}")
+        demo_doc = ""
 
     if "OfflineFindingDelta" not in demo_doc:
         errors.append(f"{_DEMO_DOC}: missing OfflineFindingDelta SE path")
