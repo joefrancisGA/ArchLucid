@@ -239,7 +239,7 @@ public sealed class TenantCustomerSuccessController(
             return this.BadRequestProblem("score is required.", ProblemTypes.ValidationFailed);
 
         if (request.RunId == Guid.Empty)
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem("runId must be non-empty.", ProblemTypes.ValidationFailed);
 
         if (request.RunId is Guid runId)
         {
