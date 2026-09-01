@@ -1,4 +1,6 @@
 using System.ClientModel;
+using System.Collections.Generic;
+using System.Reflection;
 
 using Azure.AI.OpenAI.Chat;
 
@@ -16,13 +18,40 @@ internal static class AzureOpenAiMaxOutputTokenParameterPolicy
     /// <summary>Prefer <c>max_completion_tokens</c> for GPT-5 / o-series deployments.</summary>
     internal const bool DefaultUsesMaxCompletionTokensProperty = true;
 
+    private static readonly PropertyInfo? SerializedAdditionalRawDataProperty =
+        typeof(ChatCompletionOptions).GetProperty(
+            "SerializedAdditionalRawData",
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
     internal static void Apply(ChatCompletionOptions options, bool useMaxCompletionTokensProperty)
     {
         ArgumentNullException.ThrowIfNull(options);
 
+        EnsurePatchStateInitialized(options);
+
 #pragma warning disable AOAI001 // Experimental API required for GPT-5/o-series max_completion_tokens serialization.
         options.SetNewMaxCompletionTokensPropertyEnabled(useMaxCompletionTokensProperty);
 #pragma warning restore AOAI001
+    }
+
+    /// <summary>
+    ///     Azure.AI.OpenAI 2.1.0 requires <c>SerializedAdditionalRawData</c> to be initialized before
+    ///     <c>SetNewMaxCompletionTokensPropertyEnabled</c> on freshly constructed <see cref="ChatCompletionOptions" />
+    ///     (azure-sdk-for-net#48287).
+    /// </summary>
+    private static void EnsurePatchStateInitialized(ChatCompletionOptions options)
+    {
+        if (SerializedAdditionalRawDataProperty is null)
+        {
+            return;
+        }
+
+        if (SerializedAdditionalRawDataProperty.GetValue(options) is not null)
+        {
+            return;
+        }
+
+        SerializedAdditionalRawDataProperty.SetValue(options, new Dictionary<string, BinaryData>());
     }
 
     internal static bool TryGetAlternateSerialization(
