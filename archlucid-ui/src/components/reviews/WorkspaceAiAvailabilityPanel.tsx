@@ -19,24 +19,6 @@ export type WorkspaceAiAvailabilityPanelProps = {
   readonly availabilityCheck?: WorkspaceAiAvailabilityCheck;
 };
 
-function statusTagKind(
-  state: ReturnType<typeof useWorkspaceAiAvailabilityCheck>["state"],
-): "ready" | "needs-attention" | "blocked" | "in-progress" {
-  if (state.status === "loading") {
-    return "in-progress";
-  }
-
-  if (state.status === "idle") {
-    return "needs-attention";
-  }
-
-  if (state.status === "error") {
-    return "blocked";
-  }
-
-  return state.result.isAvailable ? "ready" : "needs-attention";
-}
-
 function resolveProbeModelLabel(debug: Readonly<Record<string, string>>): string | null {
   const deployment = debug.probeDeploymentName?.trim();
   const model = debug.probeModelId?.trim();
@@ -56,6 +38,50 @@ function resolveProbeModelLabel(debug: Readonly<Record<string, string>>): string
   return null;
 }
 
+function statusTagKind(
+  state: ReturnType<typeof useWorkspaceAiAvailabilityCheck>["state"],
+): "ready" | "needs-attention" | "blocked" | "in-progress" {
+  if (state.status === "loading") {
+    return "in-progress";
+  }
+
+  if (state.status === "idle") {
+    return "needs-attention";
+  }
+
+  if (state.status === "error") {
+    return "blocked";
+  }
+
+  return state.result.isAvailable ? "ready" : "needs-attention";
+}
+
+function resolveWorkspaceAiDetail(
+  state: ReturnType<typeof useWorkspaceAiAvailabilityCheck>["state"],
+  workspaceAiSignal: WorkspaceAiConfigurationSignal,
+  managedBySession: boolean,
+): string {
+  if (state.status === "loaded") {
+    return state.result.isAvailable
+      ? state.result.summary
+      : workspaceAiUnavailableDetail(state.result);
+  }
+
+  if (state.status === "loading") {
+    return "Running an automatic live AI availability check for this session…";
+  }
+
+  if (state.status === "error") {
+    return `Automatic AI availability check could not finish: ${state.message}`;
+  }
+
+  if (managedBySession) {
+    return "Starting an automatic live AI availability check for this session…";
+  }
+
+  return workspaceAiSignal.detail;
+}
+
 /** API-validated workspace AI availability with full probe diagnostics for review failure recovery. */
 export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanelProps): React.JSX.Element {
   const { workspaceAiSignal, availabilityCheck } = props;
@@ -64,20 +90,14 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
     autoCheck: false,
   });
   const { state, checkAvailability } = availabilityCheck ?? internalCheck;
+  const managedBySession = availabilityCheck !== undefined;
 
   const label =
     state.status === "loaded"
       ? workspaceAiAvailabilityStatusLabel(state.result)
       : workspaceAiSignal.label;
 
-  const detail =
-    state.status === "loaded"
-      ? state.result.isAvailable
-        ? state.result.summary
-        : workspaceAiUnavailableDetail(state.result)
-      : state.status === "error"
-        ? `${workspaceAiSignal.detail} Availability check failed: ${state.message}`
-        : workspaceAiSignal.detail;
+  const detail = resolveWorkspaceAiDetail(state, workspaceAiSignal, managedBySession);
 
   const probeModelLabel = state.status === "loaded" ? resolveProbeModelLabel(state.result.debug) : null;
 
@@ -103,8 +123,8 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
           </p>
           {state.status === "idle" ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {availabilityCheck !== undefined
-                ? "Validating live AI availability for this session…"
+              {managedBySession
+                ? "This check runs automatically when you open a failed review."
                 : "Press Check AI availability to run a live probe against your configured model. Outage claims appear only after you validate."}
             </p>
           ) : null}
@@ -179,7 +199,9 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
 
       {state.status === "error" ? (
         <p className={cn("m-0 mt-3 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-          Could not validate AI availability. Use Check AI availability to retry, or open Report a problem if this persists.
+          {managedBySession
+            ? "Automatic checks could not finish. Use Check AI availability to retry, or open Report a problem if this persists."
+            : "Could not validate AI availability. Use Check AI availability to retry, or open Report a problem if this persists."}
         </p>
       ) : null}
     </div>

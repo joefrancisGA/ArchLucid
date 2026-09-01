@@ -31,8 +31,8 @@ import { cn } from "@/lib/utils";
 import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import {
-  REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_PAGE_TITLE,
+  REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
@@ -123,12 +123,12 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const showArchivedDisabled = archivedCount === 0;
 
   const visibilityFilteredRuns = useMemo(() => {
-    if (showArchived) {
+    if (showArchived || activeFilter === "Archived") {
       return mergedRuns;
     }
 
     return mergedRuns.filter((run) => !isArchivedRun(run));
-  }, [mergedRuns, showArchived]);
+  }, [activeFilter, mergedRuns, showArchived]);
 
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(
