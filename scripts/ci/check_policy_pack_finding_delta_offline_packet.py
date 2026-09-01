@@ -66,13 +66,14 @@ def main(argv: list[str] | None = None) -> int:
         demo_doc = (root / _DEMO_DOC).read_text(encoding="utf-8", errors="replace")
     except OSError as ex:
         errors.append(f"{_DEMO_DOC}: {ex}")
-        demo_doc = ""
+        demo_doc = None
 
-    if "OfflineFindingDelta" not in demo_doc:
-        errors.append(f"{_DEMO_DOC}: missing OfflineFindingDelta SE path")
+    if demo_doc is not None:
+        if "OfflineFindingDelta" not in demo_doc:
+            errors.append(f"{_DEMO_DOC}: missing OfflineFindingDelta SE path")
 
-    if "cost.requireBudgetCap" not in demo_doc:
-        errors.append(f"{_DEMO_DOC}: missing FinOps overlay extra talk track")
+        if "cost.requireBudgetCap" not in demo_doc:
+            errors.append(f"{_DEMO_DOC}: missing FinOps overlay extra talk track")
 
     for relative in (SOC2_REL, CIS_REL, FINOPS_REL):
         if not (root / relative).is_file():
