@@ -28,7 +28,7 @@ describe("mapDraftSummaryToRegistryEntry", () => {
   it("keeps the summary-derived ready-for-review status when the partial document fails readiness", () => {
     const summary: DraftRequestSummary = {
       draftId: "22222222-2222-2222-2222-222222222222",
-      status: "Draft",
+      status: "Drafting",
       systemName: "Billing modernization",
       freeTextIntent: "Short intent.",
       spawnedRunId: null,
