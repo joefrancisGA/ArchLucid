@@ -26,6 +26,7 @@ public sealed class ArchitectureRunAsyncCreateAdmitter(
     IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IScopeContextProvider scopeContextProvider,
+    IActorContext actorContext,
     TimeProvider timeProvider,
     ILogger<ArchitectureRunAsyncCreateAdmitter> logger) : IArchitectureRunAsyncCreateAdmitter
 {
@@ -44,6 +45,9 @@ public sealed class ArchitectureRunAsyncCreateAdmitter(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -82,7 +86,7 @@ public sealed class ArchitectureRunAsyncCreateAdmitter(
             {
                 await _requestRepository.CreateAsync(request, cancellationToken, uow.Connection, uow.Transaction);
 
-                RunRecord stub = BuildRunStub(runId, request, scope, createdUtc);
+                RunRecord stub = BuildRunStub(runId, request, scope, createdUtc, _actorContext.GetActorId());
                 await _runRepository.SaveAsync(stub, cancellationToken, uow.Connection, uow.Transaction);
 
                 if (idempotency is not null)
@@ -116,7 +120,7 @@ public sealed class ArchitectureRunAsyncCreateAdmitter(
             {
                 await _requestRepository.CreateAsync(request, cancellationToken);
 
-                RunRecord stub = BuildRunStub(runId, request, scope, createdUtc);
+                RunRecord stub = BuildRunStub(runId, request, scope, createdUtc, _actorContext.GetActorId());
                 await _runRepository.SaveAsync(stub, cancellationToken);
 
                 if (idempotency is not null)
@@ -195,7 +199,8 @@ public sealed class ArchitectureRunAsyncCreateAdmitter(
         Guid runId,
         ArchitectureRequest request,
         ScopeContext scope,
-        DateTime createdUtc)
+        DateTime createdUtc,
+        string createdByUserId)
     {
         return new RunRecord
         {
@@ -207,6 +212,7 @@ public sealed class ArchitectureRunAsyncCreateAdmitter(
             Description = request.Description,
             ArchitectureRequestId = request.RequestId,
             CreatedUtc = createdUtc,
+            CreatedByUserId = createdByUserId,
             LegacyRunStatus = ArchitectureRunStatus.Created.ToString(),
             StructuralExecutionMode = StructuralExecutionMode.Simulator
         };
