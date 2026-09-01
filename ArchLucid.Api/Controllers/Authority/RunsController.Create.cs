@@ -120,18 +120,18 @@ public sealed partial class RunsController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> LookupCreateRunByIdempotencyKey(
-        CancellationToken cancellationToken)
-    {
-        if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues rawKeyHeader) ||
-            string.IsNullOrWhiteSpace(rawKeyHeader.ToString()))
-            return this.BadRequestProblem("Idempotency-Key header is required.", ProblemTypes.ValidationFailed);
+public async Task<IActionResult> LookupCreateRunByIdempotencyKey(
+    [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
+    CancellationToken cancellationToken)
+{
+    if (string.IsNullOrWhiteSpace(idempotencyKey))
+        return this.BadRequestProblem("Idempotency-Key header is required.", ProblemTypes.ValidationFailed);
 
-        IdempotencyKeyValidationResult validation =
-            runLifecycleCommandService.ValidateIdempotencyKey(rawKeyHeader.ToString());
+    IdempotencyKeyValidationResult validation =
+        runLifecycleCommandService.ValidateIdempotencyKey(idempotencyKey);
 
-        if (!validation.IsValid || string.IsNullOrWhiteSpace(validation.Key))
-            return this.BadRequestProblem(validation.ErrorMessage ?? "Idempotency-Key is required.", ProblemTypes.ValidationFailed);
+    if (!validation.IsValid || string.IsNullOrWhiteSpace(validation.Key))
+        return this.BadRequestProblem(validation.ErrorMessage ?? "Idempotency-Key is required.", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
