@@ -2367,7 +2367,7 @@ export interface components {
             workspaceId?: string;
         };
         CorePilotChecklistPutRequest: {
-            isCompleted?: boolean;
+            isCompleted?: null | boolean;
             /** Format: int32 */
             stepIndex?: number;
         };
@@ -3070,6 +3070,7 @@ export interface components {
             workflowIntent?: null | string;
         };
         DraftRequestResponse: {
+            createdByUserId?: string;
             /** Format: date-time */
             createdUtc?: string;
             document?: components["schemas"]["DraftRequestDocument"];
@@ -7705,6 +7706,7 @@ export interface components {
             completedUtc?: null | string;
             /** Format: uuid */
             contextSnapshotId?: null | string;
+            createdByUserId?: null | string;
             /** Format: date-time */
             createdUtc: string;
             currentManifestVersion?: null | string;
@@ -7838,6 +7840,7 @@ export interface components {
             runId: string;
         };
         RunSummaryResponse: {
+            createdByUserId?: null | string;
             /** Format: date-time */
             createdUtc: string;
             degradedExecutionAgents?: string[];
@@ -9030,6 +9033,12 @@ export interface components {
             tenantId?: string;
             /** Format: int64 */
             totalQuantity?: number;
+        };
+        TenantWorkOwnershipDeletePolicyResponse: {
+            allowCreatorDeleteOwnedWork?: boolean;
+        };
+        TenantWorkOwnershipDeletePolicyUpdateRequest: {
+            allowCreatorDeleteOwnedWork?: boolean;
         };
         TenantWorkspaceApiDto: {
             /** Format: uuid */

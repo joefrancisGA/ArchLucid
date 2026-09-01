@@ -40,6 +40,13 @@ public class RunSummaryDto
         set;
     }
 
+    /// <summary>Creator identity when captured at run create; null for legacy rows.</summary>
+    public string? CreatedByUserId
+    {
+        get;
+        set;
+    }
+
     /// <summary>When <see langword="true" />, this run is the trial welcome ecommerce sample.</summary>
     public bool IsDemoWelcomeRun
     {

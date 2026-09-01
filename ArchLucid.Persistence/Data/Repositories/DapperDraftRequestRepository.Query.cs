@@ -40,6 +40,7 @@ public sealed partial class DapperDraftRequestRepository
                                ReadModelSchemaVersion,
                                RedirectReason,
                                SpawnedRunId,
+                               CreatedByUserId,
                                CreatedUtc,
                                UpdatedUtc
                            FROM dbo.DraftRequests
@@ -78,6 +79,10 @@ public sealed partial class DapperDraftRequestRepository
         if (TryDeserializeReadModel(row, out DraftRequestResponse? snapshot))
         {
             DraftGetHangDiagnostics.Log("sql_get_draft_using_read_model", ("draftId", draftId));
+
+            if (snapshot is not null && string.IsNullOrWhiteSpace(snapshot.CreatedByUserId))
+                snapshot.CreatedByUserId = row.CreatedByUserId;
+
             return snapshot;
         }
 
@@ -147,6 +152,7 @@ public sealed partial class DapperDraftRequestRepository
                                DocumentJson,
                                RedirectReason,
                                SpawnedRunId,
+                               CreatedByUserId,
                                CreatedUtc,
                                UpdatedUtc
                            FROM dbo.DraftRequests
