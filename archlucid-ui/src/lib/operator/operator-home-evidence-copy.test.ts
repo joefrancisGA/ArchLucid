@@ -30,6 +30,6 @@ describe("operator-home-evidence-copy", () => {
     expect(OPERATOR_HOME_SOURCES_INTRO.toLowerCase()).toContain("sponsor");
     expect(OPERATOR_HOME_SOURCES_INTRO.toLowerCase()).toContain("findings");
     expect(OPERATOR_HOME_SOURCES_INTRO.toLowerCase()).not.toContain("where to go next");
-    expect(OPERATOR_HOME_SOURCES_INTRO.toLowerCase()).toContain("cards above");
+    expect(OPERATOR_HOME_SOURCES_INTRO.toLowerCase()).not.toContain("cards above");
   });
 });

@@ -43,7 +43,7 @@ export function AcceleratorPackStartCta(props: AcceleratorPackStartCtaProps): Re
   const statusMessageId = packCtaStatusMessageId(startTestId);
   const screenReaderSuffix = buildAcceleratorPackStartScreenReaderSuffix(packLabel, buyerJob);
 
-  if (presentation.mode === "locked-status" || presentation.mode === "checking-status") {
+  if (presentation.mode === "checking-status") {
     return (
       <p
         id={statusMessageId}
