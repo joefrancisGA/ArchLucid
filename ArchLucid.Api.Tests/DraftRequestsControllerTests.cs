@@ -133,7 +133,7 @@ public sealed class DraftRequestsControllerTests
 
         DraftRequestsController sut = BuildSut();
 
-        IActionResult result = await sut.ListDrafts(cancellationToken: CancellationToken.None);
+        IActionResult result = await sut.ListDrafts(mine: true, cancellationToken: CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeSameAs(page);
