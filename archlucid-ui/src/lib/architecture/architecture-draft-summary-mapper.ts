@@ -4,13 +4,28 @@ import {
 } from "@/lib/architecture/architecture-draft-registry";
 import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
 import { resolveArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
-import type { DraftRequestSummary } from "@/types/draft-intake";
+import type { DraftRequestResponse, DraftRequestSummary } from "@/types/draft-intake";
 
 /** Maps a server draft summary row into the shared registry entry shape used by hub and home surfaces. */
 export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): ArchitectureDraftRegistryEntry {
-  const linkedReviewId = architectureDraftSpawnedRunId({
-    spawnedRunId: summary.spawnedRunId ?? null,
-  } as { spawnedRunId?: string | null });
+  const draftForSpawnedRun: DraftRequestResponse = {
+    draftId: summary.draftId,
+    tenantId: "",
+    workspaceId: "",
+    projectId: "",
+    status: summary.status,
+    document: {
+      freeTextIntent: summary.freeTextIntent,
+      systemName: summary.systemName ?? undefined,
+      actorSet: { actors: [] },
+    },
+    spawnedRunId: summary.spawnedRunId ?? undefined,
+    createdByUserId: summary.createdByUserId,
+    createdUtc: summary.createdUtc,
+    updatedUtc: summary.updatedUtc,
+  };
+
+  const linkedReviewId = architectureDraftSpawnedRunId(draftForSpawnedRun);
 
   const customerStatus =
     summary.status === "Abandoned"
@@ -21,22 +36,7 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
         });
 
   return buildArchitectureDraftRegistryEntry(
-    {
-      draftId: summary.draftId,
-      status: summary.status,
-      document: {
-        freeTextIntent: summary.freeTextIntent,
-        systemName: summary.systemName ?? undefined,
-        actorSet: { actors: [] },
-      },
-      spawnedRunId: summary.spawnedRunId ?? null,
-      createdByUserId: summary.createdByUserId,
-      createdUtc: summary.createdUtc,
-      updatedUtc: summary.updatedUtc,
-      tenantId: "",
-      workspaceId: "",
-      projectId: "",
-    },
+    draftForSpawnedRun,
     {
       customerStatus,
       linkedReviewId,
