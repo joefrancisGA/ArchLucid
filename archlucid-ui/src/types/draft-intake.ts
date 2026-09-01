@@ -109,9 +109,9 @@ export type DraftRequestResponse = {
   projectId: string;
   status: DraftRequestStatus;
   document: DraftRequestDocument;
-  createdByUserId?: string;
   redirectReason?: string;
   spawnedRunId?: string;
+  createdByUserId?: string;
   createdUtc: string;
   updatedUtc: string;
 };
