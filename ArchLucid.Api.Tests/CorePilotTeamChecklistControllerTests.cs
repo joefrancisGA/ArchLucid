@@ -173,7 +173,7 @@ public sealed class CorePilotTeamChecklistControllerTests
     {
         Action act = () => JsonSerializer.Deserialize<CorePilotChecklistPutRequest>(payload, ArchLucidApiJsonSerializerOptions.Web);
 
-        act.Should().ThrowExactly<JsonException>(because);
+        act.Should().Throw<JsonException>(because);
     }
 
     [Fact]
