@@ -32661,6 +32661,23 @@
           }
         },
         "type": "object"
+      },
+      "WorkspaceSystemNameAvailabilityResponse": {
+        "properties": {
+          "conflictMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "systemName": {
+            "type": "string"
+          }
+        },
+        "type": "object"
       }
     }
   },
@@ -39385,6 +39402,9 @@
     },
     {
       "name": "WorkspaceAiAvailability"
+    },
+    {
+      "name": "WorkspaceSystemNameAvailability"
     }
   ]
 }
