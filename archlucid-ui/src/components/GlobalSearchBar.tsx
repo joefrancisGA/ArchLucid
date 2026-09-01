@@ -185,7 +185,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         onFocus={() => setOpen(true)}
         role="combobox"
         aria-autocomplete="list"
-        aria-haspopup={resultsPanelOpen ? "listbox" : quickActionsPanelOpen ? "true" : undefined}
+        aria-haspopup={resultsPanelOpen || quickActionsPanelOpen ? "listbox" : undefined}
         aria-expanded={resultsPanelOpen || quickActionsPanelOpen}
         aria-controls={resultsPanelOpen || quickActionsPanelOpen ? `${inputId}-results` : undefined}
         aria-label={GLOBAL_SEARCH_ARIA_LABEL}
