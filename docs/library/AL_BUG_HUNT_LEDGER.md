@@ -2594,7 +2594,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-31 thorough hunt #352 (hit): proved ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default on master; seeded environment-catalog ghost-tenant, empty projectId validation, and checklist `isCompleted` omission candidates.
 
-2026-08-31 combined PR #1031–#1043: integrated ghost-workspace posture/coverage reads, product-feedback score omission, environment-catalog ghost tenant, empty projectId query, and checklist isCompleted omission fixes from hunts #392 and #393.
+2026-08-31 combined PR #1031–#1043: integrated ghost-workspace posture/coverage reads, product-feedback score omission, environment-catalog ghost tenant, empty projectId query, and checklist isCompleted omission fixes.
 
 2026-08-31 thorough hunt #354 (hit): proved ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default on master.
 
