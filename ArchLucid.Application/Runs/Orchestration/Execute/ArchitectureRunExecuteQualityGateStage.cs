@@ -1,49 +1,64 @@
-using System.Text.Json;
-
-using System.Diagnostics;
-
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.AiUsage;
-using ArchLucid.Application.Budgeting;
-using ArchLucid.Application.Common;
-using ArchLucid.Application.Decisions;
-using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs;
-using ArchLucid.Application.Runs.ExecuteOwnership;
-using ArchLucid.Application.Operations;
-using ArchLucid.Core.Budgeting;
-using ArchLucid.Core.Evidence;
-using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.AiUsage;
-using ArchLucid.Contracts.Common;
-using ArchLucid.Decisioning.Decisions;
-using ArchLucid.Contracts.Metadata;
-using ArchLucid.Contracts.Requests;
-using ArchLucid.Core;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Application.Runs.Orchestration;
+namespace ArchLucid.Application.Runs.Orchestration.Execute;
 
-/// <summary>Quality-gate auto-retry and reject marking for execute orchestration.</summary>
-public sealed partial class ArchitectureRunExecuteOrchestrator
+/// <inheritdoc cref="IArchitectureRunExecuteQualityGateStage" />
+public sealed class ArchitectureRunExecuteQualityGateStage(
+    IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
+    IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
+    IAgentExecutor agentExecutor,
+    IAgentResultPostExecutionEnricher agentResultPostExecutionEnricher,
+    IAgentResultRepository resultRepository,
+    IScopeContextProvider scopeContextProvider,
+    ArchitectureRunExecutePostExecuteHooks postExecuteHooks,
+    IArchitectureRunExecutePersistenceStage persistenceStage,
+    ILogger<ArchitectureRunExecuteQualityGateStage> logger) : IArchitectureRunExecuteQualityGateStage
 {
+    private readonly IOptions<AgentOutputQualityGateOptions> _agentOutputQualityGateOptions =
+        agentOutputQualityGateOptions ?? throw new ArgumentNullException(nameof(agentOutputQualityGateOptions));
 
-    private async Task<IReadOnlyList<AgentResult>> RunQualityGateTraceEvaluationLoopAsync(
+    private readonly IAgentOutputTraceEvaluationHook _outputTraceEvaluationHook =
+        outputTraceEvaluationHook ?? throw new ArgumentNullException(nameof(outputTraceEvaluationHook));
+
+    private readonly IAgentExecutor _agentExecutor =
+        agentExecutor ?? throw new ArgumentNullException(nameof(agentExecutor));
+
+    private readonly IAgentResultPostExecutionEnricher _agentResultPostExecutionEnricher =
+        agentResultPostExecutionEnricher ?? throw new ArgumentNullException(nameof(agentResultPostExecutionEnricher));
+
+    private readonly IAgentResultRepository _resultRepository =
+        resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ArchitectureRunExecutePostExecuteHooks _postExecuteHooks =
+        postExecuteHooks ?? throw new ArgumentNullException(nameof(postExecuteHooks));
+
+    private readonly IArchitectureRunExecutePersistenceStage _persistenceStage =
+        persistenceStage ?? throw new ArgumentNullException(nameof(persistenceStage));
+
+    private readonly ILogger<ArchitectureRunExecuteQualityGateStage> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<AgentResult>> RunQualityGateTraceEvaluationLoopAsync(
         string runId,
         string actor,
         ArchitectureRequest request,
@@ -61,7 +76,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
         {
             try
             {
-                await outputTraceEvaluationHook.AfterSuccessfulExecuteAsync(runId, cancellationToken);
+                await _outputTraceEvaluationHook.AfterSuccessfulExecuteAsync(runId, cancellationToken);
                 results = mutableResults;
                 break;
             }
@@ -75,9 +90,9 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
             {
                 qualityGateAutoRetryAttempt++;
 
-                if (logger.IsEnabled(LogLevel.Information))
+                if (_logger.IsEnabled(LogLevel.Information))
                 {
-                    logger.LogInformation(
+                    _logger.LogInformation(
                         "Quality gate rejected trace; auto-retrying agent {AgentLabel} for RunId={RunId} attempt {Attempt}/{MaxAttempts} TraceId={TraceId}",
                         ex.AgentLabel,
                         LogSanitizer.Sanitize(runId),
@@ -103,11 +118,19 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
             }
             catch (Exception ex)
             {
-                if (logger.IsEnabled(LogLevel.Warning))
-                    logger.LogWarning(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
                         LogSanitizer.Sanitize(runId));
+                }
 
-                logger.LogError(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), System.Diagnostics.Activity.Current?.Id ?? "unknown");
+                _logger.LogError(
+                    ex,
+                    "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged. CorrelationId={CorrelationId}",
+                    LogSanitizer.Sanitize(runId),
+                    System.Diagnostics.Activity.Current?.Id ?? "unknown");
                 results = mutableResults;
                 break;
             }
@@ -115,7 +138,6 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
 
         return results;
     }
-
 
     private async Task<List<AgentResult>> RetryQualityGateRejectedAgentAsync(
         string runId,
@@ -164,9 +186,9 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
             .EnrichAsync(runId, request, evidence, retryBatch, cancellationToken)
             .ConfigureAwait(false);
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunRecord? header = await TryLoadRunHeaderForStampingAsync(runId, scope, cancellationToken);
-        StampTaskExecutionModesOnResults([replacement], header);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await _persistenceStage.TryLoadRunHeaderForStampingAsync(runId, scope, cancellationToken);
+        _persistenceStage.StampTaskExecutionModesOnResults([replacement], header);
 
         await _resultRepository.ReplaceForRunTaskAsync(replacement, cancellationToken);
 
@@ -180,7 +202,6 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
 
         return updated;
     }
-
 
     private AgentTask BuildQualityGateRetryTask(AgentTask task, AgentType agentType)
     {

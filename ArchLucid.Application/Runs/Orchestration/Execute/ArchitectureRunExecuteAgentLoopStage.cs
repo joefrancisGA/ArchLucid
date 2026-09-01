@@ -1,46 +1,133 @@
-using System.Text.Json;
-
+using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Budgeting;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
-using ArchLucid.Application.Operations;
+using ArchLucid.Application.Governance;
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Application.Runs;
-using ArchLucid.Decisioning.Decisions;
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Evidence;
-using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Metadata;
-using ArchLucid.Contracts.Requests;
-using ArchLucid.Persistence.Models;
+using ArchLucid.Decisioning.Decisions;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Application.Runs.Orchestration;
+namespace ArchLucid.Application.Runs.Orchestration.Execute;
 
-/// <summary>Agent batch execution, budget reservation, post-batch enrichment, and completion promotion.</summary>
-public sealed partial class ArchitectureRunExecuteOrchestrator
+/// <inheritdoc cref="IArchitectureRunExecuteAgentLoopStage" />
+public sealed class ArchitectureRunExecuteAgentLoopStage(
+    IArchitectureRequestRepository requestRepository,
+    IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
+    IScopeContextProvider scopeContextProvider,
+    IAgentTaskRepository taskRepository,
+    IEvidenceBuilder evidenceBuilder,
+    IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
+    IAgentEvidenceUntrustedInputSanitizer agentEvidenceUntrustedInputSanitizer,
+    IAgentExecutor agentExecutor,
+    IAgentEvaluationService agentEvaluationService,
+    IAgentResultPostExecutionEnricher agentResultPostExecutionEnricher,
+    IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
+    IArchitectureRunExecutePreExecuteStage preExecuteStage,
+    IArchitectureRunExecutePersistenceStage persistenceStage,
+    IArchitectureRunExecuteQualityGateStage qualityGateStage,
+    IArchitectureRunExecuteFailureRecorder failureRecorder,
+    IRunScopedLlmBudgetReservationService runScopedLlmBudgetReservationService,
+    IRunEngineProvenanceCaptureService runEngineProvenanceCaptureService,
+    IExecuteTimeGovernanceScopeCaptureService executeTimeGovernanceScopeCaptureService,
+    TechnologyLedgerTopologyProposalSeeder technologyLedgerTopologyProposalSeeder,
+    IBaselineMutationAuditService baselineMutationAudit,
+    ILogger<ArchitectureRunExecuteAgentLoopStage> logger) : IArchitectureRunExecuteAgentLoopStage
 {
+    private readonly IArchitectureRequestRepository _requestRepository =
+        requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
 
-    private async Task<ExecuteRunResult> ExecuteRunAgentBatchAsync(
+    private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
+        requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAgentTaskRepository _taskRepository =
+        taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
+
+    private readonly IEvidenceBuilder _evidenceBuilder =
+        evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
+
+    private readonly IEvidencePackageInjectionMitigator _evidencePackageInjectionMitigator =
+        evidencePackageInjectionMitigator ?? throw new ArgumentNullException(nameof(evidencePackageInjectionMitigator));
+
+    private readonly IAgentEvidenceUntrustedInputSanitizer _agentEvidenceUntrustedInputSanitizer =
+        agentEvidenceUntrustedInputSanitizer ?? throw new ArgumentNullException(nameof(agentEvidenceUntrustedInputSanitizer));
+
+    private readonly IAgentExecutor _agentExecutor =
+        agentExecutor ?? throw new ArgumentNullException(nameof(agentExecutor));
+
+    private readonly IAgentEvaluationService _agentEvaluationService =
+        agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
+
+    private readonly IAgentResultPostExecutionEnricher _agentResultPostExecutionEnricher =
+        agentResultPostExecutionEnricher ?? throw new ArgumentNullException(nameof(agentResultPostExecutionEnricher));
+
+    private readonly IOptions<AgentOutputQualityGateOptions> _agentOutputQualityGateOptions =
+        agentOutputQualityGateOptions ?? throw new ArgumentNullException(nameof(agentOutputQualityGateOptions));
+
+    private readonly IArchitectureRunExecutePreExecuteStage _preExecuteStage =
+        preExecuteStage ?? throw new ArgumentNullException(nameof(preExecuteStage));
+
+    private readonly IArchitectureRunExecutePersistenceStage _persistenceStage =
+        persistenceStage ?? throw new ArgumentNullException(nameof(persistenceStage));
+
+    private readonly IArchitectureRunExecuteQualityGateStage _qualityGateStage =
+        qualityGateStage ?? throw new ArgumentNullException(nameof(qualityGateStage));
+
+    private readonly IArchitectureRunExecuteFailureRecorder _failureRecorder =
+        failureRecorder ?? throw new ArgumentNullException(nameof(failureRecorder));
+
+    private readonly IRunScopedLlmBudgetReservationService _runScopedLlmBudgetReservationService =
+        runScopedLlmBudgetReservationService ?? throw new ArgumentNullException(nameof(runScopedLlmBudgetReservationService));
+
+    private readonly IRunEngineProvenanceCaptureService _runEngineProvenanceCaptureService =
+        runEngineProvenanceCaptureService ?? throw new ArgumentNullException(nameof(runEngineProvenanceCaptureService));
+
+    private readonly IExecuteTimeGovernanceScopeCaptureService _executeTimeGovernanceScopeCaptureService =
+        executeTimeGovernanceScopeCaptureService ?? throw new ArgumentNullException(nameof(executeTimeGovernanceScopeCaptureService));
+
+    private readonly TechnologyLedgerTopologyProposalSeeder _technologyLedgerTopologyProposalSeeder =
+        technologyLedgerTopologyProposalSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerTopologyProposalSeeder));
+
+    private readonly IBaselineMutationAuditService _baselineMutationAudit =
+        baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+
+    private readonly ILogger<ArchitectureRunExecuteAgentLoopStage> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    /// <inheritdoc />
+    public async Task<ExecuteRunResult> ExecuteRunAgentBatchAsync(
         ArchitectureRun run,
         string runId,
         string actor,
         CancellationToken cancellationToken)
     {
-        ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
+        ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
-        RequestContentSafetyResult safety = await requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
+        RequestContentSafetyResult safety = await _requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
 
         if (!safety.IsAllowed)
             throw new RequestContentSafetyRejectedException(safety.Reasons);
@@ -48,11 +135,11 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
         using (PilotModeGovernanceScope.BeginFromPolicyReferences(request.PolicyReferences, request.CloudProvider))
         {
             ScopeContext executeScope = _scopeContextProvider.GetCurrentScope();
-            IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);
+            IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);
 
             if (tasks.Count == 0)
                 throw new InvalidOperationException($"No tasks found for run '{runId}'.");
-            AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
+            AgentEvidencePackage evidence = await _evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
             await _evidencePackageInjectionMitigator.RedactKnownInjectionPatternsAsync(evidence, cancellationToken);
 
@@ -60,12 +147,14 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
 
             string scheduledTaskIds = AgentExecutionStateTransitionTaskIds.Format(tasks.ToList());
 
-            if (TryParseRunGuid(runId, out Guid executeTransitionRunId))
-                logger.LogInformationAgentExecutionStateTransition(
+            if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid executeTransitionRunId))
+            {
+                _logger.LogInformationAgentExecutionStateTransition(
                     executeTransitionRunId,
                     "execute_enter",
                     "agent_batch_executing",
                     scheduledTaskIds);
+            }
 
             Guid tenantId = executeScope.TenantId;
             RunScopedLlmBudgetAdmitResult budgetAdmit =
@@ -75,13 +164,13 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
 
             try
             {
-                await ThrowIfCooperativeCancelRequestedAsync(runId, cancellationToken);
+                await _preExecuteStage.ThrowIfCooperativeCancelRequestedAsync(runId, cancellationToken);
 
                 try
                 {
                     using (AmbientAiUsageFeatureScope.Push(AiUsageFeature.ArchitectureGeneration))
                     {
-                        results = await agentExecutor.ExecuteAsync(runId, request, evidence, tasks, cancellationToken);
+                        results = await _agentExecutor.ExecuteAsync(runId, request, evidence, tasks, cancellationToken);
                     }
                 }
                 catch (AgentRunPartialBudgetException partial)
@@ -89,7 +178,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
                           partial.CompletedResults.Count > 0)
                 {
                     IReadOnlyList<AgentEvaluation> partialEvaluations =
-                        await agentEvaluationService.EvaluateAsync(
+                        await _agentEvaluationService.EvaluateAsync(
                             runId,
                             request,
                             evidence,
@@ -97,14 +186,22 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
                             partial.CompletedResults,
                             cancellationToken);
 
-                    await PersistPartialExecutePhaseAsync(evidence, partial.CompletedResults, partialEvaluations, cancellationToken);
+                    await _persistenceStage.PersistPartialExecutePhaseAsync(
+                        evidence,
+                        partial.CompletedResults,
+                        partialEvaluations,
+                        cancellationToken);
 
                     AgentExecutionFailureSummary partialFailure =
                         AgentExecutionFailureSummaryFactory.FromException(partial.BudgetCause);
 
-                    await TryMarkRunExecuteFailedAsync(runId, partialFailure, partial.CompletedResults, cancellationToken);
+                    await _failureRecorder.TryMarkRunExecuteFailedAsync(
+                        runId,
+                        partialFailure,
+                        partial.CompletedResults,
+                        cancellationToken);
 
-                    await baselineMutationAudit.RecordAsync(
+                    await _baselineMutationAudit.RecordAsync(
                         AuditEventTypes.Baseline.Architecture.RunFailed,
                         actor,
                         runId,
@@ -131,12 +228,14 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
                 throw;
             }
 
-            if (TryParseRunGuid(runId, out Guid afterBatchRunId))
-                logger.LogInformationAgentExecutionStateTransition(
+            if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid afterBatchRunId))
+            {
+                _logger.LogInformationAgentExecutionStateTransition(
                     afterBatchRunId,
                     "agent_batch_executing",
                     "agent_results_persisting",
                     scheduledTaskIds);
+            }
 
             await _agentResultPostExecutionEnricher
                 .EnrichAsync(runId, request, evidence, results, cancellationToken)
@@ -145,17 +244,19 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
             await TrySeedTechnologyLedgerFromTopologyAsync(runId, request, results, cancellationToken);
 
             IReadOnlyList<AgentEvaluation> evaluations =
-                await agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);
-            await PersistExecutePhaseAsync(evidence, results, evaluations, cancellationToken);
+                await _agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);
+            await _persistenceStage.PersistExecutePhaseAsync(evidence, results, evaluations, cancellationToken);
 
-            if (TryParseRunGuid(runId, out Guid afterPersistRunId))
-                logger.LogInformationAgentExecutionStateTransition(
+            if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid afterPersistRunId))
+            {
+                _logger.LogInformationAgentExecutionStateTransition(
                     afterPersistRunId,
                     "agent_results_persisting",
                     "execute_complete",
                     scheduledTaskIds);
+            }
 
-            results = await RunQualityGateTraceEvaluationLoopAsync(
+            results = await _qualityGateStage.RunQualityGateTraceEvaluationLoopAsync(
                 runId,
                 actor,
                 request,
@@ -166,18 +267,25 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
 
             await TryPersistEngineProvenanceAsync(runId, evidence, cancellationToken);
             await TryPersistGovernanceScopeAsync(runId, request, cancellationToken);
-            await TryApplyExecuteCompletionLegacyStatusAsync(runId, results, cancellationToken);
-            await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded, actor, runId, $"ResultCount={results.Count}",
+            await _preExecuteStage.TryApplyExecuteCompletionLegacyStatusAsync(runId, results, cancellationToken);
+            await _baselineMutationAudit.RecordAsync(
+                AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded,
+                actor,
+                runId,
+                $"ResultCount={results.Count}",
                 cancellationToken);
 
-            if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformation("Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}", LogSanitizer.Sanitize(runId),
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",
+                    LogSanitizer.Sanitize(runId),
                     results.Count);
+            }
 
             return new ExecuteRunResult { RunId = runId, Results = results.ToList() };
         }
     }
-
 
     private async Task TryPersistEngineProvenanceAsync(
         string runId,
@@ -192,16 +300,15 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            if (logger.IsEnabled(LogLevel.Warning))
+            if (_logger.IsEnabled(LogLevel.Warning))
             {
-                logger.LogWarning(
+                _logger.LogWarning(
                     ex,
                     "Engine provenance capture failed for RunId={RunId}; execute outcome unchanged.",
                     LogSanitizer.Sanitize(runId));
             }
         }
     }
-
 
     private async Task TryPersistGovernanceScopeAsync(
         string runId,
@@ -216,96 +323,15 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            if (logger.IsEnabled(LogLevel.Warning))
+            if (_logger.IsEnabled(LogLevel.Warning))
             {
-                logger.LogWarning(
+                _logger.LogWarning(
                     ex,
                     "Governance scope capture failed for RunId={RunId}; execute outcome unchanged.",
                     LogSanitizer.Sanitize(runId));
             }
         }
     }
-
-
-    /// <summary>
-    ///     ADR-0012: execute no longer wrote <c>LegacyRunStatus</c>; clients and UIs still expect
-    ///     <see cref = "ArchitectureRunStatus.ReadyForCommit"/>
-    ///     once all required agent outputs exist (matches commit prerequisites and orchestrator contract).
-    /// </summary>
-    private async Task TryApplyExecuteCompletionLegacyStatusAsync(
-        string runId,
-        IReadOnlyList<AgentResult> results,
-        CancellationToken cancellationToken)
-    {
-        if (!TryParseRunGuid(runId, out Guid runGuid))
-            return;
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunRecord? header = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        if (header is null)
-        {
-            if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning("Execute: cannot update run {RunId} status — dbo.Runs header missing.", LogSanitizer.Sanitize(runId));
-            return;
-        }
-
-        string previousLegacyRunStatus = header.LegacyRunStatus ?? "";
-
-        if (string.Equals(previousLegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
-            return;
-
-        if (OperationRunCancellationMarker.IsAlreadyCanceled(header))
-            return;
-
-        if (_operationCancellationRegistry.IsCancelRequested(scope, OperationIdCodec.ForRun(runGuid)))
-            return;
-
-        ArchitectureRunStatus derived = _runStateTransitionService.DeriveStatusAfterExecuteCompletion(results);
-
-        if (derived is ArchitectureRunStatus.ReadyForCommit
-            && !_runStateTransitionService.ShouldPromoteLegacyStatusToReadyForCommit(previousLegacyRunStatus))
-            return;
-
-        header.LegacyRunStatus = derived.ToString();
-
-        // TB-310: request-time authority pipeline may have sealed anchors; StructuralExecutionMode is immutable then.
-        if (header.GoldenManifestId is null)
-        {
-            IReadOnlyList<AgentResult> persistedResults =
-                await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
-
-            StructuralExecutionMode? rollup =
-                RunStructuralExecutionModeRollup.TryResolveFromStampedResults(persistedResults);
-
-            if (rollup is not null)
-            {
-                header.StructuralExecutionMode = rollup.Value;
-            }
-            else if (derived is ArchitectureRunStatus.ReadyForCommit)
-            {
-                header.StructuralExecutionMode = StructuralExecutionModeResolver.FromAgentExecutionOptionsAndFallback(
-                    EffectiveAgentExecutionOptions(),
-                    header.RealModeFellBackToSimulator);
-            }
-        }
-
-        await runRepository.UpdateAsync(header, cancellationToken);
-
-        if (derived is not ArchitectureRunStatus.ReadyForCommit)
-            return;
-
-        string actor = actorContext.GetActor();
-        await _postExecuteHooks.LogLegacyReadyForCommitPromotedAsync(
-            runId,
-            actor,
-            runGuid,
-            scope,
-            previousLegacyRunStatus,
-            header.LegacyRunStatus,
-            cancellationToken);
-    }
-
 
     private async Task TrySeedTechnologyLedgerFromTopologyAsync(
         string runId,
@@ -326,16 +352,15 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            if (logger.IsEnabled(LogLevel.Warning))
+            if (_logger.IsEnabled(LogLevel.Warning))
             {
-                logger.LogWarning(
+                _logger.LogWarning(
                     ex,
                     "Technology Ledger topology proposal seeding failed for RunId={RunId}; execute outcome unchanged.",
                     LogSanitizer.Sanitize(runId));
             }
         }
     }
-
 
     private async Task<RunScopedLlmBudgetAdmitResult> AdmitRunScopedLlmBudgetOrThrowAsync(
         Guid tenantId,
@@ -370,7 +395,6 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
                     $"Run '{runId}' cannot start: run-scoped LLM budget admission was rejected ({admit.RejectionReason})."),
         };
     }
-
 
     private async Task FinalizeRunScopedLlmBudgetReservationAsync(
         RunScopedLlmBudgetAdmitResult admit,
