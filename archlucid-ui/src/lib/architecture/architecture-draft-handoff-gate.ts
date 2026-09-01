@@ -10,7 +10,7 @@ export const ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL =
   "Edit draft anyway — changes will not update the review";
 
 export function architectureDraftSpawnedRunId(
-  draft: { readonly spawnedRunId?: string | null } | null | undefined,
+  draft: Pick<DraftRequestResponse, "spawnedRunId"> | null | undefined,
 ): string | null {
   const spawnedRunId = draft?.spawnedRunId?.trim() ?? "";
 

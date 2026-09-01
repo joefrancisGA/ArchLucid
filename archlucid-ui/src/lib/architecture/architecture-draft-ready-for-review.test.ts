@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   countArchitectureDraftsReadyForReview,
+  filterArchitectureDraftsEligibleToStartReview,
   isArchitectureDraftEligibleToStartReview,
 } from "@/lib/architecture/architecture-draft-ready-for-review";
 
@@ -45,5 +46,18 @@ describe("architecture-draft-ready-for-review", () => {
         { linkedReviewId: null, customerStatus: "archived" },
       ]),
     ).toBe(2);
+  });
+
+  it("filters to the same eligible drafts used for counts", () => {
+    const entries = [
+      { linkedReviewId: null, customerStatus: "draft" as const, architectureId: "a1" },
+      { linkedReviewId: null, customerStatus: "archived" as const, architectureId: "a2" },
+      { linkedReviewId: "r1", customerStatus: "ready-for-review" as const, architectureId: "a3" },
+    ];
+
+    expect(filterArchitectureDraftsEligibleToStartReview(entries)).toEqual([entries[0]]);
+    expect(filterArchitectureDraftsEligibleToStartReview(entries).length).toBe(
+      countArchitectureDraftsReadyForReview(entries),
+    );
   });
 });

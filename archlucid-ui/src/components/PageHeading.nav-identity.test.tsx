@@ -125,4 +125,17 @@ describe("PageHeading nav identity", () => {
     expect(resolveNavIconForHref("/help/cloud-connections")).toBeUndefined();
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
   });
+
+  it("centers the nav icon on the title row", () => {
+    render(<PageHeading navHref="/" title="Home" />);
+
+    const icon = screen.getByTestId("page-heading-icon");
+    const title = screen.getByRole("heading", { name: "Home" });
+    const titleRow = title.parentElement;
+
+    expect(titleRow).not.toBeNull();
+    expect(titleRow?.className).toContain("items-center");
+    expect(icon.parentElement?.className).toContain("h-7");
+    expect(icon.parentElement?.className).toContain("items-center");
+  });
 });

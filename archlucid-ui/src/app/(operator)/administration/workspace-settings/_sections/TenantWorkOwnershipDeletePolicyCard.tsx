@@ -66,7 +66,6 @@ export function TenantWorkOwnershipDeletePolicyCard(): React.JSX.Element {
   if (policyQuery.isLoading || draft === null || policyQuery.data === undefined) {
     return <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Loading work ownership delete policy…</p>;
   }
-
   const savedPolicy = policyQuery.data;
   const dirty = draft.allowCreatorDeleteOwnedWork !== savedPolicy.allowCreatorDeleteOwnedWork;
 

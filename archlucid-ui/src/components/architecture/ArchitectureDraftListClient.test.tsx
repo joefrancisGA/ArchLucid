@@ -46,6 +46,32 @@ describe("ArchitectureDraftListClient", () => {
     window.localStorage.removeItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY);
   });
 
+  it("counts abandoned drafts under Archived only, not No review yet", () => {
+    useArchitectureDraftRegistryEntries.mockReturnValue([
+      entry({ architectureId: "a1", customerStatus: "archived", linkedReviewId: null, displayName: "Deleted A" }),
+      entry({ architectureId: "a2", customerStatus: "archived", linkedReviewId: null, displayName: "Deleted B" }),
+    ]);
+
+    render(<ArchitectureDraftListClient />);
+
+    expect(screen.getByRole("button", { name: "Filter architectures: All (0)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter architectures: No review yet (0)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter architectures: Archived (2)" })).toBeInTheDocument();
+    expect(screen.queryByText("No drafts match your filters")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-list-table")).not.toBeInTheDocument();
+  });
+
+  it("uses compact inventory toolbar sort label scale", () => {
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
+
+    render(<ArchitectureDraftListClient />);
+
+    const sortLabel = screen.getByText("Sort by");
+
+    expect(sortLabel.className).toContain("text-[11px]");
+    expect(screen.getByTestId("architecture-draft-list-sort").className).toContain("text-[11px]");
+  });
+
   it("shows filter chip counts from the full registry", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
       entry({ architectureId: "a1", customerStatus: "draft", linkedReviewId: null }),
@@ -215,5 +241,16 @@ describe("ArchitectureDraftListClient", () => {
       "href",
       "/architecture/architectures/a1",
     );
+  });
+
+  it("hides continue last draft when the remembered draft is archived", () => {
+    window.sessionStorage.setItem("archlucid.architecture-creation.draft-id", "a1");
+    useArchitectureDraftRegistryEntries.mockReturnValue([
+      entry({ architectureId: "a1", customerStatus: "archived", displayName: "Archived A" }),
+    ]);
+
+    render(<ArchitectureDraftListClient />);
+
+    expect(screen.queryByTestId("architecture-draft-continue-last-row")).not.toBeInTheDocument();
   });
 });
