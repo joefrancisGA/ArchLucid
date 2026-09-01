@@ -184,42 +184,45 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
         Mock<IActorContext> actorContext = new();
         actorContext.Setup(a => a.GetActor()).Returns("exec-mode-actor");
 
-        return new ArchitectureRunExecuteOrchestrator(
+        return ArchitectureRunExecuteOrchestratorTestFactory.Create(
             runRepo.Object,
             scopeProvider.Object,
             requestRepo.Object,
             taskRepo.Object,
             executor,
-            evaluationService.Object,
-            resultRepo.Object,
-            Mock.Of<IAgentEvaluationRepository>(),
-            Mock.Of<IAgentEvidencePackageRepository>(),
-            new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
-            actorContext.Object,
-            Mock.Of<IBaselineMutationAuditService>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+            new ArchitectureRunExecuteOrchestratorCreateArgs
+            {
+                AgentEvaluationService = evaluationService.Object,
+                AgentResultRepository = resultRepo.Object,
+                AgentEvaluationRepository = Mock.Of<IAgentEvaluationRepository>(),
+                AgentEvidencePackageRepository = Mock.Of<IAgentEvidencePackageRepository>(),
+                EvidenceBuilder = new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
+                ActorContext = actorContext.Object,
+                BaselineMutationAuditService = Mock.Of<IBaselineMutationAuditService>(),
+                PostExecuteHooks = ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
                 scopeContextProvider: scopeProvider.Object,
                 runRepository: runRepo.Object),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IAgentOutputTraceEvaluationHook>(),
-            new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
-            new NoOpEvidencePackageInjectionMitigator(),
-            new NoOpAgentEvidenceUntrustedInputSanitizer(),
-            contentSafety.Object,
-            Options.Create(new AgentExecutionOptions { Mode = executionMode }),
-            new FixedEffectiveAgentExecutionModeAccessor(executionMode),
-            Options.Create(new AgentOutputQualityGateOptions()),
-            new RunStateTransitionService(),
-            Mock.Of<IRunEngineProvenanceCaptureService>(),
-            Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
-            new OperationCancellationRegistry(),
-            new OperationRunCancellationMarker(runRepo.Object),
-            new DisabledRunExecuteOwnershipLeaseService(),
-            Mock.Of<IRunStageOutcomesRepository>(),
-            new PermissiveAgentExecutionReadinessGuard(),
-            NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+                UnitOfWorkFactory = ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+                OutputTraceEvaluationHook = Mock.Of<IAgentOutputTraceEvaluationHook>(),
+                AgentResultPostExecutionEnricher = new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
+                EvidencePackageInjectionMitigator = new NoOpEvidencePackageInjectionMitigator(),
+                AgentEvidenceUntrustedInputSanitizer = new NoOpAgentEvidenceUntrustedInputSanitizer(),
+                RequestContentSafetyPrecheck = contentSafety.Object,
+                AgentExecutionOptions = Options.Create(new AgentExecutionOptions { Mode = executionMode }),
+                EffectiveAgentExecutionModeAccessor = new FixedEffectiveAgentExecutionModeAccessor(executionMode),
+                AgentOutputQualityGateOptions = Options.Create(new AgentOutputQualityGateOptions()),
+                RunStateTransitionService = new RunStateTransitionService(),
+                RunEngineProvenanceCaptureService = Mock.Of<IRunEngineProvenanceCaptureService>(),
+                ExecuteTimeGovernanceScopeCaptureService = Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
+                TopologyProposalSeeder = ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
+                DemoExpensiveActionGate = ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
+                RunScopedLlmBudgetReservationService = ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
+                OperationCancellationRegistry = new OperationCancellationRegistry(),
+                RunCancellationMarker = new OperationRunCancellationMarker(runRepo.Object),
+                RunExecuteOwnershipLeaseService = new DisabledRunExecuteOwnershipLeaseService(),
+                RunStageOutcomesRepository = Mock.Of<IRunStageOutcomesRepository>(),
+                AgentExecutionReadinessGuard = new PermissiveAgentExecutionReadinessGuard(),
+                Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance
+            });;
     }
 }

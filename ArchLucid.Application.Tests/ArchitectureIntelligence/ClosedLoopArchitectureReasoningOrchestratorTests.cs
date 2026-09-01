@@ -1,4 +1,5 @@
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.ArchitectureIntelligence.Stages;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Scoping;
 using FluentAssertions;
@@ -21,11 +22,11 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
             .Select(parameter => parameter.ParameterType)
             .ToArray();
 
-        parameterTypes.Should().Contain(typeof(Stages.IClosedLoopExtractionStage));
-        parameterTypes.Should().Contain(typeof(Stages.IClosedLoopInterviewStage));
-        parameterTypes.Should().Contain(typeof(Stages.IClosedLoopReviewStage));
-        parameterTypes.Should().Contain(typeof(Stages.IClosedLoopRecommendationStage));
-        parameterTypes.Should().Contain(typeof(Stages.IClosedLoopPublishStage));
+        parameterTypes.Should().Contain(typeof(IClosedLoopExtractionStage));
+        parameterTypes.Should().Contain(typeof(IClosedLoopInterviewStage));
+        parameterTypes.Should().Contain(typeof(IClosedLoopReviewStage));
+        parameterTypes.Should().Contain(typeof(IClosedLoopRecommendationStage));
+        parameterTypes.Should().Contain(typeof(IClosedLoopPublishStage));
         parameterTypes.Should().NotContain(typeof(IAsyncSpecialistReviewService));
         parameterTypes.Should().NotContain(typeof(ClosedLoopArchitectureReasoningPostStageHooks));
     }

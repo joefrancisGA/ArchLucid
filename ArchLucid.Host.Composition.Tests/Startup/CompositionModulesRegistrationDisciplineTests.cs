@@ -1,7 +1,12 @@
 using System.Reflection;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application;
+using ArchLucid.Application.AwsExtractor;
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Drafts;
+using ArchLucid.Application.GcpExtractor;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs.Orchestration;
