@@ -114,7 +114,7 @@ export function ReviewsNewPathSwitcher() {
   };
 
   return (
-    <div className="space-y-5" data-testid="reviews-new-path-switcher">
+    <div className="space-y-4" data-testid="reviews-new-path-switcher">
       <Suspense fallback={null}>
         <ReviewsNewDeferredIntentCallout />
       </Suspense>
@@ -150,7 +150,7 @@ export function ReviewsNewPathSwitcher() {
               >
                 <InlineGuidanceText text={pathHints[activePath]} />
               </p>
-              <div className="pt-2" data-testid="reviews-new-path-panel">
+              <div data-testid="reviews-new-path-panel">
                 <ReviewsNewActiveWizard activePath={activePath} />
               </div>
               {activePath === "quick-review" ? (

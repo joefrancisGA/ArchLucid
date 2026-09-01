@@ -52,6 +52,8 @@ import { cn } from "@/lib/utils";
 export type ArchitectureScopeUnderstandingCheckPanelProps = {
   readonly input: DeriveScopeUnderstandingBulletsInput;
   readonly disabled?: boolean;
+  /** When true, omit the outer callout shell — use inside an existing card. */
+  readonly embedded?: boolean;
   /** Names the field that owns the architecture context text on this surface, for the read-only row hint. */
   readonly contextSourceLabel?: string;
   /** What confirmation unblocks on this surface — starting the review, or continuing the wizard. */
@@ -281,10 +283,19 @@ export function ArchitectureScopeUnderstandingCheckPanel(
 
   return (
     <section
-      className={cn(DESIGN_TOKENS.callout.neutral, OPERATOR_LAYOUT.cardPadding, OPERATOR_LAYOUT.sectionStack)}
+      className={cn(
+        props.embedded === true
+          ? OPERATOR_LAYOUT.sectionStack
+          : cn(DESIGN_TOKENS.callout.neutral, OPERATOR_LAYOUT.cardPadding, OPERATOR_LAYOUT.sectionStack),
+      )}
       data-testid="architecture-scope-understanding-check"
-      aria-labelledby="architecture-scope-understanding-brief-label architecture-scope-understanding-heading"
+      aria-labelledby={
+        props.embedded === true
+          ? "architecture-scope-understanding-heading"
+          : "architecture-scope-understanding-brief-label architecture-scope-understanding-heading"
+      }
     >
+      {props.embedded !== true ? (
       <p
         id="architecture-scope-understanding-brief-label"
         className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}
@@ -292,6 +303,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       >
         {SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL}
       </p>
+      ) : null}
       <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h2
           id="architecture-scope-understanding-heading"
