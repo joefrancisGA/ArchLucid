@@ -76471,18 +76471,8 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/request/idempotency/{idempotencyKey}": {
+    "/v1/architecture/request/idempotency": {
       "get": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "idempotencyKey",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {

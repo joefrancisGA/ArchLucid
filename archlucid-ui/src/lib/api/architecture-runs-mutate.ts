@@ -118,7 +118,8 @@ async function tryRecoverCreateRunFromIdempotencyKey(
 ): Promise<CreateArchitectureRunResponsePayload | null> {
   try {
     return await apiGet<CreateArchitectureRunResponsePayload>(
-      `/v1/architecture/request/idempotency/${encodeURIComponent(idempotencyKey)}`,
+      "/v1/architecture/request/idempotency",
+      { scopeHeaders: { "Idempotency-Key": idempotencyKey } },
     );
   } catch (error: unknown) {
     if (isApiRequestError(error) && error.httpStatus === 404) {

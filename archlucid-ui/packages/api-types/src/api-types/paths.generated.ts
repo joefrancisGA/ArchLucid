@@ -35677,7 +35677,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/request/idempotency/{idempotencyKey}": {
+    "/v1/architecture/request/idempotency": {
         parameters: {
             query?: never;
             header?: never;
@@ -35688,9 +35688,7 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path: {
-                    idempotencyKey: string;
-                };
+                path?: never;
                 cookie?: never;
             };
             requestBody?: never;
@@ -70295,11 +70293,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
+            requestBody: {
                 content: {
-                    "application/*+json": null | components["schemas"]["CoveragePreviewRequest"];
-                    "application/json": null | components["schemas"]["CoveragePreviewRequest"];
-                    "text/json": null | components["schemas"]["CoveragePreviewRequest"];
+                    "application/*+json": components["schemas"]["CoveragePreviewRequest"];
+                    "application/json": components["schemas"]["CoveragePreviewRequest"];
+                    "text/json": components["schemas"]["CoveragePreviewRequest"];
                 };
             };
             responses: {

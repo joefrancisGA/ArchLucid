@@ -35677,7 +35677,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/request/idempotency/{idempotencyKey}": {
+    "/v1/architecture/request/idempotency": {
         parameters: {
             query?: never;
             header?: never;
@@ -35688,9 +35688,7 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path: {
-                    idempotencyKey: string;
-                };
+                path?: never;
                 cookie?: never;
             };
             requestBody?: never;

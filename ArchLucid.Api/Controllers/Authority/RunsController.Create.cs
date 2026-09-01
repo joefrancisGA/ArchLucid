@@ -115,15 +115,20 @@ public sealed partial class RunsController
         }
     }
 
-    [HttpGet("request/idempotency/{idempotencyKey}")]
+    /// <summary>Recovers a prior create-run response via the <c>Idempotency-Key</c> header (header keeps the key out of path access logs).</summary>
+    [HttpGet("request/idempotency")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> LookupCreateRunByIdempotencyKey(
-        string idempotencyKey,
         CancellationToken cancellationToken)
     {
-        IdempotencyKeyValidationResult validation = runLifecycleCommandService.ValidateIdempotencyKey(idempotencyKey);
+        if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues rawKeyHeader) ||
+            string.IsNullOrWhiteSpace(rawKeyHeader.ToString()))
+            return this.BadRequestProblem("Idempotency-Key header is required.", ProblemTypes.ValidationFailed);
+
+        IdempotencyKeyValidationResult validation =
+            runLifecycleCommandService.ValidateIdempotencyKey(rawKeyHeader.ToString());
 
         if (!validation.IsValid || string.IsNullOrWhiteSpace(validation.Key))
             return this.BadRequestProblem(validation.ErrorMessage ?? "Idempotency-Key is required.", ProblemTypes.ValidationFailed);
