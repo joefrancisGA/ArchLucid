@@ -205,7 +205,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
                   committedOnly
                   preferAutoPick={false}
                   autoSelectSyntheticSample={false}
-                  label="architecture package"
+                  label="Architecture package"
                   fieldId="policy-impact-preview-run-picker"
                   hideFieldHelper
                 />
