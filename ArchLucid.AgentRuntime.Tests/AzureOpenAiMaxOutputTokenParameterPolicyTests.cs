@@ -7,6 +7,8 @@ using FluentAssertions;
 
 using Moq;
 
+using OpenAI.Chat;
+
 using System.ClientModel.Primitives;
 
 namespace ArchLucid.AgentRuntime.Tests;
@@ -15,6 +17,20 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class AzureOpenAiMaxOutputTokenParameterPolicyTests
 {
+    [Fact]
+    public void Apply_on_fresh_chat_completion_options_does_not_throw()
+    {
+        ChatCompletionOptions options = new()
+        {
+            MaxOutputTokenCount = 16,
+            ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat(),
+        };
+
+        Action act = () => AzureOpenAiMaxOutputTokenParameterPolicy.Apply(options, useMaxCompletionTokensProperty: true);
+
+        act.Should().NotThrow();
+    }
+
     [Fact]
     public void TryGetAlternateSerialization_when_max_tokens_unsupported_switches_to_max_completion_tokens()
     {
@@ -43,6 +59,18 @@ public sealed class AzureOpenAiMaxOutputTokenParameterPolicyTests
 
         retry.Should().BeTrue();
         alternateUsesMaxCompletionTokensProperty.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Apply_does_not_throw_when_options_created_via_CreateOptions()
+    {
+        ChatCompletionOptions options = AzureOpenAiMaxOutputTokenParameterPolicy.CreateOptions();
+
+        Action act = () => AzureOpenAiMaxOutputTokenParameterPolicy.Apply(
+            options,
+            AzureOpenAiMaxOutputTokenParameterPolicy.DefaultUsesMaxCompletionTokensProperty);
+
+        act.Should().NotThrow();
     }
 
     [Fact]

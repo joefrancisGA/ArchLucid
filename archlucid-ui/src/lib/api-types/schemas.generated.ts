@@ -6312,7 +6312,7 @@ export interface components {
             /** Format: uuid */
             runId?: null | string;
             /** Format: int16 */
-            score: null | number | string;
+            score: number | string;
         };
         ProductLearningArtifactOutcomeTrendsResponse: {
             /** Format: date-time */

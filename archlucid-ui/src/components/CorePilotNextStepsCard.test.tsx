@@ -15,6 +15,7 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
 
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
@@ -272,7 +273,7 @@ describe("CorePilotNextStepsCard", () => {
       });
 
       expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 4 of 4");
-      expect(screen.getByRole("link", { name: /workspace health \(sponsor view\)/i })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK.label })).toHaveAttribute(
         "href",
         GOVERNANCE_WORKSPACE_HEALTH_HREF,
       );

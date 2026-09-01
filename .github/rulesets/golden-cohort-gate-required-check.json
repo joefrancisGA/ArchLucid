@@ -25,6 +25,9 @@
           },
           {
             "context": "Operator UI: typecheck (blocking)"
+          },
+          {
+            "context": "CI: beta-readiness wiring guards"
           }
         ]
       }
