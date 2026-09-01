@@ -129,6 +129,10 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinator(
             new AuditEvent
             {
                 EventType = AuditEventTypes.Run.IncrementalReReviewCompleted,
+                ActorUserId = "system",
+                ActorUserName = "system",
+                ExplicitActor = true,
+                OccurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
