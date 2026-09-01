@@ -8311,6 +8311,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "isCompleted"
+        ],
         "type": "object"
       },
       "CorePilotChecklistStepResponse": {

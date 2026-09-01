@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { X } from "lucide-react";
 
+type BulkEvidenceFileListProps = {
   readonly files: File[];
   readonly uploading: boolean;
   readonly onRemoveFile: (index: number) => void;
