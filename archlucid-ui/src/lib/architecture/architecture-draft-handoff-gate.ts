@@ -9,17 +9,12 @@ export const ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD =
 export const ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL =
   "Edit draft anyway — changes will not update the review";
 
-<<<<<<< HEAD
-export function architectureDraftSpawnedRunId(
-  draft: Pick<DraftRequestResponse, "spawnedRunId"> | null | undefined,
-=======
 type ArchitectureDraftSpawnedRunProbe = {
   readonly spawnedRunId?: string | null;
 };
 
 export function architectureDraftSpawnedRunId(
   draft: ArchitectureDraftSpawnedRunProbe | null | undefined,
->>>>>>> 0eb754082d (Fix CI failures: audit matrix duplicate, UI typecheck, OpenAPI snapshot)
 ): string | null {
   const spawnedRunId = draft?.spawnedRunId?.trim() ?? "";
 
