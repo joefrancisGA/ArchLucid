@@ -54,6 +54,13 @@ public sealed partial class SqlTenantSqlCatalogProvisioner
 
             _tenantDatabaseResolver.InvalidateCachedTenantConnectionString(tenantId);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            if (claimedStandby is not null)
+                await _warmStandbyRepository.ReleaseClaimAsync(claimedStandby.StandbyId, CancellationToken.None);
+
+            throw;
+        }
         catch (Exception ex)
         {
             if (_logger.IsEnabled(LogLevel.Error))
