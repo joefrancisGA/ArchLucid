@@ -21,16 +21,16 @@ public sealed partial class DraftRequestsController
     [ProducesResponseType(typeof(PagedResponse<DraftRequestSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ListDrafts(
-        [FromQuery] bool mine = true,
+        [FromQuery] bool? mine = null,
         [FromQuery] string? status = null,
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken cancellationToken = default)
     {
-        if (!mine)
+        if (mine != true)
         {
             return this.BadRequestProblem(
-                "Only mine=true is supported for draft inventory in v1.",
+                "Query param mine=true is required for draft inventory in v1.",
                 ProblemTypes.ValidationFailed);
         }
 
