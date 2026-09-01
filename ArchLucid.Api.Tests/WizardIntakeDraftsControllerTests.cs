@@ -28,8 +28,24 @@ public sealed class WizardIntakeDraftsControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
+        Mock<ArchLucid.Core.Tenancy.ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Core.Tenancy.TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new ArchLucid.Core.Tenancy.TenantWorkspaceListItem
+                {
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
         return new WizardIntakeDraftsController(
             scopeProvider.Object,
+            tenants.Object,
             (service ?? new Mock<IWizardIntakeDraftService>()).Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
