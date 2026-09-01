@@ -102,10 +102,6 @@ public static partial class ArchLucidInstrumentation
 
     private static long _llmCompletionCachePoisonBustsAggregate;
 
-    private static long _llmProviderPromptTokensAggregate;
-
-    private static long _llmProviderCachedPromptTokensAggregate;
-
     private static long _hotPathReadCacheHitsAggregate;
 
     private static long _hotPathReadCacheMissesAggregate;
@@ -161,8 +157,8 @@ public static partial class ArchLucidInstrumentation
             "archlucid_llm_prompt_cache_hit_ratio",
             () =>
             {
-                long promptTokens = Interlocked.Read(ref _llmProviderPromptTokensAggregate);
-                long cachedTokens = Interlocked.Read(ref _llmProviderCachedPromptTokensAggregate);
+                long promptTokens = ArchLucidLlmMeters.ReadProviderPromptTokensAggregate();
+                long cachedTokens = ArchLucidLlmMeters.ReadProviderCachedPromptTokensAggregate();
 
                 double ratio = promptTokens == 0 ? 0 : cachedTokens / (double)promptTokens;
 
@@ -173,11 +169,8 @@ public static partial class ArchLucidInstrumentation
     }
 
     /// <summary>Resets provider prompt-cache aggregates for unit tests only.</summary>
-    internal static void TestingResetProviderPromptCacheAggregates()
-    {
-        Interlocked.Exchange(ref _llmProviderPromptTokensAggregate, 0);
-        Interlocked.Exchange(ref _llmProviderCachedPromptTokensAggregate, 0);
-    }
+    internal static void TestingResetProviderPromptCacheAggregates() =>
+        ArchLucidLlmMeters.TestingResetProviderPromptCacheAggregates();
 
     /// <summary>Records one LLM completion response cache hit (label <c>agent_type</c>).</summary>
     public static void RecordLlmCompletionCacheHit(string agentType)
