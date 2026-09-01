@@ -1,5 +1,5 @@
 /*
-  R337: Rollback 337_Runs_CreatedByUserId.sql —
+  R338: Rollback 338_Runs_CreatedByUserId_Repair.sql —
   drop CreatedByUserId from the physical run/review table
   (dbo.Reviews after ADR 0064, else dbo.Runs).
 */

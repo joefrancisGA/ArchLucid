@@ -160,6 +160,9 @@ public sealed partial class GovernanceStickinessFacade
             return new RecurrenceScheduleUpdateResult(RecurrenceScheduleUpdateOutcome.NotFound, null);
         }
 
+        bool originalIsEnabled = existing.IsEnabled;
+        string originalCron = existing.CronExpression;
+
         if (request.IsEnabled.HasValue)
             existing.IsEnabled = request.IsEnabled.Value;
 
@@ -178,14 +181,20 @@ public sealed partial class GovernanceStickinessFacade
             existing.CronExpression = cron;
         }
 
-        DateTime updateNow = TimeProvider.System.GetUtcNow().UtcDateTime;
-        DateTime? nextRunUtc =
-            _recurrenceNextRunCalculator.ComputeNextRunUtc(cron, updateNow, existing.IsEnabled);
+        bool scheduleTimingChanged = (request.IsEnabled.HasValue && request.IsEnabled.Value != originalIsEnabled)
+            || (!string.IsNullOrWhiteSpace(request.CronExpression) && request.CronExpression.Trim() != originalCron);
 
-        if (existing.IsEnabled && nextRunUtc is null)
-            return new RecurrenceScheduleUpdateResult(RecurrenceScheduleUpdateOutcome.InvalidCron, null);
+        if (scheduleTimingChanged)
+        {
+            DateTime updateNow = TimeProvider.System.GetUtcNow().UtcDateTime;
+            DateTime? nextRunUtc =
+                _recurrenceNextRunCalculator.ComputeNextRunUtc(cron, updateNow, existing.IsEnabled);
 
-        existing.NextRunUtc = nextRunUtc;
+            if (existing.IsEnabled && nextRunUtc is null)
+                return new RecurrenceScheduleUpdateResult(RecurrenceScheduleUpdateOutcome.InvalidCron, null);
+
+            existing.NextRunUtc = nextRunUtc;
+        }
 
         await _recurrenceScheduleRepository.UpdateAsync(existing, ct);
 
