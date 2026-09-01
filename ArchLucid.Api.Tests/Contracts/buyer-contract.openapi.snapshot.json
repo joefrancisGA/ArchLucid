@@ -21680,11 +21680,15 @@
             "minimum": -1,
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
+              "null",
               "integer",
               "string"
             ]
           }
         },
+        "required": [
+          "score"
+        ],
         "type": "object"
       },
       "ProductLearningArtifactOutcomeTrendsResponse": {

@@ -74,6 +74,51 @@ public sealed class GovernanceStickinessFacadeTests
     }
 
     [Fact]
+    public async Task UpdateRecurrenceScheduleAsync_preserves_next_run_when_request_has_no_schedule_changes()
+    {
+        Guid scheduleId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        DateTime originalNextRun = new(2026, 9, 1, 8, 0, 0, DateTimeKind.Utc);
+
+        ArchitectureReviewRecurrenceSchedule existing = new()
+        {
+            ScheduleId = scheduleId,
+            TenantId = CallerScope.TenantId,
+            WorkspaceId = CallerScope.WorkspaceId,
+            ProjectId = CallerScope.ProjectId,
+            CronExpression = "0 8 * * 1",
+            IsEnabled = true,
+            NextRunUtc = originalNextRun,
+        };
+
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> schedules = new();
+        schedules
+            .Setup(r => r.GetByIdAsync(scheduleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        ArchitectureReviewRecurrenceSchedule? updated = null;
+        schedules
+            .Setup(r => r.UpdateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()))
+            .Callback<ArchitectureReviewRecurrenceSchedule, CancellationToken>((schedule, _) => updated = schedule)
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator> calculator = new(MockBehavior.Strict);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            recurrenceSchedules: schedules.Object,
+            recurrenceCalculator: calculator.Object);
+
+        RecurrenceScheduleUpdateResult result = await sut.UpdateRecurrenceScheduleAsync(
+            scheduleId,
+            new UpdateArchitectureReviewRecurrenceScheduleRequest(),
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(RecurrenceScheduleUpdateOutcome.Updated);
+        updated.Should().NotBeNull();
+        updated!.NextRunUtc.Should().Be(originalNextRun);
+        calculator.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public void PreviewRecurrenceScheduleRuns_returns_invalid_for_unsupported_cron()
     {
         Mock<IArchitectureReviewRecurrenceNextRunCalculator> calculator = new();

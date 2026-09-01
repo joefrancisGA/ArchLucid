@@ -1,9 +1,17 @@
 /*
   338 — Repair CreatedByUserId on the physical run/review table after ADR 0064.
 
-  Migration 337 guarded ALTER TABLE with `IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL`.
-  After migration 295, dbo.Runs is a SYNONYM, so 337 was a no-op on post-295 catalogs while
-  DbUp journaled it. This forward script repairs those catalogs.
+  Why this migration exists:
+    Migration 337 guarded ALTER TABLE with `IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL`.
+    After migration 295, dbo.Runs is a SYNONYM (type SN, never U), so 337 was a no-op on
+    post-295 catalogs while DbUp still journaled it. Runtime SELECT of CreatedByUserId then
+    fails with "Invalid column name 'CreatedByUserId'" (SQL error 207). Data-consistency
+    reconciliation records that error, and GET /health/ready returns 503.
+
+  DbUp never re-runs a journaled script, so 337 cannot repair those catalogs — this forward
+  script does.
+
+  Resolves the physical table (post-295 dbo.Reviews first, pre-295 dbo.Runs fallback).
 */
 
 DECLARE @runTable sysname =
