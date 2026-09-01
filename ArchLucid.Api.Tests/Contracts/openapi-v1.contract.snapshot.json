@@ -67384,7 +67384,6 @@
             "in": "query",
             "name": "mine",
             "schema": {
-              "default": true,
               "type": "boolean"
             }
           },
