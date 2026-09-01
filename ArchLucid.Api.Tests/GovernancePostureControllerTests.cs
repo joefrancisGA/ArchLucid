@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Governance.Posture;
 using ArchLucid.Core.Scoping;

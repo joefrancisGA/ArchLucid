@@ -22,6 +22,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed partial class SettingsController(
     ITenantAgentOutputQualityGateModeService qualityGateModeService,
     ITenantFindingEngineControlsService findingEngineControlsService,
+    ITenantWorkOwnershipDeletePolicyService workOwnershipDeletePolicyService,
     IWorkspaceModelExecutionProfileService workspaceModelExecutionProfileService,
     IWorkspaceAllowedEngineSetService workspaceAllowedEngineSetService,
     IExternalSubprocessorEngineAcknowledgmentService externalSubprocessorEngineAcknowledgmentService,
@@ -36,6 +37,9 @@ public sealed partial class SettingsController(
 
     private readonly ITenantFindingEngineControlsService _findingEngineControlsService =
         findingEngineControlsService ?? throw new ArgumentNullException(nameof(findingEngineControlsService));
+
+    private readonly ITenantWorkOwnershipDeletePolicyService _workOwnershipDeletePolicyService =
+        workOwnershipDeletePolicyService ?? throw new ArgumentNullException(nameof(workOwnershipDeletePolicyService));
 
     private readonly IWorkspaceModelExecutionProfileService _workspaceModelExecutionProfileService =
         workspaceModelExecutionProfileService ?? throw new ArgumentNullException(nameof(workspaceModelExecutionProfileService));

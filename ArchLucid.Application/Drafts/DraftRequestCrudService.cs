@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Scoping;
@@ -12,7 +13,8 @@ public sealed class DraftRequestCrudService(
     IDraftRequestRepository draftRepository,
     IQuestionSelectionEngine questionSelectionEngine,
     IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
-    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard) : IDraftRequestCrudService
+    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
+    IWorkOwnershipDeleteAuthorizationService workOwnershipDeleteAuthorizationService) : IDraftRequestCrudService
 {
     private readonly IDraftRequestRepository _draftRepository =
         draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
@@ -26,6 +28,10 @@ public sealed class DraftRequestCrudService(
 
     private readonly IWorkspaceSystemNameCollisionGuard _workspaceSystemNameCollisionGuard =
         workspaceSystemNameCollisionGuard ?? throw new ArgumentNullException(nameof(workspaceSystemNameCollisionGuard));
+
+    private readonly IWorkOwnershipDeleteAuthorizationService _workOwnershipDeleteAuthorizationService =
+        workOwnershipDeleteAuthorizationService
+        ?? throw new ArgumentNullException(nameof(workOwnershipDeleteAuthorizationService));
 
     /// <inheritdoc />
     public async Task<DraftRequestResponse> CreateAsync(
@@ -243,6 +249,10 @@ public sealed class DraftRequestCrudService(
 
         if (!DraftRequestStateMachine.AllowsAbandon(existing.Status))
             throw new InvalidOperationException($"Draft '{draftId}' cannot be abandoned from status '{existing.Status}'.");
+
+        await _workOwnershipDeleteAuthorizationService
+            .EnsureCanDeleteOwnedWorkAsync(existing.CreatedByUserId, cancellationToken)
+            .ConfigureAwait(false);
 
         return await _draftRepository.UpdateAsync(
             scope.TenantId,
