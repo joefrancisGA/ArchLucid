@@ -10723,6 +10723,47 @@
         ],
         "type": "string"
       },
+      "DraftRequestSummaryResponse": {
+        "properties": {
+          "createdByUserId": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "draftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "freeTextIntent": {
+            "type": "string"
+          },
+          "reviewReadinessValid": {
+            "type": "boolean"
+          },
+          "spawnedRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/DraftRequestStatus"
+          },
+          "systemName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "DriftAnalysisResponse": {
         "properties": {
           "driftDetected": {
@@ -18924,6 +18965,32 @@
           "items": {
             "items": {
               "$ref": "#/components/schemas/ConversationThread"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PagedResponseOfDraftRequestSummaryResponse": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DraftRequestSummaryResponse"
             },
             "type": "array"
           },

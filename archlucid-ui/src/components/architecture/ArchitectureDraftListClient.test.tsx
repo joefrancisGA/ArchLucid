@@ -216,4 +216,15 @@ describe("ArchitectureDraftListClient", () => {
       "/architecture/architectures/a1",
     );
   });
+
+  it("hides continue last draft when the remembered draft is archived", () => {
+    window.sessionStorage.setItem("archlucid.architecture-creation.draft-id", "a1");
+    useArchitectureDraftRegistryEntries.mockReturnValue([
+      entry({ architectureId: "a1", customerStatus: "archived", displayName: "Archived A" }),
+    ]);
+
+    render(<ArchitectureDraftListClient />);
+
+    expect(screen.queryByTestId("architecture-draft-continue-last-row")).not.toBeInTheDocument();
+  });
 });

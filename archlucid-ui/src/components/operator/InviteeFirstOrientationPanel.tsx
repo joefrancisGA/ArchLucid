@@ -17,20 +17,18 @@ export type InviteeFirstOrientationPanelProps = {
 export function InviteeFirstOrientationPanel(props: InviteeFirstOrientationPanelProps): React.JSX.Element {
   return (
     <section
-      aria-labelledby="invitee-first-orientation-heading"
+      aria-labelledby="invitee-first-orientation-job"
       className={cn(
         "space-y-3 rounded-md border border-al-border bg-al-surface-raised p-4",
         props.className,
       )}
       data-testid="invitee-first-orientation-panel"
     >
-      <h2
-        id="invitee-first-orientation-heading"
-        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      <p
+        id="invitee-first-orientation-job"
+        className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="invitee-first-orientation-job"
       >
-        {props.copy.heading}
-      </h2>
-      <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="invitee-first-orientation-job">
         {props.copy.jobSentence}
       </p>
       <InviteeFirstScreenSpecimen />

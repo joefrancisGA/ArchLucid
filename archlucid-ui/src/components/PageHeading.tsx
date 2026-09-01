@@ -10,6 +10,9 @@ import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 const PAGE_HEADING_ICON_CLASS =
   "h-6 w-6 shrink-0 text-neutral-700 dark:text-neutral-200";
 
+/** Matches {@link OPERATOR_TYPOGRAPHY.pageTitle} `leading-7` so nav icons center on the title line. */
+const PAGE_HEADING_ICON_SLOT_CLASS = "flex shrink-0 items-center self-center";
+
 const PAGE_HEADING_TILE_CLASS =
   "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-900";
 
@@ -99,7 +102,9 @@ export function PageHeading({
           <NavDerivedPageIcon navHref={navHref} icon={Icon} />
         </div>
       ) : (
-        <NavDerivedPageIcon navHref={navHref} icon={Icon} />
+        <span className={cn(PAGE_HEADING_ICON_SLOT_CLASS, "h-7")} aria-hidden>
+          <NavDerivedPageIcon navHref={navHref} icon={Icon} />
+        </span>
       )
     ) : null;
 
@@ -112,51 +117,49 @@ export function PageHeading({
       data-testid={dataTestId}
       data-nav-href={navHref}
     >
-      <div className="flex flex-wrap items-start gap-3">
-        {iconNode}
-        <div className="min-w-0 flex-1 space-y-2">
-          {eyebrow !== undefined && eyebrow.length > 0 ? (
-            <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)} data-testid="page-heading-eyebrow">
-              {eyebrow}
-            </p>
-          ) : null}
-          <div className="flex flex-wrap items-center gap-2">
-            <HeadingTag
-              className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
-              {...(titleTestId !== undefined ? { "data-testid": titleTestId } : {})}
-            >
-              {title}
-            </HeadingTag>
-            {statusBadge}
-            {actions !== undefined && actions !== null ? (
-              <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
-            ) : null}
-          </div>
-
-          {description !== undefined && description !== null ? (
-            <div
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-              {...(descriptionTestId !== undefined ? { "data-testid": descriptionTestId } : {})}
-            >
-              {description}
-            </div>
-          ) : null}
-
-          {claimDiscipline !== undefined && claimDiscipline.length > 0 ? (
-            <PageHeaderClaimDiscipline text={claimDiscipline} testId={claimDisciplineTestId} />
-          ) : null}
-
-          {metadata !== undefined && metadata !== null ? (
-            <div
-              className={cn(
-                "flex flex-wrap gap-x-4 gap-y-1 text-neutral-600 dark:text-neutral-400",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {metadata}
-            </div>
+      <div className="space-y-2">
+        {eyebrow !== undefined && eyebrow.length > 0 ? (
+          <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)} data-testid="page-heading-eyebrow">
+            {eyebrow}
+          </p>
+        ) : null}
+        <div className="flex flex-wrap items-center gap-2">
+          {iconNode}
+          <HeadingTag
+            className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
+            {...(titleTestId !== undefined ? { "data-testid": titleTestId } : {})}
+          >
+            {title}
+          </HeadingTag>
+          {statusBadge}
+          {actions !== undefined && actions !== null ? (
+            <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
           ) : null}
         </div>
+
+        {description !== undefined && description !== null ? (
+          <div
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            {...(descriptionTestId !== undefined ? { "data-testid": descriptionTestId } : {})}
+          >
+            {description}
+          </div>
+        ) : null}
+
+        {claimDiscipline !== undefined && claimDiscipline.length > 0 ? (
+          <PageHeaderClaimDiscipline text={claimDiscipline} testId={claimDisciplineTestId} />
+        ) : null}
+
+        {metadata !== undefined && metadata !== null ? (
+          <div
+            className={cn(
+              "flex flex-wrap gap-x-4 gap-y-1 text-neutral-600 dark:text-neutral-400",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
+            {metadata}
+          </div>
+        ) : null}
       </div>
 
       {children !== undefined && children !== null ? <div className="mt-4">{children}</div> : null}
