@@ -105,5 +105,14 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
             return;
 
         OpenApiSchemaContractMutator.EnsureRequired(schema, "score");
+
+        if (schema.Properties is not null
+            && schema.Properties.TryGetValue("score", out IOpenApiSchema? scoreSchema)
+            && scoreSchema is OpenApiSchema mutableScore
+            && mutableScore.Type.HasValue
+            && mutableScore.Type.Value.HasFlag(JsonSchemaType.Null))
+        {
+            mutableScore.Type = mutableScore.Type.Value & ~JsonSchemaType.Null;
+        }
     }
 }
