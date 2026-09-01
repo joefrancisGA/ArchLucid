@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:400 -->
+<!-- audit-core-const-count:401 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -255,6 +255,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Customer notification channel preferences upsert | `CustomerNotificationChannelPreferencesController` (`PUT …/customer-channel-preferences`) | `TenantNotificationChannelPreferencesUpdated` | Tenant + default workspace/project from scope | `{ email, teams, outboundWebhook }` booleans |
 | Tenant agent-output quality gate mode override | `SettingsController` (`PUT /v1/admin/settings/agent-output-quality-gate-mode`) | `TenantAgentOutputQualityGateModeUpdated` | Tenant + default workspace/project from scope | `{ effectiveMode }` (`WarnOnly` / `PilotStrict`) |
 | Tenant agent-output quality gate mode override cleared | `SettingsController` (`DELETE /v1/admin/settings/agent-output-quality-gate-mode`) | `TenantAgentOutputQualityGateModeOverrideCleared` | Tenant + default workspace/project from scope | `{ effectiveMode }` after revert to host default |
+| Tenant work-ownership delete policy updated | `SettingsController` (`PUT /v1/admin/settings/work-ownership-delete-policy`) | `TenantWorkOwnershipDeletePolicyUpdated` | Tenant + default workspace/project from scope | `{ allowCreatorDeleteOwnedWork }` boolean — controls whether creators may delete or archive their own unsealed architectures and in-flight reviews |
 | Quality-gate definition version deprecated (wrong-definition playbook) | Operator/admin remediation (TB-974; follow-on API) | `TenantQualityGateDefinitionDeprecated` | Tenant + default workspace/project from scope | `{ deprecatedDefinitionVersion, deprecatedContentHashSha256, successorDefinitionVersion, successorContentHashSha256, reason }` |
 | Append-only quality-gate superseding evaluation recorded | Operator/admin remediation (TB-974; follow-on API) | `RunQualityGateSupersedingEvaluationRecorded` | RunId + trace when present | `{ supersedingEvaluationId, misclassificationClass, originalRecordedOutcome, supersedingOutcome, originalContentHashSha256, successorContentHashSha256 }` — **no** silent UPDATE of recorded trace columns |
 | Host API key rotation material issued | `AdminApiKeySettingsController` (`POST /v1/admin/settings/api-keys/rotate`) | `AdminApiKeyRotationMaterialIssued` | Tenant + default workspace/project from scope | `{ slot, deploymentAction, configPath }` — **no** key material |
@@ -625,6 +626,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantAgentOutputQualityGateModeOverrideCleared` | `Tenant.AgentOutputQualityGateModeOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantFindingEngineControlsUpdated` | `Tenant.FindingEngineControlsUpdated` | `SettingsController` (`PUT /v1/admin/settings/finding-engine-controls`) |
 | `TenantFindingEngineControlsOverridesCleared` | `Tenant.FindingEngineControlsOverridesCleared` | `SettingsController` (`DELETE /v1/admin/settings/finding-engine-controls`) |
+| `TenantWorkOwnershipDeletePolicyUpdated` | `Tenant.WorkOwnershipDeletePolicyUpdated` | `SettingsController` (`PUT …/admin/settings/work-ownership-delete-policy`) |
 | `TenantQualityGateDefinitionDeprecated` | `Tenant.QualityGateDefinitionDeprecated` | TB-974 wrong-definition remediation (follow-on operator API) |
 | `RunQualityGateSupersedingEvaluationRecorded` | `Run.QualityGateSupersedingEvaluationRecorded` | TB-974 append-only supersession (follow-on operator API) |
 | `WorkspaceModelExecutionProfileUpdated` | `Workspace.ModelExecutionProfileUpdated` | `SettingsController` (`PUT …/admin/settings/model-execution-profile`) |

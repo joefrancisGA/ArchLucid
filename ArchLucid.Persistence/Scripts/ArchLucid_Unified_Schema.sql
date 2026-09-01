@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 336_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 337_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -8892,6 +8892,7 @@ GO
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'CreatedByUserId') IS NULL
     ALTER TABLE dbo.Runs ADD CreatedByUserId NVARCHAR(256) NULL;
+
 GO
 
 /* 334: Platform-scoped operational error inbox for internal staff review (HTTP, database, and unhandled exceptions). */
