@@ -3,12 +3,14 @@
 import { cn } from "@/lib/utils";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
+import { WorkspaceSystemNameAvailabilityFeedback } from "@/components/intake/WorkspaceSystemNameAvailabilityFeedback";
 import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import type { WorkspaceSystemNameAvailabilityState } from "@/hooks/use-workspace-system-name-availability";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { CREATE_ARCHITECTURE_STARTING_LABEL } from "@/lib/review-start-progress-copy";
 import {
@@ -64,6 +66,7 @@ export type SocraticIntakeWizardStepScopeProps = {
   readonly canAdvanceIntent: boolean;
   readonly advanceHint: string;
   readonly submitError: unknown;
+  readonly systemNameAvailability: WorkspaceSystemNameAvailabilityState;
   readonly onCreateArchitectureContinuation: () => void | Promise<void>;
   readonly onAdmission: () => void | Promise<void>;
 };
@@ -92,9 +95,15 @@ export function SocraticIntakeWizardStepScope({
   canAdvanceIntent,
   advanceHint,
   submitError,
+  systemNameAvailability,
   onCreateArchitectureContinuation,
   onAdmission,
 }: SocraticIntakeWizardStepScopeProps) {
+  const systemNameConflict =
+    systemNameAvailability.validationReady &&
+    !systemNameAvailability.isAvailable &&
+    systemNameAvailability.conflictMessage !== null;
+
   return (
     <Card data-testid="guided-intake-primary-panel">
       {!isCreateArchitectureFlow ? (
@@ -119,6 +128,12 @@ export function SocraticIntakeWizardStepScope({
               placeholder={GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER}
               data-testid="socratic-system-name"
               aria-required
+              aria-invalid={systemNameConflict}
+              aria-describedby={systemNameConflict ? "socratic-system-name-availability" : undefined}
+            />
+            <WorkspaceSystemNameAvailabilityFeedback
+              availability={systemNameAvailability}
+              testId="socratic-system-name-availability"
             />
           </div>
         ) : null}
@@ -195,6 +210,12 @@ export function SocraticIntakeWizardStepScope({
                 onChange={(event) => setSystemName(event.target.value)}
                 disabled={busy}
                 data-testid="socratic-system-name"
+                aria-invalid={systemNameConflict}
+                aria-describedby={systemNameConflict ? "socratic-system-name-availability" : undefined}
+              />
+              <WorkspaceSystemNameAvailabilityFeedback
+                availability={systemNameAvailability}
+                testId="socratic-system-name-availability"
               />
             </div>
             <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>

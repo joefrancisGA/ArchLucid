@@ -7,6 +7,10 @@ import {
 
 const ARCHITECTURE_DRAFT_PATH_PREFIX = "/architecture/architectures/";
 
+function isContinuableArchitectureDraftEntry(entry: ArchitectureDraftRegistryEntry): boolean {
+  return entry.customerStatus !== "archived";
+}
+
 function architectureIdFromRecentHref(href: string): string | null {
   const path = href.split("?")[0] ?? "";
   const prefix = ARCHITECTURE_DRAFT_PATH_PREFIX;
@@ -60,14 +64,18 @@ export function resolveContinueLastArchitectureDraftEntry(
   const preferredIds = [sessionDraftId, recentDraftId].filter((id): id is string => id !== null && id.length > 0);
 
   for (const preferredId of preferredIds) {
-    const match = entries.find((entry) => entry.architectureId === preferredId);
+    const match = entries.find(
+      (entry) => entry.architectureId === preferredId && isContinuableArchitectureDraftEntry(entry),
+    );
 
     if (match !== undefined) {
       return match;
     }
   }
 
-  const draftEntries = entries.filter((entry) => entry.customerStatus === "draft");
+  const draftEntries = entries.filter(
+    (entry) => entry.customerStatus === "draft" && isContinuableArchitectureDraftEntry(entry),
+  );
 
   if (draftEntries.length === 0) {
     return null;

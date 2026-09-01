@@ -2282,7 +2282,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 253
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — ghost-workspace posture/coverage reads, product-feedback score omission, environment-catalog ghost tenant, empty projectId query, checklist isCompleted omission, combined PRs #981–#991
+- **last-bug:** 2026-08-31 — combined governance/tenancy hunt fixes (ghost-workspace posture/coverage, product-feedback score omission, environment-catalog ghost tenant, empty projectId query, checklist isCompleted omission; PRs #981–#991, #992, #1021–#1028, #1031–#1043)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2594,21 +2594,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-31 thorough hunt #352 (hit): proved ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default on master; seeded environment-catalog ghost-tenant, empty projectId validation, and checklist `isCompleted` omission candidates.
 
-- [x] (proven) `GovernanceEnvironmentCatalogController.Get` / `Replace` — ghost tenant (JWT tenant id with no `TenantRecord`) returned HTTP 200 default catalog instead of HTTP 404 — **hit 2026-08-31 (#353):** `ITenantRepository.GetByIdAsync` preflight on GET/PUT; regression in `GovernanceEnvironmentCatalogControllerTests.Get_returns_not_found_when_tenant_missing` and `Replace_returns_not_found_when_tenant_missing`.
-- [x] (proven) `GovernancePostureController.GetPosture` / `GovernanceStickinessController` register reads — query `projectId=00000000-0000-0000-0000-000000000000` when ambient scope has a real project id → HTTP 200 empty payload instead of HTTP 400 — **hit 2026-08-31 (#353):** `GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId` + `BadRequestWhenProjectQueryIdEmpty` on posture and stickiness register endpoints; regression in `GovernancePostureControllerTests.GetPosture_returns_bad_request_when_project_id_is_empty_guid` and `GovernanceStickinessControllerTests.GetRiskRegister_returns_bad_request_when_project_id_is_empty_guid`.
-- [x] (proven) `CorePilotTeamChecklistController.PutAsync` — JSON body omits `isCompleted` → model binder defaults `bool` to `false` and persists incomplete step instead of HTTP 400 — **hit 2026-08-31 (#353):** `CorePilotChecklistPutRequest.IsCompleted` nullable + required guard; regression in `CorePilotTeamChecklistControllerTests.PutAsync_returns_bad_request_when_is_completed_omitted`.
-- [x] (proven) `GovernancePostureController.GetPosture` — valid tenant + foreign workspace id in scope JWT → HTTP 200 posture summary instead of HTTP 404 — **hit 2026-08-31 (#354):** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` before posture read; regression in `GovernancePostureControllerTests.GetPosture_returns_not_found_when_workspace_missing`.
-- [x] (proven) `GovernanceCoverageController.GetScopeCoverage` / `PreviewCoverage` — same ghost-workspace scope triple → HTTP 200 coverage payload instead of HTTP 404 — **hit 2026-08-31 (#354):** workspace preflight on both actions; regression in `GovernanceCoverageControllerScopeTests.GetScopeCoverage_returns_not_found_when_workspace_missing` and `PreviewCoverage_returns_not_found_when_workspace_missing`.
-- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — JSON body omits `score` → HTTP 204 and persists `Score = 0` instead of HTTP 400 — **hit 2026-08-31 (#354):** `ProductFeedbackRequest.Score` required + deserialization guard; regression in `TenantCustomerSuccessControllerTests.ProductFeedbackRequest_rejects_json_without_score`.
-
-2026-08-31 thorough hunt #353 (hit): proved environment-catalog ghost tenant, empty `projectId` query validation, and checklist `isCompleted` omission on master.
-
-2026-08-31 thorough hunt #321: re-proved and landed on master the four picker candidates (findingRef inspect gate, sibling projectId guard, batch-review OrdinalIgnoreCase dedupe, bulk-disposition all-or-nothing scope validation).
-
-2026-08-31 thorough hunt #353 (hit): proved environment-catalog ghost tenant, empty `projectId` query validation, and checklist `isCompleted` omission on master; seeded ghost-workspace posture/coverage and product-feedback score candidates.
+2026-08-31 combined PR #1031–#1043: integrated ghost-workspace posture/coverage reads, product-feedback score omission, environment-catalog ghost tenant, empty projectId query, and checklist isCompleted omission fixes.
 
 2026-08-31 thorough hunt #354 (hit): proved ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default on master.
 
+2026-08-31 combined PR #1021–#1028: integrated seed hunts #377–#382 on master — environment-catalog ghost tenant, empty `projectId` query validation, checklist `isCompleted` omission (#381), ghost-workspace posture/coverage preflight, and product-feedback score omission (#382).
 2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
 
 2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.

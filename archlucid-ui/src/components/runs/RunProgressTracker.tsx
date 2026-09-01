@@ -13,6 +13,7 @@ import {
 } from "@/lib/review-execution-background-safety-copy";
 import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { renderDoThisNextReferenceCopy } from "@/lib/usability/do-this-next-reference-copy";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
 
@@ -101,7 +102,7 @@ export function RunProgressTracker({
       ) : null}
 
       <div aria-live="polite" aria-atomic="true" className={cn("mt-3 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-        {tracker.liveStatus}
+        {renderDoThisNextReferenceCopy(tracker.liveStatus)}
       </div>
 
       {tracker.terminalFailureDiagnosis !== null ? (
