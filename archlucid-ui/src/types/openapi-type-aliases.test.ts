@@ -38,6 +38,23 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
   TechnologyLedgerListResponse: "TechnologyLedgerListResponse",
   PatchTechnologyLedgerEntryRequest: "PatchTechnologyLedgerEntryRequest",
   PatchTechnologyLedgerEntryResponse: "PatchTechnologyLedgerEntryResponse",
+  AlertRule: "AlertRule",
+  AlertRecord: "AlertRecord",
+  ImprovementRecommendation: "ImprovementRecommendationResponse",
+  ImprovementPlan: "ImprovementPlanResponse",
+  RecommendationRecord: "RecommendationRecordResponse",
+  RecommendationSourceEvidenceLink: "RecommendationSourceEvidenceLink",
+  RecommendationImproveLoopEvidence: "RecommendationImproveLoopEvidenceResponse",
+  RecommendationActionResult: "RecommendationActionResponse",
+  AdvisoryRunRecommendationsList: "AdvisoryRunRecommendationsListResponse",
+  GovernanceApprovalRequest: "GovernanceApprovalRequest",
+  GovernancePromotionRecord: "GovernancePromotionRecord",
+  GovernanceEnvironmentActivation: "GovernanceEnvironmentActivation",
+  DigestSubscription: "DigestSubscription",
+  DigestDeliveryAttempt: "DigestDeliveryAttempt",
+  ConversationThread: "ConversationThread",
+  ConversationMessage: "ConversationMessage",
+  AskResponse: "AskResponse",
 } as const satisfies Record<string, keyof components["schemas"]>;
 
 type AssertExtends<Base, Derived extends Base> = Derived;
@@ -125,11 +142,90 @@ type _TechnologyLedgerAliases = [
   >,
 ];
 
+type _AlertsAliases = [
+  AssertExtends<components["schemas"]["AlertRule"], import("@/types/alerts").AlertRule>,
+  AssertExtends<components["schemas"]["AlertRecord"], import("@/types/alerts").AlertRecord>,
+];
+
+type _AdvisoryAliases = [
+  AssertExtends<
+    components["schemas"]["ImprovementRecommendationResponse"],
+    import("@/types/advisory").ImprovementRecommendation
+  >,
+  AssertExtends<components["schemas"]["ImprovementPlanResponse"], import("@/types/advisory").ImprovementPlan>,
+  AssertExtends<
+    components["schemas"]["RecommendationRecordResponse"],
+    import("@/types/advisory").RecommendationRecord
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationSourceEvidenceLink"],
+    import("@/types/advisory").RecommendationSourceEvidenceLink
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationImproveLoopEvidenceResponse"],
+    import("@/types/advisory").RecommendationImproveLoopEvidence
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationActionResponse"],
+    import("@/types/advisory").RecommendationActionResult
+  >,
+  AssertExtends<
+    components["schemas"]["AdvisoryRunRecommendationsListResponse"],
+    import("@/types/advisory").AdvisoryRunRecommendationsList
+  >,
+];
+
+type _GovernanceWorkflowAliases = [
+  AssertExtends<
+    components["schemas"]["GovernanceApprovalRequest"],
+    import("@/types/governance-workflow").GovernanceApprovalRequest
+  >,
+  AssertExtends<
+    components["schemas"]["GovernancePromotionRecord"],
+    import("@/types/governance-workflow").GovernancePromotionRecord
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceEnvironmentActivation"],
+    import("@/types/governance-workflow").GovernanceEnvironmentActivation
+  >,
+];
+
+type _DigestSubscriptionAliases = [
+  AssertExtends<
+    components["schemas"]["DigestSubscription"],
+    import("@/types/digest-subscriptions").DigestSubscription
+  >,
+  AssertExtends<
+    components["schemas"]["DigestDeliveryAttempt"],
+    import("@/types/digest-subscriptions").DigestDeliveryAttempt
+  >,
+];
+
+type _ConversationAliases = [
+  AssertExtends<components["schemas"]["ConversationThread"], import("@/types/conversation").ConversationThread>,
+  AssertExtends<components["schemas"]["ConversationMessage"], import("@/types/conversation").ConversationMessage>,
+  AssertExtends<components["schemas"]["AskResponse"], import("@/types/conversation").AskResponse>,
+];
+
 // Touch compile-time alias checks so unused-type pruning does not drop them.
-const _compileTimeAliasGuards: [_AuthorityAliases, _OperateRhythmAliases, _TechnologyLedgerAliases] = [
+const _compileTimeAliasGuards: [
+  _AuthorityAliases,
+  _OperateRhythmAliases,
+  _TechnologyLedgerAliases,
+  _AlertsAliases,
+  _AdvisoryAliases,
+  _GovernanceWorkflowAliases,
+  _DigestSubscriptionAliases,
+  _ConversationAliases,
+] = [
   [] as unknown as _AuthorityAliases,
   [] as unknown as _OperateRhythmAliases,
   [] as unknown as _TechnologyLedgerAliases,
+  [] as unknown as _AlertsAliases,
+  [] as unknown as _AdvisoryAliases,
+  [] as unknown as _GovernanceWorkflowAliases,
+  [] as unknown as _DigestSubscriptionAliases,
+  [] as unknown as _ConversationAliases,
 ];
 void _compileTimeAliasGuards;
 
@@ -143,6 +239,6 @@ describe("openapi type alias schema keys", () => {
   });
 
   it("keeps the mapping table in sync with the number of guarded aliases", () => {
-    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(30);
+    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(47);
   });
 });
