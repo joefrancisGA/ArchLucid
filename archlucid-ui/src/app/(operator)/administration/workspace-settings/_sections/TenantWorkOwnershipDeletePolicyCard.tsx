@@ -58,12 +58,12 @@ export function TenantWorkOwnershipDeletePolicyCard(): React.JSX.Element {
     },
   });
 
-  if (policyQuery.isLoading || draft === null || policyQuery.data === undefined) {
-    return <p className={OPERATOR_TYPOGRAPHY.helper}>Loading work ownership delete policy…</p>;
-  }
-
   if (policyQuery.isError) {
     return <p className={OPERATOR_TYPOGRAPHY.helper}>Work ownership delete policy is unavailable.</p>;
+  }
+
+  if (policyQuery.isLoading || draft === null || policyQuery.data === undefined) {
+    return <p className={OPERATOR_TYPOGRAPHY.helper}>Loading work ownership delete policy…</p>;
   }
 
   const saved = policyQuery.data;
