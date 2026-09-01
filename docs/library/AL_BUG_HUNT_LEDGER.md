@@ -2282,8 +2282,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 253
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — governance/tenancy validation gaps (ghost-tenant catalog, empty projectId, checklist isCompleted, ghost-workspace posture/coverage, product-feedback score)
-- **last-bug:** 2026-08-31 — ghost-workspace posture/coverage reads, product-feedback score omission, environment-catalog ghost tenant, empty projectId query, checklist isCompleted omission, combined PRs #981–#991
+- **last-bug:** 2026-08-31 — governance/tenancy validation gaps (ghost-tenant catalog, empty projectId, checklist isCompleted, ghost-workspace posture/coverage, product-feedback score), combined PR #1047–#1056
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
