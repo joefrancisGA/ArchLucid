@@ -168,7 +168,7 @@ public sealed class CorePilotTeamChecklistControllerTests
 
     [Theory]
     [InlineData("{\"stepIndex\":1}", "omitted isCompleted is rejected by required-member enforcement during JSON deserialization, surfacing as HTTP 400")]
-    [InlineData("{\"stepIndex\":1,\"isCompleted\":null}", "null isCompleted is rejected by required-member enforcement during JSON deserialization, surfacing as HTTP 400")]
+    [InlineData("{\"stepIndex\":1,\"isCompleted\":null}", "null isCompleted is rejected because isCompleted is a non-nullable boolean (JSON null is invalid), surfacing as HTTP 400")]
     public void PutRequest_deserialization_rejects_missing_or_null_is_completed(string payload, string because)
     {
         Action act = () => JsonSerializer.Deserialize<CorePilotChecklistPutRequest>(payload, ArchLucidApiJsonSerializerOptions.Web);
