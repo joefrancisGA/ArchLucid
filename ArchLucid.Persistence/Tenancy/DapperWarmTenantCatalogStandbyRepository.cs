@@ -38,16 +38,24 @@ public sealed class DapperWarmTenantCatalogStandbyRepository(ISystemSqlConnectio
         if (!await TableExistsAsync(connection, cancellationToken))
             return null;
 
+        // Atomically claim the oldest unclaimed standby row in a single UPDATE…OUTPUT statement.
+        // Using a subquery with UPDLOCK + READPAST prevents two concurrent callers from
+        // selecting the same row.
         const string sql = """
-                           SELECT TOP (1)
-                               StandbyId,
-                               SqlLogicalDatabaseName,
-                               SchemaReadyUtc,
-                               CreatedUtc,
-                               ClaimedUtc
-                           FROM dbo.WarmTenantCatalogStandby WITH (UPDLOCK, ROWLOCK, READPAST)
-                           WHERE ClaimedUtc IS NULL
-                           ORDER BY CreatedUtc ASC;
+                           UPDATE dbo.WarmTenantCatalogStandby
+                           SET ClaimedUtc = SYSUTCDATETIME()
+                           OUTPUT
+                               INSERTED.StandbyId,
+                               INSERTED.SqlLogicalDatabaseName,
+                               INSERTED.SchemaReadyUtc,
+                               INSERTED.CreatedUtc,
+                               INSERTED.ClaimedUtc
+                           WHERE StandbyId = (
+                               SELECT TOP (1) StandbyId
+                               FROM dbo.WarmTenantCatalogStandby WITH (UPDLOCK, ROWLOCK, READPAST)
+                               WHERE ClaimedUtc IS NULL
+                               ORDER BY CreatedUtc ASC
+                           );
                            """;
 
         Row? row = await connection.QuerySingleOrDefaultAsync<Row>(
@@ -94,6 +102,21 @@ public sealed class DapperWarmTenantCatalogStandbyRepository(ISystemSqlConnectio
                            SET ClaimedUtc = SYSUTCDATETIME()
                            WHERE StandbyId = @StandbyId
                              AND ClaimedUtc IS NULL;
+                           """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { StandbyId = standbyId }, cancellationToken: cancellationToken));
+    }
+
+    public async Task ReleaseClaimAsync(Guid standbyId, CancellationToken cancellationToken)
+    {
+        await using SqlConnection connection =
+            await _systemSqlConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+                           UPDATE dbo.WarmTenantCatalogStandby
+                           SET ClaimedUtc = NULL
+                           WHERE StandbyId = @StandbyId;
                            """;
 
         await connection.ExecuteAsync(

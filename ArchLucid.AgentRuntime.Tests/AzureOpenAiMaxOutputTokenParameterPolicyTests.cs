@@ -62,6 +62,18 @@ public sealed class AzureOpenAiMaxOutputTokenParameterPolicyTests
     }
 
     [Fact]
+    public void Apply_does_not_throw_when_options_created_via_CreateOptions()
+    {
+        ChatCompletionOptions options = AzureOpenAiMaxOutputTokenParameterPolicy.CreateOptions();
+
+        Action act = () => AzureOpenAiMaxOutputTokenParameterPolicy.Apply(
+            options,
+            AzureOpenAiMaxOutputTokenParameterPolicy.DefaultUsesMaxCompletionTokensProperty);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void TryGetAlternateSerialization_returns_false_for_unrelated_bad_request()
     {
         ClientResultException ex = CreateBadRequest("Parameter: temperature\nUnsupported value.");

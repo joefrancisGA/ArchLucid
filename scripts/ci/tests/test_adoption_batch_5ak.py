@@ -5,8 +5,15 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
+from ci_test_helpers import REPO_ROOT, read_text_union
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+
+def _sponsor_workspace_health_surface_text() -> str:
+    components = REPO_ROOT / "archlucid-ui" / "src" / "components"
+    return read_text_union(
+        components / "SponsorWorkspaceHealthDashboard.tsx",
+        components / "use-sponsor-workspace-health-dashboard.ts",
+    )
 
 
 class TestAdoptionBatch5AK(unittest.TestCase):
@@ -18,8 +25,7 @@ class TestAdoptionBatch5AK(unittest.TestCase):
         self.assertIn("waiversExpiringWithin14Days", text)
 
     def test_tb_223_sponsor_dashboard_wires_card(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "SponsorWorkspaceHealthDashboard.tsx"
-        text = path.read_text(encoding="utf-8")
+        text = _sponsor_workspace_health_surface_text()
         self.assertIn("DecisionsNeededSummaryCard", text)
         self.assertIn("useGovernanceDecisionsNeededSummaryQuery", text)
 

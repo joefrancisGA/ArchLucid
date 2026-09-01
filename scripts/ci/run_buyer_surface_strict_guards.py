@@ -422,6 +422,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "policy-pack finding-delta offline packet",
+        ("python", "scripts/ci/check_policy_pack_finding_delta_offline_packet.py"),
+        None,
+    ),
+    GuardCommand(
         "proof-language superlatives",
         ("python", "scripts/ci/check_proof_language_superlatives.py"),
         "--advisory",

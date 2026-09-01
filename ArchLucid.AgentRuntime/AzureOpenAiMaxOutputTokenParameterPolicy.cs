@@ -1,4 +1,5 @@
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -22,6 +23,13 @@ internal static class AzureOpenAiMaxOutputTokenParameterPolicy
         typeof(ChatCompletionOptions).GetProperty(
             "SerializedAdditionalRawData",
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+    /// <summary>
+    ///     SDK workaround: <c>new ChatCompletionOptions()</c> leaves internal <c>additionalProperties</c> null, so
+    ///     <see cref="Apply" /> throws until the instance is deserialized once (Azure SDK #48287).
+    /// </summary>
+    internal static ChatCompletionOptions CreateOptions() =>
+        ModelReaderWriter.Read<ChatCompletionOptions>(BinaryData.FromString("{}")!)!;
 
     internal static void Apply(ChatCompletionOptions options, bool useMaxCompletionTokensProperty)
     {
