@@ -23,6 +23,8 @@ internal static class AgentAzureOpenAiExecutorRegistrar
 {
     public static void Register(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<ILlmCompletionOutputTruncationReporter, AuditLlmCompletionOutputTruncationReporter>();
+
         FallbackLlmOptions fallbackOpts =
             configuration.GetSection(FallbackLlmOptions.SectionName).Get<FallbackLlmOptions>()
             ?? new FallbackLlmOptions();
@@ -64,6 +66,8 @@ internal static class AgentAzureOpenAiExecutorRegistrar
 
                 IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
                     sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+                ILlmCompletionOutputTruncationReporter truncationReporter =
+                    sp.GetRequiredService<ILlmCompletionOutputTruncationReporter>();
 
                 foreach ((string ep, string key, string dep) in ordered)
                 {
@@ -75,7 +79,8 @@ internal static class AgentAzureOpenAiExecutorRegistrar
                             maxTokens,
                             schema,
                             completionLogger,
-                            llmTelemetryOptions));
+                            llmTelemetryOptions,
+                            truncationReporter));
                 }
 
                 return new FallbackAzureOpenAiInnerClientsRegistry { Clients = clients };
@@ -102,6 +107,8 @@ internal static class AgentAzureOpenAiExecutorRegistrar
                 sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
             IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
                 sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+            ILlmCompletionOutputTruncationReporter truncationReporter =
+                sp.GetRequiredService<ILlmCompletionOutputTruncationReporter>();
 
             bool useManagedIdentity =
                 string.Equals(authenticationMode, "ManagedIdentity", StringComparison.OrdinalIgnoreCase);
@@ -116,7 +123,8 @@ internal static class AgentAzureOpenAiExecutorRegistrar
                         maxTokens,
                         schema,
                         completionLogger,
-                        llmTelemetryOptions);
+                        llmTelemetryOptions,
+                        truncationReporter);
                 }
 
                 if (string.IsNullOrWhiteSpace(apiKey))
@@ -132,7 +140,8 @@ internal static class AgentAzureOpenAiExecutorRegistrar
                     maxTokens,
                     schema,
                     completionLogger,
-                    llmTelemetryOptions);
+                    llmTelemetryOptions,
+                    truncationReporter);
             });
         });
 
@@ -158,6 +167,8 @@ internal static class AgentAzureOpenAiExecutorRegistrar
                 sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
             IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
                 sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+            ILlmCompletionOutputTruncationReporter truncationReporter =
+                sp.GetRequiredService<ILlmCompletionOutputTruncationReporter>();
 
             if (string.Equals(authenticationMode, "ManagedIdentity", StringComparison.OrdinalIgnoreCase))
             {
@@ -167,7 +178,8 @@ internal static class AgentAzureOpenAiExecutorRegistrar
                     maxTokens,
                     schema,
                     completionLogger,
-                    llmTelemetryOptions);
+                    llmTelemetryOptions,
+                    truncationReporter);
             }
 
             if (string.IsNullOrWhiteSpace(apiKey))
@@ -180,7 +192,8 @@ internal static class AgentAzureOpenAiExecutorRegistrar
                 maxTokens,
                 schema,
                 completionLogger,
-                llmTelemetryOptions);
+                llmTelemetryOptions,
+                truncationReporter);
         });
 
         services.AddSingleton<LlmTokenQuotaWindowTracker>();

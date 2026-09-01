@@ -4,6 +4,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Hosting;
 
+[Trait("Suite", "Core")]
 public sealed class AzureOpenAiVendorProbeErrorFormatterTests
 {
     [Fact]

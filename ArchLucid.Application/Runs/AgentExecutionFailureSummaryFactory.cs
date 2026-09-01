@@ -45,6 +45,7 @@ public static class AgentExecutionFailureSummaryFactory
 
         if (ex is not AggregateException aggregateException)
             return ex.InnerException is null ? null : FindAgentHandlerExecutionException(ex.InnerException);
+
         foreach (Exception inner in aggregateException.Flatten().InnerExceptions)
         {
             AgentHandlerExecutionException? hit = FindAgentHandlerExecutionException(inner);
