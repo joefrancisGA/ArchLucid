@@ -31,26 +31,31 @@ public sealed class GovernancePostureController(
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository) : ControllerBase
 {
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     [HttpGet("posture")]
     [ProducesResponseType(typeof(ArchitecturePostureSummary), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPosture(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
-            scope,
+            _scopeContextProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 
         if (scopeProblem is not null)
             return scopeProblem;
 
+        if (GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId(projectId))
+            return this.BadRequestProblem("projectId must not be empty.", ProblemTypes.ValidationFailed);
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return Ok(new ArchitecturePostureSummary());
 

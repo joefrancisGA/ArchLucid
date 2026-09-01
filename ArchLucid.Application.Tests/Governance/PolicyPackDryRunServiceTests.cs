@@ -552,6 +552,32 @@ public sealed class PolicyPackDryRunServiceTests
     }
 
     [SkippableFact]
+    public async Task EvaluateAsync_deduplicates_duplicate_evaluate_against_run_ids_case_insensitively()
+    {
+        CountingRunDetailQueryService runs = new();
+        runs.AddRun("run-1", critical: 0, high: 0, medium: 0);
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-1", "run-1", "RUN-1"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        runs.LookupCount.Should().Be(1);
+        response.TotalRequestedRuns.Should().Be(1);
+        response.DeltaCounts.Evaluated.Should().Be(1);
+        response.Items.Should().ContainSingle(item => item.RunId == "run-1");
+    }
+
+    [SkippableFact]
     public async Task EvaluateAsync_throws_when_policy_pack_is_out_of_scope()
     {
         PolicyPack foreignPack = new()
@@ -670,7 +696,22 @@ public sealed class PolicyPackDryRunServiceTests
             LogAsync(auditEvent, ct);
     }
 
-    private sealed class FakeRunDetailQueryService : IRunDetailQueryService
+    private sealed class CountingRunDetailQueryService : FakeRunDetailQueryService
+    {
+        public int LookupCount
+        {
+            get;
+            private set;
+        }
+
+        public override Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default)
+        {
+            LookupCount++;
+            return base.GetRunDetailAsync(runId, cancellationToken);
+        }
+    }
+
+    private class FakeRunDetailQueryService : IRunDetailQueryService
     {
         private readonly Dictionary<string, ArchitectureRunDetail> _byId = new(StringComparer.OrdinalIgnoreCase);
 
@@ -692,7 +733,7 @@ public sealed class PolicyPackDryRunServiceTests
             };
         }
 
-        public Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default) =>
+        public virtual Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default) =>
             Task.FromResult(_byId.TryGetValue(runId, out ArchitectureRunDetail? detail) ? detail : null);
 
         public Task<ArchitectureRunDetail?> GetRunDetailForOperatorEnrichAsync(string runId, CancellationToken cancellationToken = default) =>

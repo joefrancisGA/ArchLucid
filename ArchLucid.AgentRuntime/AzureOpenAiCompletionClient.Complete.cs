@@ -186,34 +186,71 @@ public sealed partial class AzureOpenAiCompletionClient
 
         LlmCompletionRequestParamsAmbient.Record(resolvedTemperature, resolvedMaxOutputTokens);
 
-        return new ChatCompletionOptions
+        ChatCompletionOptions options = new()
         {
             Temperature = resolvedTemperature,
             MaxOutputTokenCount = resolvedMaxOutputTokens,
             ResponseFormat = format
         };
+
+        AzureOpenAiMaxOutputTokenParameterPolicy.Apply(
+            options,
+            AzureOpenAiMaxOutputTokenParameterPolicy.DefaultUsesMaxCompletionTokensProperty);
+
+        return options;
     }
     private async Task<ChatCompletion> CompleteChatOnceAsync(
         List<ChatMessage> messages,
         ChatCompletionOptions options,
         CancellationToken cancellationToken)
     {
-        for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
-        {
-            try
-            {
-                ClientResult<ChatCompletion> response = await _chatClient.CompleteChatAsync(
-                    messages,
-                    options,
-                    cancellationToken).ConfigureAwait(false);
+        bool useMaxCompletionTokensProperty =
+            AzureOpenAiMaxOutputTokenParameterPolicy.DefaultUsesMaxCompletionTokensProperty;
 
-                return response.Value;
-            }
-            catch (ClientResultException ex) when (ex.Status == 429)
+        AzureOpenAiMaxOutputTokenParameterPolicy.Apply(options, useMaxCompletionTokensProperty);
+
+        for (int parameterAttempt = 0; parameterAttempt < 2; parameterAttempt++)
+        {
+            for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
             {
-                await HandleTooManyRequestsAsync(ex, tooManyRequestsAttempt, cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    ClientResult<ChatCompletion> response = await _chatClient.CompleteChatAsync(
+                        messages,
+                        options,
+                        cancellationToken).ConfigureAwait(false);
+
+                    return response.Value;
+                }
+                catch (ClientResultException ex) when (ex.Status == 429)
+                {
+                    await HandleTooManyRequestsAsync(ex, tooManyRequestsAttempt, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (ClientResultException ex) when (ex.Status == 400)
+                {
+                    if (parameterAttempt == 0
+                        && AzureOpenAiMaxOutputTokenParameterPolicy.TryGetAlternateSerialization(
+                            ex,
+                            useMaxCompletionTokensProperty,
+                            out bool alternateUsesMaxCompletionTokensProperty))
+                    {
+                        useMaxCompletionTokensProperty = alternateUsesMaxCompletionTokensProperty;
+
+                        AzureOpenAiMaxOutputTokenParameterPolicy.Apply(
+                            options,
+                            useMaxCompletionTokensProperty);
+
+                        break;
+                    }
+
+                    throw;
+                }
             }
         }
+
+        throw new InvalidOperationException(
+            "Azure OpenAI chat completion failed after max output token parameter retries.");
     }
     private static string? BuildReasoningTraceSnippet(ChatCompletion completion)
     {
