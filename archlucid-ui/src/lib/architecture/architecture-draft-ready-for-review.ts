@@ -10,7 +10,14 @@ export function isArchitectureDraftEligibleToStartReview(entry: DraftReadyProbe)
   return entry.linkedReviewId === null && entry.customerStatus !== "archived";
 }
 
+/** Architectures eligible to start a review from the drafts registry. */
+export function filterArchitectureDraftsEligibleToStartReview<T extends DraftReadyProbe>(
+  entries: readonly T[],
+): T[] {
+  return entries.filter(isArchitectureDraftEligibleToStartReview);
+}
+
 /** Count of architectures eligible to start a review from the drafts registry. */
 export function countArchitectureDraftsReadyForReview(entries: readonly DraftReadyProbe[]): number {
-  return entries.filter(isArchitectureDraftEligibleToStartReview).length;
+  return filterArchitectureDraftsEligibleToStartReview(entries).length;
 }
