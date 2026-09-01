@@ -35,6 +35,36 @@ public sealed class AzureOpenAiTemperatureParameterPolicyTests
     }
 
     [Fact]
+    public void TryOmitTemperature_returns_true_for_generic_unsupported_temperature_message()
+    {
+        ClientResultException ex = CreateBadRequest(
+            "invalid_request_error: unsupported_value — temperature only supports the default (1) value.");
+
+        AzureOpenAiTemperatureParameterPolicy.TryOmitTemperature(ex).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ApplyRequested_omits_temperature_when_null()
+    {
+        ChatCompletionOptions options = AzureOpenAiMaxOutputTokenParameterPolicy.CreateOptions();
+        options.Temperature = 0.2f;
+
+        AzureOpenAiTemperatureParameterPolicy.ApplyRequested(options, temperature: null);
+
+        options.Temperature.Should().BeNull();
+    }
+
+    [Fact]
+    public void ApplyRequested_sets_explicit_temperature()
+    {
+        ChatCompletionOptions options = AzureOpenAiMaxOutputTokenParameterPolicy.CreateOptions();
+
+        AzureOpenAiTemperatureParameterPolicy.ApplyRequested(options, temperature: 0.2f);
+
+        options.Temperature.Should().Be(0.2f);
+    }
+
+    [Fact]
     public void Omit_clears_temperature_on_options()
     {
         ChatCompletionOptions options = AzureOpenAiMaxOutputTokenParameterPolicy.CreateOptions();

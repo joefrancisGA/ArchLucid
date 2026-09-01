@@ -19,8 +19,8 @@ using OpenAI.Chat;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-///     Azure OpenAI chat client using JSON object response format and low temperature for deterministic structured
-///     outputs. Optionally requests <c>json_schema</c> structured outputs for the <c>AgentResult</c> wire shape.
+///     Azure OpenAI chat client using JSON object response format and optional low temperature for structured
+///     outputs when callers request it. When temperature is omitted, the provider model default is used.
 /// </summary>
 /// <remarks>
 ///     When model output fails JSON deserialization or <see cref="ArchLucid.Contracts.Agents.AgentResult" /> validation, handlers use
