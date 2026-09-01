@@ -2531,8 +2531,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceCoverageController.PreviewCoverage` — null body used `ArgumentNullException.ThrowIfNull` (HTTP 500 risk) — **hit 2026-08-31 (#325):** nullable body + HTTP 400 `RequestBodyRequired`; regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_body_is_null`.
 - [x] (proven) `GovernanceEnvironmentCatalogController.Get` / `Replace` — ghost tenant returned HTTP 200 defaults or reached replace without tenant 404 while sibling governance reads preflighted — **hit 2026-08-31 (#325):** `ITenantRepository.GetByIdAsync` preflight on GET/PUT; regression in `GovernanceEnvironmentCatalogControllerTests`.
 - [x] (proven) `GovernanceStickinessFacade.UpdateRecurrenceScheduleAsync` — empty PUT body recomputed `NextRunUtc` from current clock even when cron/enabled unchanged — **hit 2026-08-31 (#325):** recompute next run only when `isEnabled` or `cronExpression` changes; regression in `GovernanceStickinessFacadeTests.UpdateRecurrenceScheduleAsync_preserves_next_run_when_request_has_no_schedule_changes`.
-- [x] (invalid) `TenantWorkspacesController.ListAsync` — lists all active projects in caller workspace while delete/restore require `scope.ProjectId` — **cheap-disproof 2026-09-01 (#413):** `ListAsync_returns_only_current_workspace` filters to `scope.WorkspaceId` and lists projects within that workspace for the picker UI; delete/restore mutation guards are project-scoped by design.
-- [x] (invalid) `GovernanceResolutionController.Resolve` — optional query `projectId` may return foreign-project resolution within same tenant without `GovernanceQueryProjectScope` gate — **cheap-disproof 2026-09-01 (#413):** `Resolve` has no `projectId` query parameter; resolution uses ambient JWT scope only (`GovernanceResolutionControllerTests.Resolve_returns_not_found_when_workspace_missing`).
+- [x] (invalid) `TenantWorkspacesController.ListAsync` — lists all active projects in caller workspace while delete/restore require `scope.ProjectId` — **cheap-disproof 2026-09-01 (#415):** `ListAsync_returns_only_current_workspace` filters to `scope.WorkspaceId` and lists projects within that workspace for the picker UI; delete/restore mutation guards are project-scoped by design.
+- [x] (invalid) `GovernanceResolutionController.Resolve` — optional query `projectId` may return foreign-project resolution within same tenant without `GovernanceQueryProjectScope` gate — **cheap-disproof 2026-09-01 (#415):** `Resolve` has no `projectId` query parameter; resolution uses ambient JWT scope only (`GovernanceResolutionControllerTests.Resolve_returns_not_found_when_workspace_missing`).
 
 2026-08-31 seed hunt #325: proved product-feedback whitespace findingRef, coverage preview null body, environment-catalog ghost-tenant preflight, and recurrence empty-PUT next-run drift; seeded workspace list sibling-project disclosure and resolution optional-project scope candidates.
 
@@ -2738,6 +2738,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 2026-09-01 thorough hunt #413 (dry): twelve stale hunt-ready rows closed as valid-no-repro on master after combined PR #1046 (`TenantWorkspaceScopePreflight`, catalog tenant preflight, empty `projectId` validation, checklist `isCompleted` guard, `required short Score` JSON rejection); eight regression tests passed; cheap-disproved workspace list and resolution optional-projectId candidates.
+
+2026-09-01 thorough hunt #415 (dry): twelve stale hunt-ready rows closed as valid-no-repro on master after combined PR #1046; eight regression tests passed; cheap-disproved workspace list and resolution optional-projectId candidates.
 ## Zone: application-agents
 
 - **id:** application-agents
