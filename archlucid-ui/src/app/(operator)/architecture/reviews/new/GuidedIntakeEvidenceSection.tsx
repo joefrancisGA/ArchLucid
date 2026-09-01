@@ -42,9 +42,9 @@ export function GuidedIntakeEvidenceSection(props: GuidedIntakeEvidenceSectionPr
               OPERATOR_TYPOGRAPHY.body,
             )}
           >
-            {priorAttachedFileNames.map((fileName) => (
-              <li key={fileName}>{fileName}</li>
-            ))}
+          {priorAttachedFileNames.map((fileName, index) => (
+            <li key={`${index}-${fileName}`}>{fileName}</li>
+          ))}
           </ul>
         </div>
       ) : null}
