@@ -168,6 +168,7 @@ public sealed class TenantCustomerSuccessControllerTests
         ProductFeedbackRequest request = new()
         {
             FindingRef = "fp-1",
+            Score = null,
         };
 
         IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
