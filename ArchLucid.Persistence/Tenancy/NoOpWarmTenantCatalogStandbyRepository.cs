@@ -13,4 +13,6 @@ public sealed class NoOpWarmTenantCatalogStandbyRepository : IWarmTenantCatalogS
         Task.CompletedTask;
 
     public Task MarkClaimedAsync(Guid standbyId, CancellationToken cancellationToken) => Task.CompletedTask;
+
+    public Task ReleaseClaimAsync(Guid standbyId, CancellationToken cancellationToken) => Task.CompletedTask;
 }
