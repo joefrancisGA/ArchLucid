@@ -214,7 +214,7 @@ public sealed class RunScopedLlmBudgetReservationService(
                     ActorUserName = "system",
                     ExplicitActor = true,
                     OccurredUtc = _timeProvider.GetUtcNow().UtcDateTime,
-                    TenantId = tenantId,
+                    TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
                     RunId = parsedRunId,
