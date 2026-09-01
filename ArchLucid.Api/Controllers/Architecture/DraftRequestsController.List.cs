@@ -27,7 +27,7 @@ public sealed partial class DraftRequestsController
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken cancellationToken = default)
     {
-        // v1 exposes only the signed-in operator's inventory: an omitted `mine` defaults to true.
+        // v1 exposes only the signed-in operator's inventory; `mine=false` is not supported (omitted/true are treated equivalently).
         if (mine == false)
         {
             return this.BadRequestProblem(
