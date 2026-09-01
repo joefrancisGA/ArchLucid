@@ -40,6 +40,7 @@ import type { ActorSet } from "@/types/draft-intake";
 import type { Dispatch, SetStateAction } from "react";
 
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
+import { GuidedIntakeEvidenceSection } from "./GuidedIntakeEvidenceSection";
 import { INTAKE_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
 
 export type SocraticIntakeWizardStepScopeProps = {
@@ -67,6 +68,8 @@ export type SocraticIntakeWizardStepScopeProps = {
   readonly advanceHint: string;
   readonly submitError: unknown;
   readonly systemNameAvailability: WorkspaceSystemNameAvailabilityState;
+  readonly priorAttachedFileNames: readonly string[];
+  readonly onEvidenceFilesChange: (files: File[]) => void;
   readonly onCreateArchitectureContinuation: () => void | Promise<void>;
   readonly onAdmission: () => void | Promise<void>;
 };
@@ -96,6 +99,8 @@ export function SocraticIntakeWizardStepScope({
   advanceHint,
   submitError,
   systemNameAvailability,
+  priorAttachedFileNames,
+  onEvidenceFilesChange,
   onCreateArchitectureContinuation,
   onAdmission,
 }: SocraticIntakeWizardStepScopeProps) {
@@ -233,6 +238,12 @@ export function SocraticIntakeWizardStepScope({
             </div>
           </>
         )}
+
+        <GuidedIntakeEvidenceSection
+          priorAttachedFileNames={priorAttachedFileNames}
+          disabled={busy}
+          onEvidenceFilesChange={onEvidenceFilesChange}
+        />
 
         <DraftIntakeActorEditor
           actorSet={actorSet}

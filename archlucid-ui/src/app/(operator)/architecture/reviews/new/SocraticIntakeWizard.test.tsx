@@ -182,6 +182,20 @@ vi.mock("./SocraticIntakeWizardDeferredPanels", async () => {
   };
 });
 
+vi.mock("./QuickReviewWizardDeferredPanels", () => ({
+  WizardEvidenceUploadZone: (props: { onFilesSelected?: (files: File[]) => void }) => (
+    <button
+      type="button"
+      data-testid="guided-intake-upload-stub"
+      onClick={() => {
+        props.onFilesSelected?.([new File(["diagram"], "network-topology.pdf", { type: "application/pdf" })]);
+      }}
+    >
+      Attach evidence stub
+    </button>
+  ),
+}));
+
 import { ApiRequestError } from "@/lib/api-request-error";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
@@ -537,6 +551,7 @@ describe("SocraticIntakeWizard", () => {
         },
       ],
       scopeGateOpen: true,
+      priorAttachedFileNames: ["ARCHITECTURE_HANDBOOK.2026.08.06b.docx"],
     });
 
     render(<SocraticIntakeWizard />);
@@ -553,7 +568,16 @@ describe("SocraticIntakeWizard", () => {
     expect((screen.getByTestId("socratic-outcome") as HTMLTextAreaElement).value).toContain(
       "Evaluate the attached materials",
     );
+    expect(screen.getByTestId("guided-intake-prior-attached-files")).toBeInTheDocument();
+    expect(screen.getByText("ARCHITECTURE_HANDBOOK.2026.08.06b.docx")).toBeInTheDocument();
     expect(createDraftRequest).not.toHaveBeenCalled();
+  });
+
+  it("shows the guided intake evidence upload section on step 0", () => {
+    render(<SocraticIntakeWizard />);
+
+    expect(screen.getByTestId("guided-intake-evidence-section")).toBeInTheDocument();
+    expect(screen.getByTestId("guided-intake-upload-stub")).toBeInTheDocument();
   });
 
   it("shows guided placeholders and Continue to clarifications on step 1", () => {

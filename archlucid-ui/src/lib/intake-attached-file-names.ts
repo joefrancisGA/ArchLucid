@@ -69,6 +69,32 @@ export function extractAttachedIntakeFileNames(description: string | null | unde
   return names;
 }
 
+/** Appends or replaces the attached-files block on an intake brief. */
+export function appendIntakeAttachedFileNames(
+  brief: string,
+  fileNames: readonly string[],
+): string {
+  const trimmedNames = fileNames.map((name) => name.trim()).filter((name) => name.length > 0);
+
+  if (trimmedNames.length === 0) {
+    return brief.trimEnd();
+  }
+
+  let base = brief;
+
+  for (const marker of ATTACHED_FILES_MARKERS) {
+    const markerIndex = base.indexOf(marker);
+
+    if (markerIndex >= 0) {
+      base = base.slice(0, markerIndex);
+    }
+  }
+
+  const fileLines = trimmedNames.map((name) => `- ${name}`).join("\n");
+
+  return `${base.trimEnd()}\n\nAttached files:\n${fileLines}`;
+}
+
 function sliceAttachedFilesSection(text: string): string | null {
   for (const marker of ATTACHED_FILES_MARKERS) {
     const markerIndex = text.indexOf(marker);

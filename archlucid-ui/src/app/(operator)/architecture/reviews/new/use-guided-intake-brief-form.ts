@@ -8,6 +8,7 @@ import {
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
+import { appendIntakeAttachedFileNames } from "@/lib/intake-attached-file-names";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_LABEL,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
@@ -41,6 +42,8 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
+  const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
+  const [priorAttachedFileNames, setPriorAttachedFileNames] = useState<readonly string[]>([]);
   const exampleTemplatePrefillAppliedRef = useRef(false);
 
   const { exampleTemplate, isCreateArchitectureFlow } = options;
@@ -121,19 +124,31 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
     [actorSet.actors, businessOutcome, freeTextIntent, systemName],
   );
 
-  const guidedIntakeEvidencePresence = useMemo(
-    () =>
-      deriveEvidencePresenceFromFileNames(
-        freeTextIntent.trim().length > 0 || businessOutcome.trim().length > 0 ? ["architecture-brief.md"] : [],
-      ),
-    [businessOutcome, freeTextIntent],
-  );
+  const guidedIntakeEvidencePresence = useMemo(() => {
+    if (evidenceFiles.length > 0) {
+      return deriveEvidencePresenceFromFileNames(evidenceFiles.map((file) => file.name));
+    }
+
+    if (freeTextIntent.trim().length > 0 || businessOutcome.trim().length > 0) {
+      return deriveEvidencePresenceFromFileNames(["architecture-brief.md"]);
+    }
+
+    return deriveEvidencePresenceFromFileNames([]);
+  }, [businessOutcome, evidenceFiles, freeTextIntent]);
 
   /** Brief text as the server should store it: confirmed scope bullets merged into the prose. */
-  const briefTextForAdmission = useCallback(
-    (): string => mergeScopeBulletsIntoBrief(scopeBullets, freeTextIntent),
-    [freeTextIntent, scopeBullets],
-  );
+  const briefTextForAdmission = useCallback((): string => {
+    const mergedBrief = mergeScopeBulletsIntoBrief(scopeBullets, freeTextIntent);
+
+    if (evidenceFiles.length === 0) {
+      return mergedBrief;
+    }
+
+    return appendIntakeAttachedFileNames(
+      mergedBrief,
+      evidenceFiles.map((file) => file.name),
+    );
+  }, [evidenceFiles, freeTextIntent, scopeBullets]);
 
   return {
     freeTextIntent,
@@ -150,6 +165,10 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
     setScopeBullets,
     scopeGateOpen,
     setScopeGateOpen,
+    evidenceFiles,
+    setEvidenceFiles,
+    priorAttachedFileNames,
+    setPriorAttachedFileNames,
     intentTrimmedLength,
     intentMeetsMinimum,
     outcomeTrimmedLength,
