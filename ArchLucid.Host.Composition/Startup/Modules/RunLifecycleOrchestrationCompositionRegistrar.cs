@@ -57,6 +57,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Runs;
 using ArchLucid.Host.Core.Demo;
+using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Http;
 using ArchLucid.Host.Core.Marketing;
 using ArchLucid.Host.Core.Services;
@@ -112,6 +113,9 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IInsightDensityGateOptionsResolver, InsightDensityGateOptionsResolver>();
         services.AddScoped<ITenantAgentOutputQualityGateModeService, TenantAgentOutputQualityGateModeService>();
         services.AddScoped<ITenantFindingEngineControlsService, TenantFindingEngineControlsService>();
+        services.AddScoped<ITenantWorkOwnershipDeletePolicyService, TenantWorkOwnershipDeletePolicyService>();
+        services.AddScoped<IWorkOwnershipDeleteAuthorizationService, WorkOwnershipDeleteAuthorizationService>();
+        services.AddScoped<ICallerRoleAccessor, HttpCallerRoleAccessor>();
         services.AddScoped<IWorkspaceModelExecutionProfileService, WorkspaceModelExecutionProfileService>();
         services.AddScoped<IWorkspaceAllowedEngineSetService, WorkspaceAllowedEngineSetService>();
         services.AddScoped<IModelExecutionProfileResolver, ModelExecutionProfileResolver>();

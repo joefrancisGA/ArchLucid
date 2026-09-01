@@ -29,6 +29,8 @@ internal static class AuthorityCommitPipelineCompositionRegistrar
     public static void Register(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IActorContext, HttpActorContext>();
+        services.AddScoped<ICallerRoleAccessor, HttpCallerRoleAccessor>();
+        services.AddScoped<IWorkOwnershipDeleteAuthorizationService, WorkOwnershipDeleteAuthorizationService>();
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
         services.Configure<PreCommitGovernanceGateOptions>(
             configuration.GetSection(PreCommitGovernanceGateOptions.SectionPath));

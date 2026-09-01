@@ -35,4 +35,7 @@ public static class TenantSettingKeys
 
     /// <summary>Tenant override for <c>ArchLucid:Findings:PortfolioRecurrence:Enabled</c>.</summary>
     public const string FindingsPortfolioRecurrenceEnabled = "Findings.PortfolioRecurrence.Enabled";
+
+    /// <summary>When false, only workspace administrators may delete or archive architectures and in-flight reviews.</summary>
+    public const string AllowCreatorDeleteOwnedWork = "Governance.AllowCreatorDeleteOwnedWork";
 }
