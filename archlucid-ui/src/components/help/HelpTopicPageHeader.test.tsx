@@ -25,4 +25,16 @@ describe("HelpTopicTitleRow", () => {
     expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-page-icon")).toBeInTheDocument();
   });
+
+  it("centers the book icon on the title row", () => {
+    render(<HelpTopicTitleRow title="Getting started" />);
+
+    const icon = screen.getByTestId("help-topic-page-icon");
+    const title = screen.getByRole("heading", { name: "Getting started" });
+    const titleRow = title.parentElement;
+
+    expect(titleRow?.className).toContain("items-center");
+    expect(icon.parentElement?.className).toContain("h-7");
+    expect(icon.parentElement?.className).toContain("items-center");
+  });
 });
