@@ -10611,6 +10611,11 @@ BEGIN
 END
 GO
 
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'CreatedByUserId') IS NULL
+    ALTER TABLE dbo.Runs ADD CreatedByUserId NVARCHAR(256) NULL;
+GO
+
 /* 334: Platform-scoped operational error inbox for internal staff review (HTTP, database, and unhandled exceptions). */
 IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
 BEGIN

@@ -61,6 +61,7 @@ public sealed class SettingsControllerModelGovernanceCatalogTests
         SettingsController controller = new(
             Mock.Of<ITenantAgentOutputQualityGateModeService>(),
             Mock.Of<ITenantFindingEngineControlsService>(),
+            Mock.Of<ITenantWorkOwnershipDeletePolicyService>(),
             profileService.Object,
             Mock.Of<IWorkspaceAllowedEngineSetService>(),
             Mock.Of<IExternalSubprocessorEngineAcknowledgmentService>(),

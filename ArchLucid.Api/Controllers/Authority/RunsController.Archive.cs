@@ -2,6 +2,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Host.Core.ProblemDetails;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,10 @@ public sealed partial class RunsController
             ArchitectureRunArchiveOutcome.SealedReviewBlocked => this.BadRequestProblem(
                 "Sealed reviews cannot be archived. Committed architecture packages and audit history remain until tenant offboarding.",
                 ProblemTypes.ValidationFailed),
+            ArchitectureRunArchiveOutcome.OwnershipDeleteForbidden => this.ForbiddenProblemWithErrorCode(
+                "Archive not permitted",
+                "Only the review creator or a workspace administrator may archive this in-flight review.",
+                ProblemErrorCodes.Forbidden),
             _ => throw new InvalidOperationException($"Unhandled archive outcome '{outcome}'."),
         };
     }

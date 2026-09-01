@@ -53,6 +53,13 @@ public sealed class DraftRequestResponse
         set;
     }
 
+    /// <summary>Canonical actor key or mailbox captured when the draft was created.</summary>
+    public string CreatedByUserId
+    {
+        get;
+        set;
+    } = string.Empty;
+
     public DateTime CreatedUtc
     {
         get;
