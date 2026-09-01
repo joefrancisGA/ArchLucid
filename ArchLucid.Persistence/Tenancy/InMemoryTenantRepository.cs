@@ -13,7 +13,7 @@ namespace ArchLucid.Persistence.Tenancy;
 ///     Aggregate methods live in <c>InMemoryTenantRepository.{Directory|Lifecycle|Workspace|Trial|Seat|Erasure}.cs</c>
 ///     partials that mirror <see cref="ITenantRepository"/>'s composed interfaces.
 /// </remarks>
-public sealed partial class InMemoryTenantRepository : ITenantRepository
+public sealed partial class InMemoryTenantRepository : ITenantRepository, IWorkspaceQueryTenantRepository
 {
     private readonly ConcurrentDictionary<Guid, TenantRecord> _byId = new();
     private readonly ConcurrentDictionary<Guid, Guid> _entraTenantIdToTenantId = new();

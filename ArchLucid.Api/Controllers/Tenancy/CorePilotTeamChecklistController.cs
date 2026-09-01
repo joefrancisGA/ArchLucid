@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
@@ -50,11 +51,14 @@ public sealed class CorePilotTeamChecklistController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         IReadOnlyList<CorePilotChecklistStepRow> rows = await _repository
             .ListAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
@@ -91,11 +95,14 @@ public sealed class CorePilotTeamChecklistController(
         if (!body.IsCompleted.HasValue)
             return this.BadRequestProblem("isCompleted is required.", ProblemTypes.ValidationFailed);
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         string actor = _actorContext.GetActorId();
 
