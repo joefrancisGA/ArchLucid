@@ -10,6 +10,7 @@ import { useInferredUniversalIntakeAnswers } from "@/hooks/use-inferred-universa
 import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
+import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system-name-availability";
 import { type CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
@@ -29,6 +30,7 @@ import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotStartBlocker,
   FIRST_PILOT_MIN_BRIEF_CHARS,
+  FIRST_PILOT_MIN_TITLE_CHARS,
   formatFirstPilotIntakeWriteDestination,
   normalizeFirstPilotReviewTitle,
 } from "@/lib/first-pilot-intake";
@@ -253,7 +255,19 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
   const startBlocker = describeFirstPilotStartBlocker(startBlockerInput);
 
-  const canStart = startBlocker === null && !creationProgress.isActive && !blocksLlmExecution;
+  const systemNameAvailability = useWorkspaceSystemNameAvailability({
+    systemName: runTitle,
+    excludeRunId: priorRunId,
+    minTrimmedLength: FIRST_PILOT_MIN_TITLE_CHARS,
+    enabled: !creationProgress.isActive,
+  });
+
+  const canStart =
+    startBlocker === null &&
+    !creationProgress.isActive &&
+    !blocksLlmExecution &&
+    !systemNameAvailability.blocksSubmit &&
+    !systemNameAvailability.validating;
 
   const buildSubmitBody = useCallback(
     (filesToUpload: readonly File[]): CreateArchitectureRunRequestPayload => {
@@ -348,6 +362,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     showLimitedEvidenceAcknowledgment,
     policyPackCloudMismatch,
     startBlocker,
+    systemNameAvailability,
     clientValidationMessage,
     setClientValidationMessage,
     submitRun,

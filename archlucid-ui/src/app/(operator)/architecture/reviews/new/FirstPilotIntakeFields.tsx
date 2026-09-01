@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
+import { WorkspaceSystemNameAvailabilityFeedback } from "@/components/intake/WorkspaceSystemNameAvailabilityFeedback";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
@@ -92,6 +93,14 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
             autoComplete="off"
             aria-required
             data-testid="first-pilot-title"
+            aria-invalid={
+              wizard.systemNameAvailability.validationReady &&
+              !wizard.systemNameAvailability.isAvailable
+            }
+          />
+          <WorkspaceSystemNameAvailabilityFeedback
+            availability={wizard.systemNameAvailability}
+            testId="first-pilot-title-availability"
           />
           {wizard.inheritedPriorTitle !== null ? (
             <p
