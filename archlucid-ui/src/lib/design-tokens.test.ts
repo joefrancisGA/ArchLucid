@@ -114,6 +114,13 @@ describe("design-tokens TB-119 typography", () => {
     expect(DESIGN_TOKENS.interactive.chip).not.toContain("text-[13px]");
   });
 
+  it("interactive filter chips use rounded-md pill shape so short labels are not circular", () => {
+    expect(DESIGN_TOKENS.interactive.chip).toContain("rounded-md");
+    expect(DESIGN_TOKENS.interactive.chip).not.toContain("rounded-full");
+    expect(DESIGN_TOKENS.interactive.chip).toContain("min-h-8");
+    expect(DESIGN_TOKENS.interactive.chip).toContain("px-3");
+  });
+
   it("Button and native control labels share compact 11px bold scale", () => {
     expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toContain("text-[11px]");
     expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toContain("font-bold");

@@ -19,14 +19,11 @@ export type ReviewFilterId =
   | "finalized"
   | ReviewsHubOverallStatus;
 
-export const PRIMARY_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label: string }> = [
+export const INVENTORY_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label: string }> = [
   { id: "all", label: "All" },
   { id: "needs-attention", label: REVIEWS_HUB_FILTER_NEEDS_ATTENTION_LABEL },
   { id: "finalized", label: REVIEWS_HUB_FILTER_FINALIZED_LABEL },
   { id: "updated-recently", label: REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL },
-];
-
-export const MORE_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label: string }> = [
   { id: "Draft", label: "Draft" },
   { id: "Active", label: "Active" },
   { id: "Awaiting approval", label: "Awaiting approval" },
