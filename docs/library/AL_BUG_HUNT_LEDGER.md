@@ -2605,8 +2605,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-31 thorough hunt #321: re-proved and landed on master the four picker candidates (findingRef inspect gate, sibling projectId guard, batch-review OrdinalIgnoreCase dedupe, bulk-disposition all-or-nothing scope validation).
 
-2026-08-31 thorough hunt #321: re-proved and landed on master the four picker candidates (findingRef inspect gate, sibling projectId guard, batch-review OrdinalIgnoreCase dedupe, bulk-disposition all-or-nothing scope validation).
-
 2026-08-31 thorough hunt #353 (hit): proved environment-catalog ghost tenant, empty `projectId` query validation, and checklist `isCompleted` omission on master; seeded ghost-workspace posture/coverage and product-feedback score candidates.
 
 2026-08-31 thorough hunt #354 (hit): proved ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default on master.
