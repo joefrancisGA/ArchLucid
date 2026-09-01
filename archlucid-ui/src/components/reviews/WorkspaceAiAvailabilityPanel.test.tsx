@@ -21,7 +21,27 @@ describe("WorkspaceAiAvailabilityPanel", () => {
     fetchWorkspaceAiAvailabilityMock.mockReset();
   });
 
-  it("does not auto-check availability on mount", () => {
+  it("shows session-managed pending detail before probe results are available", () => {
+    render(
+      <WorkspaceAiAvailabilityPanel
+        workspaceAiSignal={{
+          label: "Workspace AI availability",
+          detail: "Review failure pattern suggests ArchLucid-managed AI may be unavailable — use Check AI availability to confirm before re-running.",
+        }}
+        availabilityCheck={{
+          state: { status: "idle" },
+          checkAvailability: vi.fn(),
+        }}
+      />,
+    );
+
+    expect(fetchWorkspaceAiAvailabilityMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId("review-package-workspace-ai-detail")).toHaveTextContent(
+      "Starting an automatic live AI availability check",
+    );
+  });
+
+  it("does not auto-check availability on mount when used standalone", () => {
     render(
       <WorkspaceAiAvailabilityPanel
         workspaceAiSignal={{

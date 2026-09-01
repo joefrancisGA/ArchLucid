@@ -20,10 +20,13 @@ export type WorkspaceAiAvailabilityCheck = {
 export function useWorkspaceAiAvailabilityCheck(input: {
   readonly enabled: boolean;
   readonly autoCheck?: boolean;
+  readonly autoRetryOnError?: boolean;
+  readonly maxAutoRetries?: number;
 }): WorkspaceAiAvailabilityCheck {
   const [state, setState] = useState<WorkspaceAiAvailabilityCheckState>({ status: "idle" });
   const inFlightRef = useRef<AbortController | null>(null);
   const autoCheckedRef = useRef(false);
+  const retriesRemainingRef = useRef(input.maxAutoRetries ?? (input.autoRetryOnError === true ? 1 : 0));
 
   const checkAvailability = useCallback(
     async (options?: { readonly force?: boolean }) => {
@@ -64,12 +67,25 @@ export function useWorkspaceAiAvailabilityCheck(input: {
             (error.name === "AbortError" || error.message.toLowerCase().includes("abort")));
 
         const message = timedOut
-          ? `AI availability check timed out after ${WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS / 1000}s. Press Check AI availability to retry.`
+          ? `AI availability check timed out after ${WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS / 1000}s.`
           : error instanceof Error && error.message.trim().length > 0
             ? error.message
             : "Workspace AI availability check failed.";
 
-        setState({ status: "error", message });
+        if (input.autoRetryOnError === true && retriesRemainingRef.current > 0) {
+          retriesRemainingRef.current -= 1;
+          window.setTimeout(() => {
+            void checkAvailability({ force: true });
+          }, 400);
+
+          return;
+        }
+
+        const finalMessage = timedOut
+          ? `${message} Press Check AI availability to retry.`
+          : message;
+
+        setState({ status: "error", message: finalMessage });
       } finally {
         window.clearTimeout(timeoutId);
 
@@ -78,7 +94,7 @@ export function useWorkspaceAiAvailabilityCheck(input: {
         }
       }
     },
-    [input.enabled, state.status],
+    [input.autoRetryOnError, input.enabled, state.status],
   );
 
   useEffect(() => {

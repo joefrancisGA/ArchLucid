@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
 import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
 import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
+import { deriveReviewFailureRequiresWorkspaceAiProbe } from "@/lib/derive-review-failure-requires-workspace-ai-probe";
 import { fetchLlmMonthlyDollarBudgetStatusCached } from "@/lib/llm-monthly-budget-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
@@ -58,7 +59,24 @@ export function RunDetailReviewPackageDoThisNextResolved(
   const [next, setNext] = useState<ReviewPackageDoThisNext | null>(null);
   const [usesCustomerAiConnection, setUsesCustomerAiConnection] = useState(false);
   const priorCompare = usePriorSameRequestCompareHref(props.runId, 25);
-  const sessionAiReadiness = useSessionAiReadiness();
+  const requireLiveProbe = useMemo(
+    () =>
+      deriveReviewFailureRequiresWorkspaceAiProbe({
+        legacyRunStatus: props.legacyRunStatus,
+        lastFailureSummary: props.lastFailureSummary,
+        pipelineSummary: props.pipelineSummary,
+        realModeFellBackToSimulator: props.realModeFellBackToSimulator,
+        usesCustomerAiConnection,
+      }),
+    [
+      props.lastFailureSummary,
+      props.legacyRunStatus,
+      props.pipelineSummary,
+      props.realModeFellBackToSimulator,
+      usesCustomerAiConnection,
+    ],
+  );
+  const sessionAiReadiness = useSessionAiReadiness({ requireLiveProbe });
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canConfigureWorkspaceAi = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const assumptionAwareCommitBlockedReason = useAssumptionAwareCommitBlockedReason({
