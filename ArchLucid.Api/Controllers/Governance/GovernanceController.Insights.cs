@@ -159,7 +159,7 @@ public sealed partial class GovernanceController
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
-        catch (Application.RunNotFoundException ex)
+        catch (ArchLucid.Application.RunNotFoundException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
