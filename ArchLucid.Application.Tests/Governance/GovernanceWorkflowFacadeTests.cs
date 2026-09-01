@@ -413,6 +413,22 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task ActivateAsync_throws_when_environment_is_unknown()
+    {
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        GovernanceWorkflowFacade sut = CreateFacade(runDetail: runDetail.Object);
+
+        Func<Task> act = () => sut.ActivateAsync("run-1", "v1", "staging", "operator");
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*dev, test, prod*");
+    }
+
+    [Fact]
     public async Task ActivateAsync_deactivates_existing_active_records_when_environment_is_padded()
     {
         GovernanceEnvironmentActivation existing = new()
@@ -1361,11 +1377,11 @@ public sealed class GovernanceWorkflowFacadeTests
             integrationEventPublisher: publisher.Object,
             integrationEventOutbox: outbox.Object);
 
-        await sut.ActivateAsync("run-1", "v1", "test-a", "operator");
+        await sut.ActivateAsync("run-1", "v1", "dev", "operator");
 
         options = new IntegrationEventsOptions { TransactionalOutboxEnabled = true };
 
-        await sut.ActivateAsync("run-1", "v1", "test-b", "operator");
+        await sut.ActivateAsync("run-1", "v1", "test", "operator");
 
         publisher.Verify(
             p => p.PublishAsync(
@@ -1421,8 +1437,8 @@ public sealed class GovernanceWorkflowFacadeTests
             unitOfWorkFactory: ArchLucidUnitOfWorkTestDoubles.ExternalTransactionFactory(),
             integrationEventsOptions: integrationOptions.Object);
 
-        await sut.ActivateAsync("run-1", "v1", "test-a", "operator");
-        await sut.ActivateAsync("run-1", "v1", "test-b", "operator");
+        await sut.ActivateAsync("run-1", "v1", "dev", "operator");
+        await sut.ActivateAsync("run-1", "v1", "test", "operator");
 
         transactions.Should().HaveCount(2);
         transactions[0].Connection.Should().NotBeSameAs(transactions[1].Connection);

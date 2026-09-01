@@ -18,15 +18,17 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class TenantIntegrationsOperationsControllerTests
 {
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000")
+    };
+
     [Fact]
     public async Task GetAsync_maps_summary_to_response()
     {
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-            ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000")
-        };
+        ScopeContext scope = Scope;
 
         ConnectorOperationsSummary summary = new()
         {
@@ -66,6 +68,16 @@ public sealed class TenantIntegrationsOperationsControllerTests
         tenants
             .Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
 
         TenantIntegrationsOperationsController controller =
             new(scopeProvider.Object, reader.Object, tenants.Object)
@@ -83,6 +95,49 @@ public sealed class TenantIntegrationsOperationsControllerTests
         response.Connectors[0].ConnectorKey.Should().Be("jira");
         response.IntegrationEventBus.PublisherConfigured.Should().BeTrue();
         response.IntegrationEventBus.QueueOrTopicName.Should().Be("integration-events");
+    }
+
+    [Fact]
+    public async Task GetAsync_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(t => t.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        Mock<IConnectorOperationsSummaryReader> reader = new(MockBehavior.Strict);
+
+        TenantIntegrationsOperationsController controller =
+            new(scopeProvider.Object, reader.Object, tenants.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        reader.VerifyNoOtherCalls();
     }
 
     [Fact]

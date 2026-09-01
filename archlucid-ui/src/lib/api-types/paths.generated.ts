@@ -90635,16 +90635,13 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Bad Request */
+                /** @description Bad Request (validation or malformed input). */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unauthorized. */
@@ -90925,13 +90922,16 @@ export interface paths {
                         "text/plain": components["schemas"]["PolicyPackCatalogEntryDetail"];
                     };
                 };
-                /** @description Bad Request (validation or malformed input). */
+                /** @description Bad Request */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unauthorized. */
@@ -92485,13 +92485,14 @@ export interface paths {
                         "text/markdown": unknown;
                     };
                 };
-                /** @description Bad Request (validation or malformed input). */
+                /** @description Bad Request */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/markdown": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unauthorized. */
@@ -92924,13 +92925,16 @@ export interface paths {
                         "text/plain": components["schemas"]["PolicyPackVersion"][];
                     };
                 };
-                /** @description Bad Request (validation or malformed input). */
+                /** @description Bad Request */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unauthorized. */
@@ -93066,13 +93070,16 @@ export interface paths {
                         "text/plain": components["schemas"]["PolicyPackVersion"];
                     };
                 };
-                /** @description Bad Request (validation or malformed input). */
+                /** @description Bad Request */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unauthorized. */
@@ -102001,13 +102008,16 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Bad Request (validation or malformed input). */
+                /** @description Bad Request */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unauthorized. */

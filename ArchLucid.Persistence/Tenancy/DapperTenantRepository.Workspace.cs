@@ -65,6 +65,50 @@ public sealed partial class DapperTenantRepository
 
 
     /// <inheritdoc />
+    public async Task<bool> WorkspaceExistsAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        const string sql = """
+                           SELECT CAST(CASE WHEN EXISTS (
+                               SELECT 1 FROM dbo.TenantWorkspaces
+                               WHERE TenantId = @TenantId AND Id = @Id
+                           ) THEN 1 ELSE 0 END AS BIT);
+                           """;
+
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(sql, new { TenantId = tenantId, Id = workspaceId }, cancellationToken: ct))
+            .ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<TenantWorkspaceListItem?> GetWorkspaceByIdAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        const string sql = """
+                           SELECT Id AS WorkspaceId, TenantId, Name, DefaultProjectId, CreatedUtc
+                           FROM dbo.TenantWorkspaces
+                           WHERE TenantId = @TenantId AND Id = @Id;
+                           """;
+
+        WorkspaceListRow? row = await connection.QuerySingleOrDefaultAsync<WorkspaceListRow>(
+            new CommandDefinition(sql, new { TenantId = tenantId, Id = workspaceId }, cancellationToken: ct))
+            .ConfigureAwait(false);
+
+        return row is null
+            ? null
+            : new TenantWorkspaceListItem
+            {
+                WorkspaceId = row.WorkspaceId,
+                TenantId = row.TenantId,
+                Name = row.Name,
+                DefaultProjectId = row.DefaultProjectId,
+                CreatedUtc = row.CreatedUtc
+            };
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<TenantWorkspaceListItem>> ListWorkspacesAsync(Guid tenantId, CancellationToken ct)
     {
         await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
