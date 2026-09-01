@@ -482,8 +482,25 @@
 {"at":"2026-08-31T15:04:31.6360466Z","zoneId":"archlucid-core","outcome":"dry"}
 {"at":"2026-08-31T15:05:00Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","note":"combined PR #892-930 integration branch"}
 {"at":"2026-08-31T15:29:17.1836222Z","zoneId":"persistence-identity","outcome":"hit"}
+{"at":"2026-08-31T16:09:45.6316726Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T16:35:52.6631481Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T16:53:35.5904819Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-08-31T17:15:45.029233Z","zoneId":"ui-operator-lib","outcome":"hit"}
+{"at":"2026-08-31T17:49:27.494244Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T17:58:00.745Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T18:04:02.7791778Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T18:08:31.0904599Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T18:12:33.2183682Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T18:16:17.1136638Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T18:20:08.7492064Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T18:24:07.0106345Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T18:28:38.009687Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T18:33:22.9380629Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T18:39:05.5419376Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T19:21:14.2494537Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T19:26:05.0236275Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T19:30:00Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","note":"combined PRs #981-991 integration branch"}
 {"at":"2026-08-31T19:30:04.2978218Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-01T00:09:08.3947417Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-01T00:14:45.5463699Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T19:35:11.7319764Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}

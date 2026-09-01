@@ -1,3 +1,4 @@
+using ArchLucid.Application.Authorization;
 using ArchLucid.Application;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Drafts.QuestionSelection;
@@ -37,7 +38,8 @@ internal static class DraftRequestServiceTestFactory
             repository,
             questionSelectionEngine,
             priorPackageSemanticMergeService,
-            workspaceSystemNameCollisionGuard);
+            workspaceSystemNameCollisionGuard,
+            Mock.Of<IWorkOwnershipDeleteAuthorizationService>());
 
         DraftAdmissionService admissionService = new(
             repository,

@@ -47,6 +47,13 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>Canonical actor key or mailbox captured when the review run was created.</summary>
+    public string? CreatedByUserId
+    {
+        get;
+        set;
+    }
+
     public Guid? ContextSnapshotId
     {
         get;

@@ -7,4 +7,5 @@ public enum ArchitectureRunArchiveOutcome
     AlreadyArchived,
     NotFound,
     SealedReviewBlocked,
+    OwnershipDeleteForbidden,
 }

@@ -100,6 +100,7 @@ export function buyerFacingAuditTrailScopeLabel(runId: string): string | null {
 
   return label
     .replace(/ Review Package$/i, "")
+    .replace(/ architecture package$/i, "")
     .replace(/ Review$/, "")
     .trim();
 }
