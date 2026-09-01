@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Diagnostics;
 using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Scoping;
@@ -29,6 +30,7 @@ public sealed class WorkspaceAiAvailabilityService(
     ITenantAzureOpenAiConnectionRepository azureOpenAiConnectionRepository,
     ISecretProvider secretProvider,
     ILlmMonthlyTenantDollarBudgetStatusService llmBudgetStatusService,
+    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     IServiceProvider serviceProvider,
     ILogger<AzureOpenAiCompletionClient> completionClientLogger,
     TimeProvider timeProvider) : IWorkspaceAiAvailabilityService
@@ -50,6 +52,9 @@ public sealed class WorkspaceAiAvailabilityService(
 
     private readonly ILlmMonthlyTenantDollarBudgetStatusService _llmBudgetStatusService =
         llmBudgetStatusService ?? throw new ArgumentNullException(nameof(llmBudgetStatusService));
+
+    private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
+        effectiveAgentExecutionModeAccessor ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
 
     private readonly IServiceProvider _serviceProvider =
         serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -73,10 +78,13 @@ public sealed class WorkspaceAiAvailabilityService(
         List<WorkspaceAiAvailabilityCheckRow> checks = [];
         Dictionary<string, string> debug = new(StringComparer.Ordinal);
 
-        string agentMode = (_configuration["AgentExecution:Mode"] ?? "Simulator").Trim();
+        string configuredMode = (_configuration["AgentExecution:Mode"] ?? "Simulator").Trim();
+        string effectiveMode = _effectiveAgentExecutionModeAccessor.GetEffectiveMode();
         string completionClient = (_configuration["AgentExecution:CompletionClient"] ?? string.Empty).Trim();
 
-        debug["agentExecutionMode"] = agentMode;
+        debug["configuredAgentExecutionMode"] = configuredMode;
+        debug["effectiveAgentExecutionMode"] = effectiveMode;
+        debug["agentExecutionMode"] = effectiveMode;
         debug["completionClient"] = string.IsNullOrWhiteSpace(completionClient) ? "(default)" : completionClient;
         debug["tenantId"] = scope.TenantId.ToString("D");
         debug["workspaceId"] = scope.WorkspaceId.ToString("D");
@@ -95,7 +103,7 @@ public sealed class WorkspaceAiAvailabilityService(
                 .ConfigureAwait(false);
         }
 
-        if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(effectiveMode, DevAgentExecutionModeHeaderNames.Simulator, StringComparison.OrdinalIgnoreCase))
         {
             checks.Add(
                 new WorkspaceAiAvailabilityCheckRow
@@ -118,6 +126,24 @@ public sealed class WorkspaceAiAvailabilityService(
                 Checks = checks,
                 Debug = debug,
             };
+        }
+
+        if (!AzureOpenAiConfigurationProbe.IsCompletionStackConfigured(_configuration))
+        {
+            checks.Add(
+                new WorkspaceAiAvailabilityCheckRow
+                {
+                    Name = "azure_openai_configuration",
+                    Status = "failed",
+                    Detail = AgentExecutionReadinessMessages.LiveCompletionUnavailable,
+                });
+
+            return Unavailable(
+                "managed-platform",
+                AgentExecutionReadinessMessages.LiveCompletionUnavailable,
+                checks,
+                debug,
+                asOfUtc);
         }
 
         return await ProbeManagedPlatformAsync(checks, debug, asOfUtc, probeBudget.Token).ConfigureAwait(false);

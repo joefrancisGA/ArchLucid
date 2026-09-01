@@ -100,6 +100,10 @@ public sealed class CustomRolesAdminController(
                 "Role name or description is not valid JSON-safe text.",
                 ProblemTypes.ValidationFailed);
         }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
     }
 
     [HttpPut("{roleId:guid}")]
@@ -218,87 +222,5 @@ public sealed class CustomRolesAdminController(
         }
 
         return true;
-    }
-}
-
-public sealed class CustomRoleUpsertRequest
-{
-    public string Name
-    {
-        get;
-        init;
-    } = string.Empty;
-
-    public string? Description
-    {
-        get;
-        init;
-    }
-
-    public IReadOnlyList<string>? Permissions
-    {
-        get;
-        init;
-    }
-}
-
-public sealed class CustomRoleAssignRequest
-{
-    public Guid UserId
-    {
-        get;
-        init;
-    }
-}
-
-public sealed class CustomRoleResponse
-{
-    public Guid Id
-    {
-        get;
-        init;
-    }
-
-    public string Name
-    {
-        get;
-        init;
-    } = string.Empty;
-
-    public string? Description
-    {
-        get;
-        init;
-    }
-
-    public IReadOnlyList<string> Permissions
-    {
-        get;
-        init;
-    } = [];
-
-    public bool IsSystem
-    {
-        get;
-        init;
-    }
-
-    public DateTimeOffset UpdatedUtc
-    {
-        get;
-        init;
-    }
-
-    public static CustomRoleResponse FromRecord(CustomRoleRecord record)
-    {
-        return new CustomRoleResponse
-        {
-            Id = record.Id,
-            Name = record.Name,
-            Description = record.Description,
-            Permissions = record.Permissions,
-            IsSystem = record.IsSystem,
-            UpdatedUtc = record.UpdatedUtc,
-        };
     }
 }

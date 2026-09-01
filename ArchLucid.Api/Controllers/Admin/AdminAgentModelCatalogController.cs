@@ -133,17 +133,28 @@ public sealed class AdminAgentModelCatalogController(
 
         string actor = User?.Identity?.Name ?? "admin";
 
-        AgentModelCatalogRow saved = await _evaluationRecorder
-            .RecordTaskEvaluationAsync(
-                aliasId,
-                taskType,
-                evaluationState,
-                request.EvidenceJson,
-                actor,
-                cancellationToken)
-            .ConfigureAwait(false);
+        try
+        {
+            AgentModelCatalogRow saved = await _evaluationRecorder
+                .RecordTaskEvaluationAsync(
+                    aliasId,
+                    taskType,
+                    evaluationState,
+                    request.EvidenceJson,
+                    actor,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-        return Ok(saved);
+            return Ok(saved);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
     }
 
     [HttpPost("{aliasId}/evaluations/import-faithfulness-harness")]

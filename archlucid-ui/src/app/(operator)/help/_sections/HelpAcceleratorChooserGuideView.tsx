@@ -12,7 +12,6 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { HelpAcceleratorCostGovernancePackCard } from "@/components/accelerator/HelpAcceleratorCostGovernancePackCard";
-import { AcceleratorFollowUpPackTag } from "@/components/accelerator/AcceleratorFollowUpPackTag";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import { useAcceleratorChooserPrerequisitePresentation } from "@/hooks/use-accelerator-chooser-prerequisite-presentation";
 import { buildAcceleratorChooserGridItemsForPrerequisite } from "@/lib/accelerator-chooser-grid";
@@ -27,7 +26,6 @@ import { ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO } from "@/lib/acceler
 import { ACCELERATOR_CHOOSER_HELP_PATH } from "@/lib/accelerator-chooser-help-route";
 import {
   ACCELERATOR_GREENFIELD_PACK_ID,
-  acceleratorPackRequiresSignedReviewRecord,
   resolvePackCtaState,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 import { ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL } from "@/lib/accelerator-chooser-start-copy";
@@ -80,7 +78,6 @@ function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): Rea
   const { packEntry, prerequisiteStatus, onRetry } = props;
   const ctaState = resolvePackCtaState(prerequisiteStatus, packEntry.id);
   const hasTechnicalInputs = packEntry.technicalInputs !== undefined;
-  const isFollowUpPack = acceleratorPackRequiresSignedReviewRecord(packEntry.id);
 
   return (
     <li
@@ -93,9 +90,6 @@ function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): Rea
       <p className={cn("m-0 mt-1 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {packEntry.packLabel}
       </p>
-      {isFollowUpPack ? (
-        <AcceleratorFollowUpPackTag testId={`help-accelerator-chooser-pack-${packEntry.id}-follow-up-tag`} />
-      ) : null}
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{packEntry.summary}</p>
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-medium text-al-text-primary">

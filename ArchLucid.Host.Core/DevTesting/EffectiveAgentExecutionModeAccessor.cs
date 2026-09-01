@@ -10,7 +10,7 @@ namespace ArchLucid.Host.Core.DevTesting;
 /// <summary>
 ///     Honors <see cref="DevAgentExecutionModeHeaderNames.Header" /> in Development when
 ///     <see cref="DeveloperExperienceOptions.AllowAgentExecutionModeHeaderOverride" /> is enabled.
-///     Defaults to Real when the header is absent so local UI testing starts on live Azure OpenAI.
+///     Falls back to configured <c>AgentExecution:Mode</c> when the dev header is absent.
 /// </summary>
 public sealed class EffectiveAgentExecutionModeAccessor(
     IHttpContextAccessor httpContextAccessor,
@@ -42,7 +42,7 @@ public sealed class EffectiveAgentExecutionModeAccessor(
             return parsed;
         }
 
-        return DevAgentExecutionModeHeaderNames.Real;
+        return ResolveConfiguredMode();
     }
 
     private bool IsHeaderOverrideEnabled()

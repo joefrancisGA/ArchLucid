@@ -10,6 +10,7 @@ import {
 } from "@/components/operator/OperatorShellMessage";
 import { WorkspaceAiAvailabilityPanel } from "@/components/reviews/WorkspaceAiAvailabilityPanel";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
 import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-intake-recap";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
@@ -220,7 +221,9 @@ export function ReviewPackageDoThisNextStrip(
   props: ReviewPackageDoThisNextStripProps,
 ): React.JSX.Element {
   const { next, runId, hasGoldenManifest, commitBlockedReason } = props;
+  const readiness = useSessionAiReadiness();
   const buttonVariant = next.buttonVariant ?? "primary";
+  const blockRerun = next.kind === "rerun-review" && readiness.blocksExecute;
 
   return (
     <section
@@ -249,12 +252,15 @@ export function ReviewPackageDoThisNextStrip(
               commitBlockedReason={commitBlockedReason}
               buttonVariant="primary"
             />
-          ) : next.href !== null ? (
+          ) : next.href !== null && !blockRerun ? (
             <Button type="button" variant={buttonVariant} size="sm" asChild>
               <Link href={next.href}>{next.actionLabel}</Link>
             </Button>
           ) : (
-            <span className={cn(buttonVariants({ variant: buttonVariant, size: "sm" }), "pointer-events-none opacity-60")}>
+            <span
+              className={cn(buttonVariants({ variant: buttonVariant, size: "sm" }), "pointer-events-none opacity-60")}
+              title={blockRerun ? readiness.detail ?? "Live AI is not ready for Real mode." : undefined}
+            >
               {next.actionLabel}
             </span>
           )}
