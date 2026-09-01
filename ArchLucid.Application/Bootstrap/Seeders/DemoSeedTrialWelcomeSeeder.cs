@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Threading;
 
 using ArchLucid.Application.Analysis;
@@ -25,26 +25,30 @@ using ArchLucid.Persistence.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Application.Bootstrap;
+namespace ArchLucid.Application.Bootstrap.Seeders;
 
-/// <summary>
-///     Trial welcome sample run: one completed Retail Online Store review per trial tenant.
-/// </summary>
-public sealed partial class DemoSeedService
+public sealed class DemoSeedTrialWelcomeSeeder
 {
-    /// <inheritdoc/>
-    public async Task SeedTrialWelcomeRunAsync(CancellationToken cancellationToken = default)
+    private readonly DemoSeedSeederDependencies _deps;
+
+    public DemoSeedTrialWelcomeSeeder(DemoSeedSeederDependencies deps)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        _deps = deps ?? throw new ArgumentNullException(nameof(deps));
+    }
+
+
+    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _deps.ScopeContextProvider.GetCurrentScope();
         Guid welcomeRunGuid = ContosoRetailDemoIds.TrialWelcomeAuthorityRunId(scope.TenantId);
         string requestId = ContosoRetailDemoIds.TrialWelcomeRequestId(scope.TenantId);
         string manifestVersion = ContosoRetailDemoIds.TrialWelcomeManifestVersion(scope.TenantId);
         (string topoTaskId, string costTaskId, string compTaskId, string topoResultId, string costResultId, string compResultId) =
             ContosoRetailDemoIds.TrialWelcomeAgentKeys(scope.TenantId);
 
-        if (await runRepository.GetByIdAsync(scope, welcomeRunGuid, cancellationToken) is RunRecord existingWelcomeRun)
+        if (await _deps.RunRepository.GetByIdAsync(scope, welcomeRunGuid, cancellationToken) is RunRecord existingWelcomeRun)
         {
-            await TryRepairSeededRunDescriptionAsync(existingWelcomeRun, cancellationToken);
+            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, existingWelcomeRun, cancellationToken);
 
             return;
         }
@@ -60,13 +64,13 @@ public sealed partial class DemoSeedService
             RunId = welcomeRunGuid,
             ProjectId = systemName,
             Description = "Trial welcome sample — ecommerce modernization to Azure.",
-            CreatedUtc = TrialWelcomeSeedUtc,
+            CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc,
             ArchitectureRequestId = requestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
             IsDemoWelcomeRun = true,
             IsSample = true
         };
-        await runRepository.SaveAsync(authorityRow, cancellationToken);
+        await _deps.RunRepository.SaveAsync(authorityRow, cancellationToken);
         AgentTask topoTask = new()
         {
             TaskId = topoTaskId,
@@ -75,10 +79,10 @@ public sealed partial class DemoSeedService
             Objective =
                 "Propose Azure landing targets for storefront, BFF, catalog, orders, and payment integration with Front Door and private egress.",
             Status = AgentTaskStatus.Completed,
-            CreatedUtc = TrialWelcomeSeedUtc,
-            CompletedUtc = TrialWelcomeSeedUtc,
+            CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc,
+            CompletedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc,
             EvidenceBundleRef = null,
-            AllowedTools = SeedAllowedTools(AgentType.Topology),
+            AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Topology),
             AllowedSources = []
         };
         AgentTask costTask = new()
@@ -89,10 +93,10 @@ public sealed partial class DemoSeedService
             Objective =
                 "Estimate monthly run-rate for Front Door, Container Apps (consumption profile), Azure SQL (GP tier), and Redis P1 with dev/test mirrors.",
             Status = AgentTaskStatus.Completed,
-            CreatedUtc = TrialWelcomeSeedUtc,
-            CompletedUtc = TrialWelcomeSeedUtc,
+            CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc,
+            CompletedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc,
             EvidenceBundleRef = null,
-            AllowedTools = SeedAllowedTools(AgentType.Cost),
+            AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Cost),
             AllowedSources = []
         };
         AgentTask compTask = new()
@@ -103,13 +107,13 @@ public sealed partial class DemoSeedService
             Objective =
                 "Validate PCI boundaries for checkout, EU residency for PII, Key Vault secret rotation, and Defender for Cloud baseline coverage.",
             Status = AgentTaskStatus.Completed,
-            CreatedUtc = TrialWelcomeSeedUtc,
-            CompletedUtc = TrialWelcomeSeedUtc,
+            CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc,
+            CompletedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc,
             EvidenceBundleRef = null,
-            AllowedTools = SeedAllowedTools(AgentType.Compliance),
+            AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Compliance),
             AllowedSources = []
         };
-        await taskRepository.CreateManyAsync([topoTask, costTask, compTask], cancellationToken);
+        await _deps.TaskRepository.CreateManyAsync([topoTask, costTask, compTask], cancellationToken);
         AgentResult topoResult = new()
         {
             ResultId = topoResultId,
@@ -125,7 +129,7 @@ public sealed partial class DemoSeedService
             Confidence = 0.86,
             Findings = [],
             ProposedChanges = null,
-            CreatedUtc = TrialWelcomeSeedUtc
+            CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc
         };
         AgentResult costResult = new()
         {
@@ -141,7 +145,7 @@ public sealed partial class DemoSeedService
             Confidence = 0.78,
             Findings = [],
             ProposedChanges = null,
-            CreatedUtc = TrialWelcomeSeedUtc
+            CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc
         };
         AgentResult compResult = new()
         {
@@ -157,18 +161,18 @@ public sealed partial class DemoSeedService
             Confidence = 0.82,
             Findings = [],
             ProposedChanges = null,
-            CreatedUtc = TrialWelcomeSeedUtc
+            CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc
         };
-        await resultRepository.CreateManyAsync([topoResult, costResult, compResult], cancellationToken);
+        await _deps.ResultRepository.CreateManyAsync([topoResult, costResult, compResult], cancellationToken);
         GoldenManifest manifest = BuildTrialWelcomeManifest(runId, manifestVersion);
         IReadOnlyList<Finding> findings = BuildTrialWelcomeFindings(welcomeRunGuid);
         AuthorityChainKeying chainKeying = new(AuthorityDemoChainIds.Manifest(welcomeRunGuid), AuthorityDemoChainIds.ContextSnapshot(welcomeRunGuid),
             AuthorityDemoChainIds.GraphSnapshot(welcomeRunGuid), AuthorityDemoChainIds.FindingsSnapshot(welcomeRunGuid),
             AuthorityDemoChainIds.DecisionTrace(welcomeRunGuid));
-        AuthorityManifestPersistResult authorityChain = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, welcomeRunGuid, systemName, manifest,
-            chainKeying, TrialWelcomeSeedUtc, richFindingsAndGraph: true, cancellationToken, connection: null, transaction: null,
+        AuthorityManifestPersistResult authorityChain = await _deps.AuthorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, welcomeRunGuid, systemName, manifest,
+            chainKeying, DemoSeedSeederSupport.TrialWelcomeSeedUtc, richFindingsAndGraph: true, cancellationToken, connection: null, transaction: null,
             committedFindingsOverride: findings);
-        await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, logger, welcomeRunGuid, systemName, authorityChain,
+        await AuthorityCommittedChainDurableAudit.TryLogAsync(_deps.AuditService, _deps.ScopeContextProvider, _deps.ActorContext, _deps.Logger, welcomeRunGuid, systemName, authorityChain,
             "trial-welcome-seed", richFindingsAndGraph: true, cancellationToken);
 
         Guid bundleId = TrialWelcomeSeedIds.ArtifactBundleId(welcomeRunGuid);
@@ -181,7 +185,7 @@ public sealed partial class DemoSeedService
             BundleId = bundleId,
             RunId = welcomeRunGuid,
             ManifestId = manifestKey,
-            CreatedUtc = TrialWelcomeSeedUtc,
+            CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc,
             Status = ArtifactBundleStatus.Available,
             Artifacts =
             [
@@ -190,7 +194,7 @@ public sealed partial class DemoSeedService
                     ArtifactId = TrialWelcomeSeedIds.AnalysisArtifactId(welcomeRunGuid),
                     RunId = welcomeRunGuid,
                     ManifestId = manifestKey,
-                    CreatedUtc = TrialWelcomeSeedUtc,
+                    CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc,
                     ArtifactType = ArtifactType.CoverageSummary,
                     Name = "Sponsor architecture analysis (trial welcome)",
                     Format = "Markdown",
@@ -205,30 +209,30 @@ public sealed partial class DemoSeedService
             ],
             Trace = new SynthesisTrace()
         };
-        await _artifactBundleRepository.SaveAsync(bundle, cancellationToken);
-        RunRecord? authorityCommitted = await runRepository.GetByIdAsync(scope, welcomeRunGuid, cancellationToken);
+        await _deps.ArtifactBundleRepository.SaveAsync(bundle, cancellationToken);
+        RunRecord? authorityCommitted = await _deps.RunRepository.GetByIdAsync(scope, welcomeRunGuid, cancellationToken);
 
         if (authorityCommitted is not null)
         {
             authorityCommitted.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
             authorityCommitted.CurrentManifestVersion = manifestVersion;
-            authorityCommitted.CompletedUtc = TrialWelcomeSeedUtc;
+            authorityCommitted.CompletedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc;
             authorityCommitted.ContextSnapshotId = authorityChain.ContextSnapshotId;
             authorityCommitted.GraphSnapshotId = authorityChain.GraphSnapshotId;
             authorityCommitted.FindingsSnapshotId = authorityChain.FindingsSnapshotId;
             authorityCommitted.GoldenManifestId = authorityChain.GoldenManifestId;
             authorityCommitted.DecisionTraceId = authorityChain.DecisionTraceId;
             authorityCommitted.ArtifactBundleId = bundleId;
-            await runRepository.UpdateAsync(authorityCommitted, cancellationToken);
+            await _deps.RunRepository.UpdateAsync(authorityCommitted, cancellationToken);
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Trial welcome run seeded ({RunId}).", welcomeRunGuid);
+        if (_deps.Logger.IsEnabled(LogLevel.Information))
+            _deps.Logger.LogInformation("Trial welcome run seeded ({RunId}).", welcomeRunGuid);
     }
 
     private async Task EnsureTrialWelcomeRequestAsync(string requestId, CancellationToken cancellationToken)
     {
-        if (await requestRepository.GetByIdAsync(requestId, cancellationToken) is not null)
+        if (await _deps.RequestRepository.GetByIdAsync(requestId, cancellationToken) is not null)
             return;
 
         ArchitectureRequest request = new()
@@ -245,7 +249,7 @@ public sealed partial class DemoSeedService
                 "RTO under four hours for transactional order path"
             ]
         };
-        await requestRepository.CreateAsync(request, cancellationToken);
+        await _deps.RequestRepository.CreateAsync(request, cancellationToken);
     }
 
     private static GoldenManifest BuildTrialWelcomeManifest(string runId, string manifestVersion)
@@ -407,7 +411,7 @@ public sealed partial class DemoSeedService
                 ParentManifestVersion = null,
                 ChangeDescription = "Trial welcome sample — Azure ecommerce modernization",
                 DecisionTraceIds = [],
-                CreatedUtc = TrialWelcomeSeedUtc
+                CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc
             }
         };
     }

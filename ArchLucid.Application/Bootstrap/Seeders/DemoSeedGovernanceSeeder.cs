@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Threading;
 
 using ArchLucid.Application.Analysis;
@@ -25,19 +25,35 @@ using ArchLucid.Persistence.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Application.Bootstrap;
+namespace ArchLucid.Application.Bootstrap.Seeders;
 
-/// <summary>
-///     Governance workflow fixtures for the baseline: approval request, promotion record, and environment
-///     activations, each stamped with the seeding scope.
-/// </summary>
-public sealed partial class DemoSeedService
+public sealed class DemoSeedGovernanceSeeder: IDemoSeedScenarioSeeder
 {
-    private async Task EnsureGovernanceAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
-    {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+    private readonly DemoSeedSeederDependencies _deps;
 
-        if (await approvalRepository.GetByIdAsync(demo.ApprovalRequest, cancellationToken) is null)
+    public DemoSeedGovernanceSeeder(DemoSeedSeederDependencies deps)
+    {
+        _deps = deps ?? throw new ArgumentNullException(nameof(deps));
+    }
+
+
+    private static readonly string[] OwnedSteps = ["retail-governance"];
+
+    public IReadOnlyCollection<string> StepNames => OwnedSteps;
+
+    public Task SeedStepAsync(string stepName, CancellationToken cancellationToken) => stepName switch
+    {
+        "retail-governance" => EnsureGovernanceAsync(cancellationToken),
+        _ => throw new ArgumentOutOfRangeException(nameof(stepName), stepName, "Unknown demo seed step.")
+    };
+
+
+    private async Task EnsureGovernanceAsync(CancellationToken cancellationToken)
+    {
+        ContosoRetailDemoIds demo = ContosoRetailDemoIds.ForTenant(_deps.ScopeContextProvider.GetCurrentScope().TenantId);
+        ScopeContext scope = _deps.ScopeContextProvider.GetCurrentScope();
+
+        if (await _deps.ApprovalRepository.GetByIdAsync(demo.ApprovalRequest, cancellationToken) is null)
         {
             GovernanceApprovalRequest approval = new()
             {
@@ -51,14 +67,14 @@ public sealed partial class DemoSeedService
                 ReviewedBy = "demo.reviewer@example.com",
                 RequestComment = "Promote hardened retail manifest to test for integration validation.",
                 ReviewComment = "Approved — controls and WAF requirements satisfied in manifest.",
-                RequestedUtc = DemoUtc,
-                ReviewedUtc = DemoUtc.AddHours(2)
+                RequestedUtc = DemoSeedSeederSupport.DemoUtc,
+                ReviewedUtc = DemoSeedSeederSupport.DemoUtc.AddHours(2)
             };
             StampGovernanceScope(scope, approval);
-            await approvalRepository.CreateAsync(approval, cancellationToken);
+            await _deps.ApprovalRepository.CreateAsync(approval, cancellationToken);
         }
 
-        IReadOnlyList<GovernancePromotionRecord> promos = await promotionRepository.GetByRunIdAsync(demo.RunHardened, cancellationToken);
+        IReadOnlyList<GovernancePromotionRecord> promos = await _deps.PromotionRepository.GetByRunIdAsync(demo.RunHardened, cancellationToken);
 
         if (promos.All(p => p.PromotionRecordId != demo.PromotionRecord))
         {
@@ -70,12 +86,12 @@ public sealed partial class DemoSeedService
                 SourceEnvironment = GovernanceEnvironment.Dev,
                 TargetEnvironment = GovernanceEnvironment.Test,
                 PromotedBy = "demo.release@example.com",
-                PromotedUtc = DemoUtc.AddHours(3),
+                PromotedUtc = DemoSeedSeederSupport.DemoUtc.AddHours(3),
                 ApprovalRequestId = demo.ApprovalRequest,
                 Notes = "Demo promotion after approval (trusted baseline seed)."
             };
             StampGovernanceScope(scope, promotion);
-            await promotionRepository.CreateAsync(promotion, cancellationToken);
+            await _deps.PromotionRepository.CreateAsync(promotion, cancellationToken);
         }
 
         await EnsureActivationAsync(scope, demo.ActivationDev, demo.RunBaseline, demo.ManifestBaseline, GovernanceEnvironment.Dev, cancellationToken);
@@ -85,7 +101,7 @@ public sealed partial class DemoSeedService
     private async Task EnsureActivationAsync(ScopeContext scope, string activationId, string runId, string manifestVersion, string environment,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<GovernanceEnvironmentActivation> rows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
+        IReadOnlyList<GovernanceEnvironmentActivation> rows = await _deps.ActivationRepository.GetByEnvironmentAsync(environment, cancellationToken);
 
         if (rows.Any(r => r.ActivationId == activationId))
             return;
@@ -96,10 +112,10 @@ public sealed partial class DemoSeedService
             ManifestVersion = manifestVersion,
             Environment = environment,
             IsActive = true,
-            ActivatedUtc = DemoUtc
+            ActivatedUtc = DemoSeedSeederSupport.DemoUtc
         };
         StampGovernanceScope(scope, activation);
-        await activationRepository.CreateAsync(activation, cancellationToken);
+        await _deps.ActivationRepository.CreateAsync(activation, cancellationToken);
     }
 
     private static void StampGovernanceScope(ScopeContext scope, GovernanceApprovalRequest row)

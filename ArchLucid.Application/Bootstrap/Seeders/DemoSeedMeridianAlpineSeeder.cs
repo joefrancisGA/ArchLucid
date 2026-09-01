@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Threading;
 
 using ArchLucid.Application.Analysis;
@@ -25,14 +25,29 @@ using ArchLucid.Persistence.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Application.Bootstrap;
+namespace ArchLucid.Application.Bootstrap.Seeders;
 
-/// <summary>
-///     Meridian Alpine regulated-scenario workspace: committed scenario, architecture request, export stub,
-///     and the persisted export hints that drive replayable analysis.
-/// </summary>
-public sealed partial class DemoSeedService
+public sealed class DemoSeedMeridianAlpineSeeder: IDemoSeedScenarioSeeder
 {
+    private readonly DemoSeedSeederDependencies _deps;
+
+    public DemoSeedMeridianAlpineSeeder(DemoSeedSeederDependencies deps)
+    {
+        _deps = deps ?? throw new ArgumentNullException(nameof(deps));
+    }
+
+
+    private static readonly string[] OwnedSteps = ["meridian-alpine-regulated"];
+
+    public IReadOnlyCollection<string> StepNames => OwnedSteps;
+
+    public Task SeedStepAsync(string stepName, CancellationToken cancellationToken) => stepName switch
+    {
+        "meridian-alpine-regulated" => EnsureMeridianAlpineRegulatedScenarioWorkspaceSeedAsync(_deps.ScopeContextProvider.GetCurrentScope(), cancellationToken),
+        _ => throw new ArgumentOutOfRangeException(nameof(stepName), stepName, "Unknown demo seed step.")
+    };
+
+
     private async Task EnsureMeridianAlpineRegulatedScenarioWorkspaceSeedAsync(ScopeContext contosoBaselineScope, CancellationToken cancellationToken)
     {
         if (contosoBaselineScope.TenantId != ScopeIds.DefaultTenant)
@@ -56,9 +71,9 @@ public sealed partial class DemoSeedService
     {
         Guid runGuid = DemoRegulatedScenarioWorkspaceIds.AuthorityRunId(scope.TenantId);
 
-        if (await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken) is RunRecord existingTourRun)
+        if (await _deps.RunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is RunRecord existingTourRun)
         {
-            await TryRepairSeededRunDescriptionAsync(existingTourRun, cancellationToken);
+            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, existingTourRun, cancellationToken);
 
             return;
         }
@@ -67,7 +82,7 @@ public sealed partial class DemoSeedService
         await EnsureArchitectureRequestAlpineRegulatedDemoAsync(requestId, cancellationToken);
         DateTime utc = RegulatedScenarioWorkspaceSeed.SnapshotUtc;
         string runId = runGuid.ToString("D");
-        string demoSuffix = ProductTourDemoSuffix(scope.TenantId);
+        string demoSuffix = DemoSeedSeederSupport.ProductTourDemoSuffix(scope.TenantId);
         string taskId = $"task-regulated-demo-topo-{demoSuffix}";
         string resultId = $"result-regulated-demo-topo-{demoSuffix}";
         const string alpineSystemName = "Alpine Patient Risk Scoring Platform";
@@ -87,7 +102,7 @@ public sealed partial class DemoSeedService
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
         };
 
-        await _runRepository.SaveAsync(row, cancellationToken);
+        await _deps.RunRepository.SaveAsync(row, cancellationToken);
 
         AgentTask task = new()
         {
@@ -100,11 +115,11 @@ public sealed partial class DemoSeedService
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = SeedAllowedTools(AgentType.Topology),
+            AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Topology),
             AllowedSources = [],
         };
 
-        await _taskRepository.CreateManyAsync([task], cancellationToken);
+        await _deps.TaskRepository.CreateManyAsync([task], cancellationToken);
 
         AgentResult result = new()
         {
@@ -124,7 +139,7 @@ public sealed partial class DemoSeedService
             CreatedUtc = utc,
         };
 
-        await _resultRepository.CreateAsync(result, cancellationToken);
+        await _deps.ResultRepository.CreateAsync(result, cancellationToken);
         GoldenManifest manifest = RegulatedScenarioWorkspaceSeed.BuildManifest(runId);
         IReadOnlyList<Finding> findings = RegulatedScenarioWorkspaceSeed.BuildFindings(runGuid);
         AuthorityChainKeying chainIds = new(AuthorityDemoChainIds.Manifest(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid),
@@ -133,11 +148,11 @@ public sealed partial class DemoSeedService
         AuthorityCommittedChainSeedCustomization customization = RegulatedScenarioWorkspaceSeed.BuildCustomization(runGuid,
             AuthorityDemoChainIds.GraphSnapshot(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid), utc);
 
-        AuthorityManifestPersistResult persisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, runGuid,
+        AuthorityManifestPersistResult persisted = await _deps.AuthorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, runGuid,
             alpineSystemName, manifest, chainIds, utc, richFindingsAndGraph: true, cancellationToken, connection: null, transaction: null,
             committedFindingsOverride: findings, seedCustomization: customization);
 
-        await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, _scopeContextProvider, _actorContext, logger, runGuid,
+        await AuthorityCommittedChainDurableAudit.TryLogAsync(_deps.AuditService, _deps.ScopeContextProvider, _deps.ActorContext, _deps.Logger, runGuid,
             alpineSystemName, persisted, "regulated-scenario-demo-seed", richFindingsAndGraph: true, cancellationToken);
 
         Guid bundleId = DemoRegulatedScenarioWorkspaceIds.ArtifactBundleId(runGuid);
@@ -185,8 +200,8 @@ public sealed partial class DemoSeedService
             Trace = new SynthesisTrace(),
         };
 
-        await _artifactBundleRepository.SaveAsync(bundle, cancellationToken);
-        RunRecord? committed = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+        await _deps.ArtifactBundleRepository.SaveAsync(bundle, cancellationToken);
+        RunRecord? committed = await _deps.RunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
         if (committed is not null)
         {
@@ -199,18 +214,18 @@ public sealed partial class DemoSeedService
             committed.GoldenManifestId = persisted.GoldenManifestId;
             committed.DecisionTraceId = persisted.DecisionTraceId;
             committed.ArtifactBundleId = bundleId;
-            await _runRepository.UpdateAsync(committed, cancellationToken);
+            await _deps.RunRepository.UpdateAsync(committed, cancellationToken);
         }
 
         await EnsureMeridianAlpineRegulatedExportStubAsync(runGuid, scope.TenantId, cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Meridian Alpine regulated Workspace B seeded ({RunId}).", runGuid);
+        if (_deps.Logger.IsEnabled(LogLevel.Information))
+            _deps.Logger.LogInformation("Meridian Alpine regulated Workspace B seeded ({RunId}).", runGuid);
     }
 
     private async Task EnsureArchitectureRequestAlpineRegulatedDemoAsync(string requestId, CancellationToken cancellationToken)
     {
-        if (await requestRepository.GetByIdAsync(requestId, cancellationToken) is not null)
+        if (await _deps.RequestRepository.GetByIdAsync(requestId, cancellationToken) is not null)
 
             return;
 
@@ -231,14 +246,14 @@ public sealed partial class DemoSeedService
             ],
         };
 
-        await requestRepository.CreateAsync(architectureRequest, cancellationToken);
+        await _deps.RequestRepository.CreateAsync(architectureRequest, cancellationToken);
     }
 
     private async Task EnsureMeridianAlpineRegulatedExportStubAsync(Guid runGuid, Guid tenantId, CancellationToken cancellationToken)
     {
         string exportId = DemoRegulatedScenarioWorkspaceIds.ExportRecordId(tenantId).ToString("N");
 
-        if (await runExportRecordRepository.GetByIdAsync(exportId, cancellationToken) is not null)
+        if (await _deps.RunExportRecordRepository.GetByIdAsync(exportId, cancellationToken) is not null)
 
             return;
 
@@ -259,13 +274,13 @@ public sealed partial class DemoSeedService
             ManifestVersion = RegulatedScenarioWorkspaceSeed.ManifestVersionLiteral,
             Notes =
                 "Workspace B export stub stores ReviewBoardWhitelabel* properties inside AnalysisRequestJson; logo bytes resolve from opaque LogoBlobReference in product hosts.",
-            AnalysisRequestJson = JsonSerializer.Serialize(persistedHints, DemoExportPersistJsonOptions),
+            AnalysisRequestJson = JsonSerializer.Serialize(persistedHints, DemoSeedSeederSupport.DemoExportPersistJsonOptions),
             IncludedManifest = true,
             IncludedSummary = true,
             CreatedUtc = RegulatedScenarioWorkspaceSeed.SnapshotUtc,
         };
 
-        await runExportRecordRepository.CreateAsync(record, cancellationToken);
+        await _deps.RunExportRecordRepository.CreateAsync(record, cancellationToken);
     }
 
     private static PersistedAnalysisExportRequest BuildWorkspaceBPersistedExportHints()

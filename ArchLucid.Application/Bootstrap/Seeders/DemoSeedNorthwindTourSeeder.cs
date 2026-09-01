@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Threading;
 
 using ArchLucid.Application.Analysis;
@@ -25,13 +25,29 @@ using ArchLucid.Persistence.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Application.Bootstrap;
+namespace ArchLucid.Application.Bootstrap.Seeders;
 
-/// <summary>
-///     Northwind product-tour workspace: committed scenario, architecture request, and export stub.
-/// </summary>
-public sealed partial class DemoSeedService
+public sealed class DemoSeedNorthwindTourSeeder: IDemoSeedScenarioSeeder
 {
+    private readonly DemoSeedSeederDependencies _deps;
+
+    public DemoSeedNorthwindTourSeeder(DemoSeedSeederDependencies deps)
+    {
+        _deps = deps ?? throw new ArgumentNullException(nameof(deps));
+    }
+
+
+    private static readonly string[] OwnedSteps = ["northwind-product-tour"];
+
+    public IReadOnlyCollection<string> StepNames => OwnedSteps;
+
+    public Task SeedStepAsync(string stepName, CancellationToken cancellationToken) => stepName switch
+    {
+        "northwind-product-tour" => EnsureNorthwindProductTourWorkspaceSeedAsync(_deps.ScopeContextProvider.GetCurrentScope(), cancellationToken),
+        _ => throw new ArgumentOutOfRangeException(nameof(stepName), stepName, "Unknown demo seed step.")
+    };
+
+
     private async Task EnsureNorthwindProductTourWorkspaceSeedAsync(ScopeContext contosoBaselineScope, CancellationToken cancellationToken)
     {
         if (contosoBaselineScope.TenantId != ScopeIds.DefaultTenant)
@@ -57,9 +73,9 @@ public sealed partial class DemoSeedService
     {
         Guid runGuid = DemoTourWorkspaceIds.AuthorityRunId(scope.TenantId);
 
-        if (await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken) is RunRecord existingTourRun)
+        if (await _deps.RunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is RunRecord existingTourRun)
         {
-            await TryRepairSeededRunDescriptionAsync(existingTourRun, cancellationToken);
+            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, existingTourRun, cancellationToken);
 
             return;
         }
@@ -68,7 +84,7 @@ public sealed partial class DemoSeedService
         await EnsureArchitectureRequestNorthwindTourAsync(requestId, cancellationToken);
         DateTime utc = ProductTourWorkspaceSeed.SnapshotUtc;
         string runId = runGuid.ToString("D");
-        string demoSuffix = ProductTourDemoSuffix(scope.TenantId);
+        string demoSuffix = DemoSeedSeederSupport.ProductTourDemoSuffix(scope.TenantId);
         string taskId = $"task-product-tour-topo-{demoSuffix}";
         string resultId = $"result-product-tour-topo-{demoSuffix}";
         RunRecord row = new()
@@ -84,7 +100,7 @@ public sealed partial class DemoSeedService
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
         };
 
-        await _runRepository.SaveAsync(row, cancellationToken);
+        await _deps.RunRepository.SaveAsync(row, cancellationToken);
         AgentTask task = new()
         {
             TaskId = taskId,
@@ -95,11 +111,11 @@ public sealed partial class DemoSeedService
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = SeedAllowedTools(AgentType.Topology),
+            AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Topology),
             AllowedSources = [],
         };
 
-        await _taskRepository.CreateManyAsync([task], cancellationToken);
+        await _deps.TaskRepository.CreateManyAsync([task], cancellationToken);
         AgentResult result = new()
         {
             ResultId = resultId,
@@ -118,7 +134,7 @@ public sealed partial class DemoSeedService
             CreatedUtc = utc,
         };
 
-        await _resultRepository.CreateAsync(result, cancellationToken);
+        await _deps.ResultRepository.CreateAsync(result, cancellationToken);
         GoldenManifest manifest = ProductTourWorkspaceSeed.BuildManifest(runId);
         IReadOnlyList<Finding> findings = ProductTourWorkspaceSeed.BuildFindings(runGuid);
         AuthorityChainKeying chainIds = new(AuthorityDemoChainIds.Manifest(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid),
@@ -127,11 +143,11 @@ public sealed partial class DemoSeedService
         AuthorityCommittedChainSeedCustomization customization = ProductTourWorkspaceSeed.BuildCustomization(runGuid,
             AuthorityDemoChainIds.GraphSnapshot(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid), utc);
 
-        AuthorityManifestPersistResult persisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, runGuid, "Cloud Platform",
+        AuthorityManifestPersistResult persisted = await _deps.AuthorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, runGuid, "Cloud Platform",
             manifest, chainIds, utc, richFindingsAndGraph: true, cancellationToken, connection: null, transaction: null, committedFindingsOverride: findings,
             seedCustomization: customization);
 
-        await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, _scopeContextProvider, _actorContext, logger, runGuid,
+        await AuthorityCommittedChainDurableAudit.TryLogAsync(_deps.AuditService, _deps.ScopeContextProvider, _deps.ActorContext, _deps.Logger, runGuid,
             "Cloud Platform", persisted, "product-tour-demo-seed", richFindingsAndGraph: true, cancellationToken);
 
         Guid bundleId = DemoTourWorkspaceIds.ArtifactBundleId(runGuid);
@@ -169,8 +185,8 @@ public sealed partial class DemoSeedService
             Trace = new SynthesisTrace(),
         };
 
-        await _artifactBundleRepository.SaveAsync(bundle, cancellationToken);
-        RunRecord? committed = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+        await _deps.ArtifactBundleRepository.SaveAsync(bundle, cancellationToken);
+        RunRecord? committed = await _deps.RunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
         if (committed is not null)
         {
@@ -183,18 +199,18 @@ public sealed partial class DemoSeedService
             committed.GoldenManifestId = persisted.GoldenManifestId;
             committed.DecisionTraceId = persisted.DecisionTraceId;
             committed.ArtifactBundleId = bundleId;
-            await _runRepository.UpdateAsync(committed, cancellationToken);
+            await _deps.RunRepository.UpdateAsync(committed, cancellationToken);
         }
 
         await EnsureNorthwindTourExportStubAsync(runGuid, scope.TenantId, cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Product Tour Workspace A seeded ({RunId}).", runGuid);
+        if (_deps.Logger.IsEnabled(LogLevel.Information))
+            _deps.Logger.LogInformation("Product Tour Workspace A seeded ({RunId}).", runGuid);
     }
 
     private async Task EnsureArchitectureRequestNorthwindTourAsync(string requestId, CancellationToken cancellationToken)
     {
-        if (await requestRepository.GetByIdAsync(requestId, cancellationToken) is not null)
+        if (await _deps.RequestRepository.GetByIdAsync(requestId, cancellationToken) is not null)
 
             return;
 
@@ -215,14 +231,14 @@ public sealed partial class DemoSeedService
             ],
         };
 
-        await requestRepository.CreateAsync(architectureRequest, cancellationToken);
+        await _deps.RequestRepository.CreateAsync(architectureRequest, cancellationToken);
     }
 
     private async Task EnsureNorthwindTourExportStubAsync(Guid runGuid, Guid tenantId, CancellationToken cancellationToken)
     {
         string exportId = DemoTourWorkspaceIds.ExportRecordId(tenantId).ToString("N");
 
-        if (await runExportRecordRepository.GetByIdAsync(exportId, cancellationToken) is not null)
+        if (await _deps.RunExportRecordRepository.GetByIdAsync(exportId, cancellationToken) is not null)
 
             return;
 
@@ -245,6 +261,6 @@ public sealed partial class DemoSeedService
             CreatedUtc = ProductTourWorkspaceSeed.SnapshotUtc,
         };
 
-        await runExportRecordRepository.CreateAsync(record, cancellationToken);
+        await _deps.RunExportRecordRepository.CreateAsync(record, cancellationToken);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Threading;
 
 using ArchLucid.Application.Analysis;
@@ -25,18 +25,42 @@ using ArchLucid.Persistence.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Application.Bootstrap;
+namespace ArchLucid.Application.Bootstrap.Seeders;
 
-/// <summary>
-///     Retail Checkout Modernization trusted baseline: request, committed baseline and hardened runs,
-///     topology task/result rows, manifest bodies, and the optional export-history row.
-/// </summary>
-public sealed partial class DemoSeedService
+public sealed class DemoSeedRetailBaselineSeeder: IDemoSeedScenarioSeeder
 {
-    private async Task EnsureRequestAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
+    private readonly DemoSeedSeederDependencies _deps;
+
+    public DemoSeedRetailBaselineSeeder(DemoSeedSeederDependencies deps)
     {
-        if (await requestRepository.GetByIdAsync(demo.RequestId, cancellationToken) is not null)
+        _deps = deps ?? throw new ArgumentNullException(nameof(deps));
+    }
+
+
+    private static readonly string[] OwnedSteps = ["retail-request", "retail-run-baseline", "retail-run-hardened", "retail-export-record"];
+
+    public IReadOnlyCollection<string> StepNames => OwnedSteps;
+
+    public Task SeedStepAsync(string stepName, CancellationToken cancellationToken) => stepName switch
+    {
+        "retail-request" => EnsureRequestAsync(cancellationToken),
+        "retail-run-baseline" => EnsureBaselineRunAsync(cancellationToken),
+        "retail-run-hardened" => EnsureHardenedRunAsync(cancellationToken),
+        "retail-export-record" => EnsureExportRecordAsync(cancellationToken),
+        _ => throw new ArgumentOutOfRangeException(nameof(stepName), stepName, "Unknown demo seed step.")
+    };
+
+
+    private ContosoRetailDemoIds CurrentDemoIds() =>
+        ContosoRetailDemoIds.ForTenant(_deps.ScopeContextProvider.GetCurrentScope().TenantId);
+
+    private async Task EnsureRequestAsync(CancellationToken cancellationToken)
+    {
+        ContosoRetailDemoIds demo = CurrentDemoIds();
+
+        if (await _deps.RequestRepository.GetByIdAsync(demo.RequestId, cancellationToken) is not null)
             return;
+
         ArchitectureRequest request = new()
         {
             RequestId = demo.RequestId,
@@ -46,19 +70,52 @@ public sealed partial class DemoSeedService
             CloudProvider = CloudProvider.Azure,
             Constraints = ["Minimize public ingress", "Retain existing payment processor integration"]
         };
-        await requestRepository.CreateAsync(request, cancellationToken);
+        await _deps.RequestRepository.CreateAsync(request, cancellationToken);
     }
+
+    private Task EnsureBaselineRunAsync(CancellationToken cancellationToken)
+    {
+        ContosoRetailDemoIds demo = CurrentDemoIds();
+
+        return EnsureCommittedRunAsync(
+            demo,
+            demo.AuthorityRunBaselineId,
+            demo.TaskBaseline,
+            demo.ResultBaseline,
+            demo.ManifestBaseline,
+            demo.TraceBaseline,
+            isHardened: false,
+            cancellationToken);
+    }
+
+    private Task EnsureHardenedRunAsync(CancellationToken cancellationToken)
+    {
+        ContosoRetailDemoIds demo = CurrentDemoIds();
+
+        return EnsureCommittedRunAsync(
+            demo,
+            demo.AuthorityRunHardenedId,
+            demo.TaskHardened,
+            demo.ResultHardened,
+            demo.ManifestHardened,
+            demo.TraceHardened,
+            isHardened: true,
+            cancellationToken);
+    }
+
+    private Task EnsureExportRecordAsync(CancellationToken cancellationToken) =>
+        EnsureExportRecordCoreAsync(CurrentDemoIds(), cancellationToken);
 
     private async Task EnsureCommittedRunAsync(ContosoRetailDemoIds demo, Guid authorityRunId, string taskId, string resultId, string manifestVersion,
         string traceId, bool isHardened, CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        ScopeContext scope = _deps.ScopeContextProvider.GetCurrentScope();
         // Contract/API run ids use "N" (see ContosoRetailDemoIds); InMemory agent repos match RunId with Ordinal string equality.
         string runId = authorityRunId.ToString("N");
 
-        if (await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is RunRecord existingRun)
+        if (await _deps.RunRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is RunRecord existingRun)
         {
-            await TryRepairSeededRunDescriptionAsync(existingRun, cancellationToken);
+            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, existingRun, cancellationToken);
             await EnsureTopologyAgentArtifactsAsync(scope, runId, taskId, resultId, isHardened, cancellationToken);
 
             return;
@@ -75,21 +132,21 @@ public sealed partial class DemoSeedService
                 isHardened
                     ? "Demo — Retail hardened manifest (trusted baseline seed)."
                     : "Demo — Retail baseline manifest (trusted baseline seed).",
-            CreatedUtc = DemoUtc,
+            CreatedUtc = DemoSeedSeederSupport.DemoUtc,
             ArchitectureRequestId = demo.RequestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
-            IsSample = ShouldMarkSeededRunAsSample(scope.TenantId)
+            IsSample = DemoSeedSeederSupport.ShouldMarkSeededRunAsSample(scope.TenantId)
         };
-        await runRepository.SaveAsync(authorityRow, cancellationToken);
+        await _deps.RunRepository.SaveAsync(authorityRow, cancellationToken);
         await EnsureTopologyAgentArtifactsAsync(scope, runId, taskId, resultId, isHardened, cancellationToken);
-        bool richSeed = IsVerticalDemoSeedDepth(_demoOptions.CurrentValue.SeedDepth);
+        bool richSeed = DemoSeedSeederSupport.IsVerticalDemoSeedDepth(_deps.DemoOptions.CurrentValue.SeedDepth);
         GoldenManifest manifest = BuildManifest(runId, manifestVersion, isHardened, richSeed);
         AuthorityChainKeying chainKeying = new(AuthorityDemoChainIds.Manifest(authorityRunId), AuthorityDemoChainIds.ContextSnapshot(authorityRunId),
             AuthorityDemoChainIds.GraphSnapshot(authorityRunId), AuthorityDemoChainIds.FindingsSnapshot(authorityRunId),
             AuthorityDemoChainIds.DecisionTrace(authorityRunId));
-        AuthorityManifestPersistResult authorityChain = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, authorityRunId,
-            "Retail Checkout Platform", manifest, chainKeying, DemoUtc, richSeed, cancellationToken);
-        await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, logger, authorityRunId,
+        AuthorityManifestPersistResult authorityChain = await _deps.AuthorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, authorityRunId,
+            "Retail Checkout Platform", manifest, chainKeying, DemoSeedSeederSupport.DemoUtc, richSeed, cancellationToken);
+        await AuthorityCommittedChainDurableAudit.TryLogAsync(_deps.AuditService, _deps.ScopeContextProvider, _deps.ActorContext, _deps.Logger, authorityRunId,
             "Retail Checkout Platform", authorityChain, "demo-seed", richSeed, cancellationToken);
         // Decision-trace persistence happens inside PersistCommittedChainAsync above (AuthorityDecisionTrace
         // FK-chain row keyed by chainKeying.DecisionTraceId). The legacy second write to dbo.DecisionTraces
@@ -97,19 +154,19 @@ public sealed partial class DemoSeedService
         // interface itself. The traceId / event-shape metadata is no longer surfaced for the demo seed because
         // ArchitectureRunDetail.DecisionTraces now reads from AuthorityDecisionTraces (see RunDetailQueryService).
         _ = traceId;
-        RunRecord? authorityCommitted = await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken);
+        RunRecord? authorityCommitted = await _deps.RunRepository.GetByIdAsync(scope, authorityRunId, cancellationToken);
 
         if (authorityCommitted is not null)
         {
             authorityCommitted.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
             authorityCommitted.CurrentManifestVersion = manifestVersion;
-            authorityCommitted.CompletedUtc = DemoUtc;
+            authorityCommitted.CompletedUtc = DemoSeedSeederSupport.DemoUtc;
             authorityCommitted.ContextSnapshotId = authorityChain.ContextSnapshotId;
             authorityCommitted.GraphSnapshotId = authorityChain.GraphSnapshotId;
             authorityCommitted.FindingsSnapshotId = authorityChain.FindingsSnapshotId;
             authorityCommitted.GoldenManifestId = authorityChain.GoldenManifestId;
             authorityCommitted.DecisionTraceId = authorityChain.DecisionTraceId;
-            await runRepository.UpdateAsync(authorityCommitted, cancellationToken);
+            await _deps.RunRepository.UpdateAsync(authorityCommitted, cancellationToken);
         }
     }
 
@@ -125,12 +182,12 @@ public sealed partial class DemoSeedService
         bool isHardened,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<AgentResult> existingResults = await _resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentResult> existingResults = await _deps.ResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
 
         if (existingResults.Count > 0)
             return;
 
-        IReadOnlyList<AgentTask> existingTasks = await _taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentTask> existingTasks = await _deps.TaskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
 
         if (existingTasks.Count == 0)
         {
@@ -144,14 +201,14 @@ public sealed partial class DemoSeedService
                         ? "Hardened topology: add WAF, Key Vault references, and segmented subnets for retail APIs."
                         : "Baseline topology: single App Service and SQL for retail checkout (minimal segmentation).",
                 Status = AgentTaskStatus.Completed,
-                CreatedUtc = DemoUtc,
-                CompletedUtc = DemoUtc,
+                CreatedUtc = DemoSeedSeederSupport.DemoUtc,
+                CompletedUtc = DemoSeedSeederSupport.DemoUtc,
                 EvidenceBundleRef = null,
-                AllowedTools = SeedAllowedTools(AgentType.Topology),
+                AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Topology),
                 AllowedSources = []
             };
 
-            await _taskRepository.CreateManyAsync([task], cancellationToken);
+            await _deps.TaskRepository.CreateManyAsync([task], cancellationToken);
         }
 
         AgentResult result = new()
@@ -170,10 +227,10 @@ public sealed partial class DemoSeedService
             Confidence = isHardened ? 0.88 : 0.72,
             Findings = [],
             ProposedChanges = null,
-            CreatedUtc = DemoUtc
+            CreatedUtc = DemoSeedSeederSupport.DemoUtc
         };
 
-        await _resultRepository.CreateAsync(result, cancellationToken);
+        await _deps.ResultRepository.CreateAsync(result, cancellationToken);
     }
 
 
@@ -252,7 +309,7 @@ public sealed partial class DemoSeedService
                     ParentManifestVersion = null,
                     ChangeDescription = isHardened ? "Hardened retail posture" : "Baseline lift-and-shift",
                     DecisionTraceIds = [],
-                    CreatedUtc = DemoUtc
+                    CreatedUtc = DemoSeedSeederSupport.DemoUtc
                 }
             };
         string paymentServiceId = isHardened ? "svc-payment-gateway-v2" : "svc-payment-gateway-v1";
@@ -296,7 +353,7 @@ public sealed partial class DemoSeedService
                 ParentManifestVersion = null,
                 ChangeDescription = isHardened ? "Hardened retail posture" : "Baseline lift-and-shift",
                 DecisionTraceIds = [],
-                CreatedUtc = DemoUtc
+                CreatedUtc = DemoSeedSeederSupport.DemoUtc
             }
         };
     }
@@ -306,9 +363,9 @@ public sealed partial class DemoSeedService
     ///     Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no
     ///     AnalysisRequestJson).
     /// </summary>
-    private async Task EnsureExportRecordAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
+    private async Task EnsureExportRecordCoreAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
-        if (await runExportRecordRepository.GetByIdAsync(demo.ExportRecord, cancellationToken) is not null)
+        if (await _deps.RunExportRecordRepository.GetByIdAsync(demo.ExportRecord, cancellationToken) is not null)
             return;
         RunExportRecord record = new()
         {
@@ -325,8 +382,8 @@ public sealed partial class DemoSeedService
             Notes = "Seeded by ArchLucid trusted baseline demo (export history only).",
             IncludedManifest = true,
             IncludedSummary = true,
-            CreatedUtc = DemoUtc
+            CreatedUtc = DemoSeedSeederSupport.DemoUtc
         };
-        await runExportRecordRepository.CreateAsync(record, cancellationToken);
+        await _deps.RunExportRecordRepository.CreateAsync(record, cancellationToken);
     }
 }

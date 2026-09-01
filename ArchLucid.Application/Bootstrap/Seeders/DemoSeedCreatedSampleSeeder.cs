@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Threading;
 
 using ArchLucid.Application.Analysis;
@@ -25,20 +25,36 @@ using ArchLucid.Persistence.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Application.Bootstrap;
+namespace ArchLucid.Application.Bootstrap.Seeders;
 
-/// <summary>
-///     Created-architecture-package sample workspace used by the create-object walkthrough.
-/// </summary>
-public sealed partial class DemoSeedService
+public sealed class DemoSeedCreatedSampleSeeder: IDemoSeedScenarioSeeder
 {
+    private readonly DemoSeedSeederDependencies _deps;
+
+    public DemoSeedCreatedSampleSeeder(DemoSeedSeederDependencies deps)
+    {
+        _deps = deps ?? throw new ArgumentNullException(nameof(deps));
+    }
+
+
+    private static readonly string[] OwnedSteps = ["created-package-sample"];
+
+    public IReadOnlyCollection<string> StepNames => OwnedSteps;
+
+    public Task SeedStepAsync(string stepName, CancellationToken cancellationToken) => stepName switch
+    {
+        "created-package-sample" => EnsureCreatedArchitecturePackageSampleAsync(_deps.ScopeContextProvider.GetCurrentScope(), cancellationToken),
+        _ => throw new ArgumentOutOfRangeException(nameof(stepName), stepName, "Unknown demo seed step.")
+    };
+
+
     private async Task EnsureCreatedArchitecturePackageSampleAsync(ScopeContext scope, CancellationToken cancellationToken)
     {
         Guid runGuid = DemoCreatedSampleWorkspaceIds.AuthorityRunId(scope.TenantId);
 
-        if (await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken) is RunRecord existingCreatedSampleRun)
+        if (await _deps.RunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is RunRecord existingCreatedSampleRun)
         {
-            await TryRepairSeededRunDescriptionAsync(existingCreatedSampleRun, cancellationToken);
+            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, existingCreatedSampleRun, cancellationToken);
 
             return;
         }
@@ -47,7 +63,7 @@ public sealed partial class DemoSeedService
         await EnsureArchitectureRequestCreatedSampleAsync(requestId, cancellationToken);
         DateTime utc = CreatedSampleWorkspaceSeed.SnapshotUtc;
         string runId = runGuid.ToString("D");
-        string demoSuffix = ProductTourDemoSuffix(scope.TenantId);
+        string demoSuffix = DemoSeedSeederSupport.ProductTourDemoSuffix(scope.TenantId);
         string topoTaskId = $"task-created-sample-topo-{demoSuffix}";
         string costTaskId = $"task-created-sample-cost-{demoSuffix}";
         string compTaskId = $"task-created-sample-comp-{demoSuffix}";
@@ -69,11 +85,11 @@ public sealed partial class DemoSeedService
             CreatedUtc = utc,
             ArchitectureRequestId = requestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
-            IsSample = ShouldMarkSeededRunAsSample(scope.TenantId),
+            IsSample = DemoSeedSeederSupport.ShouldMarkSeededRunAsSample(scope.TenantId),
             PackageOrigin = ArchitecturePackageOrigin.Created,
         };
 
-        await _runRepository.SaveAsync(row, cancellationToken);
+        await _deps.RunRepository.SaveAsync(row, cancellationToken);
         AgentTask topoTask = new()
         {
             TaskId = topoTaskId,
@@ -85,7 +101,7 @@ public sealed partial class DemoSeedService
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = SeedAllowedTools(AgentType.Topology),
+            AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Topology),
             AllowedSources = [],
         };
         AgentTask costTask = new()
@@ -99,7 +115,7 @@ public sealed partial class DemoSeedService
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = SeedAllowedTools(AgentType.Cost),
+            AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Cost),
             AllowedSources = [],
         };
         AgentTask compTask = new()
@@ -113,7 +129,7 @@ public sealed partial class DemoSeedService
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = SeedAllowedTools(AgentType.Compliance),
+            AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Compliance),
             AllowedSources = [],
         };
         AgentTask criticTask = new()
@@ -126,11 +142,11 @@ public sealed partial class DemoSeedService
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = SeedAllowedTools(AgentType.Critic),
+            AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Critic),
             AllowedSources = [],
         };
 
-        await _taskRepository.CreateManyAsync([topoTask, costTask, compTask, criticTask], cancellationToken);
+        await _deps.TaskRepository.CreateManyAsync([topoTask, costTask, compTask, criticTask], cancellationToken);
         AgentResult topoResult = new()
         {
             ResultId = topoResultId,
@@ -197,7 +213,7 @@ public sealed partial class DemoSeedService
             CreatedUtc = utc,
         };
 
-        await _resultRepository.CreateManyAsync([topoResult, costResult, compResult, criticResult], cancellationToken);
+        await _deps.ResultRepository.CreateManyAsync([topoResult, costResult, compResult, criticResult], cancellationToken);
         GoldenManifest manifest = CreatedSampleWorkspaceSeed.BuildManifest(runId);
         IReadOnlyList<Finding> findings = CreatedSampleWorkspaceSeed.BuildFindings(runGuid);
         AuthorityChainKeying chainIds = new(
@@ -212,7 +228,7 @@ public sealed partial class DemoSeedService
             AuthorityDemoChainIds.ContextSnapshot(runGuid),
             utc);
 
-        AuthorityManifestPersistResult persisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
+        AuthorityManifestPersistResult persisted = await _deps.AuthorityCommittedManifestChainWriter.PersistCommittedChainAsync(
             scope,
             runGuid,
             systemName,
@@ -227,10 +243,10 @@ public sealed partial class DemoSeedService
             seedCustomization: customization);
 
         await AuthorityCommittedChainDurableAudit.TryLogAsync(
-            _auditService,
-            _scopeContextProvider,
-            _actorContext,
-            logger,
+            _deps.AuditService,
+            _deps.ScopeContextProvider,
+            _deps.ActorContext,
+            _deps.Logger,
             runGuid,
             systemName,
             persisted,
@@ -273,8 +289,8 @@ public sealed partial class DemoSeedService
             Trace = new SynthesisTrace(),
         };
 
-        await _artifactBundleRepository.SaveAsync(bundle, cancellationToken);
-        RunRecord? committed = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+        await _deps.ArtifactBundleRepository.SaveAsync(bundle, cancellationToken);
+        RunRecord? committed = await _deps.RunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
         if (committed is not null)
         {
@@ -287,18 +303,18 @@ public sealed partial class DemoSeedService
             committed.GoldenManifestId = persisted.GoldenManifestId;
             committed.DecisionTraceId = persisted.DecisionTraceId;
             committed.ArtifactBundleId = bundleId;
-            await _runRepository.UpdateAsync(committed, cancellationToken);
+            await _deps.RunRepository.UpdateAsync(committed, cancellationToken);
         }
 
         await EnsureCreatedSampleExportStubAsync(runGuid, scope.TenantId, cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Created architecture package sample seeded ({RunId}).", runGuid);
+        if (_deps.Logger.IsEnabled(LogLevel.Information))
+            _deps.Logger.LogInformation("Created architecture package sample seeded ({RunId}).", runGuid);
     }
 
     private async Task EnsureArchitectureRequestCreatedSampleAsync(string requestId, CancellationToken cancellationToken)
     {
-        if (await requestRepository.GetByIdAsync(requestId, cancellationToken) is not null)
+        if (await _deps.RequestRepository.GetByIdAsync(requestId, cancellationToken) is not null)
             return;
 
         ArchitectureRequest architectureRequest = new()
@@ -320,14 +336,14 @@ public sealed partial class DemoSeedService
             ],
         };
 
-        await requestRepository.CreateAsync(architectureRequest, cancellationToken);
+        await _deps.RequestRepository.CreateAsync(architectureRequest, cancellationToken);
     }
 
     private async Task EnsureCreatedSampleExportStubAsync(Guid runGuid, Guid tenantId, CancellationToken cancellationToken)
     {
         string exportId = DemoCreatedSampleWorkspaceIds.ExportRecordId(tenantId).ToString("N");
 
-        if (await runExportRecordRepository.GetByIdAsync(exportId, cancellationToken) is not null)
+        if (await _deps.RunExportRecordRepository.GetByIdAsync(exportId, cancellationToken) is not null)
             return;
 
         RunExportRecord record = new()
@@ -349,6 +365,6 @@ public sealed partial class DemoSeedService
             CreatedUtc = CreatedSampleWorkspaceSeed.SnapshotUtc,
         };
 
-        await runExportRecordRepository.CreateAsync(record, cancellationToken);
+        await _deps.RunExportRecordRepository.CreateAsync(record, cancellationToken);
     }
 }

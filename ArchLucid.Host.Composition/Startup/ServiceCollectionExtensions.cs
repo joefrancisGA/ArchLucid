@@ -3,6 +3,7 @@ using ArchLucid.Application.AiProviders;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
 using ArchLucid.Application.Billing;
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Bootstrap.Seeders;
 using ArchLucid.Application.Integrations;
 using ArchLucid.Application.Findings;
