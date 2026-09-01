@@ -3,11 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
-import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
-import { Button } from "@/components/ui/button";
+import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import {
   EnterpriseTable,
@@ -20,11 +17,8 @@ import {
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { executeArchitectureRunAsync } from "@/lib/api";
 import type { AgentQualityConcernRow } from "@/lib/agent-quality-warnings-presenter";
 import { buildPlainLanguageQualityBlockSummary, QUALITY_GATE_REJECTION_RUNBOOK_PATH } from "@/lib/agent-quality-warnings-presenter";
-import { isApiRequestError } from "@/lib/api-request-error";
-import type { ApiProblemDetails } from "@/lib/api-problem";
 
 export type RunAgentQualityWarningsPanelProps = {
   readonly runId: string;
@@ -33,48 +27,6 @@ export type RunAgentQualityWarningsPanelProps = {
 
 export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanelProps): React.JSX.Element {
   const { runId, rows } = props;
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<{
-    message: string;
-    problem: ApiProblemDetails | null;
-    correlationId: string | null;
-  } | null>(null);
-
-  async function onReRunReview(): Promise<void> {
-    setBusy(true);
-    setError(null);
-
-    try
-    {
-      await executeArchitectureRunAsync(runId);
-      router.refresh();
-    }
-    catch (e: unknown)
-    {
-      if (isApiRequestError(e))
-      {
-        setError({
-          message: e.message,
-          problem: e.problem,
-          correlationId: e.correlationId,
-        });
-      }
-      else
-      {
-        setError({
-          message: e instanceof Error ? e.message : "Re-run failed.",
-          problem: null,
-          correlationId: null,
-        });
-      }
-    }
-    finally
-    {
-      setBusy(false);
-    }
-  }
-
   const blockSummary = buildPlainLanguageQualityBlockSummary(rows);
 
   return (
@@ -143,22 +95,11 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
           </EnterpriseTable>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="button" variant="primary" size="sm" disabled={busy} onClick={() => void onReRunReview()}>
-              {busy ? "Re-running review…" : "Re-run review"}
-            </Button>
+            <ReRunReviewButton runId={runId} data-testid="ai-quality-warnings-re-run-review" />
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Re-invokes agent execution for this review (same run id).
             </p>
           </div>
-
-          {error !== null ? (
-            <OperatorApiProblem
-              problem={error.problem}
-              fallbackMessage={error.message}
-              correlationId={error.correlationId}
-              variant="warning"
-            />
-          ) : null}
         </CardContent>
       </Card>
     </section>
