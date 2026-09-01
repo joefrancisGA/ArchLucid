@@ -16,7 +16,7 @@ using ArchLucid.Persistence.Data.Repositories;
 namespace ArchLucid.Application.Trust;
 
 /// <inheritdoc cref = "IRunTrustEvidenceCardBuilder"/>
-public sealed class RunTrustEvidenceCardBuilder(
+public sealed partial class RunTrustEvidenceCardBuilder(
     IAuditRepository auditRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IFindingEvidenceChainService findingEvidenceChainService,
@@ -42,6 +42,7 @@ public sealed class RunTrustEvidenceCardBuilder(
     public async Task<RunTrustEvidenceCard?> BuildAsync(ArchitectureRunDetail detail, string? hostAgentExecutionMode, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(detail);
+
         if (!detail.IsCommitted)
             return null;
         ArchitectureRun run = detail.Run;
@@ -77,6 +78,7 @@ public sealed class RunTrustEvidenceCardBuilder(
         TrustEvidenceFieldSnapshot ai = BuildAiField(explanation);
         ArchitectureFinding? topFinding = SelectTopSeverityFinding(detail);
         RunTrustEvidenceTopFindingRow? topRow = null;
+
         if (topFinding is not null)
         {
             FindingEvidenceChainResponse? chain = await TryChainAsync(runId, topFinding.FindingId, cancellationToken).ConfigureAwait(false);
@@ -104,260 +106,5 @@ public sealed class RunTrustEvidenceCardBuilder(
             TopFinding = topRow,
             Links = links,
         };
-    }
-
-    private static List<RunTrustEvidenceRouteRef> BuildLinks(string runId, string? topFindingId)
-    {
-        string enc = Uri.EscapeDataString(runId);
-        List<RunTrustEvidenceRouteRef> links =
-        [
-            new()
-            {
-                Rel = "traceabilityZip",
-                Path = FormattableString.Invariant($"/v1/architecture/review/{enc}/traceability-bundle.zip"),
-                Label = "Review-trail ZIP",
-            },
-            new()
-            {
-                Rel = "traces", Path = FormattableString.Invariant($"/v1/architecture/review/{enc}/traces"), Label = "Agent execution traces",
-            },
-            new()
-            {
-                Rel = "evidence", Path = FormattableString.Invariant($"/v1/architecture/review/{enc}/evidence"), Label = "Evidence package",
-            },
-        ];
-        if (!string.IsNullOrWhiteSpace(topFindingId))
-            links.Add(new RunTrustEvidenceRouteRef
-            {
-                Rel = "topFindingEvidenceChain",
-                Path = FormattableString.Invariant($"/v1/architecture/review/{enc}/findings/{Uri.EscapeDataString(topFindingId)}/evidence-chain"),
-                Label = "Top finding evidence chain",
-            });
-
-        return links;
-    }
-
-    private static TrustEvidenceFieldSnapshot BuildExecutionModeField(ArchitectureRun run, bool isDemo)
-    {
-        ArgumentNullException.ThrowIfNull(run);
-
-        if (isDemo)
-            return new TrustEvidenceFieldSnapshot
-            {
-                Title = "Execution mode",
-                Status = TrustEvidenceStatusValue.DemoOnly,
-                Detail = BuildBuyerExecutionSummary(run),
-            };
-
-        StructuralExecutionMode mode = run.StructuralExecutionMode;
-
-        if (mode == StructuralExecutionMode.Fallback || run.RealModeFellBackToSimulator)
-            return new TrustEvidenceFieldSnapshot
-            {
-                Title = "Execution mode",
-                Status = TrustEvidenceStatusValue.LowConfidence,
-                Detail = StructuralExecutionModeLabels.ToOperatorDetail(StructuralExecutionMode.Fallback),
-            };
-
-        if (mode == StructuralExecutionMode.Mixed)
-            return new TrustEvidenceFieldSnapshot
-            {
-                Title = "Execution mode",
-                Status = TrustEvidenceStatusValue.LowConfidence,
-                Detail = StructuralExecutionModeLabels.MixedDetail,
-            };
-
-        return new TrustEvidenceFieldSnapshot
-        {
-            Title = "Execution mode",
-            Status = TrustEvidenceStatusValue.Available,
-            Detail = StructuralExecutionModeLabels.ToOperatorDetail(mode),
-        };
-    }
-
-    private async Task<(TrustEvidenceFieldSnapshot Audit, TrustEvidenceFieldSnapshot Traces)> BuildAuditAndTraceFieldsAsync(string runId, Guid? runGuid,
-        CancellationToken cancellationToken)
-    {
-        TrustEvidenceFieldSnapshot audit;
-
-        if (runGuid is null)
-            audit = new TrustEvidenceFieldSnapshot
-            {
-                Title = "Audit events (run-scoped)",
-                Status = TrustEvidenceStatusValue.Missing,
-                Detail = "Run id is not a GUID; durable audit correlation is unavailable.",
-            };
-        else
-            try
-            {
-                ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-                AuditEventFilter filter = new()
-                {
-                    RunId = runGuid,
-                    Take = 1
-                };
-                int count = await _auditRepository.CountFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken)
-                    .ConfigureAwait(false);
-                audit = new TrustEvidenceFieldSnapshot
-                {
-                    Title = "Audit events (run-scoped)",
-                    Status = TrustEvidenceStatusValue.Available,
-                    Detail = FormattableString.Invariant($"{count} events"),
-                };
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                audit = new TrustEvidenceFieldSnapshot
-                {
-                    Title = "Audit events (run-scoped)",
-                    Status = TrustEvidenceStatusValue.LowConfidence,
-                    Detail = "Audit count could not be loaded for this scope.",
-                };
-            }
-
-        TrustEvidenceFieldSnapshot traces;
-
-        try
-        {
-            ScopeContext traceScope = _scopeContextProvider.GetCurrentScope();
-            int total = await _agentExecutionTraceRepository.CountByRunIdAsync(traceScope, runId, cancellationToken).ConfigureAwait(false);
-            traces = new TrustEvidenceFieldSnapshot
-            {
-                Title = "Agent execution trace rows",
-                Status = TrustEvidenceStatusValue.Available,
-                Detail = FormattableString.Invariant($"{total} rows (prompt/response metadata; not raw transcripts in this view)."),
-            };
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            traces = new TrustEvidenceFieldSnapshot
-            {
-                Title = "Agent execution trace rows",
-                Status = TrustEvidenceStatusValue.Missing,
-                Detail = "Trace repository did not return totals for this run.",
-            };
-        }
-
-        return (audit, traces);
-    }
-
-    private async Task<RunExplanationSummary?> TryExplanationAsync(Guid runGuid, CancellationToken cancellationToken)
-    {
-        try
-        {
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            return await _runExplanationSummaryService.GetSummaryAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            return null;
-        }
-    }
-
-    private static TrustEvidenceFieldSnapshot BuildAiField(RunExplanationSummary? explanation)
-    {
-        if (explanation is null)
-            return new TrustEvidenceFieldSnapshot
-            {
-                Title = "AI explainability rollup",
-                Status = TrustEvidenceStatusValue.LowConfidence,
-                Detail = "Faithfulness / trace completeness rollup was not available.",
-            };
-
-        if (explanation.DeterministicFallbackUsed)
-            return new TrustEvidenceFieldSnapshot
-            {
-                Title = "AI explainability rollup",
-                Status = TrustEvidenceStatusValue.LowConfidence,
-                Detail = "Deterministic narrative fallback was used for weak faithfulness.",
-            };
-
-        if (!string.IsNullOrWhiteSpace(explanation.FaithfulnessWarning))
-            return new TrustEvidenceFieldSnapshot
-            {
-                Title = "AI explainability rollup",
-                Status = TrustEvidenceStatusValue.LowConfidence,
-                Detail = explanation.FaithfulnessWarning.Trim(),
-            };
-
-        FindingTraceConfidenceDto? first = explanation.FindingTraceConfidences?.FirstOrDefault();
-        if (first is not null && string.Equals(first.TraceConfidenceLabel, "Low", StringComparison.OrdinalIgnoreCase))
-            return new TrustEvidenceFieldSnapshot
-            {
-                Title = "AI explainability rollup",
-                Status = TrustEvidenceStatusValue.LowConfidence,
-                Detail = FormattableString.Invariant($"Low trace completeness on finding {first.FindingId} (ratio {first.TraceCompletenessRatio:0.##})."),
-            };
-
-        double? ratio = explanation.FaithfulnessSupportRatio;
-        return new TrustEvidenceFieldSnapshot
-        {
-            Title = "AI explainability rollup",
-            Status = TrustEvidenceStatusValue.Available,
-            Detail = ratio is { } r
-                ? FormattableString.Invariant($"Faithfulness support ratio {r:0.##}; per-finding trace completeness in explainability views.")
-                : "No faithfulness ratio for this rollup (findings may be empty).",
-        };
-    }
-
-    private async Task<FindingEvidenceChainResponse?> TryChainAsync(string runId, string findingId, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await _findingEvidenceChainService.BuildAsync(runId, findingId, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            return null;
-        }
-    }
-
-    private static string SummarizeChain(FindingEvidenceChainResponse? chain)
-    {
-        if (chain is null)
-            return "Evidence chain pointers not available.";
-        int nodes = chain.RelatedGraphNodeIds.Count;
-        int traces = chain.AgentExecutionTraceIds.Count;
-        return FormattableString.Invariant($"Manifest version {chain.ManifestVersion ?? "—"}; graph nodes: {nodes}; linked trace ids: {traces}.");
-    }
-
-    private static ArchitectureFinding? SelectTopSeverityFinding(ArchitectureRunDetail detail)
-    {
-        // Marker rows / JSON hydration can leave Findings null despite the property default.
-        return detail.Results
-            .Where(static r => r is not null)
-            .SelectMany(static r => r.Findings ?? [])
-            .OrderByDescending(static f => (int)f.Severity)
-            .FirstOrDefault();
-    }
-
-    private static string? TruncateTitle(string? message)
-    {
-        if (string.IsNullOrWhiteSpace(message))
-            return null;
-        string t = message.Trim();
-        return t.Length <= 160 ? t : string.Concat(t.AsSpan(0, 157), "...");
-    }
-
-    /// <summary>Matches sponsor copy in <c>ArchLucid.Api.Support.RunExecutionFlavorSummary</c> without referencing the API layer.</summary>
-    private static string BuildBuyerExecutionSummary(ArchitectureRun run)
-    {
-        ArgumentNullException.ThrowIfNull(run);
-
-        if (run.RealModeFellBackToSimulator || run.StructuralExecutionMode == StructuralExecutionMode.Fallback)
-            return
-                "Part of this review used a documented deterministic analysis path after the primary path did not complete. Treat numeric highlights conservatively and use sponsor exports for the full provenance table.";
-
-        if (run.StructuralExecutionMode == StructuralExecutionMode.Mixed)
-            return StructuralExecutionModeLabels.MixedDetail;
-
-        return run.StructuralExecutionMode == StructuralExecutionMode.Real
-            ? "Agent-assisted steps used your API host's configured model path when this page was loaded."
-            : "Agent-assisted steps used a deterministic analysis path on this host (no billable model calls for those steps).";
-    }
-
-    private static bool TryParseRunGuid(string runId, out Guid runGuid)
-    {
-        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 }

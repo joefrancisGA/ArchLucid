@@ -4,7 +4,7 @@ import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths"
 /** Canonical invite-reviewer route from operator home optional-setup and admin deep links. */
 export const INVITE_REVIEWER_PATH = "/administration/users/invite-reviewer";
 
-/** Query param prefilling invite context from a finalized architecture review handoff. */
+/** Query param prefilling invite context from a finalized architecture package handoff. */
 export const INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM = "reviewId";
 
 export function buildInviteReviewerHref(reviewId?: string | null): string {

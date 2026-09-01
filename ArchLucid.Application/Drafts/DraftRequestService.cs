@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Drafts;
@@ -95,4 +96,14 @@ public sealed class DraftRequestService(
         Guid draftId,
         CancellationToken cancellationToken)
         => _branchingService.GetBranchQuotaAsync(scope, draftId, cancellationToken);
+
+    /// <inheritdoc />
+    public Task<PagedResponse<DraftRequestSummaryResponse>> ListAsync(
+        ScopeContext scope,
+        string actorUserId,
+        IReadOnlyList<DraftRequestStatus> statuses,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+        => _crudService.ListAsync(scope, actorUserId, statuses, page, pageSize, cancellationToken);
 }

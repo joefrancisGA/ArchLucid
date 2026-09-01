@@ -21682,6 +21682,9 @@
             ]
           }
         },
+        "required": [
+          "score"
+        ],
         "type": "object"
       },
       "ProductLearningArtifactOutcomeTrendsResponse": {

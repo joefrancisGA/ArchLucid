@@ -1,40 +1,20 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-
 import {
-  getArchitectureDraftRegistryServerSnapshot,
-  getArchitectureDraftRegistrySnapshot,
-  subscribeArchitectureDraftRegistry,
-  type ArchitectureDraftRegistryEntry,
-} from "@/lib/architecture/architecture-draft-registry";
+  useArchitectureDraftListQuery,
+  selectArchitectureDraftRegistryEntries,
+} from "@/hooks/use-architecture-draft-list-query";
 
-function subscribeArchitectureDraftRegistryHydration(_onStoreChange: () => void): () => void {
-  return () => {};
+/** Server-backed architecture draft inventory for hub, home, and workspace chrome. */
+export function useArchitectureDraftRegistryEntries() {
+  const query = useArchitectureDraftListQuery();
+
+  return selectArchitectureDraftRegistryEntries(query);
 }
 
-function getArchitectureDraftRegistryHydratedSnapshot(): boolean {
-  return true;
-}
-
-function getArchitectureDraftRegistryHydrationServerSnapshot(): boolean {
-  return false;
-}
-
-/** Client-only snapshot of saved architecture drafts (local registry). */
-export function useArchitectureDraftRegistryEntries(): readonly ArchitectureDraftRegistryEntry[] {
-  return useSyncExternalStore(
-    subscribeArchitectureDraftRegistry,
-    getArchitectureDraftRegistrySnapshot,
-    getArchitectureDraftRegistryServerSnapshot,
-  );
-}
-
-/** False during SSR / pre-hydration so lists can avoid a false empty state (TB-1450). */
+/** True once the server-backed draft list has settled (success or error). */
 export function useArchitectureDraftRegistryHydrated(): boolean {
-  return useSyncExternalStore(
-    subscribeArchitectureDraftRegistryHydration,
-    getArchitectureDraftRegistryHydratedSnapshot,
-    getArchitectureDraftRegistryHydrationServerSnapshot,
-  );
+  const query = useArchitectureDraftListQuery();
+
+  return query.isFetched;
 }
