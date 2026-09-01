@@ -1,5 +1,8 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.CustomerSuccess;
@@ -163,14 +166,26 @@ public sealed class CorePilotTeamChecklistControllerTests
         body[0].UpdatedByUserId.Should().Be("actor-a");
     }
 
-    [Fact]
-    public void PutRequest_requires_is_completed_for_model_binding()
+    [Theory]
+    [InlineData("{\"stepIndex\":1}", "omitted isCompleted is rejected by required-member enforcement during JSON deserialization, surfacing as HTTP 400")]
+    [InlineData("{\"stepIndex\":1,\"isCompleted\":null}", "null isCompleted is rejected by required-member enforcement during JSON deserialization, surfacing as HTTP 400")]
+    public void PutRequest_deserialization_rejects_missing_or_null_is_completed(string payload, string because)
     {
-        typeof(CorePilotChecklistPutRequest)
-            .GetProperty(nameof(CorePilotChecklistPutRequest.IsCompleted))
-            .Should()
-            .BeDecoratedWith<System.Runtime.CompilerServices.RequiredMemberAttribute>(
-                "omitted or null isCompleted is rejected by ApiController model validation with HTTP 400");
+        Action act = () => JsonSerializer.Deserialize<CorePilotChecklistPutRequest>(payload, ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().ThrowExactly<JsonException>(because);
+    }
+
+    [Fact]
+    public void PutRequest_deserialization_accepts_is_completed()
+    {
+        CorePilotChecklistPutRequest request =
+            JsonSerializer.Deserialize<CorePilotChecklistPutRequest>(
+                "{\"stepIndex\":2,\"isCompleted\":false}",
+                ArchLucidApiJsonSerializerOptions.Web)!;
+
+        request.StepIndex.Should().Be(2);
+        request.IsCompleted.Should().BeFalse();
     }
 
     [Fact]
