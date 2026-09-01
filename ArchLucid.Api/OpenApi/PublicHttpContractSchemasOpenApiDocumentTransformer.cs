@@ -101,18 +101,30 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
 
     private static void ApplyProductFeedbackRequest(OpenApiDocument document)
     {
-        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, "ProductFeedbackRequest", out OpenApiSchema schema))
-            return;
-
-        OpenApiSchemaContractMutator.EnsureRequired(schema, "score");
-
-        if (schema.Properties is not null
-            && schema.Properties.TryGetValue("score", out IOpenApiSchema? scoreSchema)
-            && scoreSchema is OpenApiSchema mutableScore
-            && mutableScore.Type.HasValue
-            && mutableScore.Type.Value.HasFlag(JsonSchemaType.Null))
+        if (OpenApiSchemaContractMutator.TryGetMutableSchema(document, "ProductFeedbackRequest", out OpenApiSchema feedbackSchema))
         {
-            mutableScore.Type = mutableScore.Type.Value & ~JsonSchemaType.Null;
+            OpenApiSchemaContractMutator.EnsureRequired(feedbackSchema, "score");
+            RemoveNullFromPropertySchema(feedbackSchema, "score");
         }
+
+        if (OpenApiSchemaContractMutator.TryGetMutableSchema(document, "CorePilotChecklistPutRequest", out OpenApiSchema checklistSchema))
+        {
+            OpenApiSchemaContractMutator.EnsureRequired(checklistSchema, "isCompleted");
+            RemoveNullFromPropertySchema(checklistSchema, "isCompleted");
+        }
+    }
+
+    private static void RemoveNullFromPropertySchema(OpenApiSchema schema, string propertyName)
+    {
+        if (schema.Properties is null
+            || !schema.Properties.TryGetValue(propertyName, out IOpenApiSchema? propertySchema)
+            || propertySchema is not OpenApiSchema mutableProperty
+            || !mutableProperty.Type.HasValue
+            || !mutableProperty.Type.Value.HasFlag(JsonSchemaType.Null))
+        {
+            return;
+        }
+
+        mutableProperty.Type = mutableProperty.Type.Value & ~JsonSchemaType.Null;
     }
 }
