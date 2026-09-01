@@ -18,6 +18,14 @@ internal static class WorkspaceSystemNameCollisionGuardTestDoubles
                 It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+        guard
+            .Setup(g => g.IsAvailableAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         return guard.Object;
     }
