@@ -47,13 +47,17 @@ function probeSucceededSteps(): readonly string[] {
   ];
 }
 
-function probePendingSteps(baseSteps: readonly string[]): readonly string[] {
-  return baseSteps;
+function probePendingSteps(): readonly string[] {
+  return [
+    "Checking live AI availability automatically for this session…",
+    "Do not assume platform AI is down until the live probe finishes.",
+    "When the live probe succeeds, click Re-run review to retry with the same intake.",
+  ];
 }
 
 function probeErrorSteps(): readonly string[] {
   return [
-    "Could not validate AI availability automatically. Use Check AI availability below to retry the live probe.",
+    "Automatic AI availability checks could not finish. Use Check AI availability below to retry the live probe.",
     "Do not assume platform AI is down until a live probe confirms an outage.",
     "When the live probe succeeds, click Re-run review to retry with the same intake.",
   ];
@@ -64,10 +68,10 @@ function probeErrorSteps(): readonly string[] {
  * Outage claims appear only after the probe reports unavailability.
  */
 export function resolveProbeAwareRecoverySteps(input: ProbeAwareRecoveryStepsInput): readonly string[] {
-  const { baseSteps, probeState, usesCustomerAiConnection, canConfigureWorkspaceAi } = input;
+  const { probeState, usesCustomerAiConnection, canConfigureWorkspaceAi } = input;
 
   if (probeState.status === "idle" || probeState.status === "loading") {
-    return probePendingSteps(baseSteps);
+    return probePendingSteps();
   }
 
   if (probeState.status === "error") {

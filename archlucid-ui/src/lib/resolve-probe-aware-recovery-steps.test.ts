@@ -9,15 +9,23 @@ const baseSteps = [
 ];
 
 describe("resolveProbeAwareRecoverySteps", () => {
-  it("keeps neutral base steps while the probe is pending", () => {
-    expect(
-      resolveProbeAwareRecoverySteps({
-        baseSteps,
-        probeState: { status: "idle" },
-        usesCustomerAiConnection: false,
-        canConfigureWorkspaceAi: true,
-      }),
-    ).toEqual(baseSteps);
+  it("shows automatic-check pending steps while the probe is idle or loading", () => {
+    const idleSteps = resolveProbeAwareRecoverySteps({
+      baseSteps,
+      probeState: { status: "idle" },
+      usesCustomerAiConnection: false,
+      canConfigureWorkspaceAi: true,
+    });
+    const loadingSteps = resolveProbeAwareRecoverySteps({
+      baseSteps,
+      probeState: { status: "loading" },
+      usesCustomerAiConnection: false,
+      canConfigureWorkspaceAi: true,
+    });
+
+    expect(idleSteps.join(" ")).toContain("Checking live AI availability automatically");
+    expect(loadingSteps.join(" ")).toContain("Checking live AI availability automatically");
+    expect(idleSteps).not.toEqual(baseSteps);
   });
 
   it("shows success steps when the live probe succeeds", () => {
@@ -65,5 +73,17 @@ describe("resolveProbeAwareRecoverySteps", () => {
 
     expect(steps.join(" ")).toContain("ArchLucid-managed AI is unavailable");
     expect(steps.join(" ")).toContain("Report a problem");
+  });
+
+  it("shows retry guidance when automatic checks fail", () => {
+    const steps = resolveProbeAwareRecoverySteps({
+      baseSteps,
+      probeState: { status: "error", message: "AI availability check timed out after 12s." },
+      usesCustomerAiConnection: false,
+      canConfigureWorkspaceAi: true,
+    });
+
+    expect(steps.join(" ")).toContain("Automatic AI availability checks could not finish");
+    expect(steps.join(" ")).toContain("Check AI availability");
   });
 });
