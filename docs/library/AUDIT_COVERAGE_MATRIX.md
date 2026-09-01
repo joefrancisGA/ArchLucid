@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:399 -->
+<!-- audit-core-const-count:400 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -293,6 +293,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | LLM prepaid wallet settings updated | `WalletController` (`PUT /v1/billing/wallet`) | `LlmWalletSettingsUpdated` | Tenant/Workspace/Project from ambient scope | `{ autoReplenishEnabled, monthlyCapUsd, hasPaymentMethod }` — Stripe customer/payment-method ids are **not** logged. |
 | LLM prompt truncated (context length guard) | `ContextLengthGuardAgentCompletionClient` | `LlmContextTruncated` | Tenant/Workspace/Project from ambient scope | `{ estimatedTokens, thresholdTokens, maxContextTokens }` — fire-and-forget when estimated prompt tokens exceed the configured threshold before completion. |
 | LLM evidence summarized (context length guard) | `ContextLengthGuardAgentCompletionClient` | `LlmEvidenceSummarized` | Tenant/Workspace/Project from ambient scope | `{ estimatedTokensBefore, estimatedTokensAfter, thresholdTokens, maxContextTokens }` — fire-and-forget when `AgentExecution:EvidenceSummarization:Enabled` and estimated prompt tokens exceed threshold before hard truncation. |
+| LLM completion output truncated (`finish_reason=length`) | `AuditLlmCompletionOutputTruncationReporter` | `LlmCompletionOutputTruncated` | Tenant/Workspace/Project from ambient scope | `{ deploymentName, maxOutputTokens, outputTokenCount, reasoningTokenCount }` — fire-and-forget when Azure OpenAI stops at max output tokens; structured JSON may be incomplete. |
 | Platform identity — email OTP challenge | `EmailOtpAuthController` (`POST /v1/auth/email-otp/challenge`) | `EmailOtpCodeRequested` | Empty tenant scope before identity exists | `{ normalizedEmailHash }` — no OTP material |
 | Platform identity — email OTP verify | `EmailOtpAuthController` (`POST /v1/auth/email-otp/verify`) | `EmailOtpVerificationSucceeded`, `EmailOtpVerificationFailed` | Tenant/user when resolved | challenge outcome summary — no OTP material |
 | Platform identity — sign-in routing evaluate | `AuthSignInRoutingController` (`POST /v1/auth/routing/evaluate`) | `AuthSignInRoutingEvaluated` | Empty tenant scope before session | `{ normalizedEmailDomain, routingOutcome }` |
@@ -705,6 +706,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AgentTraceInlineFallbackFailed` | `AgentTraceInlineFallbackFailed` | `AgentExecutionTraceRecorder` |
 | `LlmContextTruncated` | `LlmContextTruncated` | `ContextLengthGuardAgentCompletionClient` (fire-and-forget; prompt truncated when estimated tokens exceed threshold) |
 | `LlmEvidenceSummarized` | `LlmEvidenceSummarized` | `ContextLengthGuardAgentCompletionClient` (fire-and-forget; evidence summarized when estimated tokens exceed threshold and summarization is enabled) |
+| `LlmCompletionOutputTruncated` | `LlmCompletionOutputTruncated` | `AuditLlmCompletionOutputTruncationReporter` (fire-and-forget; Azure OpenAI `finish_reason=length`) |
 | `TrialUpgradeNudgeShown` | `TrialUpgradeNudgeShown` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/shown`) |
 | `TrialUpgradeNudgeClicked` | `TrialUpgradeNudgeClicked` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/clicked`) |
 | `TeamExpansionNudgeShown` | `TeamExpansionNudgeShown` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/team-expansion-nudge/shown`) |
