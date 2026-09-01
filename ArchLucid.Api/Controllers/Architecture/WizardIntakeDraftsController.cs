@@ -22,13 +22,28 @@ public sealed class WizardIntakeDraftsController(
     IScopeContextProvider scopeProvider,
     ITenantRepository tenantRepository,
     IWizardIntakeDraftService wizardIntakeDraftService) : ControllerBase
+{
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     [HttpGet("{wizardId}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(WizardIntakeDraftResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDraft(string wizardId, CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
+
         WizardIntakeDraftResponse? draft =
             await wizardIntakeDraftService.GetAsync(scope, wizardId, cancellationToken);
 
@@ -51,7 +66,15 @@ public sealed class WizardIntakeDraftsController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
+
         WizardIntakeDraftResponse draft =
             await wizardIntakeDraftService.UpsertAsync(scope, wizardId, body, cancellationToken);
 
