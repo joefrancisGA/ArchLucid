@@ -157,7 +157,7 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
-    public async Task PostProductFeedbackAsync_returns_bad_request_when_score_omitted()
+    public async Task PostProductFeedbackAsync_returns_bad_request_when_score_null()
     {
         Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
         Mock<IScopeContextProvider> scopeProvider = new();
