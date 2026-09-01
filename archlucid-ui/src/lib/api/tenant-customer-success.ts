@@ -67,7 +67,7 @@ export async function putCorePilotTeamChecklistStep(stepIndex: number, isComplet
 }
 
 export type ProductFeedbackRequest = {
-  score?: number;
+  score: number;
   comment?: string | null;
   runId?: string | null;
   findingRef?: string | null;
