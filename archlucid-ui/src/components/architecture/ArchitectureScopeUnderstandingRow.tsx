@@ -65,50 +65,51 @@ export function ArchitectureScopeUnderstandingRow(
       )}
 
       <div className="flex flex-wrap items-start gap-2">
-        <div className="min-w-[12rem] flex-1 space-y-1">
-        {editable ? (
-          <Input
-            id={inputId}
-            value={bullet.value}
-            disabled={props.disabled}
-            maxLength={SCOPE_ITEM_MAX_LENGTH}
-            onChange={(event) => {
-              props.onValueChange(bullet.id, event.target.value);
-            }}
-          />
-        ) : (
-          <p
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid={`architecture-scope-readonly-${bullet.id}`}
-          >
-            {bullet.value}
-          </p>
-        )}
-        {showSourcePointer ? (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid={`architecture-scope-readonly-hint-${bullet.id}`}
-          >
-            {scopeReadOnlyHint(readOnlySourceLabel ?? props.contextSourceLabel)}
-          </p>
-        ) : null}
+        <div className="min-w-[12rem] flex-1">
+          {editable ? (
+            <Input
+              id={inputId}
+              value={bullet.value}
+              disabled={props.disabled}
+              maxLength={SCOPE_ITEM_MAX_LENGTH}
+              onChange={(event) => {
+                props.onValueChange(bullet.id, event.target.value);
+              }}
+            />
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid={`architecture-scope-readonly-${bullet.id}`}
+            >
+              {bullet.value}
+            </p>
+          )}
         </div>
 
         {editable && removable ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={props.disabled}
-          aria-label={removeButtonLabel(bullet)}
-          onClick={() => {
-            props.onRemove(bullet.id);
-          }}
-        >
-          Remove
-        </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={props.disabled}
+            aria-label={removeButtonLabel(bullet)}
+            onClick={() => {
+              props.onRemove(bullet.id);
+            }}
+          >
+            Remove
+          </Button>
         ) : null}
       </div>
+
+      {showSourcePointer ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`architecture-scope-readonly-hint-${bullet.id}`}
+        >
+          {scopeReadOnlyHint(readOnlySourceLabel ?? props.contextSourceLabel)}
+        </p>
+      ) : null}
     </li>
   );
 }
