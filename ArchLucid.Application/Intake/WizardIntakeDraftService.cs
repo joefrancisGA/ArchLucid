@@ -39,6 +39,7 @@ public sealed class WizardIntakeDraftService(
             throw new ArgumentException("wizardId must be <= 128 characters.", nameof(wizardId));
 
         return _repository.GetAsync(scope.TenantId, scope.WorkspaceId, trimmedWizardId, cancellationToken);
+    }
 
     public async Task<WizardIntakeDraftResponse> UpsertAsync(
         ScopeContext scope,
