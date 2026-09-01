@@ -188,18 +188,67 @@ public sealed class ArchitectureRunCommandServiceTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task ExecuteRun_invokes_evidence_readiness_gate_before_execute()
+    {
+        Mock<IExecuteEvidenceReadinessGate> gate = new();
+        Mock<IArchitectureRunExecuteOrchestrator> execute = new();
+        execute
+            .Setup(e => e.ExecuteRunAsync("run-gated", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExecuteRunResult { RunId = "run-gated", Results = [] });
+
+        ArchitectureRunCommandService sut = CreateSut(
+            executeOrchestrator: execute.Object,
+            evidenceReadinessGate: gate.Object);
+
+        ExecuteRunResult result = await sut.ExecuteRunAsync("run-gated", CancellationToken.None);
+
+        result.RunId.Should().Be("run-gated");
+        gate.Verify(
+            g => g.EnsureReadyAsync("run-gated", It.IsAny<CancellationToken>()),
+            Times.Once);
+        execute.Verify(
+            e => e.ExecuteRunAsync("run-gated", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteRun_skips_execute_when_evidence_readiness_gate_throws()
+    {
+        Mock<IExecuteEvidenceReadinessGate> gate = new();
+        gate
+            .Setup(g => g.EnsureReadyAsync("run-blocked", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Evidence not ready."));
+
+        Mock<IArchitectureRunExecuteOrchestrator> execute = new();
+        ArchitectureRunCommandService sut = CreateSut(
+            executeOrchestrator: execute.Object,
+            evidenceReadinessGate: gate.Object);
+
+        Func<Task> act = () => sut.ExecuteRunAsync("run-blocked", CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        gate.Verify(
+            g => g.EnsureReadyAsync("run-blocked", It.IsAny<CancellationToken>()),
+            Times.Once);
+        execute.Verify(
+            e => e.ExecuteRunAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static ArchitectureRunCommandService CreateSut(
         IArchitectureRunCreateOrchestrator? createOrchestrator = null,
         IArchitectureSynthesisKernel? synthesisKernel = null,
         ICommitRunIdempotencyCoordinator? commitCoordinator = null,
         ICommitSponsorEmailNotifier? sponsorNotifier = null,
         IArchitectureRunExecuteOrchestrator? executeOrchestrator = null,
-        ISelectiveExecuteIncrementalReReviewCoordinator? incrementalReReviewCoordinator = null) =>
+        ISelectiveExecuteIncrementalReReviewCoordinator? incrementalReReviewCoordinator = null,
+        IExecuteEvidenceReadinessGate? evidenceReadinessGate = null) =>
         new(
             createOrchestrator ?? Mock.Of<IArchitectureRunCreateOrchestrator>(),
             Mock.Of<IArchitectureRunBatchCreateOrchestrator>(),
             executeOrchestrator ?? Mock.Of<IArchitectureRunExecuteOrchestrator>(),
-            Mock.Of<IExecuteEvidenceReadinessGate>(),
+            evidenceReadinessGate ?? Mock.Of<IExecuteEvidenceReadinessGate>(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             Mock.Of<IReplayRunService>(),
             commitCoordinator ?? Mock.Of<ICommitRunIdempotencyCoordinator>(),
