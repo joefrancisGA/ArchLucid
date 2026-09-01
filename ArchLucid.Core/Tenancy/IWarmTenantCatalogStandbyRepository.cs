@@ -9,4 +9,6 @@ public interface IWarmTenantCatalogStandbyRepository
     Task InsertStandbyAsync(WarmTenantCatalogStandbyRecord record, CancellationToken cancellationToken);
 
     Task MarkClaimedAsync(Guid standbyId, CancellationToken cancellationToken);
+
+    Task ReleaseClaimAsync(Guid standbyId, CancellationToken cancellationToken);
 }
