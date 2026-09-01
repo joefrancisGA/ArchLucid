@@ -135,6 +135,7 @@ export function SocraticIntakeWizard() {
     canSubmit,
     policyPackCloudMismatch,
     clarificationInference,
+    systemNameAvailability,
   } = useGuidedIntakeWizard();
 
   const {
@@ -352,6 +353,7 @@ export function SocraticIntakeWizard() {
           canAdvanceIntent={canAdvanceIntent}
           advanceHint={advanceHint}
           submitError={submitError}
+          systemNameAvailability={systemNameAvailability}
           onCreateArchitectureContinuation={runCreateArchitectureContinuation}
           onAdmission={runAdmission}
         />

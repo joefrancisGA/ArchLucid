@@ -27,10 +27,11 @@ public sealed partial class DraftRequestsController
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken cancellationToken = default)
     {
-        if (mine != true)
+        // v1 exposes only the signed-in operator's inventory; `mine=false` is not supported (omitted/true are treated equivalently).
+        if (mine == false)
         {
             return this.BadRequestProblem(
-                "Query param mine=true is required for draft inventory in v1.",
+                "Query param mine=false is not supported for draft inventory in v1; omit mine or pass mine=true.",
                 ProblemTypes.ValidationFailed);
         }
 

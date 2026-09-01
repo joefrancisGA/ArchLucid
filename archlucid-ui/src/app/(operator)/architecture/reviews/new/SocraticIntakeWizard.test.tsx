@@ -81,6 +81,12 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
   submitDraftRequest: (...args: unknown[]) => submitDraftRequest(...args),
 }));
 
+const fetchWorkspaceSystemNameAvailability = vi.fn();
+
+vi.mock("@/lib/api/workspace-system-name-availability-api", () => ({
+  fetchWorkspaceSystemNameAvailability: (...args: unknown[]) => fetchWorkspaceSystemNameAvailability(...args),
+}));
+
 vi.mock("@/lib/try-load-prior-package-guided-intake-prefill", () => ({
   tryLoadPriorPackageGuidedIntakePrefill: (...args: unknown[]) =>
     tryLoadPriorPackageGuidedIntakePrefill(...args),
@@ -275,6 +281,8 @@ describe("SocraticIntakeWizard", () => {
     suggestAnswersFromEvidence.mockReset();
     tryLoadPriorPackageGuidedIntakePrefill.mockReset();
     tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue(null);
+    fetchWorkspaceSystemNameAvailability.mockReset();
+    fetchWorkspaceSystemNameAvailability.mockResolvedValue({ isAvailable: true });
     window.sessionStorage.clear();
   });
 
@@ -1247,6 +1255,26 @@ describe("SocraticIntakeWizard", () => {
 
     // A patch here would be rejected: the draft is immutable in status Admitted.
     expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("blocks continue when the system name is already used in the workspace", async () => {
+    fetchWorkspaceSystemNameAvailability.mockResolvedValue({
+      systemName: "ArchLucid",
+      isAvailable: false,
+      conflictMessage: "A review or architecture named 'ArchLucid' already exists in this workspace.",
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.change(screen.getByTestId("socratic-system-name"), { target: { value: "ArchLucid" } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-system-name-availability-conflict")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("socratic-admit")).toBeDisabled();
+    expect(patchDraftRequest).not.toHaveBeenCalled();
   });
 
   it("shows a failed admission inline above the CTA instead of a toast", async () => {

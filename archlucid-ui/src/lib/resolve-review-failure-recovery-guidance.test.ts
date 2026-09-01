@@ -16,7 +16,7 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
     expect(guidance?.headline).toContain("Execution failed");
     expect(guidance?.recoverySteps.join(" ")).toContain("administrator handoff");
     expect(guidance?.adminHandoff?.markdown).toContain("Review ID: run-abc");
-    expect(guidance?.workspaceAiConfigurationSignal?.detail).toContain("Check AI availability");
+    expect(guidance?.workspaceAiConfigurationSignal?.detail).toContain("checked automatically");
     expect(guidance?.suggestSupportTicket).toBe(false);
     expect(guidance?.adminConfigurationHref).toBeNull();
   });
@@ -81,7 +81,7 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
       usesCustomerAiConnection: true,
     });
 
-    expect(guidance?.recoverySteps.join(" ")).toContain("customer-provided AI connection");
+    expect(guidance?.recoverySteps.join(" ")).toContain("workspace AI connection");
     expect(guidance?.recoverySteps.join(" ")).not.toContain("connection probe");
   });
 

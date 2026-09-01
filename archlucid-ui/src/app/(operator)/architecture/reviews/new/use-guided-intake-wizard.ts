@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system-name-availability";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { architectureDraftDisplayName } from "@/lib/architecture/architecture-draft-status";
@@ -179,7 +180,19 @@ export function useGuidedIntakeWizard() {
     [deeplinkPolicyPackId, form.focusedPilotModeEnabled, workflow.answers],
   );
 
-  const canAdvanceIntent = form.advanceBlockers.length === 0 && !workflow.busy;
+  const systemNameAvailability = useWorkspaceSystemNameAvailability({
+    systemName: form.systemName,
+    excludeDraftId: workflow.draftId,
+    excludeRunId: priorRunId,
+    enabled: !workflow.busy,
+    minTrimmedLength: 1,
+  });
+
+  const canAdvanceIntent =
+    form.advanceBlockers.length === 0 &&
+    !workflow.busy &&
+    !systemNameAvailability.blocksSubmit &&
+    !systemNameAvailability.validating;
   const canReviewAnswers = workflow.allClarificationsHandled && !workflow.busy && !workflow.isSubmitBlocked;
   // Scope is gated on step 0 and already persisted on the draft, so it is not re-gated here.
   const canSubmit =
@@ -216,5 +229,6 @@ export function useGuidedIntakeWizard() {
     policyPackCloudMismatch,
     stepLabel,
     clarificationInference,
+    systemNameAvailability,
   };
 }

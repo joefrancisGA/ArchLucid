@@ -89,4 +89,80 @@ describe("ReviewsHubResumeDrafts", () => {
     expect(screen.getByTestId("reviews-hub-resume-drafts-view-all")).toHaveAttribute("href", "/architecture/architectures");
     expect(screen.getAllByText(/Updated /i).length).toBeGreaterThanOrEqual(2);
   });
+
+  it("excludes archived and review-linked drafts from the ready-for-review count and preview", () => {
+    useArchitectureDraftRegistryEntries.mockReturnValue([
+      {
+        architectureId: "draft-001",
+        displayName: "Eligible draft",
+        customerStatus: "ready-for-review",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-15T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
+      },
+      {
+        architectureId: "draft-002",
+        displayName: "Archived draft",
+        customerStatus: "archived",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-16T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-16T12:00:00.000Z",
+      },
+      {
+        architectureId: "draft-003",
+        displayName: "Review-linked draft",
+        customerStatus: "review-linked",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-17T12:00:00.000Z",
+        linkedReviewId: "review-1",
+        serverUpdatedUtc: "2026-01-17T12:00:00.000Z",
+      },
+      {
+        architectureId: "draft-004",
+        displayName: "Second eligible draft",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-18T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-18T12:00:00.000Z",
+      },
+    ]);
+
+    render(<ReviewsHubResumeDrafts />);
+
+    expect(screen.getByRole("heading", { name: /Architectures ready for review.*2/ })).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-resume-draft-draft-001")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-resume-draft-draft-004")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-resume-draft-draft-002")).toBeNull();
+    expect(screen.queryByTestId("reviews-hub-resume-draft-draft-003")).toBeNull();
+  });
+
+  it("renders nothing when only archived drafts exist", () => {
+    useArchitectureDraftRegistryEntries.mockReturnValue([
+      {
+        architectureId: "draft-001",
+        displayName: "Archived one",
+        customerStatus: "archived",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-15T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
+      },
+      {
+        architectureId: "draft-002",
+        displayName: "Archived two",
+        customerStatus: "archived",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-16T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-16T12:00:00.000Z",
+      },
+    ]);
+
+    const { container } = render(<ReviewsHubResumeDrafts />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
 });
