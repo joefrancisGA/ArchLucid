@@ -41,4 +41,46 @@ public sealed class ZipArchiveSafetyTests
         result.Allowed.Should().BeFalse();
         result.ErrorDetail.Should().Contain("maximum file entry count");
     }
+
+    [Fact]
+    public void ValidateArchive_rejects_archives_exceeding_total_uncompressed_bytes()
+    {
+        using MemoryStream stream = new();
+        using (ZipArchive archive = new(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry entry = archive.CreateEntry("big.txt");
+            using StreamWriter writer = new(entry.Open());
+            writer.Write(new string('x', 1024));
+        }
+
+        stream.Position = 0;
+
+        using ZipArchive readArchive = new(stream, ZipArchiveMode.Read, leaveOpen: true);
+
+        ZipArchiveSafetyResult result = ZipArchiveSafety.ValidateArchive(readArchive, maxTotalUncompressedBytes: 100);
+
+        result.Allowed.Should().BeFalse();
+        result.ErrorDetail.Should().Contain("cumulative uncompressed size");
+    }
+
+    [Fact]
+    public void ValidateArchive_rejects_archives_exceeding_compression_ratio()
+    {
+        using MemoryStream stream = new();
+        using (ZipArchive archive = new(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry entry = archive.CreateEntry("ratio.txt");
+            using StreamWriter writer = new(entry.Open());
+            writer.Write(new string('a', 20_000));
+        }
+
+        stream.Position = 0;
+
+        using ZipArchive readArchive = new(stream, ZipArchiveMode.Read, leaveOpen: true);
+
+        ZipArchiveSafetyResult result = ZipArchiveSafety.ValidateArchive(readArchive, maxCompressionRatio: 2);
+
+        result.Allowed.Should().BeFalse();
+        result.ErrorDetail.Should().Contain("compression ratio");
+    }
 }
