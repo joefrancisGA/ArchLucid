@@ -1,6 +1,16 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/buyer/buyer-facing-review-title", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/buyer/buyer-facing-review-title")>();
+
+  return {
+    ...actual,
+    buyerFacingReviewLinkLabelFromRunId: vi.fn(actual.buyerFacingReviewLinkLabelFromRunId),
+  };
+});
 
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -14,6 +24,8 @@ import {
   formatBuyerAuditResultsStatusLine,
   isTechnicalAuditRunIdentifier,
 } from "@/lib/audit-trail-page-helpers";
+
+const mockBuyerFacingReviewLinkLabelFromRunId = vi.mocked(buyerFacingReviewLinkLabelFromRunId);
 
 describe("formatAuditTrailPageTitle", () => {
   it("uses a human review name for the showcase run", () => {
@@ -36,6 +48,14 @@ describe("buyerFacingAuditTrailScopeLabel", () => {
     expect(buyerFacingAuditTrailScopeLabel(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(
       SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
     );
+  });
+
+  it("strips the legacy review package suffix from friendly labels", () => {
+    mockBuyerFacingReviewLinkLabelFromRunId
+      .mockReturnValueOnce("Enterprise Customer Intake Modernization Review Package")
+      .mockReturnValueOnce("Enterprise Customer Intake Modernization Review Package");
+
+    expect(buyerFacingAuditTrailScopeLabel("friendly-run")).toBe("Enterprise Customer Intake Modernization");
   });
 });
 

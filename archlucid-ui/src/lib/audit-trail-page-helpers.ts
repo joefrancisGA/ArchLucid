@@ -99,6 +99,7 @@ export function buyerFacingAuditTrailScopeLabel(runId: string): string | null {
   const label = buyerFacingReviewLinkLabelFromRunId(effectiveRunId);
 
   return label
+    .replace(/ Review Package$/i, "")
     .replace(/ architecture package$/i, "")
     .replace(/ Review$/, "")
     .trim();
