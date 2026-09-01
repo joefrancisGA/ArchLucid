@@ -1,5 +1,6 @@
 // Authority-commit pipeline composition registrations (extracted from PipelineCompositionModule).
 
+using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Findings;

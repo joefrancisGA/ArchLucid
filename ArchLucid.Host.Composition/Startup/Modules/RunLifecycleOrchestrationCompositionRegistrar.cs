@@ -2,6 +2,7 @@
 
 using ArchLucid.Application;
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Alerts;
 using ArchLucid.Application.Analysis;
