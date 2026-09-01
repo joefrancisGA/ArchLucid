@@ -54,6 +54,7 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
     private readonly int _maxOutputTokens;
     private readonly BinaryData? _structuredOutputAgentResultSchema;
     private readonly ILogger<AzureOpenAiCompletionClient>? _logger;
+    private readonly ILlmCompletionOutputTruncationReporter? _truncationReporter;
 
     /// <remarks>Observable per request for hot-reload toggle of sensitive span payloads.</remarks>
     private readonly IOptionsMonitor<LlmTelemetryOptions>? _llmTelemetryOptions;
@@ -67,7 +68,8 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
         int maxCompletionTokens,
         BinaryData? structuredOutputAgentResultSchema = null,
         ILogger<AzureOpenAiCompletionClient>? logger = null,
-        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null)
+        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null,
+        ILlmCompletionOutputTruncationReporter? truncationReporter = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
         ArgumentException.ThrowIfNullOrWhiteSpace(deploymentName);
@@ -86,7 +88,8 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
             structuredOutputAgentResultSchema,
             logger,
             llmTelemetryOptions,
-            endpointUri);
+            endpointUri,
+            truncationReporter);
 
         return client;
     }
@@ -114,7 +117,8 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
         int maxCompletionTokens,
         BinaryData? structuredOutputAgentResultSchema = null,
         ILogger<AzureOpenAiCompletionClient>? logger = null,
-        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null)
+        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null,
+        ILlmCompletionOutputTruncationReporter? truncationReporter = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
@@ -136,6 +140,7 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
         _structuredOutputAgentResultSchema = structuredOutputAgentResultSchema;
         _logger = logger;
         _llmTelemetryOptions = llmTelemetryOptions;
+        _truncationReporter = truncationReporter;
         Descriptor = LlmProviderDescriptor.ForAzureOpenAi(endpointUri, _deploymentName);
     }
 
@@ -146,7 +151,8 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
         BinaryData? structuredOutputAgentResultSchema,
         ILogger<AzureOpenAiCompletionClient>? logger,
         IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions,
-        Uri endpointUri)
+        Uri endpointUri,
+        ILlmCompletionOutputTruncationReporter? truncationReporter = null)
     {
         _azureOpenAiClient = azureClient;
         _deploymentName = deploymentName;
@@ -155,6 +161,7 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
         _structuredOutputAgentResultSchema = structuredOutputAgentResultSchema;
         _logger = logger;
         _llmTelemetryOptions = llmTelemetryOptions;
+        _truncationReporter = truncationReporter;
         Descriptor = LlmProviderDescriptor.ForAzureOpenAi(endpointUri, deploymentName);
     }
 

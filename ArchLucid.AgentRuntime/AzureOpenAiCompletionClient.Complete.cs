@@ -103,6 +103,15 @@ public sealed partial class AzureOpenAiCompletionClient
             string? modelId = completion.Model;
             LastModelMetadata.Value = (_deploymentName, string.IsNullOrWhiteSpace(modelId) ? null : modelId.Trim());
 
+            int resolvedMaxOutputTokens = maxTokens ?? _maxOutputTokens;
+
+            AzureOpenAiCompletionTruncationDiagnostics.ReportIfOutputTruncated(
+                completion,
+                resolvedMaxOutputTokens,
+                _deploymentName,
+                _logger,
+                _truncationReporter);
+
             AzureOpenAiLlmCompletionTelemetry.TagCompletionResponse(
                 llmActivity,
                 modelId,

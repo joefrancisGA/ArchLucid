@@ -92,6 +92,21 @@ public sealed partial class AuditController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (!AuditQueryStringValidation.TryValidateOptionalFilterText(eventType, out string? eventTypeError))
+        {
+            return this.BadRequestProblem(eventTypeError!, ProblemTypes.ValidationFailed);
+        }
+
+        if (!AuditQueryStringValidation.TryValidateOptionalFilterText(correlationId, out string? correlationIdError))
+        {
+            return this.BadRequestProblem(correlationIdError!, ProblemTypes.ValidationFailed);
+        }
+
+        if (!AuditQueryStringValidation.TryValidateOptionalFilterText(actorUserId, out string? actorUserIdError))
+        {
+            return this.BadRequestProblem(actorUserIdError!, ProblemTypes.ValidationFailed);
+        }
+
         int clampedTake = Math.Clamp(take, 1, PaginationDefaults.MaxListingTake);
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
