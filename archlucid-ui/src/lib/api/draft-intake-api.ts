@@ -8,6 +8,8 @@ import type {
   DraftQuestionsResponse,
   DraftRequestDocument,
   DraftRequestResponse,
+  DraftRequestSummary,
+  DraftRequestSummaryPage,
   SubmitDraftResponse,
 } from "@/types/draft-intake";
 
@@ -43,6 +45,36 @@ export async function createDraftRequest(
     ...(workflowIntent !== undefined ? { workflowIntent } : {}),
     ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
   });
+}
+
+export async function listDraftRequests(params?: {
+  readonly mine?: boolean;
+  readonly status?: string;
+  readonly page?: number;
+  readonly pageSize?: number;
+}): Promise<DraftRequestSummaryPage> {
+  const search = new URLSearchParams();
+
+  if (params?.mine !== undefined) {
+    search.set("mine", String(params.mine));
+  }
+
+  if (params?.status !== undefined && params.status.trim().length > 0) {
+    search.set("status", params.status.trim());
+  }
+
+  if (params?.page !== undefined) {
+    search.set("page", String(params.page));
+  }
+
+  if (params?.pageSize !== undefined) {
+    search.set("pageSize", String(params.pageSize));
+  }
+
+  const query = search.toString();
+  const path = query.length > 0 ? `${DRAFT_BASE}?${query}` : DRAFT_BASE;
+
+  return apiGet<DraftRequestSummaryPage>(path);
 }
 
 export async function getDraftRequest(

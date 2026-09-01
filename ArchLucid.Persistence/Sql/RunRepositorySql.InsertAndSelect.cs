@@ -13,7 +13,7 @@ internal static partial class RunRepositorySql
                                      ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                      IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                      StructuralExecutionMode,
-                                     RetryCount, LastFailureReason, PackageOrigin
+                                     RetryCount, LastFailureReason, PackageOrigin, CreatedByUserId
                                  )
                                  OUTPUT inserted.RowVersionStamp INTO @RunInsertOutput
                                  VALUES
@@ -24,7 +24,7 @@ internal static partial class RunRepositorySql
                                      @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
                                      @IsDemoWelcomeRun, @IsPublicShowcase, @IsSample, @IsPinned, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
                                      @StructuralExecutionMode,
-                                     @RetryCount, @LastFailureReason, @PackageOrigin
+                                     @RetryCount, @LastFailureReason, @PackageOrigin, @CreatedByUserId
                                  );
 
                                  SELECT RowVersionStamp FROM @RunInsertOutput;
