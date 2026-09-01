@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -17,6 +18,7 @@ public sealed class ArchitectureRunArchiveService(
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService,
     IActorContext actorContext,
+    IWorkOwnershipDeleteAuthorizationService workOwnershipDeleteAuthorizationService,
     ILogger<ArchitectureRunArchiveService> logger) : IArchitectureRunArchiveService
 {
     private readonly IRunRepository _runRepository =
@@ -30,6 +32,10 @@ public sealed class ArchitectureRunArchiveService(
 
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly IWorkOwnershipDeleteAuthorizationService _workOwnershipDeleteAuthorizationService =
+        workOwnershipDeleteAuthorizationService
+        ?? throw new ArgumentNullException(nameof(workOwnershipDeleteAuthorizationService));
 
     private readonly ILogger<ArchitectureRunArchiveService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -51,6 +57,17 @@ public sealed class ArchitectureRunArchiveService(
 
         if (run.GoldenManifestId is not null)
             return ArchitectureRunArchiveOutcome.SealedReviewBlocked;
+
+        try
+        {
+            await _workOwnershipDeleteAuthorizationService
+                .EnsureCanDeleteOwnedWorkAsync(run.CreatedByUserId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (WorkOwnershipDeleteForbiddenException)
+        {
+            return ArchitectureRunArchiveOutcome.OwnershipDeleteForbidden;
+        }
 
         RunArchiveByIdsResult batch = await _runRepository
             .ArchiveRunsByIdsAsync([runId], cancellationToken)

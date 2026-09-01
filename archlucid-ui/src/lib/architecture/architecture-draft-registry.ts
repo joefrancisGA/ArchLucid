@@ -20,6 +20,8 @@ export type ArchitectureDraftRegistryEntry = {
   readonly serverUpdatedUtc: string;
   /** Server lifecycle from the last registry upsert — drives home resume vs review routing. */
   readonly serverDraftStatus?: DraftRequestStatus;
+  /** Creator identity from the draft API when known. */
+  readonly createdByUserId?: string | null;
 };
 
 type ArchitectureDraftRegistrySnapshot = {
@@ -205,6 +207,7 @@ export function buildArchitectureDraftRegistryEntry(
     linkedReviewId,
     serverUpdatedUtc: draft.updatedUtc,
     serverDraftStatus: draft.status,
+    createdByUserId: draft.createdByUserId ?? null,
   };
 }
 
