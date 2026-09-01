@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:400 -->
+<!-- audit-core-const-count:402 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -626,6 +626,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantAgentOutputQualityGateModeUpdated` | `Tenant.AgentOutputQualityGateModeUpdated` | `SettingsController` (`PUT …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantAgentOutputQualityGateModeOverrideCleared` | `Tenant.AgentOutputQualityGateModeOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantFindingEngineControlsUpdated` | `Tenant.FindingEngineControlsUpdated` | `SettingsController` (`PUT /v1/admin/settings/finding-engine-controls`) |
+| `TenantWorkOwnershipDeletePolicyUpdated` | `Tenant.WorkOwnershipDeletePolicyUpdated` | `SettingsController` (`PUT /v1/admin/settings/work-ownership-delete-policy`) |
 | `TenantFindingEngineControlsOverridesCleared` | `Tenant.FindingEngineControlsOverridesCleared` | `SettingsController` (`DELETE /v1/admin/settings/finding-engine-controls`) |
 | `TenantQualityGateDefinitionDeprecated` | `Tenant.QualityGateDefinitionDeprecated` | TB-974 wrong-definition remediation (follow-on operator API) |
 | `RunQualityGateSupersedingEvaluationRecorded` | `Run.QualityGateSupersedingEvaluationRecorded` | TB-974 append-only supersession (follow-on operator API) |

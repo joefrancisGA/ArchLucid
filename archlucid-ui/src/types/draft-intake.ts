@@ -91,6 +91,7 @@ export type DraftRequestResponse = {
   document: DraftRequestDocument;
   redirectReason?: string;
   spawnedRunId?: string;
+  createdByUserId?: string | null;
   createdUtc: string;
   updatedUtc: string;
 };
