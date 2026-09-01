@@ -283,7 +283,6 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | ServiceNow inbound webhook (tenant-scoped route) | `ItsmInboundWebhooksController` (`POST /v1/integrations/webhooks/servicenow/tenants/{tenantId}`) | `IntegrationServiceNowIncidentStatusSynced`, `IntegrationServiceNowInboundWebhookRejected`, `IntegrationItsmInboundWebhookPayloadRejected` (via `ItsmInboundWebhookSyncService`) | Tenant from route `{tenantId}` when scoped | external incident key / state summary — **no** shared secret or full payload |
 | Weekly sponsor digest preferences upsert | `TenantExecDigestPreferencesController` (`POST …/tenant/exec-digest-preferences`) | `ExecDigestPreferencesUpdated` | Tenant + default workspace/project from scope | digest cadence / channel booleans (JSON) |
 | Core Pilot team checklist step upsert | `CorePilotTeamChecklistController` (`PUT …/tenant/core-pilot-checklist`) | `CorePilotTeamChecklistUpdated` | Tenant + default workspace/project from scope | `{ stepIndex, isCompleted }` JSON (indexes 0–3) |
-| Tenant work ownership delete policy update | `SettingsController` (`PUT …/admin/settings/work-ownership-delete-policy`) | `TenantWorkOwnershipDeletePolicyUpdated` | Tenant + workspace/project from ambient scope | `{ allowCreatorDeleteOwnedWork }` JSON |
 | Entra directory bound to tenant (commercial `tid` after paid conversion) | `TenantTrialController` (`POST …/tenant/link-entra`) | `TenantEntraDirectoryBound` | Tenant from ambient scope | `{ entraTenantId }` |
 | Trial local identity linked to Entra `oid` (optional; same request as directory bind when `LocalEmail` + `EntraOid` set) | `TenantTrialController` (`POST …/tenant/link-entra`) | `TrialLocalIdentityLinkedToEntra` | Tenant from ambient scope | `{ normalizedEmail }` |
 | Trial converted (billing integration stub) | `TenantTrialController` (`POST …/convert`) | `TenantTrialConverted` | Tenant from ambient scope | `{ targetTier }` from request body when present |
@@ -626,9 +625,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantNotificationChannelPreferencesUpdated` | `TenantNotificationChannelPreferencesUpdated` | `CustomerNotificationChannelPreferencesController` |
 | `TenantAgentOutputQualityGateModeUpdated` | `Tenant.AgentOutputQualityGateModeUpdated` | `SettingsController` (`PUT …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantAgentOutputQualityGateModeOverrideCleared` | `Tenant.AgentOutputQualityGateModeOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/agent-output-quality-gate-mode`) |
-| `TenantWorkOwnershipDeletePolicyUpdated` | `Tenant.WorkOwnershipDeletePolicyUpdated` | `SettingsController` (`PUT /v1/admin/settings/work-ownership-delete-policy`) |
 | `TenantFindingEngineControlsUpdated` | `Tenant.FindingEngineControlsUpdated` | `SettingsController` (`PUT /v1/admin/settings/finding-engine-controls`) |
-| `TenantWorkOwnershipDeletePolicyUpdated` | `Tenant.WorkOwnershipDeletePolicyUpdated` | `SettingsController` (`PUT …/admin/settings/work-ownership-delete-policy`) |
 | `TenantFindingEngineControlsOverridesCleared` | `Tenant.FindingEngineControlsOverridesCleared` | `SettingsController` (`DELETE /v1/admin/settings/finding-engine-controls`) |
 | `TenantQualityGateDefinitionDeprecated` | `Tenant.QualityGateDefinitionDeprecated` | TB-974 wrong-definition remediation (follow-on operator API) |
 | `RunQualityGateSupersedingEvaluationRecorded` | `Run.QualityGateSupersedingEvaluationRecorded` | TB-974 append-only supersession (follow-on operator API) |
