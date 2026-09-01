@@ -50,14 +50,10 @@ internal static class AzureOpenAiMaxOutputTokenParameterPolicy
     private static void EnsurePatchStateInitialized(ChatCompletionOptions options)
     {
         if (SerializedAdditionalRawDataProperty is null)
-        {
             return;
-        }
 
         if (SerializedAdditionalRawDataProperty.GetValue(options) is not null)
-        {
             return;
-        }
 
         SerializedAdditionalRawDataProperty.SetValue(options, new Dictionary<string, BinaryData>());
     }
