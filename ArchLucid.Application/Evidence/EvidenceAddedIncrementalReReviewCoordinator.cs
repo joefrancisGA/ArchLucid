@@ -109,21 +109,29 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinator(
             .RecordStageStartedAsync(runId, StageName, startedUtc, cancellationToken)
             .ConfigureAwait(false);
 
-        IncrementalReReviewResult result = await incrementalReReviewService
-            .ReReviewAsync(model, reReviewScope, specialistReviewService, cancellationToken)
-            .ConfigureAwait(false);
+        string outcomeStatus = "error";
+        IncrementalReReviewResult result;
 
-        bool allGlobalInvariantsPassed = result.GlobalInvariantResults.All(check => check.Passed);
-        string outcomeStatus = allGlobalInvariantsPassed ? "succeeded" : "completed-with-invariant-warnings";
+        try
+        {
+            result = await incrementalReReviewService
+                .ReReviewAsync(model, reReviewScope, specialistReviewService, cancellationToken)
+                .ConfigureAwait(false);
 
-        await runStageOutcomesRepository
-            .RecordStageCompletedAsync(
-                runId,
-                StageName,
-                outcomeStatus,
-                TimeProvider.System.GetUtcNow().UtcDateTime,
-                cancellationToken)
-            .ConfigureAwait(false);
+            bool allGlobalInvariantsPassed = result.GlobalInvariantResults.All(check => check.Passed);
+            outcomeStatus = allGlobalInvariantsPassed ? "succeeded" : "completed-with-invariant-warnings";
+        }
+        finally
+        {
+            await runStageOutcomesRepository
+                .RecordStageCompletedAsync(
+                    runId,
+                    StageName,
+                    outcomeStatus,
+                    TimeProvider.System.GetUtcNow().UtcDateTime,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
 
         await auditService.LogAsync(
             new AuditEvent
