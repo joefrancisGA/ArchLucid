@@ -3,15 +3,11 @@ import {
   type ArchitectureDraftRegistryEntry,
 } from "@/lib/architecture/architecture-draft-registry";
 import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
-import {
-  resolveArchitectureDraftCustomerStatus,
-  type ArchitectureDraftCustomerStatus,
-} from "@/lib/architecture/architecture-draft-status";
+import { resolveArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
 import type { DraftRequestResponse, DraftRequestSummary } from "@/types/draft-intake";
 
-/** Maps a server draft summary row into the shared registry entry shape used by hub and home surfaces. */
-export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): ArchitectureDraftRegistryEntry {
-  const draftForSpawnedRun: DraftRequestResponse = {
+function mapDraftSummaryToDraftRequestResponse(summary: DraftRequestSummary): DraftRequestResponse {
+  return {
     draftId: summary.draftId,
     tenantId: "",
     workspaceId: "",
@@ -27,33 +23,32 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
     createdUtc: summary.createdUtc,
     updatedUtc: summary.updatedUtc,
   };
+}
 
-  const linkedReviewId = architectureDraftSpawnedRunId(draftForSpawnedRun);
+/** Maps a server draft summary row into the shared registry entry shape used by hub and home surfaces. */
+export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): ArchitectureDraftRegistryEntry {
+  const draft = mapDraftSummaryToDraftRequestResponse(summary);
+  const linkedReviewId = architectureDraftSpawnedRunId(draft);
 
-  const fieldBasedStatus = resolveArchitectureDraftCustomerStatus({
-    linkedReviewId,
-    reviewReadinessValid: summary.reviewReadinessValid,
-    registryStatus: summary.status === "Abandoned" ? "archived" : null,
-  });
+  const fieldBasedStatus =
+    summary.status === "Abandoned"
+      ? "archived"
+      : resolveArchitectureDraftCustomerStatus({
+          linkedReviewId,
+          reviewReadinessValid: summary.reviewReadinessValid,
+        });
 
-  // Mirror deriveRegistryCustomerStatus: admitted/submitted drafts are review-ready
-  // even when the summary-derived readiness fields say otherwise.
-  const customerStatus: ArchitectureDraftCustomerStatus =
+  const customerStatus =
     fieldBasedStatus === "draft" && (summary.status === "Admitted" || summary.status === "Submitted")
       ? "ready-for-review"
       : fieldBasedStatus;
 
-  const entry = buildArchitectureDraftRegistryEntry(
-    draftForSpawnedRun,
-    {
-      customerStatus,
-      linkedReviewId,
-      ownerLabel: "You",
-    },
-  );
+  const entry = buildArchitectureDraftRegistryEntry(draft, {
+    customerStatus,
+    linkedReviewId,
+    ownerLabel: "You",
+  });
 
-  // The partial summary document cannot reproduce server readiness, so the
-  // summary-derived status wins over the document-derived one.
   return { ...entry, customerStatus };
 }
 

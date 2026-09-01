@@ -140,6 +140,35 @@ public sealed class DraftRequestsControllerTests
     }
 
     [Fact]
+    public async Task ListDrafts_MineOmitted_ReturnsPagedSummaries()
+    {
+        PagedResponse<DraftRequestSummaryResponse> page = new()
+        {
+            Items = [],
+            TotalCount = 0,
+            Page = 1,
+            PageSize = 50,
+        };
+
+        _service
+            .Setup(static s => s.ListAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<DraftRequestStatus>>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(page);
+
+        DraftRequestsController sut = BuildSut();
+
+        IActionResult result = await sut.ListDrafts(cancellationToken: CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(page);
+    }
+
+    [Fact]
     public async Task ListDrafts_MineFalse_ReturnsBadRequest()
     {
         DraftRequestsController sut = BuildSut();
@@ -151,14 +180,32 @@ public sealed class DraftRequestsControllerTests
     }
 
     [Fact]
-    public async Task ListDrafts_MineNull_ReturnsBadRequest()
+    public async Task ListDrafts_MineNull_ReturnsPagedSummaries()
     {
+        PagedResponse<DraftRequestSummaryResponse> page = new()
+        {
+            Items = [],
+            TotalCount = 0,
+            Page = 1,
+            PageSize = 50,
+        };
+
+        _service
+            .Setup(static s => s.ListAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<DraftRequestStatus>>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(page);
+
         DraftRequestsController sut = BuildSut();
 
         IActionResult result = await sut.ListDrafts(mine: null, cancellationToken: CancellationToken.None);
 
-        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
-        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(page);
     }
 
     [Fact]
