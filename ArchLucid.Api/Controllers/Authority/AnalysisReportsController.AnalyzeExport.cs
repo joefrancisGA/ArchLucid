@@ -123,6 +123,7 @@ public sealed partial class AnalysisReportsController
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/file")]
     [HttpPost("review/{runId}/analysis-report/export/file")]
+    [Produces("text/markdown")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -157,6 +158,7 @@ public sealed partial class AnalysisReportsController
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/docx")]
     [HttpPost("review/{runId}/analysis-report/export/docx")]
+    [Produces("application/vnd.openxmlformats-officedocument.wordprocessingml.document")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

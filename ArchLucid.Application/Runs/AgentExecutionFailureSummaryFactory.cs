@@ -3,7 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core;
-using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Resilience;
 
 using Polly.Timeout;
@@ -45,6 +45,7 @@ public static class AgentExecutionFailureSummaryFactory
 
         if (ex is not AggregateException aggregateException)
             return ex.InnerException is null ? null : FindAgentHandlerExecutionException(ex.InnerException);
+
         foreach (Exception inner in aggregateException.Flatten().InnerExceptions)
         {
             AgentHandlerExecutionException? hit = FindAgentHandlerExecutionException(inner);
@@ -164,7 +165,8 @@ public static class AgentExecutionFailureSummaryFactory
             return true;
         }
 
-        return message.Contains("AzureOpenAI:Endpoint is not configured", StringComparison.OrdinalIgnoreCase);
+        return message.Contains("AzureOpenAI:Endpoint is not configured", StringComparison.OrdinalIgnoreCase)
+               || message.Contains(AgentExecutionReadinessMessages.LiveCompletionUnavailable, StringComparison.Ordinal);
     }
 
     internal static string? ResolveReasonCode(Exception root)

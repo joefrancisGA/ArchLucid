@@ -98,7 +98,11 @@ public sealed partial class AzureOpenAiCompletionClient
             maxTokens,
             temperature);
 
+        int resolvedMaxOutputTokens = maxTokens ?? _maxOutputTokens;
         StringBuilder fullText = new();
+        ChatFinishReason? finishReason = null;
+        int outputTokenCount = 0;
+        int reasoningTokenCount = 0;
 
         await foreach (StreamingChatCompletionUpdate update in StreamChatCoreAsync(
                            messages,
@@ -129,6 +133,8 @@ public sealed partial class AzureOpenAiCompletionClient
                 if (inTok > 0 || outTok > 0 || reasoningTok > 0 || cachedTok > 0)
                 {
                     LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok, cachedTok);
+                    outputTokenCount = outTok;
+                    reasoningTokenCount = reasoningTok;
                     AzureOpenAiLlmCompletionTelemetry.CheckTokenEstimationDiscrepancy(
                         _logger,
                         systemPrompt,
@@ -137,9 +143,21 @@ public sealed partial class AzureOpenAiCompletionClient
                 }
             }
 
+            if (update.FinishReason is ChatFinishReason reason)
+                finishReason = reason;
+
             if (!string.IsNullOrWhiteSpace(update.Model))
                 LastModelMetadata.Value = (_deploymentName, update.Model.Trim());
         }
+
+        AzureOpenAiCompletionTruncationDiagnostics.ReportIfOutputTruncated(
+            finishReason,
+            resolvedMaxOutputTokens,
+            _deploymentName,
+            outputTokenCount,
+            reasoningTokenCount,
+            _logger,
+            _truncationReporter);
 
         if (fullText.Length < 1)
 

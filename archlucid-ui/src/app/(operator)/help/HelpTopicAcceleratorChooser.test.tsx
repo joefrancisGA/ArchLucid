@@ -48,7 +48,6 @@ import {
   ACCELERATOR_GREENFIELD_PACK_ID,
   ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE,
   ACCELERATOR_PACK_CTA_PENDING_UNKNOWN_MESSAGE,
-  ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 import { getHelpCenterTier } from "@/lib/help/help-center-catalog";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
@@ -168,24 +167,28 @@ describe("HelpAcceleratorChooserGuideView", () => {
         continue;
       }
 
-      expect(screen.getByTestId(`help-accelerator-chooser-pack-${packEntry.id}-blocked`)).toHaveTextContent(
-        ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
-      );
-      expect(screen.getByTestId(`help-accelerator-chooser-pack-${packEntry.id}-follow-up-tag`)).toHaveTextContent(
-        "Follow-up pack",
-      );
-      expect(screen.queryByTestId(`help-accelerator-chooser-start-${packEntry.id}`)).toBeNull();
+      const startLink = screen.getByTestId(`help-accelerator-chooser-start-${packEntry.id}`);
+
+      expect(startLink).toHaveAttribute("href", packEntry.startHref);
+      expect(startLink).toHaveTextContent("Start with this pack");
+      expect(screen.queryByTestId(`help-accelerator-chooser-pack-${packEntry.id}-follow-up-tag`)).toBeNull();
     }
 
     expect(screen.getByTestId(ACCELERATOR_COST_GOVERNANCE_HELP_PACK_TEST_ID)).toBeInTheDocument();
-    expect(screen.getByTestId("help-accelerator-chooser-pack-cost-governance-blocked")).toHaveTextContent(
-      ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
+    expect(
+      screen.getByTestId("help-accelerator-chooser-pack-cost-governance-baseline-recommendation"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("help-accelerator-chooser-start-azure-cost-governance")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new?baseline=1&accelerator=azure-cost-governance",
     );
-    expect(screen.queryByTestId("help-accelerator-chooser-start-azure-cost-governance")).toBeNull();
 
     fireEvent.click(screen.getByRole("radio", { name: "AWS" }));
 
-    expect(screen.queryByTestId("help-accelerator-chooser-start-aws-cost-governance")).toBeNull();
+    expect(screen.getByTestId("help-accelerator-chooser-start-aws-cost-governance")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new?baseline=1&accelerator=aws-cost-governance",
+    );
   });
 
   it("aligns table-of-contents ids with rendered section headings", () => {
@@ -212,7 +215,7 @@ describe("HelpAcceleratorChooserGuideView", () => {
       ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE,
     );
     expect(screen.queryByTestId("help-accelerator-chooser-start-ai-llm-workload")).toBeNull();
-    expect(screen.getByTestId(`help-accelerator-chooser-start-${ACCELERATOR_GREENFIELD_PACK_ID}`)).toBeInTheDocument();
+    expect(screen.queryByTestId(`help-accelerator-chooser-start-${ACCELERATOR_GREENFIELD_PACK_ID}`)).toBeNull();
   });
 
   it("shows retry and indeterminate copy when prerequisite is unknown", () => {
@@ -225,11 +228,10 @@ describe("HelpAcceleratorChooserGuideView", () => {
     expect(screen.getAllByRole("button", { name: /retry availability check/i }).length).toBeGreaterThan(0);
   });
 
-  it("enables specialty pack CTAs when prerequisite is met", () => {
+  it("enables all pack CTAs when prerequisite is met", () => {
     renderGuideWithPrerequisiteStatus("met");
 
-    expect(screen.getAllByRole("link", { name: /start follow-up review/i })).toHaveLength(4);
-    expect(screen.getByRole("link", { name: /start with this pack/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /start with this pack/i })).toHaveLength(5);
     expect(screen.getByTestId("help-accelerator-chooser-start-azure-cost-governance")).toHaveAttribute(
       "href",
       "/architecture/reviews/new?baseline=1&accelerator=azure-cost-governance",

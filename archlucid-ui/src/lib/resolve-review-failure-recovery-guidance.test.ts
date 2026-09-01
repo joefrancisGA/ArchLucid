@@ -29,8 +29,9 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
       canConfigureWorkspaceAi: true,
     });
 
-    expect(guidance?.recoverySteps.join(" ")).toContain("ArchLucid-managed AI");
-    expect(guidance?.recoverySteps.join(" ")).toContain("Report a problem");
+    expect(guidance?.recoverySteps.join(" ")).toContain("Real agent execution");
+    expect(guidance?.recoverySteps.join(" ")).toContain("Simulator");
+    expect(guidance?.recoverySteps.join(" ")).toContain("AI models");
     expect(guidance?.adminHandoff).toBeNull();
     expect(guidance?.adminConfigurationHref).toBeNull();
   });

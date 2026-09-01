@@ -35,6 +35,7 @@ type WorkspaceAiFailureContext = {
   readonly completedStages?: number;
   readonly realModeFellBackToSimulator?: boolean | null;
   readonly usesCustomerAiConnection?: boolean;
+  readonly effectiveSessionMode?: "Simulator" | "Real" | null;
 };
 
 function normalizeKey(value: string | null | undefined): string {
@@ -74,7 +75,11 @@ export function isWorkspaceAiConfigurationFailure(context: WorkspaceAiFailureCon
   return false;
 }
 
-function managedAiUnavailableDetail(): string {
+function managedAiUnavailableDetail(context: WorkspaceAiFailureContext): string {
+  if (context.effectiveSessionMode === "Simulator") {
+    return "Review execution stopped before the first pipeline stage. Check AI availability below — if the session is in Simulator mode, re-run should not require live Azure OpenAI.";
+  }
+
   return "Review failure pattern suggests ArchLucid-managed AI may be unavailable — use Check AI availability to confirm before re-running.";
 }
 
@@ -109,21 +114,21 @@ export function resolveWorkspaceAiConfigurationSignal(
   if (context.realModeFellBackToSimulator === true) {
     return {
       label: "Workspace AI configuration",
-      detail: managedAiUnavailableDetail(),
+      detail: managedAiUnavailableDetail(context),
     };
   }
 
   if (legacyPreStageFailure(context)) {
     return {
       label: "Workspace AI availability",
-      detail: managedAiUnavailableDetail(),
+      detail: managedAiUnavailableDetail(context),
     };
   }
 
   if (triageTitle !== null) {
     return {
       label: "Workspace AI availability",
-      detail: managedAiUnavailableDetail(),
+      detail: managedAiUnavailableDetail(context),
     };
   }
 
@@ -146,7 +151,15 @@ function operatorReportProblemStep(): string {
   return "If the failure repeats after your administrator confirms setup, open Report a problem and include this review id.";
 }
 
-function managedPlatformAdminSteps(): readonly string[] {
+function managedPlatformAdminSteps(context: WorkspaceAiFailureContext): readonly string[] {
+  if (context.failureClass === "missingCredentials" || context.effectiveSessionMode === "Real") {
+    return [
+      "This session is using Real agent execution, but live Azure OpenAI is not configured on this host.",
+      "Switch the top-bar execution mode chip back to Simulator and re-run, or configure AzureOpenAI endpoint, deployment, and credentials for local development.",
+      "Administration → AI models only changes model aliases — it does not supply Azure OpenAI credentials for the host.",
+    ];
+  }
+
   return [
     "This review uses ArchLucid-managed AI, which is unavailable right now — changing models on Administration → AI models will not fix a platform outage.",
     "Open Report a problem and include this review id so support can investigate.",
@@ -192,27 +205,37 @@ function operatorAiUsageBudgetSteps(): readonly string[] {
   ];
 }
 
-function resolveInfrastructureRecoverySteps(input: WorkspaceAiRecoveryAudienceInput): readonly string[] {
+function resolveInfrastructureRecoverySteps(
+  input: WorkspaceAiRecoveryAudienceInput,
+  context: WorkspaceAiFailureContext = {},
+): readonly string[] {
   if (input.usesCustomerAiConnection) {
     return input.canConfigureWorkspaceAi ? customerConnectionAdminSteps() : customerConnectionOperatorSteps();
   }
 
-  return input.canConfigureWorkspaceAi ? managedPlatformAdminSteps() : managedPlatformOperatorSteps();
+  return input.canConfigureWorkspaceAi ? managedPlatformAdminSteps(context) : managedPlatformOperatorSteps();
 }
 
 export function recoveryStepsForTriageScenarioWithAudience(input: {
   readonly triageScenarioId: string;
   readonly canConfigureWorkspaceAi: boolean;
   readonly usesCustomerAiConnection?: boolean;
+  readonly failureClass?: string | null;
+  readonly effectiveSessionMode?: "Simulator" | "Real" | null;
 }): readonly string[] | null {
   const audience: WorkspaceAiRecoveryAudienceInput = {
     canConfigureWorkspaceAi: input.canConfigureWorkspaceAi,
     usesCustomerAiConnection: input.usesCustomerAiConnection === true,
   };
 
+  const context: WorkspaceAiFailureContext = {
+    failureClass: input.failureClass,
+    effectiveSessionMode: input.effectiveSessionMode ?? null,
+  };
+
   switch (input.triageScenarioId) {
     case "missingCredentials":
-      return resolveInfrastructureRecoverySteps(audience);
+      return resolveInfrastructureRecoverySteps(audience, context);
     case "contentSafetyRejection":
       return [
         "Review your intake text and attachments for content that may trigger safety filters.",
@@ -236,7 +259,7 @@ export function recoveryStepsForTriageScenarioWithAudience(input: {
         "Return here and click Re-run review so the assessment can evaluate the enriched evidence.",
       ];
     case "fallbackToSimulator":
-      return resolveInfrastructureRecoverySteps(audience);
+      return resolveInfrastructureRecoverySteps(audience, context);
     case "partialRequiredAgentsIncomplete":
       return [
         "Click Re-run review to retry the assessments that did not finish.",
