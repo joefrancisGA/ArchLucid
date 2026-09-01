@@ -8,9 +8,7 @@ import type { DraftRequestSummary } from "@/types/draft-intake";
 
 /** Maps a server draft summary row into the shared registry entry shape used by hub and home surfaces. */
 export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): ArchitectureDraftRegistryEntry {
-  const linkedReviewId = architectureDraftSpawnedRunId({
-    spawnedRunId: summary.spawnedRunId ?? null,
-  } as { spawnedRunId?: string | null });
+  const linkedReviewId = architectureDraftSpawnedRunId(summary);
 
   const customerStatus =
     summary.status === "Abandoned"
@@ -29,7 +27,7 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
         systemName: summary.systemName ?? undefined,
         actorSet: { actors: [] },
       },
-      spawnedRunId: summary.spawnedRunId ?? null,
+      spawnedRunId: summary.spawnedRunId ?? undefined,
       createdByUserId: summary.createdByUserId,
       createdUtc: summary.createdUtc,
       updatedUtc: summary.updatedUtc,

@@ -9,7 +9,13 @@ export const ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD =
 export const ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL =
   "Edit draft anyway — changes will not update the review";
 
-export function architectureDraftSpawnedRunId(draft: DraftRequestResponse | null | undefined): string | null {
+type ArchitectureDraftSpawnedRunProbe = {
+  readonly spawnedRunId?: string | null;
+};
+
+export function architectureDraftSpawnedRunId(
+  draft: ArchitectureDraftSpawnedRunProbe | null | undefined,
+): string | null {
   const spawnedRunId = draft?.spawnedRunId?.trim() ?? "";
 
   if (spawnedRunId.length === 0) {
