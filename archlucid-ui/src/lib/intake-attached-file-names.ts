@@ -82,6 +82,10 @@ export function appendIntakeAttachedFileNames(
 
   let base = brief;
 
+  if (ATTACHED_FILES_HEADINGS.some((heading) => base.startsWith(heading))) {
+    base = "";
+  }
+
   for (const marker of ATTACHED_FILES_MARKERS) {
     const markerIndex = base.indexOf(marker);
 
