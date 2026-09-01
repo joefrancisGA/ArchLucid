@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ArchLucid.Api.Models.Tenancy;
 
 public sealed class CorePilotChecklistPutRequest
@@ -8,7 +10,8 @@ public sealed class CorePilotChecklistPutRequest
         set;
     }
 
-    public bool IsCompleted
+    [Required]
+    public bool? IsCompleted
     {
         get;
         set;

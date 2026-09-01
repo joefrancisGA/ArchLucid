@@ -23,7 +23,8 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 public sealed class TenantErasureLegalHoldController(
     ITenantErasureCommandService tenantErasureCommands,
     ITenantRepository tenantRepository,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    TimeProvider? timeProvider = null) : ControllerBase
 {
     private readonly ITenantErasureCommandService _tenantErasureCommands =
         tenantErasureCommands ?? throw new ArgumentNullException(nameof(tenantErasureCommands));
@@ -34,12 +35,15 @@ public sealed class TenantErasureLegalHoldController(
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+
     /// <summary>Extend legal hold while the tenant is in erasure quarantine (tenant <c>Admin</c>).</summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("legal-hold")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [EnableRateLimiting("expensive")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SetLegalHoldAsync(
@@ -57,6 +61,13 @@ public sealed class TenantErasureLegalHoldController(
             return this.NotFoundProblem(
                 "Tenant was not found for the current scope.",
                 ProblemTypes.ResourceNotFound);
+        }
+
+        if (body.UntilUtc <= _timeProvider.GetUtcNow())
+        {
+            return this.BadRequestProblem(
+                "UntilUtc must be in the future.",
+                ProblemTypes.ValidationFailed);
         }
 
         ClaimsPrincipal user = User;

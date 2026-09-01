@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tenancy;
 ///     Decorates <see cref="ITenantDirectoryReader.GetByIdAsync" /> for erasure-quarantine middleware and other hot reads.
 /// </summary>
 public sealed partial class CachingTenantRepository(ITenantRepository inner, IHotPathReadCache hotPathReadCache)
-    : ITenantRepository
+    : ITenantRepository, IWorkspaceQueryTenantRepository
 {
     private readonly IHotPathReadCache _hotPathReadCache =
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
@@ -70,6 +70,30 @@ public sealed partial class CachingTenantRepository(ITenantRepository inner, IHo
             enterpriseScimSeatsLimit);
 
         await InvalidateAsync(tenantId, ct);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> WorkspaceExistsAsync(Guid tenantId, Guid workspaceId, CancellationToken ct) =>
+        _inner is IWorkspaceQueryTenantRepository q
+            ? q.WorkspaceExistsAsync(tenantId, workspaceId, ct)
+            : WorkspaceExistsFallbackAsync(tenantId, workspaceId, ct);
+
+    /// <inheritdoc />
+    public Task<TenantWorkspaceListItem?> GetWorkspaceByIdAsync(Guid tenantId, Guid workspaceId, CancellationToken ct) =>
+        _inner is IWorkspaceQueryTenantRepository q
+            ? q.GetWorkspaceByIdAsync(tenantId, workspaceId, ct)
+            : GetWorkspaceByIdFallbackAsync(tenantId, workspaceId, ct);
+
+    private async Task<bool> WorkspaceExistsFallbackAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
+    {
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = await _inner.ListWorkspacesAsync(tenantId, ct).ConfigureAwait(false);
+        return workspaces.Any(w => w.WorkspaceId == workspaceId);
+    }
+
+    private async Task<TenantWorkspaceListItem?> GetWorkspaceByIdFallbackAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
+    {
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = await _inner.ListWorkspacesAsync(tenantId, ct).ConfigureAwait(false);
+        return workspaces.FirstOrDefault(w => w.WorkspaceId == workspaceId);
     }
 
     /// <inheritdoc />

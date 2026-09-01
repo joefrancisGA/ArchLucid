@@ -27,7 +27,8 @@ namespace ArchLucid.Api.Controllers.Governance;
 public sealed class GovernanceEnvironmentCatalogController(
     IScopeContextProvider scopeProvider,
     IGovernanceEnvironmentCatalogService catalogService,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    ITenantRepository tenantRepository) : ControllerBase
 {
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
@@ -38,11 +39,21 @@ public sealed class GovernanceEnvironmentCatalogController(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <summary>Returns the effective environment catalog for the current scope.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(GovernanceEnvironmentCatalog), StatusCodes.Status200OK)]
-    public async Task<ActionResult<GovernanceEnvironmentCatalog>> Get(CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
     {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         GovernanceEnvironmentCatalog catalog = await _catalogService
             .GetCatalogAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -56,12 +67,19 @@ public sealed class GovernanceEnvironmentCatalogController(
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceEnvironmentCatalog), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Replace(
         [FromBody] ReplaceGovernanceEnvironmentCatalogRequest? request,
         CancellationToken cancellationToken = default)
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         try
         {
@@ -75,8 +93,6 @@ public sealed class GovernanceEnvironmentCatalogController(
         GovernanceEnvironmentCatalog catalog = await _catalogService
             .GetCatalogAsync(cancellationToken)
             .ConfigureAwait(false);
-
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         await _auditService.LogAsync(
             new AuditEvent

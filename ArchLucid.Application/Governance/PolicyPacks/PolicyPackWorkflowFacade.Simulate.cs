@@ -73,13 +73,14 @@ public sealed partial class PolicyPackWorkflowFacade
         int wouldBlock = 0;
         int notFound = 0;
         int evaluated = 0;
+        int requestedRunCount = 0;
 
-        foreach (string runIdRaw in runIds.Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (string runId in runIds
+            .Where(static runIdRaw => !string.IsNullOrWhiteSpace(runIdRaw))
+            .Select(static runIdRaw => runIdRaw.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            if (string.IsNullOrWhiteSpace(runIdRaw))
-                continue;
-
-            string runId = runIdRaw.Trim();
+            requestedRunCount++;
             PolicyPackGovernanceDryRunResult? dryRun = await _policyPackGovernanceDryRunService.EvaluateAsync(
                 versionRow.ContentJson,
                 runId,
@@ -117,7 +118,7 @@ public sealed partial class PolicyPackWorkflowFacade
         {
             PolicyPackId = policyPackId,
             PolicyPackVersion = versionRow.Version,
-            RequestedRunCount = runIds.Count,
+            RequestedRunCount = requestedRunCount,
             EvaluatedRunCount = evaluated,
             NotFoundRunCount = notFound,
             WouldBlockCommitCount = wouldBlock,

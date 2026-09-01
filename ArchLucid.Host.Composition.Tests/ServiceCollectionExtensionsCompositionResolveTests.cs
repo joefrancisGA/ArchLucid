@@ -12,6 +12,7 @@ using ArchLucid.Core.Safety;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Retrieval.Embedding;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -255,6 +256,44 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
 
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("*ArchLucid:ContentSafety:Endpoint*");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_simulator_post_configures_fake_local_embedding_dimension()
+    {
+        IConfiguration configuration = CreateSimulatorCompositionDictionaryConfiguration();
+        ServiceCollection services = CreateCoreServices(configuration);
+        services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        IEmbeddingModelIdentity identity = provider.GetRequiredService<IEmbeddingModelIdentity>();
+
+        identity.ModelId.Should().Be("fake-local");
+        identity.ExpectedDimension.Should().Be(32);
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_azure_embeddings_post_configures_expected_dimension_1536()
+    {
+        IConfiguration configuration = CreateAzureEmbeddingsCompositionConfiguration();
+        ServiceCollection services = CreateCoreServices(configuration);
+        services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        IEmbeddingModelIdentity identity = provider.GetRequiredService<IEmbeddingModelIdentity>();
+
+        identity.ModelId.Should().Be("text-embedding-3-small");
+        identity.ExpectedDimension.Should().Be(1536);
+    }
+
+    private static IConfiguration CreateAzureEmbeddingsCompositionConfiguration()
+    {
+        Dictionary<string, string?> data = CreateSimulatorCompositionDictionary();
+        data["AzureOpenAI:Endpoint"] = "https://unit-test.openai.azure.com/";
+        data["AzureOpenAI:ApiKey"] = "unit-test-key";
+        data["AzureOpenAI:EmbeddingDeploymentName"] = "text-embedding-3-small";
+
+        return new ConfigurationBuilder().AddInMemoryCollection(data).Build();
     }
 
     private static ServiceCollection CreateCoreServices(IConfiguration configuration)

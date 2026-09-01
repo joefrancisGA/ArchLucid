@@ -37,7 +37,7 @@ class TestAdoptionBatch5AM(unittest.TestCase):
             / "insights"
             / "compare-two-reviews"
             / "_sections"
-            / "CompareResultsPanel.tsx"
+            / "CompareResultsPanelDiffStack.tsx"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("compare-ask-narrative-banner", text)
