@@ -56,7 +56,6 @@ public sealed class GovernancePostureController(
 
         if (GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId(projectId))
             return this.BadRequestProblem("projectId must not be empty.", ProblemTypes.ValidationFailed);
-
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return Ok(new ArchitecturePostureSummary());
 
