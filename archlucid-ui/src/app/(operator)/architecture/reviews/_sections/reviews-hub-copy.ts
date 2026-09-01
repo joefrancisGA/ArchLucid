@@ -18,7 +18,6 @@ export const REVIEWS_HUB_MORE_WAYS_TITLE = "Samples and what a review includes";
 export const REVIEWS_HUB_MORE_WAYS_SUMMARY =
   "Load a sample workspace, open the showcase review, compare finalized reviews, or scan deliverables.";
 
-export const REVIEWS_HUB_FILTER_MORE_LABEL = "More filters";
 
 export const REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL = "Active";
 
@@ -111,6 +110,8 @@ export const REVIEWS_HUB_INCLUDES_ITEMS = [
 export const REVIEWS_HUB_PINNED_REVIEWS_TITLE = "Pinned reviews";
 
 export const REVIEWS_HUB_ALL_REVIEWS_TITLE = "Reviews";
+
+export const REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL = "Show archived reviews";
 
 export const REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE = "Search and filter all reviews";
 

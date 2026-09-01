@@ -6,6 +6,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-client-cache";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
@@ -30,13 +31,13 @@ import { cn } from "@/lib/utils";
 import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import {
-  REVIEWS_HUB_FILTER_MORE_LABEL,
-  REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_PAGE_TITLE,
+  REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
+  REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL,
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import {
@@ -45,8 +46,7 @@ import {
   matchesFilter,
   matchesSearch,
   mergeRunsWithArchivedCache,
-  MORE_FILTER_OPTIONS,
-  PRIMARY_FILTER_OPTIONS,
+  INVENTORY_FILTER_OPTIONS,
   sortRunsForInventory,
   type ReviewFilterId,
 } from "./reviews-hub-inventory-filters";
@@ -94,6 +94,7 @@ function ReviewFilterChip(props: {
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<ReviewFilterId>("all");
+  const [showArchived, setShowArchived] = useState(false);
   const { isFavorite } = useFavoriteReviews();
   const { archivedRuns } = useArchivedReviewsClientCache();
   const draftEntries = useArchitectureDraftRegistryEntries();
@@ -115,15 +116,19 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   );
   const draftCount = draftEntries.length;
   const hasDrafts = draftCount > 0;
-  const moreFilterSelected = MORE_FILTER_OPTIONS.some((option) => option.id === activeFilter);
+  const archivedCount = useMemo(
+    () => mergedRuns.filter((run) => isArchivedRun(run)).length,
+    [mergedRuns],
+  );
+  const showArchivedDisabled = archivedCount === 0;
 
   const visibilityFilteredRuns = useMemo(() => {
-    if (activeFilter === "Archived") {
+    if (showArchived || activeFilter === "Archived") {
       return mergedRuns;
     }
 
     return mergedRuns.filter((run) => !isArchivedRun(run));
-  }, [activeFilter, mergedRuns]);
+  }, [activeFilter, mergedRuns, showArchived]);
 
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(
@@ -203,7 +208,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             </div>
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2" data-testid="reviews-hub-filters">
               <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter reviews">
-                {PRIMARY_FILTER_OPTIONS.map((option) => (
+                {INVENTORY_FILTER_OPTIONS.map((option) => (
                   <ReviewFilterChip
                     key={option.id}
                     option={option}
@@ -212,27 +217,25 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                   />
                 ))}
               </div>
-              <details
-                className="m-0"
-                data-testid="reviews-hub-more-filters"
-                open={moreFilterSelected}
-              >
-                <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {REVIEWS_HUB_FILTER_MORE_LABEL}
-                </summary>
-                <div className="mt-2 flex flex-col gap-2">
-                  <div className="flex flex-wrap gap-1.5" role="group" aria-label={REVIEWS_HUB_FILTER_MORE_LABEL}>
-                    {MORE_FILTER_OPTIONS.map((option) => (
-                      <ReviewFilterChip
-                        key={option.id}
-                        option={option}
-                        selected={activeFilter === option.id}
-                        onSelect={setActiveFilter}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </details>
+              <div className="flex items-center gap-2">
+                <input
+                  id="reviews-hub-show-archived"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
+                  checked={showArchived}
+                  disabled={showArchivedDisabled}
+                  onChange={(event) => {
+                    setShowArchived(event.target.checked);
+                  }}
+                  data-testid="reviews-hub-show-archived"
+                />
+                <Label
+                  htmlFor="reviews-hub-show-archived"
+                  className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}
+                >
+                  {REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL}
+                </Label>
+              </div>
             </div>
           </div>
 
