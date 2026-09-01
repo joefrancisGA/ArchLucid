@@ -52,7 +52,7 @@ public sealed partial class GovernanceStickinessController(
     private IActionResult? BadRequestWhenProjectQueryIdEmpty(Guid? projectId)
     {
         if (GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId(projectId))
-            return this.BadRequestProblem("projectId is required.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem("projectId must not be the empty GUID.", ProblemTypes.ValidationFailed);
 
         return null;
     }
