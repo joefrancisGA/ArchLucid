@@ -54,6 +54,7 @@ public sealed partial class AnalysisReportsController
     [HttpPost("run/{runId}/analysis-report/export/docx/consulting")]
     [HttpPost("review/{runId}/analysis-report/export/docx/consulting")]
     [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
+    [Produces("application/vnd.openxmlformats-officedocument.wordprocessingml.document")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

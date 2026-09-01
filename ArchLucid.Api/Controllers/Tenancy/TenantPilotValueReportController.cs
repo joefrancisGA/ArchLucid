@@ -51,6 +51,7 @@ public sealed class TenantPilotValueReportController(
     /// </summary>
     [HttpGet("pilot-value-report")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [Produces("text/markdown", "application/json")]
     [ProducesResponseType(typeof(PilotValueReport), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

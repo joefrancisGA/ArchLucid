@@ -83,6 +83,15 @@
       "parity": "unmapped"
     },
     {
+      "nav_href": "/administration/model-governance",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
       "nav_href": "/administration/notifications",
       "nav_required_authority": "ReadAuthority",
       "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
