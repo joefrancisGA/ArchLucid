@@ -628,7 +628,6 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantAgentOutputQualityGateModeUpdated` | `Tenant.AgentOutputQualityGateModeUpdated` | `SettingsController` (`PUT …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantAgentOutputQualityGateModeOverrideCleared` | `Tenant.AgentOutputQualityGateModeOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantFindingEngineControlsUpdated` | `Tenant.FindingEngineControlsUpdated` | `SettingsController` (`PUT /v1/admin/settings/finding-engine-controls`) |
-| `TenantWorkOwnershipDeletePolicyUpdated` | `Tenant.WorkOwnershipDeletePolicyUpdated` | `SettingsController` (`PUT …/admin/settings/work-ownership-delete-policy`) |
 | `TenantFindingEngineControlsOverridesCleared` | `Tenant.FindingEngineControlsOverridesCleared` | `SettingsController` (`DELETE /v1/admin/settings/finding-engine-controls`) |
 | `TenantQualityGateDefinitionDeprecated` | `Tenant.QualityGateDefinitionDeprecated` | TB-974 wrong-definition remediation (follow-on operator API) |
 | `RunQualityGateSupersedingEvaluationRecorded` | `Run.QualityGateSupersedingEvaluationRecorded` | TB-974 append-only supersession (follow-on operator API) |

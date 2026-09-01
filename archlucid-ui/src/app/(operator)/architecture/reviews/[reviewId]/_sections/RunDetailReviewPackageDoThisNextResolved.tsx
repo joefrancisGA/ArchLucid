@@ -179,6 +179,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
         runId={props.runId}
         hasGoldenManifest={props.hasGoldenManifest}
         commitBlockedReason={assumptionAwareCommitBlockedReason}
+        sessionAiReadiness={sessionAiReadiness}
+        canConfigureWorkspaceAi={canConfigureWorkspaceAi}
+        usesCustomerAiConnection={usesCustomerAiConnection}
       />
     </>
   );

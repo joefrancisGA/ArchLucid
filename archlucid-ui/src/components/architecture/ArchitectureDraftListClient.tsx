@@ -116,7 +116,8 @@ function matchesSearch(entry: ArchitectureDraftRegistryEntry, query: string): bo
 
 function matchesFilter(entry: ArchitectureDraftRegistryEntry, filter: ArchitectureFilterId): boolean {
   if (filter === "all") {
-    return true;
+    // Abandoned drafts live under Archived; the default inventory hides them after delete.
+    return entry.customerStatus !== "archived";
   }
 
   if (filter === "no-review") {
@@ -281,7 +282,10 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2 lg:ml-auto">
-          <label htmlFor="architecture-draft-list-sort" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <label
+            htmlFor="architecture-draft-list-sort"
+            className={cn("m-0 shrink-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+          >
             Sort by
           </label>
           <select
@@ -289,8 +293,8 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
             value={activeSort}
             onChange={(event) => setActiveSort(event.target.value as ArchitectureSortId)}
             className={cn(
-              "rounded-md border border-al-border-subtle bg-al-surface-raised px-2 py-1",
-              OPERATOR_TYPOGRAPHY.nativeControlLabel,
+              "h-8 max-w-[12rem] rounded-md border border-al-border-subtle bg-al-surface-raised px-2 text-al-text-primary",
+              OPERATOR_TYPOGRAPHY.helper,
             )}
             data-testid="architecture-draft-list-sort"
           >

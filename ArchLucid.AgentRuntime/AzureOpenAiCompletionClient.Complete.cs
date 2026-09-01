@@ -181,13 +181,12 @@ public sealed partial class AzureOpenAiCompletionClient
     }
     private ChatCompletionOptions CreateCompletionOptions(ChatResponseFormat format, int? maxTokens, float? temperature)
     {
-        float resolvedTemperature = temperature ?? 0.1f;
         int resolvedMaxOutputTokens = maxTokens ?? _maxOutputTokens;
 
-        LlmCompletionRequestParamsAmbient.Record(resolvedTemperature, resolvedMaxOutputTokens);
+        LlmCompletionRequestParamsAmbient.Record(resolvedMaxOutputTokens, temperature);
 
         ChatCompletionOptions options = AzureOpenAiMaxOutputTokenParameterPolicy.CreateOptions();
-        options.Temperature = resolvedTemperature;
+        AzureOpenAiTemperatureParameterPolicy.ApplyRequested(options, temperature);
         options.MaxOutputTokenCount = resolvedMaxOutputTokens;
         options.ResponseFormat = format;
 

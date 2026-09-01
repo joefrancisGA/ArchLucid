@@ -77,15 +77,37 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     );
 
     expect(screen.getByTestId("architecture-scope-readonly-context")).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-scope-readonly-hint-context")).toHaveTextContent(
-      scopeReadOnlyHint("Architecture overview above"),
-    );
+    const contextHint = screen.getByTestId("architecture-scope-readonly-hint-context");
+    expect(contextHint).toHaveTextContent(scopeReadOnlyHint("Architecture overview above"));
+    expect(contextHint.className).not.toContain("border");
     expect(screen.queryByLabelText(scopeBulletBehavior("context").label)).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", {
         name: `Remove ${scopeBulletBehavior("context").label} from scope`,
       }),
     ).not.toBeInTheDocument();
+  });
+
+  it("does not draw a divider under preview-only hints or before add to scope", () => {
+    render(
+      <ArchitectureScopeUnderstandingCheckPanel
+        input={{
+          architectureName: "Vertex",
+          architectureOverview: LONG_OVERVIEW,
+          peopleAndSystems: [{ label: "Primary operator", kind: "Human", trustOrigin: "Internal", contract: "Operator" }],
+        }}
+      />,
+    );
+
+    for (const hint of [
+      screen.getByTestId("architecture-scope-readonly-hint-context"),
+      screen.getByTestId("architecture-scope-readonly-hint-people"),
+    ]) {
+      expect(hint.className).not.toContain("border");
+      expect(hint.closest("li")?.className ?? "").not.toContain("border");
+    }
+
+    expect(screen.getByTestId("architecture-scope-understanding-add").className).not.toContain("border-t");
   });
 
   it("adds a typed item via Add to scope and clears the draft field", () => {

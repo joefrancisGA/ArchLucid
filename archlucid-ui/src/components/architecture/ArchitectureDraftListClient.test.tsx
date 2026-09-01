@@ -61,7 +61,7 @@ describe("ArchitectureDraftListClient", () => {
     render(<ArchitectureDraftListClient />);
 
     expect(screen.getByTestId("architecture-draft-list")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Filter architectures: All (3)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter architectures: All (2)" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Filter architectures: Draft (1)" })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Filter architectures: Ready for review (1)" }),
@@ -148,6 +148,28 @@ describe("ArchitectureDraftListClient", () => {
     expect(screen.getByTestId("architecture-draft-list-search").className).toContain("h-8");
   });
 
+  it("uses compact inventory toolbar sort control height", () => {
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
+
+    render(<ArchitectureDraftListClient />);
+
+    expect(screen.getByTestId("architecture-draft-list-sort").className).toContain("h-8");
+  });
+
+  it("excludes archived drafts from the default All table view", () => {
+    useArchitectureDraftRegistryEntries.mockReturnValue([
+      entry({ architectureId: "a1", customerStatus: "draft", displayName: "Draft A" }),
+      entry({ architectureId: "a2", customerStatus: "archived", displayName: "Archived B" }),
+    ]);
+
+    render(<ArchitectureDraftListClient />);
+
+    const table = screen.getByTestId("architecture-draft-list-table");
+
+    expect(within(table).getByText("Draft A")).toBeInTheDocument();
+    expect(within(table).queryByText("Archived B")).not.toBeInTheDocument();
+  });
+
   it("keeps search, filters, and sort in one toolbar", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
 
@@ -193,5 +215,16 @@ describe("ArchitectureDraftListClient", () => {
       "href",
       "/architecture/architectures/a1",
     );
+  });
+
+  it("hides continue last draft when the remembered draft is archived", () => {
+    window.sessionStorage.setItem("archlucid.architecture-creation.draft-id", "a1");
+    useArchitectureDraftRegistryEntries.mockReturnValue([
+      entry({ architectureId: "a1", customerStatus: "archived", displayName: "Archived A" }),
+    ]);
+
+    render(<ArchitectureDraftListClient />);
+
+    expect(screen.queryByTestId("architecture-draft-continue-last-row")).not.toBeInTheDocument();
   });
 });

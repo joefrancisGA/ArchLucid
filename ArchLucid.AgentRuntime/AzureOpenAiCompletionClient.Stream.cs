@@ -166,7 +166,8 @@ public sealed partial class AzureOpenAiCompletionClient
 
     /// <inheritdoc />
     /// <remarks>
-    ///     Uses <c>Temperature = 0.1</c>, <c>MaxOutputTokenCount</c>, and either JSON schema structured output or
+    ///     Omits <c>temperature</c> when callers pass <see langword="null" /> (provider default), or uses the explicit
+    ///     value with HTTP 400 retry via <see cref="AzureOpenAiTemperatureParameterPolicy" /> when unsupported.
     ///     <c>ChatResponseFormat.CreateJsonObjectFormat()</c> when schema mode is off or after fallback.
     /// </remarks>
     private async IAsyncEnumerable<StreamingChatCompletionUpdate> StreamChatCoreAsync(
