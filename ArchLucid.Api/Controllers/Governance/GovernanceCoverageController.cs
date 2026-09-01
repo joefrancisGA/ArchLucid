@@ -38,6 +38,9 @@ public sealed class GovernanceCoverageController(
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository) : ControllerBase
 {
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
@@ -53,10 +56,9 @@ public sealed class GovernanceCoverageController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
-            scope,
+            _scopeContextProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 
@@ -75,10 +77,9 @@ public sealed class GovernanceCoverageController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetScopeCoverage(CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
-            scope,
+            _scopeContextProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 

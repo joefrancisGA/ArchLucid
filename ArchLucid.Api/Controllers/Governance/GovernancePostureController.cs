@@ -31,6 +31,9 @@ public sealed class GovernancePostureController(
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository) : ControllerBase
 {
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
@@ -42,10 +45,9 @@ public sealed class GovernancePostureController(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
-            scope,
+            _scopeContextProvider,
             _tenantRepository,
             cancellationToken).ConfigureAwait(false);
 

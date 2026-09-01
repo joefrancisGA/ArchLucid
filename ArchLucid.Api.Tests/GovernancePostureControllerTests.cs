@@ -45,44 +45,9 @@ public sealed class GovernancePostureControllerTests
     }
 
     [Fact]
-    public async Task GetPosture_returns_summary_for_current_scope()
-    {
-        ArchitecturePostureSummary expected = new()
-        {
-            PrimaryPillarKey = nameof(ArchitecturePillar.Security),
-        };
-
-        Mock<IArchitecturePostureService> postureService = new();
-        postureService
-            .Setup(service => service.GetSummaryAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
-                true,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(expected);
-
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
-
-        GovernancePostureController controller = new(
-            postureService.Object,
-            scopeProvider.Object,
-            TenantExistsRepository())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
-
-        IActionResult result = await controller.GetPosture(projectId: null, CancellationToken.None);
-
-        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        ok.Value.Should().BeSameAs(expected);
-    }
-
-    [Fact]
     public async Task GetPosture_returns_not_found_when_workspace_missing()
     {
-        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
         Mock<IArchitecturePostureService> postureService = new(MockBehavior.Strict);
 
@@ -122,6 +87,41 @@ public sealed class GovernancePostureControllerTests
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         postureService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetPosture_returns_summary_for_current_scope()
+    {
+        ArchitecturePostureSummary expected = new()
+        {
+            PrimaryPillarKey = nameof(ArchitecturePillar.Security),
+        };
+
+        Mock<IArchitecturePostureService> postureService = new();
+        postureService
+            .Setup(service => service.GetSummaryAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                true,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        GovernancePostureController controller = new(
+            postureService.Object,
+            scopeProvider.Object,
+            TenantExistsRepository())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await controller.GetPosture(projectId: null, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(expected);
     }
 
     [Fact]

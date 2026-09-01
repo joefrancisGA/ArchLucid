@@ -36,10 +36,25 @@ public sealed class GovernanceStickinessControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
 
-    private static ITenantRepository TenantExistsRepository() =>
-        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
-            Scope.TenantId,
-            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" }));
+    private static ITenantRepository TenantExistsRepository()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        return tenants.Object;
+    }
 
     private static ITenantRepository TenantMissingRepository() =>
         Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
@@ -201,6 +216,51 @@ public sealed class GovernanceStickinessControllerTests
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
+    }
+
+    [Fact]
+    public async Task GetRiskRegister_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<IGovernanceStickinessFacade> facade = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        GovernanceStickinessController sut = new(
+            facade.Object,
+            scopeProvider.Object,
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.GetRiskRegister(projectId: null, maxRows: 50, cancellationToken: CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        facade.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -1518,6 +1578,58 @@ public sealed class GovernanceStickinessControllerTests
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
         action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_list_contains_duplicate_finding_ids()
+    {
+        const string findingId = "finding-bulk-dup";
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request => request.FindingId == findingId),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId, findingId],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Be("Duplicate findingId in batch.");
+
+        dispositions.Verify(
+            d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
