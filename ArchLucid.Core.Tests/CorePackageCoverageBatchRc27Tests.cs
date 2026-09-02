@@ -54,6 +54,15 @@ public sealed class CorePackageCoverageBatchRc27Tests
         IntegrationWebhookPayloadSamples.ResolveEventType(alias).Should().Be(expected);
     }
 
+    [Fact]
+    public void ResolveEventType_maps_legacy_vendor_alias_before_known_set_lookup()
+    {
+        const string legacyAlias = "com.archiforge.authority.run.completed";
+
+        IntegrationWebhookPayloadSamples.ResolveEventType(legacyAlias)
+            .Should().Be(IntegrationEventTypes.AuthorityRunCompletedV1);
+    }
+
     [Theory]
     [InlineData(IntegrationEventTypes.AuthorityRunCompletedV1)]
     [InlineData(IntegrationEventTypes.DataConsistencyCheckCompletedV1)]

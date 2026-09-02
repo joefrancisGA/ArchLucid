@@ -118,7 +118,8 @@ public sealed class RunStateTransitionServiceTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("Created")]
-    public void ShouldSetTasksGeneratedAfterDeferredMaterialize_allows_created_or_unset(string? status)
+    [InlineData("Retrying")]
+    public void ShouldSetTasksGeneratedAfterDeferredMaterialize_allows_created_retrying_or_unset(string? status)
     {
         _sut.ShouldSetTasksGeneratedAfterDeferredMaterialize(status).Should().BeTrue();
     }
@@ -209,6 +210,46 @@ public sealed class RunStateTransitionServiceTests
     public void ResultSubmissionAllowedStatuses_excludes_committed()
     {
         _sut.ResultSubmissionAllowedStatuses.Should().NotContain(ArchitectureRunStatus.Committed);
+    }
+
+    [Fact]
+    public void ShouldResumeDeferredAuthorityPipelineOnExecute_true_when_failed_with_no_tasks_or_context()
+    {
+        _sut.ShouldResumeDeferredAuthorityPipelineOnExecute(
+                ArchitectureRunStatus.Failed,
+                contextSnapshotId: null,
+                scheduledTaskCount: 0)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void ShouldResumeDeferredAuthorityPipelineOnExecute_false_when_tasks_or_context_exist()
+    {
+        _sut.ShouldResumeDeferredAuthorityPipelineOnExecute(
+                ArchitectureRunStatus.Failed,
+                contextSnapshotId: null,
+                scheduledTaskCount: 1)
+            .Should()
+            .BeFalse();
+
+        _sut.ShouldResumeDeferredAuthorityPipelineOnExecute(
+                ArchitectureRunStatus.Created,
+                contextSnapshotId: Guid.NewGuid().ToString("N"),
+                scheduledTaskCount: 0)
+            .Should()
+            .BeFalse();
+    }
+
+    [Theory]
+    [InlineData(ArchitectureRunStatus.Committed)]
+    [InlineData(ArchitectureRunStatus.ReadyForCommit)]
+    public void ShouldResumeDeferredAuthorityPipelineOnExecute_false_for_terminal_execute_statuses(
+        ArchitectureRunStatus status)
+    {
+        _sut.ShouldResumeDeferredAuthorityPipelineOnExecute(status, contextSnapshotId: null, scheduledTaskCount: 0)
+            .Should()
+            .BeFalse();
     }
 
     private static List<AgentResult> CommitReadySet()

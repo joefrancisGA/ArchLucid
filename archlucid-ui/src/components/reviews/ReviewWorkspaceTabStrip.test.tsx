@@ -6,13 +6,14 @@ import { resolveReviewDetailVisibleTabs } from "@/lib/resolve-review-detail-visi
 import { REVIEW_DETAIL_TAB_LABELS, type ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 describe("ReviewWorkspaceTabStrip", () => {
-  it("renders all eight tabs in the desktop strip and exposes a mobile section picker", () => {
+  it("renders all workspace tabs in the desktop strip and a mobile section picker", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: "manifest-1",
       showProgressTracker: false,
       runCompleted: true,
     });
     const onTabChange = vi.fn();
+    const allTabIds = [...resolved.visibleTabIds, ...resolved.moreTabIds];
 
     render(
       <ReviewWorkspaceTabStrip
@@ -23,13 +24,13 @@ describe("ReviewWorkspaceTabStrip", () => {
       />,
     );
 
-    for (const tabId of resolved.visibleTabIds) {
+    for (const tabId of allTabIds) {
       expect(screen.getByTestId(`review-detail-workspace-tab-${tabId}`)).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: new RegExp(REVIEW_DETAIL_TAB_LABELS[tabId], "i") })).toBeInTheDocument();
     }
 
     expect(screen.getByText("More sections")).toBeInTheDocument();
-    expect(screen.getByTestId("review-detail-workspace-more-tabs")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-workspace-sections-select")).toBeInTheDocument();
   });
 
   it("switches tabs through the primary strip", () => {
@@ -53,5 +54,30 @@ describe("ReviewWorkspaceTabStrip", () => {
     fireEvent.click(architectureTab);
 
     expect(onTabChange).toHaveBeenCalledWith("architecture" satisfies ReviewDetailTabId);
+  });
+
+  it("switches tabs from the mobile section picker", () => {
+    const resolved = resolveReviewDetailVisibleTabs({
+      manifestId: null,
+      showProgressTracker: false,
+      runCompleted: false,
+    });
+    const onTabChange = vi.fn();
+    const moreTab = resolved.moreTabIds[0];
+
+    render(
+      <ReviewWorkspaceTabStrip
+        lifecycle="finalized"
+        activeTab="overview"
+        resolvedTabs={resolved}
+        onTabChange={onTabChange}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("review-detail-workspace-sections-select"), {
+      target: { value: moreTab },
+    });
+
+    expect(onTabChange).toHaveBeenCalledWith(moreTab);
   });
 });

@@ -61,24 +61,5 @@ public sealed class GovernanceControllerSchemaKeysTests
     }
 
     private static GovernanceController CreateController(IPolicyPackSchemaKeysService schemaKeysService) =>
-        new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<IRunRepository>(),
-            Mock.Of<IGovernanceDashboardService>(),
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            schemaKeysService,
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            Mock.Of<ITenantRepository>(),
-            NullLogger<GovernanceController>.Instance);
+        GovernanceControllerTestFactory.Create(policyPackSchemaKeysService: schemaKeysService);
 }

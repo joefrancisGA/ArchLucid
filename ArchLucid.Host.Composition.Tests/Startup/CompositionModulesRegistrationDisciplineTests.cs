@@ -1,13 +1,23 @@
 using System.Reflection;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application;
+using ArchLucid.Application.AwsExtractor;
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Drafts;
+using ArchLucid.Application.GcpExtractor;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Abstractions.Agents;
+using ArchLucid.Application.ExecDigest;
+using ArchLucid.Application.WeeklyArchitectureDigest;
+using ArchLucid.Application.WeeklySponsorReport;
+using ArchLucid.Application.WeeklySponsorSummary;
 using ArchLucid.Contracts.Abstractions.Integrations;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Alerts;
 using ArchLucid.Core.Integration;
@@ -18,6 +28,7 @@ using ArchLucid.Host.Composition.Startup.Modules;
 using ArchLucid.Host.Composition.Startup.Modules.Agents;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Notifications.Email;
 using ArchLucid.Persistence.Coordination.Retrieval;
 
 using FluentAssertions;
@@ -41,6 +52,7 @@ public sealed class CompositionModulesRegistrationDisciplineTests
     [InlineData(typeof(AgentCompositionModule))]
     [InlineData(typeof(PipelineCompositionModule))]
     [InlineData(typeof(AlertsCompositionModule))]
+    [InlineData(typeof(HostedCloudExtractorCompositionModule))]
     public void Composition_module_exposes_Register_in_Startup_Modules_namespace(Type moduleType)
     {
         moduleType.Namespace.Should().Be("ArchLucid.Host.Composition.Startup.Modules");
@@ -53,6 +65,25 @@ public sealed class CompositionModulesRegistrationDisciplineTests
             modifiers: null);
 
         register.Should().NotBeNull($"{moduleType.Name} must expose public static Register(IServiceCollection, IConfiguration)");
+        register!.ReturnType.Should().Be(typeof(void));
+    }
+
+    [Theory]
+    [InlineData(typeof(WeeklyDigestCompositionModule))]
+    [InlineData(typeof(TrialLifecycleCompositionModule))]
+    public void Composition_module_exposes_Register_with_hosting_role_in_Startup_Modules_namespace(Type moduleType)
+    {
+        moduleType.Namespace.Should().Be("ArchLucid.Host.Composition.Startup.Modules");
+
+        MethodInfo? register = moduleType.GetMethod(
+            "Register",
+            BindingFlags.Public | BindingFlags.Static,
+            binder: null,
+            [typeof(IServiceCollection), typeof(IConfiguration), typeof(ArchLucidHostingRole)],
+            modifiers: null);
+
+        register.Should().NotBeNull(
+            $"{moduleType.Name} must expose public static Register(IServiceCollection, IConfiguration, ArchLucidHostingRole)");
         register!.ReturnType.Should().Be(typeof(void));
     }
 
@@ -137,6 +168,47 @@ public sealed class CompositionModulesRegistrationDisciplineTests
 
         services.Should().Contain(static d => d.ServiceType == typeof(IAlertService));
         services.Should().Contain(static d => d.ServiceType == typeof(IPolicyPackWorkflowFacade));
+    }
+
+    [Fact]
+    public void WeeklyDigestCompositionModule_registers_weekly_digest_services()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        WeeklyDigestCompositionModule.Register(services, configuration, ArchLucidHostingRole.Api);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(IExecDigestComposer));
+        services.Should().Contain(static d => d.ServiceType == typeof(IWeeklySponsorReportEmailDispatcher));
+        services.Should().Contain(static d => d.ServiceType == typeof(IWeeklySponsorSummaryEmailDispatcher));
+        services.Should().Contain(static d => d.ServiceType == typeof(WeeklyArchitectureDigestJobRunner));
+    }
+
+    [Fact]
+    public void HostedCloudExtractorCompositionModule_registers_hosted_extractor_services()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        HostedCloudExtractorCompositionModule.Register(services, configuration);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(IHostedAzureExtractorConfigurationService));
+        services.Should().Contain(static d => d.ServiceType == typeof(IHostedAwsExtractorRunService));
+        services.Should().Contain(static d => d.ServiceType == typeof(IHostedGcpExtractorRunService));
+    }
+
+    [Fact]
+    public void TrialLifecycleCompositionModule_registers_trial_lifecycle_services()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        TrialLifecycleCompositionModule.Register(services, configuration, ArchLucidHostingRole.Api);
+
+        services.Should().Contain(static d =>
+            d.ServiceType == typeof(IAuditService) &&
+            d.ImplementationType == typeof(TrialLifecycleEmailPublishingAuditDecorator));
+        services.Should().Contain(static d => d.ServiceType == typeof(TrialArchitecturePreseedExecutor));
     }
 
     [Fact]

@@ -36,8 +36,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class RunComparisonController(
-    IRunDetailQueryService runDetailQueryService,
-    IAgentResultDiffService agentResultDiffService,
+    ICompareRunsApplicationFacade compareRunsFacade,
     IAgentResultDiffSummaryFormatter agentResultDiffSummaryFormatter,
     IEndToEndReplayComparisonService endToEndReplayComparisonService,
     IEndToEndReplayComparisonSummaryFormatter endToEndReplayComparisonSummaryFormatter,
@@ -48,11 +47,15 @@ public sealed class RunComparisonController(
     IValidator<RunPairQuery> runPairQueryValidator)
     : ControllerBase
 {
+    private readonly ICompareRunsApplicationFacade _compareRunsFacade =
+        compareRunsFacade ?? throw new ArgumentNullException(nameof(compareRunsFacade));
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     [HttpGet("review/compare/agents")]
     [ProducesResponseType(typeof(AgentResultCompareResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,17 +64,9 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        (IActionResult? error, ArchitectureRunDetail? leftDetail, ArchitectureRunDetail? rightDetail) =
-            await LoadValidatedRunPairAsync(query, cancellationToken);
-        if (error is not null)
-            return error;
-
-        AgentResultDiffResult diff = agentResultDiffService.Compare(
-            query.LeftRunId,
-            leftDetail!.Results,
-            query.RightRunId,
-            rightDetail!.Results);
-        return Ok(ComparisonResponseMapper.ToAgentResultCompareResponse(diff));
+        (IActionResult? error, AgentResultDiffResult? diff) =
+            await CompareAgentResultsCoreAsync(query, cancellationToken);
+        return error ?? Ok(ComparisonResponseMapper.ToAgentResultCompareResponse(diff!));
     }
 
     [HttpGet("review/compare/agents/summary")]
@@ -82,18 +77,13 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        (IActionResult? error, ArchitectureRunDetail? leftDetail, ArchitectureRunDetail? rightDetail) =
-            await LoadValidatedRunPairAsync(query, cancellationToken);
+        (IActionResult? error, AgentResultDiffResult? diff) =
+            await CompareAgentResultsCoreAsync(query, cancellationToken);
         if (error is not null)
             return error;
 
-        AgentResultDiffResult diff = agentResultDiffService.Compare(
-            query.LeftRunId,
-            leftDetail!.Results,
-            query.RightRunId,
-            rightDetail!.Results);
-        string summary = agentResultDiffSummaryFormatter.FormatMarkdown(diff);
-        return Ok(ComparisonResponseMapper.ToAgentResultCompareSummaryResponse(summary, diff));
+        string summary = agentResultDiffSummaryFormatter.FormatMarkdown(diff!);
+        return Ok(ComparisonResponseMapper.ToAgentResultCompareSummaryResponse(summary, diff!));
     }
 
     [HttpGet("review/compare/end-to-end")]
@@ -195,6 +185,23 @@ public sealed class RunComparisonController(
             fileName);
     }
 
+    private async Task<(IActionResult? Error, AgentResultDiffResult? Diff)> CompareAgentResultsCoreAsync(
+        RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        (IActionResult? error, ArchitectureRunDetail? leftDetail, ArchitectureRunDetail? rightDetail) =
+            await LoadValidatedRunPairAsync(query, cancellationToken);
+        if (error is not null)
+            return (error, null);
+
+        AgentResultDiffResult diff = _compareRunsFacade.CompareAgentResults(
+            query.LeftRunId,
+            leftDetail!,
+            query.RightRunId,
+            rightDetail!);
+        return (null, diff);
+    }
+
     /// <summary>
     ///     Validates the query and builds the end-to-end comparison report.
     ///     Returns a non-null error result when validation fails.
@@ -258,8 +265,8 @@ public sealed class RunComparisonController(
     }
 
     /// <summary>
-    ///     Validates the query, loads both runs through <see cref="IRunDetailQueryService" />, and returns 404 when either run
-    ///     is missing.
+    ///     Validates the query, loads both runs through <see cref="ICompareRunsApplicationFacade" />, and returns 404 when
+    ///     either run is missing.
     /// </summary>
     private async Task<(IActionResult? Error, ArchitectureRunDetail? Left, ArchitectureRunDetail? Right)>
         LoadValidatedRunPairAsync(
@@ -270,21 +277,23 @@ public sealed class RunComparisonController(
         if (queryError is not null)
             return (queryError, null, null);
 
-        Task<ArchitectureRunDetail?> leftDetailTask =
-            runDetailQueryService.GetRunDetailForRollupAsync(query.LeftRunId, cancellationToken);
-        Task<ArchitectureRunDetail?> rightDetailTask =
-            runDetailQueryService.GetRunDetailForRollupAsync(query.RightRunId, cancellationToken);
-        await Task.WhenAll(leftDetailTask, rightDetailTask);
-        ArchitectureRunDetail? left = await leftDetailTask;
-        if (left is null)
-            return (this.NotFoundProblem($"Run '{query.LeftRunId}' was not found.", ProblemTypes.RunNotFound), null,
-                null);
+        ScopedRunPairLoadResult loadResult = await _compareRunsFacade.LoadScopedRunPairAsync(
+            query.LeftRunId,
+            query.RightRunId,
+            cancellationToken);
 
-        ArchitectureRunDetail? right = await rightDetailTask;
-        if (right is null)
-            return (this.NotFoundProblem($"Run '{query.RightRunId}' was not found.", ProblemTypes.RunNotFound), null,
-                null);
-
-        return (null, left, right);
+        return loadResult.Outcome switch
+        {
+            ScopedRunPairLoadOutcome.Success => (null, loadResult.Left, loadResult.Right),
+            ScopedRunPairLoadOutcome.LeftRunNotFound => (
+                this.NotFoundProblem($"Run '{loadResult.MissingRunId}' was not found.", ProblemTypes.RunNotFound),
+                null,
+                null),
+            ScopedRunPairLoadOutcome.RightRunNotFound => (
+                this.NotFoundProblem($"Run '{loadResult.MissingRunId}' was not found.", ProblemTypes.RunNotFound),
+                null,
+                null),
+            _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
+        };
     }
 }

@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Contracts.Requests;
@@ -109,7 +110,9 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
             PackAssignments = resolution.PackAssignments,
             CoverageAssignments = resolution.CoverageAssignments,
             NotAssessedQualityDimensions = resolution.NotAssessedQualityDimensions,
-            HasEffectivePolicy = resolution.HasEffectivePolicy
+            HasEffectivePolicy = resolution.HasEffectivePolicy,
+            RequestFingerprintHex = Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+            GovernanceAssignmentsHashHex = PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments(resolution.PackAssignments),
         };
 
         header.GovernanceScopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(snapshot);

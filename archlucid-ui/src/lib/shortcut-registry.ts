@@ -25,21 +25,15 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+r",
-    label: "Reviews",
+    label: OPERATOR_NAV_LINK_LABELS.packages,
     route: "/architecture/reviews",
-    description: "Open reviews list",
+    description: "Open packages list",
   },
   {
     key: "alt+c",
     label: "Compare",
     route: COMPARE_TWO_REVIEWS_PATH,
     description: "Compare two reviews",
-  },
-  {
-    key: "alt+p",
-    label: "Policy packs",
-    route: "/governance/policy-packs",
-    description: "Open workspace policy packs (architect-safe — not internal validate route)",
   },
   {
     key: "alt+a",

@@ -41,4 +41,15 @@ public sealed class MarketplaceWebhookPayloadParserTests
         planId.Should().Be("Contoso-Enterprise-Plan");
         MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId).Should().Be(nameof(TenantTier.Enterprise));
     }
+
+    [Fact]
+    public void TryGetPlanId_reads_numeric_planId()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"planId":123}""");
+
+        bool ok = MarketplaceWebhookPayloadParser.TryGetPlanId(document.RootElement, out string? planId);
+
+        ok.Should().BeTrue();
+        planId.Should().Be("123");
+    }
 }

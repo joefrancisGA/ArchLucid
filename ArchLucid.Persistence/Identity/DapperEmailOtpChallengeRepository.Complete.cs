@@ -29,6 +29,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
 
             if (retryableOutcome is null)
             {
+                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
                 continue;
             }
 

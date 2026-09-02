@@ -48,10 +48,7 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
 
             foreach (JsonElement reference in refs.EnumerateArray())
             {
-                if (reference.ValueKind != JsonValueKind.String)
-                    continue;
-
-                string? value = reference.GetString();
+                string? value = ReadEvidenceRef(reference);
 
                 if (string.IsNullOrWhiteSpace(value))
                     continue;
@@ -64,6 +61,20 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
         }
 
         result.EvidenceRefs = merged;
+    }
+
+    private static string? ReadEvidenceRef(JsonElement item)
+    {
+        if (item.ValueKind == JsonValueKind.String)
+            return item.GetString();
+
+        if (item.ValueKind != JsonValueKind.Object)
+            return null;
+
+        if (TryGetPropertyIgnoreCase(item, "id", out JsonElement id) && id.ValueKind == JsonValueKind.String)
+            return id.GetString();
+
+        return null;
     }
 
     private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)

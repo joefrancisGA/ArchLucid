@@ -18,6 +18,8 @@ export function useCompareFinalizedRunAvailability(): CompareFinalizedRunAvailab
   const { data, isPending } = useAskProjectRunsQuery("default", {
     forCompare: true,
     committedOnly: true,
+    // Gating surfaces must not treat curated demo rows as real finalized reviews.
+    mergeDemoOnEmpty: false,
   });
 
   const finalizedCount = data?.items.length ?? 0;

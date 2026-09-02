@@ -1,30 +1,14 @@
-using System.Text.Json;
-
-using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
-using ArchLucid.Application.Http;
-using ArchLucid.Application.Runs;
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Persistence.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.AspNetCore.RateLimiting;
-
 
 namespace ArchLucid.Api.Controllers.Governance;
 
@@ -53,58 +37,19 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        (IActionResult? scopeError, string? normalizedRunId) =
-            await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
-
-        if (scopeError is not null)
-            return scopeError;
-
-        string? normalizedApprovalRequestId = null;
-
-        if (request.ApprovalRequestId is not null)
-        {
-            normalizedApprovalRequestId = NormalizeApprovalRequestId(request.ApprovalRequestId);
-
-            IActionResult? approvalRequestIdProblem =
-                BadRequestWhenApprovalRequestIdEmpty(normalizedApprovalRequestId);
-
-            if (approvalRequestIdProblem is not null)
-                return approvalRequestIdProblem;
-        }
-
-        if (!string.IsNullOrWhiteSpace(normalizedApprovalRequestId))
-        {
-            GovernanceApprovalRequest? approval = await approvalRepo
-                .GetByIdAsync(normalizedApprovalRequestId, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (approval is null)
-            {
-                return this.NotFoundProblem(
-                    $"Approval request '{normalizedApprovalRequestId}' was not found.",
-                    ProblemTypes.ResourceNotFound);
-            }
-
-            (IActionResult? approvalRunScopeError, _) =
-                await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
-
-            if (approvalRunScopeError is not null)
-                return approvalRunScopeError;
-        }
-
         string promotedBy = actorContext.GetActor();
 
         try
         {
             bool verbosePromotionValidationErrors = User.IsInRole(ArchLucidRoles.Admin);
 
-            GovernancePromotionRecord result = await workflowService.PromoteAsync(
-                normalizedRunId!,
+            GovernancePromotionRecord result = await _promotionsActivationsFacade.PromoteAsync(
+                request.RunId,
                 request.ManifestVersion,
                 request.SourceEnvironment,
                 request.TargetEnvironment,
                 promotedBy,
-                normalizedApprovalRequestId,
+                request.ApprovalRequestId,
                 request.Notes,
                 dryRun,
                 verbosePromotionValidationErrors,
@@ -114,6 +59,16 @@ public sealed partial class GovernanceController
                 Response.Headers[ArchLucidHttpHeaders.DryRun] = "true";
 
             return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Promote failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Promote failed: approval request not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
         }
         catch (InvalidOperationException ex)
         {
@@ -154,22 +109,21 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        (IActionResult? scopeError, string? normalizedRunId) =
-            await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
-
-        if (scopeError is not null)
-            return scopeError;
-
         try
         {
-            GovernanceEnvironmentActivation result = await workflowService.ActivateAsync(
-                normalizedRunId!,
+            GovernanceEnvironmentActivation result = await _promotionsActivationsFacade.ActivateAsync(
+                request.RunId,
                 request.ManifestVersion,
                 request.Environment,
                 actorContext.GetActor(),
                 cancellationToken);
 
             return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Activate failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
         catch (RunNotFoundException ex)
         {
@@ -181,12 +135,8 @@ public sealed partial class GovernanceController
             logger.LogWarning(ex, "Activate failed: manifest version not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
         }
-        catch (ArgumentException ex)
-        {
-            logger.LogWarning(ex, "Activate failed: validation error.");
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
     }
+
     [HttpGet("runs/{runId}/approval-requests")]
     [ProducesResponseType(typeof(IReadOnlyList<GovernanceApprovalRequest>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -199,15 +149,20 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        (IActionResult? scopeError, string? normalizedRunId) =
-            await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
-
-        if (scopeError is not null)
-            return scopeError;
-
-        IReadOnlyList<GovernanceApprovalRequest> items =
-            await approvalRepo.GetByRunIdAsync(normalizedRunId!, cancellationToken);
-        return Ok(items);
+        try
+        {
+            IReadOnlyList<GovernanceApprovalRequest> items =
+                await _promotionsActivationsFacade.ListApprovalRequestsByRunIdAsync(runId, cancellationToken);
+            return Ok(items);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
     }
 
     [HttpGet("runs/{runId}/promotions")]
@@ -222,15 +177,20 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        (IActionResult? scopeError, string? normalizedRunId) =
-            await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
-
-        if (scopeError is not null)
-            return scopeError;
-
-        IReadOnlyList<GovernancePromotionRecord> items =
-            await promotionRepo.GetByRunIdAsync(normalizedRunId!, cancellationToken);
-        return Ok(items);
+        try
+        {
+            IReadOnlyList<GovernancePromotionRecord> items =
+                await _promotionsActivationsFacade.ListPromotionsByRunIdAsync(runId, cancellationToken);
+            return Ok(items);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
     }
 
     [HttpGet("runs/{runId}/activations")]
@@ -245,56 +205,19 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        (IActionResult? scopeError, string? normalizedRunId) =
-            await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
-
-        if (scopeError is not null)
-            return scopeError;
-
-        IReadOnlyList<GovernanceEnvironmentActivation> items =
-            await activationRepo.GetByRunIdAsync(normalizedRunId!, cancellationToken);
-        return Ok(items);
-    }
-
-    private async Task<(IActionResult? Error, string? NormalizedRunId)> RequireScopedRunAsync(
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(runId))
+        try
         {
-            return (this.BadRequestProblem(
-                "Run id is required.",
-                ProblemTypes.ValidationFailed), null);
+            IReadOnlyList<GovernanceEnvironmentActivation> items =
+                await _promotionsActivationsFacade.ListActivationsByRunIdAsync(runId, cancellationToken);
+            return Ok(items);
         }
-
-        runId = runId.Trim();
-
-        if (!Guid.TryParse(runId, out Guid runGuid))
+        catch (ArgumentException ex)
         {
-            return (this.BadRequestProblem(
-                $"Run id '{runId}' is not valid.",
-                ProblemTypes.ValidationFailed), null);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
-
-        if (runGuid == Guid.Empty)
+        catch (RunNotFoundException ex)
         {
-            return (this.BadRequestProblem(
-                "Run id is not valid.",
-                ProblemTypes.ValidationFailed), null);
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunRecord? run = await _runRepository
-            .GetByIdAsync(scope, runGuid, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (run is null)
-        {
-            return (this.NotFoundProblem(
-                $"Run '{runId}' was not found.",
-                ProblemTypes.RunNotFound), null);
-        }
-
-        return (null, runId);
     }
 }

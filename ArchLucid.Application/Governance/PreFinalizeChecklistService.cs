@@ -2,6 +2,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -15,11 +16,13 @@ namespace ArchLucid.Application.Governance;
 public sealed partial class PreFinalizeChecklistService(
     IScopeContextProvider scopeContextProvider,
     IRunRepository runRepository,
+    IArchitectureRequestRepository architectureRequestRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     ITechnologyLedgerRepository technologyLedgerRepository,
     IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
     IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
     IPreCommitGovernanceGate preCommitGovernanceGate,
+    PreFinalizeExecuteBaselineDriftEvaluator executeBaselineDriftEvaluator,
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
     IArchitectureIntelligenceFinalizeTrustEvaluator? finalizeTrustEvaluator = null,
     IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
@@ -30,6 +33,9 @@ public sealed partial class PreFinalizeChecklistService(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureRequestRepository _architectureRequestRepository =
+        architectureRequestRepository ?? throw new ArgumentNullException(nameof(architectureRequestRepository));
 
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
@@ -46,6 +52,9 @@ public sealed partial class PreFinalizeChecklistService(
 
     private readonly IPreCommitGovernanceGate _preCommitGovernanceGate =
         preCommitGovernanceGate ?? throw new ArgumentNullException(nameof(preCommitGovernanceGate));
+
+    private readonly PreFinalizeExecuteBaselineDriftEvaluator _executeBaselineDriftEvaluator =
+        executeBaselineDriftEvaluator ?? throw new ArgumentNullException(nameof(executeBaselineDriftEvaluator));
 
     private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
@@ -115,6 +124,9 @@ public sealed partial class PreFinalizeChecklistService(
         }
 
         items.Add(BuildPreCommitGateItem(gateResult));
+
+        items.AddRange(
+            await BuildExecuteBaselineDriftItemsAsync(scope, run, cancellationToken).ConfigureAwait(false));
 
         await AddArchitectureIntelligenceTrustItemsAsync(scope, runId, items, cancellationToken).ConfigureAwait(false);
 
@@ -196,4 +208,25 @@ public sealed partial class PreFinalizeChecklistService(
             ],
             BlockingCount = 1,
         };
+
+    private async Task<IReadOnlyList<PreFinalizeChecklistItem>> BuildExecuteBaselineDriftItemsAsync(
+        ScopeContext scope,
+        RunRecord run,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
+            return [];
+
+        ArchitectureRequest? request =
+            await _architectureRequestRepository
+                .GetByIdAsync(run.ArchitectureRequestId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (request is null)
+            return [];
+
+        return await _executeBaselineDriftEvaluator
+            .EvaluateAsync(scope, request, run.GovernanceScopeJson, cancellationToken)
+            .ConfigureAwait(false);
+    }
 }
