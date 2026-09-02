@@ -23,14 +23,7 @@ import {
 } from "@/lib/shell-header-search-label";
 import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
-import {
-  governanceFindingsSearchHrefFromSearch,
-  parseGovernanceFindingsSearchQuery,
-} from "@/lib/governance/governance-findings-queue-search";
-import {
-  isGovernanceFindingsQueueHeaderSearchPath,
-  isReviewsHubInventoryHeaderSearchPath,
-} from "@/lib/shell-header-route-local-search";
+import { isReviewsHubInventoryHeaderSearchPath } from "@/lib/shell-header-route-local-search";
 import {
   findReviewDetailSectionSearchMatches,
   isReviewDetailHeaderSearchPath,
@@ -83,10 +76,6 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
       return "reviews-hub" as const;
     }
 
-    if (isGovernanceFindingsQueueHeaderSearchPath(path)) {
-      return "findings-queue" as const;
-    }
-
     if (isReviewDetailHeaderSearchPath(path)) {
       return "review-detail" as const;
     }
@@ -96,10 +85,6 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const routeLocalSearchQuery = useMemo(() => {
     if (routeLocalSearchMode === "reviews-hub") {
       return parseReviewsHubInventorySearchQuery(searchParams.get("q"));
-    }
-
-    if (routeLocalSearchMode === "findings-queue") {
-      return parseGovernanceFindingsSearchQuery(searchParams.get("q"));
     }
 
     return "";
@@ -127,7 +112,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   >([]);
 
   useEffect(() => {
-    if (routeLocalSearchMode === "reviews-hub" || routeLocalSearchMode === "findings-queue") {
+    if (routeLocalSearchMode === "reviews-hub") {
       setQuery(routeLocalSearchQuery);
     }
   }, [routeLocalSearchMode, routeLocalSearchQuery]);
@@ -143,23 +128,13 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
 
   const replaceRouteLocalSearchQuery = useCallback(
     (nextQuery: string) => {
-      const path = pathname ?? "";
-
       if (routeLocalSearchMode === "reviews-hub") {
         router.replace(reviewsHubInventorySearchHrefFromSearch(searchParams.toString(), nextQuery), {
           scroll: false,
         });
-        return;
-      }
-
-      if (routeLocalSearchMode === "findings-queue") {
-        router.replace(
-          governanceFindingsSearchHrefFromSearch(searchParams.toString(), nextQuery, path),
-          { scroll: false },
-        );
       }
     },
-    [pathname, routeLocalSearchMode, router, searchParams],
+    [routeLocalSearchMode, router, searchParams],
   );
 
   const fetchResults = useCallback(async (q: string) => {
@@ -310,6 +285,22 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         }}
         onFocus={() => setOpen(routeLocalSearchMode === null ? true : open || routeLocalSearchMode === "review-detail")}
         onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            if (routeLocalSearchMode === "reviews-hub" && query.trim().length > 0) {
+              event.preventDefault();
+              setQuery("");
+              replaceRouteLocalSearchQuery("");
+              return;
+            }
+
+            if (routeLocalSearchMode === "review-detail") {
+              event.preventDefault();
+              setQuery("");
+              setOpen(false);
+              return;
+            }
+          }
+
           if (event.key?.toLowerCase() !== "k") {
             return;
           }

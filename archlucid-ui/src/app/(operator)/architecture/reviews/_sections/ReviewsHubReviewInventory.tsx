@@ -46,6 +46,8 @@ import {
   parseReviewsHubInventoryFilter,
   parseReviewsHubInventorySearchQuery,
   reviewsHubInventoryClearFiltersHrefFromSearch,
+  reviewsHubInventoryClearFilterHrefFromSearch,
+  reviewsHubInventoryClearSearchHrefFromSearch,
   reviewsHubInventoryHrefFromSearch,
   countRunsMatchingInventoryFilter,
   resolveInventoryFilterCountRuns,
@@ -86,6 +88,7 @@ function ReviewFilterChip(props: {
     <FilterChip
       className={buyerFilterChipClass(props.selected, false)}
       aria-pressed={props.selected}
+      aria-current={props.selected ? "true" : undefined}
       aria-label={`Filter reviews: ${props.option.label}${props.count > 0 ? ` (${props.count})` : ""}`}
       onClick={() => props.onSelect(props.option.id)}
     >
@@ -184,6 +187,15 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     router.replace(reviewsHubInventoryClearFiltersHrefFromSearch(searchParams.toString()), { scroll: false });
   }, [router, searchParams]);
 
+  const clearInventorySearch = useCallback(() => {
+    router.replace(reviewsHubInventoryClearSearchHrefFromSearch(searchParams.toString()), { scroll: false });
+  }, [router, searchParams]);
+
+  const clearInventoryFilter = useCallback(() => {
+    setActiveFilter("all");
+    router.replace(reviewsHubInventoryClearFilterHrefFromSearch(searchParams.toString()), { scroll: false });
+  }, [router, searchParams]);
+
   const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 
   const sampleHref = showcaseSampleReviewPackageHref();
@@ -257,7 +269,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
           <ReviewsHubActiveFiltersStrip
             activeFilter={activeFilter}
             searchQuery={searchQuery}
-            onClear={clearInventoryFilters}
+            onClearSearch={clearInventorySearch}
+            onClearFilter={clearInventoryFilter}
           />
 
           <ReviewsHubSummaryRow summary={props.summary} />

@@ -39,8 +39,8 @@ import {
   resolveRunsDashboardOpenAllReviewsHref,
   resolveRunsDashboardRecentListTab,
   resolveRunsDashboardStatusTabIds,
-  runsDashboardHomeHrefFromSearch,
   RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID,
+  runsDashboardHomeHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 import { fetchPagedReviewsInventory, restoreArchitectureRequest } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -412,7 +412,12 @@ export function useRunsDashboardPanel({
     }
   }, [load]);
 
-  const openAllReviewsHref = resolveRunsDashboardOpenAllReviewsHref(projectId);
+  const openAllReviewsHref = resolveRunsDashboardOpenAllReviewsHref({
+    projectId,
+    tab,
+    showArchived,
+    governanceWarningsOnly,
+  });
   const statusTabIds = resolveRunsDashboardStatusTabIds(buyerPolishedShell, statusTabCounts);
   const isRecentListTab = resolveRunsDashboardRecentListTab(tab, buyerPolishedShell);
 
@@ -454,18 +459,6 @@ export function useRunsDashboardPanel({
     (value: boolean) => {
       setGovernanceWarningsOnly(value);
 
-      router.replace(
-        runsDashboardHomeHrefFromSearch(searchParams.toString(), { governanceWarningsOnly: value }),
-        { scroll: false },
-      );
-    },
-    [router, searchParams],
-  );
-
-  const setGovernanceWarningsOnlyWithUrl = useCallback(
-    (value: boolean) => {
-      setGovernanceWarningsOnly(value);
-
       const nextHref = value
         ? homeGovernanceWarningsHrefFromSearch(searchParams.toString())
         : homeGovernanceWarningsClearHrefFromSearch(searchParams.toString());
@@ -478,6 +471,10 @@ export function useRunsDashboardPanel({
   const clearGovernanceWarningsFilter = useCallback(() => {
     setGovernanceWarningsOnlyWithUrl(false);
   }, [setGovernanceWarningsOnlyWithUrl]);
+
+  const clearStatusFilter = useCallback(() => {
+    selectDashboardTab("all");
+  }, [selectDashboardTab]);
 
   return {
     hideHeading,
@@ -519,6 +516,8 @@ export function useRunsDashboardPanel({
     selectDashboardTab,
     restoreArchivedRequest,
     clearGovernanceWarningsFilter,
+    clearStatusFilter,
+    homeSearchString: searchParams.toString(),
   };
 }
 
