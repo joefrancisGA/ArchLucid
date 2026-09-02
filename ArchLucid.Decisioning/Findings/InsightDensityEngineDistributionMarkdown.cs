@@ -7,7 +7,7 @@ public static class InsightDensityEngineDistributionMarkdown
     public const string ClaimBoundaryMarker = "claimBoundary:";
 
     /// <summary>Engines registered in <c>GoldenCorpusHarness.CreateEngines()</c> (WK-06).</summary>
-    public const int GoldenCorpusHarnessEngineCount = 14;
+    public const int GoldenCorpusHarnessEngineCount = 16;
 
     /// <summary>Product <c>EngineType</c> ids in <c>BuiltInFindingEngineTypeCatalog</c>.</summary>
     public const int BuiltInProductEngineCount = 39;
@@ -29,7 +29,7 @@ public static class InsightDensityEngineDistributionMarkdown
             $"{ClaimBoundaryMarker} Advisory-only measurement — scores do **not** demote typed-engine findings in production.",
             "DeterministicInsightDensityGate returns Promote / DecisionGradeFinding for non-agent findings",
             "(penalty reason `typed-engine-protected`); the computed score is visible here but is not a control.",
-            $"The golden corpus harness registers **{GoldenCorpusHarnessEngineCount}** engines; **{enginesInTable}** appear in this table (≥1 finding across case-01..case-34). **{absentFromTable}** built-in product engines are absent from this corpus-derived slice.",
+            $"The golden corpus harness registers **{GoldenCorpusHarnessEngineCount}** engines; **{enginesInTable}** appear in this table (≥1 finding across case-01..case-35). **{absentFromTable}** built-in product engines are absent from this corpus-derived slice.",
             "`WouldDemoteIfUnprotectedCount` is a counterfactual (score below DemotionThreshold) — not production demotion behavior.",
             "",
             "Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.",

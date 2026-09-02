@@ -6,14 +6,13 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-client-cache";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
@@ -26,7 +25,6 @@ import {
   shouldShowWorkspaceScopeEmptyTeaching,
 } from "@/lib/workspace-scope-empty-teaching";
 import type { RunSummary } from "@/types/authority";
-import { cn } from "@/lib/utils";
 
 import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
@@ -37,7 +35,6 @@ import {
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
-  REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL,
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import {
@@ -94,7 +91,6 @@ function ReviewFilterChip(props: {
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<ReviewFilterId>("all");
-  const [showArchived, setShowArchived] = useState(false);
   const { isFavorite } = useFavoriteReviews();
   const { archivedRuns } = useArchivedReviewsClientCache();
   const draftEntries = useArchitectureDraftRegistryEntries();
@@ -116,19 +112,14 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   );
   const draftCount = draftEntries.length;
   const hasDrafts = draftCount > 0;
-  const archivedCount = useMemo(
-    () => mergedRuns.filter((run) => isArchivedRun(run)).length,
-    [mergedRuns],
-  );
-  const showArchivedDisabled = archivedCount === 0;
 
   const visibilityFilteredRuns = useMemo(() => {
-    if (showArchived || activeFilter === "Archived") {
+    if (activeFilter === "Archived") {
       return mergedRuns;
     }
 
     return mergedRuns.filter((run) => !isArchivedRun(run));
-  }, [activeFilter, mergedRuns, showArchived]);
+  }, [activeFilter, mergedRuns]);
 
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(
@@ -216,25 +207,6 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                     onSelect={setActiveFilter}
                   />
                 ))}
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  id="reviews-hub-show-archived"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
-                  checked={showArchived}
-                  disabled={showArchivedDisabled}
-                  onChange={(event) => {
-                    setShowArchived(event.target.checked);
-                  }}
-                  data-testid="reviews-hub-show-archived"
-                />
-                <Label
-                  htmlFor="reviews-hub-show-archived"
-                  className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}
-                >
-                  {REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL}
-                </Label>
               </div>
             </div>
           </div>

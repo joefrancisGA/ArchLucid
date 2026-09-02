@@ -217,14 +217,14 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
     });
   });
 
-  it("leads with the job chooser and hides peer path tabs (TB-2332)", async () => {
+  it("leads with quick start and tucks the job chooser in a disclosure (TB-2332)", async () => {
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
+      expect(screen.getByTestId("reviews-new-own-evidence-start")).toBeInTheDocument();
     });
 
-    expect(screen.queryByTestId("reviews-new-own-evidence-start")).not.toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-returning-job-chooser")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-specimen-preview")).not.toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-primary-path-layout")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-more-intake-options")).toBeInTheDocument();

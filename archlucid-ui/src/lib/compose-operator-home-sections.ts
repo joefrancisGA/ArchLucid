@@ -8,6 +8,7 @@ import {
 export type OperatorHomeSectionId =
   | "recommended-next"
   | "metrics-strip"
+  | "attention-taxonomy"
   | "start-something"
   | "unfinished"
   | "hero"
@@ -50,6 +51,7 @@ function buyerPolishedSections(phase: OperatorHomeWorkspacePhase): OperatorHomeS
   const sections: OperatorHomeSectionDescriptor[] = [
     { id: "recommended-next", testId: "operator-home-recommended-next" },
     { id: "metrics-strip", testId: "operator-home-metrics-strip" },
+    { id: "attention-taxonomy", testId: "operator-home-attention-taxonomy" },
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "start-something", testId: "operator-home-start-something" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
@@ -73,6 +75,7 @@ function operatorShellSections(phase: OperatorHomeWorkspacePhase): OperatorHomeS
   const sections: OperatorHomeSectionDescriptor[] = [
     { id: "recommended-next", testId: "operator-home-recommended-next" },
     { id: "metrics-strip", testId: "operator-home-metrics-strip" },
+    { id: "attention-taxonomy", testId: "operator-home-attention-taxonomy" },
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "start-something", testId: "operator-home-start-something" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },

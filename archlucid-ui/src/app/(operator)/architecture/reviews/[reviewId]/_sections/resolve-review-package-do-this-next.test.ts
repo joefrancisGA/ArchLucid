@@ -169,7 +169,7 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.quickLinks?.map((link) => link.label)).toEqual([
       "Invite reviewer",
       "Compare reviews",
-      "Open sponsor report",
+      "Open sponsor briefing export",
     ]);
   });
 
@@ -191,7 +191,7 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.actionLabel).toBe("Review evidence coverage");
     expect(next.buttonVariant).toBe("outline");
     expect(next.href).toContain("reviewTab=evidence");
-    expect(next.secondaryAction?.label).toBe("Send to sponsor");
+    expect(next.secondaryAction?.label).toBe("Send sponsor briefing export");
   });
 
   it("defaults a comparable second package to compare against the prior review", () => {
@@ -206,8 +206,8 @@ describe("resolveReviewPackageDoThisNext", () => {
     });
 
     expect(next.kind).toBe("compare-to-prior");
-    expect(next.actionLabel).toBe("Compare with prior review");
+    expect(next.actionLabel).toBe("Compare reviews");
     expect(next.href).toContain("compare-two-reviews");
-    expect(next.secondaryAction?.label).toBe("Send to sponsor");
+    expect(next.secondaryAction?.label).toBe("Send sponsor briefing export");
   });
 });

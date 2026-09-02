@@ -28,6 +28,14 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
 }));
 
+vi.mock("@/components/reviews/ReviewHeaderShareMenu", () => ({
+  ReviewHeaderShareMenu: () => <div data-testid="review-header-share-menu" />,
+}));
+
+vi.mock("@/components/reviews/ReviewAskDock", () => ({
+  ReviewAskDock: () => <div data-testid="review-ask-dock" />,
+}));
+
 vi.mock("@/components/CopyIdButton", () => ({
   CopyIdButton: () => <button type="button">Copy</button>,
 }));
@@ -100,7 +108,9 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("Jan 1, 2026, 12:00 PM")).toBeInTheDocument();
     expect(screen.getByText("v2")).toBeInTheDocument();
     expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("review-header-share-menu")).toBeInTheDocument();
+    expect(screen.getByTestId("review-ask-dock")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-object-map-strip")).toBeInTheDocument();
   });
 

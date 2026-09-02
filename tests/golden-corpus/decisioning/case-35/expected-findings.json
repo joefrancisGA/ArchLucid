@@ -1,0 +1,134 @@
+[
+  {
+    "findingId": "93b41e54-f0cb-cd12-22b5-603d802158c9",
+    "findingType": "ExternalExposureFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "External actor \u0027public_role\u0027 lacks an explicit trust boundary",
+    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
+    "relatedNodeIds": [
+      "declaration-actor-00000035000040008000000000000035-2"
+    ],
+    "payloadType": "ExternalExposureFindingPayload",
+    "rulesApplied": [
+      "external-exposure-trust-boundary"
+    ],
+    "decisionsTaken": [
+      "External-facing actor present without matching TrustBoundary node."
+    ]
+  },
+  {
+    "findingId": "8d8594f9-ec67-6248-30a5-6e6a58d4acee",
+    "findingType": "PrivilegedAccessFinding",
+    "category": "Security",
+    "severity": "Info",
+    "title": "Review privileged access for internal human actor \u0027architect\u0027",
+    "rationale": "Internal human actors typically require explicit privileged-access and session controls in the target architecture.",
+    "relatedNodeIds": [
+      "intake-human-1"
+    ],
+    "payloadType": "PrivilegedAccessFindingPayload",
+    "rulesApplied": [
+      "privileged-access-internal-human"
+    ],
+    "decisionsTaken": [
+      "Internal human actor requires privileged-access verification."
+    ]
+  },
+  {
+    "findingId": "304204a9-1f11-7484-12ad-c0b3fc7475cc",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "obj-role-public",
+      "obj-sa-1"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "da2f62e3-dec7-de26-c3e0-8c4c7d6b2407",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "obj-role-public",
+      "obj-sa-1"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "184f1ade-1544-85d6-303e-3b43d892222e",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "payments/worker",
+      "public_role"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "eff22a83-9eb2-1f1b-46c6-75e05c07ab6d",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "obj-role-public",
+      "obj-sa-1"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  },
+  {
+    "findingId": "fde7b373-c635-4e14-425d-39888759c0d1",
+    "findingType": "TrustBoundaryFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Mixed internal and external actors without trust-boundary segmentation",
+    "rationale": "When both internal and external actors interact with the system, an explicit trust-boundary model is required to verify cross-boundary data flows.",
+    "relatedNodeIds": [
+      "declaration-actor-00000035000040008000000000000035-1",
+      "declaration-actor-00000035000040008000000000000035-2",
+      "intake-human-1"
+    ],
+    "payloadType": "TrustBoundaryFindingPayload",
+    "rulesApplied": [
+      "trust-boundary-cross-origin"
+    ],
+    "decisionsTaken": [
+      "Detected internal and external actors with no TrustBoundary nodes."
+    ]
+  }
+]
