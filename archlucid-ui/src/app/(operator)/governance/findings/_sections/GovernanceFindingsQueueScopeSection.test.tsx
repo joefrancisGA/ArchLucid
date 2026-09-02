@@ -46,6 +46,7 @@ function buildProps(
       pendingOwner: 0,
       overdueReview: 0,
     },
+    findingsSearchQuery: "",
     onNaturalLanguageFilterApply: () => undefined,
     nlFacets: {},
     onClearAllFilters: () => undefined,

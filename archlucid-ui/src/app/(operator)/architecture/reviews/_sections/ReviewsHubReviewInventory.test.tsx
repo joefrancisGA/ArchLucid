@@ -7,6 +7,13 @@ import { writeFavoriteReviews } from "@/lib/favorite-reviews";
 
 const useArchitectureDraftRegistryEntries = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
+const useSearchParams = vi.fn();
+const useRouter = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => useSearchParams(),
+  useRouter: () => useRouter(),
+}));
 
 vi.mock("@/components/reviews/ReviewArchiveControl", () => ({
   ReviewArchiveControl: () => <button type="button">Archive review</button>,
@@ -87,6 +94,10 @@ beforeEach(() => {
   useArchitectureDraftRegistryEntries.mockReturnValue([]);
   readOperatorScopeFromStorage.mockReset();
   readOperatorScopeFromStorage.mockReturnValue(null);
+  useSearchParams.mockReset();
+  useSearchParams.mockReturnValue(new URLSearchParams());
+  useRouter.mockReset();
+  useRouter.mockReturnValue({ replace: vi.fn() });
 });
 
 describe("ReviewsHubReviewInventory", () => {
@@ -386,6 +397,8 @@ describe("ReviewsHubReviewInventory", () => {
   });
 
   it("shows a clear action when search filters out all reviews", () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("q=no-such-review"));
+
     render(
       <ReviewsHubReviewInventory
         runs={[
@@ -400,10 +413,7 @@ describe("ReviewsHubReviewInventory", () => {
       />,
     );
 
-    fireEvent.change(screen.getByTestId("reviews-hub-search"), {
-      target: { value: "no-such-review" },
-    });
-
+    expect(screen.queryByTestId("reviews-hub-search")).toBeNull();
     expect(screen.getByTestId("reviews-hub-inventory-empty")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-inventory-empty-clear")).toBeInTheDocument();
   });

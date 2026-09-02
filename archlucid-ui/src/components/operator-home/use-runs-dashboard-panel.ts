@@ -31,12 +31,13 @@ import {
   subscribeOperatorHomeLifecycleRefresh,
 } from "@/lib/operator/operator-home-lifecycle-notify";
 import {
-  homeGovernanceWarningsClearHrefFromSearch,
-  homeGovernanceWarningsHrefFromSearch,
   homeGovernanceWarningsQueryEnabled,
+  parseRunsDashboardShowArchivedFromSearch,
+  parseRunsDashboardTabFromSearch,
   resolveRunsDashboardOpenAllReviewsHref,
   resolveRunsDashboardRecentListTab,
   resolveRunsDashboardStatusTabIds,
+  runsDashboardHomeHrefFromSearch,
   RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 import { fetchPagedReviewsInventory, restoreArchitectureRequest } from "@/lib/api";
@@ -79,11 +80,13 @@ export function useRunsDashboardPanel({
 }: UseRunsDashboardPanelOptions = {}) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [tab, setTab] = useState<RunsDashboardTabId>("all");
+  const [tab, setTab] = useState<RunsDashboardTabId>(() => parseRunsDashboardTabFromSearch(searchParams.get("tab")));
   const [governanceWarningsOnly, setGovernanceWarningsOnly] = useState(() =>
     homeGovernanceWarningsQueryEnabled(searchParams),
   );
-  const [showArchived, setShowArchived] = useState(false);
+  const [showArchived, setShowArchived] = useState(() =>
+    parseRunsDashboardShowArchivedFromSearch(searchParams.get("archived")),
+  );
   const [restoreBusyRequestId, setRestoreBusyRequestId] = useState<string | null>(null);
   const [items, setItems] = useState<RunSummary[]>(initialModel?.items ?? []);
   const [loadedTotalCount, setLoadedTotalCount] = useState<number>(initialModel?.totalCount ?? 0);
@@ -113,6 +116,9 @@ export function useRunsDashboardPanel({
       setGovernanceWarningsOnly(true);
       setTab("all");
     }
+
+    setTab(parseRunsDashboardTabFromSearch(searchParams.get("tab")));
+    setShowArchived(parseRunsDashboardShowArchivedFromSearch(searchParams.get("archived")));
   }, [searchParams]);
 
   const load = useCallback(async (options?: { readonly mode?: RunsDashboardClientLoadMode }) => {
@@ -425,17 +431,31 @@ export function useRunsDashboardPanel({
   const selectDashboardTab = useCallback((next: RunsDashboardTabId) => {
     setTab(next);
     setShowArchived(false);
-  }, []);
+    router.replace(
+      runsDashboardHomeHrefFromSearch(searchParams.toString(), { tab: next, showArchived: false }),
+      { scroll: false },
+    );
+  }, [router, searchParams]);
+
+  const setShowArchivedWithUrl = useCallback(
+    (value: boolean) => {
+      setShowArchived(value);
+      router.replace(
+        runsDashboardHomeHrefFromSearch(searchParams.toString(), { showArchived: value }),
+        { scroll: false },
+      );
+    },
+    [router, searchParams],
+  );
 
   const setGovernanceWarningsOnlyWithUrl = useCallback(
     (value: boolean) => {
       setGovernanceWarningsOnly(value);
 
-      const nextHref = value
-        ? homeGovernanceWarningsHrefFromSearch(searchParams.toString())
-        : homeGovernanceWarningsClearHrefFromSearch(searchParams.toString());
-
-      router.replace(nextHref, { scroll: false });
+      router.replace(
+        runsDashboardHomeHrefFromSearch(searchParams.toString(), { governanceWarningsOnly: value }),
+        { scroll: false },
+      );
     },
     [router, searchParams],
   );
@@ -451,7 +471,7 @@ export function useRunsDashboardPanel({
     governanceWarningsOnly,
     setGovernanceWarningsOnly: setGovernanceWarningsOnlyWithUrl,
     showArchived,
-    setShowArchived,
+    setShowArchived: setShowArchivedWithUrl,
     restoreBusyRequestId,
     phase,
     failure,
