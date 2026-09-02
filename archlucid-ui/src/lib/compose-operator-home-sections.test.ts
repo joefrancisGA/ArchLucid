@@ -66,11 +66,11 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
       metrics: { ...emptyMetrics, hasReviews: true, reviewPackagesCommitted: 1 },
     });
 
-    const aboveFoldIds = sections.slice(0, 5).map((section) => section.id);
+    const aboveFoldIds = sections.slice(0, 6).map((section) => section.id);
 
     expect(aboveFoldIds).toEqual([
-      "recommended-next",
       "metrics-strip",
+      "attention-taxonomy",
       "unfinished",
       "start-something",
       "recent-reviews",
@@ -118,7 +118,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     ]);
   });
 
-  it("orders operator shell sections with recommended next before recent reviews when workspace has activity", () => {
+  it("orders operator shell sections with attention taxonomy before recent reviews when workspace has activity", () => {
     const sections = composeOperatorHomeSections({
       phaseSignals: {
         hasWorkspaceReviews: true,
@@ -134,7 +134,8 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
 
     const sectionIds = sections.map((section) => section.id);
 
-    expect(sectionIds).toContain("recommended-next");
-    expect(sectionIds.indexOf("recommended-next")).toBeLessThan(sectionIds.indexOf("recent-reviews"));
+    expect(sectionIds).toContain("attention-taxonomy");
+    expect(sectionIds.indexOf("attention-taxonomy")).toBeLessThan(sectionIds.indexOf("recent-reviews"));
+    expect(sectionIds).not.toContain("recommended-next");
   });
 });

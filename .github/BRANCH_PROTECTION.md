@@ -49,9 +49,15 @@ GitHub cannot apply rulesets from files in the repo. As of 2026-08-31, the **int
 
 - `cohort-real-llm-gate`
 - `Security: gitleaks (secret scan)`
-- `.NET: push corset (build + fast core Core/Decisioning)` (live autocomplete may show `.NET: fast core (corset)`)
+- `.NET: fast core (corset)` — PR/full CI corset job name in `ci.yml` (use this exact string in the live ruleset; do not substitute the push-only sibling below)
+- `.NET: push corset (build + fast core Core/Decisioning)` — sibling job on `ui-typecheck-on-push.yml` for `master`/`main` push only
 - `Operator UI: typecheck (blocking)`
 - `CI: beta-readiness wiring guards` — **add in GitHub** (JSON already lists it; live ruleset may lag)
+
+**Not in the five-check JSON** (do not pretend the live ruleset requires them):
+
+- `.NET: OpenAPI v1 contract snapshot (fail-fast)` — now a job on `.github/workflows/ui-typecheck-on-push.yml`. Owner may add the check after one green trunk run.
+- `Operator UI: private-beta access-path (JwtBearer)` — now also produced by `.github/workflows/private-beta-access-on-push.yml` on trunk push (invite-wave; does not wait on full `ci.yml` regression). **Do not** add as a sixth golden-cohort required check until the owner applies it after a green run.
 
 Owner apply: `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` after one green `ui-typecheck-on-push.yml` run that includes the beta-readiness job.
 

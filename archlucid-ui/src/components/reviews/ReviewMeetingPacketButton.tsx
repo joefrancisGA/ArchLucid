@@ -59,7 +59,7 @@ function buildMeetingPacketSteps(props: ReviewMeetingPacketButtonProps): readonl
     {
       id: "board-pack",
       label: "Review board package (PDF)",
-      description: "Finalized review board PDF when the review is committed.",
+      description: "Finalized review board PDF when the review is finalized.",
       href: getRunPackageExportUrl(runId, "pdf"),
       downloadLabel: "Download PDF",
     },

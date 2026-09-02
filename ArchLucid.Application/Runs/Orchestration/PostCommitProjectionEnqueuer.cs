@@ -36,12 +36,6 @@ public sealed class PostCommitProjectionEnqueuer(IPostCommitProjectionOutboxRepo
                     ProjectId = scope.ProjectId.ToString("N")
                 }),
                 cancellationToken),
-            EnqueueAsync(
-                PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization,
-                scope,
-                runGuid,
-                null,
-                cancellationToken)
         ];
 
         if (enqueueFindingPriorityRerank)
@@ -78,22 +72,16 @@ public sealed class PostCommitProjectionEnqueuer(IPostCommitProjectionOutboxRepo
     }
 
     /// <summary>
-    ///     Enqueues durable decision-node materialization for idempotent commit replay when the original
-    ///     post-commit row may be missing or not yet processed (TB-2060).
+    ///     Retained for binary compatibility; wave-2 removed unused Δ2 appendix materialization from post-commit enqueue.
     /// </summary>
     public Task EnqueueDecisionEngineV2NodeMaterializationAsync(
         Guid runGuid,
         ScopeContext scope,
         CancellationToken cancellationToken)
     {
+        _ = runGuid;
         ArgumentNullException.ThrowIfNull(scope);
-
-        return EnqueueAsync(
-            PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization,
-            scope,
-            runGuid,
-            null,
-            cancellationToken);
+        return Task.CompletedTask;
     }
 
     private Task EnqueueAsync(
