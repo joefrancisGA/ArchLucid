@@ -105,4 +105,21 @@ public sealed class AzureRetailPricesSkuMatchersTests
         ok.Should().BeTrue();
         monthly.Should().Be(7.30m);
     }
+
+    [Fact]
+    public void TryMonthlyUsdFromRow_accepts_slash_h_unit_of_measure_synonym()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1/h",
+            UnitPrice = 0.01m,
+        };
+
+        bool ok = AzureRetailPricesCatalogClient.TryMonthlyUsdFromRow(dto, 1, out decimal monthly);
+
+        ok.Should().BeTrue();
+        monthly.Should().Be(7.30m);
+    }
 }
