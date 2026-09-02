@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -100,9 +101,11 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+        approvalRequestId = GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(approvalRequestId);
 
-        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+        IActionResult? approvalRequestIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateApprovalRequestId(approvalRequestId)
+                .ToBadRequestProblemOrNull(this);
 
         if (approvalRequestIdProblem is not null)
             return approvalRequestIdProblem;
@@ -183,9 +186,11 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+        approvalRequestId = GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(approvalRequestId);
 
-        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+        IActionResult? approvalRequestIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateApprovalRequestId(approvalRequestId)
+                .ToBadRequestProblemOrNull(this);
 
         if (approvalRequestIdProblem is not null)
             return approvalRequestIdProblem;
@@ -265,39 +270,18 @@ public sealed partial class GovernanceController
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (body.ApprovalRequestIds is null || body.ApprovalRequestIds.Count == 0)
-            return this.BadRequestProblem("ApprovalRequestIds must contain at least one id.",
-                ProblemTypes.ValidationFailed);
+        IActionResult? validationProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest(body).ToBadRequestProblemOrNull(this);
 
-        if (body.ApprovalRequestIds.Count > 50)
-            return this.BadRequestProblem("At most 50 approval request ids are allowed per request.",
-                ProblemTypes.ValidationFailed);
+        if (validationProblem is not null)
+            return validationProblem;
 
-        if (body.Decision is null)
-            return this.BadRequestProblem("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);
-
-        string decision = body.Decision.Trim();
-
-        if (decision.Length == 0)
-            return this.BadRequestProblem("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);
-
-        bool approve = string.Equals(decision, "approve", StringComparison.OrdinalIgnoreCase);
-        bool reject = string.Equals(decision, "reject", StringComparison.OrdinalIgnoreCase);
-
-        if (!approve && !reject)
-            return this.BadRequestProblem("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
+        GovernanceApprovalRequestsHttpMapper.TryParseBatchReviewDecision(body.Decision!, out bool approve);
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
-
-        if (!body.ApprovalRequestIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
-        {
-            return this.BadRequestProblem(
-                "ApprovalRequestIds must contain at least one non-empty id.",
-                ProblemTypes.ValidationFailed);
-        }
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
@@ -313,18 +297,6 @@ public sealed partial class GovernanceController
                 reviewedByMailbox,
                 cancellationToken);
 
-        return Ok(
-            new GovernanceBatchReviewResponse
-            {
-                Results = batchResult.Results
-                    .Select(static r => new GovernanceBatchReviewItemResult
-                    {
-                        ApprovalRequestId = r.ApprovalRequestId,
-                        Succeeded = r.Succeeded,
-                        ErrorCode = r.ErrorCode,
-                        Message = r.Message,
-                    })
-                    .ToList(),
-            });
+        return Ok(GovernanceApprovalRequestsHttpMapper.MapBatchReviewResponse(batchResult));
     }
 }
