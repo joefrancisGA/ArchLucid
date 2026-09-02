@@ -1,6 +1,8 @@
 using System.IO.Compression;
 using System.Text.Json;
 
+using ArchLucid.Core.Compression;
+
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -45,8 +47,20 @@ public static class AzureExtractorPackageZipValidator
         {
             using ZipArchive archive = new(zipStream, ZipArchiveMode.Read, leaveOpen: true);
 
-            int fileEntryCount = archive.Entries.Count(static entry => !entry.FullName.EndsWith('/'));
+            ZipArchiveSafetyResult safety = ZipArchiveSafety.ValidateArchive(archive);
 
+            if (!safety.Allowed)
+            {
+                return new AzureExtractorZipValidationResult
+                {
+                    IsValid = false,
+                    ErrorDetail = safety.ErrorDetail ?? "ZIP archive failed safety validation.",
+                    IsSchemaRejection = false,
+                    IsInvalidArchive = true,
+                };
+            }
+
+            int fileEntryCount = safety.FileEntryCount;
             ZipArchiveEntry? manifestEntry = FindEntry(archive, ManifestEntryName);
 
             if (manifestEntry is null)

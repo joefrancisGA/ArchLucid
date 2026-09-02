@@ -1,11 +1,13 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -49,10 +51,14 @@ public sealed class GovernanceEnvironmentCatalogController(
     public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            scope,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         GovernanceEnvironmentCatalog catalog = await _catalogService
             .GetCatalogAsync(cancellationToken)
@@ -76,10 +82,14 @@ public sealed class GovernanceEnvironmentCatalogController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            scope,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
         try
         {

@@ -147,9 +147,22 @@ public sealed class UserInvitationEmailNotifier(
                 builder.Append(System.Net.WebUtility.HtmlEncode(personalMessage[lastIndex..match.Index]));
             }
 
-            string label = System.Net.WebUtility.HtmlEncode(match.Groups["label"].Value);
-            string url = System.Net.WebUtility.HtmlEncode(match.Groups["url"].Value);
-            builder.Append($"<a href=\"{url}\">{label}</a>");
+            string rawLabel = match.Groups["label"].Value;
+            string rawUrl = match.Groups["url"].Value;
+
+            string label = System.Net.WebUtility.HtmlEncode(rawLabel);
+
+            if (Uri.TryCreate(rawUrl.Trim(), UriKind.Absolute, out Uri? uri)
+                && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp))
+            {
+                string url = System.Net.WebUtility.HtmlEncode(uri.ToString());
+                builder.Append($"<a href=\"{url}\" rel=\"noopener noreferrer\">{label}</a>");
+            }
+            else
+            {
+                string urlText = System.Net.WebUtility.HtmlEncode(rawUrl);
+                builder.Append($"{label} ({urlText})");
+            }
             lastIndex = match.Index + match.Length;
         }
 

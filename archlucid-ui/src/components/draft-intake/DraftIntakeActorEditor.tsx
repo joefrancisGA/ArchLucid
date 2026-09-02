@@ -1,6 +1,9 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+
 import { createEmptyActorDescriptor } from "@/lib/draft-intake-actor-suggestions";
+import { OPERATOR_FORM_FIELD_STACK_CLASS } from "@/lib/design-tokens";
 import type { ActorSet } from "@/types/draft-intake";
 
 import { DraftIntakeActorList } from "./DraftIntakeActorList";
@@ -32,7 +35,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
   }
 
   return (
-    <div className="draft-intake-actor-editor space-y-4" data-testid="draft-intake-actor-editor">
+    <div className={cn("draft-intake-actor-editor", OPERATOR_FORM_FIELD_STACK_CLASS)} data-testid="draft-intake-actor-editor">
       <DraftIntakeSuggestionPanel
         actorSet={props.actorSet}
         intentText={props.intentText}

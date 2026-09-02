@@ -161,11 +161,39 @@ public sealed class AuthenticationIdentityLinkProposalService(
             .AttachIdentityToExistingUserAsync(userId, attachRequest, cancellationToken)
             .ConfigureAwait(false);
 
-        DateTimeOffset now = _timeProvider.GetUtcNow();
-
-        await _proposals
-            .UpdateStatusAsync(proposalId, AuthenticationIdentityLinkProposalStatus.Confirmed, now, cancellationToken)
+        // Finalize the proposal only after attachment succeeded so a failed attach leaves it retryable.
+        bool confirmed = await _proposals
+            .TryUpdateStatusAsync(
+                proposalId,
+                AuthenticationIdentityLinkProposalStatus.Confirmed,
+                _timeProvider.GetUtcNow(),
+                cancellationToken)
             .ConfigureAwait(false);
+
+        // Attachment is idempotent for this user's key. A lost finalization race is only an
+        // idempotent retry when the proposal is already Confirmed; re-read it and fail the
+        // confirm otherwise so a terminal (cancelled/expired) proposal is not left with a
+        // linked identity. The confirmed-audit is skipped for the losing transition.
+
+        if (!confirmed)
+        {
+            AuthenticationIdentityLinkProposalRecord? current =
+                await _proposals.GetByIdAsync(proposalId, cancellationToken).ConfigureAwait(false);
+
+            if (current?.Status == AuthenticationIdentityLinkProposalStatus.Confirmed)
+            {
+                return attached;
+            }
+
+            if (current?.Status == AuthenticationIdentityLinkProposalStatus.Expired
+                || (current?.Status == AuthenticationIdentityLinkProposalStatus.PendingConfirmation
+                    && current.ExpiresUtc <= _timeProvider.GetUtcNow()))
+            {
+                throw new AuthenticationIdentityLinkProposalExpiredException(proposalId);
+            }
+
+            throw new AuthenticationIdentityLinkProposalNotFoundException(proposalId);
+        }
 
         await AuthAuditEmitter.LogIdentityEventAsync(
                 _auditService,
@@ -192,8 +220,7 @@ public sealed class AuthenticationIdentityLinkProposalService(
         AuthenticationIdentityLinkProposalRecord proposal =
             await RequirePendingProposalAsync(userId, proposalId, cancellationToken).ConfigureAwait(false);
 
-        await _proposals
-            .UpdateStatusAsync(
+        await UpdatePendingProposalStatusAsync(
                 proposal.Id,
                 AuthenticationIdentityLinkProposalStatus.Cancelled,
                 _timeProvider.GetUtcNow(),
@@ -329,8 +356,8 @@ public sealed class AuthenticationIdentityLinkProposalService(
 
         if (proposal.ExpiresUtc <= _timeProvider.GetUtcNow())
         {
-            await _proposals
-                .UpdateStatusAsync(
+            _ = await _proposals
+                .TryUpdateStatusAsync(
                     proposalId,
                     AuthenticationIdentityLinkProposalStatus.Expired,
                     _timeProvider.GetUtcNow(),
@@ -341,5 +368,33 @@ public sealed class AuthenticationIdentityLinkProposalService(
         }
 
         return proposal;
+    }
+
+    private async Task UpdatePendingProposalStatusAsync(
+        Guid proposalId,
+        AuthenticationIdentityLinkProposalStatus status,
+        DateTimeOffset statusUtc,
+        CancellationToken cancellationToken)
+    {
+        bool updated = await _proposals
+            .TryUpdateStatusAsync(proposalId, status, statusUtc, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (updated)
+        {
+            return;
+        }
+
+        AuthenticationIdentityLinkProposalRecord? current =
+            await _proposals.GetByIdAsync(proposalId, cancellationToken).ConfigureAwait(false);
+
+        if (current?.Status == AuthenticationIdentityLinkProposalStatus.Expired
+            || (current?.Status == AuthenticationIdentityLinkProposalStatus.PendingConfirmation
+                && current.ExpiresUtc <= _timeProvider.GetUtcNow()))
+        {
+            throw new AuthenticationIdentityLinkProposalExpiredException(proposalId);
+        }
+
+        throw new AuthenticationIdentityLinkProposalNotFoundException(proposalId);
     }
 }

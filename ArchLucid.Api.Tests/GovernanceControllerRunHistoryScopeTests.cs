@@ -4,6 +4,7 @@ using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -19,6 +20,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
+
+using ApiGovernanceBatchReviewItemResult = ArchLucid.Api.Controllers.Governance.GovernanceBatchReviewItemResult;
+using ApiGovernanceBatchReviewResponse = ArchLucid.Api.Controllers.Governance.GovernanceBatchReviewResponse;
 
 namespace ArchLucid.Api.Tests;
 
@@ -309,11 +313,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     public async Task Approve_returns_bad_request_when_approval_request_id_is_whitespace()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Approve(
@@ -331,11 +335,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     public async Task Reject_returns_bad_request_when_approval_request_id_is_whitespace()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Reject(
@@ -355,12 +359,12 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         const string approvalRequestId = "apr-approve-tenant-missing";
 
         Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             tenantRepository: TenantMissingRepository(),
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Approve(
@@ -380,12 +384,12 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         const string approvalRequestId = "apr-reject-tenant-missing";
 
         Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             tenantRepository: TenantMissingRepository(),
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Reject(
@@ -419,7 +423,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.ApproveAsync(
                 approvalRequestId,
@@ -437,7 +441,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object,
+            workflowFacade: workflow.Object,
             actorContext: actor.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
@@ -473,7 +477,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.RejectAsync(
                 approvalRequestId,
@@ -491,7 +495,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object,
+            workflowFacade: workflow.Object,
             actorContext: actor.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
@@ -528,7 +532,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.ApproveAsync(
                 approvalRequestId,
@@ -546,7 +550,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object,
+            workflowFacade: workflow.Object,
             actorContext: actor.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
@@ -581,12 +585,12 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Approve(
@@ -609,11 +613,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GovernanceApprovalRequest?)null);
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Approve(
@@ -631,11 +635,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     {
         Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             tenantRepository: TenantMissingRepository(),
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.SubmitApprovalRequest(
@@ -674,7 +678,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.ApproveAsync(
                 approvalRequestId,
@@ -688,7 +692,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.BatchReviewApprovalRequests(
@@ -700,8 +704,8 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        GovernanceBatchReviewResponse body =
-            ok.Value.Should().BeOfType<GovernanceBatchReviewResponse>().Subject;
+        ApiGovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<ApiGovernanceBatchReviewResponse>().Subject;
         body.Results.Should().HaveCount(2);
         body.Results.Should().Contain(item =>
             item.ApprovalRequestId == approvalRequestId && item.Succeeded);
@@ -750,7 +754,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.ApproveAsync(
                 approvalRequestId,
@@ -764,7 +768,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.BatchReviewApprovalRequests(
@@ -776,8 +780,8 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        GovernanceBatchReviewResponse body =
-            ok.Value.Should().BeOfType<GovernanceBatchReviewResponse>().Subject;
+        ApiGovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<ApiGovernanceBatchReviewResponse>().Subject;
         body.Results.Should().HaveCount(2);
         body.Results.Should().Contain(item =>
             item.ApprovalRequestId == approvalRequestId && item.Succeeded);
@@ -818,7 +822,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.ApproveAsync(
                 approvalRequestId,
@@ -832,7 +836,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.BatchReviewApprovalRequests(
@@ -844,8 +848,8 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        GovernanceBatchReviewResponse body =
-            ok.Value.Should().BeOfType<GovernanceBatchReviewResponse>().Subject;
+        ApiGovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<ApiGovernanceBatchReviewResponse>().Subject;
         body.Results.Should().HaveCount(2);
         body.Results.Should().Contain(item =>
             item.ApprovalRequestId == approvalRequestId && item.Succeeded);
@@ -877,7 +881,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.ApproveAsync(
                 approvalRequestId,
@@ -891,7 +895,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.BatchReviewApprovalRequests(
@@ -903,8 +907,8 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        GovernanceBatchReviewResponse body =
-            ok.Value.Should().BeOfType<GovernanceBatchReviewResponse>().Subject;
+        ApiGovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<ApiGovernanceBatchReviewResponse>().Subject;
         body.Results.Should().HaveCount(2);
         body.Results.Should().Contain(item =>
             item.ApprovalRequestId == approvalRequestId && item.Succeeded);
@@ -928,11 +932,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     public async Task BatchReviewApprovalRequests_returns_bad_request_when_decision_is_null()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         GovernanceApprovalBatchReviewRequest request = new()
@@ -953,11 +957,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     public async Task BatchReviewApprovalRequests_returns_bad_request_when_approval_request_ids_is_null()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         GovernanceApprovalBatchReviewRequest request = new()
@@ -994,7 +998,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.ApproveAsync(
                 approvalRequestId,
@@ -1012,7 +1016,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object,
+            workflowFacade: workflow.Object,
             actorContext: actor.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
@@ -1025,9 +1029,9 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        GovernanceBatchReviewResponse body =
-            ok.Value.Should().BeOfType<GovernanceBatchReviewResponse>().Subject;
-        GovernanceBatchReviewItemResult item = body.Results.Should().ContainSingle().Subject;
+        ApiGovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<ApiGovernanceBatchReviewResponse>().Subject;
+        ApiGovernanceBatchReviewItemResult item = body.Results.Should().ContainSingle().Subject;
         item.Succeeded.Should().BeFalse();
         item.ErrorCode.Should().Be(ProblemTypes.ValidationFailed);
     }
@@ -1046,11 +1050,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
                 RunId = "not-a-guid",
             });
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.BatchReviewApprovalRequests(
@@ -1062,9 +1066,9 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        GovernanceBatchReviewResponse body =
-            ok.Value.Should().BeOfType<GovernanceBatchReviewResponse>().Subject;
-        GovernanceBatchReviewItemResult item = body.Results.Should().ContainSingle().Subject;
+        ApiGovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<ApiGovernanceBatchReviewResponse>().Subject;
+        ApiGovernanceBatchReviewItemResult item = body.Results.Should().ContainSingle().Subject;
         item.Succeeded.Should().BeFalse();
         item.ErrorCode.Should().Be(ProblemTypes.ValidationFailed);
         workflow.VerifyNoOtherCalls();
@@ -1074,12 +1078,12 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     public async Task BatchReviewApprovalRequests_returns_not_found_when_tenant_missing()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             tenantRepository: TenantMissingRepository(),
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.BatchReviewApprovalRequests(
@@ -1100,11 +1104,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     public async Task BatchReviewApprovalRequests_returns_bad_request_when_all_ids_are_whitespace()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.BatchReviewApprovalRequests(
@@ -1132,7 +1136,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.SubmitApprovalRequestAsync(
                 runId.ToString("D"),
@@ -1165,7 +1169,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
-            workflowService: workflow.Object,
+            workflowFacade: workflow.Object,
             actorContext: actor.Object,
             auditService: audit.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
@@ -1198,7 +1202,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.SubmitApprovalRequestAsync(
                 runId.ToString("D"),
@@ -1231,7 +1235,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
-            workflowService: workflow.Object,
+            workflowFacade: workflow.Object,
             actorContext: actor.Object,
             auditService: audit.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
@@ -1266,7 +1270,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.SubmitApprovalRequestAsync(
                 runId.ToString("D"),
@@ -1288,7 +1292,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.SubmitApprovalRequest(
@@ -1345,7 +1349,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.SubmitApprovalRequestAsync(
                 runId.ToString("D"),
@@ -1362,7 +1366,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.SubmitApprovalRequest(
@@ -1386,9 +1390,9 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     [Fact]
     public async Task SubmitApprovalRequest_returns_bad_request_when_run_id_is_empty()
     {
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
-        GovernanceController sut = CreateController(workflowService: workflow.Object);
+        GovernanceController sut = CreateController(workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.SubmitApprovalRequest(
@@ -1418,11 +1422,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.SubmitApprovalRequest(
@@ -1451,7 +1455,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.ActivateAsync(
                 runId.ToString("D"),
@@ -1463,7 +1467,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "activate-validation-test";
 
@@ -1494,11 +1498,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "activate-scope-test";
 
@@ -1526,7 +1530,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new();
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.PromoteAsync(
                 runId.ToString("D"),
@@ -1544,7 +1548,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Promote(
@@ -1575,11 +1579,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Promote(
@@ -1610,11 +1614,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Promote(
@@ -1658,12 +1662,12 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             runRepository: runs.Object,
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Promote(
@@ -1694,11 +1698,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GovernanceApprovalRequest?)null);
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Promote(
@@ -1723,11 +1727,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     {
         Guid runId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             tenantRepository: TenantMissingRepository(),
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.Promote(
@@ -1751,11 +1755,11 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     {
         Guid runId = Guid.Parse("44444444-4444-4444-4444-444444444444");
 
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
 
         GovernanceController sut = CreateController(
             tenantRepository: TenantMissingRepository(),
-            workflowService: workflow.Object);
+            workflowFacade: workflow.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "activate-tenant-missing";
 
@@ -1866,7 +1870,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IGovernanceEnvironmentActivationRepository? activationRepository = null,
         IGovernanceLineageService? lineageService = null,
         IGovernanceRationaleService? rationaleService = null,
-        IGovernanceWorkflowService? workflowService = null,
+        IGovernanceWorkflowFacade? workflowFacade = null,
         ITenantRepository? tenantRepository = null,
         IActorContext? actorContext = null,
         IAuditService? auditService = null)
@@ -1879,25 +1883,17 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .Setup(r => r.GetByIdAsync(Scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = Guid.NewGuid() });
 
-        return new GovernanceController(
-            workflowService ?? Mock.Of<IGovernanceWorkflowService>(),
-            approvalRepository ?? Mock.Of<IGovernanceApprovalRequestRepository>(),
-            promotionRepository ?? Mock.Of<IGovernancePromotionRecordRepository>(),
-            activationRepository ?? Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            actorContext ?? Mock.Of<IActorContext>(),
-            scope.Object,
-            runRepository ?? runs.Object,
-            Mock.Of<IGovernanceDashboardService>(),
-            lineageService ?? Mock.Of<IGovernanceLineageService>(),
-            rationaleService ?? Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            auditService ?? Mock.Of<IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenantRepository ?? TenantExistsRepository(),
-            NullLogger<GovernanceController>.Instance);
+        return GovernanceControllerTestFactory.Create(
+            workflowFacade: workflowFacade,
+            approvalRepository: approvalRepository,
+            promotionRepository: promotionRepository,
+            activationRepository: activationRepository,
+            actorContext: actorContext,
+            scopeContextProvider: scope.Object,
+            runRepository: runRepository ?? runs.Object,
+            lineageService: lineageService,
+            rationaleService: rationaleService,
+            auditService: auditService,
+            tenantRepository: tenantRepository ?? TenantExistsRepository());
     }
 }

@@ -10,6 +10,7 @@ import {
 } from "@/lib/api/architecture-request-create-guard";
 import { ArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { ApiRequestError, isApiRequestError } from "@/lib/api-request-error";
+import { apiGet } from "./http";
 import { trackInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 import { parseOperationIdFromLocation } from "@/lib/operations/operation-location";
 import {
@@ -112,6 +113,41 @@ function rethrowCreateRunGatewayTimeout(error: ApiRequestError): never {
   });
 }
 
+async function tryRecoverCreateRunFromIdempotencyKey(
+  idempotencyKey: string,
+): Promise<CreateArchitectureRunResponsePayload | null> {
+  try {
+    return await apiGet<CreateArchitectureRunResponsePayload>(
+      "/v1/architecture/request/idempotency",
+      { scopeHeaders: { "Idempotency-Key": idempotencyKey } },
+    );
+  } catch (error: unknown) {
+    if (isApiRequestError(error) && error.httpStatus === 404) {
+      return null;
+    }
+
+    return null;
+  }
+}
+
+async function recoverOrRethrowCreateRunGatewayTimeout(
+  error: ApiRequestError,
+  idempotencyKey: string,
+  wizardManaged: boolean,
+): Promise<CreateArchitectureRunResponsePayload | null> {
+  const recovered = await tryRecoverCreateRunFromIdempotencyKey(idempotencyKey);
+
+  if (recovered !== null) {
+    if (wizardManaged) {
+      clearWizardSubmissionSession();
+    }
+
+    return recovered;
+  }
+
+  rethrowCreateRunGatewayTimeout(error);
+}
+
 export type CreateArchitectureRunAsyncResult = {
   readonly operationId: string;
   readonly runId: string;
@@ -193,6 +229,22 @@ export async function createArchitectureRunAsync(
         isApiRequestError(error) &&
         isArchitectureRequestCreateGatewayTimeout(error.httpStatus, error.problem)
       ) {
+        const recovered = await tryRecoverCreateRunFromIdempotencyKey(idempotencyKey);
+
+        if (recovered?.run?.runId) {
+          if (wizardManaged) {
+            clearWizardSubmissionSession();
+          }
+
+          const operationId = reviewPipelineOperationId(recovered.run.runId);
+
+          return {
+            operationId,
+            runId: recovered.run.runId,
+            location: `/v1/operations/${operationId}`,
+          };
+        }
+
         rethrowCreateRunGatewayTimeout(error);
       }
 
@@ -251,7 +303,15 @@ export async function createArchitectureRun(
         isApiRequestError(error) &&
         isArchitectureRequestCreateGatewayTimeout(error.httpStatus, error.problem)
       ) {
-        rethrowCreateRunGatewayTimeout(error);
+        const recovered = await recoverOrRethrowCreateRunGatewayTimeout(
+          error,
+          idempotencyKey,
+          wizardManaged,
+        );
+
+        if (recovered !== null) {
+          return recovered;
+        }
       }
 
       throw error;

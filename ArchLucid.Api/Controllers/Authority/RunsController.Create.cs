@@ -115,6 +115,40 @@ public sealed partial class RunsController
         }
     }
 
+    /// <summary>Recovers a prior create-run response via the <c>Idempotency-Key</c> header (header keeps the key out of path access logs).</summary>
+    [HttpGet("request/idempotency")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+public async Task<IActionResult> LookupCreateRunByIdempotencyKey(
+    [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
+    CancellationToken cancellationToken)
+{
+    if (string.IsNullOrWhiteSpace(idempotencyKey))
+        return this.BadRequestProblem("Idempotency-Key header is required.", ProblemTypes.ValidationFailed);
+
+    IdempotencyKeyValidationResult validation =
+        runLifecycleCommandService.ValidateIdempotencyKey(idempotencyKey);
+
+    if (!validation.IsValid || string.IsNullOrWhiteSpace(validation.Key))
+        return this.BadRequestProblem(validation.ErrorMessage ?? "Idempotency-Key is required.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        CreateRunResult? result = await runLifecycleCommandService
+            .LookupCreateRunByIdempotencyKeyAsync(scope, validation.Key, cancellationToken);
+
+        if (result is null)
+            return this.NotFoundProblem("Idempotency-Key not found.", ProblemTypes.ResourceNotFound);
+
+        CreateArchitectureRunResponse response =
+            RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
+
+        Response.Headers.Append("X-Idempotency-Replayed", "true");
+
+        return Ok(response);
+    }
+
     [HttpPost("request/batch")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [RequiresCommercialTenantTier(TenantTier.Standard)]

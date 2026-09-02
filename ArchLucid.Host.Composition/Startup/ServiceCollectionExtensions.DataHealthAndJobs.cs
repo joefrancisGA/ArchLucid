@@ -155,6 +155,9 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(StaleInFlightAutoRemediationOptions.SectionName));
         services.Configure<MissingArchitectureRequestAutoRemediationOptions>(
             configuration.GetSection(MissingArchitectureRequestAutoRemediationOptions.SectionName));
+        services.Configure<HungReviewExecuteWatchdogOptions>(
+            configuration.GetSection(HungReviewExecuteWatchdogOptions.SectionName));
+        services.AddScoped<IHungReviewExecuteWatchdog, HungReviewExecuteWatchdog>();
         services.AddSingleton<IArchLucidStorageMode, ArchLucidStorageMode>();
         services.AddSingleton<ILeaderElectionWorkRunner, LeaderElectionWorkRunner>();
         services.AddSingleton<DataConsistencyReconciliationHealthState>();
@@ -167,6 +170,7 @@ public static partial class ServiceCollectionExtensions
             services.AddHostedService<RunExecuteOwnershipShutdownReleaseHostedService>();
             services.AddHostedService<StaleInFlightAutoRemediationHostedService>();
             services.AddHostedService<MissingArchitectureRequestAutoRemediationHostedService>();
+            services.AddHostedService<HungReviewExecuteWatchdogHostedService>();
         }
     }
 

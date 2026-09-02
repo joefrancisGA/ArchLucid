@@ -26,10 +26,148 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
-    private static ITenantRepository TenantExistsRepository() =>
-        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
-            Scope.TenantId,
-            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" }));
+    private static ITenantRepository TenantExistsRepository()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        return tenants.Object;
+    }
+
+    [Fact]
+    public async Task Get_returns_not_found_when_tenant_missing()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            Mock.Of<IAuditService>(),
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.Get(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        catalogService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Get_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            Mock.Of<IAuditService>(),
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.Get(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        catalogService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Replace_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            Mock.Of<IAuditService>(),
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.Replace(
+            new ReplaceGovernanceEnvironmentCatalogRequest(),
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        catalogService.VerifyNoOtherCalls();
+    }
 
     [Fact]
     public async Task Get_returns_effective_catalog()
@@ -62,36 +200,6 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
 
         body.Environments.Should().HaveCount(3);
         body.Transitions.Should().HaveCount(2);
-    }
-
-    [Fact]
-    public async Task Get_returns_not_found_when_tenant_missing()
-    {
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
-
-        Mock<IGovernanceEnvironmentCatalogService> catalogService = new(MockBehavior.Strict);
-        Mock<IAuditService> auditService = new(MockBehavior.Strict);
-
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((TenantRecord?)null);
-
-        GovernanceEnvironmentCatalogController controller = new(
-            scopeProvider.Object,
-            catalogService.Object,
-            auditService.Object,
-            tenants.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
-
-        IActionResult action = await controller.Get(CancellationToken.None);
-
-        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        catalogService.VerifyNoOtherCalls();
     }
 
     [Fact]

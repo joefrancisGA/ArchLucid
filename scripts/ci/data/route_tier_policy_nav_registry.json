@@ -722,6 +722,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Architecture/WizardIntakeDraftsController.cs",
+      "class_name": "WizardIntakeDraftsController",
+      "route_template": "v{version:apiVersion}/architecture/intake/wizard-draft",
+      "normalized_prefix": "/v1/architecture/intake/wizard-draft",
+      "commercial_tier": "none",
+      "class_policy": "AuthenticatedUserOnly",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Architecture/WorkspaceSystemNameAvailabilityController.cs",
       "class_name": "WorkspaceSystemNameAvailabilityController",
       "route_template": "v{version:apiVersion}/architecture",

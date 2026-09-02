@@ -122,6 +122,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   SponsorReport: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
   /** Architecture draft inventory (`/architectures`). */
   architectures: ARCHITECTURE_DRAFTS_LIST_LABEL,
+  /** Unified packages list (`/architecture/reviews`) — reviews plus architecture drafts. */
+  packages: "Packages",
   reviewPackage: "Reviews",
   /** Evidence graph (`/insights/evidence-graph`). */
   evidenceGraph: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
@@ -129,6 +131,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   capture: CREATE_ARCHITECTURE_LABEL,
   /** First review guide (`/architecture/first-review-guide`). */
   onboarding: BUYER_ONBOARDING_PAGE_TITLE,
+  /** Consolidated first-run guide nav label. */
+  gettingStarted: "Getting started",
   findings: "Findings",
   assignedToMeFindings: "Assigned to me",
   riskExceptions: "Exceptions",
@@ -146,6 +150,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Standards & rules (`/governance/standards-and-rules`). */
   governanceResolution: "Standards & rules",
   governanceWorkflow: "Approval queue",
+  needsAttentionInbox: "Needs attention",
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
   governanceSetupGuide: "Approval setup",
   governanceEnvironments: "Approval environments",
@@ -175,6 +180,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   evolutionCandidates: "Impact preview",
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI summary",
+  /** Outcomes hub (`/insights/sponsor-report` tab strip). */
+  outcomesHub: "Outcomes",
   /** Connection status (`/administration/connection-status`) — connector health and integration readiness. */
   connectionStatus: "Connection status",
   jira: "Jira",
