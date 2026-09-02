@@ -202,7 +202,6 @@ export default function GovernanceFindingsQueueClient({
 
       if (chipId === "nl-facets") {
         setNlFacets(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
-        patchGovernanceFindingsQueueFacets({ nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS }, mode);
       }
     },
     [mode, navHref, router, searchParams, setJobView, setNlFacets, setRegisterFilter],
