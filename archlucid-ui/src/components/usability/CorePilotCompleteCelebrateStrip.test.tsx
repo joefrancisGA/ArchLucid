@@ -9,12 +9,11 @@ const mockDerivedState = vi.hoisted(() => ({
   },
 }));
 
-const mockCommitContextQuery = vi.hoisted(() => ({
+const mockCompareAvailability = vi.hoisted(() => ({
   current: {
-    isPending: false,
-    data: {
-      committedReviewCount: 1,
-    },
+    loading: false,
+    finalizedCount: 1,
+    insufficientForCompare: true,
   },
 }));
 
@@ -22,9 +21,12 @@ vi.mock("@/lib/use-core-pilot-derived-step-status", () => ({
   useCorePilotDerivedStepStatus: () => mockDerivedState.current,
 }));
 
-vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
-  useCorePilotCommitContextQuery: () => mockCommitContextQuery.current,
-}));
+vi.mock(
+  "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFinalizedRunAvailability",
+  () => ({
+    useCompareFinalizedRunAvailability: () => mockCompareAvailability.current,
+  }),
+);
 
 import { render, screen } from "@testing-library/react";
 
@@ -38,11 +40,10 @@ describe("CorePilotCompleteCelebrateStrip", () => {
       progress: { doneCount: 7, totalCount: 7, allDone: true },
       nextStepIndex: null,
     };
-    mockCommitContextQuery.current = {
-      isPending: false,
-      data: {
-        committedReviewCount: 1,
-      },
+    mockCompareAvailability.current = {
+      loading: false,
+      finalizedCount: 1,
+      insufficientForCompare: true,
     };
   });
 
@@ -59,7 +60,7 @@ describe("CorePilotCompleteCelebrateStrip", () => {
     expect(screen.queryByTestId("core-pilot-complete-celebrate-strip")).toBeNull();
   });
 
-  it("hides compare when fewer than two committed reviews exist", () => {
+  it("hides compare when fewer than two tenant finalized reviews exist", () => {
     render(<CorePilotCompleteCelebrateStrip />);
 
     expect(screen.getByTestId("core-pilot-complete-celebrate-strip")).toBeInTheDocument();
@@ -70,10 +71,11 @@ describe("CorePilotCompleteCelebrateStrip", () => {
     );
   });
 
-  it("keeps copy neutral while commit context is loading", () => {
-    mockCommitContextQuery.current = {
-      isPending: true,
-      data: undefined,
+  it("avoids compare-oriented copy while finalized review availability is loading", () => {
+    mockCompareAvailability.current = {
+      loading: true,
+      finalizedCount: 0,
+      insufficientForCompare: false,
     };
 
     render(<CorePilotCompleteCelebrateStrip />);
@@ -82,16 +84,18 @@ describe("CorePilotCompleteCelebrateStrip", () => {
     expect(screen.queryByTestId("core-pilot-complete-compare")).toBeNull();
     expect(screen.getByTestId("core-pilot-complete-sponsor-report")).toBeInTheDocument();
     expect(screen.getByTestId("core-pilot-complete-body")).toHaveTextContent(
-      "Explore analysis tools or share outcomes with your sponsor.",
+      "Share outcomes with your sponsor.",
+    );
+    expect(screen.getByTestId("core-pilot-complete-body")).not.toHaveTextContent(
+      "Explore analysis tools",
     );
   });
 
-  it("shows compare when at least two committed reviews exist", () => {
-    mockCommitContextQuery.current = {
-      isPending: false,
-      data: {
-        committedReviewCount: 2,
-      },
+  it("shows compare when at least two tenant finalized reviews exist", () => {
+    mockCompareAvailability.current = {
+      loading: false,
+      finalizedCount: 2,
+      insufficientForCompare: false,
     };
 
     render(<CorePilotCompleteCelebrateStrip />);
