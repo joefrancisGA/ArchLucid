@@ -137,7 +137,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
   },
   {
     "slug": "accelerator-chooser",
-    "title": "Starter proof packs",
+    "title": "Starter packs",
     "summary": "Map buyer jobs to existing accelerator packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.",
     "audience": "operator",
     "sourcePaths": [
