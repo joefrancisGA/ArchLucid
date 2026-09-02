@@ -1,6 +1,8 @@
 using ArchLucid.Application.Budgeting;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
@@ -162,6 +164,8 @@ public sealed class RunScopedLlmBudgetReservationServiceTests
             costEstimator.Object,
             budgetRepository ?? Mock.Of<ILlmTenantBudgetRepository>(),
             store ?? new InMemoryRunScopedLlmBudgetReservationStore(),
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IAuditService>(),
             TimeProvider.System,
             NullLogger<RunScopedLlmBudgetReservationService>.Instance);
     }

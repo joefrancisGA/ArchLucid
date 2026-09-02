@@ -39,6 +39,7 @@ using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Execute;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Application.Runs.TechnologyLedger;
@@ -84,6 +85,7 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitecturePostureService, ArchitecturePostureService>();
         services.AddSingleton<CoverageAssignmentValidator>();
         services.AddScoped<IArchitectureRunCommandService, ArchitectureRunCommandService>();
+        services.AddScoped<IExecuteEvidenceReadinessGate, ExecuteEvidenceReadinessGate>();
         services.AddScoped<Application.Runs.Query.IRunLifecycleCommandService, Application.Runs.Query.RunLifecycleCommandService>();
         services.AddScoped<Application.Runs.Query.IRunFindingsQueryService, Application.Runs.Query.RunFindingsQueryService>();
         services.AddScoped<ArchitectureRunCreateIdempotencyHelper>();
@@ -91,6 +93,11 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<ArchitectureRunCreatePostCreateHooks>();
         services.AddScoped<ArchitectureRunExecutePostExecuteHooks>();
         services.AddScoped<IIncompleteAuthorityPipelineExecuteHandler, IncompleteAuthorityPipelineExecuteHandler>();
+        services.AddScoped<IArchitectureRunExecutePreExecuteStage, ArchitectureRunExecutePreExecuteStage>();
+        services.AddScoped<IArchitectureRunExecutePersistenceStage, ArchitectureRunExecutePersistenceStage>();
+        services.AddScoped<IArchitectureRunExecuteQualityGateStage, ArchitectureRunExecuteQualityGateStage>();
+        services.AddScoped<IArchitectureRunExecuteAgentLoopStage, ArchitectureRunExecuteAgentLoopStage>();
+        services.AddScoped<IArchitectureRunExecuteFailureRecorder, ArchitectureRunExecuteFailureRecorder>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunBatchCreateOrchestrator, ArchitectureRunBatchCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
@@ -177,6 +184,7 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IGovernanceDigestDecisionNeededComposer, GovernanceDigestDecisionNeededComposer>();
         services.AddScoped<IPilotsApplicationService, PilotsApplicationService>();
         services.AddScoped<IComparisonsApplicationService, ComparisonsApplicationService>();
+        services.AddScoped<ICompareRunsApplicationFacade, CompareRunsApplicationFacade>();
         services.AddScoped<ITraceabilityBundleExportApplicationService, TraceabilityBundleExportApplicationService>();
         services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();
         services.AddScoped<IDemoReadModelClient, DemoReadModelClient>();

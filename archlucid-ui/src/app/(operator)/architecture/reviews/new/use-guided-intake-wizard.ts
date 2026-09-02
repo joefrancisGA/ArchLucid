@@ -93,6 +93,7 @@ export function useGuidedIntakeWizard() {
     businessOutcome: form.businessOutcome,
     structuredBrief: workflow.structuredBrief,
     actorSet: form.actorSet,
+    evidenceFiles: form.evidenceFiles,
     answers: workflow.answers,
     onAnswersChange: workflow.setAnswers,
     blocksLlmRephrase: blocksLlmExecution,
@@ -110,6 +111,7 @@ export function useGuidedIntakeWizard() {
     setActorSet: form.setActorSet,
     setScopeBullets: form.setScopeBullets,
     setScopeGateOpen: form.setScopeGateOpen,
+    setPriorAttachedFileNames: form.setPriorAttachedFileNames,
     enabled: priorRunId !== null && sourceArchitectureId.length === 0,
   });
 

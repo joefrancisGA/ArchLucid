@@ -15,6 +15,7 @@ type UseGuidedIntakeClarificationInferenceInput = {
   readonly businessOutcome: string;
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
   readonly actorSet: ActorSet;
+  readonly evidenceFiles: readonly File[];
   readonly answers: Readonly<Record<string, string>>;
   readonly onAnswersChange: (answers: Readonly<Record<string, string>>) => void;
   readonly blocksLlmRephrase: boolean;
@@ -43,7 +44,7 @@ export function useGuidedIntakeClarificationInference(input: UseGuidedIntakeClar
 
   return useInferredUniversalIntakeAnswers({
     briefText: clarificationInferenceCorpus,
-    evidenceFiles: [],
+    evidenceFiles: [...input.evidenceFiles],
     answers: input.answers,
     onAnswersChange: input.onAnswersChange,
     blocksLlmRephrase: input.blocksLlmRephrase,

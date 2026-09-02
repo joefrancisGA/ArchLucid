@@ -45,4 +45,29 @@ public sealed class AgentResultClaimListJsonConverterEvidenceRefsTests
         result!.Claims.Should().ContainSingle(c => c.Contains("Subnet missing", StringComparison.Ordinal));
         result.EvidenceRefs.Should().Contain("pol-123");
     }
+
+    [Fact]
+    public void Deserialize_merges_object_shaped_claim_evidence_refs_into_result_evidence_refs()
+    {
+        const string json = """
+                              {
+                                "resultId": "r1",
+                                "taskId": "t1",
+                                "runId": "run1",
+                                "agentType": "Topology",
+                                "claims": [
+                                  { "detail": "Subnet missing", "evidenceRefs": [{ "id": "pol-123" }] }
+                                ],
+                                "evidenceRefs": [],
+                                "confidence": 0.5,
+                                "createdUtc": "2026-01-01T00:00:00Z"
+                              }
+                              """;
+
+        AgentResult? result = JsonSerializer.Deserialize<AgentResult>(json, Options);
+
+        result.Should().NotBeNull();
+        result!.Claims.Should().ContainSingle(c => c.Contains("Subnet missing", StringComparison.Ordinal));
+        result.EvidenceRefs.Should().Contain("pol-123");
+    }
 }
