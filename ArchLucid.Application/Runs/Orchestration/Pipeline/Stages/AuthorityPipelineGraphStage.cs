@@ -53,7 +53,8 @@ public sealed class AuthorityPipelineGraphStage(
             _graphSnapshotRepository,
             cancellationToken,
             context.ContextSnapshot,
-            await TryLoadKnowledgeModelAsync(context.Scope, run.RunId, cancellationToken));
+            await TryLoadKnowledgeModelAsync(context.Scope, run.RunId, cancellationToken),
+            run.ArchitectureVersionId);
 
         if (committedReuse is not null)
         {

@@ -15,7 +15,7 @@ public sealed class PluginSampleFindingEngineTests
         PluginSampleFindingEngine sut = new();
         GraphSnapshot graph = new() { GraphSnapshotId = Guid.NewGuid() };
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Assert.Single(findings);
         Assert.Equal("plugin-sample", sut.EngineType);

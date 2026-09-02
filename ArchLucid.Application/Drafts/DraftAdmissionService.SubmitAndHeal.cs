@@ -21,7 +21,11 @@ public sealed partial class DraftAdmissionService
             return null;
 
         if (DraftRequestStateMachine.AllowsSubmitReplay(existing.Status))
+        {
+            EnsureSpawnedDocumentHashMatches(draftId, existing);
+
             return await ReplaySpawnedSubmitAsync(scope, draftId, existing, cancellationToken);
+        }
 
         if (existing.Status == DraftRequestStatus.Submitted)
             return await HealOrRejectSubmittedSubmitAsync(scope, draftId, existing, cancellationToken);
@@ -63,6 +67,8 @@ public sealed partial class DraftAdmissionService
             spawnedRunId,
             cancellationToken);
 
+        byte[] spawnedDocumentContentHashSha256 = DraftDocumentContentFingerprint.Compute(existing.Document);
+
         DraftRequestResponse? spawned = await _draftRepository.UpdateAsync(
             scope.TenantId,
             scope.WorkspaceId,
@@ -73,7 +79,8 @@ public sealed partial class DraftAdmissionService
             existing.RedirectReason,
             spawnedRunId,
             cancellationToken,
-            spawnedArchitectureVersionId);
+            spawnedArchitectureVersionId,
+            spawnedDocumentContentHashSha256);
 
         string? parentSpawnedRunId = await ResolveParentSpawnedRunIdAsync(
             scope,
@@ -202,5 +209,19 @@ public sealed partial class DraftAdmissionService
             await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
 
         return header?.ArchitectureVersionId;
+    }
+
+    private static void EnsureSpawnedDocumentHashMatches(Guid draftId, DraftRequestResponse existing)
+    {
+        if (existing.SpawnedDocumentContentHashSha256 is null)
+            return;
+
+        byte[] currentHash = DraftDocumentContentFingerprint.Compute(existing.Document);
+
+        if (DraftDocumentContentFingerprint.SequenceEqual(currentHash, existing.SpawnedDocumentContentHashSha256))
+            return;
+
+        throw new ConflictException(
+            $"Draft '{draftId}' document changed after spawn; resubmit requires a new draft revision.");
     }
 }

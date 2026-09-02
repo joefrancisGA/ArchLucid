@@ -93,6 +93,8 @@ public sealed partial class DapperDraftRequestRepository
             RedirectReason = row.RedirectReason,
             SpawnedRunId = row.SpawnedRunId,
             SpawnedArchitectureVersionId = row.SpawnedArchitectureVersionId,
+            DocumentContentHashSha256 = row.DocumentContentHashSha256,
+            SpawnedDocumentContentHashSha256 = row.SpawnedDocumentContentHashSha256,
             CreatedByUserId = row.CreatedByUserId,
             // SQL datetime2 has no Kind; leave Unspecified and System.Text.Json omits Z, so browsers
             // treat UTC wall-clock as local and relative labels jump into the future by the offset.
@@ -170,6 +172,18 @@ public sealed partial class DapperDraftRequestRepository
         }
 
         public Guid? SpawnedArchitectureVersionId
+        {
+            get;
+            set;
+        }
+
+        public byte[]? DocumentContentHashSha256
+        {
+            get;
+            set;
+        }
+
+        public byte[]? SpawnedDocumentContentHashSha256
         {
             get;
             set;

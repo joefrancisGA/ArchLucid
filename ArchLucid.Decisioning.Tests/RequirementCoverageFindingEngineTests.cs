@@ -32,7 +32,7 @@ public sealed class RequirementCoverageFindingEngineTests
 
         RequirementCoverageFindingEngine sut = new(_analyzer.Object);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -51,7 +51,7 @@ public sealed class RequirementCoverageFindingEngineTests
 
         RequirementCoverageFindingEngine sut = new(_analyzer.Object);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("RequirementCoverageFinding");

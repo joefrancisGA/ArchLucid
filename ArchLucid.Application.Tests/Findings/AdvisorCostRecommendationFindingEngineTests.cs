@@ -48,7 +48,7 @@ public sealed class AdvisorCostRecommendationFindingEngineTests
 
         AdvisorCostRecommendationFindingEngine sut = CreateSut(CreatePackage(advisorCostJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("AdvisorCostRecommendation");
@@ -62,7 +62,7 @@ public sealed class AdvisorCostRecommendationFindingEngineTests
     {
         AdvisorCostRecommendationFindingEngine sut = CreateSut(CreatePackageWithoutAdvisorCost());
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }

@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 > **Scope:** Contributor-reference — manifest hash field inclusion matrix for commit-time content commitments (wave-2 suggestion 18).
 
-=======
->>>>>>> origin/master
 # Manifest hash field inclusion (wave-2 suggestion 18)
 
 `ManifestHashService.HasherSchemaVersion` is **`v1`**. The hash is a **content commitment** for structural manifest sections and committed governance — not the full findings envelope.

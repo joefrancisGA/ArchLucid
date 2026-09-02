@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -38,7 +39,8 @@ public sealed class GraphAwsInventoryReconciliationFindingEngine(
 
     public string Category => "Correctness";
 
-    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
