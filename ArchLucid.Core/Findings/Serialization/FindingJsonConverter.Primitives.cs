@@ -37,7 +37,15 @@ public sealed partial class FindingJsonConverter
             return null;
 
         if (el.ValueKind == JsonValueKind.String)
-            return el.GetString();
+        {
+            string? raw = el.GetString();
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryCoerceStringTokenToRawText(raw, out string? coerced))
+                return coerced;
+
+            return raw;
+        }
 
         if (el.ValueKind == JsonValueKind.Number && el.TryGetInt64(out long numeric))
             return numeric.ToString(CultureInfo.InvariantCulture);
@@ -115,7 +123,15 @@ public sealed partial class FindingJsonConverter
     private static string ReadStringDictValue(JsonElement element)
     {
         if (element.ValueKind == JsonValueKind.String)
-            return element.GetString() ?? "";
+        {
+            string? raw = element.GetString() ?? "";
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryCoerceStringTokenToRawText(raw, out string? coerced))
+                return coerced ?? "";
+
+            return raw;
+        }
 
         if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numeric))
             return numeric.ToString(CultureInfo.InvariantCulture);
@@ -173,11 +189,29 @@ public sealed partial class FindingJsonConverter
             return true;
         }
 
-        if (element.ValueKind == JsonValueKind.String
-            && double.TryParse(element.GetString(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
-            && double.IsFinite(parsed))
+        if (element.ValueKind == JsonValueKind.String)
         {
-            value = parsed;
+            string? raw = element.GetString();
+
+            if (TryParseBooleanString(raw, out bool boolean))
+            {
+                value = boolean ? 1.0 : 0.0;
+
+                return true;
+            }
+
+            if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
+                && double.IsFinite(parsed))
+            {
+                value = parsed;
+
+                return true;
+            }
+        }
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.ValueKind == JsonValueKind.True ? 1.0 : 0.0;
 
             return true;
         }
@@ -192,9 +226,27 @@ public sealed partial class FindingJsonConverter
         if (TryReadWholeNumberInt32(element, out value))
             return true;
 
-        if (element.ValueKind == JsonValueKind.String
-            && TryParseWholeNumberString(element.GetString(), out value))
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            string? raw = element.GetString();
+
+            if (TryParseBooleanString(raw, out bool boolean))
+            {
+                value = boolean ? 1 : 0;
+
+                return true;
+            }
+
+            if (TryParseWholeNumberString(raw, out value))
+                return true;
+        }
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.ValueKind == JsonValueKind.True ? 1 : 0;
+
             return true;
+        }
 
         value = default;
 
@@ -232,14 +284,122 @@ public sealed partial class FindingJsonConverter
         return false;
     }
 
+    private static bool TryCoerceStringTokenToRawText(string raw, out string? value)
+    {
+        if (TryParseBooleanString(raw, out bool boolean))
+        {
+            value = boolean ? "true" : "false";
+
+            return true;
+        }
+
+        if (TryParseWholeNumberLongString(raw, out long numericFromString))
+        {
+            value = numericFromString.ToString(CultureInfo.InvariantCulture);
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberLongString(string? raw, out long value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (long.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (long)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
     private static bool TryReadDecimal(JsonElement element, out decimal value)
     {
         if (element.ValueKind == JsonValueKind.Number && element.TryGetDecimal(out value))
             return true;
 
-        if (element.ValueKind == JsonValueKind.String
-            && decimal.TryParse(element.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out value))
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            string? raw = element.GetString();
+
+            if (TryParseBooleanString(raw, out bool boolean))
+            {
+                value = boolean ? 1m : 0m;
+
+                return true;
+            }
+
+            if (decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out value))
+                return true;
+        }
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.ValueKind == JsonValueKind.True ? 1m : 0m;
+
             return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("enabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("disabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
+
+            return true;
+        }
 
         value = default;
 

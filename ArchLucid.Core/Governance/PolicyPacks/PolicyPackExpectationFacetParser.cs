@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 
@@ -105,16 +107,25 @@ public static class PolicyPackExpectationFacetParser
 
     if (normalized.Equals("true", StringComparison.OrdinalIgnoreCase)
         || normalized.Equals("1", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("yes", StringComparison.OrdinalIgnoreCase))
+        || normalized.Equals("yes", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("on", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("enabled", StringComparison.OrdinalIgnoreCase))
     {
       return true;
     }
 
     if (normalized.Equals("false", StringComparison.OrdinalIgnoreCase)
         || normalized.Equals("0", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("no", StringComparison.OrdinalIgnoreCase))
+        || normalized.Equals("no", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("off", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("disabled", StringComparison.OrdinalIgnoreCase))
     {
       return false;
+    }
+
+    if (TryParseWholeNumberString(normalized, out int wholeNumber))
+    {
+      return wholeNumber != 0;
     }
 
     return null;
@@ -128,10 +139,101 @@ public static class PolicyPackExpectationFacetParser
       return null;
     }
 
-    return Enum.TryParse<FindingSeverity>(raw.Trim(), ignoreCase: true, out FindingSeverity parsed)
-        && Enum.IsDefined(parsed)
-        ? raw.Trim()
-        : null;
+    string trimmed = raw.Trim();
+
+    if (Enum.TryParse<FindingSeverity>(trimmed, ignoreCase: true, out FindingSeverity parsed)
+        && Enum.IsDefined(parsed))
+    {
+      return parsed.ToString();
+    }
+
+    if (TryParseWholeNumberString(trimmed, out int ordinal)
+        && Enum.IsDefined(typeof(FindingSeverity), ordinal))
+    {
+      return ((FindingSeverity)ordinal).ToString();
+    }
+
+    if (TryParseBooleanOrdinalString(trimmed, out int booleanOrdinal)
+        && Enum.IsDefined(typeof(FindingSeverity), booleanOrdinal))
+    {
+      return ((FindingSeverity)booleanOrdinal).ToString();
+    }
+
+    return null;
+  }
+
+  private static bool TryParseBooleanOrdinalString(string raw, out int ordinal)
+  {
+    if (TryParseBooleanString(raw, out bool boolean))
+    {
+      ordinal = boolean ? 1 : 0;
+
+      return true;
+    }
+
+    ordinal = default;
+
+    return false;
+  }
+
+  private static bool TryParseBooleanString(string? raw, out bool value)
+  {
+    if (string.IsNullOrWhiteSpace(raw))
+    {
+      value = default;
+
+      return false;
+    }
+
+    string normalized = raw.Trim();
+
+    if (normalized.Equals("true", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("1", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("yes", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("on", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("enabled", StringComparison.OrdinalIgnoreCase))
+    {
+      value = true;
+
+      return true;
+    }
+
+    if (normalized.Equals("false", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("0", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("no", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("off", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("disabled", StringComparison.OrdinalIgnoreCase))
+    {
+      value = false;
+
+      return true;
+    }
+
+    value = default;
+
+    return false;
+  }
+
+  private static bool TryParseWholeNumberString(string raw, out int value)
+  {
+    if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+    {
+      return true;
+    }
+
+    if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+        && double.IsFinite(numeric)
+        && numeric >= 0
+        && numeric == Math.Floor(numeric))
+    {
+      value = (int)numeric;
+
+      return true;
+    }
+
+    value = default;
+
+    return false;
   }
 
   private static IEnumerable<string> SplitDistinct(string raw) =>
