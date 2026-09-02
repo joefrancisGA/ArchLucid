@@ -65,13 +65,13 @@ public static class AwsEc2OfferIndexParser
 
                 foreach (JsonProperty dimension in dimensions.EnumerateObject())
                 {
-                    if (!dimension.Value.TryGetProperty("unit", out JsonElement unitElement))
+                    if (!TryGetPropertyCaseInsensitive(dimension.Value, "unit", out JsonElement unitElement))
                         continue;
 
                     if (!TryReadHourlyUnit(unitElement))
                         continue;
 
-                    if (!dimension.Value.TryGetProperty("pricePerUnit", out JsonElement pricePerUnit))
+                    if (!TryGetPropertyCaseInsensitive(dimension.Value, "pricePerUnit", out JsonElement pricePerUnit))
                         continue;
 
                     if (!TryGetPropertyCaseInsensitive(pricePerUnit, "USD", out JsonElement usdElement))

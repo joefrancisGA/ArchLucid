@@ -175,10 +175,10 @@ public sealed class GcpCloudBillingCatalogClient
     {
         hourlyUsd = 0m;
 
-        if (!pricingInfo.TryGetProperty("pricingExpression", out JsonElement expression))
+        if (!TryGetPropertyCaseInsensitive(pricingInfo, "pricingExpression", out JsonElement expression))
             return false;
 
-        if (!expression.TryGetProperty("tieredRates", out JsonElement tieredRates)
+        if (!TryGetPropertyCaseInsensitive(expression, "tieredRates", out JsonElement tieredRates)
             || tieredRates.GetArrayLength() == 0)
         {
             return false;
@@ -186,13 +186,13 @@ public sealed class GcpCloudBillingCatalogClient
 
         JsonElement firstTier = tieredRates[0];
 
-        if (!firstTier.TryGetProperty("unitPrice", out JsonElement unitPrice))
+        if (!TryGetPropertyCaseInsensitive(firstTier, "unitPrice", out JsonElement unitPrice))
             return false;
 
-        if (!unitPrice.TryGetProperty("units", out JsonElement unitsElement))
+        if (!TryGetPropertyCaseInsensitive(unitPrice, "units", out JsonElement unitsElement))
             return false;
 
-        if (!unitPrice.TryGetProperty("nanos", out JsonElement nanosElement))
+        if (!TryGetPropertyCaseInsensitive(unitPrice, "nanos", out JsonElement nanosElement))
             return false;
 
         if (!TryReadInt64Token(unitsElement, out long units))
