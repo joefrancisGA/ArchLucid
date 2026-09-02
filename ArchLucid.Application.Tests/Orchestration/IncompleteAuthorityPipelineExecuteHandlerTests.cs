@@ -95,8 +95,9 @@ public sealed class IncompleteAuthorityPipelineExecuteHandlerTests
             .Setup(r => r.GetByIdAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(header);
         runRepo
-            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
-            .Callback<RunRecord, CancellationToken>((row, _) => updates.Add(CloneStatus(row)))
+            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Callback<RunRecord, CancellationToken, System.Data.IDbConnection?, System.Data.IDbTransaction?>(
+                (row, _, _, _) => updates.Add(CloneStatus(row)))
             .Returns(Task.CompletedTask);
 
         Mock<IArchitectureRequestRepository> requestRepo = new();
@@ -181,8 +182,9 @@ public sealed class IncompleteAuthorityPipelineExecuteHandlerTests
             .Setup(r => r.GetByIdAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(header);
         runRepo
-            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
-            .Callback<RunRecord, CancellationToken>((row, _) => updates.Add(CloneStatus(row)))
+            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Callback<RunRecord, CancellationToken, System.Data.IDbConnection?, System.Data.IDbTransaction?>(
+                (row, _, _, _) => updates.Add(CloneStatus(row)))
             .Returns(Task.CompletedTask);
 
         Mock<IArchitectureRequestRepository> requestRepo = new();
