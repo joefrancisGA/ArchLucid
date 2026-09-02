@@ -79,6 +79,21 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_string_encoded_whole_number_severity_ordinals_map_alert_labels()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "severities": ["2.0", "3.0"]
+              }
+            }
+            """);
+
+        parsed.Severities.Should().Equal("High", "Critical");
+    }
+
+    [Fact]
     public void AlertRoutingMatcher_string_encoded_severity_metadata_filters_non_matching_signals()
     {
         AlertRoutingSubscription subscription = new()

@@ -137,6 +137,14 @@ public static class AlertRoutingCriteriaMetadata
                 return MapFindingSeverityOrdinalToAlertLabel(numericFromString);
             }
 
+            if (!string.IsNullOrWhiteSpace(raw)
+                && double.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double numericFromDecimalString)
+                && double.IsFinite(numericFromDecimalString)
+                && numericFromDecimalString == Math.Floor(numericFromDecimalString))
+            {
+                return MapFindingSeverityOrdinalToAlertLabel((int)numericFromDecimalString);
+            }
+
             return raw;
         }
 
