@@ -1625,11 +1625,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` substring-matched port `22` inside `2200`, emitting false admin-ingress findings
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` matched `disable public` inside optional-requirement phrasing (`no requirement to disable public network access`), emitting false premise-conflict signals
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1644,9 +1644,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `NewComplianceGapCount` alert counted security improvements as compliance gaps — **hit 2026-08-25:** `AlertEvaluator` and `AlertMetricSnapshotBuilder` used `SecurityChanges.Count` instead of `SecurityDeltaRegressionClassifier`; fixing controls raised false compliance alerts; regression in `Evaluate_NewComplianceGapCount_SecurityImprovements_NotCounted` and `Build_SecurityImprovements_NotCountedAsComplianceGaps`
 - [x] (proven) `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` substring-matched port tokens — **hit 2026-08-26:** `Contains("22")` flagged `0.0.0.0/0:2200` as SSH admin ingress; fixed with digit-bounded port matching; regression in `Classify_does_not_flag_port_2200_as_admin_ingress`
 - [x] (proven) `DeclarationSecurityBaselineClassifier` / `DeclarationPremiseConflictClassifier.TryGetDeclarationProperty` with ARM-canonical `tf.*` keys from ingestion (`tf.publicnetworkaccess`, `tf.httpsonly`) — fixed 2026-08-26 via `DeclarationSecurityPropertyKeyResolver` and ARM alias dual-write in declaration parsers (`DeclarationSecurityPropertyKeyResolverTests`, `ArmJsonInfrastructureDeclarationParserTests.ParseAsync_PublicNetworkAccess_DualWritesTfAndArmAlias`).
-- [ ] (hunt-ready) `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` with negated intent phrases (`"do not disable public"`) — substring phrase list matches inside negated requirements and emits false premise-conflict signals.
-- [ ] (hunt-ready) `DeclarationPremiseConflictFindingEngine.ResolveApplicableIntentNodes` with PROTECTS/APPLIES_TO edge weight just below `GraphEdgeDecisioningThresholds.MinWeightForSemanticLink` — sub-threshold edges are dropped, graph-wide intent fallback downgrades severity from Error to Warning.
-- [ ] (hunt-ready) `PortfolioRecurrenceFindingEngine.ResolveCurrentScopeIdentities` when the current system's persisted findings snapshot is empty on first pass — recurrence scan only reads persisted snapshots, missing cross-system identities during in-flight generation.
+- [x] (proven) `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` with negated intent phrases (`"do not disable public"`) — **hit 2026-09-02:** optional-requirement phrasing (`no requirement to disable public network access`) still matched `disable public`; extended negation suffix list; regression in `Classify_does_not_fire_private_network_conflict_for_optional_disable_public_phrase`.
+- [x] (valid-no-repro) `DeclarationPremiseConflictFindingEngine.ResolveApplicableIntentNodes` with PROTECTS/APPLIES_TO edge weight just below `GraphEdgeDecisioningThresholds.MinWeightForSemanticLink` — sub-threshold fallback at `minWeightInclusive: 0` keeps narrow applicability; `AnalyzeAsync_emits_error_when_protects_edge_weight_is_just_below_semantic_link_threshold` confirms Error severity.
+- [x] (valid-no-repro) `PortfolioRecurrenceFindingEngine.ResolveCurrentScopeIdentities` when the current system's persisted findings snapshot is empty on first pass — `IPortfolioRecurrenceCurrentReviewIdentitySource` plus `AddInFlightIdentitiesForSystem` merge in-flight identities; `AnalyzeAsync_when_current_snapshot_missing_uses_in_flight_identities` confirms recurrence emission.
 
 ---
 
