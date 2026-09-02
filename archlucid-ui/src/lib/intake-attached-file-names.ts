@@ -100,6 +100,7 @@ export function appendIntakeAttachedFileNames(
   return trimmedBase.length === 0
     ? `Attached files:\n${fileLines}`
     : `${trimmedBase}\n\nAttached files:\n${fileLines}`;
+}
 
 function sliceAttachedFilesSection(text: string): string | null {
   for (const marker of ATTACHED_FILES_MARKERS) {
