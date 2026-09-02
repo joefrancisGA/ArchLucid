@@ -75,7 +75,9 @@ public sealed class FindingAnalysisContextBuilder(
             await ResolvePinnedPolicyPacksAsync(scope, header, cancellationToken).ConfigureAwait(false);
 
         IReadOnlyList<EvidencePackagePin> evidencePins = _runEvidencePackagePinService.ResolvePinsFromHeader(header);
-        EvidencePackagePin? primaryEvidencePin = evidencePins.FirstOrDefault();
+        EvidencePackagePin? primaryEvidencePin = evidencePins
+            .FirstOrDefault(pin => string.Equals(pin.Provider, RunEvidencePackagePinService.AzureProvider, StringComparison.OrdinalIgnoreCase))
+            ?? evidencePins.FirstOrDefault();
 
         return new FindingAnalysisContext
         {
