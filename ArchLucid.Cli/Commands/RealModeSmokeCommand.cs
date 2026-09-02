@@ -33,15 +33,12 @@ internal static class RealModeSmokeCommand
             ? CliCommandShared.GetBaseUrl(config)
             : options.ApiBaseUrl!.Trim().TrimEnd('/');
 
-        using HttpClient http = new();
-        http.BaseAddress = new Uri(baseUrl + "/");
-        http.DefaultRequestHeaders.Add("Accept", "application/json");
-        http.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds + 60);
-
-        string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
-
-        if (!string.IsNullOrWhiteSpace(apiKey))
-            http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+        using CliHttpProbeSession session = CliHttpProbeSession.ForApi(
+            baseUrl,
+            config,
+            TimeSpan.FromSeconds(options.TimeoutSeconds + 60));
+        session.SetAcceptJson();
+        HttpClient http = session.DetachClient();
 
         RealModeSmokeRunner runner = new(http);
         RealModeSmokeReport report = await runner.RunAsync(options);
