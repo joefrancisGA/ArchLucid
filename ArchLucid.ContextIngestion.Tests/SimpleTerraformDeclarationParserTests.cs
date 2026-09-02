@@ -281,6 +281,31 @@ public sealed class SimpleTerraformDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_NestedSiteConfigWithClosingBraceInQuotedString_StillParsesTrailingScalars()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        site_config {
+                          note = "has } char"
+                          public_network_access = "Disabled"
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.note"].Should().Be("has } char");
+        result[0].Properties["tf.public_network_access"].Should().Be("disabled");
+        result[0].Properties.Should().NotContainKey("tf.site_config");
+    }
+
+    [Fact]
     public async Task ParseAsync_NestedSiteConfigIpSecurityRestrictionsArray_ExpandsNetworkBaseline()
     {
         InfrastructureDeclarationReference declaration = new()

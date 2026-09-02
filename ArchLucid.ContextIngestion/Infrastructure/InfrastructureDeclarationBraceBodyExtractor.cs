@@ -16,10 +16,21 @@ internal static class InfrastructureDeclarationBraceBodyExtractor
             return string.Empty;
 
         int depth = 0;
+        bool inDoubleQuotes = false;
+        bool inSingleQuotes = false;
 
         for (int index = openBraceIndex; index < content.Length; index++)
         {
             char character = content[index];
+
+            if (character == '"' && !inSingleQuotes)
+                inDoubleQuotes = !inDoubleQuotes;
+
+            if (character == '\'' && !inDoubleQuotes)
+                inSingleQuotes = !inSingleQuotes;
+
+            if (inDoubleQuotes || inSingleQuotes)
+                continue;
 
             if (character == '{')
             {

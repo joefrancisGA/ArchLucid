@@ -2354,11 +2354,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 61
-- **bugs-found:** 122
+- **hunts:** 62
+- **bugs-found:** 123
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — multiline HCL/Bicep array headers leaked inner scalars
+- **last-bug:** 2026-09-02 — brace-in-string truncated nested site_config blocks
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2501,6 +2501,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SimpleTerraformResourceBlockParser` / `BicepResourceBodyParser` — multiline `key =` / `key:` array headers not recognized — **hit 2026-09-02 (#527):** `ip_security_restrictions =` newline `[` leaked inner scalars (`tf.name`, `tf.ip_address`) instead of `tf.ip_security_restrictions` JSON array; fixed by probing the next non-empty line for `[` after a header-only assignment (`ParseAsync_MultilineIpSecurityRestrictionsArray_PreservesRulesForNetworkExpander` in simple-terraform and Bicep tests).
 
 2026-09-02 seed hunt #527: reseeded from context-ingestion parsers; proved multiline array header gap beyond same-line HCL/Bicep array fixes (#430/#524).
+
+- [x] (proven) `InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody` — `}` inside quoted strings prematurely closed nested blocks — **hit 2026-09-02 (#530):** `site_config { note = "has } char" public_network_access = "Disabled" }` dropped `tf.public_network_access` because brace depth ignored quotes while bracket extraction already tracked them; fixed with quote-aware brace scanning (`ParseAsync_NestedSiteConfigWithClosingBraceInQuotedString_StillParsesTrailingScalars` in simple-terraform and Bicep tests).
+
+2026-09-02 seed hunt #530: reseeded from context-ingestion brace extractor; proved quote-unaware brace depth gap beyond #527 multiline array header fix.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
