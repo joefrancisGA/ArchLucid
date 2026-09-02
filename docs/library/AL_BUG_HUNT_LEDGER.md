@@ -2346,11 +2346,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 60
-- **bugs-found:** 121
+- **hunts:** 61
+- **bugs-found:** 122
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — simple-terraform nested site_config dropped ip_security_restrictions arrays
+- **last-bug:** 2026-09-02 — multiline HCL/Bicep array headers leaked inner scalars
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2489,6 +2489,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SimpleTerraformResourceBlockParser` nested `site_config` blocks stored raw body and dropped inner `ip_security_restrictions` arrays — **hit 2026-09-02 (#524):** HCL `site_config { ip_security_restrictions = [ ... ] }` emitted only `tf.site_config` text and leaked inner scalars, so App Service network-rule expander never ran; fixed by flattening `site_config`/`properties` with balanced-brace extraction (Bicep parity) (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedSiteConfigIpSecurityRestrictionsArray_PreservesRulesForNetworkExpander`, `ParseAsync_NestedSiteConfigIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
 
 2026-09-02 seed hunt #524: reseeded from context-ingestion parsers; proved nested simple-terraform site_config array flatten gap beyond top-level HCL array fix (#430).
+
+- [x] (proven) `SimpleTerraformResourceBlockParser` / `BicepResourceBodyParser` — multiline `key =` / `key:` array headers not recognized — **hit 2026-09-02 (#527):** `ip_security_restrictions =` newline `[` leaked inner scalars (`tf.name`, `tf.ip_address`) instead of `tf.ip_security_restrictions` JSON array; fixed by probing the next non-empty line for `[` after a header-only assignment (`ParseAsync_MultilineIpSecurityRestrictionsArray_PreservesRulesForNetworkExpander` in simple-terraform and Bicep tests).
+
+2026-09-02 seed hunt #527: reseeded from context-ingestion parsers; proved multiline array header gap beyond same-line HCL/Bicep array fixes (#430/#524).
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).

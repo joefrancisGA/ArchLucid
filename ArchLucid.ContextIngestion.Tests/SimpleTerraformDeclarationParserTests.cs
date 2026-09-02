@@ -405,6 +405,35 @@ public sealed class SimpleTerraformDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_MultilineIpSecurityRestrictionsArray_PreservesRulesForNetworkExpander()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        ip_security_restrictions =
+                        [
+                          {
+                            name       = "AllowAll"
+                            ip_address = "0.0.0.0/0"
+                            action     = "Allow"
+                          }
+                        ]
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ip_security_restrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+        result[0].Properties.Should().NotContainKey("tf.ip_address");
+    }
+
+    [Fact]
     public async Task ParseAsync_IpSecurityRestrictionsArray_ExpandsNetworkBaseline()
     {
         InfrastructureDeclarationReference declaration = new()
