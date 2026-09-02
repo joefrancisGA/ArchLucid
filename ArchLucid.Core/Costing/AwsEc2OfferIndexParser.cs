@@ -200,12 +200,37 @@ public static class AwsEc2OfferIndexParser
         if (!TryGetPropertyCaseInsensitive(attributes, name, out JsonElement element))
             return false;
 
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            value = TryReadWholeNumberLongToken(element) ?? element.GetRawText().Trim();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
         if (element.ValueKind is not JsonValueKind.String)
             return false;
 
         value = element.GetString()?.Trim();
 
         return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static string? TryReadWholeNumberLongToken(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long whole))
+            return whole.ToString(CultureInfo.InvariantCulture);
+
+        if (element.ValueKind == JsonValueKind.Number
+            && element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= long.MinValue
+            && numeric <= long.MaxValue
+            && numeric == Math.Floor(numeric))
+        {
+            return ((long)numeric).ToString(CultureInfo.InvariantCulture);
+        }
+
+        return null;
     }
 
     private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)

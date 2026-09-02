@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 109
-- **bugs-found:** 221
+- **hunts:** 110
+- **bugs-found:** 222
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Marketplace planId slash/colon enterprise token not recognized
+- **last-bug:** 2026-09-02 — AWS offer-index numeric instanceType attribute ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2157,6 +2157,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — slash/colon-delimited `enterprise` token not recognized — **hit 2026-09-02 (#526):** `contoso/enterprise/monthly` and `contoso:enterprise:annual` returned `Standard` because `IsPlanIdDelimiter` omitted `/` and `:` after #521 delimiter-token fix; fixed by extending delimiters (`TierStorageCodeFromPlanId_maps_slash_or_colon_delimited_enterprise_token`).
 
 2026-09-02 seed hunt #526: reseeded from ArchLucid.Core marketplace webhook parser; proved slash/colon planId enterprise token gap beyond #521 delimiter fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadAttribute` — numeric product attribute JSON tokens ignored — **hit 2026-09-02 (#528):** `"instanceType":12345` returned null for lookup `"12345"` while string attributes already parsed after #491 trim fix; fixed with whole-number coercion (`TryGetLinuxOnDemandHourlyUsd_parses_numeric_instance_type_attribute`).
+
+2026-09-02 seed hunt #528: reseeded from ArchLucid.Core AWS offer-index parser; proved numeric attribute token coercion gap beyond #491 whitespace trim fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

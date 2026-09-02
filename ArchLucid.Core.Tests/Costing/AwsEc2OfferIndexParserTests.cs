@@ -709,4 +709,41 @@ public sealed class AwsEc2OfferIndexParserTests
 
         hourly.Should().Be(0.0104m);
     }
+
+    [Fact]
+    public void TryGetLinuxOnDemandHourlyUsd_parses_numeric_instance_type_attribute()
+    {
+        const string sample = """
+            {
+              "products": {
+                "ABC": {
+                  "attributes": {
+                    "instanceType": 12345,
+                    "operatingSystem": "Linux",
+                    "tenancy": "Shared",
+                    "preInstalledSw": "NA"
+                  }
+                }
+              },
+              "terms": {
+                "OnDemand": {
+                  "ABC": {
+                    "ABCTERM": {
+                      "priceDimensions": {
+                        "ABCDIM": {
+                          "unit": "Hrs",
+                          "pricePerUnit": { "USD": "0.0104" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """;
+
+        decimal? hourly = AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd(sample, "12345");
+
+        hourly.Should().Be(0.0104m);
+    }
 }
