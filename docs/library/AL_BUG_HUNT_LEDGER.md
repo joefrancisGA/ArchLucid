@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 80
-- **bugs-found:** 192
+- **hunts:** 81
+- **bugs-found:** 193
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AwsEc2/GCP hourly unit boolean tokens ignored
+- **last-bug:** 2026-09-02 — AwsEc2/GCP case-sensitive price unit property names
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2029,6 +2029,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AwsEc2OfferIndexParser.TryReadHourlyUnit` / `GcpCloudBillingCatalogClient.IsHourlyUsageUnit` — boolean / string-encoded boolean hourly `unit` / `usageUnit` tokens rejected — **hit 2026-09-02 (#492):** `"unit":true` / `"usageUnit":true` and `"on"` synonyms skipped hourly SKUs while `"Hrs"` / `"h"` strings matched; fixed with boolean coercion and `TryParseBooleanString` fallback (`TryGetLinuxOnDemandHourlyUsd_parses_boolean_hourly_unit_token`, `TryGetLinuxOnDemandHourlyUsd_parses_string_encoded_on_synonym_hourly_unit`, `TryGetComputeEngineMonthlyUsdAsync_parses_boolean_hourly_usage_unit_token`, `TryGetComputeEngineMonthlyUsdAsync_parses_string_encoded_on_synonym_hourly_usage_unit`).
 
 2026-09-02 seed hunt #492: reseeded from ArchLucid.Core costing parsers; proved AWS/GCP hourly unit boolean coercion gap after #491 attribute trim fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser` / `GcpCloudBillingCatalogClient` — case-sensitive `USD` / `usageUnit` JSON property lookup — **hit 2026-09-02 (#493):** PascalCase `"Usd"` and `"UsageUnit"` skipped hourly SKUs while canonical casing matched; fixed with case-insensitive property lookup (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_usd_price_property`, `TryGetComputeEngineMonthlyUsdAsync_parses_pascal_case_usage_unit_property`).
+
+2026-09-02 seed hunt #493: reseeded from ArchLucid.Core costing parsers; proved case-sensitive price-unit property lookup after #492 boolean hourly unit fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

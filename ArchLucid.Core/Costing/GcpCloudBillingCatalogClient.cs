@@ -150,7 +150,7 @@ public sealed class GcpCloudBillingCatalogClient
                 if (!firstPricing.TryGetProperty("pricingExpression", out JsonElement expression))
                     continue;
 
-                if (!expression.TryGetProperty("usageUnit", out JsonElement usageUnit)
+                if (!TryGetPropertyCaseInsensitive(expression, "usageUnit", out JsonElement usageUnit)
                     || !IsHourlyUsageUnit(usageUnit))
                 {
                     continue;
@@ -414,6 +414,23 @@ public sealed class GcpCloudBillingCatalogClient
             && numeric == Math.Floor(numeric))
         {
             value = (long)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
 
             return true;
         }

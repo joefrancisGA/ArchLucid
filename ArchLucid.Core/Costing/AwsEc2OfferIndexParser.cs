@@ -74,7 +74,7 @@ public static class AwsEc2OfferIndexParser
                     if (!dimension.Value.TryGetProperty("pricePerUnit", out JsonElement pricePerUnit))
                         continue;
 
-                    if (!pricePerUnit.TryGetProperty("USD", out JsonElement usdElement))
+                    if (!TryGetPropertyCaseInsensitive(pricePerUnit, "USD", out JsonElement usdElement))
                         continue;
 
                     if (TryReadUsdPrice(usdElement, out decimal hourly))
@@ -200,5 +200,22 @@ public static class AwsEc2OfferIndexParser
         value = element.GetString()?.Trim();
 
         return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
