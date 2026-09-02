@@ -143,4 +143,36 @@ public sealed class MarketplaceWebhookPayloadParserTests
 
         quantity.Should().Be(1);
     }
+
+    [Fact]
+    public void TryReadQuantity_rejects_quantity_above_int_max()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":2147483648}""");
+
+        bool ok = MarketplaceWebhookPayloadParser.TryReadQuantity(document.RootElement, out int quantity);
+
+        ok.Should().BeFalse();
+        quantity.Should().Be(0);
+    }
+
+    [Fact]
+    public void ReadQuantity_uses_fallback_when_quantity_above_int_max()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":5000000000}""");
+
+        int quantity = MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement, fallback: 7);
+
+        quantity.Should().Be(7);
+    }
+
+    [Fact]
+    public void TryReadQuantity_rejects_string_encoded_quantity_above_int_max()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":"2147483648"}""");
+
+        bool ok = MarketplaceWebhookPayloadParser.TryReadQuantity(document.RootElement, out int quantity);
+
+        ok.Should().BeFalse();
+        quantity.Should().Be(0);
+    }
 }

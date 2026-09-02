@@ -243,6 +243,7 @@ public static class MarketplaceWebhookPayloadParser
         if (element.TryGetDouble(out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric <= int.MaxValue
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;
@@ -305,6 +306,7 @@ public static class MarketplaceWebhookPayloadParser
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric <= int.MaxValue
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;

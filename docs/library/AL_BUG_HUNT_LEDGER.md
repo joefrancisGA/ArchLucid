@@ -1786,11 +1786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 103
-- **bugs-found:** 215
+- **hunts:** 104
+- **bugs-found:** 216
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Azure retail prices slash-h hourly unit-of-measure synonym
+- **last-bug:** 2026-09-02 — Marketplace webhook quantity above int.MaxValue silently clamped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2131,6 +2131,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — `1/h` hourly unit-of-measure synonym rejected — **hit 2026-09-02 (#518):** `"UnitOfMeasure": "1/h"` failed `TryMonthlyUsdFromRow` while `"1/hr"` and `"1 h"` already matched after #514/#517; fixed by accepting `/h` token (`AzureRetailPricesSkuMatchersTests.TryMonthlyUsdFromRow_accepts_slash_h_unit_of_measure_synonym`).
 
 2026-09-02 seed hunt #518: reseeded from ArchLucid.Core Azure retail SKU matchers; proved slash-h hourly UOM synonym gap (symmetric to #517 slash-hr fix).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryReadQuantity` — quantity above `int.MaxValue` silently clamped to `2147483647` — **hit 2026-09-02 (#519):** `"quantity":2147483648` and `"quantity":5000000000` returned `true` with clamped seat count via unchecked `(int)` double cast; fixed with `numeric <= int.MaxValue` guard (`TryReadQuantity_rejects_quantity_above_int_max`, `ReadQuantity_uses_fallback_when_quantity_above_int_max`, `TryReadQuantity_rejects_string_encoded_quantity_above_int_max`).
+
+2026-09-02 seed hunt #519: reseeded from ArchLucid.Core marketplace webhook parser; proved quantity overflow clamp gap beyond Azure UOM synonym sweep.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
