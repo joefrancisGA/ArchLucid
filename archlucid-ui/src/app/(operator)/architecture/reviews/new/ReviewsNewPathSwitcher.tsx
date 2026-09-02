@@ -20,6 +20,7 @@ import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operat
 import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
 import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
 import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useReviewsNewSpecimenPreviewPresentation } from "./use-reviews-new-specimen-preview-presentation";
 import {
   buildReviewsNewPathHref,
@@ -81,6 +82,8 @@ export function ReviewsNewPathSwitcher() {
       isAcceleratorPackId(acceleratorPackId));
   const showJobChooserStartOptions = activePath === "quick-review" && !hasAcceleratorStartIntent;
   const specimenPreviewPresentation = useReviewsNewSpecimenPreviewPresentation();
+  const commitQuery = useCorePilotCommitContextQuery();
+  const isReturningTenant = commitQuery.isPending || commitQuery.data?.hasCommittedManifest === true;
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
@@ -126,7 +129,7 @@ export function ReviewsNewPathSwitcher() {
           {specimenPreviewPresentation.showProminentSection ? <SpecimenDeliverablePreviewCallout /> : null}
           {showJobChooserStartOptions ? (
             <>
-              <ReviewsNewOwnEvidenceStart />
+              {!isReturningTenant ? <ReviewsNewOwnEvidenceStart /> : null}
               <ReviewsNewJobChooserSection />
               <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
             </>

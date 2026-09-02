@@ -101,6 +101,7 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("v2")).toBeInTheDocument();
     expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-object-map-strip")).toBeInTheDocument();
   });
 
   it("collapses sparse metadata into a disclosure with reason copy", () => {

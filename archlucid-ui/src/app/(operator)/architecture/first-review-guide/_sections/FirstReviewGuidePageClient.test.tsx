@@ -11,6 +11,8 @@ import {
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID } from "@/lib/first-review-guide-route";
 import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -116,6 +118,13 @@ describe("FirstReviewGuidePageClient", () => {
     );
     expect(screen.getByTestId("first-review-guide-evaluation-scope")).toHaveTextContent(
       FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER,
+    );
+    expect(screen.getByTestId("first-review-guide-help-crosslink")).toHaveTextContent(
+      FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
+    );
+    expect(screen.getByTestId("first-review-guide-help-crosslink").querySelector("a")).toHaveAttribute(
+      "href",
+      FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
     );
     expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-walkthrough")).toBeInTheDocument();

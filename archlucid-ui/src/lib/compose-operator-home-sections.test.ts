@@ -13,12 +13,29 @@ const emptyMetrics = {
 };
 
 describe("composeOperatorHomeSections (TB-2368)", () => {
-  it("orders buyer-polished sections with hero before recent reviews", () => {
+  it("orders buyer-polished sections with hero only for eval-empty", () => {
     const sections = composeOperatorHomeSections({
       phaseSignals: {
         hasWorkspaceReviews: false,
         hasOverviewReviewRows: false,
         draftCount: 0,
+        hasCommittedManifest: false,
+        openFindingsCount: 0,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: true,
+      metrics: emptyMetrics,
+    });
+
+    expect(sections.map((section) => section.id)).toEqual(["hero"]);
+  });
+
+  it("keeps recent reviews for eval-with-drafts buyer-polished shell", () => {
+    const sections = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: false,
+        hasOverviewReviewRows: false,
+        draftCount: 1,
         hasCommittedManifest: false,
         openFindingsCount: 0,
         governanceWarningsCount: 0,
@@ -62,7 +79,24 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     expect(sections.some((section) => section.id === "buyer-chrome")).toBe(true);
   });
 
-  it("uses hero spine for operator shell eval-empty and eval-with-drafts (first-viewport budget)", () => {
+  it("uses hero-only spine for operator shell eval-empty", () => {
+    const evalEmpty = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: false,
+        hasOverviewReviewRows: false,
+        draftCount: 0,
+        hasCommittedManifest: false,
+        openFindingsCount: 0,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: false,
+      metrics: emptyMetrics,
+    });
+
+    expect(evalEmpty.map((section) => section.id)).toEqual(["hero"]);
+  });
+
+  it("uses hero spine for operator shell eval-with-drafts (first-viewport budget)", () => {
     const evalWithDrafts = composeOperatorHomeSections({
       phaseSignals: {
         hasWorkspaceReviews: false,

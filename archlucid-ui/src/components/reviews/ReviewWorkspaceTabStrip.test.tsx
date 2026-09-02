@@ -6,7 +6,7 @@ import { resolveReviewDetailVisibleTabs } from "@/lib/resolve-review-detail-visi
 import { REVIEW_DETAIL_TAB_LABELS, type ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 describe("ReviewWorkspaceTabStrip", () => {
-  it("renders primary tabs and a More sections affordance for secondary tabs", () => {
+  it("renders primary tabs plus mobile and desktop More sections affordances", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: "manifest-1",
       showProgressTracker: false,
@@ -28,7 +28,7 @@ describe("ReviewWorkspaceTabStrip", () => {
       expect(screen.getByRole("tab", { name: new RegExp(REVIEW_DETAIL_TAB_LABELS[tabId], "i") })).toBeInTheDocument();
     }
 
-    expect(screen.getByText("More sections")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-workspace-sections-select")).toBeInTheDocument();
     expect(screen.getByTestId("review-detail-workspace-more-tabs")).toBeInTheDocument();
     expect(screen.queryByTestId(`review-detail-workspace-tab-${resolved.moreTabIds[0]}`)).not.toBeInTheDocument();
   });
@@ -76,6 +76,31 @@ describe("ReviewWorkspaceTabStrip", () => {
 
     fireEvent.click(screen.getByTestId("review-detail-workspace-more-tabs"));
     fireEvent.click(screen.getByTestId(`review-detail-workspace-more-tab-${moreTab}`));
+
+    expect(onTabChange).toHaveBeenCalledWith(moreTab);
+  });
+
+  it("switches tabs from the mobile section picker", () => {
+    const resolved = resolveReviewDetailVisibleTabs({
+      manifestId: null,
+      showProgressTracker: false,
+      runCompleted: false,
+    });
+    const onTabChange = vi.fn();
+    const moreTab = resolved.moreTabIds[0];
+
+    render(
+      <ReviewWorkspaceTabStrip
+        lifecycle="finalized"
+        activeTab="overview"
+        resolvedTabs={resolved}
+        onTabChange={onTabChange}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("review-detail-workspace-sections-select"), {
+      target: { value: moreTab },
+    });
 
     expect(onTabChange).toHaveBeenCalledWith(moreTab);
   });
