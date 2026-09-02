@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Runs.Orchestration.Execute;
@@ -29,7 +30,7 @@ public sealed class ArchitectureRunExecuteAgentLoopStage(
 
         using (prepared.GovernanceScope)
         {
-            IReadOnlyList<AgentLoopInvokeResult> results = await _invokeStage
+            IReadOnlyList<AgentResult> results = await _invokeStage
                 .InvokeAsync(prepared, cancellationToken)
                 .ConfigureAwait(false);
 
