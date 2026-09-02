@@ -208,10 +208,16 @@ public sealed class GcpCloudBillingCatalogClient
 
     private static bool IsHourlyUsageUnit(JsonElement element)
     {
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return element.ValueKind == JsonValueKind.True;
+
         if (element.ValueKind != JsonValueKind.String)
             return false;
 
         string? raw = element.GetString();
+
+        if (TryParseBooleanString(raw, out bool boolean))
+            return boolean;
 
         return string.Equals(raw?.Trim(), "h", StringComparison.OrdinalIgnoreCase);
     }

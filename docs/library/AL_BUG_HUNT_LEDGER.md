@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 79
-- **bugs-found:** 191
+- **hunts:** 80
+- **bugs-found:** 192
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AwsEc2OfferIndexParser whitespace-padded product attributes ignored
+- **last-bug:** 2026-09-02 — AwsEc2/GCP hourly unit boolean tokens ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2025,6 +2025,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AwsEc2OfferIndexParser.TryReadAttribute` — whitespace-padded product attribute strings rejected — **hit 2026-09-02 (#491):** `"instanceType":" t3.micro "` failed to match `t3.micro` while unpadded attributes worked; fixed by trimming attribute values and USD price strings (`TryGetLinuxOnDemandHourlyUsd_parses_whitespace_padded_instance_type_attribute`, `TryGetLinuxOnDemandHourlyUsd_parses_whitespace_padded_usd_price_string`).
 
 2026-09-02 seed hunt #491: reseeded from ArchLucid.Core costing parsers; proved AWS offer-index attribute trim gap after #490 unit/usageUnit trim fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadHourlyUnit` / `GcpCloudBillingCatalogClient.IsHourlyUsageUnit` — boolean / string-encoded boolean hourly `unit` / `usageUnit` tokens rejected — **hit 2026-09-02 (#492):** `"unit":true` / `"usageUnit":true` and `"on"` synonyms skipped hourly SKUs while `"Hrs"` / `"h"` strings matched; fixed with boolean coercion and `TryParseBooleanString` fallback (`TryGetLinuxOnDemandHourlyUsd_parses_boolean_hourly_unit_token`, `TryGetLinuxOnDemandHourlyUsd_parses_string_encoded_on_synonym_hourly_unit`, `TryGetComputeEngineMonthlyUsdAsync_parses_boolean_hourly_usage_unit_token`, `TryGetComputeEngineMonthlyUsdAsync_parses_string_encoded_on_synonym_hourly_usage_unit`).
+
+2026-09-02 seed hunt #492: reseeded from ArchLucid.Core costing parsers; proved AWS/GCP hourly unit boolean coercion gap after #491 attribute trim fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

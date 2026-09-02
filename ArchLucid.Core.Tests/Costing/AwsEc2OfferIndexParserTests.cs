@@ -265,4 +265,78 @@ public sealed class AwsEc2OfferIndexParserTests
 
         hourly.Should().Be(0.0104m);
     }
+
+    [Fact]
+    public void TryGetLinuxOnDemandHourlyUsd_parses_boolean_hourly_unit_token()
+    {
+        const string sample = """
+            {
+              "products": {
+                "ABC": {
+                  "attributes": {
+                    "instanceType": "t3.micro",
+                    "operatingSystem": "Linux",
+                    "tenancy": "Shared",
+                    "preInstalledSw": "NA"
+                  }
+                }
+              },
+              "terms": {
+                "OnDemand": {
+                  "ABC": {
+                    "ABCTERM": {
+                      "priceDimensions": {
+                        "ABCDIM": {
+                          "unit": true,
+                          "pricePerUnit": { "USD": "0.0104" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """;
+
+        decimal? hourly = AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd(sample, "t3.micro");
+
+        hourly.Should().Be(0.0104m);
+    }
+
+    [Fact]
+    public void TryGetLinuxOnDemandHourlyUsd_parses_string_encoded_on_synonym_hourly_unit()
+    {
+        const string sample = """
+            {
+              "products": {
+                "ABC": {
+                  "attributes": {
+                    "instanceType": "t3.micro",
+                    "operatingSystem": "Linux",
+                    "tenancy": "Shared",
+                    "preInstalledSw": "NA"
+                  }
+                }
+              },
+              "terms": {
+                "OnDemand": {
+                  "ABC": {
+                    "ABCTERM": {
+                      "priceDimensions": {
+                        "ABCDIM": {
+                          "unit": "on",
+                          "pricePerUnit": { "USD": "0.0104" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """;
+
+        decimal? hourly = AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd(sample, "t3.micro");
+
+        hourly.Should().Be(0.0104m);
+    }
 }
