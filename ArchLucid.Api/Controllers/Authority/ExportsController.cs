@@ -67,6 +67,7 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         CancellationToken cancellationToken) =>
         MapExportRecordDiffResult(await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/exports/compare/summary")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: IRunExportQueryFacade.CompareExportRecordsSummaryAsync logs ComparisonSummaryPersisted.")]
@@ -88,6 +89,7 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = result.SummaryMarkdown! });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/exports/{exportRecordId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
@@ -108,6 +110,7 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         return ReplayArtifactResponseFactory.FromExportReplay(Request, result.Replay!);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/exports/{exportRecordId}/replay/metadata")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayExportMetadataResponse), StatusCodes.Status200OK)]

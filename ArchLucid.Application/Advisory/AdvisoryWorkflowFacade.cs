@@ -7,7 +7,6 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
-using IRecommendationWorkflowService = ArchLucid.Decisioning.Advisory.Workflow.IRecommendationWorkflowService;
 using ArchLucid.Persistence.Queries;
 using RecommendationActionType = ArchLucid.Contracts.Advisory.Workflow.RecommendationActionType;
 
