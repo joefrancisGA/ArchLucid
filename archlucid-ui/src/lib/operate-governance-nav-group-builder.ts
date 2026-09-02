@@ -7,6 +7,7 @@ import {
   Gavel,
   GitBranch,
   History,
+  Inbox,
   Layers,
   Lightbulb,
   ShieldX,
@@ -17,6 +18,7 @@ import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
+  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_ENVIRONMENTS_PATH } from "@/lib/governance/governance-environments-route";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
@@ -34,6 +36,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
       surface: "review-workflow",
       caption: "Approve findings, track exceptions and decisions, and monitor audit trail and alerts.",
       links: [
+        {
+          href: "/governance/needs-attention" as typeof GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.needsAttentionInbox,
+          title: "Single inbox for unfinished work, assigned findings, alerts, and approvals",
+          icon: Inbox,
+          tier: "essential",
+          requiredAuthority: "ReadAuthority",
+        },
         {
           // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
           href: "/governance/approval-queue" as typeof GOVERNANCE_APPROVAL_QUEUE_PATH,

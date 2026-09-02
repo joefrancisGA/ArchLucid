@@ -182,12 +182,12 @@ public sealed partial class GovernanceStickinessController
         if (filterProblem is not null)
             return filterProblem;
 
-        category = category?.Trim();
-
         IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
 
         if (projectIdProblem is not null)
             return projectIdProblem;
+
+        category = category?.Trim();
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

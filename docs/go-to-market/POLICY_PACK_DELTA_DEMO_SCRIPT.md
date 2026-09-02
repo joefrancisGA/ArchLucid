@@ -104,7 +104,7 @@ Optional: `.\scripts\demo-policy-pack-delta.ps1 -RunId … -ShowFindingDelta` dr
   -OutputDirectory artifacts/policy-pack-delta-demo
 ```
 
-**Offline-only (no API, no founder, no committed run):** write the sales-engineer cite packet from sample pack JSON (SOC 2 vs CIS Azure keys + FinOps `cost.requireBudgetCap` + CIS identity overlay extra):
+**Offline-only (no API, no founder narration, no committed run):** write the sales-engineer cite packet from sample pack JSON (SOC 2 vs CIS Azure keys + FinOps `cost.requireBudgetCap` + CIS identity overlay extra):
 
 ```powershell
 .\scripts\demo-policy-pack-delta.ps1 -OfflineFindingDelta

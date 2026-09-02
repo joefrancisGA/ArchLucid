@@ -1,8 +1,8 @@
-using System.Globalization;
-
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,6 +17,8 @@ public sealed class RunScopedLlmBudgetReservationService(
     ILlmCostEstimator costEstimator,
     ILlmTenantBudgetRepository budgetRepository,
     IRunScopedLlmBudgetReservationStore reservationStore,
+    IScopeContextProvider scopeContextProvider,
+    IAuditService auditService,
     TimeProvider timeProvider,
     ILogger<RunScopedLlmBudgetReservationService> logger) : IRunScopedLlmBudgetReservationService
 {
@@ -37,6 +39,12 @@ public sealed class RunScopedLlmBudgetReservationService(
 
     private readonly IRunScopedLlmBudgetReservationStore _reservationStore =
         reservationStore ?? throw new ArgumentNullException(nameof(reservationStore));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -151,6 +159,9 @@ public sealed class RunScopedLlmBudgetReservationService(
 
             _logger.LogInformationRunScopedLlmBudgetReserved(heldReservationId, runId, estimateUsd);
 
+            await TryAuditSpendReceiptAsync(tenantId, runId, heldReservationId, estimateUsd, cancellationToken)
+                .ConfigureAwait(false);
+
             return RunScopedLlmBudgetAdmitResult.Permit(heldReservationId, estimateUsd);
         }
         catch (Exception ex)
@@ -181,5 +192,50 @@ public sealed class RunScopedLlmBudgetReservationService(
         }
 
         return _reservationStore.ReleaseAsync(reservationId, cancellationToken);
+    }
+
+    private async Task TryAuditSpendReceiptAsync(
+        Guid tenantId,
+        string runId,
+        Guid reservationId,
+        decimal estimateUsd,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            Guid? parsedRunId = Guid.TryParse(runId, out Guid runGuid) ? runGuid : null;
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.RunLlmBudgetReserved,
+                    ActorUserId = "system",
+                    ActorUserName = "system",
+                    ExplicitActor = true,
+                    OccurredUtc = _timeProvider.GetUtcNow().UtcDateTime,
+                    TenantId = tenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = parsedRunId,
+                    DataJson = System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        reservationId = reservationId.ToString("D"),
+                        runId,
+                        estimateUsd,
+                    }),
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Failed to record LLM budget spend receipt for RunId={RunId}.",
+                    runId);
+            }
+        }
     }
 }

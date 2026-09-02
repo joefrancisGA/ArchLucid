@@ -19,6 +19,11 @@ public sealed class AuditLlmCompletionOutputTruncationReporterTests
     public async Task Report_writes_audit_event_with_truncation_metadata()
     {
         Mock<IAuditService> auditService = new();
+        TaskCompletionSource<bool> logged = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((_, _) => logged.TrySetResult(true))
+            .Returns(Task.CompletedTask);
         Mock<IScopeContextProvider> scopeProvider = new();
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
@@ -40,7 +45,7 @@ public sealed class AuditLlmCompletionOutputTruncationReporterTests
 
         reporter.Report(new LlmCompletionOutputTruncationEvent("gpt-5.6-terra", 4096, 4096, 0));
 
-        await Task.Delay(250);
+        await logged.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
         auditService.Verify(
             a => a.LogAsync(

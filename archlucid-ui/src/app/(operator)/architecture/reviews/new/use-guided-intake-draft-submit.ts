@@ -14,6 +14,7 @@ import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetr
 import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
 
 import type { GuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 import type { GuidedIntakeDraftCoreState } from "./use-guided-intake-draft-workflow";
@@ -38,11 +39,26 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
     core.setBusy(true);
     core.setSubmitError(null);
 
+    const filesToUpload = [...form.evidenceFiles];
+
     try {
       const result = await submitDraftRequest(core.draftId);
       const submittedDraft = await getDraftRequest(core.draftId);
       core.setDraftStatus(submittedDraft.status);
       core.setLinkedSpawnedRunId(architectureDraftSpawnedRunId(submittedDraft));
+
+      if (filesToUpload.length > 0) {
+        const uploadResult = await uploadWizardPendingDocumentEvidence(result.runId, filesToUpload);
+
+        if (!uploadResult.ok) {
+          core.setSubmitError(new Error(uploadResult.message));
+
+          return;
+        }
+
+        form.setEvidenceFiles([]);
+      }
+
       upsertArchitectureDraftRegistryEntry(
         buildArchitectureDraftRegistryEntry(submittedDraft, { linkedReviewId: result.runId }),
       );
@@ -89,6 +105,7 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
     businessOutcome,
     clearSession,
     core,
+    form,
     freeTextIntent,
     isCreateArchitectureFlow,
     navigate,

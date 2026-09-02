@@ -8301,10 +8301,7 @@
       "CorePilotChecklistPutRequest": {
         "properties": {
           "isCompleted": {
-            "type": [
-              "null",
-              "boolean"
-            ]
+            "type": "boolean"
           },
           "stepIndex": {
             "format": "int32",
@@ -32283,6 +32280,24 @@
         },
         "type": "object"
       },
+      "UpsertWizardIntakeDraftRequest": {
+        "properties": {
+          "idempotencyKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stateJson": {
+            "type": "string"
+          },
+          "stepIndex": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "UsageMeterKind": {
         "enum": [
           "LlmPromptTokens",
@@ -32552,6 +32567,25 @@
         },
         "type": "object"
       },
+      "WizardIntakeDraftResponse": {
+        "properties": {
+          "stateJson": {
+            "type": "string"
+          },
+          "stepIndex": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "wizardId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "WorkspaceAiAvailabilityCheckRow": {
         "properties": {
           "detail": {
@@ -32664,6 +32698,30 @@
           }
         },
         "type": "object"
+      },
+      "WorkspaceSystemNameAvailabilityResponse": {
+        "properties": {
+          "conflictMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "systemName": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WorkspaceSystemNameOccupancyKind": {
+        "enum": [
+          "Review",
+          "Architecture"
+        ],
+        "type": "string"
       }
     }
   },
@@ -39387,7 +39445,13 @@
       "name": "WhyArchlucidMarketingPack"
     },
     {
+      "name": "WizardIntakeDrafts"
+    },
+    {
       "name": "WorkspaceAiAvailability"
+    },
+    {
+      "name": "WorkspaceSystemNameAvailability"
     }
   ]
 }

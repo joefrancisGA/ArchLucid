@@ -4,7 +4,6 @@ using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
-using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;
 
@@ -28,39 +27,40 @@ public sealed partial class SqlContextSnapshotRepository
         ArgumentNullException.ThrowIfNull(connection);
 
         Guid snapshotId = snapshot.SnapshotId;
+        object countParam = new { SnapshotId = snapshotId };
 
-        int canonicalCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int canonicalCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ContextSnapshotCanonicalObjects WHERE SnapshotId = @SnapshotId",
-            new { SnapshotId = snapshotId },
+            countParam,
             ct);
 
-        int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int warningsCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ContextSnapshotWarnings WHERE SnapshotId = @SnapshotId",
-            new { SnapshotId = snapshotId },
+            countParam,
             ct);
 
-        int errorsCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int errorsCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ContextSnapshotErrors WHERE SnapshotId = @SnapshotId",
-            new { SnapshotId = snapshotId },
+            countParam,
             ct);
 
-        int hashesCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int hashesCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ContextSnapshotSourceHashes WHERE SnapshotId = @SnapshotId",
-            new { SnapshotId = snapshotId },
+            countParam,
             ct);
 
-        bool needsRelationalSlices = (canonicalCount == 0 && snapshot.CanonicalObjects.Count > 0)
-                                     || (warningsCount == 0 && snapshot.Warnings.Count > 0)
-                                     || (errorsCount == 0 && snapshot.Errors.Count > 0)
-                                     || (hashesCount == 0 && snapshot.SourceHashes.Count > 0);
+        bool needsRelationalSlices = SqlRelationalSliceBackfillCore.SliceNeedsBackfill(canonicalCount, snapshot.CanonicalObjects.Count)
+                                     || SqlRelationalSliceBackfillCore.SliceNeedsBackfill(warningsCount, snapshot.Warnings.Count)
+                                     || SqlRelationalSliceBackfillCore.SliceNeedsBackfill(errorsCount, snapshot.Errors.Count)
+                                     || SqlRelationalSliceBackfillCore.SliceNeedsBackfill(hashesCount, snapshot.SourceHashes.Count);
 
         if (!needsRelationalSlices)
             return;
@@ -89,16 +89,16 @@ public sealed partial class SqlContextSnapshotRepository
             TenantId = scopeHdr.TenantId!.Value, WorkspaceId = scopeHdr.WorkspaceId!.Value, ProjectId = scopeHdr.ScopeProjectId!.Value
         };
 
-        if (canonicalCount == 0 && snapshot.CanonicalObjects.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(canonicalCount, snapshot.CanonicalObjects.Count))
             await InsertContextCanonicalRelationalAsync(snapshot, connection, transaction, scopeFill, ct);
 
-        if (warningsCount == 0 && snapshot.Warnings.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(warningsCount, snapshot.Warnings.Count))
             await InsertContextWarningsRelationalAsync(snapshot, connection, transaction, scopeFill, ct);
 
-        if (errorsCount == 0 && snapshot.Errors.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(errorsCount, snapshot.Errors.Count))
             await InsertContextErrorsRelationalAsync(snapshot, connection, transaction, scopeFill, ct);
 
-        if (hashesCount == 0 && snapshot.SourceHashes.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(hashesCount, snapshot.SourceHashes.Count))
             await InsertContextSourceHashesRelationalAsync(snapshot, connection, transaction, scopeFill, ct);
     }
 

@@ -66,7 +66,7 @@ public sealed class ProblemSupportHintsTests
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
             Type = ProblemTypes.Conflict,
-            Detail = "A review or architecture named 'ArchLucid' already exists in this workspace.",
+            Detail = "A review named 'ArchLucid' already exists in this workspace.",
         };
 
         ProblemSupportHints.AttachForProblemType(problem);

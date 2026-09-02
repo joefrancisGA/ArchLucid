@@ -108,6 +108,9 @@ public static partial class AuditEventTypes
     /// <summary>Admin updated persisted LLM USD-per-token rates used for cost estimation (input/output).</summary>
     public const string LlmCostTuningUpdated = "LlmCostTuningUpdated";
 
+    /// <summary>Per-run LLM budget reservation recorded before agent batch execution (durable spend receipt).</summary>
+    public const string RunLlmBudgetReserved = "Run.LlmBudgetReserved";
+
     public const string CircuitBreakerStateTransition = "CircuitBreakerStateTransition";
 
     public const string CircuitBreakerRejection = "CircuitBreakerRejection";

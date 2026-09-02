@@ -73,29 +73,10 @@ public sealed class GovernanceControllerDashboardTests
         Mock<ITenantRepository> tenants = new();
         SetupTenantExists(tenants, tenantId);
 
-        GovernanceController sut = new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            dashboard.Object,
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenants.Object,
-            NullLogger<GovernanceController>.Instance)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object);
 
         IActionResult result = await sut.GetDashboard(20, 20, 20, CancellationToken.None);
 
@@ -122,29 +103,10 @@ public sealed class GovernanceControllerDashboardTests
 
         Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
 
-        GovernanceController sut = new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            dashboard.Object,
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenants.Object,
-            NullLogger<GovernanceController>.Instance)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object);
 
         IActionResult result = await sut.GetDashboard(20, 20, 20, CancellationToken.None);
 
@@ -171,29 +133,10 @@ public sealed class GovernanceControllerDashboardTests
 
         Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
 
-        GovernanceController sut = new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            dashboard.Object,
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenants.Object,
-            NullLogger<GovernanceController>.Instance)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object);
 
         IActionResult result = await sut.GetDashboard(20, 20, 20, CancellationToken.None);
 
@@ -217,29 +160,10 @@ public sealed class GovernanceControllerDashboardTests
 
         Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
 
-        GovernanceController sut = new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            dashboard.Object,
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenants.Object,
-            NullLogger<GovernanceController>.Instance)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object);
 
         IActionResult result = await sut.GetDashboard(maxPending: 0, maxDecisions: 20, maxChanges: 20, CancellationToken.None);
 
@@ -263,29 +187,10 @@ public sealed class GovernanceControllerDashboardTests
 
         Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
 
-        GovernanceController sut = new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            dashboard.Object,
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenants.Object,
-            NullLogger<GovernanceController>.Instance)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object);
 
         IActionResult result = await sut.GetDashboard(maxPending: 20, maxDecisions: 51, maxChanges: 20, CancellationToken.None);
 
@@ -309,29 +214,10 @@ public sealed class GovernanceControllerDashboardTests
 
         Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
 
-        GovernanceController sut = new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            dashboard.Object,
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenants.Object,
-            NullLogger<GovernanceController>.Instance)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object);
 
         IActionResult result = await sut.GetDashboard(maxPending: 20, maxDecisions: 20, maxChanges: 51, CancellationToken.None);
 
@@ -355,29 +241,10 @@ public sealed class GovernanceControllerDashboardTests
 
         Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
 
-        GovernanceController sut = new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            dashboard.Object,
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenants.Object,
-            NullLogger<GovernanceController>.Instance)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object);
 
         IActionResult result = await sut.GetDashboard(maxPending: 51, maxDecisions: 20, maxChanges: 20, CancellationToken.None);
 
@@ -401,29 +268,10 @@ public sealed class GovernanceControllerDashboardTests
         Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
         Mock<IComplianceDriftTrendService> drift = new(MockBehavior.Strict);
 
-        GovernanceController sut = new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            Mock.Of<IGovernanceDashboardService>(),
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            drift.Object,
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenants.Object,
-            NullLogger<GovernanceController>.Instance)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            complianceDriftTrendService: drift.Object,
+            tenantRepository: tenants.Object);
 
         IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, 60, CancellationToken.None);
 
@@ -450,29 +298,10 @@ public sealed class GovernanceControllerDashboardTests
 
         Mock<IComplianceDriftTrendService> drift = new(MockBehavior.Strict);
 
-        GovernanceController sut = new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            Mock.Of<IGovernanceDashboardService>(),
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            drift.Object,
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenants.Object,
-            NullLogger<GovernanceController>.Instance)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            complianceDriftTrendService: drift.Object,
+            tenantRepository: tenants.Object);
 
         IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, 1440, CancellationToken.None);
 
@@ -568,28 +397,9 @@ public sealed class GovernanceControllerDashboardTests
             .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = tenantId, Name = "contoso" });
 
-        return new GovernanceController(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            Mock.Of<IGovernanceDashboardService>(),
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            drift.Object,
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            tenants.Object,
-            NullLogger<GovernanceController>.Instance)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        return GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            complianceDriftTrendService: drift.Object,
+            tenantRepository: tenants.Object);
     }
 }

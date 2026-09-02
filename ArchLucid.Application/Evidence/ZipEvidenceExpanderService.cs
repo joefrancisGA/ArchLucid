@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.IO.Compression;
 
+using ArchLucid.Application.Common;
+using ArchLucid.Core.Compression;
 using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
@@ -70,6 +72,17 @@ public sealed class ZipEvidenceExpanderService(
 
         using ZipArchive archive = new(zipStream, ZipArchiveMode.Read, leaveOpen: true);
 
+        ZipArchiveSafetyResult safety = ZipArchiveSafety.ValidateArchive(
+            archive,
+            _options.MaxUncompressedSizeBytes,
+            maxFileEntries: 1000);
+
+        if (!safety.Allowed)
+        {
+            skipped.Add($"{basePath}: {safety.ErrorDetail}");
+            return;
+        }
+
         foreach (ZipArchiveEntry entry in archive.Entries)
         {
             if (files.Count >= 1000)
@@ -88,6 +101,12 @@ public sealed class ZipEvidenceExpanderService(
             if (entry.FullName.EndsWith('/'))
             {
                 skipped.Add($"{basePath}/{entry.FullName}: directory entry skipped");
+                continue;
+            }
+
+            if (!ZipArchiveSafety.IsSafeEntryPath(entry.FullName))
+            {
+                skipped.Add($"{basePath}/{entry.FullName}: unsafe ZIP entry path skipped");
                 continue;
             }
 

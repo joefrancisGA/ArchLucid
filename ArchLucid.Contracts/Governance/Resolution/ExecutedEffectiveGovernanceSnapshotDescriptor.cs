@@ -65,4 +65,18 @@ public sealed class ExecutedEffectiveGovernanceSnapshotDescriptor
         get;
         set;
     }
+
+    /// <summary>SHA-256 hex fingerprint of the <see cref="ArchLucid.Contracts.Requests.ArchitectureRequest" /> at execute.</summary>
+    public string? RequestFingerprintHex
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SHA-256 hex hash of execute-time pack assignment ids and versions.</summary>
+    public string? GovernanceAssignmentsHashHex
+    {
+        get;
+        set;
+    }
 }

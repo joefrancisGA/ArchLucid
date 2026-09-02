@@ -11,7 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Json.More.Net" />
+    <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="JsonSchema.Net" />
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="FluentAssertions" />

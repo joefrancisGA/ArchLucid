@@ -3,6 +3,7 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
@@ -58,6 +59,7 @@ public sealed class ArchitectureRunCreateOrchestratorWorkspaceNameCollisionTests
             .Setup(g => g.EnsureAvailableAsync(
                 scope,
                 "ArchLucid",
+                WorkspaceSystemNameOccupancyKind.Review,
                 null,
                 priorRunId,
                 It.IsAny<CancellationToken>()))
@@ -86,6 +88,7 @@ public sealed class ArchitectureRunCreateOrchestratorWorkspaceNameCollisionTests
             g => g.EnsureAvailableAsync(
                 scope,
                 "ArchLucid",
+                WorkspaceSystemNameOccupancyKind.Review,
                 null,
                 priorRunId,
                 It.IsAny<CancellationToken>()),

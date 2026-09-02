@@ -1,36 +1,49 @@
-/** A simple alert rule with a metric type, severity, and threshold. */
-export type AlertRule = {
-  ruleId: string;
-  tenantId: string;
-  workspaceId: string;
-  projectId: string;
-  name: string;
-  ruleType: string;
-  severity: string;
+import type { components } from "@/lib/openapi-schemas";
+
+type AlertRuleSchema = components["schemas"]["AlertRule"];
+
+/** Alert rule row — OpenAPI `AlertRule` with required primitives for operator tables. */
+export type AlertRule = Omit<
+  AlertRuleSchema &
+    Required<
+      Pick<
+        AlertRuleSchema,
+        | "ruleId"
+        | "tenantId"
+        | "workspaceId"
+        | "projectId"
+        | "name"
+        | "ruleType"
+        | "severity"
+        | "isEnabled"
+        | "targetChannelType"
+        | "metadataJson"
+        | "createdUtc"
+      >
+    >,
+  "thresholdValue"
+> & {
   thresholdValue: number;
-  isEnabled: boolean;
-  targetChannelType: string;
-  metadataJson: string;
-  createdUtc: string;
 };
 
-/** A fired alert record with lifecycle state (Active → Acknowledged → Resolved/Suppressed). */
-export type AlertRecord = {
-  alertId: string;
-  ruleId: string;
-  title: string;
-  category: string;
-  severity: string;
-  status: string;
-  triggerValue: string;
-  description: string;
-  createdUtc: string;
-  lastUpdatedUtc?: string | null;
-  runId?: string | null;
-  /** When set, inbox surfaces can deep-link to structured finding detail (demo PHI alert). */
-  primaryFindingId?: string | null;
-  comparedToRunId?: string | null;
-  recommendationId?: string | null;
-  /** When true, the alert is archived and hidden from the default inbox. */
-  isArchived?: boolean | null;
-};
+type AlertRecordSchema = components["schemas"]["AlertRecord"];
+
+/** Fired alert inbox row — OpenAPI `AlertRecord` plus demo deep-link enrichment. */
+export type AlertRecord = AlertRecordSchema &
+  Required<
+    Pick<
+      AlertRecordSchema,
+      | "alertId"
+      | "ruleId"
+      | "title"
+      | "category"
+      | "severity"
+      | "status"
+      | "triggerValue"
+      | "description"
+      | "createdUtc"
+    >
+  > & {
+    /** When set, inbox surfaces can deep-link to structured finding detail (demo PHI alert). */
+    primaryFindingId?: string | null;
+  };

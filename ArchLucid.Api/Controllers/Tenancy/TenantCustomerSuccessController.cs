@@ -58,6 +58,7 @@ public sealed class TenantCustomerSuccessController(
     [HttpGet("health-score")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(TenantHealthScoreResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetHealthScoreAsync(CancellationToken cancellationToken)
     {
         (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
@@ -237,7 +238,7 @@ public sealed class TenantCustomerSuccessController(
             return scopeProblem;
 
         if (request.RunId == Guid.Empty)
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem("runId must be a non-empty GUID when provided.", ProblemTypes.ValidationFailed);
 
         if (request.RunId is Guid runId)
         {
