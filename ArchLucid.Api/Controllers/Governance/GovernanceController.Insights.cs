@@ -1,4 +1,5 @@
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
@@ -129,9 +130,11 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+        approvalRequestId = GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(approvalRequestId);
 
-        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+        IActionResult? approvalRequestIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateApprovalRequestId(approvalRequestId)
+                .ToBadRequestProblemOrNull(this);
 
         if (approvalRequestIdProblem is not null)
             return approvalRequestIdProblem;
@@ -177,9 +180,11 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+        approvalRequestId = GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(approvalRequestId);
 
-        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+        IActionResult? approvalRequestIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateApprovalRequestId(approvalRequestId)
+                .ToBadRequestProblemOrNull(this);
 
         if (approvalRequestIdProblem is not null)
             return approvalRequestIdProblem;

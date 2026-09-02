@@ -1,3 +1,4 @@
+using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
 
@@ -157,5 +158,166 @@ public sealed class BicepInfrastructureDeclarationParserTests
         enabledObjects.Should().ContainSingle();
         disabledObjects.Should().ContainSingle();
         disabledObjects[0].ObjectId.Should().Be(enabledObjects[0].ObjectId);
+    }
+
+    [Fact]
+    public async Task ParseAsync_DuplicateSymbolicNamesDifferentApiVersions_EmitDistinctObjectIds()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            DeclarationId = "decl-bicep-duplicate-storage",
+            Content = """
+                      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                      }
+                      resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
+        result.Should().OnlyContain(o => o.Properties.ContainsKey("bicepOccurrence"));
+    }
+
+    [Fact]
+    public async Task ParseAsync_BlockCommentBeforeAssignment_StillParsesPublicNetworkAccess()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                        properties: {
+                          /* skip */
+                          publicNetworkAccess: 'Enabled'
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.publicnetworkaccess"].Should().Be("enabled");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InlineSingleLineArray_PreservesIpSecurityRestrictions()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource app 'Microsoft.Web/sites@2022-03-01' = {
+                        properties: {
+                          siteConfig: {
+                            ipSecurityRestrictions: [{ name: 'AllowAll', ipAddress: '0.0.0.0/0', action: 'Allow' }]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ipsecurityrestrictions"].Should().Contain("0.0.0.0/0");
+    }
+
+    [Fact]
+    public async Task ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource app 'Microsoft.Web/sites@2022-03-01' = {
+                        properties: {
+                          siteConfig: {
+                            ipSecurityRestrictions: [
+                              {
+                                name: 'AllowAll'
+                                ipAddress: '0.0.0.0/0'
+                                action: 'Allow'
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ipsecurityrestrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+    }
+
+    [Fact]
+    public async Task ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            DeclarationId = "decl-bicep-appservice-network",
+            Content = """
+                      resource app 'Microsoft.Web/sites@2022-03-01' = {
+                        properties: {
+                          siteConfig: {
+                            ipSecurityRestrictions: [
+                              {
+                                name: 'AllowAll'
+                                ipAddress: '0.0.0.0/0'
+                                action: 'Allow'
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand(parsed);
+
+        expanded.Should().HaveCountGreaterThan(1);
+
+        CanonicalObject? baseline = expanded.FirstOrDefault(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint");
+
+        baseline.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task ParseAsync_InlineBlockCommentAfterValue_ParsesCleanPublicNetworkAccess()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                        properties: {
+                          publicNetworkAccess: 'Enabled' /* primary region */
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.publicnetworkaccess"].Should().Be("enabled");
     }
 }

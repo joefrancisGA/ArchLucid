@@ -2,6 +2,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async;
+using ArchLucid.Application.Runs.Async.Workers;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
@@ -232,7 +233,9 @@ public sealed class ArchitectureRunAsyncOperationHostedServiceTests
         ServiceProvider provider = services.BuildServiceProvider();
 
         return new ArchitectureRunAsyncOperationHostedService(
-            queue,
+            new ArchitectureRunAsyncOperationQueueDrainWorker(queue),
+            new ArchitectureRunAsyncOperationCreateCompletionWorker(),
+            new ArchitectureRunAsyncOperationExecuteReplayWorker(),
             provider.GetRequiredService<IServiceScopeFactory>(),
             registrar,
             provider.GetRequiredService<IOperationCancellationRegistry>(),

@@ -45,6 +45,9 @@ export type BeforeAfterDeltaPanelProps = {
 
   /** Top / sidebar variants only — number of recent committed runs to aggregate (default 5; server clamps to [1, 25]). */
   count?: number;
+
+  /** When true, omits outer card chrome and heading for use inside `CollapsibleSection`. */
+  embeddedInCollapsible?: boolean;
 };
 
 type PilotRunDeltasPayload = {
@@ -82,8 +85,16 @@ function computeDelta(baseline: number | null, measured: number | null): { hours
   return { hours: delta, percent };
 }
 
-export function BeforeAfterDeltaPanel({ runId, variant, count }: BeforeAfterDeltaPanelProps) {
-  if (variant === "top") return <BeforeAfterDeltaTopPanel count={count} />;
+export function BeforeAfterDeltaPanel({
+  runId,
+  variant,
+  count,
+  embeddedInCollapsible = false,
+}: BeforeAfterDeltaPanelProps) {
+  if (variant === "top") {
+    return <BeforeAfterDeltaTopPanel count={count} embeddedInCollapsible={embeddedInCollapsible} />;
+  }
+
   if (variant === "sidebar") return <BeforeAfterDeltaSidebarPanel count={count} />;
 
   if (variant === "inline") {
@@ -92,10 +103,16 @@ export function BeforeAfterDeltaPanel({ runId, variant, count }: BeforeAfterDelt
     return <BeforeAfterDeltaInlinePanel runId={runId} />;
   }
 
-  return <BeforeAfterDeltaCyclePanel runId={runId} />;
+  return <BeforeAfterDeltaCyclePanel runId={runId} embeddedInCollapsible={embeddedInCollapsible} />;
 }
 
-function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
+function BeforeAfterDeltaCyclePanel({
+  runId,
+  embeddedInCollapsible = false,
+}: {
+  runId?: string;
+  embeddedInCollapsible?: boolean;
+}) {
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const { data: trialPayload, isFetched: trialFetched } = useTenantTrialStatusQuery({
     enabled: concernFetchEnabled,
@@ -184,12 +201,24 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
       data-testid="before-after-delta-panel"
       role="region"
       aria-label="Review-cycle delta before vs measured"
-      className="mb-6 max-w-3xl rounded-md border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
+      className={
+        embeddedInCollapsible
+          ? "max-w-3xl"
+          : "mb-6 max-w-3xl rounded-md border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
+      }
     >
-      <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-        Review-cycle delta (before vs measured)
-      </h3>
-      <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+      {embeddedInCollapsible ? null : (
+        <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+          Review-cycle delta (before vs measured)
+        </h3>
+      )}
+      <p
+        className={cn(
+          embeddedInCollapsible ? "m-0" : "mt-1",
+          "text-neutral-600 dark:text-neutral-400",
+          OPERATOR_TYPOGRAPHY.helper,
+        )}
+      >
         Compares your estimated baseline review cycle time against measured time for finalized reviews in this
         workspace. Estimated savings use accepted cost findings from committed review activity.
       </p>

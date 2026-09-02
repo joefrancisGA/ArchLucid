@@ -68,7 +68,7 @@ describe("resolveReviewPackageDoThisNext", () => {
     });
 
     expect(next.kind).toBe("rerun-review");
-    expect(next.sentence).toContain("recovery steps");
+    expect(next.sentence).toContain("Execution failed");
     expect(next.sentence).toContain("re-run the review");
     expect(next.actionLabel).toBe("Re-run review");
     expect(next.href).toBe(baseInput.correctionHref);

@@ -26,6 +26,8 @@ import {
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL } from "@/lib/governance/governance-workflow-release-copy";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS } from "@/lib/operator/operator-static-demo";
 import {
   AdvancedOptionsAccordionDeferred,
@@ -177,7 +179,10 @@ export function GovernanceWorkflowPageContent() {
           )}
           data-testid="governance-sample-overview-banner"
         >
-          <strong>{GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL}.</strong> {GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE}
+          <strong>{GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL}.</strong> {GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE}{" "}
+          <Link className={OPERATOR_LINK.inline} href={auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID)}>
+            {BUYER_SURFACE_VOCABULARY.auditTrail}
+          </Link>
         </p>
       ) : null}
 
@@ -190,7 +195,7 @@ export function GovernanceWorkflowPageContent() {
       <GovernanceWorkflowMutationHost mutations={mutations} />
 
       {!isReviewContext ? (
-        urlScopedRunId.length === 0 ? (
+        urlScopedRunId.length === 0 && !showGovernanceSampleOverviewBanner ? (
           <GovernanceApprovalQueuePickReviewBeforeSubmittingStrip
             selectedReviewId=""
             onSelectReview={(reviewId) => {

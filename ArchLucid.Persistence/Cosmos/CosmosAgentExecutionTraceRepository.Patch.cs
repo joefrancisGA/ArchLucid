@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.QualityGates;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Options;
@@ -17,31 +18,23 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         string? fullSystemPromptBlobKey,
         string? fullUserPromptBlobKey,
         string? fullResponseBlobKey,
-        CancellationToken cancellationToken = default)
-    {
-        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
-
-        if (trace is null)
-            return;
-
-        trace.FullSystemPromptBlobKey = fullSystemPromptBlobKey ?? trace.FullSystemPromptBlobKey;
-        trace.FullUserPromptBlobKey = fullUserPromptBlobKey ?? trace.FullUserPromptBlobKey;
-        trace.FullResponseBlobKey = fullResponseBlobKey ?? trace.FullResponseBlobKey;
-        await ReplaceTraceAsync(trace, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyBlobStoragePatch(
+                trace,
+                fullSystemPromptBlobKey,
+                fullUserPromptBlobKey,
+                fullResponseBlobKey),
+            cancellationToken);
 
     /// <inheritdoc />
     public async Task PatchBlobUploadFailedAsync(string traceId, bool failed,
-        CancellationToken cancellationToken = default)
-    {
-        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
-
-        if (trace is null)
-            return;
-
-        trace.BlobUploadFailed = failed ? true : null;
-        await ReplaceTraceAsync(trace, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyBlobUploadFailedPatch(trace, failed),
+            cancellationToken);
 
     /// <inheritdoc />
     public async Task PatchInlinePromptFallbackAsync(
@@ -49,63 +42,39 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         string? fullSystemPromptInline,
         string? fullUserPromptInline,
         string? fullResponseInline,
-        CancellationToken cancellationToken = default)
-    {
-        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
-
-        if (trace is null)
-            return;
-
-        if (fullSystemPromptInline is not null)
-            trace.FullSystemPromptInline = fullSystemPromptInline;
-
-        if (fullUserPromptInline is not null)
-            trace.FullUserPromptInline = fullUserPromptInline;
-
-        if (fullResponseInline is not null)
-            trace.FullResponseInline = fullResponseInline;
-
-        await ReplaceTraceAsync(trace, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyInlinePromptFallbackPatch(
+                trace,
+                fullSystemPromptInline,
+                fullUserPromptInline,
+                fullResponseInline),
+            cancellationToken);
 
     /// <inheritdoc />
     public async Task PatchInlineFallbackFailedAsync(string traceId, bool failed,
-        CancellationToken cancellationToken = default)
-    {
-        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
-
-        if (trace is null)
-            return;
-
-        trace.InlineFallbackFailed = failed ? true : null;
-        await ReplaceTraceAsync(trace, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyInlineFallbackFailedPatch(trace, failed),
+            cancellationToken);
 
     /// <inheritdoc />
     public async Task PatchQualityWarningAsync(string traceId, bool qualityWarning,
-        CancellationToken cancellationToken = default)
-    {
-        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
-
-        if (trace is null)
-            return;
-
-        trace.QualityWarning = qualityWarning;
-        await ReplaceTraceAsync(trace, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyQualityWarningPatch(trace, qualityWarning),
+            cancellationToken);
 
     /// <inheritdoc />
     public async Task PatchQualityRejectedAsync(string traceId, bool qualityRejected,
-        CancellationToken cancellationToken = default)
-    {
-        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
-
-        if (trace is null)
-            return;
-
-        trace.QualityRejected = qualityRejected;
-        await ReplaceTraceAsync(trace, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyQualityRejectedPatch(trace, qualityRejected),
+            cancellationToken);
 
     /// <inheritdoc />
     public async Task PatchQualityGateRecordedSnapshotAsync(
@@ -119,24 +88,34 @@ public sealed partial class CosmosAgentExecutionTraceRepository
     {
         AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
 
-        if (trace is null || trace.RecordedQualityGateOutcome is not null)
+        if (trace is null)
             return;
 
-        trace.QualityWarning = recordedOutcome == AgentOutputQualityGateOutcome.Warned;
-        trace.QualityRejected = recordedOutcome == AgentOutputQualityGateOutcome.Rejected;
-        trace.QualityGateDefinitionVersion = definitionVersion;
-        trace.QualityGateDefinitionContentHashSha256 = definitionContentHashSha256;
-        trace.QualityGateDefinitionMode = gateMode;
-        trace.RecordedQualityGateOutcome = recordedOutcome;
-
-        if (evaluationSnapshot is not null)
+        if (!AgentExecutionTraceQueryPatchCore.TryApplyQualityGateRecordedSnapshotPatch(
+                trace,
+                recordedOutcome,
+                definitionVersion,
+                definitionContentHashSha256,
+                gateMode,
+                evaluationSnapshot))
         {
-            trace.RecordedStructuralCompletenessRatio = evaluationSnapshot.StructuralCompletenessRatio;
-            trace.RecordedSemanticScore = evaluationSnapshot.SemanticScore;
-            trace.RecordedRejectReasonCategory = evaluationSnapshot.RejectReasonCategory;
-            trace.RecordedTriageScenarioId = evaluationSnapshot.TriageScenarioId;
+            return;
         }
 
+        await ReplaceTraceAsync(trace, cancellationToken);
+    }
+
+    private async Task PatchLoadedTraceAsync(
+        string traceId,
+        Action<AgentExecutionTrace> patch,
+        CancellationToken cancellationToken)
+    {
+        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
+
+        if (trace is null)
+            return;
+
+        patch(trace);
         await ReplaceTraceAsync(trace, cancellationToken);
     }
 

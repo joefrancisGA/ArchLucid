@@ -3,7 +3,20 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { fetchEvolutionCandidates, fetchEvolutionResults } from "@/lib/api";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import type { components } from "@/lib/openapi-schemas";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
+
+function asEvolutionCandidateRows(
+  rows: components["schemas"]["EvolutionCandidateChangeSetResponse"][],
+): EvolutionCandidateChangeSetResponse[] {
+  return rows as EvolutionCandidateChangeSetResponse[];
+}
+
+function asEvolutionResults(
+  detail: components["schemas"]["EvolutionResultsResponse"],
+): EvolutionResultsResponse {
+  return detail as EvolutionResultsResponse;
+}
 
 export type EvolutionReviewDemoLoad = {
   readonly mode: "demo";
@@ -44,8 +57,8 @@ export async function loadEvolutionReviewPageData(
 
   try {
     const body = await fetchEvolutionCandidates(100);
-    const rows = body.candidates ?? [];
-    const selectedId = rows.length > 0 ? rows[0].candidateChangeSetId : null;
+    const rows = asEvolutionCandidateRows(body.candidates ?? []);
+    const selectedId = rows.length > 0 ? (rows[0]?.candidateChangeSetId ?? null) : null;
 
     if (selectedId === null || selectedId === "") {
       return {
@@ -59,7 +72,7 @@ export async function loadEvolutionReviewPageData(
     }
 
     try {
-      const detail = await fetchEvolutionResults(selectedId);
+      const detail = asEvolutionResults(await fetchEvolutionResults(selectedId));
 
       return {
         mode: "live",
@@ -108,19 +121,19 @@ async function loadEvolutionReviewWithKnownCandidate(
       mode: "live",
       candidates: [],
       selectedId: candidateId,
-      detail: detailOutcome.ok ? detailOutcome.detail : null,
+      detail: detailOutcome.ok ? asEvolutionResults(detailOutcome.detail) : null,
       listFailure: toApiLoadFailure(listOutcome.error),
       detailFailure: detailOutcome.ok ? null : toApiLoadFailure(detailOutcome.error),
     };
   }
 
-  const rows = listOutcome.body.candidates ?? [];
+  const rows = asEvolutionCandidateRows(listOutcome.body.candidates ?? []);
 
   return {
     mode: "live",
     candidates: rows,
     selectedId: candidateId,
-    detail: detailOutcome.ok ? detailOutcome.detail : null,
+    detail: detailOutcome.ok ? asEvolutionResults(detailOutcome.detail) : null,
     listFailure: null,
     detailFailure: detailOutcome.ok ? null : toApiLoadFailure(detailOutcome.error),
   };

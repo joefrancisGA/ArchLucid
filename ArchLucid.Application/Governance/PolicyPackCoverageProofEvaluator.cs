@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance.Resolution;
 
@@ -30,7 +28,7 @@ public static class PolicyPackCoverageProofEvaluator
         ArgumentNullException.ThrowIfNull(findings);
 
         ExecutedEffectiveGovernanceSnapshotDescriptor? descriptor =
-            JsonSerializer.Deserialize<ExecutedEffectiveGovernanceSnapshotDescriptor>(governanceScopeJson);
+            ExecutedEffectiveGovernanceSnapshotJson.TryDeserialize(governanceScopeJson);
 
         if (descriptor?.PackAssignments is not { Count: > 0 } assignments)
         {
@@ -45,11 +43,13 @@ public static class PolicyPackCoverageProofEvaluator
 
         foreach (CommittedGovernancePackAssignmentSnapshot assignment in assignments)
         {
-            bool hasSignal = findings.Any(finding =>
+            bool hasFindingSignal = findings.Any(finding =>
                 !finding.IsMuted && PolicyPackFindingMatcher.MatchesAssignment(finding, assignment));
 
-            if (!hasSignal)
-                unproven++;
+            if (hasFindingSignal || HasRecordedEvaluationOutcome(assignment.EvaluationOutcome))
+                continue;
+
+            unproven++;
         }
 
         return new PolicyPackCoverageProofResult
@@ -57,5 +57,15 @@ public static class PolicyPackCoverageProofEvaluator
             AssignmentCount = assignments.Count,
             UnprovenAssignmentCount = unproven,
         };
+    }
+
+    private static bool HasRecordedEvaluationOutcome(string? evaluationOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(evaluationOutcome))
+            return false;
+
+        return string.Equals(evaluationOutcome, PolicyPackEvaluationOutcomes.Evaluated, StringComparison.Ordinal)
+               || string.Equals(evaluationOutcome, PolicyPackEvaluationOutcomes.Failed, StringComparison.Ordinal)
+               || string.Equals(evaluationOutcome, PolicyPackEvaluationOutcomes.NotApplicable, StringComparison.Ordinal);
     }
 }

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace ArchLucid.ContextIngestion.Infrastructure;
@@ -10,6 +11,12 @@ internal static class BicepResourceBodyParser
     private static readonly Regex NestedBlockStartRegex = new(
         """
         ^\s*(?<block>[A-Za-z0-9_-]+)\s*:\s*\{
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ArrayAssignmentRegex = new(
+        """
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*\[
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -33,14 +40,41 @@ internal static class BicepResourceBodyParser
 
         string[] lines = innerBody.Split('\n');
         int lineIndex = 0;
+        bool inBlockComment = false;
 
         while (lineIndex < lines.Length)
         {
             string line = lines[lineIndex].Trim();
 
+            if (TryConsumeBlockComment(ref line, ref inBlockComment))
+            {
+                lineIndex++;
+                continue;
+            }
+
             if (line.Length == 0 || line.StartsWith("//", StringComparison.Ordinal))
             {
                 lineIndex++;
+                continue;
+            }
+
+            Match arrayMatch = ArrayAssignmentRegex.Match(line);
+
+            if (arrayMatch.Success)
+            {
+                string arrayKey = arrayMatch.Groups["key"].Value;
+                string fromHere = string.Join('\n', lines[lineIndex..]);
+                int bracketIndex = fromHere.IndexOf('[', StringComparison.Ordinal);
+                string arrayBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBracketBody(fromHere, bracketIndex);
+
+                if (!string.IsNullOrWhiteSpace(arrayBody)
+                    && BicepArrayLiteralConverter.TryParseToJsonElement(arrayBody, out JsonElement arrayElement))
+                {
+                    BicepArrayLiteralConverter.TryAddParsedArrayProperty(properties, arrayKey, arrayElement);
+                }
+
+                int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
+                lineIndex += consumedArrayLines;
                 continue;
             }
 
@@ -84,6 +118,7 @@ internal static class BicepResourceBodyParser
             }
 
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
             string scalarValue = UnquoteScalar(rawValue);
 
             InfrastructureDeclarationSecurityPropertyWriter.TryAddTfPropertyWithArmAlias(properties, key, scalarValue);
@@ -122,5 +157,44 @@ internal static class BicepResourceBodyParser
             return rawValue[1..^1];
 
         return rawValue;
+    }
+
+    private static bool TryConsumeBlockComment(ref string line, ref bool inBlockComment)
+    {
+        if (inBlockComment)
+        {
+            int end = line.IndexOf("*/", StringComparison.Ordinal);
+
+            if (end < 0)
+            {
+                line = string.Empty;
+
+                return true;
+            }
+
+            line = line[(end + 2)..].TrimStart();
+            inBlockComment = false;
+        }
+
+        while (true)
+        {
+            int start = line.IndexOf("/*", StringComparison.Ordinal);
+
+            if (start < 0)
+                break;
+
+            int end = line.IndexOf("*/", start + 2, StringComparison.Ordinal);
+
+            if (end < 0)
+            {
+                line = line[..start].TrimEnd();
+                inBlockComment = true;
+                break;
+            }
+
+            line = string.Concat(line.AsSpan(0, start), line.AsSpan(end + 2)).Trim();
+        }
+
+        return string.IsNullOrWhiteSpace(line) && inBlockComment;
     }
 }

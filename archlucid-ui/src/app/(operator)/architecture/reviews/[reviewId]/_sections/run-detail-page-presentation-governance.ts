@@ -134,6 +134,7 @@ export async function buildRunDetailGovernancePresentation(
         : null;
 
   const showGovernanceCta = shouldShowRunDetailGovernanceCta({
+    runId: model.resolvedDetail.run.runId,
     manifestId: model.manifestId,
     buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
     operatorGovernanceDecision: model.resolvedDetail.run.operatorGovernanceDecision,

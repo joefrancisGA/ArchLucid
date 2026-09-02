@@ -36,7 +36,7 @@ export function workspaceAiAvailabilityStatusLabel(result: WorkspaceAiAvailabili
   if (result.isAvailable) {
     return result.aiSource === "simulator"
       ? "Simulator mode — live platform AI not required"
-      : "AI availability probe succeeded";
+      : "AI checked — OK";
   }
 
   if (result.aiSource === "managed-platform" && result.summary.includes("Azure OpenAI")) {
@@ -48,6 +48,14 @@ export function workspaceAiAvailabilityStatusLabel(result: WorkspaceAiAvailabili
   }
 
   return "Workspace AI availability";
+}
+
+export function workspaceAiAvailableDetail(result: WorkspaceAiAvailabilityResult): string {
+  if (result.aiSource === "simulator") {
+    return "Simulator mode is active — live platform AI is not required.";
+  }
+
+  return "We checked AI availability and it is OK.";
 }
 
 export function workspaceAiUnavailableDetail(result: WorkspaceAiAvailabilityResult): string {

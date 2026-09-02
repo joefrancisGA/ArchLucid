@@ -4,16 +4,19 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useDeepLinkHashScroll } from "@/hooks/use-deep-link-hash-scroll";
 import {
-  ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
+  formatOptionalWorkspaceSetupCollapsedSummary,
   ONBOARDING_OPTIONAL_SETUP_DISMISS_DETAIL,
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD,
+  FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_PROGRESS_LEAD,
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatSetupReadinessLabel } from "@/lib/operator/operator-home-workspace-metrics";
 import {
   ONBOARDING_OPTIONAL_SETUP_DELEGATION_HEADING_ID,
   ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
@@ -51,7 +54,10 @@ function readOptionalSetupDeepLinkActive(): boolean {
 
 /** Collapsed-by-default optional workspace setup — secondary to the first-review walkthrough. */
 export function OnboardingOptionalSetupSection() {
-  const { phase, context } = useFinishSetupReadinessContext();
+  const { phase, context, readyCount, totalCount } = useFinishSetupReadinessContext();
+  const setupIncomplete = phase === "ready" && totalCount > 0 && readyCount < totalCount;
+  const setupProgressLabel = formatSetupReadinessLabel(readyCount, totalCount);
+  const collapsedSummary = formatOptionalWorkspaceSetupCollapsedSummary(readyCount, totalCount);
   const [dismissed, setDismissed] = useState(readOptionalSetupDismissed);
   const [deepLinkActive, setDeepLinkActive] = useState(readOptionalSetupDeepLinkActive);
 
@@ -147,10 +153,21 @@ export function OnboardingOptionalSetupSection() {
       defaultExpanded={false}
       autoExpandOnHashMatch
       deepLinkHashMatches={isOnboardingOptionalSetupDeepLinkHash}
-      collapsedSummary={ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY}
+      collapsedSummary={collapsedSummary}
+      headerAside={
+        setupIncomplete ? (
+          <StatusTag
+            kind="in-progress"
+            label={setupProgressLabel}
+            data-testid="workspace-setup-readiness-progress"
+          />
+        ) : null
+      }
     >
       <div className="space-y-4">
-        <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD}</p>
+        <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
+          {setupIncomplete ? FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_PROGRESS_LEAD : FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD}
+        </p>
         <OptionalWorkspaceSetupList />
         <div className="space-y-1">
           <OptionalWorkspaceSetupDismissButton onDismiss={onDismiss} />

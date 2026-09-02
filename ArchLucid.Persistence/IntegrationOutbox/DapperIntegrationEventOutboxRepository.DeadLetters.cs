@@ -15,8 +15,8 @@ public sealed partial class DapperIntegrationEventOutboxRepository
         int skip,
         CancellationToken ct)
     {
-        int take = Math.Clamp(maxRows, 1, 500);
-        int offset = Math.Max(0, skip);
+        int take = IntegrationEventOutboxRepositoryCore.ClampDeadLetterRows(maxRows);
+        int offset = IntegrationEventOutboxRepositoryCore.ClampDeadLetterSkip(skip);
 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -90,8 +90,8 @@ public sealed partial class DapperIntegrationEventOutboxRepository
         int maxRows,
         CancellationToken ct)
     {
-        int take = Math.Clamp(maxRows, 1, 500);
-        string? normalizedEventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim();
+        int take = IntegrationEventOutboxRepositoryCore.ClampDeadLetterRows(maxRows);
+        string? normalizedEventType = IntegrationEventOutboxRepositoryCore.NormalizeEventTypeFilter(eventType);
 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);

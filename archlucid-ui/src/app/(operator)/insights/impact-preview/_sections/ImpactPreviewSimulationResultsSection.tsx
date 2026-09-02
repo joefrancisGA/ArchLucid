@@ -57,7 +57,7 @@ export function ImpactPreviewSimulationResultsSection(
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Source plan{" "}
           <Link
-            href={planningPlanDetailPath(props.detail.candidate.sourcePlanId)}
+            href={planningPlanDetailPath(props.detail.candidate.sourcePlanId ?? "")}
             className={OPERATOR_LINK.inline}
           >
             {props.detail.candidate.sourcePlanId}
@@ -94,7 +94,11 @@ export function ImpactPreviewSimulationResultsSection(
         </p>
       ) : (
         runs.map((run) => (
-          <SimulationRunDiffCard key={run.simulationRunId} run={run} planLinkedRunIds={props.planSnapshot?.linkedArchitectureRunIds ?? []} />
+          <SimulationRunDiffCard
+            key={run.simulationRunId ?? run.baselineArchitectureRunId}
+            run={run as import("@/types/evolution").EvolutionSimulationRunWithEvaluationResponse}
+            planLinkedRunIds={props.planSnapshot?.linkedArchitectureRunIds ?? []}
+          />
         ))
       )}
     </section>

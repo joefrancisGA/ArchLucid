@@ -43,6 +43,7 @@ import {
   filterGovernanceRowsForJobView,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
+import { matchesGovernanceFindingsSearchQuery } from "@/lib/governance/governance-findings-queue-search";
 
 import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -58,6 +59,7 @@ export function filterGovernanceFindingsDisplayedRows(
   registerFilter: RiskRegisterFilter,
   nlFacets: FindingsNaturalLanguageFacets,
   effectiveJobView: FindingJobView | null,
+  searchQuery: string = "",
 ): GovernanceFindingQueueRow[] {
   const facetFilteredRows = scopedRows.filter(
     (row) =>
@@ -70,7 +72,8 @@ export function filterGovernanceFindingsDisplayedRows(
           latestDisposition: row.latestDisposition,
         },
         nlFacets,
-      ),
+      ) &&
+      matchesGovernanceFindingsSearchQuery(row, searchQuery),
   );
 
   if (effectiveJobView === null) {

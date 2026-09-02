@@ -8,11 +8,14 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import {
   GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
+  governanceBulkDispositionSuccessMessage,
 } from "@/lib/governance/governance-mutation-outcome-copy";
 import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
+import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { listOpenRootCauseClusters } from "@/lib/review-quality/compare-quality-delta";
@@ -41,6 +44,7 @@ export function RootCauseClusterDispositionStrip(
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [pendingClusterKey, setPendingClusterKey] = useState<string | null>(null);
   const [pendingDisposition, setPendingDisposition] = useState<ClusterDisposition | null>(null);
 
@@ -58,6 +62,7 @@ export function RootCauseClusterDispositionStrip(
     }
 
     setInlineErrorMessage(null);
+    setSuccessMessage(null);
     setPendingClusterKey(clusterKey);
     setPendingDisposition(disposition);
   }
@@ -69,7 +74,9 @@ export function RootCauseClusterDispositionStrip(
 
     setBusy(true);
     setInlineErrorMessage(null);
+    setSuccessMessage(null);
 
+    const startedAtMs = Date.now();
     const idempotencyKey = createGovernanceMutationIdempotencyKey();
 
     try {
@@ -87,8 +94,12 @@ export function RootCauseClusterDispositionStrip(
         return;
       }
 
+      await awaitMinimumVisibleDuration(startedAtMs);
       setPendingClusterKey(null);
       setPendingDisposition(null);
+      setSuccessMessage(
+        governanceBulkDispositionSuccessMessage(result.processedCount, pendingDisposition),
+      );
       router.refresh();
     } catch {
       setInlineErrorMessage(GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
@@ -105,6 +116,16 @@ export function RootCauseClusterDispositionStrip(
       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
         Root-cause clusters — apply one disposition per related group
       </p>
+      {successMessage !== null ? (
+        <OperatorSuccessCallout
+          message={successMessage}
+          testId="root-cause-cluster-disposition-success"
+          className="mt-2"
+          onDismiss={() => {
+            setSuccessMessage(null);
+          }}
+        />
+      ) : null}
       <div className="mt-2 space-y-2">
         <Label htmlFor="root-cause-cluster-rationale" className={OPERATOR_TYPOGRAPHY.helper}>
           Shared rationale (required for accept or waive)

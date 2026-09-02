@@ -6051,75 +6051,9 @@
         },
         "type": "object"
       },
-      "BillingCheckoutResponseDto": {
-        "properties": {
-          "checkoutUrl": {
-            "type": "string"
-          },
-          "expiresUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "providerSessionId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "checkoutUrl",
-          "providerSessionId"
-        ],
-        "type": "object"
-      },
       "BillingPortalPostRequest": {
         "properties": {
           "returnUrl": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "BillingPortalResponseDto": {
-        "properties": {
-          "portalUrl": {
-            "type": "string"
-          },
-          "providerSessionId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "portalUrl",
-          "providerSessionId"
-        ],
-        "type": "object"
-      },
-      "BillingSubscriptionStatusResponseDto": {
-        "properties": {
-          "hasSubscription": {
-            "type": "boolean"
-          },
-          "isPaymentPastDue": {
-            "type": "boolean"
-          },
-          "provider": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "status": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "tierCode": {
             "type": [
               "null",
               "string"
@@ -12764,14 +12698,7 @@
           null
         ]
       },
-      "FindingConfidenceLevel": {
-        "enum": [
-          "High",
-          "Medium",
-          "Low",
-          null
-        ]
-      },
+      "FindingConfidenceLevel": {},
       "FindingCorrelationMethod": {
         "enum": [
           "None",
@@ -161039,23 +160966,6 @@
         },
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingCheckoutResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingCheckoutResponseDto"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingCheckoutResponseDto"
-                }
-              }
-            },
             "description": "OK"
           },
           "400": {
@@ -161179,23 +161089,6 @@
       "post": {
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
-                }
-              }
-            },
             "description": "OK"
           },
           "400": {
@@ -161359,23 +161252,6 @@
         },
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingPortalResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingPortalResponseDto"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingPortalResponseDto"
-                }
-              }
-            },
             "description": "OK"
           },
           "400": {
@@ -161499,23 +161375,6 @@
       "get": {
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingSubscriptionStatusResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingSubscriptionStatusResponseDto"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingSubscriptionStatusResponseDto"
-                }
-              }
-            },
             "description": "OK"
           },
           "400": {

@@ -134,13 +134,11 @@ public static partial class ServiceCollectionExtensions
         RegisterDigestDelivery(services, configuration);
         RegisterIntegrationEventPublishing(services, configuration);
         AlertsCompositionModule.Register(services, configuration);
-        RegisterBackgroundJobs(services, configuration, hostingRole);
         PipelineCompositionModule.Register(services, configuration);
         RegisterDecisioningEngines(services, configuration);
-        RegisterAuthorityDecisionEngineAndRepositories(services, configuration);
-        RegisterArtifactSynthesis(services);
+        CoordinatorArtifactsCompositionModule.Register(services, configuration);
         AgentCompositionModule.Register(services, configuration);
-        RegisterRetrieval(services, configuration);
+        RetrievalCompositionModule.Register(services, configuration);
         RegisterGovernance(services, configuration);
         services.AddArchitectureIntelligence();
         services.AddReviewClarificationQuestions();
@@ -178,10 +176,9 @@ public static partial class ServiceCollectionExtensions
         RegisterAwsExtractorAutoPullHostedService(services, hostingRole);
         RegisterGcpExtractorAutoPullHostedService(services, hostingRole);
         RegisterWarmTenantCatalogReplenishHostedService(services, hostingRole);
-        RegisterDataConsistencyReconciliation(services, configuration, hostingRole);
+        DataHealthJobsCompositionModule.Register(services, configuration, hostingRole);
         services.Configure<SqlConnectionHealthCheckOptions>(
             configuration.GetSection(SqlConnectionHealthCheckOptions.SectionName));
-        RegisterArchLucidHealthChecks(services, configuration, hostingRole);
         RegisterCosmosPolyglotPersistence(services, configuration);
         RegisterArchLucidJobRunners(services, configuration);
         services.AddFirstTenantFunnelTelemetry(configuration);

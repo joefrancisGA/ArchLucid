@@ -27,15 +27,17 @@ describe("resolveBuyerGoldenJourneyNav", () => {
         `/architecture/reviews/${showcaseRunEnc}/findings/${encodeURIComponent("sensitive-data-minimization-risk")}/evidence-trace`,
       )?.currentStepIndex,
     ).toBe(2);
-    expect(resolveBuyerGoldenJourneyNav(`/governance/approval-queue?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(3);
-    expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(4);
-    expect(resolveBuyerGoldenJourneyNav(`/governance/audit?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(4);
+    expect(resolveBuyerGoldenJourneyNav(`/governance/audit?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(3);
   });
 
   it("uses canonical /governance/audit for audit trail step href", () => {
-    const auditStep = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.find((def) => def.step === 5);
+    const auditStep = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.find((def) => def.step === 4);
 
     expect(auditStep?.href).toBe(`/governance/audit?runId=${showcaseRunEnc}`);
+  });
+
+  it("does not treat approval queue as a buyer golden spine step", () => {
+    expect(resolveBuyerGoldenJourneyNav(`/governance/approval-queue?runId=${showcaseRunEnc}`)).toBeNull();
   });
 
   it("recognizes live demo workspace A product tour run ids on the buyer golden spine", () => {
@@ -46,9 +48,8 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(resolveBuyerGoldenJourneyNav(`/architecture/reviews/${liveRunEnc}`)?.currentStepIndex).toBe(0);
     expect(resolveBuyerGoldenJourneyNav(`/governance/sealed-records/${liveGoldenManifestId}`)?.currentStepIndex).toBe(1);
     expect(resolveBuyerGoldenJourneyNav(`/insights/evidence-graph?runId=${liveRunEnc}`)?.currentStepIndex).toBe(2);
-    expect(resolveBuyerGoldenJourneyNav(`/governance/approval-queue?runId=${liveRunEnc}`)?.currentStepIndex).toBe(3);
-    expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(4);
-    expect(resolveBuyerGoldenJourneyNav(`/governance/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(4);
+    expect(resolveBuyerGoldenJourneyNav(`/governance/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(3);
+    expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(3);
   });
 
   it("recognizes live SQL golden manifest detail under canonical and legacy signed-record paths", () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
@@ -31,6 +31,8 @@ import {
   subscribeOperatorHomeLifecycleRefresh,
 } from "@/lib/operator/operator-home-lifecycle-notify";
 import {
+  homeGovernanceWarningsClearHrefFromSearch,
+  homeGovernanceWarningsHrefFromSearch,
   homeGovernanceWarningsQueryEnabled,
   resolveRunsDashboardOpenAllReviewsHref,
   resolveRunsDashboardRecentListTab,
@@ -76,6 +78,7 @@ export function useRunsDashboardPanel({
   initialModel = null,
 }: UseRunsDashboardPanelOptions = {}) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [tab, setTab] = useState<RunsDashboardTabId>("all");
   const [governanceWarningsOnly, setGovernanceWarningsOnly] = useState(() =>
     homeGovernanceWarningsQueryEnabled(searchParams),
@@ -424,12 +427,29 @@ export function useRunsDashboardPanel({
     setShowArchived(false);
   }, []);
 
+  const setGovernanceWarningsOnlyWithUrl = useCallback(
+    (value: boolean) => {
+      setGovernanceWarningsOnly(value);
+
+      const nextHref = value
+        ? homeGovernanceWarningsHrefFromSearch(searchParams.toString())
+        : homeGovernanceWarningsClearHrefFromSearch(searchParams.toString());
+
+      router.replace(nextHref, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const clearGovernanceWarningsFilter = useCallback(() => {
+    setGovernanceWarningsOnlyWithUrl(false);
+  }, [setGovernanceWarningsOnlyWithUrl]);
+
   return {
     hideHeading,
     tab,
     buyerPolishedShell,
     governanceWarningsOnly,
-    setGovernanceWarningsOnly,
+    setGovernanceWarningsOnly: setGovernanceWarningsOnlyWithUrl,
     showArchived,
     setShowArchived,
     restoreBusyRequestId,
@@ -463,6 +483,7 @@ export function useRunsDashboardPanel({
     archivedFilterDisabled,
     selectDashboardTab,
     restoreArchivedRequest,
+    clearGovernanceWarningsFilter,
   };
 }
 

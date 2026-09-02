@@ -2,8 +2,10 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
@@ -184,10 +186,147 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
       Times.Never);
   }
 
+  [Fact]
+  public async Task BuildAsync_pairs_export_records_by_template_profile_not_creation_order()
+  {
+    RunExportRecord leftSponsor = new()
+    {
+      ExportRecordId = "left-sponsor",
+      RunId = "left-run",
+      ExportType = "analysis-report-consulting-docx",
+      TemplateProfile = "sponsor",
+      Format = "docx",
+      CreatedUtc = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc),
+    };
+    RunExportRecord leftInternal = new()
+    {
+      ExportRecordId = "left-internal",
+      RunId = "left-run",
+      ExportType = "analysis-report-consulting-docx",
+      TemplateProfile = "internal",
+      Format = "docx",
+      CreatedUtc = new DateTime(2026, 1, 1, 9, 0, 0, DateTimeKind.Utc),
+    };
+    RunExportRecord rightInternal = new()
+    {
+      ExportRecordId = "right-internal",
+      RunId = "right-run",
+      ExportType = "analysis-report-consulting-docx",
+      TemplateProfile = "internal",
+      Format = "docx",
+      CreatedUtc = new DateTime(2026, 1, 2, 8, 0, 0, DateTimeKind.Utc),
+    };
+    RunExportRecord rightSponsor = new()
+    {
+      ExportRecordId = "right-sponsor",
+      RunId = "right-run",
+      ExportType = "analysis-report-consulting-docx",
+      TemplateProfile = "sponsor",
+      Format = "docx",
+      CreatedUtc = new DateTime(2026, 1, 2, 9, 0, 0, DateTimeKind.Utc),
+    };
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("left-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail("left-run", null));
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("right-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail("right-run", null));
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync("left-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync([leftSponsor, leftInternal]);
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync("right-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync([rightInternal, rightSponsor]);
+
+    Mock<IExportRecordDiffService> exportDiff = new();
+    exportDiff
+      .Setup(s => s.CompareAsync(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ExportRecordDiffResult());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>(),
+      exportDiff);
+
+    await sut.BuildAsync("left-run", "right-run");
+
+    exportDiff.Verify(
+      s => s.CompareAsync(
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "left-sponsor"),
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "right-sponsor"),
+        It.IsAny<CancellationToken>()),
+      Times.Once);
+    exportDiff.Verify(
+      s => s.CompareAsync(
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "left-internal"),
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "right-internal"),
+        It.IsAny<CancellationToken>()),
+      Times.Once);
+  }
+
+  [Fact]
+  public async Task BuildAsync_when_manifest_missing_but_agent_changed_adds_interpretation_note()
+  {
+    AgentResultDiffResult agentDiff = new()
+    {
+      AgentDeltas =
+      [
+        new AgentResultDelta { AddedClaims = ["claim-a"] },
+      ],
+    };
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("left-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ArchitectureRunDetail
+      {
+        Run = new ArchitectureRun { RunId = "left-run", RequestId = "req-left" },
+        Results = [new AgentResult { RunId = "left-run", TaskId = "t1", AgentType = AgentType.Topology }],
+      });
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("right-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ArchitectureRunDetail
+      {
+        Run = new ArchitectureRun { RunId = "right-run", RequestId = "req-right" },
+        Results = [new AgentResult { RunId = "right-run", TaskId = "t1", AgentType = AgentType.Topology }],
+      });
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+    Mock<IAgentResultDiffService> agentDiffService = new();
+    agentDiffService
+      .Setup(s => s.Compare("left-run", It.IsAny<IReadOnlyList<AgentResult>>(), "right-run", It.IsAny<IReadOnlyList<AgentResult>>()))
+      .Returns(agentDiff);
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>(),
+      null,
+      agentDiffService);
+
+    EndToEndReplayComparisonReport report = await sut.BuildAsync("left-run", "right-run");
+
+    report.ManifestDiff.Should().BeNull();
+    report.InterpretationNotes.Should().Contain(note =>
+      note.Contains("Agent outputs changed", StringComparison.OrdinalIgnoreCase)
+      && note.Contains("manifest was not compared", StringComparison.OrdinalIgnoreCase));
+  }
+
   private static EndToEndReplayComparisonService CreateSut(
     Mock<IRunDetailQueryService> runDetailQuery,
     Mock<IRunExportRecordRepository> exportRecords,
-    Mock<IManifestDiffService> manifestDiff)
+    Mock<IManifestDiffService> manifestDiff,
+    Mock<IExportRecordDiffService>? exportDiff = null,
+    Mock<IAgentResultDiffService>? agentDiff = null)
   {
     Mock<IFindingReviewTrailRepository> reviewTrailRepository = new();
     reviewTrailRepository
@@ -210,9 +349,9 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
       runDetailQuery.Object,
       Mock.Of<IRunRepository>(),
       exportRecords.Object,
-      Mock.Of<IAgentResultDiffService>(),
+      agentDiff?.Object ?? Mock.Of<IAgentResultDiffService>(),
       manifestDiff.Object,
-      Mock.Of<IExportRecordDiffService>(),
+      exportDiff?.Object ?? Mock.Of<IExportRecordDiffService>(),
       new CrossReviewFindingCorrelationService(),
       new CrossReviewFindingLifecycleService(reviewTrailRepository.Object),
       intelligence.Object,

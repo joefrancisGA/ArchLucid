@@ -131,4 +131,47 @@ public sealed class PlainTextContextDocumentParserTests
         first[0].ObjectId.Should().Be(second[0].ObjectId);
         first[0].ObjectId.Should().Be(ContextIngestionStableLineNames.StableObjectId("Requirement", "must scale horizontally"));
     }
+
+    [Fact]
+    public async Task ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement()
+    {
+        ContextDocumentReference doc = new()
+        {
+            Name = "spec.txt",
+            ContentType = "text/plain",
+            Content = "REQ : Must scale horizontally"
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(doc, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].ObjectType.Should().Be("Requirement");
+        result[0].Properties["text"].Should().Be("must scale horizontally");
+    }
+
+    [Fact]
+    public async Task ParseAsync_RequirementInternalWhitespace_Reparse_ProducesStableObjectId()
+    {
+        ContextDocumentReference spaced = new()
+        {
+            Name = "spec.txt",
+            ContentType = "text/plain",
+            Content = "REQ: Must  Encrypt"
+        };
+
+        ContextDocumentReference normalized = new()
+        {
+            Name = "spec.txt",
+            ContentType = "text/plain",
+            Content = "REQ: Must Encrypt"
+        };
+
+        IReadOnlyList<CanonicalObject> spacedResult = await _sut.ParseAsync(spaced, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> normalizedResult = await _sut.ParseAsync(normalized, CancellationToken.None);
+
+        spacedResult.Should().ContainSingle();
+        normalizedResult.Should().ContainSingle();
+        spacedResult[0].ObjectId.Should().Be(normalizedResult[0].ObjectId);
+        spacedResult[0].Properties["text"].Should().Be("must encrypt");
+    }
 }

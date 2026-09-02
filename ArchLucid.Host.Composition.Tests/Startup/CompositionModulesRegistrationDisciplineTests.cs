@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application;
 using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Application.AzureExtractor;
@@ -23,6 +24,10 @@ using ArchLucid.Core.Alerts;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Core.Retrieval;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Composition.Startup.Modules;
 using ArchLucid.Host.Composition.Startup.Modules.Agents;
@@ -53,6 +58,8 @@ public sealed class CompositionModulesRegistrationDisciplineTests
     [InlineData(typeof(PipelineCompositionModule))]
     [InlineData(typeof(AlertsCompositionModule))]
     [InlineData(typeof(HostedCloudExtractorCompositionModule))]
+    [InlineData(typeof(RetrievalCompositionModule))]
+    [InlineData(typeof(CoordinatorArtifactsCompositionModule))]
     public void Composition_module_exposes_Register_in_Startup_Modules_namespace(Type moduleType)
     {
         moduleType.Namespace.Should().Be("ArchLucid.Host.Composition.Startup.Modules");
@@ -71,6 +78,7 @@ public sealed class CompositionModulesRegistrationDisciplineTests
     [Theory]
     [InlineData(typeof(WeeklyDigestCompositionModule))]
     [InlineData(typeof(TrialLifecycleCompositionModule))]
+    [InlineData(typeof(DataHealthJobsCompositionModule))]
     public void Composition_module_exposes_Register_with_hosting_role_in_Startup_Modules_namespace(Type moduleType)
     {
         moduleType.Namespace.Should().Be("ArchLucid.Host.Composition.Startup.Modules");
@@ -203,7 +211,7 @@ public sealed class CompositionModulesRegistrationDisciplineTests
         IConfiguration configuration = CreateModuleTestConfiguration();
         ServiceCollection services = [];
 
-        TrialLifecycleCompositionModule.Register(services, configuration, ArchLucidHostingRole.Api);
+        TrialLifecycleCompositionModule.Register(services, configuration, ArchLucidHostingRole.Worker);
 
         services.Should().Contain(static d =>
             d.ServiceType == typeof(IAuditService) &&
@@ -362,6 +370,66 @@ public sealed class CompositionModulesRegistrationDisciplineTests
                 m => m.Name == name,
                 $"refactor #39 keeps {name} as a thin wrapper so AddArchLucidApplicationServices call sites stay stable");
         }
+    }
+
+    [Fact]
+    public void RetrievalCompositionModule_registers_retrieval_query_service()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        RetrievalCompositionModule.Register(services, configuration);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(IRetrievalQueryService));
+        services.Should().Contain(static d => d.ServiceType == typeof(IEmbeddingService));
+    }
+
+    [Fact]
+    public void CoordinatorArtifactsCompositionModule_registers_decision_engine_and_artifact_synthesis()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        CoordinatorArtifactsCompositionModule.Register(services, configuration);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(IDecisionEngineV2));
+        services.Should().Contain(static d => d.ServiceType == typeof(IArtifactSynthesisService));
+    }
+
+    [Fact]
+    public void DataHealthJobsCompositionModule_registers_health_and_background_job_services()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        DataHealthJobsCompositionModule.Register(services, configuration, ArchLucidHostingRole.Api);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(DataConsistencyReconciliationHealthState));
+        services.Should().Contain(static d => d.ServiceType == typeof(IBackgroundJobQueue));
+    }
+
+    [Fact]
+    public void ServiceCollectionExtensions_does_not_define_legacy_retrieval_or_coordinator_register_methods()
+    {
+        MethodInfo[] methods = typeof(ArchLucid.Host.Composition.Startup.ServiceCollectionExtensions)
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static);
+
+        string[] resurrected =
+        [
+            "RegisterRetrieval",
+            "RegisterAuthorityDecisionEngineAndRepositories",
+            "RegisterArtifactSynthesis",
+            "RegisterArchLucidHealthChecks",
+            "RegisterDataConsistencyReconciliation",
+            "RegisterBackgroundJobs",
+        ];
+
+        IEnumerable<string> found = methods
+            .Select(m => m.Name)
+            .Where(name => resurrected.Contains(name, StringComparer.Ordinal));
+
+        found.Should().BeEmpty(
+            "refactor #10 moved retrieval, coordinator/artifacts, and data-health/job registrations into Startup.Modules");
     }
 
     [Fact]

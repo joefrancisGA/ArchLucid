@@ -23,4 +23,22 @@ describe("scrollToReviewDetailSection", () => {
     expect(scrolled).toBe(true);
     expect(disclosure?.open).toBe(true);
   });
+
+  it("focuses the target section for keyboard users", () => {
+    document.body.innerHTML = `
+      <section id="artifacts-exports">
+        <h2>Deliverables</h2>
+      </section>
+    `;
+
+    const section = document.getElementById("artifacts-exports");
+
+    expect(section).not.toBeNull();
+    expect(document.activeElement).toBe(document.body);
+
+    scrollToReviewDetailSection("artifacts-exports");
+
+    expect(document.activeElement).toBe(section);
+    expect(section?.getAttribute("tabindex")).toBe("-1");
+  });
 });

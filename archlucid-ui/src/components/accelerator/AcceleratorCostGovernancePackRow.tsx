@@ -11,6 +11,7 @@ import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPac
 import {
   ACCELERATOR_JOB_CHOOSER_EXPECTED_OUTPUTS_LABEL,
   ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL,
+  ACCELERATOR_COST_GOVERNANCE_CLOUD_SELECTION_REQUIRED_MESSAGE,
 } from "@/lib/accelerator-chooser-start-copy";
 import {
   ACCELERATOR_COST_GOVERNANCE_GROUP,
@@ -35,7 +36,8 @@ export function AcceleratorCostGovernancePackRow(props: AcceleratorCostGovernanc
   const rowPrefix = props.rowTestIdPrefix ?? "accelerator-chooser-row";
   const startPrefix = props.startTestIdPrefix ?? "accelerator-chooser-start";
   const { selectedPackId, setSelectedPackId } = useAcceleratorCostGovernancePackSelection();
-  const selectedPack = resolveAcceleratorCostGovernancePackEntry(selectedPackId);
+  const selectedPack = selectedPackId === null ? null : resolveAcceleratorCostGovernancePackEntry(selectedPackId);
+  const cloudSelectionRequiredId = `${rowPrefix}-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-cloud-required`;
 
   return (
     <li
@@ -74,15 +76,29 @@ export function AcceleratorCostGovernancePackRow(props: AcceleratorCostGovernanc
           {ACCELERATOR_COST_GOVERNANCE_GROUP.expectedOutputs}
         </p>
       )}
+      {selectedPackId === null ? (
+        <p
+          id={cloudSelectionRequiredId}
+          className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}
+        >
+          {ACCELERATOR_COST_GOVERNANCE_CLOUD_SELECTION_REQUIRED_MESSAGE}
+        </p>
+      ) : null}
       <AcceleratorPackStartCta
-        packId={selectedPackId}
-        packLabel={selectedPack.packLabel}
-        buyerJob={selectedPack.buyerJob}
-        startHref={selectedPack.startHref}
+        packId={selectedPackId ?? ACCELERATOR_COST_GOVERNANCE_GROUP_ID}
+        packLabel={selectedPack?.packLabel ?? ACCELERATOR_COST_GOVERNANCE_GROUP.packLabel}
+        buyerJob={selectedPack?.buyerJob ?? ACCELERATOR_COST_GOVERNANCE_GROUP.buyerJob}
+        startHref={selectedPack?.startHref ?? "#"}
         prerequisiteStatus={props.prerequisiteStatus}
-        startTestId={`${startPrefix}-${selectedPackId}`}
+        startTestId={
+          selectedPackId === null
+            ? `${startPrefix}-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}`
+            : `${startPrefix}-${selectedPackId}`
+        }
         blockedMessageTestId={`${rowPrefix}-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-blocked`}
         onRetry={props.onRetry}
+        disabled={selectedPackId === null}
+        disabledReasonId={selectedPackId === null ? cloudSelectionRequiredId : undefined}
       />
     </li>
   );

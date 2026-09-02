@@ -143,7 +143,7 @@ public sealed partial class DapperDraftRequestRepository
     {
         PersistenceTenantScope.RequireEntityTenant(tenantId);
 
-        int effectiveMax = Math.Clamp(maxCount, 1, 25);
+        int effectiveMax = DraftRequestRepositoryCore.ClampPriorDraftsMaxCount(maxCount);
 
         const string sql = """
                            SELECT TOP (@MaxCount)
@@ -223,7 +223,7 @@ public sealed partial class DapperDraftRequestRepository
                 {
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
-                    NormalizedSystemName = systemName.Trim().ToUpperInvariant(),
+                    NormalizedSystemName = DraftRequestRepositoryCore.NormalizeSystemName(systemName),
                     DraftingStatus = DraftRequestStatus.Drafting.ToString(),
                     AdmittedStatus = DraftRequestStatus.Admitted.ToString(),
                     ExcludeDraftId = excludeDraftId,

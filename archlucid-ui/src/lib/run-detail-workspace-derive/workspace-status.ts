@@ -63,6 +63,7 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
 
     if (
       shouldShowRunDetailGovernanceCta({
+        runId: input.run.runId,
         manifestId,
         buyerPolishedArtifactTable: input.buyerPolishedArtifactTable,
         operatorGovernanceDecision: input.operatorGovernanceDecision,
@@ -77,6 +78,7 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       gateLabel === "Pending" ||
       /pending/i.test(governanceDecision) ||
       shouldShowRunDetailGovernanceCta({
+        runId: input.run.runId,
         manifestId,
         buyerPolishedArtifactTable: input.buyerPolishedArtifactTable,
         operatorGovernanceDecision: input.operatorGovernanceDecision,

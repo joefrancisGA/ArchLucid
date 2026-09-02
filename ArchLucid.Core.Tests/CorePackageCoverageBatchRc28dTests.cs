@@ -64,6 +64,78 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_string_encoded_severity_ordinals_map_alert_labels()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "severities": ["2", "3"]
+              }
+            }
+            """);
+
+        parsed.Severities.Should().Equal("High", "Critical");
+    }
+
+    [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_string_encoded_whole_number_severity_ordinals_map_alert_labels()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "severities": ["2.0", "3.0"]
+              }
+            }
+            """);
+
+        parsed.Severities.Should().Equal("High", "Critical");
+    }
+
+    [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_whole_number_double_severity_ordinals_map_alert_labels()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "severities": [2.0, 3.0]
+              }
+            }
+            """);
+
+        parsed.Severities.Should().Equal("High", "Critical");
+    }
+
+    [Fact]
+    public void AlertRoutingMatcher_string_encoded_severity_metadata_filters_non_matching_signals()
+    {
+        AlertRoutingSubscription subscription = new()
+        {
+            MinimumSeverity = AlertSeverity.Info,
+            MetadataJson = """{"routingCriteria":{"severities":["3"]}}""",
+        };
+
+        AlertRoutingSignal infoSignal = new()
+        {
+            Severity = AlertSeverity.Info,
+            FindingType = "Security",
+            Tags = ["ops"],
+        };
+
+        AlertRoutingSignal criticalSignal = new()
+        {
+            Severity = AlertSeverity.Critical,
+            FindingType = "Security",
+            Tags = ["ops"],
+        };
+
+        AlertRoutingMatcher.Matches(subscription, infoSignal).Should().BeFalse();
+        AlertRoutingMatcher.Matches(subscription, criticalSignal).Should().BeTrue();
+    }
+
+    [Fact]
     public void AlertRoutingMatcher_numeric_severity_metadata_filters_non_matching_signals()
     {
         AlertRoutingSubscription subscription = new()
@@ -88,6 +160,78 @@ public sealed class CorePackageCoverageBatchRc28dTests
 
         AlertRoutingMatcher.Matches(subscription, infoSignal).Should().BeFalse();
         AlertRoutingMatcher.Matches(subscription, criticalSignal).Should().BeTrue();
+    }
+
+    [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_numeric_findingTypes_coerce_to_strings()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "findingTypes": [42, "Security"]
+              }
+            }
+            """);
+
+        parsed.FindingTypes.Should().Equal("42", "Security");
+    }
+
+    [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_boolean_tags_coerce_to_strings()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "tags": [true, "ops"]
+              }
+            }
+            """);
+
+        parsed.Tags.Should().Equal("true", "ops");
+    }
+
+    [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_boolean_severities_coerce_to_strings()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "severities": [true, "High"]
+              }
+            }
+            """);
+
+        parsed.Severities.Should().Equal("true", "High");
+    }
+
+    [Fact]
+    public void AlertRoutingMatcher_numeric_findingType_metadata_filters_non_matching_signals()
+    {
+        AlertRoutingSubscription subscription = new()
+        {
+            MinimumSeverity = AlertSeverity.Info,
+            MetadataJson = """{"routingCriteria":{"findingTypes":[99]}}""",
+        };
+
+        AlertRoutingSignal securitySignal = new()
+        {
+            Severity = AlertSeverity.Info,
+            FindingType = "Security",
+            Tags = ["ops"],
+        };
+
+        AlertRoutingSignal customSignal = new()
+        {
+            Severity = AlertSeverity.Info,
+            FindingType = "99",
+            Tags = ["ops"],
+        };
+
+        AlertRoutingMatcher.Matches(subscription, securitySignal).Should().BeFalse();
+        AlertRoutingMatcher.Matches(subscription, customSignal).Should().BeTrue();
     }
 
     [Fact]

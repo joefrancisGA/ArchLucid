@@ -130,8 +130,8 @@ export const operatorQueryKeys = {
   quickScanStatus: ["marketing", "quick-scan", "status"] as const,
   extractUploadBaselineArtifacts: ["operator", "extract-upload", "baseline-artifacts"] as const,
   tenantIdentityProviderConfiguration: ["operator", "admin", "tenant-identity-provider-configuration"] as const,
-  architectureIntelligenceSourceContext: (runId: string) =>
-    ["operator", "architecture-intelligence", "source-context", runId] as const,
+  architectureIntelligenceSourceContext: (scope: OperatorScopeQueryKey, runId: string) =>
+    ["operator", "architecture-intelligence", "source-context", scope, runId] as const,
   runRetrievalGrounding: (runId: string) => ["operator", "runs", "retrieval-grounding", runId] as const,
   effectivePolicyPacks: ["operator", "governance", "effective-policy-packs"] as const,
   effectivePolicyContent: ["operator", "governance", "effective-policy-content"] as const,

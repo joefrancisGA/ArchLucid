@@ -13,6 +13,8 @@ export type GovernanceFindingsRegisterFilterCompactProps = {
   readonly registerFilter: RiskRegisterFilter;
   readonly onRegisterFilterChange: (filter: RiskRegisterFilter) => void;
   readonly onClearAllFilters: () => void;
+  readonly allCount?: number;
+  readonly openCount?: number;
 };
 
 /** Buyer-polished register filter — All / Open without the full operator filter bar. */
@@ -20,6 +22,14 @@ export function GovernanceFindingsRegisterFilterCompact(
   props: GovernanceFindingsRegisterFilterCompactProps,
 ): React.JSX.Element {
   const hasNonDefaultFilter = props.registerFilter !== "all";
+
+  function renderFilterLabel(filter: RiskRegisterFilter, fallback: string, count?: number): string {
+    if (count === undefined) {
+      return fallback;
+    }
+
+    return `${fallback} (${count})`;
+  }
 
   return (
     <div
@@ -34,7 +44,7 @@ export function GovernanceFindingsRegisterFilterCompact(
         variant={props.registerFilter === "all" ? "default" : "outline"}
         onClick={() => props.onRegisterFilterChange("all")}
       >
-        {RISK_REGISTER_FILTER_LABELS.all}
+        {renderFilterLabel("all", RISK_REGISTER_FILTER_LABELS.all, props.allCount)}
       </Button>
       {RISK_REGISTER_QUICK_FILTERS.map((filter) => (
         <Button
@@ -44,11 +54,15 @@ export function GovernanceFindingsRegisterFilterCompact(
           variant={props.registerFilter === filter ? "default" : "outline"}
           onClick={() => props.onRegisterFilterChange(filter)}
         >
-          {RISK_REGISTER_FILTER_LABELS[filter]}
+          {renderFilterLabel(
+            filter,
+            RISK_REGISTER_FILTER_LABELS[filter],
+            filter === "open" ? props.openCount : undefined,
+          )}
         </Button>
       ))}
       {hasNonDefaultFilter ? (
-        <Button type="button" size="sm" variant="ghost" onClick={props.onClearAllFilters}>
+        <Button type="button" size="sm" variant="outline" onClick={props.onClearAllFilters}>
           Clear filters
         </Button>
       ) : null}

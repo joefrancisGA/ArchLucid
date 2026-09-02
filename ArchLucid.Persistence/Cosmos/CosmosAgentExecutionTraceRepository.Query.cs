@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Azure.Cosmos;
 
@@ -49,11 +50,7 @@ public sealed partial class CosmosAgentExecutionTraceRepository
     {
         ArgumentNullException.ThrowIfNull(runIds);
 
-        List<string> normalized = runIds
-            .Where(static s => !string.IsNullOrWhiteSpace(s))
-            .Select(static s => s.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        List<string> normalized = AgentExecutionTraceQueryPatchCore.NormalizeRunIds(runIds);
 
         _ = scope;
 
@@ -101,8 +98,8 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
-        int clampedOffset = Math.Max(0, offset);
-        int clampedLimit = Math.Clamp(limit, 1, 500);
+        int clampedOffset = AgentExecutionTraceQueryPatchCore.ClampPageOffset(offset);
+        int clampedLimit = AgentExecutionTraceQueryPatchCore.ClampPageLimit(limit);
 
         QueryDefinition countQuery = new QueryDefinition("SELECT VALUE COUNT(1) FROM c WHERE c.runId = @runId")
             .WithParameter("@runId", runId);
@@ -222,11 +219,7 @@ public sealed partial class CosmosAgentExecutionTraceRepository
     {
         ArgumentNullException.ThrowIfNull(runIds);
 
-        List<string> normalized = runIds
-            .Where(static s => !string.IsNullOrWhiteSpace(s))
-            .Select(static s => s.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        List<string> normalized = AgentExecutionTraceQueryPatchCore.NormalizeRunIds(runIds);
 
         Dictionary<string, IReadOnlyList<string>> map = new(StringComparer.OrdinalIgnoreCase);
 
@@ -307,8 +300,8 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         CancellationToken ct)
     {
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
-        int clampedOffset = Math.Max(0, offset);
-        int clampedLimit = Math.Clamp(limit, 1, 500);
+        int clampedOffset = AgentExecutionTraceQueryPatchCore.ClampPageOffset(offset);
+        int clampedLimit = AgentExecutionTraceQueryPatchCore.ClampPageLimit(limit);
 
         QueryDefinition countQuery = new QueryDefinition("SELECT VALUE COUNT(1) FROM c WHERE c.runId = @runId")
             .WithParameter("@runId", runId);

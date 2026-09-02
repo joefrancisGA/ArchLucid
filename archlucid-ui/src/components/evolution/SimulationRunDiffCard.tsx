@@ -22,12 +22,14 @@ const colAfterCls = `${colCls} bg-al-surface-raised dark:bg-neutral-900/50`;
 const labelCls = (cn("mb-1.5 font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));
 const monoCls = cn("font-mono break-all", OPERATOR_TYPOGRAPHY.helper);
 
-function formatScore(n: number | null | undefined): string {
+function formatScore(n: string | number | null | undefined): string {
   if (n === null || n === undefined) {
     return " — ";
   }
 
-  return Number.isFinite(n) ? n.toFixed(4) : " — ";
+  const numeric = typeof n === "number" ? n : Number(n);
+
+  return Number.isFinite(numeric) ? numeric.toFixed(4) : " — ";
 }
 
 export type SimulationRunDiffCardProps = {

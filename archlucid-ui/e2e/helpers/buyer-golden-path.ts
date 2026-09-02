@@ -17,7 +17,7 @@ import { waitForAppReady } from "./waits";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_DEMO_RUN_ID);
 
-/** Canonical five-step buyer spine URLs (aligned with `buyer-golden-journey-nav.ts`). */
+/** Canonical four-step buyer spine URLs (aligned with `buyer-golden-journey-nav.ts`). */
 export function showcaseSignedManifestBrowserUrlPattern(): RegExp {
   return new RegExp(
     `(?:/(?:governance/)?sealed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/sealed-record)`,
@@ -34,7 +34,6 @@ export const BUYER_GOLDEN_PATH_HREFS = {
   signedManifestFriendly: `/architecture/reviews/${showcaseRunEnc}/sealed-record`,
   signedManifestCanonical: `/governance/sealed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
   evidenceGraph: `/insights/evidence-graph?runId=${showcaseRunEnc}`,
-  governanceApproval: `/governance/approval-queue?runId=${showcaseRunEnc}`,
   auditTrail: `/governance/audit?runId=${showcaseRunEnc}`,
   governanceFindings: "/governance/findings",
   policyPackDetail: "/governance/policy-packs/demo-enterprise-privacy-pack",

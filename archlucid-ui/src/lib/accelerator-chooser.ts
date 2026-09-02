@@ -26,8 +26,8 @@ export type AcceleratorCostGovernanceGroup = {
 };
 
 export const ACCELERATOR_COST_GOVERNANCE_PACK_IDS = [
-  "azure-cost-governance",
   "aws-cost-governance",
+  "azure-cost-governance",
   "gcp-cost-governance",
 ] as const;
 
@@ -47,8 +47,8 @@ export type AcceleratorCostGovernanceCloudOption = {
 };
 
 export const ACCELERATOR_COST_GOVERNANCE_CLOUD_OPTIONS: readonly AcceleratorCostGovernanceCloudOption[] = [
-  { packId: "azure-cost-governance", cloudLabel: "Azure" },
   { packId: "aws-cost-governance", cloudLabel: "AWS" },
+  { packId: "azure-cost-governance", cloudLabel: "Azure" },
   { packId: "gcp-cost-governance", cloudLabel: "GCP" },
 ] as const;
 

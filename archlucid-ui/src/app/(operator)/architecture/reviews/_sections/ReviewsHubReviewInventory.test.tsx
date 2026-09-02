@@ -204,10 +204,10 @@ describe("ReviewsHubReviewInventory", () => {
     );
 
     expect(screen.queryByTestId("reviews-hub-more-filters")).toBeNull();
-    expect(screen.getByRole("button", { name: "Filter reviews: Draft" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Filter reviews: Active" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Filter reviews: Awaiting approval" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Filter reviews: Archived" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Filter reviews: Draft/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Filter reviews: Active/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Filter reviews: Awaiting approval/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Filter reviews: Archived/ })).toBeInTheDocument();
   });
 
   it("filters to finalized reviews from the primary FilterChip row", () => {
@@ -242,7 +242,7 @@ describe("ReviewsHubReviewInventory", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Filter reviews: Finalized" }));
+    fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Finalized/ }));
 
     expect(screen.getByTestId("reviews-hub-row-finalized")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-row-draft")).toBeNull();
@@ -351,9 +351,60 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.queryByTestId("reviews-hub-row-archived-review")).toBeNull();
     expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Filter reviews: Archived" }));
+    fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Archived/ }));
 
     expect(screen.getByTestId("reviews-hub-row-archived-review")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-row-active-review")).toBeNull();
+  });
+
+  it("shows archived count on the Archived chip before the filter is selected", () => {
+    writeArchivedReviewsClientCache([
+      {
+        runId: "archived-review",
+        projectId: "default",
+        description: "Archived package",
+        createdUtc: "2026-08-01T12:00:00.000Z",
+        isArchived: true,
+      } satisfies RunSummary,
+    ]);
+
+    render(
+      <ReviewsHubReviewInventory
+        runs={[
+          {
+            runId: "active-review",
+            projectId: "default",
+            description: "Active package",
+            createdUtc: "2026-08-10T12:00:00.000Z",
+          } satisfies RunSummary,
+        ]}
+        summary={emptySummary()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Filter reviews: Archived (1)" })).toBeInTheDocument();
+  });
+
+  it("shows a clear action when search filters out all reviews", () => {
+    render(
+      <ReviewsHubReviewInventory
+        runs={[
+          {
+            runId: "review-001",
+            projectId: "default",
+            description: "Claims intake modernization",
+            createdUtc: "2026-01-15T12:00:00.000Z",
+          } satisfies RunSummary,
+        ]}
+        summary={emptySummary()}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("reviews-hub-search"), {
+      target: { value: "no-such-review" },
+    });
+
+    expect(screen.getByTestId("reviews-hub-inventory-empty")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-inventory-empty-clear")).toBeInTheDocument();
   });
 });
