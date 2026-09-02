@@ -192,6 +192,80 @@ public sealed class RealLlmOutputStructuralValidatorTests
     }
 
     [Fact]
+    public void ValidateAgentResultStructure_accepts_numeric_finding_severity()
+    {
+        const string json = """
+            {
+              "resultId": "r1",
+              "taskId": "t1",
+              "runId": "run1",
+              "agentType": "Topology",
+              "claims": [""],
+              "evidenceRefs": [""],
+              "confidence": 0.5,
+              "createdUtc": "2026-01-01T00:00:00Z",
+              "findings": [
+                {
+                  "findingId": "f1",
+                  "severity": 2,
+                  "description": "minimal",
+                  "trace": {
+                    "sourceAgentExecutionTraceId": null,
+                    "graphNodeIdsExamined": [],
+                    "rulesApplied": [],
+                    "decisionsTaken": [],
+                    "alternativePathsConsidered": [],
+                    "notes": []
+                  }
+                }
+              ]
+            }
+            """;
+
+        RealLlmStructuralValidationResult result =
+            RealLlmOutputStructuralValidator.ValidateAgentResultStructure("Topology", json);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ValidateAgentResultStructure_accepts_numeric_source_agent_execution_trace_id()
+    {
+        const string json = """
+            {
+              "resultId": "r1",
+              "taskId": "t1",
+              "runId": "run1",
+              "agentType": "Topology",
+              "claims": [""],
+              "evidenceRefs": [""],
+              "confidence": 0.5,
+              "createdUtc": "2026-01-01T00:00:00Z",
+              "findings": [
+                {
+                  "findingId": "f1",
+                  "severity": "info",
+                  "description": "minimal",
+                  "trace": {
+                    "sourceAgentExecutionTraceId": 9001,
+                    "graphNodeIdsExamined": [],
+                    "rulesApplied": [],
+                    "decisionsTaken": [],
+                    "alternativePathsConsidered": [],
+                    "notes": []
+                  }
+                }
+              ]
+            }
+            """;
+
+        RealLlmStructuralValidationResult result =
+            RealLlmOutputStructuralValidator.ValidateAgentResultStructure("Topology", json);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public void ValidateAgentResultStructure_rejects_empty_agentType_parameter()
     {
         RealLlmStructuralValidationResult r = RealLlmOutputStructuralValidator.ValidateAgentResultStructure("   ", "{}");

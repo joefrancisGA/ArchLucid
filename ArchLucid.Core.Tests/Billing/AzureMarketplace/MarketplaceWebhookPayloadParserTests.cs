@@ -10,6 +10,16 @@ namespace ArchLucid.Core.Tests.Billing.AzureMarketplace;
 public sealed class MarketplaceWebhookPayloadParserTests
 {
     [Fact]
+    public void ReadQuantity_reads_string_encoded_quantity()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":"5"}""");
+
+        int quantity = MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement);
+
+        quantity.Should().Be(5);
+    }
+
+    [Fact]
     public void ReadQuantity_reads_PascalCase_quantity()
     {
         using JsonDocument document = JsonDocument.Parse("""{"Quantity":5}""");

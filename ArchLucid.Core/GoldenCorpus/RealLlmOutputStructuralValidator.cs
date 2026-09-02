@@ -148,13 +148,13 @@ public static class RealLlmOutputStructuralValidator
                 }
 
                 if (TryGetPropertyCaseInsensitive(trace, "sourceAgentExecutionTraceId", out JsonElement sid)
-                    && sid.ValueKind is not (JsonValueKind.String or JsonValueKind.Null))
+                    && sid.ValueKind is not (JsonValueKind.String or JsonValueKind.Null or JsonValueKind.Number))
                 {
                     checks.Add(
                         new RealLlmStructuralCheckItem(
                             "traceSourceId",
                             false,
-                            "Optional 'sourceAgentExecutionTraceId' must be a string or null when present."));
+                            "Optional 'sourceAgentExecutionTraceId' must be a string, number, or null when present."));
 
                     return new RealLlmStructuralValidationResult(false, checks);
                 }
@@ -173,11 +173,10 @@ public static class RealLlmOutputStructuralValidator
                     return new RealLlmStructuralValidationResult(false, checks);
                 }
 
-                // Severity must be a non-empty string — a blank severity indicates a hollow or truncated finding.
+                // Severity must be a non-empty string or numeric token — a blank severity indicates a hollow or truncated finding.
 
                 if (!TryGetPropertyCaseInsensitive(finding, "severity", out JsonElement severityEl)
-                    || severityEl.ValueKind != JsonValueKind.String
-                    || string.IsNullOrWhiteSpace(severityEl.GetString()))
+                    || !TryReadNonEmptyTextToken(severityEl, out _))
                 {
                     checks.Add(
                         new RealLlmStructuralCheckItem(
@@ -290,6 +289,27 @@ public static class RealLlmOutputStructuralValidator
     private static bool SetFalse(out string? m, string text)
     {
         m = text;
+
+        return false;
+    }
+
+    private static bool TryReadNonEmptyTextToken(JsonElement element, out string? value)
+    {
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            value = element.GetString();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            value = element.GetRawText();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        value = null;
 
         return false;
     }
