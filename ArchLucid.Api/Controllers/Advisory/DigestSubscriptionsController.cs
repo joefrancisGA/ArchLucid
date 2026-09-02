@@ -62,10 +62,18 @@ public sealed class DigestSubscriptionsController(
         if (string.IsNullOrWhiteSpace(subscription.ChannelType) || string.IsNullOrWhiteSpace(subscription.Destination))
             return this.BadRequestProblem("ChannelType and Destination are required.", ProblemTypes.ValidationFailed);
 
-        if (IsOutboundWebhookChannel(subscription.ChannelType))
+        string channelType = subscription.ChannelType.Trim();
+        string destination = subscription.Destination.Trim();
+
+        if (!IsSupportedChannelType(channelType))
+            return this.BadRequestProblem(
+                $"ChannelType '{channelType}' is not supported.",
+                ProblemTypes.ValidationFailed);
+
+        if (IsOutboundWebhookChannel(channelType))
         {
             string? destinationRejection =
-                AlertRoutingWebhookDestinationPolicy.TryGetRejectionReason(subscription.Destination);
+                AlertRoutingWebhookDestinationPolicy.TryGetRejectionReason(destination);
 
             if (destinationRejection is not null)
                 return this.BadRequestProblem(destinationRejection, ProblemTypes.ValidationFailed);
@@ -77,6 +85,8 @@ public sealed class DigestSubscriptionsController(
         subscription.TenantId = scope.TenantId;
         subscription.WorkspaceId = scope.WorkspaceId;
         subscription.ProjectId = scope.ProjectId;
+        subscription.ChannelType = channelType;
+        subscription.Destination = destination;
         subscription.CreatedUtc = TimeProvider.System.UtcNowDateTime();
         if (string.IsNullOrWhiteSpace(subscription.MetadataJson))
             subscription.MetadataJson = "{}";
@@ -293,6 +303,13 @@ public sealed class DigestSubscriptionsController(
         return subscription.TenantId == scope.TenantId &&
                subscription.WorkspaceId == scope.WorkspaceId &&
                subscription.ProjectId == scope.ProjectId;
+    }
+
+    private static bool IsSupportedChannelType(string channelType)
+    {
+        return string.Equals(channelType, DigestDeliveryChannelType.Email, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(channelType, DigestDeliveryChannelType.TeamsWebhook, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(channelType, DigestDeliveryChannelType.SlackWebhook, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsOutboundWebhookChannel(string? channelType)

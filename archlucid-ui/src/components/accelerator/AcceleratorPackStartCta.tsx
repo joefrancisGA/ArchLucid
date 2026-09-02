@@ -19,6 +19,8 @@ type AcceleratorPackStartCtaProps = {
   readonly primaryWhenReady?: boolean;
   readonly onRetry?: () => void;
   readonly className?: string;
+  readonly disabled?: boolean;
+  readonly disabledReasonId?: string;
 };
 
 function packCtaStatusMessageId(startTestId: string | undefined): string {
@@ -38,6 +40,8 @@ export function AcceleratorPackStartCta(props: AcceleratorPackStartCtaProps): Re
     primaryWhenReady = false,
     onRetry,
     className,
+    disabled = false,
+    disabledReasonId,
   } = props;
   const presentation = resolvePackCtaPresentation(prerequisiteStatus, packId);
   const statusMessageId = packCtaStatusMessageId(startTestId);
@@ -86,6 +90,23 @@ export function AcceleratorPackStartCta(props: AcceleratorPackStartCtaProps): Re
   }
 
   const usePrimary = primaryWhenReady || presentation.usePrimaryVariant;
+
+  if (disabled) {
+    return (
+      <Button
+        type="button"
+        size="sm"
+        variant={usePrimary ? "primary" : "outline"}
+        className={cn("mt-3", className)}
+        disabled
+        aria-describedby={disabledReasonId}
+        data-testid={startTestId}
+      >
+        {presentation.visibleLabel}
+        <span className="sr-only">{screenReaderSuffix}</span>
+      </Button>
+    );
+  }
 
   return (
     <Button

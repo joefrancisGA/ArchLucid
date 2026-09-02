@@ -15,7 +15,8 @@ public sealed class ExternalExposureFindingEngine : IFindingEngine
 
     public string Category => "Security";
 
-    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 

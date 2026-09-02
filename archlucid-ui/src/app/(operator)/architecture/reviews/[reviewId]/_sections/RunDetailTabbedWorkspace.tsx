@@ -35,6 +35,7 @@ import {
   RunDetailSponsorReportCtaCardDeferred,
   RunDetailWorkspaceBlockingBannerDeferred,
   RunDetailWorkspaceSummaryStripDeferred,
+  RunDetailTabbedSectionNavDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSectionsDeferred } from "./RunDetailBelowFoldSectionsDeferred";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
@@ -192,6 +193,12 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
       <ReviewDetailWorkspaceDeferred
         runId={m.resolvedDetail.run.runId}
+        tabSectionNav={
+          <RunDetailTabbedSectionNavDeferred
+            runId={m.resolvedDetail.run.runId}
+            sections={m.runDetailNavSections}
+          />
+        }
         inPipelineBanner={inPipelineBannerEl}
         lifecycle={resolveReviewWorkspaceLifecycle({
           manifestId: m.manifestId,
@@ -396,6 +403,7 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
                     runId={m.routeRunId}
                     initialSummary={m.progressForPipelineUi}
                     diagnosticContext={m.pipelineDiagnosticContext}
+                    deferFailureRecoveryToDoThisNext
                   />
                 </div>
               ) : null}

@@ -36,6 +36,7 @@ public sealed class PortfolioRecurrenceFindingEngineTests
 
         IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(
             new GraphSnapshot { RunId = Guid.NewGuid() },
+            null,
             CancellationToken.None);
 
         findings.Should().BeEmpty();
@@ -113,7 +114,7 @@ public sealed class PortfolioRecurrenceFindingEngineTests
         PortfolioRecurrenceFindingEngine engine = CreateEngine(runQuery, snapshotRepository, enabled: true);
         GraphSnapshot graphSnapshot = new() { RunId = currentRunId };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -169,7 +170,7 @@ public sealed class PortfolioRecurrenceFindingEngineTests
         PortfolioRecurrenceFindingEngine engine = CreateEngine(runQuery, snapshotRepository, enabled: true);
         GraphSnapshot graphSnapshot = new() { RunId = currentRunId };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         Finding finding = findings[0];
@@ -256,7 +257,7 @@ public sealed class PortfolioRecurrenceFindingEngineTests
             identitySource);
         GraphSnapshot graphSnapshot = new() { RunId = currentRunId };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Title.Should().Be("Recurs across 5 reviewed systems");

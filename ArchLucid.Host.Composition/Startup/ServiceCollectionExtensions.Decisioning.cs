@@ -6,6 +6,7 @@ using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Hosting;
 using ArchLucid.Decisioning.Plugins;
 using ArchLucid.Host.Composition.Compliance;
 using ArchLucid.Persistence.Coordination.Compliance;
@@ -131,6 +132,7 @@ public static partial class ServiceCollectionExtensions
             (Di.IDecisionEngine)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IDecisionEngine>());
         services.AddSingleton<IProvenanceBuilder, ProvenanceBuilder>();
         services.AddScoped<IAuthorityCommitProjectionBuilder, Decisioning.Manifest.AuthorityCommitProjectionBuilder>();
+        services.AddHostedService<FindingEngineRegistrationDistinctnessHostedService>();
     }
 
     private static void RegisterPluginFindingEngines(IServiceCollection services, IConfiguration configuration)

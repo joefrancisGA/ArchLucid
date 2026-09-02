@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
-
+import { FilterChip } from "@/components/ui/filter-chip";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   OPERATOR_ATTENTION_KIND_DESTINATIONS,
 } from "@/lib/operator/operator-attention-kind-destinations";
@@ -45,34 +45,33 @@ export function OperatorAttentionKindStrip(
           : OPERATOR_ATTENTION_KIND_STRIP_HELPER}
       </p>
       <ul
-        className="m-0 flex list-none flex-wrap gap-2 p-0"
+        className="m-0 flex list-none flex-wrap gap-1.5 p-0"
         data-testid="operator-attention-kind-chips"
       >
         {OPERATOR_ATTENTION_KIND_IDS.map((kind: OperatorAttentionKindId) => {
           const destination = OPERATOR_ATTENTION_KIND_DESTINATIONS[kind];
           const count = summaryByPartition.get(kind)?.totalCount ?? 0;
+          const label = OPERATOR_ATTENTION_KIND_LABELS[kind];
 
           return (
             <li key={kind}>
-              <Link
+              <FilterChip
                 href={destination.href}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-1.5 no-underline transition-colors hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950 dark:hover:border-neutral-600 dark:hover:bg-neutral-900",
-                  OPERATOR_LINK,
-                  OPERATOR_TYPOGRAPHY.helper,
-                )}
+                className={cn("gap-1", buyerFilterChipClass(false, false, count === 0))}
+                aria-label={`${label}: ${count} items`}
                 data-testid={`operator-attention-kind-chip-${kind}`}
               >
-                <span className="font-medium text-al-text-primary">
-                  {OPERATOR_ATTENTION_KIND_LABELS[kind]}
-                </span>
+                <span>{label}</span>
                 <span
-                  className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-100"
-                  aria-label={`${count} items`}
+                  className={cn(
+                    "tabular-nums",
+                    count > 0 ? "text-al-text-primary" : "text-al-text-secondary",
+                  )}
+                  aria-hidden="true"
                 >
-                  {count}
+                  ({count})
                 </span>
-              </Link>
+              </FilterChip>
             </li>
           );
         })}

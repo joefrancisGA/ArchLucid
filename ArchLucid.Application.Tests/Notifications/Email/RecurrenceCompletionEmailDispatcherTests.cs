@@ -139,6 +139,64 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
     }
 
     [Fact]
+    public async Task TryDispatchAsync_returns_true_when_all_mailboxes_already_recorded()
+    {
+        Guid tenantId = Guid.Parse("29292929-2929-2929-2929-292929292929");
+        Guid scheduleId = Guid.Parse("2a2a2a2a-2a2a-2a2a-2a2a-2a2a2a2a2a2a");
+        Guid triggeredRunId = Guid.Parse("2b2b2b2b-2b2b-2b2b-2b2b-2b2b2b2b2b2b");
+        Guid sourceRunId = Guid.Parse("2c2c2c2c-2c2c-2c2c-2c2c-2c2c2c2c2c2c");
+        const string mailbox = "ops@example.test";
+        string runHex = triggeredRunId.ToString("N");
+        string idempotencyKey =
+            $"recurrence-completion:{tenantId:N}:{scheduleId:N}:{runHex}:{mailbox.ToLowerInvariant()}";
+
+        InMemorySentEmailLedger ledger = new();
+        await ledger.TryRecordSentAsync(
+            new SentEmailLedgerEntry(
+                idempotencyKey,
+                tenantId,
+                RecurrenceCompletionEmailDispatcher.TemplateId,
+                "test-provider",
+                null),
+            CancellationToken.None);
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>x</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("x");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        RecurrenceCompletionEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<RecurrenceCompletionEmailDispatcher>.Instance);
+
+        bool sent = await sut.TryDispatchAsync(
+            tenantId,
+            scheduleId,
+            triggeredRunId,
+            scheduleName: "Weekly scan",
+            newFindingCount: 1,
+            resolvedFindingCount: 0,
+            sourceRunId,
+            [mailbox],
+            CancellationToken.None);
+
+        sent.Should().BeTrue("idempotent replays must report success when the ledger already recorded all recipients");
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task TryDispatchAsync_returns_false_when_all_mailboxes_blank()
     {
         InMemorySentEmailLedger ledger = new();

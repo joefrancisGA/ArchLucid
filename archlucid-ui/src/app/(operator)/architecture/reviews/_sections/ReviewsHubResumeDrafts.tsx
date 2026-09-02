@@ -50,7 +50,6 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
 
   return (
     <section
-      className="mt-6"
       id={REVIEWS_HUB_RESUME_DRAFTS_SECTION_ID}
       data-testid="reviews-hub-resume-drafts"
       aria-label={REVIEWS_HUB_RESUME_DRAFTS_TITLE}

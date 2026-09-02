@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+import * as demoUiEnv from "@/lib/demo-ui-env";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import {
   RUN_DETAIL_GOVERNANCE_CTA_LABEL,
@@ -61,6 +64,22 @@ describe("shouldShowRunDetailGovernanceCta", () => {
       }),
     ).toBe(false);
   });
+
+  it("hides for curated buyer golden spine runs when buyer-polished env is active", () => {
+    vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
+
+    expect(
+      shouldShowRunDetailGovernanceCta({
+        runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+        manifestId: "manifest-1",
+        buyerPolishedArtifactTable: false,
+        operatorGovernanceDecision: null,
+        manifestStatus: "Draft",
+      }),
+    ).toBe(false);
+
+    vi.restoreAllMocks();
+  });
 });
 
 describe("runDetailGovernanceWorkflowHref", () => {
@@ -71,6 +90,6 @@ describe("runDetailGovernanceWorkflowHref", () => {
 
 describe("RUN_DETAIL_GOVERNANCE_CTA_LABEL", () => {
   it("uses governance approval forward copy", () => {
-    expect(RUN_DETAIL_GOVERNANCE_CTA_LABEL).toBe("Submit for governance approval →");
+    expect(RUN_DETAIL_GOVERNANCE_CTA_LABEL).toBe("Submit for governance approval");
   });
 });

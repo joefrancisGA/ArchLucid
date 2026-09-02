@@ -53,7 +53,7 @@ public sealed class PolicyPackP1ToggleGoldenCorpusTests
         FixedComplianceRulePackProvider provider = new(filteredPack);
         DeclarationSecurityBaselineFindingEngine engine = new(provider);
 
-        return await engine.AnalyzeAsync(graph, CancellationToken.None);
+        return await engine.AnalyzeAsync(graph, null, CancellationToken.None);
     }
 
     private static HashSet<string> ExtractPolicyRuleIds(IReadOnlyList<Finding> findings)

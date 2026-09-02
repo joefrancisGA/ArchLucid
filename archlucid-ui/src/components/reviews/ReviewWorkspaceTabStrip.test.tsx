@@ -50,7 +50,7 @@ describe("ReviewWorkspaceTabStrip", () => {
       expect(screen.getByRole("tab", { name: new RegExp(REVIEW_DETAIL_TAB_LABELS[tabId], "i") })).toBeInTheDocument();
     }
 
-    expect(screen.getByText("More sections")).toBeInTheDocument();
+    expect(screen.getByText("Review section")).toBeInTheDocument();
     expect(screen.getByTestId("review-detail-workspace-sections-select")).toBeInTheDocument();
   });
 

@@ -49,7 +49,8 @@ public sealed class PortfolioRecurrenceFindingEngine(
 
     public string Category => "Topology";
 
-    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 

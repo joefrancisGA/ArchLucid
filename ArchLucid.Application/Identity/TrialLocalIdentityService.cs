@@ -95,11 +95,15 @@ public sealed class TrialLocalIdentityService(
         PasswordVerificationResult verify = _passwordHasher.VerifyHashedPassword(new TrialIdentityHasherUser(), row.PasswordHash, password);
         if (verify != PasswordVerificationResult.Success && verify != PasswordVerificationResult.SuccessRehashNeeded)
         {
-            int fails = row.AccessFailedCount + 1;
-            DateTimeOffset? lockoutEnd = null;
-            if (fails >= _trial.LocalIdentity.MaxFailedAccessAttemptsBeforeLockout)
-                lockoutEnd = TimeProvider.System.GetUtcNow().AddMinutes(_trial.LocalIdentity.LockoutMinutes);
-            await _repository.RecordAccessFailedAsync(normalized, fails, lockoutEnd, cancellationToken);
+            DateTimeOffset lockoutEndUtc = TimeProvider.System.GetUtcNow()
+                .AddMinutes(_trial.LocalIdentity.LockoutMinutes);
+
+            await _repository.RecordAccessFailedAsync(
+                normalized,
+                _trial.LocalIdentity.MaxFailedAccessAttemptsBeforeLockout,
+                lockoutEndUtc,
+                cancellationToken);
+
             return null;
         }
 

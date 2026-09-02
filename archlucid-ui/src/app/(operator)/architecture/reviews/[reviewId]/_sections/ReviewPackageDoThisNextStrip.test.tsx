@@ -98,7 +98,8 @@ describe("ReviewPackageDoThisNextStrip", () => {
         sessionAiReadiness={readySessionAiReadiness}
         next={{
           kind: "rerun-review",
-          sentence: "Assessment failed — follow the recovery steps below, then re-run the review with the same intake.",
+          sentence:
+            "Execution failed before the first pipeline stage — this is usually platform AI availability, not missing intake fields. Follow the steps below, then re-run the review.",
           actionLabel: "Re-run review",
           href: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
           failureRecovery: {
@@ -144,7 +145,8 @@ describe("ReviewPackageDoThisNextStrip", () => {
         sessionAiReadiness={loadedUnavailableSessionAiReadiness}
         next={{
           kind: "rerun-review",
-          sentence: "Assessment failed — follow the recovery steps below, then re-run the review with the same intake.",
+          sentence:
+            "Execution failed before the first pipeline stage — this is usually platform AI availability, not missing intake fields. Follow the steps below, then re-run the review.",
           actionLabel: "Re-run review",
           href: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
           failureRecovery: {
@@ -177,7 +179,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
     );
 
     expect(screen.getByTestId("review-package-failure-recovery")).toBeInTheDocument();
-    expect(screen.getByTestId("review-package-failure-headline")).toHaveTextContent(
+    expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent(
       "Execution failed before the first pipeline stage",
     );
     expect(screen.getByTestId("review-package-failure-detail")).toHaveTextContent(
@@ -210,7 +212,8 @@ describe("ReviewPackageDoThisNextStrip", () => {
         sessionAiReadiness={readySessionAiReadiness}
         next={{
           kind: "rerun-review",
-          sentence: "Assessment failed — follow the recovery steps below, then re-run the review with the same intake.",
+          sentence:
+            "Execution failed before the first pipeline stage — this is usually platform AI availability, not missing intake fields. Follow the steps below, then re-run the review.",
           actionLabel: "Re-run review",
           href: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
         }}
@@ -229,7 +232,8 @@ describe("ReviewPackageDoThisNextStrip", () => {
         sessionAiReadiness={loadedUnavailableSessionAiReadiness}
         next={{
           kind: "rerun-review",
-          sentence: "Assessment failed — follow the recovery steps below, then re-run the review with the same intake.",
+          sentence:
+            "Execution failed before the first pipeline stage — this is usually platform AI availability, not missing intake fields. Follow the steps below, then re-run the review.",
           actionLabel: "Re-run review",
           href: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
           failureRecovery: {

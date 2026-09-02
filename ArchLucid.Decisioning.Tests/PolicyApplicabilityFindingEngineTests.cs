@@ -36,7 +36,7 @@ public sealed class PolicyApplicabilityFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         FindingPayloadValidator payloadValidator = new();
         foreach (Finding finding in findings)
@@ -65,7 +65,7 @@ public sealed class PolicyApplicabilityFindingEngineTests
             Edges = []
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         FindingPayloadValidator payloadValidator = new();
 
@@ -91,7 +91,7 @@ public sealed class PolicyApplicabilityFindingEngineTests
             Edges = []
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -110,7 +110,7 @@ public sealed class PolicyApplicabilityFindingEngineTests
             Edges = []
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }

@@ -5,6 +5,7 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Capabilities.Cost;
 
@@ -17,7 +18,8 @@ public sealed class CostBreachFindingEngine : IFindingEngine
 
     public string Category => "Cost";
 
-    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+        CancellationToken ct)
     {
         _ = ct;
         ArgumentNullException.ThrowIfNull(graphSnapshot);

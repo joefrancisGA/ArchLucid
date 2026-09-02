@@ -146,8 +146,8 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
     /// <inheritdoc />
     public async Task RecordAccessFailedAsync(
         string normalizedEmail,
-        int newCount,
-        DateTimeOffset? lockoutEnd,
+        int maxAttemptsBeforeLockout,
+        DateTimeOffset lockoutEndUtcIfThresholdReached,
         CancellationToken cancellationToken)
     {
         await using SqlConnection connection =
@@ -155,15 +155,28 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
 
         const string sql = """
                            UPDATE dbo.IdentityUsers
-                           SET AccessFailedCount = @NewCount,
-                               LockoutEnd = @LockoutEnd
+                           SET AccessFailedCount = AccessFailedCount + 1,
+                               LockoutEnd = CASE
+                                   WHEN AccessFailedCount + 1 >= @MaxAttemptsBeforeLockout
+                                       THEN CASE
+                                          WHEN LockoutEnd IS NULL OR LockoutEnd < @LockoutEndUtcIfThresholdReached
+                                              THEN @LockoutEndUtcIfThresholdReached
+                                          ELSE LockoutEnd
+                                       END
+                                   ELSE LockoutEnd
+                               END
                            WHERE NormalizedEmail = @NormalizedEmail;
                            """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { NormalizedEmail = normalizedEmail, NewCount = newCount, LockoutEnd = lockoutEnd },
+                new
+                {
+                    NormalizedEmail = normalizedEmail,
+                    MaxAttemptsBeforeLockout = maxAttemptsBeforeLockout,
+                    LockoutEndUtcIfThresholdReached = lockoutEndUtcIfThresholdReached
+                },
                 cancellationToken: cancellationToken));
     }
 

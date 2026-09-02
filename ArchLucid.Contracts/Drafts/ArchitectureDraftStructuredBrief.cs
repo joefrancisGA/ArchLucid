@@ -107,21 +107,27 @@ public sealed class ArchitectureDraftStructuredBrief
             return [];
 
         return value
-            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(entry => entry.Length > 0)
             .ToList();
     }
 
-    /// <summary>TB-2282: at least one confirmed quality-attribute chip is required for review start.</summary>
+    /// <summary>TB-2282: quality-attribute chips must be non-empty and all entries must be confirmed for review start.</summary>
     public static bool QualityAttributeMeetsMinimum(string? qualityAttribute)
     {
-        foreach (string entry in ParseQualityAttributeEntries(qualityAttribute))
+        IReadOnlyList<string> entries = ParseQualityAttributeEntries(qualityAttribute);
+
+        if (entries.Count == 0)
+            return false;
+
+        foreach (string entry in entries)
         {
-            if (IsConfirmedBriefEntry(entry))
-                return true;
+
+            if (!IsConfirmedBriefEntry(entry))
+                return false;
         }
 
-        return false;
+        return true;
     }
 
     /// <summary>TB-2343: non-empty list whose entries are exclusively unknown sentinels.</summary>

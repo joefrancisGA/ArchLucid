@@ -8,6 +8,7 @@ vi.mock("next/navigation", async (importOriginal) => {
     ...actual,
     usePathname: () => "/architecture/reviews",
     useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+    useSearchParams: () => new URLSearchParams(),
   };
 });
 
@@ -214,7 +215,8 @@ describe("RunsPageView page chrome", () => {
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-recent-empty")).toBeNull();
     expect(screen.getByTestId("reviews-hub-more-ways")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-more-ways")).toHaveClass("mt-4");
+    expect(screen.getByTestId("reviews-hub-guidance")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-analytics")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-median-delta")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-median-delta")).not.toHaveAttribute("open");
     expect(screen.getByText(REVIEWS_HUB_MEDIAN_DELTA_TITLE)).toBeInTheDocument();

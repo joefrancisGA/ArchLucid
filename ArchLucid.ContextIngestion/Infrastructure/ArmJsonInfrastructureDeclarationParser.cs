@@ -116,6 +116,13 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             SourceId = declaration.DeclarationId,
             Properties = properties
         });
+
+        if (TryGetPropertyIgnoreCase(resource, "resources", out JsonElement nestedChildren)
+            && nestedChildren.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement childResource in nestedChildren.EnumerateArray())
+                TryAddResource(childResource, declaration, results);
+        }
     }
 
     private static string ReadName(JsonElement nameElement)

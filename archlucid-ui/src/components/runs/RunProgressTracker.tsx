@@ -33,6 +33,8 @@ export type RunProgressTrackerProps = {
   readonly buyerAssessmentCopy?: boolean;
   /** Optional run-detail fields for dev telemetry and stall diagnosis. */
   readonly diagnosticContext?: ReviewPipelineDiagnosticContext | null;
+  /** When Do this next already owns recovery guidance, avoid repeating the failure callout here. */
+  readonly deferFailureRecoveryToDoThisNext?: boolean;
 };
 
 export function RunProgressTracker({
@@ -41,6 +43,7 @@ export function RunProgressTracker({
   preFinalizeReadyToFinalize,
   buyerAssessmentCopy = false,
   diagnosticContext = null,
+  deferFailureRecoveryToDoThisNext = false,
 }: RunProgressTrackerProps) {
   const tracker = useRunProgressTracker({
     runId,
@@ -48,6 +51,7 @@ export function RunProgressTracker({
     preFinalizeReadyToFinalize,
     buyerAssessmentCopy,
     diagnosticContext,
+    deferFailureRecoveryToDoThisNext,
   });
 
   if (!tracker.shouldRender) {
@@ -104,7 +108,7 @@ export function RunProgressTracker({
         {renderDoThisNextReferenceCopy(tracker.liveStatus)}
       </div>
 
-      {tracker.terminalFailureDiagnosis !== null ? (
+      {tracker.terminalFailureDiagnosis !== null && !deferFailureRecoveryToDoThisNext ? (
         tracker.terminalFailureDiagnosis.severity === "warning" ? (
           <OperatorWarningCallout>
             <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{tracker.terminalFailureDiagnosis.headline}</p>
@@ -120,7 +124,11 @@ export function RunProgressTracker({
 
       {tracker.pipelineTerminalFailure ? (
         <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
-          <ReRunReviewButton runId={runId} data-testid="run-progress-re-run-review" />
+          <ReRunReviewButton
+            runId={runId}
+            retryCount={diagnosticContext?.retryCount ?? initialSummary?.retryCount ?? null}
+            data-testid="run-progress-re-run-review"
+          />
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Re-invokes agent execution for this review with the same intake.
           </p>

@@ -2,6 +2,8 @@ using ArchLucid.Application.Identity;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
 
+using FluentAssertions;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -152,5 +154,48 @@ public sealed class TrialLocalIdentityServiceTests
             CancellationToken.None);
 
         Assert.Null(auth);
+    }
+
+    [Fact]
+    public async Task AuthenticateAsync_parallel_wrong_passwords_increment_access_failed_count()
+    {
+        TrialAuthOptions opts = CreateTrialOptions();
+        opts.LocalIdentity.MaxFailedAccessAttemptsBeforeLockout = 10;
+        ConcurrentTrialIdentityUserRepository repository = new();
+        Mock<ITrialLocalIdentityAccountExistsNotifier> notifier = new();
+        PasswordHasher<TrialIdentityHasherUser> hasher = new();
+        string email = "parallel-lockout@example.com";
+        string normalized = TrialEmailNormalizer.Normalize(email);
+        string passwordHash = hasher.HashPassword(new TrialIdentityHasherUser(), "correct-password");
+
+        repository.Seed(
+            new TrialIdentityUserRecord
+            {
+                Id = Guid.NewGuid(),
+                NormalizedEmail = normalized,
+                Email = email,
+                PasswordHash = passwordHash,
+                LockoutEnabled = true,
+                EmailVerifiedUtc = DateTimeOffset.UtcNow.AddDays(-1)
+            });
+
+        TrialLocalIdentityService sut = new(
+            Options.Create(opts),
+            repository,
+            hasher,
+            new TrialPasswordPolicyValidator(Options.Create(opts)),
+            CreatePwnedClient(opts),
+            notifier.Object,
+            NullLogger<TrialLocalIdentityService>.Instance);
+
+        const int parallelAttempts = 6;
+
+        Task[] attempts = Enumerable.Range(0, parallelAttempts)
+            .Select(_ => sut.AuthenticateAsync(email, "wrong-password", CancellationToken.None))
+            .ToArray();
+
+        await Task.WhenAll(attempts);
+
+        repository.GetAccessFailedCount().Should().Be(parallelAttempts);
     }
 }

@@ -21,6 +21,6 @@ public sealed class ArchitectureQuickScanFindingItem
 
     public double? ConfidenceScore { get; init; }
 
-    [JsonConverter(typeof(JsonStringEnumConverter<FindingConfidenceLevel>))]
+    [JsonConverter(typeof(FindingConfidenceLevelJsonConverter))]
     public FindingConfidenceLevel? ConfidenceLevel { get; init; }
 }

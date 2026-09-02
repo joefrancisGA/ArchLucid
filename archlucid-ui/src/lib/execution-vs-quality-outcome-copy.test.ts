@@ -35,8 +35,8 @@ describe("execution-vs-quality-outcome-copy (TB-965)", () => {
     });
 
     expect(execution.axis).toBe("execution");
-    expect(execution.title).toBe("Agent execution failed");
-    expect(execution.remediation.toLowerCase()).toContain("retry");
+    expect(execution.title).toBe("Failure details");
+    expect(execution.remediation.toLowerCase()).toContain("do this next");
   });
 
   it("explains deferred-pipeline invalidOperation via reason code", () => {
@@ -46,7 +46,7 @@ describe("execution-vs-quality-outcome-copy (TB-965)", () => {
     });
 
     expect(copy.axis).toBe("execution");
-    expect(copy.remediation.toLowerCase()).toContain("deferred pipeline");
+    expect(copy.remediation.toLowerCase()).toContain("do this next");
     expect(copy.remediation.toLowerCase()).not.toContain("intake fields");
   });
 

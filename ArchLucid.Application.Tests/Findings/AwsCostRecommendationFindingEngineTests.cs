@@ -48,7 +48,7 @@ public sealed class AwsCostRecommendationFindingEngineTests
 
         AwsCostRecommendationFindingEngine sut = CreateSut(CreatePackage("advisor-cost.json", costJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("AwsCostRecommendation");
@@ -79,7 +79,7 @@ public sealed class AwsCostRecommendationFindingEngineTests
 
         AwsCostRecommendationFindingEngine sut = CreateSut(CreatePackage("cost-recommendations.json", costJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         ((AdvisorCostRecommendationFindingPayload)findings[0].Payload!).ExtractorArtifactFileName
@@ -92,7 +92,7 @@ public sealed class AwsCostRecommendationFindingEngineTests
     {
         AwsCostRecommendationFindingEngine sut = CreateSut(CreatePackage("manifest.json", "{}"));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }

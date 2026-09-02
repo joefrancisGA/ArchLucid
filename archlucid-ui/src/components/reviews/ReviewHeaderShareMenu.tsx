@@ -4,11 +4,13 @@ import Link from "next/link";
 import { Share2, Users } from "lucide-react";
 import { useState, type ReactElement } from "react";
 
+import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
-import { ReviewMeetingPacketButton } from "@/components/reviews/ReviewMeetingPacketButton";
+import { buildReviewMeetingPacketSteps } from "@/components/reviews/ReviewMeetingPacketButton";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type ReviewHeaderShareMenuProps = {
@@ -18,10 +20,14 @@ export type ReviewHeaderShareMenuProps = {
   readonly canInviteReviewer?: boolean;
 };
 
-/** Consolidated share affordances on the review detail header. */
+/** Consolidated share and export affordances on the review detail header. */
 export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactElement {
   const [open, setOpen] = useState(false);
   const inviteHref = buildInviteReviewerHref(props.runId);
+  const exportSteps = buildReviewMeetingPacketSteps({
+    runId: props.runId,
+    findingsQueueHref: props.findingsQueueHref,
+  });
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -34,10 +40,10 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
           data-testid="review-header-share-menu-trigger"
         >
           <Share2 className="h-4 w-4" aria-hidden />
-          Share
+          Share &amp; export
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-72 space-y-3 p-3">
+      <PopoverContent align="end" className="w-80 space-y-3 p-3">
         <div className="space-y-2" data-testid="review-header-share-menu-links">
           <Link
             href={inviteHref}
@@ -62,10 +68,44 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
           </Link>
           <ShareableReviewLinkButton runId={props.runId} isCommitted={props.isCommitted} />
         </div>
-        <ReviewMeetingPacketButton
-          runId={props.runId}
-          findingsQueueHref={props.findingsQueueHref}
-        />
+        <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-800" data-testid="review-header-share-menu-exports">
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+            Sponsor briefing export
+          </p>
+          <ul className="m-0 list-none space-y-2 p-0">
+            {exportSteps.map((step) => (
+              <li key={step.id}>
+                {step.href !== undefined ? (
+                  step.downloadLabel !== undefined ? (
+                    <ExportTrackedAnchor
+                      href={step.href}
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "sm" }),
+                        "w-full justify-start",
+                      )}
+                      data-testid={`review-header-export-${step.id}`}
+                      onClick={() => setOpen(false)}
+                    >
+                      {step.label}
+                    </ExportTrackedAnchor>
+                  ) : (
+                    <Link
+                      href={step.href}
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "sm" }),
+                        "w-full justify-start",
+                      )}
+                      data-testid={`review-header-export-${step.id}`}
+                      onClick={() => setOpen(false)}
+                    >
+                      {step.label}
+                    </Link>
+                  )
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
       </PopoverContent>
     </Popover>
   );

@@ -1,9 +1,13 @@
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Persistence.Data.Repositories;
@@ -16,7 +20,8 @@ public sealed class CommitOutputIntegrityService(
     IScopeContextProvider scopeContextProvider,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IAgentOutputQualityGateOptionsResolver qualityGateOptionsResolver,
-    IRunRepository runRepository) : ICommitOutputIntegrityService
+    IRunRepository runRepository,
+    IRunStageOutcomesRepository runStageOutcomesRepository) : ICommitOutputIntegrityService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -29,6 +34,9 @@ public sealed class CommitOutputIntegrityService(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
+        runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
 
     /// <inheritdoc />
     public async Task EnsurePassOrThrowAsync(
@@ -43,6 +51,33 @@ public sealed class CommitOutputIntegrityService(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(findings);
         ArgumentNullException.ThrowIfNull(architectureRequest);
+
+        IReadOnlyList<string> structuralModeReasons =
+            StructuralExecutionModeCommitGuard.GetBlockingReasons(run.StructuralExecutionMode);
+
+        if (structuralModeReasons.Count > 0)
+        {
+            throw new ConflictException(
+                "Commit blocked: structural execution mode is not decision-grade. "
+                + string.Join(" ", structuralModeReasons));
+        }
+
+        if (Guid.TryParseExact(runId, "N", out Guid runGuid) || Guid.TryParse(runId, out runGuid))
+        {
+            IReadOnlyList<StageTimelineSummary> stageOutcomes =
+                await _runStageOutcomesRepository.ListByRunIdAsync(runGuid, cancellationToken).ConfigureAwait(false);
+
+            AuthorityRunLifecyclePhase phase = AuthorityRunLifecyclePhaseResolver.Resolve(
+                run.GoldenManifestId,
+                null,
+                stageOutcomes);
+
+            if (phase != AuthorityRunLifecyclePhase.Complete)
+            {
+                throw new ConflictException(
+                    $"Commit blocked: authority lifecycle phase is {phase}; pipeline must be Complete before seal.");
+            }
+        }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<AgentExecutionTrace> traces =

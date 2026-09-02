@@ -15,6 +15,7 @@ import type { SessionAiReadinessState } from "@/hooks/use-session-ai-readiness";
 import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-intake-recap";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveProbeAwareRecoverySteps } from "@/lib/resolve-probe-aware-recovery-steps";
+import { shouldShowReviewFailureRecoveryDetail } from "@/lib/resolve-review-failure-do-this-next-copy";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ import type { ReviewPackageDoThisNext } from "./resolve-review-package-do-this-n
 export type ReviewPackageDoThisNextStripProps = {
   readonly next: ReviewPackageDoThisNext;
   readonly runId: string;
+  readonly retryCount?: number | null;
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
   readonly sessionAiReadiness: SessionAiReadinessState;
@@ -155,6 +157,7 @@ function ReviewFailureRecoveryDetails(props: {
   const Callout =
     failureRecovery.severity === "warning" ? OperatorWarningCallout : OperatorErrorCallout;
   const intactSummary = failureRecovery.intactSummary?.trim() ?? "";
+  const showDetail = shouldShowReviewFailureRecoveryDetail(failureRecovery);
   const workspaceAiSignal = failureRecovery.workspaceAiConfigurationSignal;
   const recoverySteps =
     workspaceAiSignal !== null && workspaceAiSignal !== undefined
@@ -168,16 +171,13 @@ function ReviewFailureRecoveryDetails(props: {
 
   return (
     <div className="mt-3 space-y-3" data-testid="review-package-failure-recovery">
-      <Callout>
-        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-failure-headline">
-          {failureRecovery.headline}
-        </p>
-        {failureRecovery.detail !== null ? (
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-failure-detail">
+      {showDetail ? (
+        <Callout>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-failure-detail">
             {failureRecovery.detail}
           </p>
-        ) : null}
-      </Callout>
+        </Callout>
+      ) : null}
 
       {workspaceAiSignal !== null && workspaceAiSignal !== undefined ? (
         <WorkspaceAiAvailabilityPanel
@@ -189,7 +189,7 @@ function ReviewFailureRecoveryDetails(props: {
         />
       ) : null}
 
-      {intactSummary.length > 0 ? (
+      {intactSummary.length > 0 && showDetail ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-failure-intact">
           <span className="font-semibold text-al-text-primary">What&apos;s intact:</span> {intactSummary}
         </p>
@@ -246,6 +246,7 @@ export function ReviewPackageDoThisNextStrip(
   const {
     next,
     runId,
+    retryCount = null,
     hasGoldenManifest,
     commitBlockedReason,
     sessionAiReadiness,
@@ -285,6 +286,7 @@ export function ReviewPackageDoThisNextStrip(
           ) : next.kind === "rerun-review" && !blockRerun ? (
             <ReRunReviewButton
               runId={runId}
+              retryCount={retryCount}
               variant={buttonVariant}
               size="sm"
               data-testid="review-package-re-run-review"
