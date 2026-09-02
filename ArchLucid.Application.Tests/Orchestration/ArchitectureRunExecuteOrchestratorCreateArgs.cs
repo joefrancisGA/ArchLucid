@@ -70,6 +70,8 @@ public sealed class ArchitectureRunExecuteOrchestratorCreateArgs
 
     public IRunStateTransitionService? RunStateTransitionService { get; init; }
 
+    public IRunGovernanceScopePinService? RunGovernanceScopePinService { get; init; }
+
     public IRunEngineProvenanceCaptureService? RunEngineProvenanceCaptureService { get; init; }
 
     public IExecuteTimeGovernanceScopeCaptureService? ExecuteTimeGovernanceScopeCaptureService { get; init; }

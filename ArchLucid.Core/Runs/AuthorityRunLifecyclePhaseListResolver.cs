@@ -1,10 +1,10 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Models;
 
-namespace ArchLucid.Application.Runs;
+namespace ArchLucid.Core.Runs;
 
 /// <summary>
-///     Wave-6 suggestion 58: lightweight lifecycle phase for list/summary surfaces without N+1 stage-outcome reads.
+///     Wave-6 suggestion 58 / wave-7 suggestion 70: lightweight lifecycle phase for list/summary surfaces.
 /// </summary>
 public static class AuthorityRunLifecyclePhaseListResolver
 {

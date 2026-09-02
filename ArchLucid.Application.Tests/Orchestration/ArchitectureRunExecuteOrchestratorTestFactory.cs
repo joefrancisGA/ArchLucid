@@ -136,6 +136,8 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             requestRepository,
             args.RequestContentSafetyPrecheck ?? Mock.Of<IRequestContentSafetyPrecheck>(),
             scopeContextProvider,
+            runRepository,
+            args.RunGovernanceScopePinService ?? Mock.Of<IRunGovernanceScopePinService>(),
             taskRepository,
             args.EvidenceBuilder ?? new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
             args.EvidencePackageInjectionMitigator ?? new NoOpEvidencePackageInjectionMitigator(),

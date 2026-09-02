@@ -2,9 +2,9 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Pagination;
-using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Core.Runs;
 
 namespace ArchLucid.Application;
 
