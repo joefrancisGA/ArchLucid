@@ -72,6 +72,47 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
     expect(guidance?.suggestSupportTicket).toBe(false);
   });
 
+  it("does not tell operators to fix intake when invalidOperation failed before any pipeline stage", () => {
+    const guidance = resolveReviewFailureRecoveryGuidance({
+      runId: "run-abc",
+      diagnosticContext: { legacyRunStatus: "Failed" },
+      lastFailureSummary: { failureClass: "invalidOperation", reasonCode: "NoScheduledAgentTasks" },
+      summary: {
+        hasContextSnapshot: false,
+        hasGraphSnapshot: false,
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+      canConfigureWorkspaceAi: true,
+    });
+
+    expect(guidance?.headline).toBe("Execution failed before the first pipeline stage");
+    expect(guidance?.recoverySteps.join(" ")).not.toContain("intake fields");
+    expect(guidance?.recoverySteps.join(" ")).toContain("Re-run review");
+    expect(guidance?.recoverySteps.join(" ")).toContain("background review processing");
+    expect(guidance?.suggestSupportTicket).toBe(false);
+  });
+
+  it("treats a bare invalidOperation LastFailureReason as deferred-pipeline, not intake", () => {
+    const guidance = resolveReviewFailureRecoveryGuidance({
+      runId: "run-abc",
+      diagnosticContext: { legacyRunStatus: "Failed" },
+      lastFailureSummary: { failureClass: "invalidOperation" },
+      summary: {
+        hasContextSnapshot: false,
+        hasGraphSnapshot: false,
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+      canConfigureWorkspaceAi: true,
+    });
+
+    expect(guidance?.headline).toBe("Execution failed before the first pipeline stage");
+    expect(guidance?.recoverySteps.join(" ")).not.toContain("intake fields");
+    expect(guidance?.recoverySteps.join(" ")).toContain("Re-run review");
+    expect(guidance?.suggestSupportTicket).toBe(false);
+  });
+
   it("uses customer-connection recovery copy when BYO is configured", () => {
     const guidance = resolveReviewFailureRecoveryGuidance({
       diagnosticContext: { legacyRunStatus: "Failed" },
