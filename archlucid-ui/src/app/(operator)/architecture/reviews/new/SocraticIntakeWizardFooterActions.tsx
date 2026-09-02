@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
+import { CardFooter } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT,
@@ -31,7 +32,10 @@ export function SocraticIntakeWizardFooterActions(
   props: SocraticIntakeWizardFooterActionsProps,
 ): React.JSX.Element {
   return (
-    <div className={WIZARD_STICKY_FOOTER_CLASS} data-testid={WIZARD_STICKY_FOOTER_TEST_ID}>
+    <CardFooter
+      className={cn(WIZARD_STICKY_FOOTER_CLASS, "flex-col items-stretch gap-0 border-t border-neutral-200 p-4 pt-0 dark:border-neutral-800")}
+      data-testid={WIZARD_STICKY_FOOTER_TEST_ID}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
           <p
@@ -71,6 +75,6 @@ export function SocraticIntakeWizardFooterActions(
           {resolveGuidedIntakeClarificationsDoneLabel(props.allClarificationsHandled, props.busy)}
         </Button>
       </div>
-    </div>
+    </CardFooter>
   );
 }

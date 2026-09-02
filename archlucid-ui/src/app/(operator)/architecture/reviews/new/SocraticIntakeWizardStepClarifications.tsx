@@ -116,8 +116,10 @@ export function SocraticIntakeWizardStepClarifications(
   return (
     <div data-testid="socratic-clarifications-step">
       <Card data-testid="guided-intake-primary-panel">
-        <CardHeader>
-          <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle as="h2" className="sr-only">
+            {INTAKE_STEPS[1].cardTitle}
+          </CardTitle>
           <CardDescription>
             {props.isCreateArchitectureFlow ? (
               <>
@@ -149,7 +151,10 @@ export function SocraticIntakeWizardStepClarifications(
           {props.isExtractingEvidenceText ? <EvidenceExtractionAwaitingSkeleton /> : null}
 
           {props.canSuggestFromEvidence ? (
-            <div className="space-y-4" data-testid="guided-intake-clarification-suggest-from-brief">
+            <div
+              className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
+              data-testid="guided-intake-clarification-suggest-from-brief"
+            >
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                 {GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_HELPER}
               </p>
@@ -178,7 +183,7 @@ export function SocraticIntakeWizardStepClarifications(
             </div>
           ) : null}
 
-          {suggestedDraftCount > 0 ? (
+          {suggestedDraftCount > 0 && !props.viewAllClarifications ? (
             <p
               className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="guided-intake-clarification-inferred-helper"
@@ -189,7 +194,7 @@ export function SocraticIntakeWizardStepClarifications(
             </p>
           ) : null}
 
-          {suggestedDraftCount > 0 ? (
+          {suggestedDraftCount > 0 && !props.viewAllClarifications ? (
             <p
               className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="guided-intake-clarification-suggested-draft-count"
@@ -207,7 +212,7 @@ export function SocraticIntakeWizardStepClarifications(
             </p>
           ) : null}
 
-          {props.activePendingQuestions.length > 1 ? (
+          {props.pendingQuestions.length > 1 ? (
             <Button
               type="button"
               variant="outline"
@@ -225,7 +230,7 @@ export function SocraticIntakeWizardStepClarifications(
           ) : null}
 
           {props.otherPendingQuestions.length > 0 ? (
-            <div className="space-y-3" data-testid="socratic-other-clarifications">
+            <div className="space-y-4" data-testid="socratic-other-clarifications">
               <p
                 className={cn(
                   "m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400",
@@ -243,27 +248,28 @@ export function SocraticIntakeWizardStepClarifications(
             </div>
           ) : null}
 
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="socratic-clarification-helper">
-            Answer or skip each clarification. You can review everything before starting the architecture review.
-          </p>
+          {!props.viewAllClarifications ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="socratic-clarification-helper">
+              Answer or skip each clarification. You can review everything before starting the architecture review.
+            </p>
+          ) : null}
 
           {props.submitError !== null ? <GuidedIntakeRequestError error={props.submitError} /> : null}
         </CardContent>
+        <SocraticIntakeWizardFooterActions
+          handledClarificationCount={props.handledClarificationCount}
+          totalRequiredClarifications={props.totalRequiredClarifications}
+          allClarificationsHandled={props.allClarificationsHandled}
+          canReviewAnswers={props.canReviewAnswers}
+          busy={props.busy}
+          isSubmitBlocked={props.isSubmitBlocked}
+          pendingQuestionCount={props.pendingQuestions.length}
+          onReviewAnswers={() => {
+            void props.reviewAnswers();
+          }}
+          onAdvanceToConfirm={props.onAdvanceToConfirm}
+        />
       </Card>
-
-      <SocraticIntakeWizardFooterActions
-        handledClarificationCount={props.handledClarificationCount}
-        totalRequiredClarifications={props.totalRequiredClarifications}
-        allClarificationsHandled={props.allClarificationsHandled}
-        canReviewAnswers={props.canReviewAnswers}
-        busy={props.busy}
-        isSubmitBlocked={props.isSubmitBlocked}
-        pendingQuestionCount={props.pendingQuestions.length}
-        onReviewAnswers={() => {
-          void props.reviewAnswers();
-        }}
-        onAdvanceToConfirm={props.onAdvanceToConfirm}
-      />
     </div>
   );
 }
