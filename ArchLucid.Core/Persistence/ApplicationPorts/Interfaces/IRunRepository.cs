@@ -128,6 +128,14 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Latest committed run id for <paramref name="architectureVersionId" /> within <paramref name="scope" />.
+    /// </summary>
+    Task<Guid?> GetLatestCommittedRunIdByArchitectureVersionIdAsync(
+        ScopeContext scope,
+        Guid architectureVersionId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Returns up to <paramref name="take" /> runs for <paramref name="projectId" /> within
     ///     <paramref name="scope" />, ordered by <c>CreatedUtc</c> descending (newest first).
     /// </summary>

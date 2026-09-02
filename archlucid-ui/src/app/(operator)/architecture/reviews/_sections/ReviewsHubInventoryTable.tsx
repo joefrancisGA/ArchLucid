@@ -15,6 +15,7 @@ import {
 import type { ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import type { RunSummary } from "@/types/authority";
 
 import { ReviewsHubInventoryRow } from "./ReviewsHubInventoryRow";
@@ -55,6 +56,7 @@ export type ReviewsHubInventoryTableProps = {
   readonly ariaLabel: string;
   readonly tableTestId: string;
   readonly virtualizedTestId?: string;
+  readonly onClearFilters?: () => void;
 };
 
 export function ReviewsHubInventoryTable(props: ReviewsHubInventoryTableProps): React.JSX.Element {
@@ -70,9 +72,27 @@ export function ReviewsHubInventoryTable(props: ReviewsHubInventoryTableProps): 
 
   if (props.runs.length === 0) {
     return (
-      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-        No reviews match the current search or filters.
-      </p>
+      <div
+        className="flex flex-wrap items-center gap-2"
+        data-testid="reviews-hub-inventory-empty"
+        role="status"
+      >
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          No reviews match the current search or filters.
+        </p>
+        {props.onClearFilters !== undefined ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-auto px-2 py-1 text-al-text-primary"
+            onClick={props.onClearFilters}
+            data-testid="reviews-hub-inventory-empty-clear"
+          >
+            Clear filters
+          </Button>
+        ) : null}
+      </div>
     );
   }
 

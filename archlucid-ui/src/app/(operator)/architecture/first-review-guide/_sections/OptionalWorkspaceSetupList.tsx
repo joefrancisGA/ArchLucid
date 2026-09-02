@@ -32,8 +32,14 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
       id: "identity",
       title: "Identity and single sign-on",
       benefit: "Allow users to sign in with corporate credentials.",
-      statusLabel: "Optional",
-      statusKind: "neutral",
+      statusLabel:
+        context.identityConfigured === true
+          ? "Complete"
+          : context.identityConfigured === false
+            ? "Not configured"
+            : "Optional",
+      statusKind:
+        context.identityConfigured === true ? "ready" : context.identityConfigured === false ? "draft" : "neutral",
       href: "/administration/identity/sso-wizard",
       actionLabel: "Open SSO wizard",
     },

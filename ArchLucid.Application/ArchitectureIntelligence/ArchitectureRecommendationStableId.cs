@@ -9,9 +9,9 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 ///     Deterministic recommendation identity: identical finding identity, proposed-change text, and dimension
 ///     yield the same <c>RecommendationId</c> (chapter 75 F7 / EK-03).
 /// </summary>
-internal static class ArchitectureRecommendationStableId
+public static class ArchitectureRecommendationStableId
 {
-    internal static string FromFinding(SpecialistReviewFinding finding, string proposedChange)
+    public static string FromFinding(SpecialistReviewFinding finding, string proposedChange)
     {
         ArgumentNullException.ThrowIfNull(finding);
         ArgumentNullException.ThrowIfNull(proposedChange);
@@ -22,6 +22,17 @@ internal static class ArchitectureRecommendationStableId
         string canonical = string.Join('\u001f', findingId, title, proposedChange, dimension);
         byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
         // First 16 bytes of SHA-256 as Guid "N" — a guid-shaped digest of the canonical tuple, not an RFC 4122 UUID.
+        return new Guid(digest.AsSpan(0, 16)).ToString("N");
+    }
+
+    public static string FromLlmRecommendation(string problem, string proposedChange, string? dimension)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(problem);
+        ArgumentException.ThrowIfNullOrWhiteSpace(proposedChange);
+
+        string canonical = string.Join('\u001f', problem.Trim(), proposedChange.Trim(), dimension?.Trim() ?? string.Empty);
+        byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
+
         return new Guid(digest.AsSpan(0, 16)).ToString("N");
     }
 }

@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { GovernanceFindingsRegisterFilterCompact } from "./GovernanceFindingsRegisterFilterCompact";
 
 describe("GovernanceFindingsRegisterFilterCompact", () => {
-  it("renders All and Open filters with clear action", () => {
+  it("renders All and Open filters with counts and clear action", () => {
     const onRegisterFilterChange = vi.fn();
     const onClearAllFilters = vi.fn();
 
@@ -13,11 +13,14 @@ describe("GovernanceFindingsRegisterFilterCompact", () => {
         registerFilter="open"
         onRegisterFilterChange={onRegisterFilterChange}
         onClearAllFilters={onClearAllFilters}
+        allCount={12}
+        openCount={4}
       />,
     );
 
-    expect(screen.getByTestId("governance-findings-register-filter-compact")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "All" }));
+    expect(screen.getByRole("button", { name: "All (12)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open (4)" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "All (12)" }));
     expect(onRegisterFilterChange).toHaveBeenCalledWith("all");
     fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
     expect(onClearAllFilters).toHaveBeenCalled();

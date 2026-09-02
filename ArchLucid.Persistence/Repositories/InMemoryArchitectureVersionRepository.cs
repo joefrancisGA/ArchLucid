@@ -107,4 +107,26 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
 
         return Task.FromResult<ArchitectureVersionRecord?>(record);
     }
+
+    public Task<ArchitectureVersionRecord?> GetByArchitectureIdAndVersionNumberAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        int versionNumber,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        _ = cancellationToken;
+
+        if (architectureId == Guid.Empty || versionNumber < 1)
+            return Task.FromResult<ArchitectureVersionRecord?>(null);
+
+        ArchitectureVersionRecord? match = _byId.Values.FirstOrDefault(record =>
+            record.ArchitectureId == architectureId
+            && record.VersionNumber == versionNumber
+            && record.TenantId == scope.TenantId
+            && record.WorkspaceId == scope.WorkspaceId
+            && record.ScopeProjectId == scope.ProjectId);
+
+        return Task.FromResult(match);
+    }
 }

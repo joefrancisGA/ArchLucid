@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
@@ -65,6 +66,12 @@ public sealed class RunDetailsResponseDto
     }
 
     public bool AgentTaskLoopComplete
+    {
+        get;
+        set;
+    }
+
+    public AuthorityRunLifecyclePhase AuthorityLifecyclePhase
     {
         get;
         set;

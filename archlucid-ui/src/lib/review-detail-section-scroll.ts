@@ -20,6 +20,23 @@ export function scrollToReviewDetailSection(sectionId: string): boolean {
 
   target.scrollIntoView({ behavior: "smooth", block: "start" });
 
+  const focusTarget =
+    target.matches("a, button, input, select, textarea, [tabindex]:not([tabindex='-1'])")
+      ? target
+      : target.querySelector<HTMLElement>(
+          "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])",
+        );
+
+  if (focusTarget === null) {
+    if (!target.hasAttribute("tabindex")) {
+      target.setAttribute("tabindex", "-1");
+    }
+
+    target.focus({ preventScroll: true });
+  } else {
+    focusTarget.focus({ preventScroll: true });
+  }
+
   return true;
 }
 
