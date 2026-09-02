@@ -1,4 +1,7 @@
+import { createRequire } from "node:module";
 import { defineConfig, devices } from "@playwright/test";
+
+const require = createRequire(import.meta.url);
 
 /**
  * Default Playwright config: **live ArchLucid API + SQL** (operator journeys + live axe routes).
