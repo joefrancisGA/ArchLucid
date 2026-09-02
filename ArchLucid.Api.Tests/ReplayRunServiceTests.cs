@@ -4,6 +4,8 @@ using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
+using ArchLucid.Application;
+using ArchLucid.Application.Replay;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
@@ -125,7 +127,6 @@ public sealed class ReplayRunServiceTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
-            Mock.Of<IAuthorityRunOrchestrator>(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             Mock.Of<ICommitRunIdempotencyCoordinator>(),
             cloneStage,
