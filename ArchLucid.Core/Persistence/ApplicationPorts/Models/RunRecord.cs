@@ -316,4 +316,18 @@ public sealed class RunRecord
         get;
         set;
     }
+
+    /// <summary>JSON array of enabled policy pack ids pinned at run create (wave-4 suggestion 34).</summary>
+    public string? PinnedPolicyPackIdsJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SHA-256 of canonical <see cref="PinnedPolicyPackIdsJson" /> at create.</summary>
+    public byte[]? PinnedPolicyPackIdsHashSha256
+    {
+        get;
+        set;
+    }
 }

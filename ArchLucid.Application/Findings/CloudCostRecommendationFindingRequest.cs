@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -18,4 +19,5 @@ internal sealed record CloudCostRecommendationFindingRequest(
     string DefaultIdPrefix,
     string Rationale,
     string RuleApplied,
-    string DecisionTaken);
+    string DecisionTaken,
+    FindingAnalysisContext? AnalysisContext = null);

@@ -290,6 +290,8 @@ public sealed class AuthorityPipelineWorkProcessor(
                      nameof(ArchitectureRunStatus.TasksGenerated),
                      StringComparison.Ordinal))
             nextAfterMaterialize = "run_legacy_status_already_tasks_generated";
+        else if (runStateTransitions.ShouldSkipLegacyRunStatusPatchAfterAuthorityProgress(statusPatch.ContextSnapshotId))
+            nextAfterMaterialize = "run_legacy_status_skipped_authority_progress";
         else if (runStateTransitions.ShouldSetTasksGeneratedAfterDeferredMaterialize(statusPatch.LegacyRunStatus))
         {
             // Only Created (or unset) → TasksGenerated. Never demote ReadyForCommit after seed/execute raced ahead.

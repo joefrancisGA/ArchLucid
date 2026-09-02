@@ -223,4 +223,10 @@ public sealed class RunStateTransitionService : IRunStateTransitionService
 
     /// <inheritdoc/>
     public bool ShouldSkipQueuedAuthorityPipelineCompletion(Guid? contextSnapshotId) => contextSnapshotId is not null;
+
+    /// <inheritdoc/>
+    public bool ShouldSkipLegacyRunStatusPatchAfterAuthorityProgress(Guid? contextSnapshotId)
+    {
+        return contextSnapshotId is Guid contextId && contextId != Guid.Empty;
+    }
 }

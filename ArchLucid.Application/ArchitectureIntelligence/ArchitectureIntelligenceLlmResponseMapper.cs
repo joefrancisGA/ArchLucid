@@ -91,14 +91,19 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
 
     internal static ArchitectureRecommendation MapRecommendation(RecommendationShape item)
     {
+        string proposedChange = item.ProposedChange?.Trim() ?? string.Empty;
+
         return new ArchitectureRecommendation
         {
-            RecommendationId = Guid.NewGuid().ToString("N"),
+            RecommendationId = ArchitectureRecommendationStableId.FromLlmRecommendation(
+                item.Problem!.Trim(),
+                proposedChange,
+                item.AffectedRequirementOrQualityAttribute),
             Problem = item.Problem!.Trim(),
             Evidence = item.Evidence?.Trim() ?? string.Empty,
             AffectedRequirementOrQualityAttribute = item.AffectedRequirementOrQualityAttribute?.Trim() ?? string.Empty,
             ConsequenceOfInaction = item.ConsequenceOfInaction?.Trim() ?? string.Empty,
-            ProposedChange = item.ProposedChange?.Trim() ?? string.Empty,
+            ProposedChange = proposedChange,
             Alternatives = item.Alternatives?
                 .Where(alternative => !string.IsNullOrWhiteSpace(alternative))
                 .Select(alternative => alternative.Trim())
