@@ -64,7 +64,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IArchitectureRunExecutePreExecuteStage preExecuteStage,
     IArchitectureRunExecuteAgentLoopStage agentLoopStage,
     ILogger<ArchitectureRunExecuteOrchestrator> logger,
-    IIncompleteAuthorityPipelineExecuteHandler? incompleteAuthorityPipelineExecuteHandler = null)
+    IIncompleteAuthorityPipelineExecuteHandler incompleteAuthorityPipelineExecuteHandler)
     : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -82,6 +82,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IIncompleteAuthorityPipelineExecuteHandler _incompleteAuthorityPipelineExecuteHandler =
+        incompleteAuthorityPipelineExecuteHandler
+        ?? throw new ArgumentNullException(nameof(incompleteAuthorityPipelineExecuteHandler));
 
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
@@ -202,7 +205,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         IReadOnlyList<AgentTask> scheduledTasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
 
         if (scheduledTasks.Count == 0)
-            throw new InvalidOperationException($"No tasks found for run '{runId}'.");
+            throw new NoScheduledAgentTasksException(runId);
 
         IReadOnlyList<AgentTask> forcedTasks = SelectiveAgentExecutePlanner.ResolveTasksToForce(scheduledTasks, request);
 
@@ -297,14 +300,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         await _postExecuteHooks.LogFailedRunRetryRequestedAsync(run, runId, actor, cancellationToken);
 
-        if (incompleteAuthorityPipelineExecuteHandler is not null)
-        {
-            ExecuteRunResult? resumed =
-                await incompleteAuthorityPipelineExecuteHandler.TryResumeAsync(run, runId, cancellationToken);
+        ExecuteRunResult? resumed =
+            await _incompleteAuthorityPipelineExecuteHandler.TryResumeAsync(run, runId, cancellationToken);
 
-            if (resumed is not null)
-                return resumed;
-        }
+        if (resumed is not null)
+            return resumed;
 
         ExecuteRunResult? idempotent = await _preExecuteStage.TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 

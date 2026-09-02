@@ -90,7 +90,8 @@ public sealed class ArchitectureSynthesisKernelTests
             runRepository: runs.Object,
             scopeProvider: scopeProvider.Object,
             contentSafety: safety.Object,
-            timeProvider: time);
+            timeProvider: time,
+            architectureVersionService: CreateDefaultVersionService(runs.Object));
 
         ArchitectureSynthesisGenerateResult result =
             await sut.GenerateAsync(request, idempotency: null, CancellationToken.None);
@@ -293,6 +294,8 @@ public sealed class ArchitectureSynthesisKernelTests
         IRequestContentSafetyPrecheck? contentSafety = null,
         IArchitectureKnowledgeModelIntakeBuilder? knowledgeModelIntakeBuilder = null,
         IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null,
+        IArchitectureIdentityService? architectureIdentityService = null,
+        IArchitectureVersionService? architectureVersionService = null,
         TechnologyLedgerRequestSeeder? technologyLedgerRequestSeeder = null,
         TechnologyLedgerEvidenceSeeder? technologyLedgerEvidenceSeeder = null,
         TimeProvider? timeProvider = null)
@@ -321,9 +324,54 @@ public sealed class ArchitectureSynthesisKernelTests
             ?? TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
                 Mock.Of<ArchLucid.Persistence.Data.Repositories.ITechnologyLedgerRepository>(),
                 scopeProvider ?? defaultScope.Object),
-            null,
+            architectureIdentityService ?? CreateDefaultIdentityService(),
+            architectureVersionService ?? CreateDefaultVersionService(runRepository),
             NullLogger<ArchitectureSynthesisKernel>.Instance,
             timeProvider ?? TimeProvider.System);
+    }
+
+    private static IArchitectureIdentityService CreateDefaultIdentityService()
+    {
+        Mock<IArchitectureIdentityService> identity = new();
+        identity
+            .Setup(s => s.EnsureCreatedRunIdentityAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Contracts.Architecture.ArchitectureIdentityRecord
+            {
+                ArchitectureId = Guid.NewGuid(),
+            });
+
+        return identity.Object;
+    }
+
+    private static IArchitectureVersionService CreateDefaultVersionService(IRunRepository? runRepository)
+    {
+        Mock<IArchitectureVersionService> version = new();
+        version
+            .Setup(s => s.EnsureRunVersionPinnedAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<ArchitectureKnowledgeModel?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Contracts.Architecture.ArchitectureVersionRecord
+            {
+                ArchitectureVersionId = Guid.NewGuid(),
+                ArchitectureId = Guid.NewGuid(),
+                VersionNumber = 1,
+            });
+
+        if (runRepository is Mock<IRunRepository> runs)
+        {
+            runs.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new RunRecord { ArchitectureVersionId = Guid.NewGuid() });
+        }
+
+        return version.Object;
     }
 
     private static string RepoRoot() =>

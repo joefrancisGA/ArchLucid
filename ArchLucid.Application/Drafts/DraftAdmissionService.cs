@@ -5,6 +5,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 namespace ArchLucid.Application.Drafts;
 
@@ -19,7 +20,8 @@ public sealed partial class DraftAdmissionService(
     IArchitectureRunCommandService architectureRunCommandService,
     IRequestContentSafetyPrecheck contentSafetyPrecheck,
     FeasibilityVerdictBuilder feasibilityVerdictBuilder,
-    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard) : IDraftAdmissionService
+    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
+    IRunRepository runRepository) : IDraftAdmissionService
 {
     private readonly IDraftAdmissionGate _admissionGate =
         admissionGate ?? throw new ArgumentNullException(nameof(admissionGate));
@@ -50,4 +52,7 @@ public sealed partial class DraftAdmissionService(
 
     private readonly IWorkspaceSystemNameCollisionGuard _workspaceSystemNameCollisionGuard =
         workspaceSystemNameCollisionGuard ?? throw new ArgumentNullException(nameof(workspaceSystemNameCollisionGuard));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 }

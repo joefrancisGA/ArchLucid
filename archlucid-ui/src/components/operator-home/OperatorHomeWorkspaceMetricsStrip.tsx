@@ -10,9 +10,7 @@ import {
   formatOperatorHomeCompactMetricsLine,
 } from "@/lib/operator/operator-home-workspace-metrics";
 import {
-  GOVERNANCE_ALERTS_PATH,
-  GOVERNANCE_APPROVAL_QUEUE_PATH,
-  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
 } from "@/lib/governance/governance-route-paths";
 import {
   OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF,
@@ -64,7 +62,7 @@ export function OperatorHomeWorkspaceMetricsStrip(
 
   const activeReviews = metrics.reviewPackagesActive;
   const findingsLabel = `${metrics.openFindings} Open finding${metrics.openFindings === 1 ? "" : "s"}`;
-  const alertsLabel = `${metrics.governanceWarnings} Alert${metrics.governanceWarnings === 1 ? "" : "s"}`;
+  const warningsLabel = `${metrics.governanceWarnings} Warning${metrics.governanceWarnings === 1 ? "" : "s"}`;
   const setupLabel = readiness.phase === "loading"
     ? "Setup …"
     : `Setup ${readiness.readyCount}/${readiness.totalCount}`;
@@ -90,7 +88,7 @@ export function OperatorHomeWorkspaceMetricsStrip(
           href={OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF}
         />
         <MetricTile label={findingsLabel} href={OPERATOR_HOME_OPEN_FINDINGS_HREF} />
-        <MetricTile label={alertsLabel} href={GOVERNANCE_ALERTS_PATH} />
+        <MetricTile label={warningsLabel} href={GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH} />
         <MetricTile
           label={setupLabel}
           href={readiness.phase === "loading" ? undefined : OPERATOR_HOME_SETUP_READINESS_HREF}

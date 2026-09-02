@@ -50,6 +50,7 @@ public sealed partial class DapperDraftRequestRepository
                                    DocumentJson,
                                    RedirectReason,
                                    SpawnedRunId,
+                                   SpawnedArchitectureVersionId,
                                    CreatedByUserId,
                                    CreatedUtc,
                                    UpdatedUtc
