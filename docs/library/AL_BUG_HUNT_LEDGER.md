@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 60
-- **bugs-found:** 157
+- **hunts:** 61
+- **bugs-found:** 158
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — boolean ordinal coercion across Core string parsers
+- **last-bug:** 2026-09-02 — production-like quality-gate string boolean ordinal coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1952,6 +1952,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentModelExecutionProfileParser.TryParse` — string-encoded boolean profile ordinal rejected — **hit 2026-09-02 (#472):** `"True"` failed parse while numeric `"1"` accepted Balanced; fixed with `TryParseBooleanOrdinalString` (`TryParse_accepts_string_encoded_boolean_balanced_ordinal`).
 - [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` — string-encoded boolean severity ordinal ignored — **hit 2026-09-02 (#472):** `policyCostBreachSeverity="True"` returned null while `"Warning"` accepted; fixed with boolean ordinal coercion (`Parse_breach_severity_string_encoded_boolean_maps_label`).
 - [x] (proven) `ArchitectureRunStatusTransitionTable.TryParseStatus` — string-encoded boolean legacy status ignored — **hit 2026-09-02 (#472):** `"True"` failed parse while `"1"` mapped to `Created`; fixed with boolean ordinal coercion (`TryParseStatus_parses_string_encoded_boolean_ordinal`).
+
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — string-encoded boolean quality-gate mode ignored — **hit 2026-09-02 (#473):** config `"False"` skipped WarnOnly advisory while `"0"` / `"0.0"` emitted; fixed with `TryParseBooleanOrdinalString` (`ShouldEmitFinding_production_real_string_encoded_boolean_warn_only_emits_rule`).
+
+2026-09-02 seed hunt #473: reseeded from ArchLucid.Core; proved production-like quality-gate string boolean ordinal coercion gap; added regression coverage for enforcement-tier false override and execution-profile economy boolean ordinal.
 
 2026-09-02 seed hunt #472: reseeded from ArchLucid.Core; proved enforcement-tier, execution-profile, policy-pack breach severity, and run-status string boolean ordinal coercion gaps.
 
