@@ -182,15 +182,6 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     router.replace(reviewsHubInventoryClearFilterHrefFromSearch(currentSearch), { scroll: false });
   }, [currentSearch, router]);
 
-  const clearInventorySearch = useCallback(() => {
-    router.replace(reviewsHubInventoryClearSearchHrefFromSearch(searchParams.toString()), { scroll: false });
-  }, [router, searchParams]);
-
-  const clearInventoryFilter = useCallback(() => {
-    setActiveFilter("all");
-    router.replace(reviewsHubInventoryClearFilterHrefFromSearch(searchParams.toString()), { scroll: false });
-  }, [router, searchParams]);
-
   const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 
   const sampleHref = showcaseSampleReviewPackageHref();
