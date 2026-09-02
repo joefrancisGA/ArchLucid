@@ -653,13 +653,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
+- **last-hunt:** 2026-09-02
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -668,6 +668,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Required rationale is skipped when the disposition kind is reject — `RejectedAsNotApplicable` requires rationale in `FindingDispositionValidation.Validate`.
 - [x] (proven) Deferred disposition rejects empty rationale while operator UI gates (TB-2305) require rationale only for Accepted and RejectedAsNotApplicable — fixed by removing Deferred from `requiresRationale`.
 - [x] (proven) Non-Accepted dispositions persist trade-off acknowledgment and cross-kind fields (`RevisitDueUtc`, `EvidenceRequestText`) on unrelated disposition kinds — fixed in `FindingDispositionService` note builder and record normalization.
+- [x] (invalid) `FindingDispositionValidation.Validate` for `NeedsEvidence` — `EvidenceRequestText` shorter than `MinimumRationaleLength` bypasses audit bar — only non-empty text is required; UI gates match; regression in `Validate_needs_evidence_accepts_single_character_evidence_request_text`.
+- [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` with same-tenant finding id reused across projects — workspace/project equality filter hides foreign-project events; regression in `ListHistoryAsync_excludes_disposition_events_from_other_project`.
+- [x] (invalid) `FindingDispositionValidation.Validate` for `RejectedAsNotApplicable` — whitespace-padded rationale below 10 characters after trim — `Trim().Length` gate enforced; regression in `Validate_rejected_as_not_applicable_rejects_short_rationale`.
 
 ---
 
