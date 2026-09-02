@@ -24,8 +24,11 @@ public sealed partial class GovernanceStickinessController
         [FromBody] CreateRiskExceptionRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        IActionResult? bodyProblem =
+            GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
+
+        if (bodyProblem is not null)
+            return bodyProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -33,14 +36,14 @@ public sealed partial class GovernanceStickinessController
             return tenantProblem;
 
         IActionResult? createValidation =
-            GovernanceStickinessHttpMapper.ValidateCreateRiskException(request).ToBadRequestProblemOrNull(this);
+            GovernanceStickinessHttpMapper.ValidateCreateRiskException(request!).ToBadRequestProblemOrNull(this);
 
         if (createValidation is not null)
             return createValidation;
 
         try
         {
-            RiskExceptionRecord record = await _facade.CreateRiskExceptionAsync(request, cancellationToken);
+            RiskExceptionRecord record = await _facade.CreateRiskExceptionAsync(request!, cancellationToken);
 
             return Ok(record);
         }
@@ -70,7 +73,9 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+        IActionResult? projectIdProblem =
+            GovernanceStickinessControllerCore.ValidateProjectScopedQuery(projectId)
+                .ToBadRequestProblemOrNull(this);
 
         if (projectIdProblem is not null)
             return projectIdProblem;
@@ -129,8 +134,11 @@ public sealed partial class GovernanceStickinessController
         [FromBody] RenewRiskExceptionRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        IActionResult? bodyProblem =
+            GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
+
+        if (bodyProblem is not null)
+            return bodyProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -147,7 +155,7 @@ public sealed partial class GovernanceStickinessController
         try
         {
             RiskExceptionRecord record =
-                await _facade.RenewRiskExceptionAsync(riskExceptionId, request, cancellationToken);
+                await _facade.RenewRiskExceptionAsync(riskExceptionId, request!, cancellationToken);
 
             return Ok(record);
         }
@@ -171,8 +179,11 @@ public sealed partial class GovernanceStickinessController
         [FromBody] CreateArchitectureReviewRecurrenceScheduleRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        IActionResult? bodyProblem =
+            GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
+
+        if (bodyProblem is not null)
+            return bodyProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -182,7 +193,7 @@ public sealed partial class GovernanceStickinessController
         try
         {
             ArchitectureReviewRecurrenceSchedule schedule =
-                await _facade.CreateRecurrenceScheduleAsync(request, cancellationToken);
+                await _facade.CreateRecurrenceScheduleAsync(request!, cancellationToken);
 
             return Ok(schedule);
         }
@@ -220,12 +231,15 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult PreviewRecurrenceScheduleRuns([FromBody] PreviewRecurrenceScheduleRunsRequest? request)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        IActionResult? bodyProblem =
+            GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
+
+        if (bodyProblem is not null)
+            return bodyProblem;
 
         try
         {
-            return Ok(_facade.PreviewRecurrenceScheduleRuns(request));
+            return Ok(_facade.PreviewRecurrenceScheduleRuns(request!));
         }
         catch (ArgumentException ex)
         {
@@ -244,19 +258,25 @@ public sealed partial class GovernanceStickinessController
         [FromBody] UpdateArchitectureReviewRecurrenceScheduleRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        IActionResult? bodyProblem =
+            GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
+
+        if (bodyProblem is not null)
+            return bodyProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
 
-        if (scheduleId == Guid.Empty)
-            return this.BadRequestProblem("scheduleId is required.", ProblemTypes.ValidationFailed);
+        IActionResult? scheduleIdProblem =
+            GovernanceStickinessControllerCore.ValidateScheduleId(scheduleId).ToBadRequestProblemOrNull(this);
+
+        if (scheduleIdProblem is not null)
+            return scheduleIdProblem;
 
         RecurrenceScheduleUpdateResult result =
-            await _facade.UpdateRecurrenceScheduleAsync(scheduleId, request, cancellationToken);
+            await _facade.UpdateRecurrenceScheduleAsync(scheduleId, request!, cancellationToken);
 
         return result.Outcome switch
         {
@@ -295,8 +315,11 @@ public sealed partial class GovernanceStickinessController
         [FromBody] UpsertRealizedValueAttestationRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        IActionResult? bodyProblem =
+            GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
+
+        if (bodyProblem is not null)
+            return bodyProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -305,7 +328,7 @@ public sealed partial class GovernanceStickinessController
 
         try
         {
-            await _facade.UpsertRealizedValueAttestationAsync(request, cancellationToken);
+            await _facade.UpsertRealizedValueAttestationAsync(request!, cancellationToken);
 
             return NoContent();
         }

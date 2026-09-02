@@ -2,8 +2,6 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Analysis.ReplayComparison;
 using ArchLucid.Application.Diffs;
-using ArchLucid.Application.Findings;
-using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;

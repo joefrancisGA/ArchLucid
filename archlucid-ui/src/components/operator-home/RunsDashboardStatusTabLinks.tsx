@@ -1,7 +1,5 @@
 "use client";
 
-import { useRef, type KeyboardEvent } from "react";
-
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 import { runsDashboardTabLabel } from "@/components/operator-home/runs-dashboard-helpers";
 import {

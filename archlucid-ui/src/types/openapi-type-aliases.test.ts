@@ -201,6 +201,48 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
   TeamsIncomingWebhookSecretValidationResponse: "TeamsIncomingWebhookSecretValidationResponse",
   TeamsIncomingWebhookSecretValidationOutcome: "TeamsIncomingWebhookSecretValidationOutcome",
   TeamsIncomingWebhookConnectionTestResponse: "TeamsIncomingWebhookConnectionTestResponse",
+  AgentExecutionTraceRow: "AgentExecutionTraceSummary",
+  AgentExecutionTraceListPayload: "AgentExecutionTraceResponse",
+  AgentOutputSemanticScoreRow: "AgentOutputSemanticScore",
+  AgentOutputEvaluationScoreRow: "AgentOutputEvaluationScore",
+  AgentOutputEvaluationPerspectivePayload: "AgentOutputEvaluationPerspective",
+  AgentOutputEvaluationSummaryPayload: "AgentOutputEvaluationSummary",
+  RunRetrievalGroundingScoreSummary: "RunRetrievalGroundingScoreSummary",
+  RunRetrievalGroundingRow: "RunRetrievalGroundingRow",
+  RunRetrievalGroundingPayload: "RunRetrievalGroundingResponse",
+  ExplanationProvenance: "ExplanationProvenance",
+  StructuredExplanation: "StructuredExplanation",
+  FindingExplainabilityEvidence: "FindingExplainabilityEvidence",
+  FindingEvidenceChain: "FindingEvidenceChainResponse",
+  FindingLlmAudit: "FindingLlmAuditResult",
+  FindingExplainability: "FindingExplainabilityResult",
+  ComparisonExplanation: "ComparisonExplanationResult",
+  ComplianceDriftTrendPoint: "ComplianceDriftTrendPoint",
+  GovernanceLineageRunSummary: "GovernanceLineageRunSummary",
+  GovernanceLineageManifestSummary: "GovernanceLineageManifestSummary",
+  GovernanceLineageFindingSummary: "GovernanceLineageFindingSummary",
+  GovernanceLineageResult: "GovernanceLineageResult",
+  GovernanceRationaleResult: "GovernanceRationaleResult",
+  GovernanceBatchReviewItemResult: "GovernanceBatchReviewItemResult",
+  GovernanceBatchReviewResponse: "GovernanceBatchReviewResponse",
+  ActorDescriptor: "ActorDescriptor",
+  ActorSet: "ActorSet",
+  DraftRequestDocument: "DraftRequestDocument",
+  DraftRequestResponse: "DraftRequestResponse",
+  DraftRequestSummary: "DraftRequestSummaryResponse",
+  DraftRequestSummaryPage: "PagedResponseOfDraftRequestSummaryResponse",
+  BranchDraftResponse: "BranchDraftResponse",
+  DraftElicitationQuestion: "DraftElicitationQuestion",
+  QuestionSelectionResult: "QuestionSelectionResult",
+  DraftQuestionsResponse: "DraftQuestionsResponse",
+  DraftAdmissionResponse: "DraftAdmissionResponse",
+  SubmitDraftResponse: "SubmitDraftResponse",
+  DraftIntakeReasonResponse: "DraftIntakeReasonResponse",
+  TrustEvidenceFieldSnapshot: "TrustEvidenceFieldSnapshot",
+  RunTrustEvidenceRouteRef: "RunTrustEvidenceRouteRef",
+  RunTrustEvidenceTopFindingRow: "RunTrustEvidenceTopFindingRow",
+  RunTrustEvidenceCard: "RunTrustEvidenceCard",
+  RunRetrievalGroundingSummary: "RunRetrievalGroundingSummaryDto",
 } as const satisfies Record<string, keyof components["schemas"]>;
 
 type AssertExtends<Base, Derived extends Base> = Derived;
@@ -660,6 +702,159 @@ type _TeamsIncomingWebhookAliases = [
   >,
 ];
 
+type _AgentForensicsAliases = [
+  AssertExtends<
+    components["schemas"]["AgentExecutionTraceSummary"],
+    import("@/types/agent-forensics").AgentExecutionTraceRow
+  >,
+  AssertExtends<
+    components["schemas"]["AgentExecutionTraceResponse"],
+    import("@/types/agent-forensics").AgentExecutionTraceListPayload
+  >,
+  AssertExtends<
+    components["schemas"]["AgentOutputSemanticScore"],
+    import("@/types/agent-forensics").AgentOutputSemanticScoreRow
+  >,
+  AssertExtends<
+    components["schemas"]["AgentOutputEvaluationScore"],
+    import("@/types/agent-forensics").AgentOutputEvaluationScoreRow
+  >,
+  AssertExtends<
+    components["schemas"]["AgentOutputEvaluationPerspective"],
+    import("@/types/agent-forensics").AgentOutputEvaluationPerspectivePayload
+  >,
+  AssertExtends<
+    components["schemas"]["AgentOutputEvaluationSummary"],
+    import("@/types/agent-forensics").AgentOutputEvaluationSummaryPayload
+  >,
+  AssertExtends<
+    components["schemas"]["RunRetrievalGroundingScoreSummary"],
+    import("@/types/agent-forensics").RunRetrievalGroundingScoreSummary
+  >,
+  AssertExtends<
+    components["schemas"]["RunRetrievalGroundingRow"],
+    import("@/types/agent-forensics").RunRetrievalGroundingRow
+  >,
+  AssertExtends<
+    components["schemas"]["RunRetrievalGroundingResponse"],
+    import("@/types/agent-forensics").RunRetrievalGroundingPayload
+  >,
+];
+
+type _ExplanationAliases = [
+  AssertExtends<components["schemas"]["ExplanationProvenance"], import("@/types/explanation").ExplanationProvenance>,
+  AssertExtends<components["schemas"]["StructuredExplanation"], import("@/types/explanation").StructuredExplanation>,
+  AssertExtends<
+    components["schemas"]["FindingExplainabilityEvidence"],
+    import("@/types/explanation").FindingExplainabilityEvidence
+  >,
+  AssertExtends<
+    components["schemas"]["FindingEvidenceChainResponse"],
+    import("@/types/explanation").FindingEvidenceChain
+  >,
+  AssertExtends<components["schemas"]["FindingLlmAuditResult"], import("@/types/explanation").FindingLlmAudit>,
+  AssertExtends<
+    components["schemas"]["FindingExplainabilityResult"],
+    import("@/types/explanation").FindingExplainability
+  >,
+  AssertExtends<
+    components["schemas"]["ComparisonExplanationResult"],
+    import("@/types/explanation").ComparisonExplanation
+  >,
+];
+
+type _GovernanceDashboardAliases = [
+  AssertExtends<
+    components["schemas"]["ComplianceDriftTrendPoint"],
+    import("@/types/governance-dashboard").ComplianceDriftTrendPoint
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceLineageRunSummary"],
+    import("@/types/governance-dashboard").GovernanceLineageRunSummary
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceLineageManifestSummary"],
+    import("@/types/governance-dashboard").GovernanceLineageManifestSummary
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceLineageFindingSummary"],
+    import("@/types/governance-dashboard").GovernanceLineageFindingSummary
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceLineageResult"],
+    import("@/types/governance-dashboard").GovernanceLineageResult
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceRationaleResult"],
+    import("@/types/governance-dashboard").GovernanceRationaleResult
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceBatchReviewItemResult"],
+    import("@/types/governance-dashboard").GovernanceBatchReviewItemResult
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceBatchReviewResponse"],
+    import("@/types/governance-dashboard").GovernanceBatchReviewResponse
+  >,
+];
+
+type _DraftIntakeStructuralAliases = [
+  AssertExtends<components["schemas"]["ActorDescriptor"], import("@/types/draft-intake").ActorDescriptor>,
+  AssertExtends<components["schemas"]["ActorSet"], import("@/types/draft-intake").ActorSet>,
+  AssertExtends<components["schemas"]["DraftRequestDocument"], import("@/types/draft-intake").DraftRequestDocument>,
+  AssertExtends<components["schemas"]["DraftRequestResponse"], import("@/types/draft-intake").DraftRequestResponse>,
+  AssertExtends<
+    components["schemas"]["DraftRequestSummaryResponse"],
+    import("@/types/draft-intake").DraftRequestSummary
+  >,
+  AssertExtends<
+    components["schemas"]["PagedResponseOfDraftRequestSummaryResponse"],
+    import("@/types/draft-intake").DraftRequestSummaryPage
+  >,
+  AssertExtends<components["schemas"]["BranchDraftResponse"], import("@/types/draft-intake").BranchDraftResponse>,
+  AssertExtends<
+    components["schemas"]["DraftElicitationQuestion"],
+    import("@/types/draft-intake").DraftElicitationQuestion
+  >,
+  AssertExtends<
+    components["schemas"]["QuestionSelectionResult"],
+    import("@/types/draft-intake").QuestionSelectionResult
+  >,
+  AssertExtends<
+    components["schemas"]["DraftQuestionsResponse"],
+    import("@/types/draft-intake").DraftQuestionsResponse
+  >,
+  AssertExtends<
+    components["schemas"]["DraftAdmissionResponse"],
+    import("@/types/draft-intake").DraftAdmissionResponse
+  >,
+  AssertExtends<components["schemas"]["SubmitDraftResponse"], import("@/types/draft-intake").SubmitDraftResponse>,
+  AssertExtends<
+    components["schemas"]["DraftIntakeReasonResponse"],
+    import("@/types/draft-intake").DraftIntakeReasonResponse
+  >,
+];
+
+type _AuthorityTrustEvidenceAliases = [
+  AssertExtends<
+    components["schemas"]["TrustEvidenceFieldSnapshot"],
+    import("@/types/authority").TrustEvidenceFieldSnapshot
+  >,
+  AssertExtends<
+    components["schemas"]["RunTrustEvidenceRouteRef"],
+    import("@/types/authority").RunTrustEvidenceRouteRef
+  >,
+  AssertExtends<
+    components["schemas"]["RunTrustEvidenceTopFindingRow"],
+    import("@/types/authority").RunTrustEvidenceTopFindingRow
+  >,
+  AssertExtends<components["schemas"]["RunTrustEvidenceCard"], import("@/types/authority").RunTrustEvidenceCard>,
+  AssertExtends<
+    components["schemas"]["RunRetrievalGroundingSummaryDto"],
+    import("@/types/authority").RunRetrievalGroundingSummary
+  >,
+];
+
 const _compileTimeAliasGuards: [
   _AuthorityAliases,
   _OperateRhythmAliases,
@@ -690,6 +885,11 @@ const _compileTimeAliasGuards: [
   _ExecDigestPreferencesAliases,
   _RecommendationLearningAliases,
   _TeamsIncomingWebhookAliases,
+  _AgentForensicsAliases,
+  _ExplanationAliases,
+  _GovernanceDashboardAliases,
+  _DraftIntakeStructuralAliases,
+  _AuthorityTrustEvidenceAliases,
 ] = [
   [] as unknown as _AuthorityAliases,
   [] as unknown as _OperateRhythmAliases,
@@ -720,6 +920,11 @@ const _compileTimeAliasGuards: [
   [] as unknown as _ExecDigestPreferencesAliases,
   [] as unknown as _RecommendationLearningAliases,
   [] as unknown as _TeamsIncomingWebhookAliases,
+  [] as unknown as _AgentForensicsAliases,
+  [] as unknown as _ExplanationAliases,
+  [] as unknown as _GovernanceDashboardAliases,
+  [] as unknown as _DraftIntakeStructuralAliases,
+  [] as unknown as _AuthorityTrustEvidenceAliases,
 ];
 void _compileTimeAliasGuards;
 
@@ -733,6 +938,6 @@ describe("openapi type alias schema keys", () => {
   });
 
   it("keeps the mapping table in sync with the number of guarded aliases", () => {
-    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(193);
+    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(235);
   });
 });
