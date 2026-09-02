@@ -149,7 +149,9 @@ public static class AwsEc2OfferIndexParser
         string? trimmed = raw?.Trim();
 
         return string.Equals(trimmed, "Hrs", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hour", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hours", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryParseBooleanString(string? raw, out bool value)
