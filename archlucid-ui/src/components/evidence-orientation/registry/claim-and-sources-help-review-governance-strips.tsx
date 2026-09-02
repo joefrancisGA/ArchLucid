@@ -21,6 +21,10 @@ import {
   COMPARISON_REPLAY_HELP_SOURCES_INTRO,
 } from "@/lib/comparison-replay-help-evidence-copy";
 import {
+  COMPARISON_REPLAY_VALIDATE_REVIEW_PATH,
+  isComparisonReplayValidateReviewActionAvailable,
+} from "@/lib/comparison-replay-help-guide-content";
+import {
   ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
   ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING,
   ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
@@ -150,6 +154,10 @@ export function AuditTrailHelpEvidenceOrientationStrip(): React.JSX.Element {
 }
 
 export function ComparisonReplayHelpEvidenceOrientationStrip(): React.JSX.Element {
+  const sources = isComparisonReplayValidateReviewActionAvailable()
+    ? COMPARISON_REPLAY_HELP_SOURCES
+    : COMPARISON_REPLAY_HELP_SOURCES.filter((source) => source.href !== COMPARISON_REPLAY_VALIDATE_REVIEW_PATH);
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="comparison-replay-help"
@@ -159,7 +167,7 @@ export function ComparisonReplayHelpEvidenceOrientationStrip(): React.JSX.Elemen
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorInfo}
       sourcesTitle={COMPARISON_REPLAY_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={COMPARISON_REPLAY_HELP_SOURCES_INTRO}
-      sources={COMPARISON_REPLAY_HELP_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
     />
   );
