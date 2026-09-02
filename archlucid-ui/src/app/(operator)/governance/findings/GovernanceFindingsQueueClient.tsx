@@ -32,10 +32,7 @@ import {
   resolveFindingsQueueTriageEmphasizedStepId,
   resolveFindingsQueueTriageSteps,
 } from "@/lib/findings-queue-triage-checklist";
-import {
-  EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
-  type FindingsNaturalLanguageFacets,
-} from "@/lib/findings/findings-natural-language-filter";
+import { useGovernanceFindingsQueueFacets } from "@/app/(operator)/governance/findings/use-governance-findings-queue-facets";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import {
@@ -48,7 +45,6 @@ import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-corre
 import {
   DEFAULT_FINDING_JOB_VIEW,
   resolveEffectiveFindingJobView,
-  type FindingJobView,
 } from "@/lib/findings/finding-job-view";
 import {
   computeGovernanceFindingsRegisterSummary,
@@ -87,12 +83,8 @@ export default function GovernanceFindingsQueueClient({
   mode = "tenant",
 }: GovernanceFindingsQueueClientProps) {
   const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(new Set());
-  const [jobView, setJobViewState] = useState<FindingJobView>(
-    () => readGovernanceFindingsQueueFacets(mode).jobView,
-  );
-  const [nlFacets, setNlFacetsState] = useState<FindingsNaturalLanguageFacets>(
-    () => readGovernanceFindingsQueueFacets(mode).nlFacets,
-  );
+  const { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters } =
+    useGovernanceFindingsQueueFacets(mode);
   const isAssignedToMe = mode === "assigned-to-me";
   const { currentPrincipal } = useOperatorNavAuthority();
   const scopeKey = useOperatorScopeQueryKey();
@@ -133,29 +125,10 @@ export default function GovernanceFindingsQueueClient({
     [scopedRunContextQuery.data?.priorCommittedRunId, scopedRunId],
   );
 
-  const setJobView = useCallback((next: FindingJobView): void => {
-    setJobViewState(next);
-    patchGovernanceFindingsQueueFacets({ jobView: next }, mode);
-  }, [mode]);
-
-  const setNlFacets = useCallback((next: FindingsNaturalLanguageFacets): void => {
-    setNlFacetsState(next);
-    patchGovernanceFindingsQueueFacets({ nlFacets: next }, mode);
-  }, [mode]);
-
   const clearAllFilters = useCallback((): void => {
     setRegisterFilter("all");
-    setJobViewState(DEFAULT_FINDING_JOB_VIEW);
-    setNlFacetsState(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
-    patchGovernanceFindingsQueueFacets(
-      {
-        registerFilter: "all",
-        jobView: DEFAULT_FINDING_JOB_VIEW,
-        nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
-      },
-      mode,
-    );
-  }, [mode, setRegisterFilter]);
+    clearFacetFilters();
+  }, [clearFacetFilters, setRegisterFilter]);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();

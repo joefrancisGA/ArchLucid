@@ -93,6 +93,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPlatformAuthRecoveryService, PlatformAuthRecoveryService>();
         services.AddScoped<IPlatformRecoveryNotificationService, PlatformRecoveryNotificationService>();
         services.AddScoped<IUserAccountRecoveryService, UserAccountRecoveryService>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalPersistStage, AuthenticationIdentityLinkProposalPersistStage>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalAuditNotifier, AuthenticationIdentityLinkProposalAuditNotifier>();
         services.AddScoped<IAuthenticationIdentityLinkProposalService, AuthenticationIdentityLinkProposalService>();
         services.AddScoped<IAuthenticationIdentityLinkChallengeService, AuthenticationIdentityLinkChallengeService>();
         services.AddScoped<IAuthenticationIdentityLinkingService, AuthenticationIdentityLinkingService>();

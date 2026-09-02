@@ -5,6 +5,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Operations;
+using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Application.Runs;
@@ -549,7 +550,7 @@ public sealed class RunsControllerTests
 
     private static RunsController CreateController(
         IArchitectureApplicationService? architectureApplicationService = null,
-        IArchitectureRequestDraftService? draftService = null,
+        IDraftRequestApplicationFacade? draftFacade = null,
         IArchitectureOverviewRewriteService? overviewRewriteService = null,
         IClarificationAnswerRephraseService? clarificationRephraseService = null,
         IStructuredBriefSuggestionExplainService? explainService = null,
@@ -571,7 +572,7 @@ public sealed class RunsControllerTests
         return new RunsController(
             runLifecycleCommandService ?? Mock.Of<IRunLifecycleCommandService>(),
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),
-            draftService ?? Mock.Of<IArchitectureRequestDraftService>(),
+            draftFacade ?? Mock.Of<IDraftRequestApplicationFacade>(),
             overviewRewriteService ?? Mock.Of<IArchitectureOverviewRewriteService>(),
             clarificationRephraseService ?? Mock.Of<IClarificationAnswerRephraseService>(),
             explainService ?? Mock.Of<IStructuredBriefSuggestionExplainService>(),

@@ -94,6 +94,9 @@ public sealed class AuthenticationIdentityLinkingAdversarialTests
 
 
 
+        AuthenticationIdentityLinkProposalPersistStage proposalPersistStage = new(proposals);
+        AuthenticationIdentityLinkProposalAuditNotifier proposalAuditNotifier = new(audit.Object);
+
         AuthenticationIdentityLinkProposalService proposalService = new(
 
             platformIdentity,
@@ -102,11 +105,11 @@ public sealed class AuthenticationIdentityLinkingAdversarialTests
 
             identities,
 
-            proposals,
+            proposalPersistStage,
 
             reviews,
 
-            audit.Object,
+            proposalAuditNotifier,
 
             timeProvider);
 

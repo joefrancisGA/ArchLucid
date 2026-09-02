@@ -31,7 +31,7 @@ import {
   resolveCompareTwoReviewsSteps,
 } from "@/lib/compare-two-reviews-checklist";
 import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageIntro";
-import { useCompareFinalizedRunAvailability } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFinalizedRunAvailability";
+import { useCompareFormUrlSync } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form-url-sync";
 import type { ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { comparePickerFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import type { GoldenManifestComparison } from "@/types/comparison";
@@ -48,7 +48,6 @@ export function useCompareForm() {
   const searchParams = useSearchParams();
   const compareGenerationRef = useRef(0);
   const aiGenerationRef = useRef(0);
-  const autoComparedFromUrlRef = useRef(false);
   const initialUrlPair = readCompareRunIdsFromSearchParams(searchParams);
   const [leftRunId, setLeftRunId] = useState(initialUrlPair.prior);
   const [rightRunId, setRightRunId] = useState(initialUrlPair.later);
@@ -73,13 +72,6 @@ export function useCompareForm() {
   useEffect(() => {
     setContinueLastPair(readCompareLastComparisonPair());
   }, []);
-
-  const syncSelectionToUrl = useCallback(
-    (priorRunId: string, laterRunId: string) => {
-      router.replace(comparePageHrefAdaptive(priorRunId, laterRunId), { scroll: false });
-    },
-    [router],
-  );
 
   const handleLeftRunIdChange = useCallback(
     (runId: string) => {
@@ -219,33 +211,13 @@ export function useCompareForm() {
     }
   }, [hydratePickedSummariesForPair]);
 
-  useEffect(() => {
-    const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);
-
-    if (left.length > 0) {
-      setLeftRunId(left);
-    }
-
-    if (right.length > 0) {
-      setRightRunId(right);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);
-
-    if (left.length === 0 || right.length === 0 || autoComparedFromUrlRef.current) {
-      return;
-    }
-
-    autoComparedFromUrlRef.current = true;
-
-    if (compareRunIdsAreSameAfterDemoCanonicalization(left, right)) {
-      return;
-    }
-
-    void runCompareForPair(left, right);
-  }, [searchParams, runCompareForPair]);
+  const { syncSelectionToUrl } = useCompareFormUrlSync({
+    leftRunId,
+    rightRunId,
+    setLeftRunId,
+    setRightRunId,
+    runCompareForPair,
+  });
 
   useEffect(() => {
     setLeftPickedSummary((prev) => {

@@ -5,6 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -51,7 +52,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed partial class RunsController(
     IRunLifecycleCommandService runLifecycleCommandService,
     IArchitectureApplicationService architectureApplicationService,
-    IArchitectureRequestDraftService architectureRequestDraftService,
+    IDraftRequestApplicationFacade draftRequestApplicationFacade,
     IArchitectureOverviewRewriteService architectureOverviewRewriteService,
     IClarificationAnswerRephraseService clarificationAnswerRephraseService,
     IStructuredBriefSuggestionExplainService structuredBriefSuggestionExplainService,

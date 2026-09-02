@@ -50,7 +50,8 @@ public sealed partial class RunsController
                 $"FreeTextDescription must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
                 ProblemTypes.ValidationFailed);
 
-        DraftArchitectureRequestResponse response = await architectureRequestDraftService.DraftAsync(input, cancellationToken);
+        DraftArchitectureRequestResponse response =
+            await draftRequestApplicationFacade.DraftArchitectureRequestAsync(input, cancellationToken);
         return Ok(response);
     }
 
