@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Globalization;
 
 using ArchLucid.Core.Budgeting;
+using ArchLucid.Persistence.Budgeting;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -209,7 +210,7 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
         cancellationToken.ThrowIfCancellationRequested();
         DateTime utc = TimeProvider.System.UtcNowDateTime();
 
-        return Task.FromResult(string.Format(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", utc.Year, utc.Month));
+        return Task.FromResult(LlmTenantBudgetPeriodCore.ResolveMonthlyPeriodKey());//(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", utc.Year, utc.Month));
     }
 
     /// <inheritdoc />
