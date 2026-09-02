@@ -97,8 +97,8 @@ public sealed partial class DapperEmailOtpChallengeRepository(ISqlConnectionFact
         ArgumentNullException.ThrowIfNull(insert);
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
-
+        await using SqlTransaction transaction =
+            (SqlTransaction)await connection.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, cancellationToken);
         const string invalidateSql = """
                                      UPDATE dbo.EmailOtpChallenges
                                      SET InvalidatedUtc = @InvalidatedUtc
