@@ -115,6 +115,7 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
               buyerSafeHighlight={model.buyerSafeHighlight}
               archivedFieldSupported={model.archivedFieldSupported}
               restoreBusyRequestId={model.restoreBusyRequestId}
+              onClearGovernanceWarningsFilter={model.clearGovernanceWarningsFilter}
               onRestoreArchivedRequest={(requestId) => {
                 void model.restoreArchivedRequest(requestId);
               }}

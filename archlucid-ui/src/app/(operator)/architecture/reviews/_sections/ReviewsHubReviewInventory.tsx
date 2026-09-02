@@ -28,6 +28,7 @@ import {
 import type { RunSummary } from "@/types/authority";
 
 import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
+import { ReviewsHubActiveFiltersStrip } from "./ReviewsHubActiveFiltersStrip";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import {
   REVIEWS_HUB_PAGE_TITLE,
@@ -179,12 +180,12 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     for (const option of INVENTORY_FILTER_OPTIONS) {
       counts.set(
         option.id,
-        countRunsMatchingInventoryFilter(visibilityFilteredRuns, option.id, ownerContext, mergedRuns),
+        countRunsMatchingInventoryFilter(mergedRuns, option.id, ownerContext, mergedRuns),
       );
     }
 
     return counts;
-  }, [mergedRuns, ownerContext, visibilityFilteredRuns]);
+  }, [mergedRuns, ownerContext]);
 
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(
@@ -198,6 +199,14 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     () => sortRunsForInventory(filteredRuns, isFavorite),
     [filteredRuns, isFavorite],
   );
+
+  const clearInventoryFilters = useCallback(() => {
+    setSearchQuery("");
+    setActiveFilter("all");
+    router.replace("/architecture/reviews", { scroll: false });
+  }, [router]);
+
+  const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 
   const sampleHref = showcaseSampleReviewPackageHref();
   const scopeRecord = useSyncExternalStore(
@@ -277,6 +286,12 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             </div>
           </div>
 
+          <ReviewsHubActiveFiltersStrip
+            activeFilter={activeFilter}
+            searchQuery={searchQuery}
+            onClear={clearInventoryFilters}
+          />
+
           <ReviewsHubSummaryRow summary={props.summary} />
 
           <ReviewsHubInventoryTable
@@ -286,6 +301,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             ariaLabel={REVIEWS_HUB_PAGE_TITLE}
             tableTestId="reviews-hub-packages-table"
             virtualizedTestId="reviews-hub-packages-virtualized"
+            onClearFilters={inventoryFiltersActive ? clearInventoryFilters : undefined}
           />
         </div>
       )}

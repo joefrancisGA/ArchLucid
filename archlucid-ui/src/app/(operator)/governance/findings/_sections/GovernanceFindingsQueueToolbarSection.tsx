@@ -63,6 +63,8 @@ export function GovernanceFindingsQueueToolbarSection(
           registerFilter={props.registerFilter}
           onRegisterFilterChange={props.onRegisterFilterChange}
           onClearAllFilters={props.onClearAllFilters}
+          allCount={props.scopedRows.length}
+          openCount={props.registerSummary?.openRisks}
         />
       ) : null}
 

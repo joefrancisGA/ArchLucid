@@ -21,8 +21,19 @@ vi.mock("@/hooks/use-operator-attention-summary", () => ({
   }),
 }));
 
+const usePathname = vi.fn();
+const useSearchParams = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => usePathname(),
+  useSearchParams: () => useSearchParams(),
+}));
+
 describe("OperatorAttentionKindStrip (TB-2353)", () => {
   it("renders actionable chips with counts and destinations", () => {
+    usePathname.mockReturnValue("/");
+    useSearchParams.mockReturnValue(new URLSearchParams());
+
     render(<OperatorAttentionKindStrip />);
 
     const strip = screen.getByTestId("operator-attention-kind-strip");
@@ -43,11 +54,29 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
   });
 
   it("supports compact helper text for hub pages", () => {
+    usePathname.mockReturnValue("/");
+    useSearchParams.mockReturnValue(new URLSearchParams());
+
     render(<OperatorAttentionKindStrip variant="compact" />);
 
     expect(screen.getByTestId("operator-attention-kind-strip")).toHaveAttribute("data-variant", "compact");
     expect(screen.getByTestId("operator-attention-kind-strip")).toHaveTextContent(
       OPERATOR_ATTENTION_KIND_STRIP_COMPACT_HELPER,
+    );
+  });
+
+  it("marks the matching destination chip as selected", () => {
+    usePathname.mockReturnValue("/architecture/reviews");
+    useSearchParams.mockReturnValue(new URLSearchParams("filter=needs-attention"));
+
+    render(<OperatorAttentionKindStrip />);
+
+    expect(screen.getByTestId("operator-attention-kind-chip-unfinished-work")).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByTestId("operator-attention-kind-chip-assigned-to-me")).not.toHaveAttribute(
+      "aria-current",
     );
   });
 });
