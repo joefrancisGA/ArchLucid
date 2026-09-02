@@ -33,7 +33,7 @@ export function SocraticIntakeWizardFooterActions(
 ): React.JSX.Element {
   return (
     <CardFooter
-      className={cn(WIZARD_STICKY_FOOTER_CLASS, "flex-col items-stretch gap-0 border-t border-neutral-200 p-4 pt-0 dark:border-neutral-800")}
+      className={cn(WIZARD_STICKY_FOOTER_CLASS, "flex-col items-stretch gap-0 border-t border-neutral-200 dark:border-neutral-800")}
       data-testid={WIZARD_STICKY_FOOTER_TEST_ID}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
