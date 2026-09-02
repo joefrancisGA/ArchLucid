@@ -82,6 +82,14 @@ public static class MarketplaceWebhookPayloadParser
                 return true;
             }
 
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryParseWholeNumberLongString(raw.Trim(), out long numericFromString))
+            {
+                value = numericFromString.ToString(CultureInfo.InvariantCulture);
+
+                return true;
+            }
+
             value = raw;
 
             return true;
@@ -169,6 +177,37 @@ public static class MarketplaceWebhookPayloadParser
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberLongString(string? raw, out long value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (long.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (long)numeric;
 
             return true;
         }

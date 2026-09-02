@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO.Compression;
 using System.Text.Json;
 
@@ -119,6 +120,14 @@ public static class AzureExtractorResourceInventoryReader
                 return true;
             }
 
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryParseWholeNumberLongString(raw.Trim(), out long numericFromString))
+            {
+                value = numericFromString.ToString(CultureInfo.InvariantCulture);
+
+                return true;
+            }
+
             value = raw;
 
             return true;
@@ -192,6 +201,37 @@ public static class AzureExtractorResourceInventoryReader
         }
 
         value = null;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberLongString(string? raw, out long value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (long.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (long)numeric;
+
+            return true;
+        }
+
+        value = default;
 
         return false;
     }

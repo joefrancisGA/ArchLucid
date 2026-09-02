@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 51
-- **bugs-found:** 127
+- **hunts:** 52
+- **bugs-found:** 132
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — integration/alert-routing string-encoded boolean case normalization
+- **last-bug:** 2026-09-02 — graph/azure/marketplace/explanation string whole-number and boolean case coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1916,6 +1916,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IntegrationEventServiceBusCorrelationId.TryReadCorrelationIdToken` — string-encoded boolean `correlationId` case not normalized — **hit 2026-09-02 (#463):** `"correlationId":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryResolveForPublish_reads_string_encoded_boolean_correlationId_from_payload_when_activity_unset`).
 - [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryReadStringOrNumberToken` — string-encoded boolean `deduplicationKey` case not normalized — **hit 2026-09-02 (#463):** `"deduplicationKey":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryResolveForPublish_alert_resolved_maps_string_encoded_boolean_deduplication_key`).
 - [x] (proven) `AlertRoutingCriteriaMetadata.TryReadStringArrayItem` / `ReadSeverityArrayItem` — string-encoded boolean `tags` / `severities` case not normalized — **hit 2026-09-02 (#463):** `"tags":["True"]` and `"severities":["True"]` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with shared boolean normalization (`AlertRoutingCriteriaMetadata_Parse_string_encoded_boolean_tags_coerce_to_lowercase_strings`, `AlertRoutingCriteriaMetadata_Parse_string_encoded_boolean_severities_coerce_to_lowercase_strings`).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryGetStringPropertyCaseInsensitive` — string-encoded whole-number `planId` not normalized — **hit 2026-09-02 (#464):** `"planId":"42424242.0"` kept decimal while numeric whole-number doubles normalized in Service Bus #458; fixed with `TryParseWholeNumberLongString` (`TryGetPlanId_reads_string_encoded_whole_number_double_planId`).
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — string-encoded whole-number `name` / `resourceType` not normalized — **hit 2026-09-02 (#464):** `"name":"42.0"` kept decimal while numeric whole-number doubles normalized in finding readers #448; fixed with shared long whole-number string coercion (`TryReadFromZip_string_encoded_whole_number_double_name_coerces_to_string`).
+- [x] (proven) `GraphJsonElementReaders.TryReadStringToken` / `ReadProperties` — string-encoded whole-number graph tokens not normalized — **hit 2026-09-02 (#464):** `"nodeId":"42.0"` and `"properties":{"resourceId":"42.0"}` kept decimal strings; fixed with shared long whole-number string coercion (`Read_string_encoded_whole_number_double_nodeId_coerces_to_string`, `ReadProperties_string_encoded_whole_number_double_values_coerce_to_strings`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadNonEmptyTextToken` — string-encoded boolean `faithfulnessWarning` case not normalized — **hit 2026-09-02 (#464):** `"faithfulnessWarning":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryParseBooleanString` coercion (`FromAggregateJson_maps_string_encoded_boolean_faithfulness_warning`).
+
+2026-09-02 seed hunt #464: reseeded from ArchLucid.Core; proved graph/azure/marketplace/explanation string whole-number and boolean case coercion gaps.
 
 2026-09-02 seed hunt #463: reseeded from ArchLucid.Core; proved integration/alert-routing string-encoded boolean case normalization gaps.
 

@@ -161,6 +161,21 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void FromAggregateJson_maps_string_encoded_boolean_faithfulness_warning()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessWarning": "True"
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessWarning.Should().Be("true");
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
     public void FromAggregateJson_maps_whole_number_citation_count()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(

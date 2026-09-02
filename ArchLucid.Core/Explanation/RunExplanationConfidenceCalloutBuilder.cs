@@ -321,7 +321,17 @@ public static class RunExplanationConfidenceCalloutBuilder
     {
         if (element.ValueKind == JsonValueKind.String)
         {
-            value = element.GetString();
+            string? raw = element.GetString();
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryParseBooleanString(raw, out bool boolean))
+            {
+                value = boolean ? "true" : "false";
+
+                return !string.IsNullOrWhiteSpace(value);
+            }
+
+            value = raw;
 
             return !string.IsNullOrWhiteSpace(value);
         }

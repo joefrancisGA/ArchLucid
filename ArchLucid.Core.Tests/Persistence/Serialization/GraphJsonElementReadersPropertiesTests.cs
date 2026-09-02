@@ -61,6 +61,21 @@ public sealed class GraphJsonElementReadersPropertiesTests
     }
 
     [Fact]
+    public void ReadProperties_string_encoded_whole_number_double_values_coerce_to_strings()
+    {
+        const string json =
+            """{"nodeId":"n1","nodeType":"t","label":"l","properties":{"resourceId":"42.0"}}""";
+
+        JsonSerializerOptions options = new();
+        options.Converters.Add(new GraphNodeJsonConverter());
+
+        GraphNode? node = JsonSerializer.Deserialize<GraphNode>(json, options);
+
+        node.Should().NotBeNull();
+        node!.Properties.Should().ContainKey("resourceId").WhoseValue.Should().Be("42");
+    }
+
+    [Fact]
     public void ReadProperties_null_values_coerce_to_empty_strings()
     {
         const string json =
