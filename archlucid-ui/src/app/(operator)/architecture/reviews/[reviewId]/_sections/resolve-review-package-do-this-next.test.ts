@@ -165,6 +165,12 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.kind).toBe("send-to-sponsor");
     expect(next.sentence).toContain("finalized");
     expect(next.href).toContain("sponsor-handoff");
+    expect(next.secondaryAction?.label).toBe("Start follow-up review");
+    expect(next.quickLinks?.map((link) => link.label)).toEqual([
+      "Invite reviewer",
+      "Compare reviews",
+      "Open sponsor report",
+    ]);
   });
 
   it("demotes sponsor handoff when open findings lack linked evidence", () => {

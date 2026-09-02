@@ -29,14 +29,22 @@ export type ComposeOperatorHomeSectionsInput = {
   readonly metrics: OperatorHomeWorkspaceMetricsSnapshot;
 };
 
+function earlyPhaseSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
+  if (phase === "eval-empty") {
+    return [{ id: "hero", testId: "operator-home-hero-section" }];
+  }
+
+  return [
+    { id: "hero", testId: "operator-home-hero-section" },
+    { id: "recent-reviews", testId: "operator-home-recent-reviews" },
+    { id: "below-fold", testId: "operator-home-below-fold" },
+    { id: "sponsor-roi", testId: "operator-home-sponsor-roi" },
+  ];
+}
+
 function buyerPolishedSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty" || phase === "eval-with-drafts") {
-    return [
-      { id: "hero", testId: "operator-home-hero-section" },
-      { id: "recent-reviews", testId: "operator-home-recent-reviews" },
-      { id: "below-fold", testId: "operator-home-below-fold" },
-      { id: "sponsor-roi", testId: "operator-home-sponsor-roi" },
-    ];
+    return earlyPhaseSections(phase);
   }
 
   const sections: OperatorHomeSectionDescriptor[] = [
@@ -59,12 +67,7 @@ function buyerPolishedSections(phase: OperatorHomeWorkspacePhase): OperatorHomeS
 
 function operatorShellSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty" || phase === "eval-with-drafts") {
-    return [
-      { id: "hero", testId: "operator-home-hero-section" },
-      { id: "recent-reviews", testId: "operator-home-recent-reviews" },
-      { id: "below-fold", testId: "operator-home-below-fold" },
-      { id: "sponsor-roi", testId: "operator-home-sponsor-roi" },
-    ];
+    return earlyPhaseSections(phase);
   }
 
   const sections: OperatorHomeSectionDescriptor[] = [

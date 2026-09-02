@@ -321,68 +321,79 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
         </p>
       ) : null}
       {jobViewToggle}
-      <div className="flex flex-wrap gap-1" role="group" aria-label="Finding severity and status filters">
-        {filterChips}
-      </div>
-      {props.onNaturalLanguageFilterApply !== undefined ? (
-        <div data-testid="findings-nl-filter-toolbar">
-          <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />
+      <details
+        className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+        data-workspace-disclosure
+        open={props.findings.length > FILTER_AUTO_EXPAND_THRESHOLD}
+      >
+        <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          Filter findings
+        </summary>
+        <div className="mt-3 space-y-3">
+          <div className="flex flex-wrap gap-1" role="group" aria-label="Finding severity and status filters">
+            {filterChips}
+          </div>
+          {props.onNaturalLanguageFilterApply !== undefined ? (
+            <div data-testid="findings-nl-filter-toolbar">
+              <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />
+            </div>
+          ) : null}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <FindingsProvenanceFilters
+              idPrefix="findings"
+              originFilter={props.originFilter}
+              onOriginFilterChange={props.onOriginFilterChange}
+              groundingFilter={props.groundingFilter}
+              onGroundingFilterChange={props.onGroundingFilterChange}
+            />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <Label htmlFor="findings-owner-filter" className={OPERATOR_TYPOGRAPHY.helper}>
+                Owner filter
+              </Label>
+              <Input
+                id="findings-owner-filter"
+                value={props.ownerFilter}
+                onChange={(event) => {
+                  props.onOwnerFilterChange(event.target.value);
+                }}
+                placeholder="Owner"
+                className="mt-1 h-9"
+              />
+            </div>
+            <div>
+              <Label htmlFor="findings-domain-filter" className={OPERATOR_TYPOGRAPHY.helper}>
+                Domain or category
+              </Label>
+              <Input
+                id="findings-domain-filter"
+                value={props.domainFilter}
+                onChange={(event) => {
+                  props.onDomainFilterChange(event.target.value);
+                }}
+                placeholder="Policy or category"
+                className="mt-1 h-9"
+              />
+            </div>
+            <div>
+              <Label htmlFor="findings-search" className={OPERATOR_TYPOGRAPHY.helper}>
+                Search findings
+              </Label>
+              <Input
+                id="findings-search"
+                value={props.searchQuery}
+                onChange={(event) => {
+                  props.onSearchQueryChange(event.target.value);
+                }}
+                placeholder="Search title or recommendation"
+                className="mt-1 h-9"
+              />
+            </div>
+            <FindingsSortSelect id="findings-sort" sort={props.sort} onSortChange={props.onSortChange} />
+          </div>
         </div>
-      ) : null}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <FindingsProvenanceFilters
-          idPrefix="findings"
-          originFilter={props.originFilter}
-          onOriginFilterChange={props.onOriginFilterChange}
-          groundingFilter={props.groundingFilter}
-          onGroundingFilterChange={props.onGroundingFilterChange}
-        />
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <Label htmlFor="findings-owner-filter" className={OPERATOR_TYPOGRAPHY.helper}>
-            Owner filter
-          </Label>
-          <Input
-            id="findings-owner-filter"
-            value={props.ownerFilter}
-            onChange={(event) => {
-              props.onOwnerFilterChange(event.target.value);
-            }}
-            placeholder="Owner"
-            className="mt-1 h-9"
-          />
-        </div>
-        <div>
-          <Label htmlFor="findings-domain-filter" className={OPERATOR_TYPOGRAPHY.helper}>
-            Domain or category
-          </Label>
-          <Input
-            id="findings-domain-filter"
-            value={props.domainFilter}
-            onChange={(event) => {
-              props.onDomainFilterChange(event.target.value);
-            }}
-            placeholder="Policy or category"
-            className="mt-1 h-9"
-          />
-        </div>
-        <div>
-          <Label htmlFor="findings-search" className={OPERATOR_TYPOGRAPHY.helper}>
-            Search findings
-          </Label>
-          <Input
-            id="findings-search"
-            value={props.searchQuery}
-            onChange={(event) => {
-              props.onSearchQueryChange(event.target.value);
-            }}
-            placeholder="Search title or recommendation"
-            className="mt-1 h-9"
-          />
-        </div>
-        <FindingsSortSelect id="findings-sort" sort={props.sort} onSortChange={props.onSortChange} />
-      </div>
+      </details>
       {props.exportSlot !== null && props.exportSlot !== undefined ? (
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
           <span className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

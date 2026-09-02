@@ -6,7 +6,7 @@ import { resolveReviewDetailVisibleTabs } from "@/lib/resolve-review-detail-visi
 import { REVIEW_DETAIL_TAB_LABELS, type ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 describe("ReviewWorkspaceTabStrip", () => {
-  it("renders all eight tabs in the primary strip without a More sections affordance", () => {
+  it("renders all eight tabs in the desktop strip and exposes a mobile section picker", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: "manifest-1",
       showProgressTracker: false,
@@ -28,8 +28,8 @@ describe("ReviewWorkspaceTabStrip", () => {
       expect(screen.getByRole("tab", { name: new RegExp(REVIEW_DETAIL_TAB_LABELS[tabId], "i") })).toBeInTheDocument();
     }
 
-    expect(screen.queryByText("More sections")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("review-detail-workspace-more-tabs")).not.toBeInTheDocument();
+    expect(screen.getByText("More sections")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-workspace-more-tabs")).toBeInTheDocument();
   });
 
   it("switches tabs through the primary strip", () => {

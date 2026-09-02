@@ -27,7 +27,7 @@ export const GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL = GOVERNANCE_APPROVAL_HOW_IT_W
 export const GOVERNANCE_APPROVAL_SUBMIT_CHECKLIST_LABEL = GOVERNANCE_APPROVAL_SUBMIT_LABEL;
 
 /** Forward CTA from review detail when approval is pending. */
-export const GOVERNANCE_APPROVAL_REVIEW_DETAIL_CTA_LABEL = "Submit for governance approval →" as const;
+export const GOVERNANCE_APPROVAL_REVIEW_DETAIL_CTA_LABEL = GOVERNANCE_APPROVAL_SUBMIT_LABEL;
 
 /** Audit / pipeline event labels. */
 export const GOVERNANCE_APPROVAL_EVENT_REQUESTED_LABEL = "Governance approval requested" as const;

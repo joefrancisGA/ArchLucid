@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
+import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { ReviewAskDock } from "@/components/reviews/ReviewAskDock";
 import { ReviewMeetingPacketButton } from "@/components/reviews/ReviewMeetingPacketButton";
 import { ReviewShareCollaboratorStrip } from "@/components/reviews/ReviewShareCollaboratorStrip";
@@ -181,6 +182,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           </>
         }
       >
+        <ArchitectureObjectMapStrip focus="review" />
         <dl
           className={cn(
             "m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3",
