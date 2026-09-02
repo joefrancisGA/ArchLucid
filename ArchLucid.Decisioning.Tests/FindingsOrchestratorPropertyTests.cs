@@ -46,10 +46,9 @@ public sealed class FindingsOrchestratorPropertyTests
         }
 
         IEnumerable<IFindingEngine> engineObjects = engines.Select(static m => m.Object);
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             engineObjects,
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             DeterministicInsightDensityGate.CreateDefault());
 

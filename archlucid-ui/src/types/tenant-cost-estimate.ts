@@ -1,8 +1,16 @@
-export type TenantCostEstimateResponse = {
-  currency: string;
-  tier: string;
-  estimatedMonthlyUsdLow: number;
-  estimatedMonthlyUsdHigh: number;
-  factors: string[];
-  methodologyNote: string;
-};
+import type { components } from "@/lib/openapi-schemas";
+
+type TenantCostEstimateResponseSchema = components["schemas"]["TenantCostEstimateResponse"];
+
+export type TenantCostEstimateResponse = TenantCostEstimateResponseSchema &
+  Required<
+    Pick<
+      TenantCostEstimateResponseSchema,
+      | "currency"
+      | "estimatedMonthlyUsdLow"
+      | "estimatedMonthlyUsdHigh"
+      | "factors"
+      | "methodologyNote"
+      | "tier"
+    >
+  >;

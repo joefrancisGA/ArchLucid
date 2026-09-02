@@ -58,6 +58,7 @@ public sealed partial class ReplayRunService(
     IActorContext actorContext,
     IAuthorityRunOrchestrator authorityRunOrchestrator,
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
+    ICommitRunIdempotencyCoordinator commitRunIdempotencyCoordinator,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     ILogger<ReplayRunService> logger) : IReplayRunService
 {
@@ -91,6 +92,9 @@ public sealed partial class ReplayRunService(
 
     private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator =
         architectureRunCommitOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
+
+    private readonly ICommitRunIdempotencyCoordinator _commitRunIdempotencyCoordinator =
+        commitRunIdempotencyCoordinator ?? throw new ArgumentNullException(nameof(commitRunIdempotencyCoordinator));
 
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
         runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));

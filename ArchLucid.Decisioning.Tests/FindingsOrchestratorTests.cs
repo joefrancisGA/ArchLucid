@@ -39,10 +39,9 @@ public sealed class FindingsOrchestratorTests
     {
         Mock<IFindingEngine> engine = new(MockBehavior.Strict);
         Mock<IFindingPayloadValidator> validator = new(MockBehavior.Strict);
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [engine.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -60,10 +59,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [e1.Object, e2.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -84,10 +82,9 @@ public sealed class FindingsOrchestratorTests
             .ThrowsAsync(new InvalidOperationException("boom"));
 
         Mock<IFindingPayloadValidator> validator = new(MockBehavior.Strict);
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [e1.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -123,10 +120,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [bad.Object, good.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -156,10 +152,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [engine.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -190,10 +185,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [engine.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -232,10 +226,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [engine.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -258,10 +251,9 @@ public sealed class FindingsOrchestratorTests
             .ThrowsAsync(new OperationCanceledException());
 
         Mock<IFindingPayloadValidator> validator = new(MockBehavior.Strict);
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [e1.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -287,10 +279,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [e1.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -325,10 +316,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [e1.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -356,10 +346,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [e1.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -385,10 +374,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [securityEngine.Object, topologyEngine.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -442,10 +430,9 @@ public sealed class FindingsOrchestratorTests
         };
 
         Mock<IFindingEngine> e1 = CreateEngine("e1", "Requirement", [invalid, valid]);
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [e1.Object],
             new FindingPayloadValidator(),
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -472,10 +459,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingEngine> good = CreateEngine("ok", "Security", []);
 
         Mock<IFindingPayloadValidator> validator = new();
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [bad.Object, good.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate,
             clock);
@@ -529,10 +515,9 @@ public sealed class FindingsOrchestratorTests
             .Returns((GraphSnapshot g, FindingAnalysisContext? _, CancellationToken ct) => DelayedAnalyze(g, ct));
 
         Mock<IFindingPayloadValidator> validator = new();
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [e1.Object, e2.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate);
 
@@ -656,10 +641,9 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        return new FindingsOrchestrator(
+        return FindingsOrchestratorComposer.Compose(
             engines,
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate,
             TimeProvider.System,

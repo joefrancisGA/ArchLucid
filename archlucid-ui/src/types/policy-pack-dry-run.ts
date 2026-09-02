@@ -1,51 +1,42 @@
+import type { components } from "@/lib/openapi-schemas";
+
 /**
  * Mirrors `ArchLucid.Contracts.Governance.PolicyPackDryRunResponse` and friends. See
  * `docs/library/AUDIT_COVERAGE_MATRIX.md` for the audit-trail companion.
  */
 
-export type PolicyPackDryRunSeverityCount = {
-  severity: string;
-  count: number;
-};
+export type PolicyPackDryRunSeverityCount = components["schemas"]["PolicyPackDryRunSeverityCount"];
 
-export type PolicyPackDryRunThresholdOutcome = {
-  key: string;
-  proposedValue: number;
-  actualValue: number;
-  wouldBreach: boolean;
-};
+export type PolicyPackDryRunThresholdOutcome = components["schemas"]["PolicyPackDryRunThresholdOutcome"];
 
-export type PolicyPackDryRunRunItem = {
-  runId: string;
-  runMissing: boolean;
-  findingsBySeverity: PolicyPackDryRunSeverityCount[];
-  thresholdOutcomes: PolicyPackDryRunThresholdOutcome[];
-  wouldBlock: boolean;
-};
+export type PolicyPackDryRunRunItem = components["schemas"]["PolicyPackDryRunRunItem"];
 
-export type PolicyPackDryRunDeltaCounts = {
-  evaluated: number;
-  wouldBlock: number;
-  wouldAllow: number;
-  runMissing: number;
-};
+type PolicyPackDryRunDeltaCountsSchema = components["schemas"]["PolicyPackDryRunDeltaCounts"];
 
-export type PolicyPackDryRunResponse = {
-  policyPackId: string;
-  evaluatedUtc: string;
-  page: number;
-  pageSize: number;
-  totalRequestedRuns: number;
-  returnedRuns: number;
-  proposedThresholdsRedactedJson: string;
-  deltaCounts: PolicyPackDryRunDeltaCounts;
-  items: PolicyPackDryRunRunItem[];
-};
+export type PolicyPackDryRunDeltaCounts = PolicyPackDryRunDeltaCountsSchema &
+  Required<
+    Pick<PolicyPackDryRunDeltaCountsSchema, "evaluated" | "runMissing" | "wouldAllow" | "wouldBlock">
+  >;
 
-export type PolicyPackDryRunRequest = {
-  proposedThresholds: Record<string, string>;
-  evaluateAgainstRunIds: string[];
-};
+type PolicyPackDryRunResponseSchema = components["schemas"]["PolicyPackDryRunResponse"];
+
+export type PolicyPackDryRunResponse = Omit<PolicyPackDryRunResponseSchema, "deltaCounts"> &
+  Required<
+    Pick<
+      PolicyPackDryRunResponseSchema,
+      | "policyPackId"
+      | "evaluatedUtc"
+      | "page"
+      | "pageSize"
+      | "returnedRuns"
+      | "totalRequestedRuns"
+      | "proposedThresholdsRedactedJson"
+    >
+  > & {
+    deltaCounts: PolicyPackDryRunDeltaCounts;
+  };
+
+export type PolicyPackDryRunRequest = components["schemas"]["PolicyPackDryRunRequest"];
 
 /**
  * Default page size for the governance dry-run modal. Owner Q38 (2026-04-23) fixed

@@ -58,10 +58,9 @@ public sealed class FindingsOrchestratorPolicyExpectationStampTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(effective);
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [engine.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate,
             TimeProvider.System,
@@ -102,10 +101,9 @@ public sealed class FindingsOrchestratorPolicyExpectationStampTests
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("governance unavailable"));
 
-        FindingsOrchestrator sut = new(
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
             [engine.Object],
             validator.Object,
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             InsightDensityGate,
             TimeProvider.System,

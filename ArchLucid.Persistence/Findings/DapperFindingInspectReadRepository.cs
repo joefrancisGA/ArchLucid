@@ -79,7 +79,7 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         DispositionRow? dispositionRow = await multi.ReadSingleOrDefaultAsync<DispositionRow>();
         long activeWaiverCount = await multi.ReadSingleAsync<long>();
 
-        (string? ruleId, string? ruleName) = ResolveRuleFields(row.AppliedRuleIdsJson, firstRuleText);
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(row.AppliedRuleIdsJson, firstRuleText);
 
         FindingHumanReviewStatus humanReview = FindingInspectReadModelMapper.ParseHumanReview(row.HumanReviewStatus);
 
@@ -93,8 +93,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             .ToList();
 
         JsonElement? typed = includeTypedPayload
-            ? TryParsePayloadJson(row.PayloadJson)
-            : BuildMetadataTypedPayload(row.Title, row.Rationale);
+            ? FindingInspectReadRepositoryCore.TryParsePayloadJson(row.PayloadJson)
+            : FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(row.Title, row.Rationale);
         FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
 
         return new FindingInspectResponse
@@ -132,69 +132,6 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             RunStructuralExecutionMode = row.StructuralExecutionMode,
             RunRealModeFellBackToSimulator = row.RealModeFellBackToSimulator,
         };
-    }
-
-    /// <summary>
-    ///     Minimal typed payload from relational title/rationale so detail first paint keeps narrative lookups
-    ///     without shipping <c>PayloadJson</c>.
-    /// </summary>
-    private static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)
-    {
-        if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(rationale))
-            return null;
-
-        Dictionary<string, string?> slim = new(StringComparer.Ordinal)
-        {
-            ["title"] = string.IsNullOrWhiteSpace(title) ? null : title.Trim(),
-            ["rationale"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
-            ["whyThisMatters"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
-        };
-
-        return JsonSerializer.SerializeToElement(slim);
-    }
-
-    private static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson,
-        string? firstRuleText)
-    {
-        if (string.IsNullOrWhiteSpace(appliedRuleIdsJson))
-            return !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
-
-        try
-        {
-            List<string>? ids = JsonSerializer.Deserialize<List<string>>(appliedRuleIdsJson);
-
-            if (ids is { Count: > 0 })
-            {
-                string first = ids[0].Trim();
-
-                if (first.Length > 0)
-                {
-                    // Trace rule text rows are not keyed by decision rule id; do not pair an unrelated SortOrder=0 label.
-                    return (first, first);
-                }
-            }
-        }
-        catch (JsonException)
-        {
-            // Fall through to trace text only.
-        }
-
-        return !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
-    }
-
-    private static JsonElement? TryParsePayloadJson(string? payloadJson)
-    {
-        if (string.IsNullOrWhiteSpace(payloadJson))
-            return null;
-
-        try
-        {
-            return JsonSerializer.Deserialize<JsonElement>(payloadJson);
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
     }
 
     private sealed class MainRow

@@ -1,5 +1,6 @@
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -490,6 +491,11 @@ public sealed class AuthorityPipelineWorkProcessorTests
         services.AddSingleton(orchestrator.Object);
         services.AddSingleton(runRepository?.Object ?? new Mock<IRunRepository>().Object);
         services.AddSingleton<IRunStateTransitionService, RunStateTransitionService>();
+        services.AddLogging();
+        services.AddSingleton<AuthorityPipelineExecuteWorkHandler>();
+        services.AddSingleton<IAuthorityPipelineWorkHandler>(sp => sp.GetRequiredService<AuthorityPipelineExecuteWorkHandler>());
+        services.AddSingleton<IAuthorityPipelineWorkHandler, AuthorityPipelineCommitWorkHandler>();
+        services.AddSingleton<IAuthorityPipelineWorkHandler, AuthorityPipelineExtractorWorkHandler>();
         return services.BuildServiceProvider();
     }
 

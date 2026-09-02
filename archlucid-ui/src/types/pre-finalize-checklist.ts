@@ -1,17 +1,20 @@
-export type PreFinalizeChecklistItemStatus = "Clear" | "Advisory" | "Blocking";
+import type { components } from "@/lib/openapi-schemas";
 
-export type PreFinalizeChecklistItem = {
-  readonly itemId: string;
-  readonly title: string;
-  readonly detail?: string | null;
-  readonly status: PreFinalizeChecklistItemStatus;
-  readonly count: number;
-};
+export type PreFinalizeChecklistItemStatus = components["schemas"]["PreFinalizeChecklistItemStatus"];
 
-export type PreFinalizeChecklistResult = {
-  readonly runId: string;
-  readonly readyToFinalize: boolean;
-  readonly items: readonly PreFinalizeChecklistItem[];
-  readonly advisoryCount: number;
-  readonly blockingCount: number;
-};
+type PreFinalizeChecklistItemSchema = components["schemas"]["PreFinalizeChecklistItem"];
+
+export type PreFinalizeChecklistItem = PreFinalizeChecklistItemSchema &
+  Required<Pick<PreFinalizeChecklistItemSchema, "itemId" | "title" | "status" | "count">>;
+
+type PreFinalizeChecklistResultSchema = components["schemas"]["PreFinalizeChecklistResult"];
+
+export type PreFinalizeChecklistResult = Omit<PreFinalizeChecklistResultSchema, "items"> &
+  Required<
+    Pick<
+      PreFinalizeChecklistResultSchema,
+      "runId" | "readyToFinalize" | "advisoryCount" | "blockingCount"
+    >
+  > & {
+    items: PreFinalizeChecklistItem[];
+  };

@@ -86,14 +86,19 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
         int leaseDurationSeconds,
         CancellationToken cancellationToken = default)
     {
-        int take = Math.Clamp(maxBatch, 1, 100);
-        int lease = Math.Clamp(leaseDurationSeconds, 60, 7200);
+        int take = AuthorityPipelineWorkRepositoryCore.ClampDequeueBatch(maxBatch);
+        int lease = AuthorityPipelineWorkRepositoryCore.ClampLeaseDurationSeconds(leaseDurationSeconds);
         DateTime now = _utcNow();
         TimeSpan leaseSpan = TimeSpan.FromSeconds(lease);
 
         lock (_sync)
         {
-            List<Stored> batch = TenantRoundRobinEligibleBatch(EligibleRows(now), take);
+            List<Stored> batch = AuthorityPipelineWorkRepositoryCore.TenantRoundRobinEligibleBatch(
+                EligibleRows(now),
+                take,
+                static row => row.TenantId,
+                static row => row.CreatedUtc,
+                static row => row.OutboxId);
 
             foreach (Stored row in batch)
                 row.LockedUntilUtc = now + leaseSpan;
@@ -133,7 +138,7 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
 
             row.LockedUntilUtc = null;
             row.AttemptCount++;
-            row.NextAttemptUtc = NormalizeUtc(nextAttemptUtc);
+            row.NextAttemptUtc = AuthorityPipelineWorkRepositoryCore.NormalizeUtc(nextAttemptUtc);
             row.LastAttemptError = err;
         }
 
@@ -189,30 +194,6 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
             return Task.FromResult((long)_rows.Count(r => r.DeadLetteredUtc is not null && r.ProcessedUtc is null));
     }
 
-    /// <summary>
-    ///     Mirrors <see cref="DapperAuthorityPipelineWorkRepository.DequeuePendingAsync" /> ordering: interleave tenants by
-    ///     per-tenant FIFO rank, then TenantId, then CreatedUtc, then OutboxId.
-    /// </summary>
-    private static List<Stored> TenantRoundRobinEligibleBatch(IEnumerable<Stored> eligibleEnumerable, int take)
-    {
-        List<Stored> eligible = eligibleEnumerable.ToList();
-
-        return eligible
-            .GroupBy(row => row.TenantId)
-            .SelectMany(
-                grp => grp
-                    .OrderBy(row => row.CreatedUtc)
-                    .ThenBy(row => row.OutboxId)
-                    .Select((row, index) => (Row: row, TenantSeq: index + 1)))
-            .OrderBy(x => x.TenantSeq)
-            .ThenBy(x => x.Row.TenantId)
-            .ThenBy(x => x.Row.CreatedUtc)
-            .ThenBy(x => x.Row.OutboxId)
-            .Take(take)
-            .Select(x => x.Row)
-            .ToList();
-    }
-
     private IEnumerable<Stored> EligibleRows(DateTime nowUtc)
     {
         foreach (Stored row in _rows)
@@ -241,12 +222,5 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
             LastAttemptError = row.LastAttemptError,
             DeadLetteredUtc = row.DeadLetteredUtc
         };
-    }
-
-    private static DateTime NormalizeUtc(DateTime value)
-    {
-        return value.Kind is DateTimeKind.Unspecified
-            ? DateTime.SpecifyKind(value, DateTimeKind.Utc)
-            : value.ToUniversalTime();
     }
 }
