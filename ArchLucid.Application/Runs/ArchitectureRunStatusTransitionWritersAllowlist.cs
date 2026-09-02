@@ -19,6 +19,9 @@ public static class ArchitectureRunStatusTransitionWritersAllowlist
                 "ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.FailureSummary.cs",
                 "ExecuteFailsToFailed | ExecuteFailsToFailedPartial"),
             new(
+                "ArchLucid.Application/Runs/Orchestration/IncompleteAuthorityPipelineExecuteHandler.cs",
+                "RetryRequested | TasksMaterialized"),
+            new(
                 "ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.QualityGate.cs",
                 "QualityGateRejectsOutput"),
             new(

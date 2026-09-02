@@ -78,7 +78,9 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     IRunExecuteOwnershipLeaseService runExecuteOwnershipLeaseService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IAgentExecutionReadinessGuard agentExecutionReadinessGuard,
-    ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
+    ILogger<ArchitectureRunExecuteOrchestrator> logger,
+    IIncompleteAuthorityPipelineExecuteHandler? incompleteAuthorityPipelineExecuteHandler = null)
+    : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -339,6 +341,15 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
         await ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
 
         await _postExecuteHooks.LogFailedRunRetryRequestedAsync(run, runId, actor, cancellationToken);
+
+        if (incompleteAuthorityPipelineExecuteHandler is not null)
+        {
+            ExecuteRunResult? resumed =
+                await incompleteAuthorityPipelineExecuteHandler.TryResumeAsync(run, runId, cancellationToken);
+
+            if (resumed is not null)
+                return resumed;
+        }
 
         ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 
