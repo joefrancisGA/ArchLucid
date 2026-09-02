@@ -202,6 +202,13 @@ public static class AlertRoutingCriteriaMetadata
             return true;
         }
 
+        if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = item.GetRawText();
+
+            return true;
+        }
+
         value = null;
 
         return false;

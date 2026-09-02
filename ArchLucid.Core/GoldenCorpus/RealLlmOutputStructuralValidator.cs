@@ -308,6 +308,13 @@ public static class RealLlmOutputStructuralValidator
             return !string.IsNullOrWhiteSpace(value);
         }
 
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.GetRawText();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
         value = null;
 
         return false;
