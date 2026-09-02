@@ -114,12 +114,13 @@ export function useRunsDashboardPanel({
   const homeRefresh = useOptionalOperatorHomeRefresh();
 
   useEffect(() => {
-    if (homeGovernanceWarningsQueryEnabled(searchParams)) {
+    const warningsOnly = homeGovernanceWarningsQueryEnabled(searchParams);
+
+    if (warningsOnly) {
       setGovernanceWarningsOnly(true);
-      setTab("all");
     }
 
-    setTab(parseRunsDashboardTabFromSearch(searchParams.get("tab")));
+    setTab(warningsOnly ? "all" : parseRunsDashboardTabFromSearch(searchParams.get("tab")));
     setShowArchived(parseRunsDashboardShowArchivedFromSearch(searchParams.get("archived")));
   }, [searchParams]);
 
