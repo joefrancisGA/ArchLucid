@@ -29,6 +29,8 @@ Unit tests:
 - `DecisionGradeFindingProvenanceValidatorTests`
 - `BuiltInFindingEngineTypeCatalogTests`
 
+Wave-2 suggestions (11–20): [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE2.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE2.md).
+
 ## Security / reliability / cost
 
 - **Security:** Provenance and overlay gates reduce ungrounded or unvalidated agent text entering sealed packages.

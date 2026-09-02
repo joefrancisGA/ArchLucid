@@ -77,11 +77,12 @@ public sealed class ArchitectureVersionServiceTests
 
         ArchitectureVersionService sut = new(versions, runs.Object, NullLogger<ArchitectureVersionService>.Instance, TimeProvider.System);
 
-        ArchitectureVersionRecord? pinned = await sut.EnsureRunVersionPinnedAsync(
+        ArchitectureVersionRecord pinned = await sut.EnsureRunVersionPinnedAsync(
             scope,
             runId,
             architectureId,
             request,
+            knowledgeModel: null,
             CancellationToken.None);
 
         pinned.Should().NotBeNull();
@@ -142,16 +143,17 @@ public sealed class ArchitectureVersionServiceTests
 
         ArchitectureVersionService sut = new(versions, runs.Object, NullLogger<ArchitectureVersionService>.Instance, TimeProvider.System);
 
-        await sut.EnsureRunVersionPinnedAsync(scope, runId, architectureId, firstRequest, CancellationToken.None);
-        ArchitectureVersionRecord? second = await sut.EnsureRunVersionPinnedAsync(
+        await sut.EnsureRunVersionPinnedAsync(scope, runId, architectureId, firstRequest, knowledgeModel: null, CancellationToken.None);
+        ArchitectureVersionRecord second = await sut.EnsureRunVersionPinnedAsync(
             scope,
             runId,
             architectureId,
             secondRequest,
+            knowledgeModel: null,
             CancellationToken.None);
 
         second.Should().NotBeNull();
-        second!.VersionNumber.Should().Be(2);
+        second.VersionNumber.Should().Be(2);
         header.ArchitectureVersionId.Should().Be(second.ArchitectureVersionId);
     }
 }

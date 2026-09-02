@@ -17,7 +17,8 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-///     Best-effort post-create side effects after a run row is persisted (audit, metering, policy baseline, identity link).
+///     Post-create side effects after a run row is persisted (audit, metering, policy baseline, identity link).
+///     Identity and version pinning are fail-closed for review runs.
 /// </summary>
 public sealed class ArchitectureRunCreatePostCreateHooks(
     IAuditService auditService,
@@ -129,36 +130,26 @@ public sealed class ArchitectureRunCreatePostCreateHooks(
         CancellationToken cancellationToken)
     {
         if (!TryParseCoordinationRunGuid(runId, out Guid reviewRunGuid))
-            return;
-
-        try
         {
-            ArchitectureIdentityRecord? identity = await _architectureIdentityService
-                .TryEnsureReviewRunLinkedAsync(_scopeContextProvider.GetCurrentScope(), reviewRunGuid, request, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            throw new ArchitecturePinningFailedException(
+                $"Review run architecture link failed: invalid RunId '{LogSanitizer.Sanitize(runId)}'.");
+        }
 
-            if (identity?.ArchitectureId is Guid architectureId)
-            {
-                await _architectureVersionService
-                    .EnsureRunVersionPinnedAsync(
-                        _scopeContextProvider.GetCurrentScope(),
-                        reviewRunGuid,
-                        architectureId,
-                        request,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-            }
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        ArchitectureIdentityRecord? identity = await _architectureIdentityService
+            .TryEnsureReviewRunLinkedAsync(scope, reviewRunGuid, request, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        if (identity?.ArchitectureId is not Guid architectureId || architectureId == Guid.Empty)
         {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    ex,
-                    "Review run architecture identity link failed for RunId={RunId}.",
-                    LogSanitizer.Sanitize(runId));
-            }
+            throw new ArchitecturePinningFailedException(
+                $"Review run architecture identity link failed for RunId={LogSanitizer.Sanitize(runId)}.");
         }
+
+        await _architectureVersionService
+            .EnsureRunVersionPinnedAsync(scope, reviewRunGuid, architectureId, request, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private async Task TryApplyCloudPolicyPackBaselineAsync(

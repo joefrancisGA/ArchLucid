@@ -29,7 +29,7 @@ public sealed class SqlArchitectureVersionRepository(ISqlConnectionFactory conne
         const string sql = """
                            SELECT TOP (1)
                                ArchitectureVersionId, ArchitectureId, TenantId, WorkspaceId, ScopeProjectId,
-                               VersionNumber, ContentHashSha256, SourceRequestId, CreatedUtc
+                               VersionNumber, ContentHashSha256, IntakeRequestHashSha256, SourceRequestId, CreatedUtc
                            FROM dbo.ArchitectureVersions
                            WHERE ArchitectureId = @ArchitectureId
                              AND TenantId = @TenantId
@@ -107,12 +107,12 @@ public sealed class SqlArchitectureVersionRepository(ISqlConnectionFactory conne
                            INSERT INTO dbo.ArchitectureVersions
                            (
                                ArchitectureVersionId, ArchitectureId, TenantId, WorkspaceId, ScopeProjectId,
-                               VersionNumber, ContentHashSha256, SourceRequestId, CreatedUtc
+                               VersionNumber, ContentHashSha256, IntakeRequestHashSha256, SourceRequestId, CreatedUtc
                            )
                            VALUES
                            (
                                @ArchitectureVersionId, @ArchitectureId, @TenantId, @WorkspaceId, @ScopeProjectId,
-                               @VersionNumber, @ContentHashSha256, @SourceRequestId, @CreatedUtc
+                               @VersionNumber, @ContentHashSha256, @IntakeRequestHashSha256, @SourceRequestId, @CreatedUtc
                            );
                            """;
 
@@ -131,6 +131,9 @@ public sealed class SqlArchitectureVersionRepository(ISqlConnectionFactory conne
                     ScopeProjectId = scope.ProjectId,
                     VersionNumber = record.VersionNumber,
                     ContentHashSha256 = record.ContentHashSha256,
+                    IntakeRequestHashSha256 = record.IntakeRequestHashSha256.Length == 0
+                        ? record.ContentHashSha256
+                        : record.IntakeRequestHashSha256,
                     SourceRequestId = record.SourceRequestId,
                     CreatedUtc = createdUtc,
                 },
@@ -145,6 +148,9 @@ public sealed class SqlArchitectureVersionRepository(ISqlConnectionFactory conne
             ScopeProjectId = scope.ProjectId,
             VersionNumber = record.VersionNumber,
             ContentHashSha256 = record.ContentHashSha256,
+            IntakeRequestHashSha256 = record.IntakeRequestHashSha256.Length == 0
+                ? record.ContentHashSha256
+                : record.IntakeRequestHashSha256,
             SourceRequestId = record.SourceRequestId,
             CreatedUtc = createdUtc,
         };
@@ -159,7 +165,7 @@ public sealed class SqlArchitectureVersionRepository(ISqlConnectionFactory conne
 
         const string sql = """
                            SELECT ArchitectureVersionId, ArchitectureId, TenantId, WorkspaceId, ScopeProjectId,
-                                  VersionNumber, ContentHashSha256, SourceRequestId, CreatedUtc
+                                  VersionNumber, ContentHashSha256, IntakeRequestHashSha256, SourceRequestId, CreatedUtc
                            FROM dbo.ArchitectureVersions
                            WHERE ArchitectureVersionId = @ArchitectureVersionId
                              AND TenantId = @TenantId

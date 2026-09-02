@@ -206,6 +206,7 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureSynthesisKernel, ArchitectureSynthesisKernel>();
         services.AddScoped<IArchitectureIdentityService, ArchitectureIdentityService>();
         services.AddScoped<IArchitectureVersionService, ArchitectureVersionService>();
+        services.AddScoped<IFindingAnalysisContextBuilder, FindingAnalysisContextBuilder>();
         services.AddScoped<IWorkspaceSystemNameCollisionGuard, WorkspaceSystemNameCollisionGuard>();
         services.AddScoped<IHolisticCriticService, HolisticCriticService>();
         services.Configure<GenerateRunSummaryOptions>(

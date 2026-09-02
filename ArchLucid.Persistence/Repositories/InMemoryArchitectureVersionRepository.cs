@@ -72,6 +72,9 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
             ScopeProjectId = scope.ProjectId,
             VersionNumber = record.VersionNumber,
             ContentHashSha256 = (byte[])record.ContentHashSha256.Clone(),
+            IntakeRequestHashSha256 = record.IntakeRequestHashSha256.Length == 0
+                ? (byte[])record.ContentHashSha256.Clone()
+                : (byte[])record.IntakeRequestHashSha256.Clone(),
             SourceRequestId = record.SourceRequestId,
             CreatedUtc = record.CreatedUtc == default
                 ? TimeProvider.System.GetUtcNow().UtcDateTime

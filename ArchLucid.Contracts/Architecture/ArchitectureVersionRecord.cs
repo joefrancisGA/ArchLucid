@@ -43,8 +43,15 @@ public sealed class ArchitectureVersionRecord
         set;
     }
 
-    /// <summary>SHA-256 over canonical <c>ArchitectureRequest</c> JSON (same algorithm as create-run idempotency).</summary>
+    /// <summary>SHA-256 over admitted architecture artifact (κ when present; else intake request).</summary>
     public byte[] ContentHashSha256
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>SHA-256 over canonical intake <c>ArchitectureRequest</c> JSON (provenance only).</summary>
+    public byte[] IntakeRequestHashSha256
     {
         get;
         set;

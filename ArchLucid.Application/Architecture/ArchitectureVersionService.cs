@@ -1,5 +1,6 @@
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -12,13 +13,14 @@ namespace ArchLucid.Application.Architecture;
 public interface IArchitectureVersionService
 {
     /// <summary>
-    ///     Ensures a content-addressed version row exists for the request body and pins it on the run header.
+    ///     Ensures a content-addressed version row exists for the admitted artifact and pins it on the run header.
     /// </summary>
-    Task<ArchitectureVersionRecord?> EnsureRunVersionPinnedAsync(
+    Task<ArchitectureVersionRecord> EnsureRunVersionPinnedAsync(
         ScopeContext scope,
         Guid runId,
         Guid architectureId,
         ArchitectureRequest request,
+        ArchitectureKnowledgeModel? knowledgeModel = null,
         CancellationToken cancellationToken = default);
 }
 
@@ -40,24 +42,26 @@ public sealed class ArchitectureVersionService(
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
-    public async Task<ArchitectureVersionRecord?> EnsureRunVersionPinnedAsync(
+    public async Task<ArchitectureVersionRecord> EnsureRunVersionPinnedAsync(
         ScopeContext scope,
         Guid runId,
         Guid architectureId,
         ArchitectureRequest request,
+        ArchitectureKnowledgeModel? knowledgeModel = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
 
-        byte[] contentHash = ArchitectureRunIdempotencyHashing.FingerprintRequest(request);
+        byte[] intakeHash = ArchitectureVersionContentFingerprint.ComputeIntakeRequestHash(request);
+        byte[] artifactHash = ArchitectureVersionContentFingerprint.ComputeArtifactHash(request, knowledgeModel);
 
         ArchitectureVersionRecord? existing = await _architectureVersionRepository
-            .GetByContentHashAsync(scope, architectureId, contentHash, cancellationToken)
+            .GetByContentHashAsync(scope, architectureId, artifactHash, cancellationToken)
             .ConfigureAwait(false);
 
         ArchitectureVersionRecord version = existing
-            ?? await CreateNextVersionAsync(scope, architectureId, request, contentHash, cancellationToken)
+            ?? await CreateNextVersionAsync(scope, architectureId, request, artifactHash, intakeHash, cancellationToken)
                 .ConfigureAwait(false);
 
         await PinRunVersionAsync(scope, runId, version.ArchitectureVersionId, cancellationToken).ConfigureAwait(false);
@@ -69,7 +73,8 @@ public sealed class ArchitectureVersionService(
         ScopeContext scope,
         Guid architectureId,
         ArchitectureRequest request,
-        byte[] contentHash,
+        byte[] artifactHash,
+        byte[] intakeHash,
         CancellationToken cancellationToken)
     {
         int latest = await _architectureVersionRepository
@@ -80,7 +85,8 @@ public sealed class ArchitectureVersionService(
         {
             ArchitectureId = architectureId,
             VersionNumber = latest + 1,
-            ContentHashSha256 = contentHash,
+            ContentHashSha256 = artifactHash,
+            IntakeRequestHashSha256 = intakeHash,
             SourceRequestId = request.RequestId,
             CreatedUtc = _timeProvider.GetUtcNow().UtcDateTime,
         };
@@ -98,7 +104,10 @@ public sealed class ArchitectureVersionService(
             await _runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
         if (header is null)
-            return;
+        {
+            throw new ArchitecturePinningFailedException(
+                $"Architecture version pin failed: run header '{runId:D}' was not found.");
+        }
 
         if (header.ArchitectureVersionId == architectureVersionId)
             return;
