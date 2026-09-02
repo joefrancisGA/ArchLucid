@@ -20,8 +20,18 @@ public sealed class Adr0064PhysicalTableDdlArchitectureTests
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
         TimeSpan.FromSeconds(1));
 
+    private static readonly Regex ColLengthRunsSynonymRegex = new(
+        @"COL_LENGTH\(\s*N'dbo\.Runs'",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        TimeSpan.FromSeconds(1));
+
     private static readonly Regex MigrationFileNumberRegex = new(
         @"^(?<number>\d{3})_",
+        RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        TimeSpan.FromSeconds(1));
+
+    private static readonly Regex RollbackFileNumberRegex = new(
+        @"^R(?<number>\d{3})_",
         RegexOptions.CultureInvariant | RegexOptions.Compiled,
         TimeSpan.FromSeconds(1));
 
@@ -103,21 +113,77 @@ public sealed class Adr0064PhysicalTableDdlArchitectureTests
     }
 
     [Fact]
+    public void ArchLucid_sql_adds_run_create_pins_on_physical_table()
+    {
+        string ddl = ReadPersistenceSql("Scripts", "ArchLucid.sql");
+
+        ddl.Should().Contain("PinnedPolicyPackIdsJson");
+        ddl.Should().Contain("PinnedPolicyPackIdsHashSha256");
+        ddl.Should().Contain("PinnedEvidencePackagePinsJson");
+        ddl.Should().Contain("PinnedEvidencePackagePinsHashSha256");
+        ddl.Should().Contain("PinnedFocusedPilotModeEnabled");
+        ddl.Should().Contain("PinnedFocusedPilotCloudProvider");
+        ddl.Should().Contain("@policyPackPinRunTable");
+        ddl.Should().Contain("@wave6PinRunTable");
+        ddl.Should().Contain("sp_executesql");
+    }
+
+    [Fact]
+    public void ArchLucid_sql_after_adr0064_synonym_does_not_alter_runs_synonym()
+    {
+        string ddl = ReadPersistenceSql("Scripts", "ArchLucid.sql");
+        int synonymIndex = ddl.IndexOf(
+            "CREATE SYNONYM dbo.Runs FOR dbo.Reviews",
+            StringComparison.OrdinalIgnoreCase);
+
+synonymIndex.Should().BeGreaterThanOrEqualTo(0, "ArchLucid.sql must create the ADR 0064 Runs synonym");
+
+        string afterSynonym = StripSqlComments(ddl[synonymIndex..]);
+
+        AlterRunsTableRegex.IsMatch(afterSynonym).Should().BeFalse(
+            "batches after CREATE SYNONYM dbo.Runs must ALTER the physical Reviews/Runs table, not the synonym (SQL 4909)");
+
+        ColLengthRunsSynonymRegex.IsMatch(afterSynonym).Should().BeFalse(
+            "COL_LENGTH(N'dbo.Runs') is NULL on the ADR 0064 synonym and must not guard DDL after the rename");
+    }
+
+    [Fact]
     public void Forward_migrations_from_323_do_not_alter_runs_synonym()
     {
-        string migrationsDir = Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations");
+        AssertNumberedSqlFilesDoNotAlterRunsSynonym(
+            Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations"),
+            "*.sql",
+            MigrationFileNumberRegex,
+            minimumNumber: 323);
+    }
 
-        foreach (string path in Directory.GetFiles(migrationsDir, "*.sql"))
+    [Fact]
+    public void Rollbacks_from_323_do_not_alter_runs_synonym()
+    {
+        AssertNumberedSqlFilesDoNotAlterRunsSynonym(
+            Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations", "Rollback"),
+            "R*.sql",
+            RollbackFileNumberRegex,
+            minimumNumber: 323);
+    }
+
+    private static void AssertNumberedSqlFilesDoNotAlterRunsSynonym(
+        string directory,
+        string searchPattern,
+        Regex fileNumberRegex,
+        int minimumNumber)
+    {
+        foreach (string path in Directory.GetFiles(directory, searchPattern))
         {
             string fileName = Path.GetFileName(path);
-            Match match = MigrationFileNumberRegex.Match(fileName);
+            Match match = fileNumberRegex.Match(fileName);
 
             if (!match.Success)
                 continue;
 
             int number = int.Parse(match.Groups["number"].Value, CultureInfo.InvariantCulture);
 
-            if (number < 323)
+            if (number < minimumNumber)
                 continue;
 
             string text = File.ReadAllText(path);
