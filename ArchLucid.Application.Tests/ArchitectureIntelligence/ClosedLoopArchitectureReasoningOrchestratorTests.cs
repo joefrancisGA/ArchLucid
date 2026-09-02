@@ -1,4 +1,5 @@
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.ArchitectureIntelligence.Stages;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Scoping;
 using FluentAssertions;
@@ -12,7 +13,7 @@ namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
 {
     [Fact]
-    public void Constructor_does_not_inject_unused_sync_specialist_review_service()
+    public void Constructor_injects_closed_loop_stage_handlers_not_individual_review_services()
     {
         Type[] parameterTypes = typeof(ClosedLoopArchitectureReasoningOrchestrator)
             .GetConstructors()
@@ -21,12 +22,13 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
             .Select(parameter => parameter.ParameterType)
             .ToArray();
 
-        parameterTypes.Should().NotContain(typeof(ISpecialistReviewService));
-        parameterTypes.Should().Contain(typeof(IAsyncSpecialistReviewService));
-        parameterTypes.Should().Contain(typeof(ClosedLoopArchitectureReasoningPostStageHooks));
-        parameterTypes.Should().NotContain(typeof(IArchitectureIntelligenceProductPublishService));
-        parameterTypes.Should().NotContain(typeof(ISpecialistFindingsSubstantiationService));
-        parameterTypes.Should().NotContain(typeof(IAuthorityFindingsSnapshotUpdater));
+        parameterTypes.Should().Contain(typeof(IClosedLoopExtractionStage));
+        parameterTypes.Should().Contain(typeof(IClosedLoopInterviewStage));
+        parameterTypes.Should().Contain(typeof(IClosedLoopReviewStage));
+        parameterTypes.Should().Contain(typeof(IClosedLoopRecommendationStage));
+        parameterTypes.Should().Contain(typeof(IClosedLoopPublishStage));
+        parameterTypes.Should().NotContain(typeof(IAsyncSpecialistReviewService));
+        parameterTypes.Should().NotContain(typeof(ClosedLoopArchitectureReasoningPostStageHooks));
     }
 
     [Fact]

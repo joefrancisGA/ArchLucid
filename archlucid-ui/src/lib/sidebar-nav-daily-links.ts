@@ -1,17 +1,29 @@
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
-import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import {
+  GOVERNANCE_ADVISORY_SCANS_PATH,
+  GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_SETUP_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 import {
   SETTINGS_NOTIFICATIONS_PATH,
   SETTINGS_ROOT_PATH,
+  SETTINGS_USERS_PATH,
   SETTINGS_WORKSPACE_SETTINGS_PATH,
 } from "@/lib/settings-admin-route-paths";
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 
 function sidebarLinkMatchesPathname(pathname: string, href: string): boolean {
   const linkPath = navHrefPathPart(href);
@@ -37,29 +49,30 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     EVIDENCE_GRAPH_PATH,
     ASK_REVIEW_QUESTIONS_PATH,
     SEARCH_REVIEW_EVIDENCE_PATH,
+    SPONSOR_REPORT_PATH,
     COMPARE_TWO_REVIEWS_PATH,
-    ARCHITECTURE_SCORECARD_PATH,
   ],
   "operate-governance": [
-    "/governance/approval-queue",
-    "/governance/setup",
-    "/governance/findings",
+    GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+    GOVERNANCE_APPROVAL_QUEUE_PATH,
+    GOVERNANCE_SETUP_PATH,
+    GOVERNANCE_FINDINGS_PATH,
     SIGNED_RECORDS_LIST_PATH,
-    "/governance/advisory-scans",
-    "/governance/alerts",
+    GOVERNANCE_ADVISORY_SCANS_PATH,
+    GOVERNANCE_ALERTS_PATH,
   ],
   "operate-policy": [
-    "/governance/policy-packs",
-    "/governance/standards-and-rules",
+    GOVERNANCE_POLICY_PACKS_PATH,
+    GOVERNANCE_STANDARDS_AND_RULES_PATH,
   ],
   // Routine configuration leads; System health and Support are break-glass pages and Support is also
   // published as an inline bundle card on the settings hub, so neither needs a first-viewport slot.
   "operator-admin": [
     SETTINGS_ROOT_PATH,
     SETTINGS_WORKSPACE_SETTINGS_PATH,
-    "/administration/users",
+    SETTINGS_USERS_PATH,
     SETTINGS_NOTIFICATIONS_PATH,
-    "/administration/billing",
+    SETTINGS_BILLING_PATH,
     ADMINISTRATION_SYSTEM_HEALTH_PATH,
   ],
 };

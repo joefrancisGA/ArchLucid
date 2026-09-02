@@ -229,6 +229,67 @@ public sealed class RetrievalIndexingServiceTests
     }
 
     [Fact]
+    public async Task IndexDocumentsAsync_when_upsert_fails_still_reindexes_on_retry_with_same_content_hash()
+    {
+        int embedCalls = 0;
+        int upsertCalls = 0;
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .Callback(() => embedCalls++)
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IVectorIndex> index = new();
+        index
+            .Setup(i => i.UpsertChunksAsync(It.IsAny<IReadOnlyList<RetrievalChunk>>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                upsertCalls++;
+
+                if (upsertCalls == 1)
+                    throw new InvalidOperationException("simulated vector upsert failure");
+
+                return Task.CompletedTask;
+            });
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            index.Object,
+            catalog,
+            caps.Object);
+
+        RetrievalDocument doc = new()
+        {
+            DocumentId = "d-upsert-fail",
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "corpus text that must reach the vector index",
+            ContentHash = "HASH-UPSERT-FAIL",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Func<Task> firstAttempt = async () => await sut.IndexDocumentsAsync([doc], CancellationToken.None);
+        await firstAttempt.Should().ThrowAsync<InvalidOperationException>();
+
+        await sut.IndexDocumentsAsync([doc], CancellationToken.None);
+
+        embedCalls.Should().Be(2);
+        upsertCalls.Should().Be(2);
+    }
+
+    [Fact]
     public void ChunkingStrategyFingerprint_differs_when_semantic_strategy_enabled()
     {
         string simple = ChunkingStrategyFingerprint.Compute(CorpusKind.Conversation, RetrievalChunkingStrategy.Simple);

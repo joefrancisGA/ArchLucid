@@ -1,6 +1,11 @@
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import { resolveClarificationsFindingsLoopNext } from "@/lib/review-clarifications-findings-loop";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
+import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
+import { secondReviewFromPriorHref } from "@/lib/second-review-prior-package";
+import { SPONSOR_BRIEFING_EXPORT_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   reviewLifecycleNextActionInstance,
   reviewLifecycleNextActionLabel,
@@ -29,6 +34,11 @@ export type ReviewPackageDoThisNextKind =
   | "rerun-review"
   | "compare-to-prior";
 
+export type ReviewPackageDoThisNextQuickLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
 export type ReviewPackageDoThisNext = {
   readonly kind: ReviewPackageDoThisNextKind;
   readonly sentence: string;
@@ -39,6 +49,7 @@ export type ReviewPackageDoThisNext = {
     readonly label: string;
     readonly href: string;
   } | null;
+  readonly quickLinks?: readonly ReviewPackageDoThisNextQuickLink[];
   readonly failureRecovery?: ReviewFailureRecoveryGuidance | null;
 };
 
@@ -138,6 +149,77 @@ function registryHrefInput(input: ResolveReviewPackageDoThisNextInput): BuildRev
     hasManifest: input.manifestId !== null && input.manifestId !== undefined && input.manifestId.trim().length > 0,
     correctionHref: input.correctionHref,
   };
+}
+
+function buildPostFinalizeQuickLinks(
+  input: ResolveReviewPackageDoThisNextInput,
+): readonly ReviewPackageDoThisNextQuickLink[] {
+  const manifestId = input.manifestId?.trim() ?? "";
+
+  if (manifestId.length === 0 || input.blockingFindingCount > 0) {
+    return [];
+  }
+
+  const runId = input.runId.trim();
+  const compareWithPriorHref = input.compareWithPriorHref?.trim() ?? "";
+  const compareHref =
+    compareWithPriorHref.length > 0 ? compareWithPriorHref : comparePageHrefAdaptive("", runId);
+
+  return [
+    { label: INVITE_REVIEWER_PAGE_TITLE, href: buildInviteReviewerHref(runId) },
+    { label: "Compare reviews", href: compareHref },
+    {
+      label: `Open ${SPONSOR_BRIEFING_EXPORT_LABEL.toLowerCase()}`,
+      href: `${SPONSOR_REPORT_PATH}?runId=${encodeURIComponent(runId)}`,
+    },
+  ];
+}
+
+function attachPostFinalizeGuidance(
+  next: ReviewPackageDoThisNext,
+  input: ResolveReviewPackageDoThisNextInput,
+): ReviewPackageDoThisNext {
+  const manifestId = input.manifestId?.trim() ?? "";
+
+  if (manifestId.length === 0 || input.blockingFindingCount > 0) {
+    return next;
+  }
+
+  const quickLinks = buildPostFinalizeQuickLinks(input);
+  const followUpAction = {
+    label: "Start follow-up review",
+    href: secondReviewFromPriorHref(input.runId),
+  };
+
+  if (
+    next.kind === "send-to-sponsor"
+    && (next.secondaryAction === null || next.secondaryAction === undefined)
+  ) {
+    return {
+      ...next,
+      secondaryAction: followUpAction,
+      quickLinks,
+    };
+  }
+
+  if (next.kind === "send-to-sponsor" && next.secondaryAction !== null && next.secondaryAction !== undefined) {
+    return {
+      ...next,
+      quickLinks: [
+        followUpAction,
+        ...quickLinks,
+      ],
+    };
+  }
+
+  if (next.kind === "open-governance-decision" || next.kind === "compare-to-prior") {
+    return {
+      ...next,
+      quickLinks: [followUpAction, ...quickLinks],
+    };
+  }
+
+  return next;
 }
 
 /** Post-finalize compare / second-review labels from the lifecycle registry (TB-2366). */
@@ -257,27 +339,33 @@ export function resolveReviewPackageDoThisNext(
   const registryNext = resolveReviewPackageDoThisNextFromRegistry(input, primaryAction);
 
   if (registryNext !== null) {
-    return registryNext;
+    return attachPostFinalizeGuidance(registryNext, input);
   }
 
   if (primaryAction.kind === "send-to-sponsor" && evidenceCoverageGap(input)) {
-    return {
-      kind: primaryAction.kind,
-      sentence: evidenceCoverageGapSentence(input.evidenceCoverageTotalCount),
-      actionLabel: "Review evidence coverage",
-      href: buildReviewWorkspaceTabHref(input.runId, "evidence"),
-      buttonVariant: "outline",
-      secondaryAction: {
-        label: primaryAction.label,
-        href: primaryAction.href ?? buildReviewWorkspaceTabHref(input.runId, "review-package", { hash: "sponsor-handoff" }),
+    return attachPostFinalizeGuidance(
+      {
+        kind: primaryAction.kind,
+        sentence: evidenceCoverageGapSentence(input.evidenceCoverageTotalCount),
+        actionLabel: "Review evidence coverage",
+        href: buildReviewWorkspaceTabHref(input.runId, "evidence"),
+        buttonVariant: "outline",
+        secondaryAction: {
+          label: primaryAction.label,
+          href: primaryAction.href ?? buildReviewWorkspaceTabHref(input.runId, "review-package", { hash: "sponsor-handoff" }),
+        },
       },
-    };
+      input,
+    );
   }
 
-  return {
-    kind: primaryAction.kind,
-    sentence: sentenceForPrimaryAction(primaryAction, input),
-    actionLabel: primaryAction.label,
-    href: primaryAction.href,
-  };
+  return attachPostFinalizeGuidance(
+    {
+      kind: primaryAction.kind,
+      sentence: sentenceForPrimaryAction(primaryAction, input),
+      actionLabel: primaryAction.label,
+      href: primaryAction.href,
+    },
+    input,
+  );
 }

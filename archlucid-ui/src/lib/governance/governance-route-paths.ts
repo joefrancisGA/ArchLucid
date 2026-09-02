@@ -1,9 +1,14 @@
 /** Canonical governance nav URLs (TB-405). */
 
+import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
 /** Approval queue (left-nav). Bare `/governance` is not a page and is not redirected. */
 export const GOVERNANCE_APPROVAL_QUEUE_PATH = "/governance/approval-queue" as const;
+
+/** Unified needs-attention inbox aggregating governance queues. */
+export const GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH = "/governance/needs-attention" as const;
 
 /** Workspace health KPIs (Insights). Legacy `/governance/dashboard` redirects here. */
 export const GOVERNANCE_WORKSPACE_HEALTH_HREF = WORKSPACE_HEALTH_PATH;
@@ -16,7 +21,13 @@ export const GOVERNANCE_STANDARDS_AND_RULES_PATH = "/governance/standards-and-ru
 /** Alias kept for existing imports — prefer {@link GOVERNANCE_STANDARDS_AND_RULES_PATH}. */
 export const GOVERNANCE_RESOLUTION_PATH = GOVERNANCE_STANDARDS_AND_RULES_PATH;
 
+/** Alias kept for existing imports — canonical is {@link ADVISORY_SCANS_HREF} (TB-1124). */
+export const GOVERNANCE_ADVISORY_SCANS_PATH = ADVISORY_SCANS_HREF;
+
 export const GOVERNANCE_AUDIT_PATH = "/governance/audit";
+
+/** Governance onboarding / setup guide — alias kept for existing imports; canonical is {@link GOVERNANCE_SETUP_HREF} (TB-1134 / TB-1135). */
+export const GOVERNANCE_SETUP_PATH = GOVERNANCE_SETUP_HREF;
 
 /** Cross-review risk-register queue (left-nav Findings). */
 export const GOVERNANCE_FINDINGS_PATH = "/governance/findings" as const;

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
+import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import {
   OperatorErrorCallout,
   OperatorWarningCallout,
@@ -281,6 +282,13 @@ export function ReviewPackageDoThisNextStrip(
               commitBlockedReason={commitBlockedReason}
               buttonVariant="primary"
             />
+          ) : next.kind === "rerun-review" && !blockRerun ? (
+            <ReRunReviewButton
+              runId={runId}
+              variant={buttonVariant}
+              size="sm"
+              data-testid="review-package-re-run-review"
+            />
           ) : next.href !== null && !blockRerun ? (
             <Button type="button" variant={buttonVariant} size="sm" asChild>
               <Link href={next.href}>{next.actionLabel}</Link>
@@ -299,6 +307,15 @@ export function ReviewPackageDoThisNextStrip(
                 {next.secondaryAction.label}
               </Link>
             </Button>
+          ) : null}
+          {next.quickLinks !== null && next.quickLinks !== undefined && next.quickLinks.length > 0 ? (
+            <div className="flex flex-wrap gap-2" data-testid="review-package-do-this-next-quick-links">
+              {next.quickLinks.map((link) => (
+                <Button key={link.href} type="button" variant="outline" size="sm" asChild>
+                  <Link href={link.href}>{link.label}</Link>
+                </Button>
+              ))}
+            </div>
           ) : null}
         </div>
       </div>

@@ -57,6 +57,8 @@ import {
 } from "@/lib/first-review-guide-route";
 import { useDeepLinkHashScroll } from "@/hooks/use-deep-link-hash-scroll";
 import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 
 
 
@@ -332,6 +334,14 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             >
 
               {FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER}
+
+            </p>
+
+            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-guide-help-crosslink">
+
+              Step-by-step walkthrough:{" "}
+
+              <Link href={FIRST_ARCHITECTURE_REVIEW_HELP_PATH}>{FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}</Link>
 
             </p>
 

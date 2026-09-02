@@ -244,6 +244,8 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             siteOpts.Object,
             branding.Object,
             pilotBaselines.Object,
+            FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
+            FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

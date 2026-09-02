@@ -14,6 +14,7 @@ type GuidedIntakePriorRunPrefillTarget = {
   readonly setActorSet: (value: ActorSet) => void;
   readonly setScopeBullets: (value: ScopeUnderstandingBullet[]) => void;
   readonly setScopeGateOpen: (value: boolean) => void;
+  readonly setPriorAttachedFileNames: (value: readonly string[]) => void;
   readonly freeTextIntent: string;
   readonly businessOutcome: string;
   readonly systemName: string;
@@ -49,6 +50,10 @@ function applyPriorPackagePrefill(
     target.setScopeBullets([...prefill.scopeBullets]);
     target.setScopeGateOpen(prefill.scopeGateOpen);
   }
+
+  if (prefill.priorAttachedFileNames.length > 0) {
+    target.setPriorAttachedFileNames([...prefill.priorAttachedFileNames]);
+  }
 }
 
 /** Prefills guided-intake step 0 from the prior run's architecture request when `rerun=` is present. */
@@ -64,6 +69,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): void {
     setFreeTextIntent,
     setScopeBullets,
     setScopeGateOpen,
+    setPriorAttachedFileNames,
     setSystemName,
     systemName,
   } = options;
@@ -77,6 +83,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): void {
     setFreeTextIntent,
     setScopeBullets,
     setScopeGateOpen,
+    setPriorAttachedFileNames,
     setSystemName,
     systemName,
   });
@@ -90,6 +97,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): void {
     setFreeTextIntent,
     setScopeBullets,
     setScopeGateOpen,
+    setPriorAttachedFileNames,
     setSystemName,
     systemName,
   };

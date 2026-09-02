@@ -41,7 +41,7 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
       <ReviewsNewPageChrome />
       <div
         id={REVIEWS_NEW_PRIMARY_CONTENT_ID}
-        className="mt-6 scroll-mt-24"
+        className="mt-4 scroll-mt-24"
         data-testid="reviews-new-primary-content"
       >
         {props.children}

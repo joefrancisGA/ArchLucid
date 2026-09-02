@@ -390,6 +390,8 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             siteOpts.Object,
             branding.Object,
             pilotBaselines.Object,
+            FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
+            FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }

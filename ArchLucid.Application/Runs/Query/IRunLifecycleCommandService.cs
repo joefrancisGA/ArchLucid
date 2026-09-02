@@ -44,6 +44,11 @@ public interface IRunLifecycleCommandService
         bool commitReplay,
         string? manifestVersionOverride,
         CancellationToken cancellationToken = default);
+
+    Task<CreateRunResult?> LookupCreateRunByIdempotencyKeyAsync(
+        ScopeContext scope,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record IdempotencyKeyValidationResult(bool IsValid, string? Key, string? ErrorMessage);

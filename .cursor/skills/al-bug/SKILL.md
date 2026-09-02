@@ -2,9 +2,9 @@
 name: al-bug
 description: >-
   Hunts a real code defect with a failing repro test, applies a minimal fix with
-  regression coverage, and pushes to master via worktree when needed. Use when
+  regression coverage, and pushes to bugsmash via worktree when needed. Use when
   the user invokes /al-bug, asks to find fix and push a bug, or wants iterative
-  ledger-ranked defect hunting on master.
+  ledger-ranked defect hunting on bugsmash.
 disable-model-invocation: true
 ---
 
@@ -16,22 +16,23 @@ Follow the full workflow in `.cursor/commands/al-bug.md`.
 
 ```text
 /al-bug
-/al-bug master
+/al-bug bugsmash
 /al-bug "<hunt hint>"
 /al-bug --find-only
 /al-bug --status
 /al-bug --refresh
 ```
 
-Default push target: **`master`**.
+Default push target: **`bugsmash`**.
 
 ## Quick workflow
 
-0. **Target** — `.\scripts\agent\al-bug-pick-zone.ps1 -Preview` (add `-Hint` / `-Refresh` as applicable). Hunt **only** that zone.
-1. **Find** — repro-first; failing test required before fixing
-2. **Fix** — minimal diff + permanent regression test
-3. **Ship** — `.\scripts\agent\al-bug-push-master.ps1` when main tree is dirty; else direct commit. Always update `docs/library/AL_BUG_HUNT_LEDGER.md`.
-4. **Stats** — `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h` (skip for `--status`). Ship `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger. Report **Bugs found (24h)** and **Dry runs (24h)** in the result table.
+0. **Sync** — `.\scripts\agent\al-bug-sync-branch.ps1` (skip for `--status`). Pull latest `origin/bugsmash`.
+1. **Target** — `.\scripts\agent\al-bug-pick-zone.ps1 -Preview` (add `-Hint` / `-Refresh` as applicable). Hunt **only** that zone.
+2. **Find** — repro-first; failing test required before fixing
+3. **Fix** — minimal diff + permanent regression test
+4. **Ship** — `.\scripts\agent\al-bug-push-master.ps1` when main tree is dirty; else direct commit to `bugsmash`. Always update `docs/library/AL_BUG_HUNT_LEDGER.md`.
+5. **Stats** — `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h` (skip for `--status`). Ship `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger. Report **Bugs found (24h)** and **Dry runs (24h)** in the result table.
 
 `--status` prints the picker preview and stops. Each run is either a **thorough defect hunt** or a **seed hunt** — announce the kind immediately after the picker, even when other `/al-bug` messages are queued. A dry hunt (hunt-ready hypotheses tested with failing-repro attempts, no failing repro) updates the ledger and stops — do not invent another zone. A **seed hunt** (`seedHunt: true`) must say **This /al-bug run is a seed hunt**, read the zone files, promote or retire candidates, and prove any newly hunt-ready row in the same run; otherwise stop as seed-only and keep Kind `seed hunt` in the result table.
 
@@ -73,6 +74,8 @@ dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj `
 
 ## Push helper
 
+Default target is `bugsmash`:
+
 ```powershell
 .\scripts\agent\al-bug-push-master.ps1 `
   -Paths @('path/to/changed.cs') `
@@ -84,7 +87,8 @@ dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj `
 - `/al-defect` — operator-reported production defects (`PD-###`)
 - `docs/library/AL_BUG_HUNT_LEDGER.md` — zone yield and exhaustion
 - `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` — rolling hunt outcome log
+- `scripts/agent/al-bug-sync-branch.ps1` — fetch, checkout, pull `bugsmash`
 - `scripts/agent/al-bug-pick-zone.ps1` — next-zone picker
 - `scripts/agent/al-bug-rolling-stats.ps1` — record outcome + 24h yield preview
 - `.cursor/rules/Agent-Working-Tree-Safety.mdc`
-- `.cursor/rules/Git-Commit-Requires-Branch.mdc` — satisfied by default `master` target
+- `.cursor/rules/Git-Commit-Requires-Branch.mdc` — satisfied by default `bugsmash` target

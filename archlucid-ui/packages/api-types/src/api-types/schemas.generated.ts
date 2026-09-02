@@ -3090,6 +3090,20 @@ export interface components {
         };
         /** @enum {string} */
         DraftRequestStatus: "Drafting" | "Admitted" | "Submitted" | "RunSpawned" | "Redirected" | "Abandoned";
+        DraftRequestSummaryResponse: {
+            createdByUserId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            draftId?: string;
+            freeTextIntent?: string;
+            reviewReadinessValid?: boolean;
+            spawnedRunId?: null | string;
+            status?: components["schemas"]["DraftRequestStatus"];
+            systemName?: null | string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
         DriftAnalysisResponse: {
             driftDetected?: boolean;
             items?: components["schemas"]["DriftItemResponse"][];
@@ -5451,6 +5465,16 @@ export interface components {
         PagedResponseOfConversationThread: {
             hasMore?: boolean;
             items?: components["schemas"]["ConversationThread"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        PagedResponseOfDraftRequestSummaryResponse: {
+            hasMore?: boolean;
+            items?: components["schemas"]["DraftRequestSummaryResponse"][];
             /** Format: int32 */
             page?: number;
             /** Format: int32 */
@@ -9341,6 +9365,12 @@ export interface components {
             attestedRevenueOrRetentionImpact?: null | string;
             attestedReviewerTimeSavedNote?: null | string;
         };
+        UpsertWizardIntakeDraftRequest: {
+            idempotencyKey?: null | string;
+            stateJson?: string;
+            /** Format: int32 */
+            stepIndex?: number;
+        };
         /** @enum {string} */
         UsageMeterKind: "LlmPromptTokens" | "LlmCompletionTokens" | "ApiRequest" | "ArchitectureRun" | "ArtifactStorageBytes" | "AgentExecution";
         UserInvitationListResponse: {
@@ -9434,6 +9464,14 @@ export interface components {
             generatedUtc?: string;
             /** Format: int64 */
             runsCreatedTotal?: number;
+        };
+        WizardIntakeDraftResponse: {
+            stateJson?: string;
+            /** Format: int32 */
+            stepIndex?: number;
+            /** Format: date-time */
+            updatedUtc?: string;
+            wizardId?: string;
         };
         WorkspaceAiAvailabilityCheckRow: {
             detail?: string;

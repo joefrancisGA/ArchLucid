@@ -4,6 +4,7 @@ using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Tests.Orchestration;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
@@ -70,6 +71,7 @@ public sealed class ArchitectureSynthesisKernelPriorRunCollisionTests
             .Setup(g => g.EnsureAvailableAsync(
                 scope,
                 request.SystemName,
+                WorkspaceSystemNameOccupancyKind.Review,
                 null,
                 priorRunId,
                 It.IsAny<CancellationToken>()))
@@ -99,6 +101,7 @@ public sealed class ArchitectureSynthesisKernelPriorRunCollisionTests
             g => g.EnsureAvailableAsync(
                 scope,
                 request.SystemName,
+                WorkspaceSystemNameOccupancyKind.Review,
                 null,
                 priorRunId,
                 It.IsAny<CancellationToken>()),

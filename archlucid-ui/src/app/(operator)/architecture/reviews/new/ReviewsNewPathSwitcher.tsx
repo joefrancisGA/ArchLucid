@@ -5,7 +5,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
+import {
+  ACCELERATOR_JOB_CHOOSER_HEADING,
+  ACCELERATOR_JOB_CHOOSER_LEAD,
+} from "@/lib/accelerator-chooser-start-copy";
 import {
   REVIEWS_NEW_BACK_TO_QUICK_START_CTA,
   REVIEWS_NEW_PATH_HINTS,
@@ -20,6 +25,7 @@ import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operat
 import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
 import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
 import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useReviewsNewSpecimenPreviewPresentation } from "./use-reviews-new-specimen-preview-presentation";
 import {
   buildReviewsNewPathHref,
@@ -81,6 +87,9 @@ export function ReviewsNewPathSwitcher() {
       isAcceleratorPackId(acceleratorPackId));
   const showJobChooserStartOptions = activePath === "quick-review" && !hasAcceleratorStartIntent;
   const specimenPreviewPresentation = useReviewsNewSpecimenPreviewPresentation();
+  const commitQuery = useCorePilotCommitContextQuery();
+  const isReturningTenant =
+    commitQuery.isPending || commitQuery.data?.hasCommittedManifest === true;
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
@@ -114,7 +123,7 @@ export function ReviewsNewPathSwitcher() {
   };
 
   return (
-    <div className="space-y-5" data-testid="reviews-new-path-switcher">
+    <div className="space-y-4" data-testid="reviews-new-path-switcher">
       <Suspense fallback={null}>
         <ReviewsNewDeferredIntentCallout />
       </Suspense>
@@ -127,7 +136,18 @@ export function ReviewsNewPathSwitcher() {
           {showJobChooserStartOptions ? (
             <>
               <ReviewsNewOwnEvidenceStart />
-              <ReviewsNewJobChooserSection />
+              {isReturningTenant ? (
+                <CollapsibleSection
+                  title={ACCELERATOR_JOB_CHOOSER_HEADING}
+                  summaryLine={ACCELERATOR_JOB_CHOOSER_LEAD}
+                  defaultOpen={false}
+                  sectionTestId="reviews-new-returning-job-chooser"
+                >
+                  <ReviewsNewJobChooserSection hideHeading />
+                </CollapsibleSection>
+              ) : (
+                <ReviewsNewJobChooserSection />
+              )}
               <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
             </>
           ) : (
@@ -150,7 +170,7 @@ export function ReviewsNewPathSwitcher() {
               >
                 <InlineGuidanceText text={pathHints[activePath]} />
               </p>
-              <div className="pt-2" data-testid="reviews-new-path-panel">
+              <div data-testid="reviews-new-path-panel">
                 <ReviewsNewActiveWizard activePath={activePath} />
               </div>
               {activePath === "quick-review" ? (

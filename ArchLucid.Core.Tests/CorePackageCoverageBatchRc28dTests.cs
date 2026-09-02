@@ -40,12 +40,54 @@ public sealed class CorePackageCoverageBatchRc28dTests
             }
             """);
 
-        parsed.Severities.Should().Equal("High", "high");
+        parsed.Severities.Should().Equal("High", "high", "Warning");
         parsed.FindingTypes.Should().ContainSingle("Cost");
         parsed.Tags.Should().ContainSingle("sponsor");
 
         AlertRoutingCriteriaMetadata.Parse("{ not-json").Severities.Should().BeEmpty();
         AlertRoutingCriteriaMetadata.Parse("""{"routingCriteria":"nope"}""").Severities.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_numeric_severity_ordinals_map_alert_labels()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "severities": [2, "Critical"]
+              }
+            }
+            """);
+
+        parsed.Severities.Should().Equal("High", "Critical");
+    }
+
+    [Fact]
+    public void AlertRoutingMatcher_numeric_severity_metadata_filters_non_matching_signals()
+    {
+        AlertRoutingSubscription subscription = new()
+        {
+            MinimumSeverity = AlertSeverity.Info,
+            MetadataJson = """{"routingCriteria":{"severities":[3]}}""",
+        };
+
+        AlertRoutingSignal infoSignal = new()
+        {
+            Severity = AlertSeverity.Info,
+            FindingType = "Security",
+            Tags = ["ops"],
+        };
+
+        AlertRoutingSignal criticalSignal = new()
+        {
+            Severity = AlertSeverity.Critical,
+            FindingType = "Security",
+            Tags = ["ops"],
+        };
+
+        AlertRoutingMatcher.Matches(subscription, infoSignal).Should().BeFalse();
+        AlertRoutingMatcher.Matches(subscription, criticalSignal).Should().BeTrue();
     }
 
     [Fact]

@@ -2,11 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, type Dispatch, type MouseEvent, type SetStateAction } from "react";
 
-import { ArchitectureScopeUnderstandingRow } from "@/components/architecture/ArchitectureScopeUnderstandingRow";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { StatusTag } from "@/components/ui/status-tag";
 import type { ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import {
   deriveScopeUnderstandingBullets,
@@ -15,43 +10,31 @@ import {
   reconcileScopeUnderstandingBullets,
   scopeBulletBehavior,
   validateScopeUnderstandingItem,
-  SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL,
-  SCOPE_UNDERSTANDING_ADD_BUTTON_LABEL,
-  SCOPE_UNDERSTANDING_ADD_EFFECT_HINT,
-  SCOPE_UNDERSTANDING_ADD_LABEL,
-  SCOPE_UNDERSTANDING_ADD_PLACEHOLDER,
+  SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL,
+  SCOPE_UNDERSTANDING_HEADING,
+  SCOPE_UNDERSTANDING_HELPER,
   canConfirmScopeUnderstanding,
   scopeBriefLines,
   scopeBulletsFingerprint,
-  scopeConfirmedSummaryMessage,
-  SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT,
-  SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL,
-  SCOPE_UNDERSTANDING_CONFIRM_LABEL,
-  SCOPE_UNDERSTANDING_CONFIRMED_STATUS_LABEL,
-  SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL,
-  SCOPE_UNDERSTANDING_HEADING,
-  SCOPE_UNDERSTANDING_HELPER,
-  SCOPE_UNDERSTANDING_READY_HINT,
-  SCOPE_UNDERSTANDING_SAVE_ERROR_HINT,
-  SCOPE_UNDERSTANDING_SAVING_HINT,
-  SCOPE_UNDERSTANDING_STALE_HINT,
   type DeriveScopeUnderstandingBulletsInput,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import {
   DESIGN_TOKENS,
   OPERATOR_FORM_FIELD_LABEL_CLASS,
-  OPERATOR_FORM_FIELD_STACK_CLASS,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 import { cn } from "@/lib/utils";
 
+import { ArchitectureScopeUnderstandingCheckFields } from "./ArchitectureScopeUnderstandingCheckFields";
+
 export type ArchitectureScopeUnderstandingCheckPanelProps = {
   readonly input: DeriveScopeUnderstandingBulletsInput;
   readonly disabled?: boolean;
+  /** When true, omit the outer callout shell — use inside an existing card. */
+  readonly embedded?: boolean;
   /** Names the field that owns the architecture context text on this surface, for the read-only row hint. */
   readonly contextSourceLabel?: string;
   /** What confirmation unblocks on this surface — starting the review, or continuing the wizard. */
@@ -259,14 +242,6 @@ export function ArchitectureScopeUnderstandingCheckPanel(
     setNewBulletText("");
   };
 
-  const addFieldDescribedBy = (): string | undefined => {
-    if (addErrorMessage !== null) {
-      return "architecture-scope-understanding-add-error";
-    }
-
-    return "architecture-scope-understanding-add-effect";
-  };
-
   const handleNextStepJump = (event: MouseEvent<HTMLAnchorElement>) => {
     const anchorId = props.nextStepAnchorId?.trim() ?? "";
 
@@ -281,10 +256,19 @@ export function ArchitectureScopeUnderstandingCheckPanel(
 
   return (
     <section
-      className={cn(DESIGN_TOKENS.callout.neutral, OPERATOR_LAYOUT.cardPadding, OPERATOR_LAYOUT.sectionStack)}
+      className={cn(
+        props.embedded === true
+          ? OPERATOR_LAYOUT.sectionStack
+          : cn(DESIGN_TOKENS.callout.neutral, OPERATOR_LAYOUT.cardPadding, OPERATOR_LAYOUT.sectionStack),
+      )}
       data-testid="architecture-scope-understanding-check"
-      aria-labelledby="architecture-scope-understanding-brief-label architecture-scope-understanding-heading"
+      aria-labelledby={
+        props.embedded === true
+          ? "architecture-scope-understanding-heading"
+          : "architecture-scope-understanding-brief-label architecture-scope-understanding-heading"
+      }
     >
+      {props.embedded !== true ? (
       <p
         id="architecture-scope-understanding-brief-label"
         className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}
@@ -292,6 +276,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       >
         {SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL}
       </p>
+      ) : null}
       <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h2
           id="architecture-scope-understanding-heading"
@@ -304,199 +289,33 @@ export function ArchitectureScopeUnderstandingCheckPanel(
         </p>
       </div>
 
-      <ul
-        className={cn("m-0 list-none space-y-4 p-0", OPERATOR_TYPOGRAPHY.body)}
-        data-testid="architecture-scope-understanding-bullets"
-      >
-        {bullets.map((bullet) => (
-          <ArchitectureScopeUnderstandingRow
-            key={bullet.id}
-            bullet={bullet}
-            disabled={!editingAllowed}
-            contextSourceLabel={props.contextSourceLabel ?? SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL}
-            onValueChange={handleRowValueChange}
-            onRemove={handleRowRemove}
-          />
-        ))}
-      </ul>
-
-      <div
-        className={OPERATOR_FORM_FIELD_STACK_CLASS}
-        data-testid="architecture-scope-understanding-add"
-      >
-        <Label htmlFor="architecture-scope-understanding-new">
-          {SCOPE_UNDERSTANDING_ADD_LABEL}
-        </Label>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="min-w-[12rem] flex-1">
-            <Input
-              id="architecture-scope-understanding-new"
-              value={newBulletText}
-              disabled={props.disabled === true || confirmed}
-              placeholder={SCOPE_UNDERSTANDING_ADD_PLACEHOLDER}
-              aria-invalid={addErrorMessage !== null}
-              aria-describedby={addFieldDescribedBy()}
-              onChange={(event) => {
-                setNewBulletText(event.target.value);
-              }}
-              onKeyDown={(event) => {
-                if (event.key !== "Enter") {
-                  return;
-                }
-
-                event.preventDefault();
-
-                if (!canAddBullet) {
-                  return;
-                }
-
-                addBulletFromDraft();
-              }}
-            />
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={!canAddBullet}
-            data-testid="architecture-scope-understanding-add-button"
-            onClick={() => {
-              addBulletFromDraft();
-            }}
-          >
-            {SCOPE_UNDERSTANDING_ADD_BUTTON_LABEL}
-          </Button>
-        </div>
-        {addErrorMessage !== null ? (
-          <p
-            id="architecture-scope-understanding-add-error"
-            role="alert"
-            className={cn("m-0 text-red-800 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="architecture-scope-understanding-add-error"
-          >
-            {addErrorMessage}
-          </p>
-        ) : null}
-        <p
-          id="architecture-scope-understanding-add-effect"
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="architecture-scope-understanding-add-effect"
-        >
-          {SCOPE_UNDERSTANDING_ADD_EFFECT_HINT}
-        </p>
-      </div>
-
-      <div className="space-y-3 border-t border-al-border-subtle pt-4">
-      {!confirmed && !canConfirmScope ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          role="status"
-          data-testid="architecture-scope-understanding-confirm-readiness"
-        >
-          {SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT}
-        </p>
-      ) : null}
-
-      {!confirmed && scopeStale ? (
-        <div
-          className={cn(DESIGN_TOKENS.callout.warnShell, "items-start")}
-          role="status"
-          data-testid="architecture-scope-understanding-stale"
-        >
-          <StatusTag kind="needs-attention" label="Re-confirm scope" />
-          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {SCOPE_UNDERSTANDING_STALE_HINT}
-          </p>
-        </div>
-      ) : null}
-
-      {confirmed ? (
-        props.draftSaveState === "error" || scopePersistFailed ? (
-          <div
-            className={cn(DESIGN_TOKENS.callout.blockedShell, "items-start")}
-            role="alert"
-            data-testid="architecture-scope-understanding-save-error"
-          >
-            <StatusTag kind="blocked" label="Save failed" />
-            <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              {SCOPE_UNDERSTANDING_SAVE_ERROR_HINT}
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={props.disabled === true}
-              data-testid="architecture-scope-understanding-edit-scope"
-              onClick={handleEditScope}
-            >
-              {SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL}
-            </Button>
-          </div>
-        ) : (
-          <div
-            className={cn(DESIGN_TOKENS.callout.success, "space-y-2")}
-            role="status"
-            aria-live="polite"
-            data-testid="architecture-scope-understanding-ready"
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <StatusTag kind="ready" label={SCOPE_UNDERSTANDING_CONFIRMED_STATUS_LABEL} />
-              {scopePersistenceInFlight ? <StatusTag kind="in-progress" label="Saving" /> : null}
-            </div>
-            <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              {scopeConfirmedSummaryMessage(confirmedBriefLineCount)}
-            </p>
-            {scopePersistenceInFlight ? (
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="architecture-scope-understanding-saving"
-              >
-                {SCOPE_UNDERSTANDING_SAVING_HINT}
-              </p>
-            ) : props.showReadyHint !== false ? (
-              <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-                {props.readyHint ?? SCOPE_UNDERSTANDING_READY_HINT}
-              </p>
-            ) : null}
-            {props.nextStepAnchorId !== undefined && props.nextStepAnchorId.trim().length > 0 ? (
-              <a
-                href={`#${props.nextStepAnchorId}`}
-                className={OPERATOR_LINK.nav}
-                data-testid="architecture-scope-understanding-next-step"
-                onClick={handleNextStepJump}
-              >
-                {props.nextStepAnchorLabel ?? "Continue"}
-              </a>
-            ) : null}
-            <div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={props.disabled === true}
-                data-testid="architecture-scope-understanding-edit-scope"
-                onClick={handleEditScope}
-              >
-                {SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL}
-              </Button>
-            </div>
-          </div>
-        )
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            disabled={props.disabled === true || !canConfirmScope}
-            data-testid="architecture-scope-understanding-confirm"
-            onClick={handleConfirm}
-          >
-            {SCOPE_UNDERSTANDING_CONFIRM_LABEL}
-          </Button>
-        </div>
-      )}
-      </div>
+      <ArchitectureScopeUnderstandingCheckFields
+        bullets={bullets}
+        disabled={props.disabled}
+        contextSourceLabel={props.contextSourceLabel}
+        readyHint={props.readyHint}
+        showReadyHint={props.showReadyHint}
+        draftSaveState={props.draftSaveState}
+        confirmed={confirmed}
+        scopeStale={scopeStale}
+        scopePersistFailed={scopePersistFailed}
+        editingAllowed={editingAllowed}
+        canConfirmScope={canConfirmScope}
+        confirmedBriefLineCount={confirmedBriefLineCount}
+        scopePersistenceInFlight={scopePersistenceInFlight}
+        newBulletText={newBulletText}
+        canAddBullet={canAddBullet}
+        addErrorMessage={addErrorMessage}
+        nextStepAnchorId={props.nextStepAnchorId}
+        nextStepAnchorLabel={props.nextStepAnchorLabel}
+        onNewBulletTextChange={setNewBulletText}
+        onAddBullet={addBulletFromDraft}
+        onRowValueChange={handleRowValueChange}
+        onRowRemove={handleRowRemove}
+        onConfirm={handleConfirm}
+        onEditScope={handleEditScope}
+        onNextStepJump={handleNextStepJump}
+      />
     </section>
   );
 }

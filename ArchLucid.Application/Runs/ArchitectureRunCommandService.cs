@@ -17,6 +17,7 @@ public sealed class ArchitectureRunCommandService(
     IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator,
     IArchitectureRunBatchCreateOrchestrator architectureRunBatchCreateOrchestrator,
     IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
+    IExecuteEvidenceReadinessGate executeEvidenceReadinessGate,
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     IReplayRunService replayRunService,
     ICommitRunIdempotencyCoordinator commitRunIdempotencyCoordinator,
@@ -34,6 +35,9 @@ public sealed class ArchitectureRunCommandService(
 
     private readonly IArchitectureRunExecuteOrchestrator _architectureRunExecuteOrchestrator =
         architectureRunExecuteOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunExecuteOrchestrator));
+
+    private readonly IExecuteEvidenceReadinessGate _executeEvidenceReadinessGate =
+        executeEvidenceReadinessGate ?? throw new ArgumentNullException(nameof(executeEvidenceReadinessGate));
 
     private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator =
         architectureRunCommitOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
@@ -102,8 +106,12 @@ public sealed class ArchitectureRunCommandService(
             cancellationToken);
     }
 
-    public Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default) =>
-        _architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken);
+    public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
+    {
+        await _executeEvidenceReadinessGate.EnsureReadyAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        return await _architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken).ConfigureAwait(false);
+    }
 
     public async Task<ExecuteRunResult> ExecuteRunSelectiveAsync(
         string runId,

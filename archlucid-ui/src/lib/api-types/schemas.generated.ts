@@ -9365,6 +9365,12 @@ export interface components {
             attestedRevenueOrRetentionImpact?: null | string;
             attestedReviewerTimeSavedNote?: null | string;
         };
+        UpsertWizardIntakeDraftRequest: {
+            idempotencyKey?: null | string;
+            stateJson?: string;
+            /** Format: int32 */
+            stepIndex?: number;
+        };
         /** @enum {string} */
         UsageMeterKind: "LlmPromptTokens" | "LlmCompletionTokens" | "ApiRequest" | "ArchitectureRun" | "ArtifactStorageBytes" | "AgentExecution";
         UserInvitationListResponse: {
@@ -9459,6 +9465,14 @@ export interface components {
             /** Format: int64 */
             runsCreatedTotal?: number;
         };
+        WizardIntakeDraftResponse: {
+            stateJson?: string;
+            /** Format: int32 */
+            stepIndex?: number;
+            /** Format: date-time */
+            updatedUtc?: string;
+            wizardId?: string;
+        };
         WorkspaceAiAvailabilityCheckRow: {
             detail?: string;
             name?: string;
@@ -9496,6 +9510,13 @@ export interface components {
         WorkspaceModelExecutionProfileUpdateRequest: {
             profile?: string;
         };
+        WorkspaceSystemNameAvailabilityResponse: {
+            conflictMessage?: null | string;
+            isAvailable?: boolean;
+            systemName?: string;
+        };
+        /** @enum {string} */
+        WorkspaceSystemNameOccupancyKind: "Review" | "Architecture";
     };
     responses: never;
     parameters: never;

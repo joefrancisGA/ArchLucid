@@ -5,11 +5,15 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.Runs.Query;
 
 /// <inheritdoc cref="IRunLifecycleCommandService"/>
-public sealed class RunLifecycleCommandService(IArchitectureRunCommandService architectureRunCommandService)
-    : IRunLifecycleCommandService
+public sealed class RunLifecycleCommandService(
+    IArchitectureRunCommandService architectureRunCommandService,
+    ArchitectureRunCreateIdempotencyHelper createIdempotencyHelper) : IRunLifecycleCommandService
 {
     private readonly IArchitectureRunCommandService _architectureRunCommandService =
         architectureRunCommandService ?? throw new ArgumentNullException(nameof(architectureRunCommandService));
+
+    private readonly ArchitectureRunCreateIdempotencyHelper _createIdempotencyHelper =
+        createIdempotencyHelper ?? throw new ArgumentNullException(nameof(createIdempotencyHelper));
 
     public IdempotencyKeyValidationResult ValidateIdempotencyKey(string? rawHeaderValue)
     {
@@ -73,4 +77,10 @@ public sealed class RunLifecycleCommandService(IArchitectureRunCommandService ar
             commitReplay,
             manifestVersionOverride,
             cancellationToken);
+
+    public Task<CreateRunResult?> LookupCreateRunByIdempotencyKeyAsync(
+        ScopeContext scope,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default) =>
+        _createIdempotencyHelper.TryLookupByIdempotencyKeyAsync(scope, idempotencyKey, cancellationToken);
 }

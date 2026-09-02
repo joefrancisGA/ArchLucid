@@ -8,6 +8,7 @@ import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
+  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
@@ -52,6 +53,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/insights/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/architecture/architecture-intelligence": "Architecture intelligence",
   [GOVERNANCE_APPROVAL_QUEUE_PATH]: GOVERNANCE_OVERVIEW_PAGE_TITLE,
+  [GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH]: OPERATOR_NAV_LINK_LABELS.needsAttentionInbox,
   [WORKSPACE_HEALTH_PATH]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
   "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
   "/governance/findings/assigned-to-me": OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,

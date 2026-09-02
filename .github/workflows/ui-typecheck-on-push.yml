@@ -1,4 +1,5 @@
-# Thin master/main push corset — gitleaks, dotnet build + Core/Decisioning fast-core tests, UI typecheck (WK-11).
+# Thin master/main push corset — gitleaks, OpenAPI v1 snapshot, dotnet build + Core/Decisioning
+# fast-core tests, UI typecheck, beta-readiness guards (WK-11 / WK-09).
 # Full CI matrix remains pull_request + workflow_dispatch in ci.yml.
 name: UI typecheck on push
 
@@ -48,6 +49,37 @@ jobs:
       - name: Build Active solution and run Core/Decisioning fast-core tests
         run: bash scripts/ci/run_push_corset_dotnet.sh
 
+  openapi-contract-snapshot:
+    name: ".NET: OpenAPI v1 contract snapshot (fail-fast)"
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Build + OpenAPI contract snapshot tests (v1 + buyer)
+        env:
+          ARCHLUCID_OPENAPI_SNAPSHOT_ARTIFACT_PATH: ${{ runner.temp }}/openapi-contract/openapi-v1.generated.canonical.json
+        run: bash scripts/ci/check_openapi_contract_snapshot.sh
+
+      - name: Upload generated OpenAPI contract artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: openapi-v1-generated-canonical-push
+          path: ${{ runner.temp }}/openapi-contract/openapi-v1.generated.canonical.json
+          if-no-files-found: warn
+          retention-days: 14
+
   beta-readiness-guards:
     name: "CI: beta-readiness wiring guards"
     needs: gitleaks
@@ -60,6 +92,7 @@ jobs:
         run: |
           python3 scripts/ci/check_sponsor_export_execution_mode_label.py
           python3 scripts/ci/check_live_api_private_beta_access_ci_wiring.py
+          python3 scripts/ci/check_push_corset_openapi_snapshot.py
           python3 scripts/ci/check_release_gate_playwright_wiring.py
           python3 scripts/ci/check_insight_density_advisory_surfaces.py
           python3 scripts/ci/check_policy_pack_finding_delta_offline_packet.py
@@ -68,6 +101,7 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_sponsor_export_execution_mode_label.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_live_api_private_beta_access_ci_wiring.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_push_corset_openapi_snapshot.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_release_gate_playwright_wiring.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_insight_density_advisory_surfaces.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_golden_cohort_gate_ruleset_batch.py"

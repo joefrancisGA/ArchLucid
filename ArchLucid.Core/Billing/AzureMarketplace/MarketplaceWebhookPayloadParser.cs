@@ -28,7 +28,7 @@ public static class MarketplaceWebhookPayloadParser
         return nameof(TenantTier.Standard);
     }
 
-    /// <summary>Reads <c>planId</c> when present (string).</summary>
+    /// <summary>Reads <c>planId</c> when present (string or number, coerced to invariant string).</summary>
     public static bool TryGetPlanId(JsonElement root, out string? planId)
     {
         planId = null;
@@ -50,6 +50,20 @@ public static class MarketplaceWebhookPayloadParser
         {
             if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
                 continue;
+
+            if (property.Value.ValueKind == JsonValueKind.Number)
+            {
+                value = property.Value.GetRawText();
+
+                return true;
+            }
+
+            if (property.Value.ValueKind != JsonValueKind.String)
+            {
+                value = null;
+
+                return false;
+            }
 
             value = property.Value.GetString();
 

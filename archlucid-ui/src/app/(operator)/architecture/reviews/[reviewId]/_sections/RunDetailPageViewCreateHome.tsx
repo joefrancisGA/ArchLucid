@@ -16,7 +16,6 @@ import {
   RunDetailSubmittedArchitectureSectionDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailWorkspaceDisclosureControls } from "./RunDetailWorkspaceShell";
-import { ReviewPackageAfterFinalizeNextStepsStrip } from "./ReviewPackageAfterFinalizeNextStepsStrip";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import { RunDetailExplanationSkeleton, RunDetailMidDeferredSkeleton } from "./RunDetailDeferredSkeleton";
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
@@ -93,9 +92,6 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         requestAssumptionTexts={requestAssumptionTexts}
         {...reviewPackageDoThisNextEvidenceProps}
       />
-      {m.manifestId ? (
-        <ReviewPackageAfterFinalizeNextStepsStrip runId={m.resolvedDetail.run.runId} />
-      ) : null}
       <RunDetailWorkspaceDisclosureControls />
       <Suspense fallback={<RunDetailExplanationSkeleton />}>
         <RunDetailArchitectureCreatedWorkspaceDeferred

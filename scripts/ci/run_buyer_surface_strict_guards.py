@@ -417,6 +417,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "push-corset OpenAPI contract snapshot wiring",
+        ("python", "scripts/ci/check_push_corset_openapi_snapshot.py"),
+        None,
+    ),
+    GuardCommand(
         "insight-density advisory surfaces",
         ("python", "scripts/ci/check_insight_density_advisory_surfaces.py"),
         None,

@@ -1,7 +1,5 @@
 using System.Data;
 
-using ArchLucid.Persistence.RelationalRead;
-
 namespace ArchLucid.Persistence.Repositories;
 
 public sealed partial class SqlArtifactBundleRepository
@@ -20,61 +18,50 @@ public sealed partial class SqlArtifactBundleRepository
         ArgumentNullException.ThrowIfNull(connection);
 
         Guid bundleId = bundle.BundleId;
+        object countParam = new { BundleId = bundleId };
 
-        int artifactRowCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int artifactRowCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleArtifacts WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId
-            },
+            countParam,
             ct);
 
-        int genCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int genCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceGenerators WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId
-            },
+            countParam,
             ct);
 
-        int traceDecCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int traceDecCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceDecisionLinks WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId
-            },
+            countParam,
             ct);
 
-        int notesCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int notesCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceNotes WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId
-            },
+            countParam,
             ct);
 
-        if (artifactRowCount == 0 && bundle.Artifacts.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(artifactRowCount, bundle.Artifacts.Count))
         {
             await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct);
             await InsertArtifactBundleTraceRelationalAsync(bundle, connection, transaction, ct);
             return;
         }
 
-        if (genCount == 0 && bundle.Trace.GeneratorsUsed.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(genCount, bundle.Trace.GeneratorsUsed.Count))
             await InsertArtifactBundleTraceGeneratorsRelationalAsync(bundle, connection, transaction, ct);
 
-        if (traceDecCount == 0 && bundle.Trace.SourceDecisionIds.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(traceDecCount, bundle.Trace.SourceDecisionIds.Count))
             await InsertArtifactBundleTraceDecisionLinksRelationalAsync(bundle, connection, transaction, ct);
 
-        if (notesCount == 0 && bundle.Trace.Notes.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(notesCount, bundle.Trace.Notes.Count))
             await InsertArtifactBundleTraceNotesRelationalAsync(bundle, connection, transaction, ct);
     }
 }

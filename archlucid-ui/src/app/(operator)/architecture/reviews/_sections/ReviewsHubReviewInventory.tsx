@@ -12,7 +12,7 @@ import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
@@ -25,14 +25,12 @@ import {
   shouldShowWorkspaceScopeEmptyTeaching,
 } from "@/lib/workspace-scope-empty-teaching";
 import type { RunSummary } from "@/types/authority";
-import { cn } from "@/lib/utils";
 
 import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import {
-  REVIEWS_HUB_FILTER_MORE_LABEL,
-  REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_PAGE_TITLE,
+  REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
@@ -45,8 +43,7 @@ import {
   matchesFilter,
   matchesSearch,
   mergeRunsWithArchivedCache,
-  MORE_FILTER_OPTIONS,
-  PRIMARY_FILTER_OPTIONS,
+  INVENTORY_FILTER_OPTIONS,
   sortRunsForInventory,
   type ReviewFilterId,
 } from "./reviews-hub-inventory-filters";
@@ -115,7 +112,6 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   );
   const draftCount = draftEntries.length;
   const hasDrafts = draftCount > 0;
-  const moreFilterSelected = MORE_FILTER_OPTIONS.some((option) => option.id === activeFilter);
 
   const visibilityFilteredRuns = useMemo(() => {
     if (activeFilter === "Archived") {
@@ -203,7 +199,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             </div>
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2" data-testid="reviews-hub-filters">
               <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter reviews">
-                {PRIMARY_FILTER_OPTIONS.map((option) => (
+                {INVENTORY_FILTER_OPTIONS.map((option) => (
                   <ReviewFilterChip
                     key={option.id}
                     option={option}
@@ -212,27 +208,6 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                   />
                 ))}
               </div>
-              <details
-                className="m-0"
-                data-testid="reviews-hub-more-filters"
-                open={moreFilterSelected}
-              >
-                <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {REVIEWS_HUB_FILTER_MORE_LABEL}
-                </summary>
-                <div className="mt-2 flex flex-col gap-2">
-                  <div className="flex flex-wrap gap-1.5" role="group" aria-label={REVIEWS_HUB_FILTER_MORE_LABEL}>
-                    {MORE_FILTER_OPTIONS.map((option) => (
-                      <ReviewFilterChip
-                        key={option.id}
-                        option={option}
-                        selected={activeFilter === option.id}
-                        onSelect={setActiveFilter}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </details>
             </div>
           </div>
 

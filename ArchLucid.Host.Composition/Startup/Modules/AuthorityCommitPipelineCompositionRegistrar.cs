@@ -47,6 +47,7 @@ internal static class AuthorityCommitPipelineCompositionRegistrar
         services.Configure<ArchitectureRunCreateOptions>(
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
+        services.AddScoped<PreFinalizeExecuteBaselineDriftEvaluator>();
         services.AddScoped<IPreFinalizeChecklistService, PreFinalizeChecklistService>();
         services.AddScoped<IFindingMergeConflictResolutionService, FindingMergeConflictResolutionService>();
         services.AddScoped<ITechnologyConsistencyFindingEngine, TechnologyConsistencyFindingEngine>();
