@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -8,17 +8,14 @@ import {
   GovernanceFindingsAssignedToMeHeaderMetadata,
   GovernanceFindingsAssignedToMeStatusBadge,
 } from "@/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeChrome";
-import { GovernanceFindingsQueueAssignedToMeShell } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 import { GovernanceFindingsQueueHeader } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueHeader";
+import { GovernanceFindingsQueueTableShell } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueTableShell";
 import { useGovernanceFindingsQueueMode } from "@/app/(operator)/governance/findings/use-governance-findings-queue-mode";
+import { useGovernanceFindingsQueueSavedViews } from "@/app/(operator)/governance/findings/use-governance-findings-queue-saved-views";
+import { useGovernanceFindingsQueueTriageTargets } from "@/app/(operator)/governance/findings/use-governance-findings-queue-triage-targets";
 import { useGovernanceFindingsSponsorSynopsis } from "@/app/(operator)/governance/findings/use-governance-findings-sponsor-synopsis";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import {
-  applyFindingsSavedViewFilters,
-} from "@/components/governance/findings/GovernanceFindingsSavedViewsBar";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
-import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
-import type { FindingsSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
 import { useRunDetailWorkspaceContextBundleQuery } from "@/hooks/use-run-detail-workspace-context-bundle-query";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
@@ -26,35 +23,23 @@ import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthor
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { hasGovernanceApprovalProvenance } from "@/lib/governance/governance-approval-provenance";
 import { resolveGovernanceAssignedToMeWorkspaceLabel } from "@/lib/governance/governance-assigned-to-me-empty-state";
-import {
-  resolveFindingsQueueTriageEmphasizedStepId,
-  resolveFindingsQueueTriageSteps,
-} from "@/lib/findings-queue-triage-checklist";
 import { useGovernanceFindingsQueueFacets } from "@/app/(operator)/governance/findings/use-governance-findings-queue-facets";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
-import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import {
   DEFAULT_FINDING_JOB_VIEW,
   resolveEffectiveFindingJobView,
 } from "@/lib/findings/finding-job-view";
 import {
-  EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
-} from "@/lib/findings/findings-natural-language-filter";
-import {
   computeGovernanceFindingsRegisterSummary,
   deriveGovernanceFindingsActiveFiltersSummary,
-  extractGovernanceFindingIds,
   filterGovernanceFindingsDisplayedRows,
   filterGovernanceFindingsScopedRows,
-  resolveAssignedToMeOldestFindingTarget,
-  resolveContinueLastFindingTarget,
-  resolveFirstFindingTriageTarget,
   resolveGovernanceFindingsFilterNoMatchPreset,
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
-import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
+import { parseGovernanceFindingsSearchQuery } from "@/lib/governance/governance-findings-queue-search";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -165,108 +150,47 @@ export default function GovernanceFindingsQueueClient({
     () => computeGovernanceFindingsRegisterSummary(scopedRows),
     [scopedRows],
   );
-  const findingIds = useMemo(() => extractGovernanceFindingIds(displayedRows), [displayedRows]);
-  usePrefetchItsmFindingCorrelations(findingIds);
+
+  const {
+    onPickReviewForTriage,
+    firstFindingTriageTarget,
+    continueLastFinding,
+    findingsQueueTriageSteps,
+    findingsQueueTriageEmphasizedStepId,
+    assignedToMeOldestFindingTarget,
+  } = useGovernanceFindingsQueueTriageTargets({
+    displayedRows,
+    rows,
+    scopedRunId,
+    scopedRunFilterActive,
+    isAssignedToMe,
+    searchParams,
+    navHref,
+    router,
+  });
 
   const sponsorSynopsis = useGovernanceFindingsSponsorSynopsis({
     displayedRows,
     scopedRunId,
   });
 
-  const clearAllFilters = useCallback((): void => {
-    setRegisterFilter("all");
-    clearFacetFilters();
-    router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
-  }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
-
-  const dismissActiveFilterChip = useCallback(
-    (chipId: string): void => {
-      if (chipId === "search-query") {
-        router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
-        return;
-      }
-
-      if (chipId.startsWith("register-")) {
-        setRegisterFilter("all");
-        return;
-      }
-
-      if (chipId.startsWith("job-view-")) {
-        setJobView(DEFAULT_FINDING_JOB_VIEW);
-        return;
-      }
-
-      if (chipId === "nl-facets") {
-        setNlFacets(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
-        patchGovernanceFindingsQueueFacets({ nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS }, mode);
-      }
-    },
-    [mode, navHref, router, searchParams, setJobView, setNlFacets, setRegisterFilter],
-  );
-
-  const onPickReviewForTriage = useCallback(
-    (reviewId: string) => {
-      const trimmed = reviewId.trim();
-
-      if (trimmed.length === 0) {
-        return;
-      }
-
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("runId", trimmed);
-      router.replace(`${navHref}?${params.toString()}`, { scroll: false });
-    },
-    [navHref, router, searchParams],
-  );
+  const { clearAllFilters, dismissActiveFilterChip, onLoadFindingsSavedView } =
+    useGovernanceFindingsQueueSavedViews({
+      mode,
+      navHref,
+      searchParams,
+      router,
+      setRegisterFilter,
+      setJobView,
+      setNlFacets,
+      applyGroupByResource,
+      onPickReviewForTriage,
+      clearFacetFilters,
+    });
 
   const filterNoMatchPreset = resolveGovernanceFindingsFilterNoMatchPreset(isAssignedToMe);
   const secondaryViewPresentation =
     displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
-  const firstFindingTriageTarget = useMemo(
-    () =>
-      resolveFirstFindingTriageTarget(
-        displayedRows,
-        isAssignedToMe,
-        scopedRunFilterActive ? scopedRunId : null,
-      ),
-    [displayedRows, isAssignedToMe, scopedRunFilterActive, scopedRunId],
-  );
-  const continueLastFinding = useMemo(
-    () =>
-      resolveContinueLastFindingTarget(
-        displayedRows,
-        scopedRunFilterActive ? scopedRunId : null,
-      ),
-    [displayedRows, scopedRunFilterActive, scopedRunId],
-  );
-  const findingsQueueTriageSteps = useMemo(
-    () =>
-      resolveFindingsQueueTriageSteps({
-        reviewPicked: scopedRunFilterActive,
-        findingOpened: continueLastFinding !== null,
-        dispositionRecorded: displayedRows.some(
-          (row) =>
-            row.recordKind === "finding" && (row.latestDisposition?.trim() ?? "").length > 0,
-        ),
-      }),
-    [continueLastFinding, displayedRows, scopedRunFilterActive],
-  );
-  const findingsQueueTriageEmphasizedStepId = useMemo(
-    () =>
-      resolveFindingsQueueTriageEmphasizedStepId({
-        reviewPicked: scopedRunFilterActive,
-        findingOpened: continueLastFinding !== null,
-        dispositionRecorded: displayedRows.some(
-          (row) =>
-            row.recordKind === "finding" && (row.latestDisposition?.trim() ?? "").length > 0,
-        ),
-      }),
-    [continueLastFinding, displayedRows, scopedRunFilterActive],
-  );
-  const assignedToMeOldestFindingTarget = useMemo(
-    () => resolveAssignedToMeOldestFindingTarget(rows, isAssignedToMe),
-    [isAssignedToMe, rows],
-  );
   const governanceApprovalProvenance = null;
   const showGovernanceApprovalBanner =
     buyerPolishedShell &&
@@ -283,23 +207,6 @@ export default function GovernanceFindingsQueueClient({
         findingsSearchQuery,
       ),
     [registerFilter, jobView, nlFacets, jobViewFilterActive, findingsSearchQuery],
-  );
-
-  const onLoadFindingsSavedView = useCallback(
-    (view: OperatorSavedView) => {
-      const filters = view.payload.filters as FindingsSavedViewFilters;
-      const applied = applyFindingsSavedViewFilters(filters);
-
-      setRegisterFilter(applied.registerFilter);
-      setJobView(applied.jobView);
-      setNlFacets(applied.nlFacets);
-      applyGroupByResource(applied.groupByResource);
-
-      if (applied.scopedRunId !== null && applied.scopedRunId.trim().length > 0) {
-        onPickReviewForTriage(applied.scopedRunId);
-      }
-    },
-    [applyGroupByResource, onPickReviewForTriage, setJobView, setNlFacets, setRegisterFilter],
   );
 
   return (
@@ -345,7 +252,7 @@ export default function GovernanceFindingsQueueClient({
         loading={loading}
         currentJobId={currentJobId}
       />
-      <GovernanceFindingsQueueAssignedToMeShell
+      <GovernanceFindingsQueueTableShell
         isAssignedToMe={isAssignedToMe}
         mode={mode}
         buyerPolishedShell={buyerPolishedShell}

@@ -15,15 +15,8 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
         ArgumentNullException.ThrowIfNull(usageEvent);
         _ = ct;
 
-        if (!string.IsNullOrWhiteSpace(usageEvent.IdempotencyKey))
-        {
-            bool duplicate = _events.Any(e =>
-                e.TenantId == usageEvent.TenantId
-                && string.Equals(e.IdempotencyKey, usageEvent.IdempotencyKey, StringComparison.Ordinal));
-
-            if (duplicate)
-                return Task.CompletedTask;
-        }
+        if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
+            return Task.CompletedTask;
 
         _events.Add(usageEvent);
 
@@ -37,15 +30,8 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
 
         foreach (UsageEvent usageEvent in events)
         {
-            if (!string.IsNullOrWhiteSpace(usageEvent.IdempotencyKey))
-            {
-                bool duplicate = _events.Any(e =>
-                    e.TenantId == usageEvent.TenantId
-                    && string.Equals(e.IdempotencyKey, usageEvent.IdempotencyKey, StringComparison.Ordinal));
-
-                if (duplicate)
-                    continue;
-            }
+            if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
+                continue;
 
             _events.Add(usageEvent);
         }
@@ -61,20 +47,10 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
     {
         _ = ct;
 
-        List<TenantUsageSummary> summaries = _events
-            .Where(e => e.TenantId == tenantId && e.RecordedUtc >= periodStart && e.RecordedUtc < periodEnd)
-            .GroupBy(e => e.Kind)
-            .Select(g => new TenantUsageSummary
-            {
-                TenantId = tenantId,
-                Kind = g.Key,
-                TotalQuantity = g.Sum(static x => x.Quantity),
-                PeriodStartUtc = periodStart,
-                PeriodEndUtc = periodEnd
-            })
-            .ToList();
+        IReadOnlyList<TenantUsageSummary> summaries =
+            UsageEventRepositoryCore.AggregateByKind(_events, tenantId, periodStart, periodEnd);
 
-        return Task.FromResult<IReadOnlyList<TenantUsageSummary>>(summaries);
+        return Task.FromResult(summaries);
     }
 
     public Task<IReadOnlyList<UsageEvent>> ListAsync(
@@ -87,14 +63,13 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
     {
         _ = ct;
 
-        IEnumerable<UsageEvent> q = _events.Where(e =>
-            e.TenantId == tenantId && e.RecordedUtc >= periodStart && e.RecordedUtc < periodEnd);
-
-        if (kindFilter.HasValue)
-            q = q.Where(e => e.Kind == kindFilter.Value);
-
-        IReadOnlyList<UsageEvent> list = q.OrderByDescending(static e => e.RecordedUtc).Take(Math.Max(1, take))
-            .ToList();
+        IReadOnlyList<UsageEvent> list = UsageEventRepositoryCore.ListInPeriod(
+            _events,
+            tenantId,
+            periodStart,
+            periodEnd,
+            kindFilter,
+            take);
 
         return Task.FromResult(list);
     }

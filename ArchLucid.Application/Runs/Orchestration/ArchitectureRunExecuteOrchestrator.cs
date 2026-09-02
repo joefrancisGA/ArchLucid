@@ -1,45 +1,18 @@
-using System.Diagnostics;
-
-using ArchLucid.Application.Agents.Evidence;
-using ArchLucid.Application.AiUsage;
-using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Common;
-using ArchLucid.Application.Decisions;
-using ArchLucid.Application.Diagnostics;
-using ArchLucid.Application.Evidence;
-using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration.Execute;
-using ArchLucid.Application.Operations;
-using ArchLucid.Core.Budgeting;
-using ArchLucid.Core.Evidence;
-using ArchLucid.Core.Governance.PolicyPacks;
-using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
-using ArchLucid.Core.AiUsage;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.DevTesting;
-using ArchLucid.Core.Integration;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
-using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Serialization;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Runs.Orchestration;
@@ -55,15 +28,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IBaselineMutationAuditService baselineMutationAudit,
     ArchitectureRunExecutePostExecuteHooks postExecuteHooks,
     IOptions<AgentExecutionOptions> agentExecutionOptions,
-    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
-    IRunStateTransitionService runStateTransitionService,
-    DemoExpensiveActionGate demoExpensiveActionGate,
     IRunExecuteOwnershipLeaseService runExecuteOwnershipLeaseService,
-    IRunStageOutcomesRepository runStageOutcomesRepository,
-    IAgentExecutionReadinessGuard agentExecutionReadinessGuard,
     IArchitectureRunExecutePreExecuteStage preExecuteStage,
     IArchitectureRunExecuteAgentLoopStage agentLoopStage,
-    ILogger<ArchitectureRunExecuteOrchestrator> logger,
+    IArchitectureRunExecuteScopeResolveStage scopeResolveStage,
+    IArchitectureRunExecuteTelemetryStage telemetryStage,
+    IArchitectureRunExecuteTailHooksStage tailHooksStage,
     IIncompleteAuthorityPipelineExecuteHandler incompleteAuthorityPipelineExecuteHandler)
     : IArchitectureRunExecuteOrchestrator
 {
@@ -75,12 +45,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly IOptions<AgentExecutionOptions> _agentExecutionOptions =
         agentExecutionOptions ?? throw new ArgumentNullException(nameof(agentExecutionOptions));
 
-    private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
-        effectiveAgentExecutionModeAccessor ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
-
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
 
-    private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly IIncompleteAuthorityPipelineExecuteHandler _incompleteAuthorityPipelineExecuteHandler =
         incompleteAuthorityPipelineExecuteHandler
@@ -93,26 +59,23 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly IBaselineMutationAuditService _baselineMutationAudit =
         baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
 
-    private readonly IRunStateTransitionService _runStateTransitionService =
-        runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
-
-    private readonly DemoExpensiveActionGate _demoExpensiveActionGate =
-        demoExpensiveActionGate ?? throw new ArgumentNullException(nameof(demoExpensiveActionGate));
-
     private readonly IRunExecuteOwnershipLeaseService _runExecuteOwnershipLeaseService =
         runExecuteOwnershipLeaseService ?? throw new ArgumentNullException(nameof(runExecuteOwnershipLeaseService));
-
-    private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
-        runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
-
-    private readonly IAgentExecutionReadinessGuard _agentExecutionReadinessGuard =
-        agentExecutionReadinessGuard ?? throw new ArgumentNullException(nameof(agentExecutionReadinessGuard));
 
     private readonly IArchitectureRunExecutePreExecuteStage _preExecuteStage =
         preExecuteStage ?? throw new ArgumentNullException(nameof(preExecuteStage));
 
     private readonly IArchitectureRunExecuteAgentLoopStage _agentLoopStage =
         agentLoopStage ?? throw new ArgumentNullException(nameof(agentLoopStage));
+
+    private readonly IArchitectureRunExecuteScopeResolveStage _scopeResolveStage =
+        scopeResolveStage ?? throw new ArgumentNullException(nameof(scopeResolveStage));
+
+    private readonly IArchitectureRunExecuteTelemetryStage _telemetryStage =
+        telemetryStage ?? throw new ArgumentNullException(nameof(telemetryStage));
+
+    private readonly IArchitectureRunExecuteTailHooksStage _tailHooksStage =
+        tailHooksStage ?? throw new ArgumentNullException(nameof(tailHooksStage));
 
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -129,12 +92,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             postExecuteHooks,
             agentExecutionOptions,
             preExecuteStage,
-            agentLoopStage,
-            logger);
+            agentLoopStage);
         string actor = actorContext.GetActor();
         try
         {
-            if (TryParseRunGuid(runId, out Guid runGuid) && _runExecuteOwnershipLeaseService.IsEnabled)
+            if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid runGuid) && _runExecuteOwnershipLeaseService.IsEnabled)
             {
                 await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
 
@@ -178,8 +140,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             postExecuteHooks,
             agentExecutionOptions,
             preExecuteStage,
-            agentLoopStage,
-            logger);
+            agentLoopStage);
 
         string actor = actorContext.GetActor();
         ArchitectureRun? run =
@@ -193,7 +154,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (run is null)
             throw new RunNotFoundException(runId);
 
-        await ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
+        await _scopeResolveStage.ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
 
         if (run.Status is ArchitectureRunStatus.Committed)
         {
@@ -236,8 +197,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ArchitectureRunExecutePostExecuteHooks postExecuteHooks,
         IOptions<AgentExecutionOptions> agentExecutionOptions,
         IArchitectureRunExecutePreExecuteStage preExecuteStage,
-        IArchitectureRunExecuteAgentLoopStage agentLoopStage,
-        ILogger<ArchitectureRunExecuteOrchestrator> logger)
+        IArchitectureRunExecuteAgentLoopStage agentLoopStage)
     {
         ArgumentNullException.ThrowIfNull(runRepository);
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
@@ -250,43 +210,15 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ArgumentNullException.ThrowIfNull(agentExecutionOptions);
         ArgumentNullException.ThrowIfNull(preExecuteStage);
         ArgumentNullException.ThrowIfNull(agentLoopStage);
-        ArgumentNullException.ThrowIfNull(logger);
     }
 
-    private async Task<ExecuteRunResult> ExecuteRunCoreAsync(string runId, string actor, CancellationToken cancellationToken)
-    {
-        string executionModeLabel =
-            AgentOutputQualityGateTelemetry.ResolveExecutionModeLabel(EffectiveAgentExecutionOptions().Mode);
-
-        using Activity? runActivity = ArchLucidInstrumentation.AgentExecution.StartActivity("architecture.run.execute");
-        runActivity?.SetTag("archlucid.run_id", runId);
-        runActivity?.SetTag("archlucid.execution_mode", executionModeLabel);
-
-        if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Executing architecture run: RunId={RunId}", LogSanitizer.Sanitize(runId));
-
-        try
-        {
-            return await ExecuteRunCoreInnerAsync(runId, actor, cancellationToken);
-        }
-        catch (OperationCooperativeCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            runActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-            runActivity?.AddException(ex);
-
-            if (ex is not RunCostBudgetExceededPartialPersistRecordedException
-                and not AgentOutputQualityGateRejectedException)
-            {
-                await _postExecuteHooks.RecordExecuteRunFailureAsync(runId, actor, ex, cancellationToken);
-            }
-
-            throw;
-        }
-    }
+    private Task<ExecuteRunResult> ExecuteRunCoreAsync(string runId, string actor, CancellationToken cancellationToken) =>
+        _telemetryStage.ExecuteWithTelemetryAsync(
+            runId,
+            actor,
+            ct => ExecuteRunCoreInnerAsync(runId, actor, ct),
+            _tailHooksStage.RecordExecuteRunFailureAsync,
+            cancellationToken);
 
     private async Task<ExecuteRunResult> ExecuteRunCoreInnerAsync(string runId, string actor, CancellationToken cancellationToken)
     {
@@ -296,9 +228,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (run is null)
             throw new RunNotFoundException(runId);
 
-        await ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
+        await _scopeResolveStage.ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
 
-        await _postExecuteHooks.LogFailedRunRetryRequestedAsync(run, runId, actor, cancellationToken);
+        await _tailHooksStage.LogFailedRunRetryRequestedAsync(run, runId, actor, cancellationToken);
 
         ExecuteRunResult? resumed =
             await _incompleteAuthorityPipelineExecuteHandler.TryResumeAsync(run, runId, cancellationToken);
@@ -311,66 +243,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (idempotent is not null)
             return idempotent;
 
-        Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
-
-        await _demoExpensiveActionGate
-            .EnsureExpensiveActionAllowedAsync(tenantId, AiUsageFeature.ArchitectureGeneration, cancellationToken)
-            .ConfigureAwait(false);
-
-        await _agentExecutionReadinessGuard.EnsureReadyForExecuteAsync(cancellationToken).ConfigureAwait(false);
-
-        await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunStarted, actor, runId, null, cancellationToken);
+        await _tailHooksStage.EnsurePreAgentLoopExecuteAllowedAsync(runId, actor, cancellationToken);
 
         return await _agentLoopStage.ExecuteRunAgentBatchAsync(run, runId, actor, cancellationToken);
-    }
-
-    private static bool TryParseRunGuid(string runId, out Guid runGuid)
-    {
-        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
-    }
-
-    /// <summary>
-    ///     TB-1007 / EK-07: refuse execute when the authority pipeline is complete, not only
-    ///     origin or golden-manifest heuristics.
-    /// </summary>
-    private async Task ThrowIfAuthorityPipelineCompleteAsync(
-        ArchitectureRun run,
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(run);
-
-        if (!TryParseRunGuid(runId, out Guid runGuid))
-            return;
-
-        IReadOnlyList<StageTimelineSummary> stages =
-            await _runStageOutcomesRepository.ListByRunIdAsync(runGuid, cancellationToken);
-
-        if (!RunKernelCompleteness.IsAuthorityPipelineComplete(run.GoldenManifestId, manifest: null, stages))
-            return;
-
-        if (run.Status is ArchitectureRunStatus.Committed)
-        {
-            throw new ConflictException(
-                $"Run '{runId}' is authority-pipeline complete and cannot be executed via the agent-task loop.");
-        }
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentResult> results =
-            await _resultRepository.GetByRunIdAsync(scope, runId, cancellationToken, null, null);
-
-        if (RunKernelCompleteness.IsAgentTaskLoopComplete(_runStateTransitionService, run.Status, results))
-        {
-            throw new ConflictException(
-                $"Run '{runId}' is authority-pipeline complete and cannot be executed via the agent-task loop.");
-        }
-    }
-
-    private AgentExecutionOptions EffectiveAgentExecutionOptions()
-    {
-        return new AgentExecutionOptions
-        {
-            Mode = _effectiveAgentExecutionModeAccessor.GetEffectiveMode(),
-        };
     }
 }

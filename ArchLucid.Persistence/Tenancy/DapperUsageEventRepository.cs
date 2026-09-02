@@ -46,7 +46,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
         if (events.Count == 0)
             return;
 
-        List<UsageEvent> eventsToInsert = SelectDistinctIdempotencyKeysForBatchInsert(events);
+        List<UsageEvent> eventsToInsert = UsageEventRepositoryCore.SelectDistinctIdempotencyKeysForBatchInsert(events);
 
         if (eventsToInsert.Count == 0)
             return;
@@ -126,6 +126,8 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
+        int effectiveTake = UsageEventRepositoryCore.ClampListTake(take);
+
         string sql = """
                      SELECT TOP (@Take) Id, TenantId, WorkspaceId, ProjectId, Kind, Quantity, RecordedUtc, CorrelationId, IdempotencyKey
                      FROM dbo.UsageEvents
@@ -141,7 +143,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
             sql += " AND Kind = @Kind ";
             parameters = new
             {
-                Take = take,
+                Take = effectiveTake,
                 TenantId = tenantId,
                 PeriodStart = periodStart,
                 PeriodEnd = periodEnd,
@@ -150,7 +152,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
         }
         else
 
-            parameters = new { Take = take, TenantId = tenantId, PeriodStart = periodStart, PeriodEnd = periodEnd };
+            parameters = new { Take = effectiveTake, TenantId = tenantId, PeriodStart = periodStart, PeriodEnd = periodEnd };
 
         sql += " ORDER BY RecordedUtc DESC;";
 
@@ -158,27 +160,6 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
             new CommandDefinition(sql, parameters, cancellationToken: ct));
 
         return rows.Select(static r => r.ToUsageEvent()).ToList();
-    }
-
-    private static List<UsageEvent> SelectDistinctIdempotencyKeysForBatchInsert(IReadOnlyList<UsageEvent> events)
-    {
-        List<UsageEvent> selected = new(events.Count);
-        HashSet<(Guid TenantId, string IdempotencyKey)> seenKeys = new();
-
-        foreach (UsageEvent usageEvent in events)
-        {
-            if (!string.IsNullOrWhiteSpace(usageEvent.IdempotencyKey))
-            {
-                (Guid TenantId, string IdempotencyKey) key = (usageEvent.TenantId, usageEvent.IdempotencyKey);
-
-                if (!seenKeys.Add(key))
-                    continue;
-            }
-
-            selected.Add(usageEvent);
-        }
-
-        return selected;
     }
 
     private static object MapParameters(UsageEvent usageEvent) =>
