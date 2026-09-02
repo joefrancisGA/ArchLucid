@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 37
-- **bugs-found:** 81
+- **hunts:** 38
+- **bugs-found:** 85
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — golden-corpus whole-number double agentType; finding whole-number double enum/scalar coercion
+- **last-bug:** 2026-09-02 — explanation aggregate boolean/whole-number coercion; extractor schemaVersion 1.0; finding string-encoded whole-number schema
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1876,6 +1876,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` enum numeric readers — whole-number double ordinals throw on reload — **hit 2026-09-02 (#448):** `"humanReviewStatus":1.0` threw `JsonException`; fixed by routing enum numeric paths through `TryReadWholeNumberInt32` (`Deserialize_whole_number_double_humanReviewStatus_maps_pending`).
 - [x] (proven) `FindingJsonConverter.ReadOptionalString` — whole-number double scalar refs return null — **hit 2026-09-02 (#448):** `"runIdRef":42.0` left null on snapshot reload; fixed with whole-number double coercion (`Deserialize_whole_number_double_runIdRef_coerces_to_string`).
 - [x] (proven) `FindingJsonConverter.TryReadInt32` — whole-number double schema/score fields ignored — **hit 2026-09-02 (#448):** `"findingSchemaVersion":2.0` defaulted to `0`; fixed by delegating to `TryReadWholeNumberInt32` (`Deserialize_whole_number_double_findingSchemaVersion_maps_version`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadBoolean` — whole-number double fallback flags ignored — **hit 2026-09-02 (#449):** `"deterministicFallbackUsed":1.0` left fallback false so HOLD disposition was skipped; fixed with whole-number double coercion (`FromAggregateJson_maps_whole_number_double_deterministic_fallback_flag`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadFiniteDouble` — boolean `faithfulnessSupportRatio` ignored — **hit 2026-09-02 (#449):** `"faithfulnessSupportRatio":false` left ratio null so PASS was returned instead of HOLD; fixed by coercing boolean tokens to `0.0`/`1.0` (`FromAggregateJson_maps_boolean_false_faithfulness_support_ratio_as_hold`).
+- [x] (proven) `AzureExtractorPackageZipValidator.TryReadSchemaVersion` — whole-number double `schemaVersion` rejected — **hit 2026-09-02 (#449):** `"schemaVersion":1.0` failed valid ZIP manifest validation; fixed with `TryReadWholeNumberSchemaVersion` (`Validate_whole_number_double_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
+- [x] (proven) `FindingJsonConverter.TryReadInt32` — string-encoded whole-number schema fields ignored — **hit 2026-09-02 (#449):** `"findingSchemaVersion":"2.0"` defaulted to `0`; fixed with `TryParseWholeNumberString` (`Deserialize_string_encoded_whole_number_findingSchemaVersion_maps_version`).
+
+2026-09-02 seed hunt #449: reseeded from ArchLucid.Core; proved explanation aggregate boolean/whole-number coercion, extractor schemaVersion whole-number doubles, and finding string-encoded whole-number schema gaps.
 
 2026-09-02 seed hunt #448: reseeded from ArchLucid.Core; proved golden-corpus whole-number double agentType and finding whole-number double enum/scalar coercion gaps.
 
