@@ -266,13 +266,26 @@ function buildWizardItems(
 export function buildUnfinishedWorkRailItems(
   inputs: UnfinishedWorkRailInputs,
 ): readonly UnfinishedWorkRailItem[] {
+  return summarizeUnfinishedWorkRailItems(inputs).items;
+}
+
+export type UnfinishedWorkRailSummary = {
+  readonly items: readonly UnfinishedWorkRailItem[];
+  readonly totalCount: number;
+  readonly truncated: boolean;
+};
+
+/** Builds the rail list plus whether additional items were omitted by the soft cap. */
+export function summarizeUnfinishedWorkRailItems(
+  inputs: UnfinishedWorkRailInputs,
+): UnfinishedWorkRailSummary {
   const maxItems =
     typeof inputs.maxItems === "number" && Number.isFinite(inputs.maxItems)
       ? Math.max(0, Math.trunc(inputs.maxItems))
       : DEFAULT_MAX_ITEMS;
 
   if (maxItems === 0) {
-    return [];
+    return { items: [], totalCount: 0, truncated: false };
   }
 
   const combined = [
@@ -283,7 +296,11 @@ export function buildUnfinishedWorkRailItems(
 
   combined.sort(compareRailItems);
 
-  return combined.slice(0, maxItems);
+  return {
+    items: combined.slice(0, maxItems),
+    totalCount: combined.length,
+    truncated: combined.length > maxItems,
+  };
 }
 
 /** Highest-priority unfinished item for the Home recommended-next card. */

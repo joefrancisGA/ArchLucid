@@ -111,7 +111,7 @@ describe("architecture-draft-readiness", () => {
     expect(result.blockers).not.toContain("assumptions");
   });
 
-  it("does not block review start when constraints and assumptions are unknown sentinels", () => {
+  it("blocks review start when constraints and assumptions are unknown sentinels", () => {
     const unknownLists = {
       freeTextIntent: readyOverview,
       businessOutcome: "Reduce cycle time for architecture reviews.",
@@ -126,9 +126,8 @@ describe("architecture-draft-readiness", () => {
 
     const result = validateArchitectureReviewReadiness(unknownLists, [assertedActor]);
 
-    expect(result.isValid).toBe(true);
-    expect(result.blockers).not.toContain("constraints");
-    expect(result.blockers).not.toContain("assumptions");
+    expect(result.isValid).toBe(false);
+    expect(result.blockers).toContain("structured-brief-placeholders");
   });
 
   it("does not block review start when quality attributes are empty (optional with encouragement modal)", () => {
@@ -145,7 +144,7 @@ describe("architecture-draft-readiness", () => {
     expect(result.blockers).not.toContain("quality-attributes");
   });
 
-  it("does not block review start when only an unknown quality-attribute sentinel is present", () => {
+  it("blocks review start when only an unknown quality-attribute sentinel is present", () => {
     const unknownQuality = {
       freeTextIntent: readyOverview,
       businessOutcome: "Reduce cycle time for architecture reviews.",
@@ -158,8 +157,8 @@ describe("architecture-draft-readiness", () => {
 
     const result = validateArchitectureReviewReadiness(unknownQuality, [assertedActor]);
 
-    expect(result.isValid).toBe(true);
-    expect(result.blockers).not.toContain("quality-attributes");
+    expect(result.isValid).toBe(false);
+    expect(result.blockers).toContain("structured-brief-placeholders");
   });
 
   it("allows review start with qualitative-only quality attributes", () => {

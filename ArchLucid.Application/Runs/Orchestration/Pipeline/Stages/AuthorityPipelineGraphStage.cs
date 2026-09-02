@@ -1,5 +1,7 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -49,7 +51,9 @@ public sealed class AuthorityPipelineGraphStage(
             run.GraphSnapshotId,
             context.ContextSnapshot!.SnapshotId,
             _graphSnapshotRepository,
-            cancellationToken);
+            cancellationToken,
+            context.ContextSnapshot,
+            await TryLoadKnowledgeModelAsync(context.Scope, run.RunId, cancellationToken));
 
         if (committedReuse is not null)
         {
@@ -130,6 +134,8 @@ public sealed class AuthorityPipelineGraphStage(
 
         await _stagePersistence.SaveGraphAsync(graphSnapshot, context.Scope, context.UnitOfWork, cancellationToken);
 
+        StampGraphObservationFingerprints(context.ContextSnapshot!, knowledgeModel, graphSnapshot);
+
         run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
         await _stagePersistence.UpdateRunAsync(run, context.UnitOfWork, cancellationToken);
     }
@@ -145,5 +151,28 @@ public sealed class AuthorityPipelineGraphStage(
         return await _knowledgeModelAccess
             .GetForRunAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
+    }
+
+    private static void StampGraphObservationFingerprints(
+        ContextSnapshot contextSnapshot,
+        ArchitectureKnowledgeModel? knowledgeModel,
+        GraphSnapshot graphSnapshot)
+    {
+        GraphNode? contextNode = graphSnapshot.Nodes
+            .FirstOrDefault(node => string.Equals(node.NodeType, "ContextSnapshot", StringComparison.OrdinalIgnoreCase));
+
+        if (contextNode is null)
+            return;
+
+        contextNode.Properties ??= new Dictionary<string, string>(StringComparer.Ordinal);
+
+        contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.ContextCanonicalFingerprint] =
+            GraphSnapshotCanonicalFingerprint.Compute(contextSnapshot);
+
+        if (knowledgeModel is not null)
+        {
+            contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.KnowledgeModelFingerprint] =
+                GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(knowledgeModel);
+        }
     }
 }

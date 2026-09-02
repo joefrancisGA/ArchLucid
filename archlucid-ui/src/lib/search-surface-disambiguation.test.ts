@@ -19,12 +19,13 @@ import {
 describe("search-surface-disambiguation (TB-2196)", () => {
   it("keeps global find-a-page copy distinct from evidence-trail search", () => {
     expect(GLOBAL_FIND_PAGE_SEARCH.placeholder).toBe(
-      "Search pages, reviews, findings, and policy packs…",
+      "Find pages and reviews…",
     );
     expect(GLOBAL_FIND_PAGE_SEARCH.ariaLabel).toBe(
-      "Search pages, reviews, findings, and policy packs",
+      "Find pages and reviews",
     );
     expect(GLOBAL_FIND_PAGE_SEARCH.helper.toLowerCase()).toContain("evidence trail");
+    expect(GLOBAL_FIND_PAGE_SEARCH.helper.toLowerCase()).toContain("ctrl+k");
     expect(GLOBAL_FIND_PAGE_SEARCH.ariaLabel.toLowerCase()).not.toContain("evidence");
     expect(GLOBAL_FIND_PAGE_SEARCH.placeholder.toLowerCase()).not.toBe("search archlucid");
 

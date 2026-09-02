@@ -2,10 +2,14 @@ using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -33,6 +37,9 @@ public sealed class AuthorityPipelineFindingsStage(
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ILogger<AuthorityPipelineFindingsStage> logger,
     IArchitectureIntelligenceAuthorityFindingsContributor? authorityFindingsContributor = null,
+    IFindingAnalysisContextBuilder? findingAnalysisContextBuilder = null,
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
+    IArchitectureRequestRepository? architectureRequestRepository = null,
     TimeProvider? timeProvider = null) : IAuthorityPipelineFindingsStage
 {
     private readonly IFindingsOrchestrator _findingsOrchestrator =
@@ -69,6 +76,12 @@ public sealed class AuthorityPipelineFindingsStage(
     private readonly IArchitectureIntelligenceAuthorityFindingsContributor? _authorityFindingsContributor =
         authorityFindingsContributor;
 
+    private readonly IFindingAnalysisContextBuilder? _findingAnalysisContextBuilder = findingAnalysisContextBuilder;
+
+    private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
+
+    private readonly IArchitectureRequestRepository? _architectureRequestRepository = architectureRequestRepository;
+
     private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
     /// <inheritdoc />
@@ -79,11 +92,15 @@ public sealed class AuthorityPipelineFindingsStage(
         RunRecord run = context.Run;
         ScopeContext scope = context.Scope;
 
+        FindingAnalysisContext? analysisContext = await TryBuildFindingAnalysisContextAsync(context, cancellationToken)
+            .ConfigureAwait(false);
+
         FindingsSnapshot findingsSnapshot = await _findingsOrchestrator.GenerateFindingsSnapshotAsync(
             run.RunId,
             context.ContextSnapshot!.SnapshotId,
             context.GraphSnapshot!,
-            cancellationToken);
+            cancellationToken,
+            analysisContext);
 
         if (_authorityFindingsContributor is not null)
         {
@@ -185,5 +202,42 @@ public sealed class AuthorityPipelineFindingsStage(
 
             ArchLucidInstrumentation.FindingsProducedTotal.Add(group.Count(), tags);
         }
+    }
+
+    private async Task<FindingAnalysisContext?> TryBuildFindingAnalysisContextAsync(
+        AuthorityPipelineContext context,
+        CancellationToken cancellationToken)
+    {
+        if (_findingAnalysisContextBuilder is null || context.ContextSnapshot is null)
+            return null;
+
+        ArchitectureKnowledgeModel? knowledgeModel = null;
+
+        if (_knowledgeModelAccess is not null)
+        {
+            knowledgeModel = await _knowledgeModelAccess
+                .GetForRunAsync(context.Scope, context.Run.RunId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        ArchitectureRequest? request = null;
+
+        if (_architectureRequestRepository is not null
+            && !string.IsNullOrWhiteSpace(context.Run.ArchitectureRequestId))
+        {
+            request = await _architectureRequestRepository
+                .GetByIdAsync(context.Run.ArchitectureRequestId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return await _findingAnalysisContextBuilder
+            .BuildAsync(
+                context.Scope,
+                context.Run.RunId,
+                context.ContextSnapshot,
+                knowledgeModel,
+                request,
+                cancellationToken)
+            .ConfigureAwait(false);
     }
 }

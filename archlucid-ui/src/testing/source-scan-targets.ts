@@ -15,6 +15,8 @@ export const SOURCE_SCAN_TARGETS = {
     "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageViewCommitted.tsx",
   "run-detail-tabbed-workspace":
     "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailTabbedWorkspace.tsx",
+  "run-detail-evidence-tab-composition":
+    "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailEvidenceTabComposition.tsx",
   "run-detail-page-presentation":
     "src/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-page-presentation.ts",
   "run-detail-below-fold":

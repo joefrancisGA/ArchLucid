@@ -7,6 +7,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -14,7 +15,8 @@ namespace ArchLucid.Application.Runs.Orchestration;
 public sealed class CommitOutputIntegrityService(
     IScopeContextProvider scopeContextProvider,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
-    IAgentOutputQualityGateOptionsResolver qualityGateOptionsResolver) : ICommitOutputIntegrityService
+    IAgentOutputQualityGateOptionsResolver qualityGateOptionsResolver,
+    IRunRepository runRepository) : ICommitOutputIntegrityService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -24,6 +26,9 @@ public sealed class CommitOutputIntegrityService(
 
     private readonly IAgentOutputQualityGateOptionsResolver _qualityGateOptionsResolver =
         qualityGateOptionsResolver ?? throw new ArgumentNullException(nameof(qualityGateOptionsResolver));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     /// <inheritdoc />
     public async Task EnsurePassOrThrowAsync(
@@ -42,6 +47,8 @@ public sealed class CommitOutputIntegrityService(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<AgentExecutionTrace> traces =
             await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+
+        await EnsureArchitectureVersionPinnedOrThrowAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
         AgentOutputQualityGateOptions gateOptions = _qualityGateOptionsResolver.Resolve(cancellationToken);
         IReadOnlyList<string> qualityReasons =
@@ -75,6 +82,27 @@ public sealed class CommitOutputIntegrityService(
             throw new ConflictException(
                 "Commit blocked: existential assumptions require confirmation before finalize. "
                 + string.Join(" ", assumptionGateReasons));
+        }
+    }
+
+    private async Task EnsureArchitectureVersionPinnedOrThrowAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
+        {
+            throw new ConflictException(
+                "Commit blocked: run id is invalid for architecture version pin verification.");
+        }
+
+        Persistence.Models.RunRecord? header =
+            await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+
+        if (header?.ArchitectureVersionId is not Guid versionId || versionId == Guid.Empty)
+        {
+            throw new ConflictException(
+                "Commit blocked: run is missing a pinned ArchitectureVersionId.");
         }
     }
 }

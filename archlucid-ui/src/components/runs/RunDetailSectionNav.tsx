@@ -63,14 +63,14 @@ export function RunDetailSectionNav({ runId, sections }: RunDetailSectionNavProp
 
   return (
     <nav
-      aria-label="Review detail sections"
+      aria-label="On this page sections"
       className={cn(
         "sticky z-20 mb-4 max-w-3xl rounded-lg border border-neutral-200 bg-white/95 px-2 py-2 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95",
         buyerStickyChrome ? "top-40 lg:top-44" : "top-16",
       )}
     >
       <p className={cn("mb-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
-        Review workspace tabs
+        On this page
       </p>
       <ul className={cn("m-0 flex list-none flex-wrap gap-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
         {visible.map((section) => {

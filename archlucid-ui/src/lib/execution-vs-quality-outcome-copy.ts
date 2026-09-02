@@ -118,11 +118,15 @@ export function resolveLastFailureCardCopy(args: {
   readonly legacyRunStatus?: string | null;
   readonly triageScenarioId?: string | null;
   readonly rejectReasonCategory?: string | null;
+  readonly reasonCode?: string | null;
 }): LastFailureCardCopy {
   const axis = resolveExecutionVsQualityAxis(args);
   const failureClassLabel = plainLanguageFailureClassLabel(args.failureClass);
   const triageTitle = plainLanguageTriageTitle(args.triageScenarioId);
   const rejectCategoryLabel = plainLanguageRejectCategoryLabel(args.rejectReasonCategory);
+  const reasonCode = (args.reasonCode ?? "").trim();
+  const deferredPipeline =
+    reasonCode === "NoScheduledAgentTasks" || reasonCode === "MissingArchitectureRequest";
 
   if (axis === "quality") {
     return {
@@ -140,8 +144,9 @@ export function resolveLastFailureCardCopy(args: {
     axis,
     title: "Agent execution failed",
     failureClassLabel,
-    remediation:
-      "Fix configuration, credentials, network, schema, or budget issues, then retry when stable. Inspect agent traces if needed. Raw LLM payloads are not shown here.",
+    remediation: deferredPipeline
+      ? "Processing stopped before assessments were scheduled. Click Re-run review to resume the deferred pipeline with the same intake."
+      : "Fix configuration, credentials, network, schema, or budget issues, then retry when stable. Inspect agent traces if needed. Raw LLM payloads are not shown here.",
     triageTitle,
     rejectCategoryLabel: null,
   };

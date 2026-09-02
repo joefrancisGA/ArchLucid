@@ -104,13 +104,13 @@ export function GovernanceJobRouterStrip(props: GovernanceJobRouterStripProps): 
         props.className,
       )}
       aria-labelledby={isCompact ? undefined : "governance-job-router-heading"}
-      aria-label={isCompact ? "Other approval queues" : undefined}
+      aria-label={isCompact ? "Other governance tasks" : undefined}
       data-testid="governance-job-router"
       data-current-job={props.currentJobId}
       data-layout={layout}
     >
       {isCompact ? (
-        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0 text-al-text-secondary")}>Other approval queues</p>
+        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0 text-al-text-secondary")}>Other governance tasks</p>
       ) : (
         <h2
           id="governance-job-router-heading"

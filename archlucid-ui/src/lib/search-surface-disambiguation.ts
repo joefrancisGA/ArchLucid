@@ -7,13 +7,13 @@
 
 /** Header GlobalSearchBar / command-palette-style find-a-page surface. */
 export const GLOBAL_FIND_PAGE_SEARCH = {
-  /** Placeholder — names the lookup catalog so the input does not need a separate "Find a page" label. */
-  placeholder: "Search pages, reviews, findings, and policy packs…",
+  /** Placeholder — navigation lookup; use Ctrl+K for workspace-wide command palette search. */
+  placeholder: "Find pages and reviews…",
   /** Accessible name for the header combobox (not evidence-trail search). */
-  ariaLabel: "Search pages, reviews, findings, and policy packs",
+  ariaLabel: "Find pages and reviews",
   /** Helper clarifying this is navigation/lookup, not evidence retrieval. */
   helper:
-    "Also matches help topics. To search the evidence trail, use Search review evidence.",
+    "Jump to pages and reviews. Press Ctrl+K for the command palette. To search the evidence trail, use Search review evidence.",
 } as const;
 
 /** `/insights/search-review-evidence` — retrieve across the evidence trail. */

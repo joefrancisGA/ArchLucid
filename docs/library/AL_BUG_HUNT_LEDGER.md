@@ -1555,13 +1555,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 5
-- **bugs-found:** 8
+- **hunts:** 6
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — sparse agent results suppressed richer findings snapshot in pilot deltas
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — first-value report cost-evidence badges ignored extractor collection timestamps
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1575,10 +1575,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Buyer proof `artifact-and-proof-summary.md` omitted governed-finding coverage — **hit 2026-08-24:** `BuyerProofPackArtifactSummaryBuilder` ignored `governedFindingCoverage` in deltas JSON (`BuyerProofPackArtifactSummaryBuilderTests.Build_WhenGovernedFindingCoveragePresent_EmitsGovernedCoverageSection`).
 - [x] (proven) `PilotValueReportService` and `RecentPilotRunDeltasService` counted `ReadyForCommit` runs with manifest versions as committed — **hit 2026-08-25:** `IsCommittedSummary` / `IsCommitted` treated `CurrentManifestVersion` as sufficient; aligned with scorecard fix to require `Status == Committed` (`BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted`, `GetRecentDeltasAsync_ExcludesReadyForCommitRunWithManifestVersion`).
 - [x] (proven) `PilotRunDeltaComputer` partial agent results blocked findings-snapshot fallback — **hit 2026-08-26:** sparse non-muted agent rows skipped persisted snapshot severity/top/governed coverage when snapshot had more findings; fixed by loading snapshot whenever `FindingsSnapshotId` is set and preferring snapshot when it reports more findings (`ComputeAsync_WhenAgentResultsHaveSparseFindings_StillUsesFindingsSnapshotForSeverityTopFindingAndGovernedCoverage`).
-- [ ] (candidate) `FirstValueReportBuilder.ResolveCostEvidenceFreshnessForBadges` never sees extractor collection timestamp — badges stay Missing unless `RoiConfidenceLabel` contains uploaded/extractor wording
-- [ ] (candidate) `PilotProofPackageCompletenessMapper` committed timestamp Present contradicts buyer-safe gate soft gap when `CompletedUtc` resolves manifest timestamp
-- [ ] (candidate) `SponsorEvidencePackService` explainability trace completeness vs `PilotRunDeltaComputer` delta counts diverge on sparse agent + snapshot runs
-- [ ] (candidate) `PilotProofPackageCompletenessMapper.FindingsBySeverityPresent` hard-coded true — zero-finding runs still show Present in proof contract
+- [x] (proven) `FirstValueReportBuilder.ResolveCostEvidenceFreshnessForBadges` never sees extractor collection timestamp — badges stay Missing unless `RoiConfidenceLabel` contains uploaded/extractor wording — **hit 2026-09-02:** `RoiConfidenceLabel` is baseline-provenance only; wired `RoiCostEvidenceCollectionResolver` + `PilotCostEvidenceFreshnessBadgeResolver` (`FirstValueReportBuilderCostEvidenceFreshnessTests`).
+- [x] (valid-no-repro) `PilotProofPackageCompletenessMapper` committed timestamp Present contradicts buyer-safe gate soft gap when `CompletedUtc` resolves manifest timestamp — gate soft gap still surfaces in `PilotBuyerSafeEvidenceGateEvaluator`; `CommittedManifestTimestampResolved` fallback to `ManifestCommittedUtc` is intentional (`Build_WhenManifestCreatedUtcDefaultButDeltasCarryCompletedUtc_ResolvesCommittedTimestamp`).
+- [x] (invalid) `SponsorEvidencePackService` explainability trace completeness vs `PilotRunDeltaComputer` delta counts diverge on sparse agent + snapshot runs — **closed 2026-08-26** proven fix loads snapshot when `FindingsSnapshotId` is set; pack and deltas share the same snapshot source.
+- [x] (invalid) `PilotProofPackageCompletenessMapper.FindingsBySeverityPresent` hard-coded true — zero-finding runs still show Present in proof contract — intentional: empty severity breakdown is attested evidence, not missing data (`Build_ZeroTotalFindings_StillMarksFindingsEvidencePresent`).
 
 ---
 
@@ -1656,11 +1656,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 5
-- **bugs-found:** 7
+- **hunts:** 6
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — OTP concurrent wrong-code RowVersion retry; link-proposal terminal status guard
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — trial lockout atomic increment; OTP resend invalidate+insert race
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1676,27 +1676,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InMemoryTenantSignInEmailDomainRepository.UpdateAsync` could reassign domains across tenants — **hit 2026-08-24:** update keyed only by `NormalizedDomain`, unlike Dapper's `(TenantId, NormalizedDomain)` predicate, so a mismatched tenant id silently hijacked sign-in routing in memory hosts.
 - [x] (proven) `DapperEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong-code attempts lost `FailedAttemptCount` increments on `RowVersion` conflict (`affected == 0` committed without retry) — **hit 2026-08-31 (#314):** rollback and retry up to eight times on optimistic concurrency miss; regression in `DapperEmailOtpChallengeRepositorySqlIntegrationTests` and `EmailOtpChallengeRepositoryConcurrencyTests`.
 - [x] (proven) `DapperAuthenticationIdentityLinkProposalRepository.TryUpdateStatusAsync` / `InMemoryAuthenticationIdentityLinkProposalRepository.TryUpdateStatusAsync` — no `Status = PendingConfirmation` guard allowed confirmed proposals to be rewritten to cancelled — **hit 2026-08-31 (#323):** only transition from pending; regression in `InMemoryAuthenticationIdentityLinkProposalRepositoryCoverageTests` and `DapperAuthenticationIdentityLinkProposalRepositorySqlIntegrationTests`.
-- [ ] (hunt-ready) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — `TrialLocalIdentityService.AuthenticateAsync` read-modify-write with unconditional `UPDATE` can lose lockout increments under parallel failed logins.
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
+- [x] (proven) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` / `TrialLocalIdentityService.AuthenticateAsync` — read-modify-write with unconditional `UPDATE` lost lockout increments under parallel failed logins — **hit 2026-09-02 (#422):** atomic `AccessFailedCount + 1` with threshold lockout in SQL; service no longer passes absolute counts; regression in `SqlTrialIdentityUserRepositorySqlIntegrationTests` and `TrialLocalIdentityServiceTests`.
+- [x] (proven) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` was non-atomic; concurrent resend could leave multiple active challenges — **hit 2026-09-02 (#422):** `ReplaceActiveChallengeForEmailAsync` transactional replace in Dapper and lock in in-memory repo; regression in `EmailOtpChallengeRepositoryConcurrencyTests`.
 
-2026-08-31 seed hunt #314: proved OTP concurrent wrong-code RowVersion retry; seeded trial lockout lost-update, link-proposal status TOCTOU, and OTP resend invalidate/insert race candidates.
-2026-08-31 seed hunt #323: proved link-proposal terminal status guard; seeded OTP RowVersion retry, trial lockout lost-update, and OTP resend invalidate/insert race.
-- [x] (proven) `DapperEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong-code attempts lost `FailedAttemptCount` increments on `RowVersion` conflict (`affected == 0` committed without retry) — **hit 2026-08-31 (#322):** retry loop up to `MaxCompleteConcurrencyRetries`; regression in `EmailOtpChallengeRepositoryConcurrencyTests` and `DapperEmailOtpChallengeRepositorySqlIntegrationTests`.
-- [ ] (hunt-ready) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — `TrialLocalIdentityService.AuthenticateAsync` read-modify-write with unconditional `UPDATE` can lose lockout increments under parallel failed logins.
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
-
-2026-08-31 seed hunt #322: proved OTP RowVersion retry; seeded link-proposal terminal status guard, trial lockout lost-update, and OTP resend invalidate/insert race.
-- [x] (proven) `DapperEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong-code attempts lost `FailedAttemptCount` increments on `RowVersion` conflict (`affected == 0` committed without retry) — **hit 2026-08-31 (#318):** retry loop up to `MaxCompleteConcurrencyRetries`; regression in `EmailOtpChallengeRepositoryConcurrencyTests` and `DapperEmailOtpChallengeRepositorySqlIntegrationTests`.
-- [ ] (hunt-ready) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — read-modify-write at `TrialLocalIdentityService.AuthenticateAsync` with unconditional `UPDATE` can lose lockout increments under parallel failed logins.
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
-
-2026-08-31 seed hunt #318: proved OTP RowVersion retry; retained link-proposal (unmerged #943), trial lockout, and OTP resend race as open hypotheses.
-- [x] (proven) `DapperAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` / `InMemoryAuthenticationIdentityLinkProposalRepository.UpdateStatusAsync` — no `Status = PendingConfirmation` guard allowed confirmed proposals to be rewritten to cancelled — **hit 2026-08-31 (#316):** only transition from pending; regression in `InMemoryAuthenticationIdentityLinkProposalRepositoryCoverageTests` and `DapperAuthenticationIdentityLinkProposalRepositorySqlIntegrationTests`.
-- [ ] (hunt-ready) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — read-modify-write at `TrialLocalIdentityService.AuthenticateAsync` with unconditional `UPDATE` can lose lockout increments under parallel failed logins (no optimistic concurrency or atomic increment).
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` is non-atomic; concurrent resend after cooldown can leave multiple active challenges for the same email.
-
-2026-08-31 seed hunt #314: proved OTP concurrent wrong-code RowVersion retry; seeded trial lockout lost-update, link-proposal status TOCTOU, and OTP resend invalidate/insert race candidates.
-2026-08-31 seed hunt #316: proved link-proposal terminal status guard; seeded OTP RowVersion retry (merged #938), trial lockout lost-update, and OTP resend invalidate/insert race candidates.
+2026-08-31 seed hunts #314–#323: proved OTP RowVersion retry and link-proposal terminal status guard; seeded trial lockout lost-update and OTP resend race (proved 2026-09-02 #422).
 
 ---
 
@@ -1708,11 +1691,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 4
-- **bugs-found:** 6
+- **hunts:** 5
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — embedding cache ignored model identity; Azure Search delete truncated at 1000 chunks; iterative retrieval exceeded TopK; malformed policy-pack ContentJson threw
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — seed hunt proved indexing catalog-before-upsert, iterative merge stale scores, and multi-cloud evidence provider substring bugs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1726,6 +1709,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Azure Search document delete truncated at first 1000 chunk ids — **hit 2026-08-24:** `RemoveChunksForDocumentAsync` single search page left orphan vectors; regression in `DeleteAllPagesAsync_deletes_all_chunks_when_document_exceeds_search_page_size`
 - [x] (proven) `IterativeRetrievalLoop` exceeded `TopK` after critique retry merge — **hit 2026-08-24:** merged union not capped; regression in `MaybeRetryAsync_returns_at_most_query_topk_hits_after_merge`
 - [x] (proven) `PolicyPackRulePackIdMapper` threw on malformed `ContentJson` — **hit 2026-08-24:** `JsonException` aborted scope resolution; regression in `PolicyPackRulePackIdMapper_returns_null_when_pack_content_json_is_malformed`
+- [x] (proven) `IterativeRetrievalLoop.MergeHits` kept stale score when critique retry returned the same `ChunkId` with a higher score — **hit 2026-09-02:** merge only inserted new chunk ids; fixed to upgrade on collision (`MaybeRetryAsync_when_retry_improves_same_chunk_score_uses_higher_score`).
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` recorded catalog state before vector upsert — **hit 2026-09-02:** failed upsert left document skipped on retry with same `ContentHash`; fixed by deferring `RecordIndexed` until after `UpsertChunksAsync` (`IndexDocumentsAsync_when_upsert_fails_still_reindexes_on_retry_with_same_content_hash`).
+- [x] (proven) `CostRetailGroundingBuilder.ResolveGroundingProvider` matched `aws` inside Azure DR prose — **hit 2026-09-02:** substring scan picked AWS for `"Azure primary (DR on AWS us-east-1)"`; fixed with first word-boundary cloud-token mention (`Build_azure_evidence_with_dr_aws_substring_prefers_azure_not_aws`).
+- [ ] (candidate) `RetrievalQueryService.ExecuteSearchPassAsync` clamps `TopK` to 25 while API allows 50 — service-layer cap may surprise callers requesting larger result sets
+- [ ] (candidate) `GraphRagNeighborExpander.ExpandAsync` re-sorts by vector score after lexical rerank — graph expansion can undo reranker ordering when knowledge-graph seeds are present
+- [ ] (candidate) `InMemoryVectorIndex.UpsertChunksAsync` silently evicts oldest chunks past `MaxChunks` — dev/single-node index can drop searchable vectors without surfacing an error
 
 ---
 
@@ -1775,11 +1764,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 16
-- **bugs-found:** 35
+- **hunts:** 17
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-01
-- **last-bug:** 2026-09-01 — FindingJsonConverter PascalCase severity/scalars, numeric relatedNodeIds, legacy webhook alias MapToCanonical, numeric marketplace planId
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — `AlertRoutingCriteriaMetadata` numeric severity ordinals dropped, routing filter fail-open
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1828,7 +1817,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadStringList` — numeric `relatedNodeIds` array entries threw and aborted full finding deserialize — **hit 2026-09-01 (#417):** coerce number tokens via `ReadStringDictValue`; regression in `FindingJsonConverterTests.Deserialize_relatedNodeIds_numeric_entries_coerce_to_strings`.
 - [x] (proven) `IntegrationWebhookPayloadSamples.ResolveEventType` — legacy `com.archiforge.*` vendor aliases threw before `IntegrationEventTypes.MapToCanonical` — **hit 2026-09-01 (#417):** map legacy alias before known-set lookup; regression in `CorePackageCoverageBatchRc27Tests.ResolveEventType_maps_legacy_vendor_alias_before_known_set_lookup`.
 - [x] (proven) `MarketplaceWebhookPayloadParser.TryGetPlanId` — numeric `planId` threw via `GetString()` instead of coercing like `ReadQuantity` — **hit 2026-09-01 (#417):** accept string or number tokens in `TryGetStringPropertyCaseInsensitive`; regression in `MarketplaceWebhookPayloadParserTests.TryGetPlanId_reads_numeric_planId`.
-- [ ] (candidate) `AlertRoutingCriteriaMetadata.ReadStringArray` — numeric severity ordinals in `severities` array silently dropped; only string entries survive routing filter parse.
+- [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` — numeric severity ordinals in `severities` array silently dropped; only string entries survived routing filter parse — **hit 2026-09-02 (#418):** `ReadSeverityArray` maps `FindingSeverity` ordinals to `AlertSeverity` labels (`Error` → `High`); regression in `AlertRoutingCriteriaMetadata_Parse_numeric_severity_ordinals_map_alert_labels` and `AlertRoutingMatcher_numeric_severity_metadata_filters_non_matching_signals`.
+
+2026-09-02 thorough hunt #418 (hit): proved numeric severity ordinals in routing metadata dropped and fail-opened matcher filters.
 
 2026-09-01 seed hunt #417 (hit): reseeded from ArchLucid.Core; proved PascalCase severity/scalar gaps, numeric relatedNodeIds coercion, legacy webhook alias MapToCanonical wiring, and numeric marketplace planId; seeded alert-routing numeric severity ordinal candidate.
 
@@ -2311,10 +2302,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 101
+- **hunts:** 102
 - **bugs-found:** 253
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-01
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-02
 - **last-bug:** 2026-08-31 — combined PRs #981–#991 plus #992 catalog/projectId/checklist validation; combined al-bug hunts #313–#334: ghost-workspace posture/coverage reads, environment-catalog ghost tenant, empty projectId query, governance scope gates, OTP RowVersion retry, link-proposal status guard, AgentResultJsonConverter evidenceRefs merge, product-feedback score and checklist isCompleted omission/validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2576,7 +2567,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceEnvironmentCatalogController.Get` / `Replace` — scope JWT carried a tenant id with no backing `TenantRecord` → HTTP 200 catalog payload instead of HTTP 404 — **hit 2026-08-31 (#343):** `ITenantRepository.GetByIdAsync` preflight on both actions; regression in `GovernanceEnvironmentCatalogControllerTests.Get_returns_not_found_when_tenant_missing` and `Replace_returns_not_found_when_tenant_missing`.
 - [x] (proven) `GovernancePostureController.GetPosture` / `GovernanceStickinessController` register reads — optional `projectId=00000000-0000-0000-0000-000000000000` returned HTTP 200 empty payload instead of HTTP 400 — **hit 2026-08-31 (#343):** `GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId` + `BadRequestWhenProjectQueryIdEmpty` on posture and stickiness register endpoints; regression in `GovernancePostureControllerTests.GetPosture_returns_bad_request_when_project_id_is_empty_guid` and `GovernanceStickinessControllerTests.GetRiskRegister_returns_bad_request_when_project_id_is_empty_guid`.
-- [x] (proven) `CorePilotTeamChecklistController.PutAsync` — JSON body omitted `isCompleted` (e.g. `{ "stepIndex": 1 }`) → HTTP 204 and persisted `false` instead of HTTP 400 — **hit 2026-08-31 (#343):** `CorePilotChecklistPutRequest.IsCompleted` required; regression in `CorePilotTeamChecklistControllerTests.PutAsync_returns_bad_request_when_is_completed_omitted`.
+- [x] (proven) `CorePilotTeamChecklistController.PutAsync` — JSON body omitted `isCompleted` (e.g. `{ "stepIndex": 1 }`) → HTTP 204 and persisted `false` instead of HTTP 400 — **hit 2026-08-31 (#343 / #383):** `CorePilotChecklistPutRequest.IsCompleted` is `required bool` (missing/null rejected during JSON deserialization); regression in `CorePilotTeamChecklistControllerTests.PutRequest_deserialization_rejects_missing_or_null_is_completed`.
 
 - [x] (valid-no-repro) `GovernancePostureController.GetPosture` — valid tenant + foreign workspace id in scope JWT → HTTP 200 posture summary instead of HTTP 404 — **mechanism:** tenant-only `GetByIdAsync` preflight; siblings `GovernanceResolutionController` / `GovernanceSetupController` use `TenantWorkspaceScopePreflight` — **repro test:** `GovernancePostureControllerTests.GetPosture_returns_not_found_when_workspace_missing`.
 - [x] (valid-no-repro) `GovernanceCoverageController.GetScopeCoverage` / `PreviewCoverage` — same ghost-workspace gap — **repro test:** `GovernanceCoverageControllerScopeTests.GetScopeCoverage_returns_not_found_when_workspace_missing` and `PreviewCoverage_returns_not_found_when_workspace_missing`.
@@ -2639,14 +2630,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-31 thorough hunt #354 (hit): proved ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default on master.
 
 2026-08-31 combined PR #1021–#1028: integrated seed hunts #377–#382 on master — environment-catalog ghost tenant, empty `projectId` query validation, checklist `isCompleted` omission (#381), ghost-workspace posture/coverage preflight, and product-feedback score omission (#382).
+
+2026-08-31 seed hunt #383 (hit): proved environment-catalog ghost tenant, empty `projectId` query validation, and checklist `isCompleted` omission on master; seeded ghost-workspace posture/coverage and product-feedback score candidates.
 2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
 
 2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — whitespace-only body `findingRef` bypassed inspect gate and persisted padded blank `FindingRef` — **hit 2026-08-31 (#324):** normalize to null before gate/persist; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_omits_finding_ref_when_value_is_whitespace`.
 - [x] (proven) `GovernanceCoverageController.PreviewCoverage` — null JSON body threw `ArgumentNullException` (HTTP 500 risk) instead of HTTP 400 — **hit 2026-08-31 (#324):** nullable body guard; regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_body_is_null`.
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` — sibling architecture projects in the same workspace appear in list responses while delete/restore require `scope.ProjectId` (may be intentional workspace picker disclosure).
-- [ ] (candidate) `GovernanceEnvironmentCatalogController.Get` / `Replace` — missing workspace preflight when scope workspace id is invalid for tenant.
-- [ ] (candidate) `GovernanceStickinessController.UpdateRecurrenceSchedule` — empty PUT body recomputes `NextRunUtc` without any user-supplied field change.
+- [x] (invalid) `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` — sibling architecture projects in the same workspace appear in list responses while delete/restore require `scope.ProjectId` — **cheap-disproof 2026-09-02 (#419):** `ListAsync_returns_only_current_workspace` filters to `scope.WorkspaceId` and lists all active projects in that workspace for the picker UI; project-scoped mutation guards are intentional.
+- [x] (valid-no-repro) `GovernanceEnvironmentCatalogController.Get` / `Replace` — missing workspace preflight when scope workspace id is invalid for tenant — **cheap-disproof 2026-09-02 (#419):** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` on GET/PUT; regression in `GovernanceEnvironmentCatalogControllerTests.Get_returns_not_found_when_workspace_missing`.
+- [x] (valid-no-repro) `GovernanceStickinessController.UpdateRecurrenceSchedule` — empty PUT body recomputes `NextRunUtc` without any user-supplied field change — **cheap-disproof 2026-09-02 (#419):** fixed in facade; regression in `GovernanceStickinessFacadeTests.UpdateRecurrenceScheduleAsync_preserves_next_run_when_request_has_no_schedule_changes`.
+
+2026-09-02 thorough hunt #419 (dry): cheap-disproved three stale candidates; scoped regression tests passed; no failing repro.
 
 2026-08-31 seed hunt #324: proved product-feedback whitespace findingRef normalization and coverage preview null-body 400 parity; seeded workspace project list disclosure, environment-catalog workspace preflight, and recurrence empty-PUT drift candidates.
 
@@ -3018,11 +3013,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 11
-- **bugs-found:** 17
+- **hunts:** 12
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — Overview SSR runs snapshot ignored tenant scope; billing plan ignored commercial tier when isTrialUsage omitted
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — SSR runs snapshot without scope stamp; billing active subscription without tier label
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3049,6 +3044,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `fetchLlmMonthlyDollarBudgetStatusCached` — AI budget percent on billing summary did not refresh after operator scope switch without full page reload — **hit 2026-08-31:** `OperatorBillingCurrentPlanSummary` held mount-time local state while TanStack cache cleared on scope change; switched to `useLlmMonthlyBudgetStatusQuery`; regression in `operator-shell-status-scope-cache.test.ts` and `operator-scope-storage.test.ts`.
 - [x] (proven) `isOperatorHomeRunsDashboardServerSnapshotFresh` / `shouldSkipRunsDashboardClientFetchOnMount` — SSR runs snapshot treated fresh when `projectId` matched after tenant switch, skipping client refetch and leaving prior-tenant review rows on Overview — **hit 2026-08-31 (#329):** compare optional `scopeQueryKeySnapshot` on model against live scope key; SSR loader stamps scope; `useRunsDashboardPanel` subscribes to scope changes; regression in `operator-home-runs-dashboard-client-fetch.test.ts`.
 - [x] (proven) `resolveOperatorBillingCurrentPlan` — non-empty `commercialTier` with omitted `isTrialUsage` and stale `trialStatus: Active` returned `tenant-trial` instead of `paid-plan` — **hit 2026-08-31 (#329):** treat commercial tier as paid unless `isTrialUsage === true` (usage omission parity with explicit `false`); regression in `operator-billing-current-plan.test.ts`.
+- [x] (proven) `isOperatorHomeRunsDashboardServerSnapshotFresh` / `shouldSkipRunsDashboardClientFetchOnMount` — SSR runs snapshot treated fresh when `scopeQueryKeySnapshot` was omitted, reopening tenant-switch stale rows after #329 — **hit 2026-09-02 (#423):** reject snapshots missing scope stamp; regression in `operator-home-runs-dashboard-client-fetch.test.ts`.
+- [x] (proven) `resolveOperatorBillingCurrentPlan` — active `hasSubscription` with empty `tierCode` / `commercialTier` and `isTrialUsage: false` returned `no-paid-plan` while invoice helpers reported a live subscription — **hit 2026-09-02 (#423):** `hasActiveSubscription` branch before trial fallback; regression in `operator-billing-current-plan.test.ts`.
+- [ ] (candidate) `mapHomepageSettings` — `isConfigured` / `isAvailable` require literal `true`; omitted/null API flags may hide configured homepage hero.
+- [ ] (candidate) `runProjectMatchesEffectiveScope` — empty effective project id matches any run project during scope transitions.
+- [ ] (candidate) `markOperatorHomeRunsSnapshotStale` — `OPERATOR_HOME_RUNS_STALE` session flag not cleared on `notifyOperatorScopeChanged`.
+- [ ] (candidate) `parseOperatorScopeQueryKey` — scope ids containing `:` break three-part split parsing.
+- [x] (invalid) `deriveOperatorHomeWorkspaceMetrics` — paginated slice with `totalCount > items.length` shows zero KPI aggregates — **cheap-disproof 2026-09-02:** intentional partial-page guard (`operator-home-workspace-metrics.test.ts`); zeroed aggregates avoid overstating workspace-wide totals.
+
+2026-09-02 seed hunt #423: proved SSR scope-stamp gap and billing subscription-without-tier plan card mismatch; seeded homepage flags, scope match, stale runs flag, and scope-id parsing candidates; cheap-disproved partial-page KPI zeroing.
 
 2026-08-31 thorough hunt #329: proved Overview SSR runs snapshot scope invalidation and billing commercial-tier precedence when `isTrialUsage` is omitted; zone candidate backlog cleared after hunt #327 merge.
 

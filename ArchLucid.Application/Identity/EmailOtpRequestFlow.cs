@@ -168,10 +168,7 @@ public sealed class EmailOtpRequestFlow(
         string codeHash = EmailOtpCodeHasher.Hash(challengeId, rawCode, _options.HashPepper);
         DateTimeOffset expiresUtc = now.AddMinutes(_options.CodeLifetimeMinutes);
 
-        await _challenges.InvalidateActiveChallengesForEmailAsync(normalizedEmail, now, cancellationToken)
-            .ConfigureAwait(false);
-
-        await _challenges.InsertAsync(
+        await _challenges.ReplaceActiveChallengeForEmailAsync(
             new EmailOtpChallengeInsert
             {
                 Id = challengeId,
@@ -182,6 +179,7 @@ public sealed class EmailOtpRequestFlow(
                 UserAgentHash = EmailOtpRequestMetadataHasher.HashOptional(request.UserAgent),
                 InvitationId = invitationId
             },
+            now,
             cancellationToken).ConfigureAwait(false);
 
         bool sent = await _emailNotifier.TrySendSignInCodeAsync(

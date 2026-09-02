@@ -53,6 +53,13 @@ public sealed class DraftRequestResponse
         set;
     }
 
+    /// <summary>Immutable architecture revision pinned when the draft spawned its review run.</summary>
+    public Guid? SpawnedArchitectureVersionId
+    {
+        get;
+        set;
+    }
+
     /// <summary>Canonical actor key or mailbox captured when the draft was created.</summary>
     public string CreatedByUserId
     {
