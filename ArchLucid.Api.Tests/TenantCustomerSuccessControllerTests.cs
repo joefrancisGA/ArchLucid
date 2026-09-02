@@ -164,7 +164,6 @@ public sealed class TenantCustomerSuccessControllerTests
         Action act = () => JsonSerializer.Deserialize<ProductFeedbackRequest>("""{"findingRef":"fp-1"}""");
 
         act.Should().Throw<JsonException>();
-
     }
 
     [SkippableFact]
