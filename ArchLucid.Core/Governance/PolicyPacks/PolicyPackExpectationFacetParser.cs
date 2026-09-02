@@ -149,7 +149,57 @@ public static class PolicyPackExpectationFacetParser
       return trimmed;
     }
 
+    if (TryParseBooleanOrdinalString(trimmed, out int booleanOrdinal)
+        && Enum.IsDefined(typeof(FindingSeverity), booleanOrdinal))
+    {
+      return trimmed;
+    }
+
     return null;
+  }
+
+  private static bool TryParseBooleanOrdinalString(string raw, out int ordinal)
+  {
+    if (TryParseBooleanString(raw, out bool boolean))
+    {
+      ordinal = boolean ? 1 : 0;
+
+      return true;
+    }
+
+    ordinal = default;
+
+    return false;
+  }
+
+  private static bool TryParseBooleanString(string? raw, out bool value)
+  {
+    if (string.IsNullOrWhiteSpace(raw))
+    {
+      value = default;
+
+      return false;
+    }
+
+    string normalized = raw.Trim();
+
+    if (normalized.Equals("true", StringComparison.OrdinalIgnoreCase))
+    {
+      value = true;
+
+      return true;
+    }
+
+    if (normalized.Equals("false", StringComparison.OrdinalIgnoreCase))
+    {
+      value = false;
+
+      return true;
+    }
+
+    value = default;
+
+    return false;
   }
 
   private static bool TryParseWholeNumberString(string raw, out int value)

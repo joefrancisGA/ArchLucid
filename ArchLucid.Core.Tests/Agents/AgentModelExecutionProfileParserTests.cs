@@ -28,4 +28,13 @@ public sealed class AgentModelExecutionProfileParserTests
         ok.Should().BeTrue();
         profile.Should().Be(AgentModelExecutionProfile.HighAssurance);
     }
+
+    [Fact]
+    public void TryParse_accepts_string_encoded_boolean_balanced_ordinal()
+    {
+        bool ok = AgentModelExecutionProfileParser.TryParse("True", out AgentModelExecutionProfile profile);
+
+        ok.Should().BeTrue();
+        profile.Should().Be(AgentModelExecutionProfile.Balanced);
+    }
 }

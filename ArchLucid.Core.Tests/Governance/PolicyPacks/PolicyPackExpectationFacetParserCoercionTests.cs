@@ -30,4 +30,15 @@ public sealed class PolicyPackExpectationFacetParserCoercionTests
 
         PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be("2.0");
     }
+
+    [Fact]
+    public void Parse_breach_severity_string_encoded_boolean_maps_label()
+    {
+        PolicyPackContentDocument document = new()
+        {
+            AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "True" },
+        };
+
+        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be("True");
+    }
 }
