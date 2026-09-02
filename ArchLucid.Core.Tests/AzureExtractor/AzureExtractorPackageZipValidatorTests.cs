@@ -78,6 +78,18 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_string_schemaVersion_succeeds()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 1, includeResources: true, stringSchemaVersion: true);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public void Validate_pascal_case_schemaVersion_succeeds()
     {
         byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 1, includeResources: true, pascalCaseSchemaVersion: true);
@@ -108,7 +120,8 @@ public sealed class AzureExtractorPackageZipValidatorTests
         int schemaVersion,
         bool includeResources,
         bool malformedManifest = false,
-        bool pascalCaseSchemaVersion = false)
+        bool pascalCaseSchemaVersion = false,
+        bool stringSchemaVersion = false)
     {
         using MemoryStream ms = new();
 
@@ -127,8 +140,9 @@ public sealed class AzureExtractorPackageZipValidatorTests
                 else
                 {
                     string schemaProperty = pascalCaseSchemaVersion ? "SchemaVersion" : "schemaVersion";
+                    string schemaValue = stringSchemaVersion ? "\"1\"" : schemaVersion.ToString();
                     writer.Write(
-                        $$"""{"{{schemaProperty}}":{{schemaVersion}},"subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}""");
+                        $$"""{"{{schemaProperty}}":{{schemaValue}},"subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}""");
                 }
             }
 

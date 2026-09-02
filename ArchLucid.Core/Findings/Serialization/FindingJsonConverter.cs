@@ -20,7 +20,7 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         Finding finding = new()
         {
             FindingSchemaVersion =
-                TryGetPropertyCaseInsensitive(root, "findingSchemaVersion", out JsonElement fsv) && fsv.TryGetInt32(out int v)
+                TryGetPropertyCaseInsensitive(root, "findingSchemaVersion", out JsonElement fsv) && TryReadInt32(fsv, out int v)
                     ? v
                     : 0,
             FindingId = ReadRequiredString(root, "findingId") is { Length: > 0 } findingId

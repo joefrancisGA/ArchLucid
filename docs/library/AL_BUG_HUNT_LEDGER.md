@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 20
-- **bugs-found:** 40
+- **hunts:** 21
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — extractor manifest PascalCase schemaVersion; finding JSON string-encoded numeric scalars
+- **last-bug:** 2026-09-02 — finding JSON string-encoded findingSchemaVersion; extractor manifest string schemaVersion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1836,6 +1836,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `FindingJsonConverter.Read` — string-encoded `confidenceScore` / `evaluationConfidenceScore` / `projectedImpactUsd` / `insightDensityScore` ignored (number JSON tokens only) — **hit 2026-09-02 (#431):** exporter string numerics left nullable scores null on snapshot reload; fixed with shared `TryReadFiniteDouble` / `TryReadInt32` / `TryReadDecimal` coercion (`FindingJsonConverterTests.Deserialize_string_encoded_confidenceScore_maps_value`).
 - [x] (proven) `AzureExtractorPackageZipValidator.TryReadManifestSchemaError` — case-sensitive `schemaVersion` lookup — **hit 2026-09-02 (#431):** PascalCase `"SchemaVersion":1` rejected valid customer ZIP manifests; fixed with case-insensitive property lookup (`AzureExtractorPackageZipValidatorTests.Validate_pascal_case_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
+- [x] (proven) `FindingJsonConverter.Read` — string-encoded `findingSchemaVersion` ignored (number JSON tokens only) — **hit 2026-09-02 (#432):** `"findingSchemaVersion":"2"` defaulted schema version to `0` while sibling numeric fields already coerced string tokens; fixed with `TryReadInt32` (`FindingJsonConverterTests.Deserialize_string_encoded_findingSchemaVersion_maps_version`).
+- [x] (proven) `AzureExtractorPackageZipValidator.TryReadManifestSchemaError` — string-encoded `schemaVersion` rejected — **hit 2026-09-02 (#432):** `"schemaVersion":"1"` failed manifest validation; fixed with `TryReadSchemaVersion` string coercion (`AzureExtractorPackageZipValidatorTests.Validate_string_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
+
+2026-09-02 seed hunt #432: reseeded from ArchLucid.Core; proved finding string-encoded findingSchemaVersion and extractor manifest string schemaVersion gaps.
 
 2026-09-02 seed hunt #431: reseeded from ArchLucid.Core; proved finding string-encoded numeric scalars and extractor manifest PascalCase schemaVersion gaps.
 

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO.Compression;
 using System.Text.Json;
 
@@ -125,8 +126,7 @@ public static class CloudInventoryExtractorPackageZipValidator
             if (!TryGetPropertyCaseInsensitive(document.RootElement, "schemaVersion", out JsonElement schemaVersionElement))
                 return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
 
-            if (schemaVersionElement.ValueKind is not JsonValueKind.Number
-                || !schemaVersionElement.TryGetInt32(out int schemaVersion))
+            if (!TryReadSchemaVersion(schemaVersionElement, out int schemaVersion))
             {
                 return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
             }
@@ -153,6 +153,20 @@ public static class CloudInventoryExtractorPackageZipValidator
         }
 
         return $"Unsupported manifest schemaVersion: {schemaVersion}. Required schemaVersion: {SupportedSchemaVersion}.";
+    }
+
+    private static bool TryReadSchemaVersion(JsonElement element, out int schemaVersion)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out schemaVersion))
+            return true;
+
+        if (element.ValueKind == JsonValueKind.String
+            && int.TryParse(element.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out schemaVersion))
+            return true;
+
+        schemaVersion = default;
+
+        return false;
     }
 
     private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)

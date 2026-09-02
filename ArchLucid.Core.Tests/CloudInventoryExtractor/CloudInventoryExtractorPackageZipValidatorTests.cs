@@ -79,6 +79,18 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_string_schemaVersion_succeeds()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 1, includeResources: true, stringSchemaVersion: true);
+
+        using MemoryStream stream = new(zipBytes);
+
+        CloudInventoryExtractorZipValidationResult result = CloudInventoryExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public void Validate_malformed_manifest_json_is_schema_rejection()
     {
         byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 1, includeResources: true, malformedManifest: true);
@@ -92,7 +104,12 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
         result.ErrorDetail.Should().Contain("valid JSON");
     }
 
-    private static byte[] BuildZip(bool includeManifest, int schemaVersion, bool includeResources, bool malformedManifest = false)
+    private static byte[] BuildZip(
+        bool includeManifest,
+        int schemaVersion,
+        bool includeResources,
+        bool malformedManifest = false,
+        bool stringSchemaVersion = false)
     {
         using MemoryStream ms = new();
 
@@ -110,8 +127,9 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
                 }
                 else
                 {
+                    string schemaValue = stringSchemaVersion ? "\"1\"" : schemaVersion.ToString();
                     writer.Write(
-                        $$"""{"schemaVersion":{{schemaVersion}},"cloudProvider":"Aws","accountId":"123456789012"}""");
+                        $$"""{"schemaVersion":{{schemaValue}},"cloudProvider":"Aws","accountId":"123456789012"}""");
                 }
             }
 
