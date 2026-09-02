@@ -12,17 +12,27 @@ import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-det
 import {
   RecurrenceSchedulePostCommitCardDeferred,
   ReviewDetailWorkspaceDeferred,
+  RunDetailArchitectureGraphIsland,
+  RunDetailBelowFoldDeferredSkeleton,
+  RunDetailBelowFoldSectionsDeferred,
   RunDetailColdOpenOrientationDeferred,
   RunDetailExplanationConfidenceBannerDeferred,
+  RunDetailExplanationDeferred,
+  RunDetailExplanationSkeleton,
   RunDetailGenerateAdrFromRunModal,
   RunDetailHolisticCriticPanelDeferred,
   RunDetailLastFailureCardDeferred,
   RunDetailManifestSummaryAlertsDeferred,
   RunDetailManifestSummarySectionDeferred,
+  RunDetailMidDeferredSections,
+  RunDetailMidDeferredSkeleton,
   RunDetailOperatorTechnicalForensicsPanelDeferred,
   RunDetailOutcomeCardsDeferred,
   RunDetailOverviewPanelClientDeferred,
+  RunDetailPackageChangesSinceFinalizeSection,
+  RunDetailPackageChangesSinceFinalizeSkeleton,
   RunDetailPolicyPackImpactCalloutDeferred,
+  RunDetailPostCommitHabitIsland,
   RunDetailProgressTrackerDeferred,
   RunDetailReviewPackageSectionDeferred,
   RunDetailReviewPackageShareRowDeferred,
@@ -30,31 +40,15 @@ import {
   RunDetailRunActionsSectionDeferred,
   RunDetailSampleReviewPackageSummaryDeferred,
   RunDetailSubmittedArchitectureSectionDeferred,
-  RunDetailTechnologyBaselineSection,
   RunDetailSponsorBottomLineDeferred,
   RunDetailSponsorReportCtaCardDeferred,
+  RunDetailTabbedSectionNavDeferred,
+  RunDetailTechnologyBaselineSection,
   RunDetailWorkspaceBlockingBannerDeferred,
   RunDetailWorkspaceSummaryStripDeferred,
-  RunDetailTabbedSectionNavDeferred,
-} from "./run-detail-page-view-deferred-chunks";
-import { RunDetailBelowFoldSectionsDeferred } from "./RunDetailBelowFoldSectionsDeferred";
-import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
-import {
-  RunDetailPackageChangesSinceFinalizeSection,
-} from "./RunDetailPackageChangesSinceFinalizeSection";
-import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
+  resolveRunDetailSponsorBriefingSection,
+} from "./RunDetailTabbedWorkspaceDeferredImports";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
-import {
-  RunDetailArchitectureGraphIsland,
-  RunDetailPostCommitHabitIsland,
-} from "./RunDetailTabbedDeferredIslands";
-import {
-  RunDetailBelowFoldDeferredSkeleton,
-  RunDetailExplanationSkeleton,
-  RunDetailMidDeferredSkeleton,
-  RunDetailPackageChangesSinceFinalizeSkeleton,
-} from "./RunDetailDeferredSkeleton";
-import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { ReviewInPipelineBanner } from "@/components/reviews/ReviewInPipelineBanner";
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";

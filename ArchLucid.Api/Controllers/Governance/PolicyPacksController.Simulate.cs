@@ -2,6 +2,8 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Http.Governance;
+using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Authorization;
@@ -31,39 +33,35 @@ public sealed partial class PolicyPacksController
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         if (string.IsNullOrWhiteSpace(request.RunId))
-        {
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
-        }
 
         if (!Guid.TryParse(request.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
-        {
             return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
-        }
 
         if (request.Content is null)
-        {
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
-        }
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
-        PolicyPackGovernanceDryRunResult? result = await _workflow.SimulateAsync(
+        PolicyPackHttpResult<PolicyPackGovernanceDryRunResult> result = await _httpFacade.SimulateAsync(
             request.Content,
             request.RunId,
             request.BlockCommitOnCritical,
             request.BlockCommitMinimumSeverity,
             request.ProposedPolicyPackId,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
-        if (result is null)
-            return this.NotFoundProblem(
-                "The target run was not found in the current tenant/workspace/project scope.",
-                ProblemTypes.ResourceNotFound);
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        return Ok(result);
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                "The target run was not found in the current tenant/workspace/project scope.");
+        }
+
+        return Ok(result.Value!);
     }
 
     /// <summary>Simulates the pack's latest version content against many runs.</summary>
@@ -81,7 +79,6 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        // Snapshot so later Count/foreach use a stable non-null local (property getters do not flow).
         List<string>? runIds = request.RunIds;
 
         if (runIds is null || runIds.Count == 0)
@@ -102,7 +99,7 @@ public sealed partial class PolicyPacksController
             if (string.IsNullOrWhiteSpace(runId))
                 continue;
 
-            if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+            if (!Guid.TryParse(runId.Trim(), out Guid parsedRunGuid) || parsedRunGuid == Guid.Empty)
             {
                 return this.BadRequestProblem(
                     "RunIds contains an invalid id.",
@@ -110,29 +107,31 @@ public sealed partial class PolicyPacksController
             }
         }
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackSimulateBulkSummary? summary = await _workflow.TrySimulateBulkAsync(
+        PolicyPackHttpResult<PolicyPackSimulateBulkSummary> result = await _httpFacade.SimulateBulkAsync(
             policyPackId,
             runIds,
             request.BlockCommitOnCritical,
             request.BlockCommitMinimumSeverity,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
-        if (summary is null)
-            return this.NotFoundProblem(
-                $"Policy pack '{policyPackId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        return Ok(MapBulkSummary(summary));
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                $"Policy pack '{policyPackId}' was not found in the current scope.");
+        }
+
+        return Ok(MapBulkSummary(result.Value!));
     }
 
     /// <summary>Validates raw policy pack content JSON against structural rules without persisting a pack.</summary>
@@ -149,33 +148,15 @@ public sealed partial class PolicyPacksController
         if (body.Value.ValueKind is not JsonValueKind.Object)
             return this.BadRequestProblem("Expected a JSON object.", ProblemTypes.ValidationFailed);
 
-        PolicyPackContentDocument? document;
+        PolicyPackHttpResult<PolicyPackContentValidationResponse> result =
+            await _httpFacade.ValidateContentAsync(body.Value, cancellationToken).ConfigureAwait(false);
 
-        try
-        {
-            document = JsonSerializer.Deserialize<PolicyPackContentDocument>(
-                body.Value.GetRawText(),
-                ContractJson.CamelCaseIgnoreNullCompact);
-        }
-        catch (JsonException jsonException)
-        {
-            return this.BadRequestProblem(
-                $"Invalid JSON: {jsonException.Message}",
-                ProblemTypes.ValidationFailed);
-        }
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        if (document is null)
-            return this.BadRequestProblem("Deserialized document is null.", ProblemTypes.ValidationFailed);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
-        PolicyPackContentValidationResponse response =
-            await _workflow.ValidateContentAsync(document, cancellationToken);
-
-        return Ok(response);
+        return Ok(result.Value!);
     }
 
     private static PolicyPackSimulateBulkSummaryResponse MapBulkSummary(PolicyPackSimulateBulkSummary summary) =>

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Contracts.Persistence.Context;
 using System.Globalization;
 
@@ -22,6 +23,15 @@ public sealed class AuthorityPipelineWorkPayload
         get;
         set;
     } = "";
+
+    /// <summary>
+    ///     Deferred outbox continuation phase handled by <see cref="IAuthorityPipelineWorkHandler" /> routing.
+    /// </summary>
+    public AuthorityPipelineWorkKind WorkKind
+    {
+        get;
+        set;
+    } = AuthorityPipelineWorkKind.Execute;
 
     /// <summary>
     ///     Whether the worker can resume deferred authority pipeline work from this payload.

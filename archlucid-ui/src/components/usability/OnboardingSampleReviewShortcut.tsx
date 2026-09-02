@@ -25,7 +25,7 @@ export function OnboardingSampleReviewShortcut(): React.JSX.Element {
               id="onboarding-sample-review-heading"
               className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}
             >
-              Run sample review first
+              Open a sample architecture package first
             </h2>
             <DemoDataBadge />
           </div>
@@ -34,7 +34,7 @@ export function OnboardingSampleReviewShortcut(): React.JSX.Element {
             {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions — no setup or input required.
           </p>
         </div>
-        <Button type="button" variant="primary" size="sm" asChild data-testid="onboarding-sample-review-open">
+        <Button type="button" variant="outline" size="sm" asChild data-testid="onboarding-sample-review-open">
           <Link href={sampleReviewHref}>Open sample review</Link>
         </Button>
       </div>

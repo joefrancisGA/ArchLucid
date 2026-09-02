@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { Button } from "@/components/ui/button";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import {
   FINISH_SETUP_SYSTEM_HEALTH_PATH,
@@ -14,13 +13,14 @@ import {
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { Button } from "@/components/ui/button";
 
 type OptionalWorkspaceSetupRow = {
   readonly id: string;
   readonly title: string;
   readonly benefit: string;
   readonly statusLabel: string;
-  readonly statusKind: "ready" | "neutral" | "draft";
+  readonly statusKind: "ready" | "needs-attention" | "draft";
   readonly href: string;
   readonly actionLabel: string;
 };
@@ -30,16 +30,10 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
   const rows: OptionalWorkspaceSetupRow[] = [
     {
       id: "identity",
-      title: "Identity and single sign-on",
+      title: "Identity and single sign-on (optional)",
       benefit: "Allow users to sign in with corporate credentials.",
-      statusLabel:
-        context.identityConfigured === true
-          ? "Complete"
-          : context.identityConfigured === false
-            ? "Not configured"
-            : "Optional",
-      statusKind:
-        context.identityConfigured === true ? "ready" : context.identityConfigured === false ? "draft" : "neutral",
+      statusLabel: context.identityConfigured === true ? "Ready" : "Draft",
+      statusKind: context.identityConfigured === true ? "ready" : "draft",
       href: "/administration/identity/sso-wizard",
       actionLabel: "Open SSO wizard",
     },
@@ -47,7 +41,7 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
       id: "admin-role",
       title: "Administrator access",
       benefit: "Confirm that at least one workspace administrator is assigned.",
-      statusLabel: context.principalAdmin ? "Complete" : "Not configured",
+      statusLabel: context.principalAdmin ? "Ready" : "Draft",
       statusKind: context.principalAdmin ? "ready" : "draft",
       href: SETTINGS_USERS_PATH,
       actionLabel: "Manage roles",
@@ -62,7 +56,7 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
       title: "Platform health",
       benefit: "Confirm that required services are available.",
       statusLabel: healthReady ? "Ready" : "Needs attention",
-      statusKind: healthReady ? "ready" : "draft",
+      statusKind: healthReady ? "ready" : "needs-attention",
       href: FINISH_SETUP_SYSTEM_HEALTH_PATH,
       actionLabel: "Open system health",
     });
@@ -70,10 +64,10 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
 
   rows.push({
     id: "roi-baseline",
-    title: "ROI baseline",
+    title: "ROI baseline (optional)",
     benefit: "Add assumptions used in sponsor and portfolio value reporting.",
-    statusLabel: "Optional",
-    statusKind: "neutral",
+    statusLabel: "Draft",
+    statusKind: "draft",
     href: "/administration/baseline",
     actionLabel: "Configure ROI baseline",
   });

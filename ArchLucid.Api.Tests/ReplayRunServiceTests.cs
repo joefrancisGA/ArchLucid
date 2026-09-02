@@ -122,7 +122,8 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuditService>(),
             UnitTestActor(),
             Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommandService>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
             EmptyStageOutcomesRepository(),
             NullLogger<ReplayRunService>.Instance);
     }

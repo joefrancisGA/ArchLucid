@@ -66,7 +66,7 @@ internal static class FindingRecordKeysetPageReader
 
     /// <summary>Blank filter values mean "no filter", which the SQL expresses as a <c>NULL</c> parameter.</summary>
     private static string? OptionalEqualityFilter(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        FindingsSnapshotRepositoryCore.NormalizeFilter(value);
 
     private static FindingRecordMetadataRow MapRow(FindingRecordMetadataSqlRow row) =>
         new(

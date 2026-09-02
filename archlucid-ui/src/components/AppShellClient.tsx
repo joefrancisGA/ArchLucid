@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
-import { Suspense, useEffect, useLayoutEffect, useRef, useState, useCallback, type ReactNode, type RefObject } from "react";
-
-import { usePathname, useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
@@ -49,11 +47,6 @@ import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
 import {
-  pathMatchesGovernanceAlerts,
-  pathMatchesGovernanceAudit,
-  pathMatchesGovernancePolicyPacks,
-} from "@/lib/governance/governance-route-paths";
-import {
   OPERATOR_LINK,
   OPERATOR_SHELL_BODY_ROW_CLASS,
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
@@ -65,10 +58,10 @@ import {
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { useAppShellStickyOffsetSync } from "@/hooks/useAppShellStickyOffsetSync";
+import { useAppShellState } from "@/hooks/use-app-shell-state";
 import { useOperatorShellChromeDeferred } from "@/hooks/useOperatorShellChromeDeferred";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 import type { HelpTabId } from "@/components/HelpPanel";
-import { resolveOperatorHelpRequestForPathname } from "@/lib/usability/resolve-operator-help-request";
 
 type AppShellHelpOverlaysProps = {
   helpDocSearchOpen: boolean;
@@ -168,48 +161,25 @@ export function AppShellClient({ children }: AppShellClientProps) {
 }
 
 function AppShellInner({ children }: AppShellClientProps) {
-  const pathname = usePathname();
-  const router = useRouter();
   const chromeMode = useOperatorChromeMode();
   const deferChrome = useOperatorShellChromeDeferred();
-  const [helpGuidesOpen, setHelpGuidesOpen] = useState(false);
-  const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>("guides");
-  const [helpDocSearchOpen, setHelpDocSearchOpen] = useState(false);
-  const openHelpSearch = useCallback(() => {
-    const request = resolveOperatorHelpRequestForPathname(pathname ?? "/");
-
-    if (request.kind === "navigate") {
-      router.push(request.href);
-      return;
-    }
-
-    setHelpDocSearchOpen(true);
-  }, [pathname, router]);
-  const openHelpGuidesPanel = useCallback((initialTab: HelpTabId = "guides") => {
-    setHelpGuidesInitialTab(initialTab);
-    setHelpGuidesOpen(true);
-  }, []);
+  const {
+    pathname,
+    helpGuidesOpen,
+    helpGuidesInitialTab,
+    helpDocSearchOpen,
+    setHelpDocSearchOpen,
+    setHelpGuidesOpen,
+    openHelpSearch,
+    openHelpGuidesPanel,
+    hideWorkspaceHealthFooter,
+    isAccessDeniedRoute,
+    isStandaloneAccessSurface,
+  } = useAppShellState();
   const shellRootRef = useRef<HTMLDivElement>(null);
   const stickyHeaderRef = useRef<HTMLDivElement>(null);
   useAppShellStickyOffsetSync(stickyHeaderRef);
   useRouteChangeFocus("main-content");
-
-  /** Omit platform readiness on operator home — avoids “Healthy” next to an empty or fragile demo workspace story. */
-  const hideWorkspaceHealthFooter =
-    pathname === "/" ||
-    pathname.startsWith("/help") ||
-    pathname.startsWith("/insights/evidence-graph") ||
-    pathname.startsWith("/insights/ask-review-questions") ||
-    pathname.startsWith("/governance") ||
-    pathMatchesGovernanceAudit(pathname) ||
-    pathMatchesGovernanceAlerts(pathname) ||
-    pathMatchesGovernancePolicyPacks(pathname) ||
-    (pathname.startsWith("/architecture/reviews/") && pathname.split("/").filter(Boolean).length >= 2);
-
-  /** Auth and access-denied pages render without nav/workspace chrome to avoid confusion. */
-  const isAuthRoute = pathname.startsWith("/auth/");
-  const isAccessDeniedRoute = pathname === "/403";
-  const isStandaloneAccessSurface = isAuthRoute || isAccessDeniedRoute;
 
   /**
    * `useLayoutEffect`: runs before paint so Playwright sees the marker as soon as the shell DOM commits.

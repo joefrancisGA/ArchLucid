@@ -16,6 +16,13 @@ const COMMIT_SCAN_PAGE_SIZE = 40;
 
 const FETCH_BUDGET_MS = 10_000;
 
+export type SealedReviewRecordSummary = {
+  readonly runId: string;
+  readonly displayName: string | null;
+  readonly finalizedOnUtc: string | null;
+  readonly finalizedByUserId: string | null;
+};
+
 export type CorePilotCommitContext = {
   /** True when tenant has at least one authority-committed manifest (trial anchor or run row). */
   hasCommittedManifest: boolean;
@@ -29,6 +36,8 @@ export type CorePilotCommitContext = {
   secondCommittedRunId: string | null;
   /** Newest run has findings but no golden manifest — finalize CTA applies. */
   latestRunReadyToFinalize: boolean;
+  /** Provenance for the first sealed review record when `firstCommittedRunId` is known. */
+  sealedReviewRecord: SealedReviewRecordSummary | null;
 };
 
 function isCommittedRunSummary(run: RunSummary): boolean {
@@ -42,27 +51,78 @@ export const PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT: CorePilotCommitContext = {
   firstCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
   secondCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: {
+    runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+    displayName: "Sample architecture review",
+    finalizedOnUtc: "2026-04-15T12:00:00.000Z",
+    finalizedByUserId: null,
+  },
 };
 
-/** True when tenant trial status records a first commit timestamp. */
-export async function fetchTrialAnchoredCommit(): Promise<boolean> {
+type TrialCommitAnchor = {
+  readonly anchored: boolean;
+  readonly firstCommitUtc: string | null;
+};
+
+async function fetchTrialCommitAnchor(): Promise<TrialCommitAnchor> {
   try {
     const payload = await fetchTenantTrialStatusCached();
-
-    return (
+    const firstCommitUtc =
       payload !== null &&
       typeof payload.firstCommitUtc === "string" &&
       payload.firstCommitUtc.length > 0
-    );
+        ? payload.firstCommitUtc
+        : null;
+
+    return {
+      anchored: firstCommitUtc !== null,
+      firstCommitUtc,
+    };
   } catch {
-    return false;
+    return { anchored: false, firstCommitUtc: null };
   }
+}
+
+/** True when tenant trial status records a first commit timestamp. */
+export async function fetchTrialAnchoredCommit(): Promise<boolean> {
+  const anchor = await fetchTrialCommitAnchor();
+
+  return anchor.anchored;
+}
+
+function resolveSealedReviewRecordSummary(
+  committed: RunSummary | undefined,
+  firstCommittedRunId: string | null,
+  trialFirstCommitUtc: string | null,
+): SealedReviewRecordSummary | null {
+  if (firstCommittedRunId === null) {
+    return null;
+  }
+
+  const displayName = committed?.displayName?.trim() ?? "";
+  const completedUtc = committed?.completedUtc?.trim() ?? "";
+  const createdUtc = committed?.createdUtc?.trim() ?? "";
+
+  return {
+    runId: firstCommittedRunId,
+    displayName: displayName.length > 0 ? displayName : null,
+    finalizedOnUtc:
+      completedUtc.length > 0
+        ? completedUtc
+        : createdUtc.length > 0
+          ? createdUtc
+          : trialFirstCommitUtc !== null && trialFirstCommitUtc.length > 0
+            ? trialFirstCommitUtc
+            : null,
+    finalizedByUserId: null,
+  };
 }
 
 /** Derives commit signals from an already-loaded run page (avoids a second runs list fetch). */
 export function buildCorePilotCommitContextFromRunItems(
   items: readonly RunSummary[],
   trialAnchoredCommit: boolean,
+  trialFirstCommitUtc: string | null = null,
 ): CorePilotCommitContext {
   const latestRun = items.length > 0 ? items[0]! : null;
   const latestRunId = latestRun?.runId ?? null;
@@ -75,14 +135,16 @@ export function buildCorePilotCommitContextFromRunItems(
   const secondCommitted = committedRuns.length > 1 ? committedRuns[1] : undefined;
   const committedReviewCount = Math.max(committedRuns.length, trialAnchoredCommit ? 1 : 0);
   const hasCommittedManifest = trialAnchoredCommit || committed !== undefined;
+  const firstCommittedRunId = committed?.runId ?? null;
 
   return {
     hasCommittedManifest,
     committedReviewCount,
     latestRunId,
-    firstCommittedRunId: committed?.runId ?? null,
+    firstCommittedRunId,
     secondCommittedRunId: secondCommitted?.runId ?? null,
     latestRunReadyToFinalize,
+    sealedReviewRecord: resolveSealedReviewRecordSummary(committed, firstCommittedRunId, trialFirstCommitUtc),
   };
 }
 
@@ -94,9 +156,9 @@ export async function resolveCorePilotCommitContextFromRunItems(
     return PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT;
   }
 
-  const trialAnchoredCommit = await fetchTrialAnchoredCommit();
+  const trialAnchor = await fetchTrialCommitAnchor();
 
-  return buildCorePilotCommitContextFromRunItems(items, trialAnchoredCommit);
+  return buildCorePilotCommitContextFromRunItems(items, trialAnchor.anchored, trialAnchor.firstCommitUtc);
 }
 
 /**
@@ -108,7 +170,7 @@ export async function fetchCorePilotCommitContext(): Promise<CorePilotCommitCont
     return PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT;
   }
 
-  const trialAnchoredCommit = await fetchTrialAnchoredCommit();
+  const trialAnchor = await fetchTrialCommitAnchor();
 
   try {
     const scopeHeaders =
@@ -127,12 +189,16 @@ export async function fetchCorePilotCommitContext(): Promise<CorePilotCommitCont
     const coerced = coerceRunSummaryPaged(raw);
 
     if (!coerced.ok) {
-      return buildCorePilotCommitContextFromRunItems([], trialAnchoredCommit);
+      return buildCorePilotCommitContextFromRunItems([], trialAnchor.anchored, trialAnchor.firstCommitUtc);
     }
 
-    return buildCorePilotCommitContextFromRunItems(coerced.value.items, trialAnchoredCommit);
+    return buildCorePilotCommitContextFromRunItems(
+      coerced.value.items,
+      trialAnchor.anchored,
+      trialAnchor.firstCommitUtc,
+    );
   } catch {
-    return buildCorePilotCommitContextFromRunItems([], trialAnchoredCommit);
+    return buildCorePilotCommitContextFromRunItems([], trialAnchor.anchored, trialAnchor.firstCommitUtc);
   }
 }
 

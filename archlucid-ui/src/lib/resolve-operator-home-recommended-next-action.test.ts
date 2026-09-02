@@ -21,6 +21,7 @@ const emptyContext: CorePilotCommitContext = {
   firstCommittedRunId: null,
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 describe("resolveOperatorHomeRecommendedNextAction", () => {

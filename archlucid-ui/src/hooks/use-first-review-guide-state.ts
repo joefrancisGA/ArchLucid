@@ -6,6 +6,7 @@ import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-co
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import type { SealedReviewRecordSummary } from "@/lib/core-pilot-commit-context";
 import {
   resolveFirstReviewGuideHeaderActions,
   resolveFirstReviewGuideProgress,
@@ -33,6 +34,8 @@ export type FirstReviewGuideViewState = {
   readonly canExecute: boolean;
   readonly readyToFinalize: boolean;
   readonly latestRunHref: string | null;
+  readonly hasCommittedManifest: boolean;
+  readonly sealedReviewRecord: SealedReviewRecordSummary | null;
 };
 
 const loadingReadiness: FirstReviewGuideReadiness = {
@@ -89,6 +92,8 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
         canExecute,
         readyToFinalize: false,
         latestRunHref: null,
+        hasCommittedManifest: false,
+        sealedReviewRecord: null,
       };
     }
 
@@ -116,6 +121,8 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
         commitContext.latestRunId !== null
           ? `/architecture/reviews/${encodeURIComponent(commitContext.latestRunId)}`
           : null,
+      hasCommittedManifest: commitContext.hasCommittedManifest,
+      sealedReviewRecord: commitContext.sealedReviewRecord,
     };
   }, [
     canExecute,

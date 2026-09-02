@@ -1,88 +1,63 @@
-/**
- * JSON shapes for GET /v1/product-learning/* (camelCase from ASP.NET).
- * Change Set 58R — pilot feedback rollups.
- */
+import type { components } from "@/lib/openapi-schemas";
 
-export type ProductLearningDashboardSummaryResponse = {
-  generatedUtc: string;
-  tenantId: string;
-  workspaceId: string;
-  projectId: string;
-  totalSignalsInScope: number;
-  distinctRunsTouched: number;
-  topAggregateCount: number;
-  artifactTrendCount: number;
-  improvementOpportunityCount: number;
-  triageQueueItemCount: number;
-  summaryNotes: string[];
-};
+type ProductLearningDashboardSummaryResponseSchema =
+  components["schemas"]["ProductLearningDashboardSummaryResponse"];
 
-export type ArtifactOutcomeTrend = {
-  trendKey: string;
-  artifactTypeOrHint: string;
-  windowLabel: string | null;
-  acceptedOrTrustedCount: number;
-  revisionCount: number;
-  rejectionCount: number;
-  needsFollowUpCount: number;
-  distinctRunCount: number;
-  averageTrustScore: number | null;
-  averageUsefulnessScore: number | null;
-  repeatedThemeIndicator: string | null;
-  firstSeenUtc: string;
-  lastSeenUtc: string;
-};
+export type ProductLearningDashboardSummaryResponse = ProductLearningDashboardSummaryResponseSchema &
+  Required<
+    Pick<
+      ProductLearningDashboardSummaryResponseSchema,
+      | "generatedUtc"
+      | "tenantId"
+      | "workspaceId"
+      | "projectId"
+      | "totalSignalsInScope"
+      | "distinctRunsTouched"
+      | "topAggregateCount"
+      | "artifactTrendCount"
+      | "improvementOpportunityCount"
+      | "triageQueueItemCount"
+      | "summaryNotes"
+    >
+  >;
 
-export type ImprovementOpportunity = {
-  opportunityId: string;
-  sourceAggregateKey: string | null;
-  patternKey: string | null;
-  title: string;
-  summary: string;
-  affectedArtifactTypeOrWorkflowArea: string;
-  severity: string;
-  priorityRank: number;
-  suggestedOwnerRole: string | null;
-  evidenceSignalCount: number;
-  distinctRunCount: number;
-  averageTrustScore: number | null;
-  repeatedThemeSnippet: string | null;
-  firstSeenUtc: string;
-  lastSeenUtc: string;
-};
+export type ArtifactOutcomeTrend = components["schemas"]["ArtifactOutcomeTrend"];
 
-export type TriageQueueItem = {
-  queueItemId: string;
-  relatedSignalId: string | null;
-  relatedOpportunityId: string | null;
-  title: string;
-  detailSummary: string;
-  priorityRank: number;
-  severity: string;
-  affectedArtifactTypeOrWorkflowArea: string;
-  triageStatus: string;
-  firstSeenUtc: string;
-  lastSeenUtc: string;
-  suggestedNextAction: string | null;
-};
+export type ImprovementOpportunity = components["schemas"]["ImprovementOpportunity"];
 
-export type ProductLearningImprovementOpportunitiesResponse = {
-  generatedUtc: string;
-  opportunities: ImprovementOpportunity[];
-};
+export type TriageQueueItem = components["schemas"]["TriageQueueItem"];
 
-export type ProductLearningArtifactOutcomeTrendsResponse = {
-  generatedUtc: string;
-  trends: ArtifactOutcomeTrend[];
-};
+type ProductLearningImprovementOpportunitiesResponseSchema =
+  components["schemas"]["ProductLearningImprovementOpportunitiesResponse"];
 
-export type ProductLearningTriageQueueResponse = {
-  generatedUtc: string;
-  items: TriageQueueItem[];
-};
+export type ProductLearningImprovementOpportunitiesResponse =
+  ProductLearningImprovementOpportunitiesResponseSchema &
+    Required<Pick<ProductLearningImprovementOpportunitiesResponseSchema, "generatedUtc">> & {
+      opportunities: ImprovementOpportunity[];
+    };
+
+type ProductLearningArtifactOutcomeTrendsResponseSchema =
+  components["schemas"]["ProductLearningArtifactOutcomeTrendsResponse"];
+
+export type ProductLearningArtifactOutcomeTrendsResponse = ProductLearningArtifactOutcomeTrendsResponseSchema &
+  Required<Pick<ProductLearningArtifactOutcomeTrendsResponseSchema, "generatedUtc">> & {
+    trends: ArtifactOutcomeTrend[];
+  };
+
+type ProductLearningTriageQueueResponseSchema = components["schemas"]["ProductLearningTriageQueueResponse"];
+
+export type ProductLearningTriageQueueResponse = ProductLearningTriageQueueResponseSchema &
+  Required<Pick<ProductLearningTriageQueueResponseSchema, "generatedUtc">> & {
+    items: TriageQueueItem[];
+  };
+
+type ProductLearningDashboardBundleSchema = components["schemas"]["ProductLearningDashboardBundleResponse"];
 
 /** Result of loading all four product-learning slices in parallel (same scope and optional `since`). */
-export type ProductLearningDashboardBundle = {
+export type ProductLearningDashboardBundle = Omit<
+  ProductLearningDashboardBundleSchema,
+  "summary" | "opportunities" | "trends" | "triage"
+> & {
   summary: ProductLearningDashboardSummaryResponse;
   opportunities: ProductLearningImprovementOpportunitiesResponse;
   trends: ProductLearningArtifactOutcomeTrendsResponse;

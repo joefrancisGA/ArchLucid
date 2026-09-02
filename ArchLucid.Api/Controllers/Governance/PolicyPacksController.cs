@@ -3,13 +3,10 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
-using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
-using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
@@ -35,22 +32,14 @@ namespace ArchLucid.Api.Controllers.Governance;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public sealed partial class PolicyPacksController(
-    IPolicyPackWorkflowFacade workflow,
+    IPolicyPackHttpFacade httpFacade,
     IValidator<CreatePolicyPackRequest> createPolicyPackRequestValidator,
     IValidator<PublishPolicyPackVersionRequest> publishPolicyPackVersionRequestValidator,
-    IValidator<AssignPolicyPackRequest> assignPolicyPackRequestValidator,
-    IScopeContextProvider scopeContextProvider,
-    ITenantRepository tenantRepository)
+    IValidator<AssignPolicyPackRequest> assignPolicyPackRequestValidator)
     : ControllerBase
 {
-    private readonly IPolicyPackWorkflowFacade _workflow =
-        workflow ?? throw new ArgumentNullException(nameof(workflow));
-
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+    private readonly IPolicyPackHttpFacade _httpFacade =
+        httpFacade ?? throw new ArgumentNullException(nameof(httpFacade));
 
     private readonly IValidator<CreatePolicyPackRequest> _createPolicyPackRequestValidator =
         createPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(createPolicyPackRequestValidator));
@@ -61,17 +50,6 @@ public sealed partial class PolicyPacksController(
 
     private readonly IValidator<AssignPolicyPackRequest> _assignPolicyPackRequestValidator =
         assignPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(assignPolicyPackRequestValidator));
-
-    private async Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken)
-    {
-        (IActionResult? problem, _) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeContextProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
-
-        return problem;
-    }
 
     private IActionResult? BadRequestWhenRouteIdEmpty(Guid id, string parameterName) =>
         PolicyPacksHttpMapper.ValidateRouteId(id, parameterName).ToBadRequestProblemOrNull(this);
@@ -95,19 +73,22 @@ public sealed partial class PolicyPacksController(
         if (validationProblem is not null)
             return validationProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        PolicyPackHttpResult<PolicyPack> result = await _httpFacade.CreatePackAsync(
+            new PolicyPackCreateBody
+            {
+                Name = request.Name,
+                Description = request.Description,
+                PackType = request.PackType,
+                InitialContentJson = request.InitialContentJson,
+            },
+            ct).ConfigureAwait(false);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        PolicyPack pack = await _workflow.CreatePackAsync(
-            request.Name,
-            request.Description,
-            request.PackType,
-            request.InitialContentJson,
-            ct);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
-        return Ok(pack);
+        return Ok(result.Value!);
     }
 
     /// <summary>Publishes or upserts a version for the pack and marks the pack active.</summary>
@@ -130,28 +111,33 @@ public sealed partial class PolicyPacksController(
         if (validationProblem is not null)
             return validationProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackVersion? version = await _workflow.TryPublishVersionAsync(
+        PolicyPackHttpResult<PolicyPackVersion> result = await _httpFacade.PublishVersionAsync(
             policyPackId,
-            request.Version.Trim(),
-            request.ContentJson,
-            ct);
+            new PolicyPackPublishBody
+            {
+                Version = request.Version,
+                ContentJson = request.ContentJson,
+            },
+            ct).ConfigureAwait(false);
 
-        if (version is null)
-            return this.NotFoundProblem(
-                $"Policy pack '{policyPackId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        return Ok(version);
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                $"Policy pack '{policyPackId}' was not found in the current scope.");
+        }
+
+        return Ok(result.Value!);
     }
 
     /// <summary>Assigns an existing published version to a governance tier for the current scope.</summary>
@@ -175,37 +161,22 @@ public sealed partial class PolicyPacksController(
         if (validationProblem is not null)
             return validationProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        string versionKey = request.Version.Trim();
-        string scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
-
-        PolicyPackAssignWorkflowResult assignResult = await _workflow.TryAssignAsync(
+        PolicyPackAssignHttpResult result = await _httpFacade.AssignAsync(
             policyPackId,
-            versionKey,
-            scopeLevel,
-            request.IsPinned,
-            ct);
+            new PolicyPackAssignBody
+            {
+                Version = request.Version,
+                ScopeLevel = request.ScopeLevel,
+                IsPinned = request.IsPinned,
+            },
+            ct).ConfigureAwait(false);
 
-        return assignResult.Outcome switch
-        {
-            PolicyPackAssignOutcome.Assigned => Ok(assignResult.Assignment!),
-            PolicyPackAssignOutcome.PackNotFound => this.NotFoundProblem(
-                $"Policy pack '{policyPackId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound),
-            PolicyPackAssignOutcome.VersionNotFound => this.NotFoundProblem(
-                $"Policy pack version '{versionKey}' was not found for pack '{policyPackId}'.",
-                ProblemTypes.PolicyPackVersionNotFound),
-            _ => throw new InvalidOperationException($"Unexpected assign outcome: {assignResult.Outcome}."),
-        };
+        return this.MapAssign(result);
     }
 
     /// <summary>Soft-deletes a policy pack assignment for the current tenant (row retained for audit).</summary>
@@ -216,22 +187,25 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ArchiveAssignment(Guid assignmentId, CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        bool ok = await _workflow.TryArchiveAssignmentAsync(assignmentId, ct);
+        PolicyPackHttpResult<bool> result = await _httpFacade.ArchiveAssignmentAsync(assignmentId, ct)
+            .ConfigureAwait(false);
 
-        if (!ok)
-            return this.NotFoundProblem(
-                $"Assignment '{assignmentId}' was not found or is already archived for this tenant.",
-                ProblemTypes.ResourceNotFound);
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                $"Assignment '{assignmentId}' was not found or is already archived for this tenant.");
+        }
 
         return NoContent();
     }
@@ -243,22 +217,25 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeletePack(Guid policyPackId, CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        bool ok = await _workflow.TrySoftDeletePackAsync(policyPackId, ct);
+        PolicyPackHttpResult<bool> result = await _httpFacade.SoftDeletePackAsync(policyPackId, ct)
+            .ConfigureAwait(false);
 
-        if (!ok)
-            return this.NotFoundProblem(
-                $"Policy pack '{policyPackId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                $"Policy pack '{policyPackId}' was not found in the current scope.");
+        }
 
         return NoContent();
     }
@@ -271,24 +248,27 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DuplicatePack(Guid policyPackId, CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPack? duplicate = await _workflow.TryDuplicatePackAsync(policyPackId, ct);
+        PolicyPackHttpResult<PolicyPack> result = await _httpFacade.DuplicatePackAsync(policyPackId, ct)
+            .ConfigureAwait(false);
 
-        if (duplicate is null)
-            return this.NotFoundProblem(
-                $"Policy pack '{policyPackId}' was not found or has no versions to duplicate.",
-                ProblemTypes.ResourceNotFound);
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        return Ok(duplicate);
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                $"Policy pack '{policyPackId}' was not found or has no versions to duplicate.");
+        }
+
+        return Ok(result.Value!);
     }
 
     /// <summary>Lists packs whose authoring scope matches the current tenant/workspace/project.</summary>
@@ -297,19 +277,21 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> List(CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        PolicyPackHttpResult<IReadOnlyList<PolicyPack>> result = await _httpFacade.ListVisiblePacksAsync(ct)
+            .ConfigureAwait(false);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        IReadOnlyList<PolicyPack> visiblePacks = await _workflow.ListVisiblePacksAsync(ct);
-        return Ok(visiblePacks);
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        return Ok(result.Value!);
     }
 
     /// <summary>Enables or disables one policy pack assignment for the current workspace scope.</summary>
     [HttpPut("assignments/{assignmentId:guid}/enabled")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
-    [MutatingAuditExcluded("Audit: IPolicyPackWorkflowFacade.TrySetAssignmentEnabledAsync logs PolicyPackAssignmentEnabledChanged.")]
+    [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.SetAssignmentEnabledAsync logs PolicyPackAssignmentEnabledChanged.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SetAssignmentEnabled(
@@ -320,23 +302,27 @@ public sealed partial class PolicyPacksController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
 
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, request.IsEnabled, ct);
+        PolicyPackHttpResult<bool> result = await _httpFacade.SetAssignmentEnabledAsync(
+                assignmentId,
+                request.IsEnabled,
+                ct)
+            .ConfigureAwait(false);
 
-        if (!ok)
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
         {
-            return this.NotFoundProblem(
-                $"Assignment '{assignmentId}' was not found or cannot be enabled in the current scope.",
-                ProblemTypes.ResourceNotFound);
+            return this.MapResourceNotFound(
+                result,
+                $"Assignment '{assignmentId}' was not found or cannot be enabled in the current scope.");
         }
 
         return NoContent();

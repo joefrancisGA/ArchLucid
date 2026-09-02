@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Execute;
+using ArchLucid.Application.Runs.Orchestration.Execute.Hooks;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
@@ -68,16 +69,12 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
 
         ArchitectureRunExecutePostExecuteHooks postExecuteHooks =
             args.PostExecuteHooks
-            ?? CreatePostExecuteHooks(
-                scopeContextProvider: scopeContextProvider,
-                runRepository: runRepository,
-                runStateTransitionService: runStateTransitionService);
+            ?? CreatePostExecuteHooks();
 
         IArchLucidUnitOfWorkFactory unitOfWorkFactory =
             args.UnitOfWorkFactory ?? ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory();
 
-        IArchitectureRunExecutePersistenceStage persistenceStage = new ArchitectureRunExecutePersistenceStage(
-            unitOfWorkFactory,
+        IArchitectureRunExecutePersistRowsStage persistRowsStage = new ArchitectureRunExecutePersistRowsStage(
             scopeContextProvider,
             args.AgentEvidencePackageRepository ?? Mock.Of<IAgentEvidencePackageRepository>(),
             resultRepository,
@@ -85,15 +82,23 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             runRepository,
             effectiveModeAccessor);
 
-        IArchitectureRunExecuteQualityGateStage qualityGateStage = new ArchitectureRunExecuteQualityGateStage(
+        IArchitectureRunExecutePersistenceStage persistenceStage = new ArchitectureRunExecutePersistenceStage(
+            unitOfWorkFactory,
+            persistRowsStage);
+
+        IArchitectureRunExecuteQualityGateRetryStage qualityGateRetryStage = new ArchitectureRunExecuteQualityGateRetryStage(
             args.AgentOutputQualityGateOptions ?? Options.Create(new AgentOutputQualityGateOptions()),
-            args.OutputTraceEvaluationHook ?? Mock.Of<IAgentOutputTraceEvaluationHook>(),
             agentExecutor,
             args.AgentResultPostExecutionEnricher ?? new NoOpAgentResultPostExecutionEnricher(),
             resultRepository,
             scopeContextProvider,
+            persistRowsStage);
+
+        IArchitectureRunExecuteQualityGateStage qualityGateStage = new ArchitectureRunExecuteQualityGateStage(
+            args.AgentOutputQualityGateOptions ?? Options.Create(new AgentOutputQualityGateOptions()),
+            args.OutputTraceEvaluationHook ?? Mock.Of<IAgentOutputTraceEvaluationHook>(),
             postExecuteHooks,
-            persistenceStage,
+            qualityGateRetryStage,
             NullLogger<ArchitectureRunExecuteQualityGateStage>.Instance);
 
         IArchitectureRunExecuteFailureRecorder failureRecorder = new ArchitectureRunExecuteFailureRecorder(
@@ -102,18 +107,30 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             runStateTransitionService,
             NullLogger<ArchitectureRunExecuteFailureRecorder>.Instance);
 
-        IArchitectureRunExecutePreExecuteStage preExecuteStage = new ArchitectureRunExecutePreExecuteStage(
+        IArchitectureRunExecuteIdempotencyStage idempotencyStage = new ArchitectureRunExecuteIdempotencyStage(
             scopeContextProvider,
             runRepository,
             taskRepository,
             resultRepository,
             runStateTransitionService,
             args.OperationCancellationRegistry ?? new OperationCancellationRegistry(),
-            args.RunCancellationMarker ?? new OperationRunCancellationMarker(runRepository),
             effectiveModeAccessor,
             args.ActorContext ?? Mock.Of<IActorContext>(),
             postExecuteHooks,
-            NullLogger<ArchitectureRunExecutePreExecuteStage>.Instance);
+            NullLogger<ArchitectureRunExecuteIdempotencyStage>.Instance);
+
+        IArchitectureRunExecuteCancellationGuardStage cancellationGuardStage =
+            new ArchitectureRunExecuteCancellationGuardStage(
+                scopeContextProvider,
+                runRepository,
+                args.OperationCancellationRegistry ?? new OperationCancellationRegistry(),
+                args.RunCancellationMarker ?? new OperationRunCancellationMarker(runRepository));
+
+        IArchitectureRunExecutePreExecuteStage preExecuteStage = new ArchitectureRunExecutePreExecuteStage(
+            scopeContextProvider,
+            runRepository,
+            idempotencyStage,
+            cancellationGuardStage);
 
         IAgentLoopPrepareStage prepareStage = new AgentLoopPrepareStage(
             requestRepository,
@@ -218,17 +235,49 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
         IIntegrationEventOutboxRepository? integrationEventOutbox = null,
         IIntegrationEventPublisher? integrationEventPublisher = null,
         IOptionsMonitor<IntegrationEventsOptions>? integrationEventsOptions = null,
-        ILogger<ArchitectureRunExecutePostExecuteHooks>? logger = null) =>
-        new(
-            auditService ?? Mock.Of<IAuditService>(),
-            scopeContextProvider ?? Mock.Of<IScopeContextProvider>(),
-            baselineMutationAudit ?? Mock.Of<IBaselineMutationAuditService>(),
-            runRepository ?? Mock.Of<IRunRepository>(),
-            runStateTransitionService ?? new RunStateTransitionService(),
-            integrationEventOutbox ?? CreateIntegrationEventOutbox(),
-            integrationEventPublisher ?? CreateIntegrationEventPublisher(),
-            integrationEventsOptions ?? CreateIntegrationEventsOptionsMonitor(),
-            logger ?? NullLogger<ArchitectureRunExecutePostExecuteHooks>.Instance);
+        ILogger<ArchitectureRunExecutePostExecuteHooks>? logger = null,
+        IArchitectureRunExecuteAuditHook? auditHook = null,
+        IArchitectureRunExecuteBaselineMutationHook? baselineMutationHook = null,
+        IArchitectureRunExecuteOutboxPublishHook? outboxPublishHook = null)
+    {
+        if (auditService is not null
+            || scopeContextProvider is not null
+            || baselineMutationAudit is not null
+            || runRepository is not null
+            || runStateTransitionService is not null
+            || integrationEventOutbox is not null
+            || integrationEventPublisher is not null
+            || integrationEventsOptions is not null
+            || logger is not null)
+        {
+            IScopeContextProvider scope = scopeContextProvider ?? Mock.Of<IScopeContextProvider>();
+            IRunRepository runs = runRepository ?? Mock.Of<IRunRepository>();
+            IRunStateTransitionService transitions = runStateTransitionService ?? new RunStateTransitionService();
+
+            return new ArchitectureRunExecutePostExecuteHooks(
+                new ArchitectureRunExecuteAuditHook(
+                    auditService ?? Mock.Of<IAuditService>(),
+                    scope,
+                    NullLogger<ArchitectureRunExecuteAuditHook>.Instance),
+                new ArchitectureRunExecuteBaselineMutationHook(
+                    baselineMutationAudit ?? Mock.Of<IBaselineMutationAuditService>(),
+                    runs,
+                    transitions,
+                    scope,
+                    NullLogger<ArchitectureRunExecuteBaselineMutationHook>.Instance),
+                new ArchitectureRunExecuteOutboxPublishHook(
+                    scope,
+                    integrationEventOutbox ?? CreateIntegrationEventOutbox(),
+                    integrationEventPublisher ?? CreateIntegrationEventPublisher(),
+                    integrationEventsOptions ?? CreateIntegrationEventsOptionsMonitor(),
+                    NullLogger<ArchitectureRunExecuteOutboxPublishHook>.Instance));
+        }
+
+        return new ArchitectureRunExecutePostExecuteHooks(
+            auditHook ?? Mock.Of<IArchitectureRunExecuteAuditHook>(),
+            baselineMutationHook ?? Mock.Of<IArchitectureRunExecuteBaselineMutationHook>(),
+            outboxPublishHook ?? Mock.Of<IArchitectureRunExecuteOutboxPublishHook>());
+    }
 
     internal static TechnologyLedgerTopologyProposalSeeder CreateDefaultTopologyProposalSeeder(
         IScopeContextProvider? scopeContextProvider = null) =>

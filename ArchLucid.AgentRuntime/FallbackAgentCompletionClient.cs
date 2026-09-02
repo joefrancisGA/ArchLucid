@@ -1,10 +1,4 @@
-using System.ClientModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-
-using ArchLucid.Core.Diagnostics;
-
-using Azure;
 
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +6,7 @@ namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 ///     Decorator that delegates to <paramref name="primary" /> and, on fallback-eligible failures, tries
-///     <paramref name="fallbacks" /> in order (429 / 5xx / Azure <see cref="RequestFailedException" /> throttling).
+///     <paramref name="fallbacks" /> in order (429 / 5xx / Azure <see cref="Azure.RequestFailedException" /> throttling).
 /// </summary>
 public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionClient, IDisposable
 {
@@ -23,6 +17,7 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
     /// </summary>
     private static readonly AsyncLocal<bool> LastCallUsedFallback = new();
 
+    private readonly AgentCompletionFallbackChain _fallbackChain;
     private readonly IReadOnlyList<IAgentCompletionClient> _fallbacks;
     private readonly ILogger<FallbackAgentCompletionClient> _logger;
     private readonly IAgentCompletionClient _primary;
@@ -45,11 +40,18 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
         ArgumentNullException.ThrowIfNull(fallbacks);
 
         if (fallbacks.Count < 1)
+        {
             throw new ArgumentException("At least one fallback client is required.", nameof(fallbacks));
+        }
 
         _primary = primary ?? throw new ArgumentNullException(nameof(primary));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _fallbacks = fallbacks;
+        _fallbackChain = new AgentCompletionFallbackChain(
+            _primary,
+            _fallbacks,
+            _logger,
+            value => LastCallUsedFallback.Value = value);
     }
 
     /// <inheritdoc />
@@ -86,15 +88,23 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
         {
             throw;
         }
-        catch (Exception ex) when (IsFallbackEligible(ex))
+        catch (Exception ex) when (AgentCompletionFallbackEligibility.IsFallbackEligible(ex))
         {
             if (_logger.IsEnabled(LogLevel.Warning))
+            {
                 _logger.LogWarning(
                     ex,
                     "Primary LLM completion failed with a fallback-eligible error; trying {Count} fallback endpoint(s).",
                     _fallbacks.Count);
+            }
 
-            return await CompleteWithFallbacksAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken, ex);
+            return await _fallbackChain.CompleteWithFallbacksAsync(
+                systemPrompt,
+                userPrompt,
+                maxTokens,
+                temperature,
+                cancellationToken,
+                ex);
         }
     }
 
@@ -145,25 +155,30 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
             {
                 throw;
             }
-            catch (Exception ex) when (IsFallbackEligible(ex))
+            catch (Exception ex) when (AgentCompletionFallbackEligibility.IsFallbackEligible(ex))
             {
                 primaryFailure = ex;
 
                 if (_logger.IsEnabled(LogLevel.Warning))
+                {
                     _logger.LogWarning(
                         ex,
                         "Primary LLM streaming failed with a fallback-eligible error; trying {Count} fallback endpoint(s).",
                         _fallbacks.Count);
+                }
+
                 break;
             }
 
             if (!moved)
+            {
                 yield break;
+            }
 
             yield return primaryEnumerator.Current;
         }
 
-        await foreach (string chunk in StreamWithFallbacksAsync(
+        await foreach (string chunk in _fallbackChain.StreamWithFallbacksAsync(
                            systemPrompt,
                            userPrompt,
                            maxTokens,
@@ -180,202 +195,16 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
     public void Dispose()
     {
         if (_primary is IDisposable primaryDisposable)
-
+        {
             primaryDisposable.Dispose();
+        }
 
         foreach (IAgentCompletionClient fb in _fallbacks)
         {
             if (fb is IDisposable d)
-
+            {
                 d.Dispose();
-        }
-    }
-
-    private async Task<string> CompleteWithFallbacksAsync(
-        string systemPrompt,
-        string userPrompt,
-        int? maxTokens,
-        float? temperature,
-        CancellationToken cancellationToken,
-        Exception primaryFailure)
-    {
-        Exception? last = primaryFailure;
-
-        for (int i = 0; i < _fallbacks.Count; i++)
-        {
-            IAgentCompletionClient client = _fallbacks[i];
-
-            try
-            {
-                string result = await client.CompleteJsonAsync(
-                    systemPrompt,
-                    userPrompt,
-                    maxTokens,
-                    temperature,
-                    cancellationToken);
-                LastCallUsedFallback.Value = true;
-
-                string deployment =
-                    string.IsNullOrWhiteSpace(_primary.Descriptor.ModelId)
-                        ? "unknown"
-                        : _primary.Descriptor.ModelId.Trim();
-
-                ArchLucidInstrumentation.RecordLlmCompletionFallbackEngaged(deployment);
-
-                Activity.Current?.SetTag("archlucid.llm.completion.fallback_engaged", true);
-                Activity.Current?.SetTag("archlucid.llm.completion.fallback_primary_model_id", deployment);
-                Activity.Current?.SetTag("archlucid.llm.completion.fallback_index", i);
-
-                if (_logger.IsEnabled(LogLevel.Warning))
-                    _logger.LogWarning(
-                        "LLM completion succeeded using fallback endpoint index {FallbackIndex} (of {Total}).",
-                        i,
-                        _fallbacks.Count);
-
-                return result;
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex) when (i < _fallbacks.Count - 1 && IsFallbackEligible(ex))
-            {
-                last = ex;
-
-                if (_logger.IsEnabled(LogLevel.Warning))
-                    _logger.LogWarning(
-                        ex,
-                        "Fallback LLM completion index {FallbackIndex} failed with a retryable error; trying next fallback.",
-                        i);
             }
         }
-
-        throw last ?? primaryFailure;
-    }
-
-    private async IAsyncEnumerable<string> StreamWithFallbacksAsync(
-        string systemPrompt,
-        string userPrompt,
-        int? maxTokens,
-        float? temperature,
-        [EnumeratorCancellation] CancellationToken cancellationToken,
-        Exception primaryFailure)
-    {
-        Exception? last = primaryFailure;
-
-        for (int i = 0; i < _fallbacks.Count; i++)
-        {
-            IAgentCompletionClient client = _fallbacks[i];
-
-            Exception? iterationFailure = null;
-            bool completed = false;
-
-            await using IAsyncEnumerator<string> fallbackEnumerator = AgentCompletionStreamingBridge
-                .StreamJsonAsync(client, systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
-                .GetAsyncEnumerator(cancellationToken);
-
-            while (true)
-            {
-                bool moved;
-
-                try
-                {
-                    moved = await fallbackEnumerator.MoveNextAsync().ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
-                catch (Exception ex) when (i < _fallbacks.Count - 1 && IsFallbackEligible(ex))
-                {
-                    iterationFailure = ex;
-
-                    if (_logger.IsEnabled(LogLevel.Warning))
-                        _logger.LogWarning(
-                            ex,
-                            "Fallback LLM streaming index {FallbackIndex} failed with a retryable error; trying next fallback.",
-                            i);
-                    break;
-                }
-
-                if (!moved)
-                {
-                    completed = true;
-                    break;
-                }
-
-                yield return fallbackEnumerator.Current;
-            }
-
-            if (completed)
-            {
-                LastCallUsedFallback.Value = true;
-
-                string deployment =
-                    string.IsNullOrWhiteSpace(_primary.Descriptor.ModelId)
-                        ? "unknown"
-                        : _primary.Descriptor.ModelId.Trim();
-
-                ArchLucidInstrumentation.RecordLlmCompletionFallbackEngaged(deployment);
-
-                Activity.Current?.SetTag("archlucid.llm.completion.fallback_engaged", true);
-                Activity.Current?.SetTag("archlucid.llm.completion.fallback_primary_model_id", deployment);
-                Activity.Current?.SetTag("archlucid.llm.completion.fallback_index", i);
-
-                if (_logger.IsEnabled(LogLevel.Warning))
-                    _logger.LogWarning(
-                        "LLM streaming succeeded using fallback endpoint index {FallbackIndex} (of {Total}).",
-                        i,
-                        _fallbacks.Count);
-
-                yield break;
-            }
-
-            last = iterationFailure ?? last;
-        }
-
-        throw last ?? primaryFailure;
-    }
-
-    /// <summary>True when <paramref name="ex" /> carries status 429 or a 5xx server error.</summary>
-    private static bool IsFallbackEligible(Exception ex)
-    {
-        if (ex is HttpRequestException http)
-            return IsFallbackTrigger(http);
-
-        if (ex is ClientResultException cre)
-            return IsClientResultFallbackTrigger(cre);
-
-        if (ex is RequestFailedException rfe)
-            return IsRequestFailedFallbackTrigger(rfe);
-
-        return false;
-    }
-
-    private static bool IsFallbackTrigger(HttpRequestException ex)
-    {
-        if (ex.StatusCode is not { } statusCode)
-            return false;
-
-        int code = (int)statusCode;
-
-        return code is 429 or >= 500 and < 600;
-    }
-
-    /// <summary>Azure OpenAI SDK path: <see cref="ClientResultException" /> carries the HTTP status.</summary>
-    private static bool IsClientResultFallbackTrigger(ClientResultException ex)
-    {
-        return IsFallbackEligibleStatus(ex.Status);
-    }
-
-    /// <summary>Azure.Core path: <see cref="RequestFailedException" /> (e.g. 429 / 503 from HTTP pipeline).</summary>
-    private static bool IsRequestFailedFallbackTrigger(RequestFailedException ex)
-    {
-        return IsFallbackEligibleStatus(ex.Status);
-    }
-
-    private static bool IsFallbackEligibleStatus(int statusCode)
-    {
-        return statusCode is 429 or >= 500 and < 600;
     }
 }
