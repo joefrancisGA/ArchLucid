@@ -1492,11 +1492,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 6
-- **bugs-found:** 7
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — duplicate Interpretation Notes/Warnings in E2E comparison exports
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — export record pairing by template profile
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1510,9 +1510,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Manifest diff skipped when `CurrentManifestVersion` asymmetric — **hit 2026-08-24:** `BuildAsync` gated `IManifestDiffService.Compare` on both runs having non-empty version metadata even when both manifest bodies were loaded
 - [x] (proven) Detailed comparison exports duplicate Compare Quality Delta section — **hit 2026-08-25:** refactor #21 moved delta into `MarkdownEndToEndReplayComparisonSummaryFormatter` but markdown/HTML/DOCX/PDF detailed formatters still appended `CompareQualityDeltaExportFormatter` again (`CompareQualityDeltaExportTests.GenerateMarkdown_detailed_profile_includes_compare_quality_delta_once_with_default_summary_formatter`)
 - [x] (proven) Detailed comparison exports duplicate Interpretation Notes and Warnings — **hit 2026-08-26:** summary formatter already appends notes/warnings but markdown/HTML/DOCX/PDF formatters appended them again; fixed by removing outer duplicate sections (`CompareQualityDeltaExportTests.GenerateMarkdown_detailed_profile_includes_interpretation_notes_once_with_default_summary_formatter`, `CompareQualityDeltaExportTests.GenerateHtml_detailed_profile_includes_interpretation_notes_once_with_default_summary_formatter`).
-- [ ] (candidate) `EndToEndReplayComparisonService.BuildAsync` pairs export diffs by `ExportType` only (`GroupBy` + `First()`), so multiple exports of the same type (e.g. sponsor vs internal consulting DOCX) can mispair across runs when creation order differs.
-- [ ] (candidate) `ComparisonDriftAnalyzer.CompareElement` compares JSON arrays positionally — reordering `["a","b"]` to `["b","a"]` reports value drift at each index.
-- [ ] (candidate) `EndToEndReplayComparisonService.AddInterpretationNotes` skips agent/manifest synergy notes when `ManifestDiff` is null even if `AgentResultDiff` shows material drift.
+- [x] (proven) `EndToEndReplayComparisonService.BuildAsync` paired export diffs by `ExportType` only — **hit 2026-09-02:** sponsor vs internal consulting DOCX exports with the same type mispaired when creation order differed; fixed by pairing on `ExportType|TemplateProfile|Format` with occurrence indexing (`EndToEndReplayComparisonServiceRunDiffTests.BuildAsync_pairs_export_records_by_template_profile_not_creation_order`).
+- [x] (proven) `ComparisonDriftAnalyzer.CompareElement` compared JSON arrays positionally — **hit 2026-09-02:** reordering `["a","b"]` to `["b","a"]` reported value drift at each index; fixed by sorting array elements canonically before compare (`ComparisonDriftAnalyzerTests.Analyze_ReorderedPrimitiveArray_DoesNotReportDrift`).
+- [x] (proven) `EndToEndReplayComparisonService.AddInterpretationNotes` skipped agent/manifest synergy notes when `ManifestDiff` was null — **hit 2026-09-02:** material `AgentResultDiff` with unavailable manifest bodies produced no interpretation note; fixed with agent-only and manifest-only branches (`EndToEndReplayComparisonServiceRunDiffTests.BuildAsync_when_manifest_missing_but_agent_changed_adds_interpretation_note`).
+
+2026-09-02 thorough hunt #430: proved export mispairing, array reorder drift, and agent-only interpretation-note gaps.
 
 2026-08-26 seed hunt #6: reseeded export mispairing / array reorder drift / synergy-note candidates; proved duplicate Interpretation Notes and Warnings in E2E exports.
 
