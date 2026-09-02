@@ -47,8 +47,8 @@ internal static class GraphJsonElementReaders
     {
         foreach (string name in names)
 
-            if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
-                return el.GetString();
+            if (TryGetIgnoreCase(root, name, out JsonElement el) && TryReadStringToken(el, out string? value))
+                return value;
 
         return null;
     }
@@ -79,6 +79,27 @@ internal static class GraphJsonElementReaders
         }
 
         value = default;
+        return false;
+    }
+
+    private static bool TryReadStringToken(JsonElement element, out string? value)
+    {
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            value = element.GetString();
+
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            value = element.GetRawText();
+
+            return true;
+        }
+
+        value = null;
+
         return false;
     }
 }

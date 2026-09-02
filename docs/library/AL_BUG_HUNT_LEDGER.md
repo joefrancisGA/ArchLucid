@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 22
-- **bugs-found:** 44
+- **hunts:** 23
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — alert routing string-encoded severity ordinals; Azure extractor numeric resource name coercion
+- **last-bug:** 2026-09-02 — graph node numeric ids; alert routing numeric findingTypes; Azure extractor numeric sku name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1840,6 +1840,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureExtractorPackageZipValidator.TryReadManifestSchemaError` — string-encoded `schemaVersion` rejected — **hit 2026-09-02 (#432):** `"schemaVersion":"1"` failed manifest validation; fixed with `TryReadSchemaVersion` string coercion (`AzureExtractorPackageZipValidatorTests.Validate_string_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadSeverityArrayItem` — string-encoded `FindingSeverity` ordinals in `severities` array pass through literally instead of mapping to alert labels — **hit 2026-09-02 (#433):** `"severities":["2"]` stored `"2"` instead of `High` and broke matcher filters; fixed with numeric-string ordinal coercion (`AlertRoutingCriteriaMetadata_Parse_string_encoded_severity_ordinals_map_alert_labels`, `AlertRoutingMatcher_string_encoded_severity_metadata_filters_non_matching_signals`).
 - [x] (proven) `AzureExtractorResourceInventoryReader.TryReadString` — numeric `name` / `resourceType` JSON tokens skipped so inventory rows dropped — **hit 2026-09-02 (#433):** `"name":12345` omitted row from costing inventory; fixed with `TryReadStringToken` number coercion (`AzureExtractorResourceInventoryReaderTests.TryReadFromZip_numeric_name_and_resourceType_coerce_to_strings`).
+- [x] (proven) `GraphJsonElementReaders.ReadFirstString` — numeric `nodeId` / `sourceId` JSON tokens return null so graph nodes deserialize with empty ids — **hit 2026-09-02 (#434):** `"nodeId":12345` hydrated as empty string; fixed with number coercion in `ReadFirstString` (`GraphNodeJsonConverterTests.Read_numeric_nodeId_and_sourceId_coerce_to_strings`).
+- [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` — numeric `findingTypes` / `tags` array entries silently dropped — **hit 2026-09-02 (#434):** `"findingTypes":[42]` omitted filter token; fixed with `TryReadStringArrayItem` number coercion (`AlertRoutingCriteriaMetadata_Parse_numeric_findingTypes_coerce_to_strings`, `AlertRoutingMatcher_numeric_findingType_metadata_filters_non_matching_signals`).
+- [x] (proven) `AzureExtractorResourceInventoryReader.ExtractSku` — numeric `sku.name` JSON tokens ignored — **hit 2026-09-02 (#434):** `"sku":{"name":12345}` left `SkuName` null; fixed with `TryReadStringToken` on sku object fields (`AzureExtractorResourceInventoryReaderTests.TryReadFromZip_numeric_sku_name_coerces_to_string`).
+
+2026-09-02 seed hunt #434: reseeded from ArchLucid.Core; proved graph node numeric id coercion, alert routing numeric findingTypes, and Azure extractor numeric sku name gaps.
 
 2026-09-02 seed hunt #433: reseeded from ArchLucid.Core; proved alert routing string-encoded severity ordinals and Azure extractor numeric resource name coercion gaps.
 

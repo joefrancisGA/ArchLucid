@@ -133,18 +133,26 @@ public static class AzureExtractorResourceInventoryReader
             return null;
 
         if (sku.ValueKind is JsonValueKind.String)
-
+        {
             return sku.GetString()?.Trim();
+        }
 
-        if (sku.ValueKind is JsonValueKind.Object && sku.TryGetProperty("name", out JsonElement skuNameProp) &&
-            skuNameProp.ValueKind == JsonValueKind.String)
+        if (sku.ValueKind is JsonValueKind.Number)
+        {
+            return sku.GetRawText();
+        }
 
-            return skuNameProp.GetString()?.Trim();
+        if (sku.ValueKind is JsonValueKind.Object && sku.TryGetProperty("name", out JsonElement skuNameProp)
+            && TryReadStringToken(skuNameProp, out string? skuName))
+        {
+            return skuName?.Trim();
+        }
 
-        if (sku.ValueKind is JsonValueKind.Object && sku.TryGetProperty("Name", out JsonElement skuNameCapital) &&
-            skuNameCapital.ValueKind == JsonValueKind.String)
-
-            return skuNameCapital.GetString()?.Trim();
+        if (sku.ValueKind is JsonValueKind.Object && sku.TryGetProperty("Name", out JsonElement skuNameCapital)
+            && TryReadStringToken(skuNameCapital, out string? skuNamePascal))
+        {
+            return skuNamePascal?.Trim();
+        }
 
         return null;
     }

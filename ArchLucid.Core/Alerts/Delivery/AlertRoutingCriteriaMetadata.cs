@@ -177,18 +177,34 @@ public static class AlertRoutingCriteriaMetadata
 
         foreach (JsonElement item in arrayElement.EnumerateArray())
         {
-            if (item.ValueKind == JsonValueKind.String)
+            if (TryReadStringArrayItem(item, out string? value) && !string.IsNullOrWhiteSpace(value))
             {
-                string value = item.GetString()?.Trim() ?? string.Empty;
-
-                if (value.Length > 0)
-                {
-                    values.Add(value);
-                }
+                values.Add(value.Trim());
             }
         }
 
         return values;
+    }
+
+    private static bool TryReadStringArrayItem(JsonElement item, out string? value)
+    {
+        if (item.ValueKind == JsonValueKind.String)
+        {
+            value = item.GetString();
+
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.Number)
+        {
+            value = item.GetRawText();
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
     }
 
     private static IReadOnlyList<string> NormalizeList(IReadOnlyList<string> values)

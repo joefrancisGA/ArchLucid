@@ -133,6 +133,48 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_numeric_findingTypes_coerce_to_strings()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "findingTypes": [42, "Security"]
+              }
+            }
+            """);
+
+        parsed.FindingTypes.Should().Equal("42", "Security");
+    }
+
+    [Fact]
+    public void AlertRoutingMatcher_numeric_findingType_metadata_filters_non_matching_signals()
+    {
+        AlertRoutingSubscription subscription = new()
+        {
+            MinimumSeverity = AlertSeverity.Info,
+            MetadataJson = """{"routingCriteria":{"findingTypes":[99]}}""",
+        };
+
+        AlertRoutingSignal securitySignal = new()
+        {
+            Severity = AlertSeverity.Info,
+            FindingType = "Security",
+            Tags = ["ops"],
+        };
+
+        AlertRoutingSignal customSignal = new()
+        {
+            Severity = AlertSeverity.Info,
+            FindingType = "99",
+            Tags = ["ops"],
+        };
+
+        AlertRoutingMatcher.Matches(subscription, securitySignal).Should().BeFalse();
+        AlertRoutingMatcher.Matches(subscription, customSignal).Should().BeTrue();
+    }
+
+    [Fact]
     public void AlertRoutingCriteriaMetadata_Parse_PascalCase_property_names_preserves_severity_filter()
     {
         AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
