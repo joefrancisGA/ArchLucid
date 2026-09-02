@@ -29,19 +29,16 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         double? ratio = null;
 
-        if (TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl)
-            && ratioEl.ValueKind == JsonValueKind.Number
-            && ratioEl.TryGetDouble(out double parsedRatio)
-            && double.IsFinite(parsedRatio))
+        if (TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl))
         {
-            ratio = parsedRatio;
+            ratio = TryReadFiniteDouble(ratioEl);
         }
 
         bool fallback =
             (TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out JsonElement direct)
-             && direct.ValueKind == JsonValueKind.True)
+             && TryReadBoolean(direct))
             || (TryGetPropertyCaseInsensitive(root, "usedDeterministicFallback", out JsonElement legacy)
-                && legacy.ValueKind == JsonValueKind.True);
+                && TryReadBoolean(legacy));
 
         string? warning = TryGetPropertyCaseInsensitive(root, "faithfulnessWarning", out JsonElement warningEl)
                           && warningEl.ValueKind == JsonValueKind.String
@@ -128,6 +125,77 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         value = default;
+
+        return false;
+    }
+
+    private static double? TryReadFiniteDouble(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Number
+            && element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric))
+        {
+            return numeric;
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return null;
+        }
+
+        if (double.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
+            && double.IsFinite(parsed))
+        {
+            return parsed;
+        }
+
+        return null;
+    }
+
+    private static bool TryReadBoolean(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.True)
+        {
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.False)
+        {
+            return false;
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        string? raw = element.GetString()?.Trim();
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return false;
+        }
+
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("no", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
 
         return false;
     }
