@@ -137,10 +137,8 @@ public sealed class IncompleteAuthorityPipelineExecuteHandlerTests
         capturedIngestion.ProjectId.Should().Be("ArchLucid");
 
         updates.Should().Contain(row => row.LegacyRunStatus == nameof(ArchitectureRunStatus.Retrying));
-        updates.Should().Contain(row => row.LegacyRunStatus == nameof(ArchitectureRunStatus.TasksGenerated));
+        updates.Should().NotContain(row => row.LegacyRunStatus == nameof(ArchitectureRunStatus.TasksGenerated));
         header.RetryCount.Should().Be(1);
-        header.LastFailureReason.Should().BeNull();
-        header.CompletedUtc.Should().BeNull();
 
         authority.Verify(
             a => a.CompleteQueuedAuthorityPipelineAsync(
@@ -216,7 +214,7 @@ public sealed class IncompleteAuthorityPipelineExecuteHandlerTests
         result.Should().NotBeNull();
         header.RetryCount.Should().Be(0);
         updates.Should().NotContain(row => row.LegacyRunStatus == nameof(ArchitectureRunStatus.Retrying));
-        updates.Should().Contain(row => row.LegacyRunStatus == nameof(ArchitectureRunStatus.TasksGenerated));
+        updates.Should().NotContain(row => row.LegacyRunStatus == nameof(ArchitectureRunStatus.TasksGenerated));
         authority.Verify(
             a => a.CompleteQueuedAuthorityPipelineAsync(
                 It.IsAny<ContextIngestionRequest>(),

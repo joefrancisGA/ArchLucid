@@ -88,7 +88,6 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
         }
 
         await _authorityRunOrchestrator.CompleteQueuedAuthorityPipelineAsync(ingestionRequest, cancellationToken);
-        await TryPromoteToTasksGeneratedAfterResumeAsync(scope, runGuid, cancellationToken);
 
         return new ExecuteRunResult { RunId = runId, Results = [] };
     }
@@ -118,33 +117,6 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
 
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.Retrying);
         header.RetryCount += 1;
-        await _runRepository.UpdateAsync(header, cancellationToken);
-    }
-
-    private async Task TryPromoteToTasksGeneratedAfterResumeAsync(
-        ScopeContext scope,
-        Guid runGuid,
-        CancellationToken cancellationToken)
-    {
-        RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        if (header is null)
-            return;
-
-        if (!_runStateTransitionService.ShouldSetTasksGeneratedAfterDeferredMaterialize(header.LegacyRunStatus))
-            return;
-
-        if (!ArchitectureRunStatusTransitionTable.TryParseStatus(header.LegacyRunStatus, out ArchitectureRunStatus from))
-            return;
-
-        ArchitectureRunStatusTransitionTable.AssertLegal(
-            from,
-            ArchitectureRunStatusLifecycleEvent.TasksMaterialized,
-            ArchitectureRunStatus.TasksGenerated);
-
-        header.LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated);
-        header.CompletedUtc = null;
-        header.LastFailureReason = null;
         await _runRepository.UpdateAsync(header, cancellationToken);
     }
 
