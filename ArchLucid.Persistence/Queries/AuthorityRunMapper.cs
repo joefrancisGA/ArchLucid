@@ -43,6 +43,9 @@ internal static class AuthorityRunMapper
         if (run.GoldenManifestId is Guid goldenManifestId && goldenManifestId != Guid.Empty)
             return AuthorityRunLifecyclePhase.Complete;
 
+        if (run.IsDeadLettered)
+            return AuthorityRunLifecyclePhase.Failed;
+
         if (run.ContextSnapshotId is Guid contextSnapshotId && contextSnapshotId != Guid.Empty)
             return AuthorityRunLifecyclePhase.InProgress;
 
