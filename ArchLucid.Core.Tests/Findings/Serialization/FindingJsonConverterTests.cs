@@ -626,6 +626,41 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_pascal_case_required_scalar_fields_maps_values()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "FindingId": "abc123",
+                              "FindingType": "TopologyGap",
+                              "category": "Topology",
+                              "EngineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "Title": "Missing worker subnet",
+                              "Rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": "Pending"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.FindingId.Should().Be("abc123");
+        finding.FindingType.Should().Be("TopologyGap");
+        finding.EngineType.Should().Be("TopologyCoverage");
+        finding.Title.Should().Be("Missing worker subnet");
+        finding.Rationale.Should().Be("No subnet is defined for worker pool isolation.");
+    }
+
+    [Fact]
     public void Deserialize_pascal_case_category_maps_value()
     {
         const string json = """

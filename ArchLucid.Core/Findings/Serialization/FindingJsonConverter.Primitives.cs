@@ -45,6 +45,14 @@ public sealed partial class FindingJsonConverter
         return null;
     }
 
+    private static string ReadRequiredString(JsonElement root, string name)
+    {
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el))
+            throw new KeyNotFoundException("The given key was not present in the dictionary.");
+
+        return ReadStringDictValue(el);
+    }
+
     private static void WriteOptionalString(Utf8JsonWriter writer, string name, string? value)
     {
         if (value is null)
