@@ -37,6 +37,12 @@ export function useIncrementalReviewFindingsRefresh(
       return;
     }
 
+    // `useRunSummaryStream` resets its state via effects, so on a runId change we can briefly
+    // observe the previous run's summary. Ignore summaries that don't match this run.
+    if (summary !== null && summary.runId !== options.runId) {
+      return;
+    }
+
     const hasFindingsSnapshot = summary?.hasFindingsSnapshot === true;
 
     if (!initializedRef.current && summary !== null) {
@@ -49,5 +55,5 @@ export function useIncrementalReviewFindingsRefresh(
       hadFindingsSnapshotRef.current = true;
       router.refresh();
     }
-  }, [options.enabled, router, summary]);
+  }, [options.enabled, options.runId, router, summary]);
 }
