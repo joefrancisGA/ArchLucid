@@ -1910,11 +1910,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 58
-- **bugs-found:** 119
+- **hunts:** 59
+- **bugs-found:** 120
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Bicep array properties leaked inner scalars; plain-text spaced prefix before colon
+- **last-bug:** 2026-09-02 — simple-terraform HCL array literals leaked inner scalars
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2043,6 +2043,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper` / `InfrastructureDeclarationDeltaKey` / `CanonicalDeduplicator` with duplicate identical manifests — **hit 2026-08-26:** two Deployments with same kind/name shared `ObjectId`, collapsed connector delta keys, and deduped to one object; fixed with per-declaration `k8sOccurrence` suffix (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_DuplicateDeployments_EmitDistinctObjectIds`, `InfrastructureDeclarationConnectorTests.DeltaAsync_DuplicateKubernetesDeployments_CountsBothResources`, `CanonicalDeduplicatorTests.Deduplicate_KeepsDuplicateKubernetesManifestsWithOccurrence`).
 - [x] (proven) `CanonicalInfrastructurePropertyBag.MaxTfPropertyCount` dropped `ipSecurityRestrictions` before network expander — **hit 2026-08-26:** 24-property cap filled by scalar props before security JSON was copied; fixed by copying security-priority properties first and raising JSON length limit for those keys (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ManyScalarProperties_StillPreservesIpSecurityRestrictions`).
 - [x] (proven) `BicepResourceBodyParser` preserved inline `//` comments in scalar values — **hit 2026-08-27:** `publicNetworkAccess: 'Enabled' // primary region` vs un-commented value false-modified infrastructure declaration deltas; fixed with `StripTrailingSlashSlashComment` before unquoting (HCL `#` parity); regression in `BicepInfrastructureDeclarationParserTests.ParseAsync_InlineSlashSlashComment_DoesNotChangeTfPublicNetworkAccess` and `InfrastructureDeclarationConnectorTests.DeltaAsync_BicepInlineSlashSlashCommentChange_ReportsUnchanged`.
+
+- [x] (proven) `SimpleTerraformResourceBlockParser` treated `key = [` array headers as scalar assignments — **hit 2026-09-02:** `ip_security_restrictions = [` stored `tf.ip_security_restrictions = "["` and leaked inner object scalars so App Service network-rule expander never ran; fixed with balanced-bracket extraction and shared `BicepArrayLiteralConverter` HCL `=` object parsing (`SimpleTerraformDeclarationParserTests.ParseAsync_IpSecurityRestrictionsArray_PreservesRulesForNetworkExpander`, `ParseAsync_IpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
+- [x] (valid-no-repro) `BicepResourceBodyParser` inline single-line array literals — `ipSecurityRestrictions: [{ name: 'AllowAll', ... }]` already parses via balanced-bracket extraction; regression `BicepInfrastructureDeclarationParserTests.ParseAsync_InlineSingleLineArray_PreservesIpSecurityRestrictions`.
+- [x] (valid-no-repro) `DocumentConnector.DeltaAsync` spaced `REQ :` prefix vs `REQ:` — prior `TryGetPrefixedBody` fix already reports unchanged; regression `DocumentConnectorTests.DeltaAsync_SpacedRequirementPrefixChange_ReportsUnchanged`.
+
+2026-09-02 seed hunt #430: reseeded from parser files; proved simple-terraform HCL array literal gap; disproved Bicep inline-array and document spaced-prefix delta regressions.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).

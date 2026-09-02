@@ -145,7 +145,7 @@ public static class AzureExtractorPackageZipValidator
 
             using JsonDocument document = JsonDocument.Parse(manifestStream);
 
-            if (!document.RootElement.TryGetProperty("schemaVersion", out JsonElement schemaVersionElement))
+            if (!TryGetPropertyCaseInsensitive(document.RootElement, "schemaVersion", out JsonElement schemaVersionElement))
                 return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
 
             if (schemaVersionElement.ValueKind is not JsonValueKind.Number
@@ -176,5 +176,22 @@ public static class AzureExtractorPackageZipValidator
         }
 
         return $"Unsupported manifest schemaVersion: {schemaVersion}. Required schemaVersion: {SupportedSchemaVersion}.";
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }

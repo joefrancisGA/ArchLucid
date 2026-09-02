@@ -112,4 +112,57 @@ public sealed partial class FindingJsonConverter
 
         return "";
     }
+
+    private static bool TryReadFiniteDouble(JsonElement element, out double value)
+    {
+        if (element.ValueKind == JsonValueKind.Number
+            && element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric))
+        {
+            value = numeric;
+
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.String
+            && double.TryParse(element.GetString(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
+            && double.IsFinite(parsed))
+        {
+            value = parsed;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryReadInt32(JsonElement element, out int value)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out value))
+            return true;
+
+        if (element.ValueKind == JsonValueKind.String
+            && int.TryParse(element.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+            return true;
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryReadDecimal(JsonElement element, out decimal value)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetDecimal(out value))
+            return true;
+
+        if (element.ValueKind == JsonValueKind.String
+            && decimal.TryParse(element.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out value))
+            return true;
+
+        value = default;
+
+        return false;
+    }
 }
