@@ -22,6 +22,7 @@ export function AppShellMainAffordances() {
   const pathname = usePathname() ?? "/";
   const isOperatorHome = pathname === "/";
   const isPreferencesSettingsPath = pathname === "/account/preferences";
+  const isHelpTopicPath = pathname === "/help" || pathname.startsWith("/help/");
   const showPersistentWorkspaceNextActionStrip = isPersistentWorkspaceNextActionStripPath(pathname);
   const staticDemoEnv = isExplicitStaticDemoMarketingBuild();
 
@@ -30,11 +31,11 @@ export function AppShellMainAffordances() {
       <BuyerGoldenJourneyLayerContextStrip />
       {showPersistentWorkspaceNextActionStrip ? <PersistentWorkspaceNextActionStrip /> : null}
       {isOperatorHome ? <CorePilotCompleteCelebrateStrip /> : null}
-      {isPreferencesSettingsPath ? null : <GlobalSearchShortcutCoach />}
+      {isPreferencesSettingsPath || isHelpTopicPath ? null : <GlobalSearchShortcutCoach />}
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
       <FirstVisitHelpAutoOpen />
-      {isPreferencesSettingsPath ? null : <KeyboardShortcutsDiscoverabilityCoach />}
+      {isPreferencesSettingsPath || isHelpTopicPath ? null : <KeyboardShortcutsDiscoverabilityCoach />}
       {staticDemoEnv ? (
         <DemoVsLiveChromeBanner isStaticDemoEnv showWatermark className="mb-3" />
       ) : null}
