@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 105
-- **bugs-found:** 217
+- **hunts:** 106
+- **bugs-found:** 218
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Marketplace planId NonEnterprise substring false-positive tier map
+- **last-bug:** 2026-09-02 — GCP billing catalog machine-type prefix collision
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2141,6 +2141,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — embedded `enterprise` substring false-positive — **hit 2026-09-02 (#521):** `NonEnterpriseStandard` mapped to `Enterprise` via bare `Contains("enterprise")`; fixed with delimiter-token matching (`TierStorageCodeFromPlanId_does_not_false_positive_on_non_enterprise_substring`, `TierStorageCodeFromPlanId_maps_delimited_enterprise_token`).
 
 2026-09-02 seed hunt #521: reseeded from ArchLucid.Core marketplace billing parser; proved planId tier substring false-positive beyond quantity overflow fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryFetchComputeHourlyUsdAsync` — machine-type `Contains` prefix collision — **hit 2026-09-02 (#522):** catalog SKU `n1-standard-10` matched lookup for `n1-standard-1` and returned the higher hourly rate; fixed with boundary-aware `DescriptionMatchesMachineType` (`TryGetComputeEngineMonthlyUsdAsync_prefers_exact_machine_type_over_prefix_collision`).
+
+2026-09-02 seed hunt #522: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog machine-type prefix collision beyond marketplace billing fixes.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

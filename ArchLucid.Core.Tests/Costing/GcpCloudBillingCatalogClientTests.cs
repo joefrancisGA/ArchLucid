@@ -837,6 +837,59 @@ public sealed class GcpCloudBillingCatalogClientTests
         monthly.Should().Be(7.59m);
     }
 
+    [Fact]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_prefers_exact_machine_type_over_prefix_collision()
+    {
+        const string catalogJson = """
+            {
+              "skus": [
+                {
+                  "description": "Compute Engine n1-standard-10 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "50000000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "description": "Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "10400000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(catalogJson);
+
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().Be(7.59m);
+    }
+
     private static GcpCloudBillingCatalogClient CreateClient(string catalogJson)
     {
         HttpClient httpClient = new(new StubHttpMessageHandler(_ =>

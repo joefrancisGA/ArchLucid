@@ -134,7 +134,7 @@ public sealed class GcpCloudBillingCatalogClient
                 string? description = descriptionElement.GetString();
 
                 if (string.IsNullOrWhiteSpace(description)
-                    || !description.Contains(needle, StringComparison.OrdinalIgnoreCase))
+                    || !DescriptionMatchesMachineType(description, needle))
                 {
                     continue;
                 }
@@ -438,6 +438,24 @@ public sealed class GcpCloudBillingCatalogClient
         value = default;
 
         return false;
+    }
+
+    private static bool DescriptionMatchesMachineType(string description, string machineType)
+    {
+        int index = description.IndexOf(machineType, StringComparison.OrdinalIgnoreCase);
+
+        if (index < 0)
+            return false;
+
+        int endIndex = index + machineType.Length;
+
+        if (endIndex >= description.Length)
+            return true;
+
+        char next = description[endIndex];
+
+        // Reject prefix collisions such as n1-standard-1 matching n1-standard-10.
+        return next is not (>= '0' and <= '9') && next != '-';
     }
 
     private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
