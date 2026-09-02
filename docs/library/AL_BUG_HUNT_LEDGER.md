@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 57
-- **bugs-found:** 147
+- **hunts:** 58
+- **bugs-found:** 151
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — risk-register and quality-gate string whole-number coercion
+- **last-bug:** 2026-09-02 — enforcement tier, confidence source, execution profile, webhook timestamp coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1939,6 +1939,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` — string-encoded whole-number review status ignored — **hit 2026-09-02 (#469):** inbound `"1.0"` defaulted to `NotRequired` while `"1"` mapped to `Pending`; fixed with `TryParseWholeNumberString` (`ParseOrDefault_string_encoded_whole_number_maps_pending`).
 - [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — string-encoded whole-number quality-gate mode ignored — **hit 2026-09-02 (#469):** config `"0.0"` skipped WarnOnly advisory while `"0"` emitted; fixed with whole-number coercion (`ShouldEmitFinding_production_real_string_encoded_whole_number_warn_only_emits_rule`).
+
+- [x] (proven) `FindingEnforcementTierClassifier.TryReadTierFromProperties` — string-encoded whole-number `properties.enforcementTier` ignored — **hit 2026-09-02 (#470):** `"1.0"` fell through to policy-violation classification while `"1"` honored advisory tier; fixed with `TryParseWholeNumberString` (`ClassifyFinding_honors_string_encoded_whole_number_enforcement_tier_property`).
+- [x] (proven) `DecisionConfidenceSourceMapper.ToBuyerLabel` — string-encoded whole-number confidence source ignored — **hit 2026-09-02 (#470):** `"5.0"` mapped to `Unknown` while `"5"` mapped to model-assisted; fixed with ordinal coercion and `Enum.IsDefined` guard on name parse (`ToBuyerLabel_parses_string_encoded_whole_number_ordinal`).
+- [x] (proven) `AgentModelExecutionProfileParser.TryParse` — string-encoded whole-number profile ordinal rejected — **hit 2026-09-02 (#470):** `"2.0"` failed parse while `"2"` accepted HighAssurance; fixed with whole-number ordinal coercion (`TryParse_accepts_string_encoded_whole_number_high_assurance_ordinal`).
+- [x] (proven) `WebhookSecrets.TimestampWithinSkew` — string-encoded whole-number unix timestamp rejected — **hit 2026-09-02 (#470):** `"1735689600.0"` failed skew validation while integer strings accepted; fixed with `TryParseWholeNumberLong` (`TimestampWithinSkew_accepts_string_encoded_whole_number_epoch`).
+
+2026-09-02 seed hunt #470: reseeded from ArchLucid.Core; proved enforcement-tier, confidence-source, execution-profile, and webhook timestamp string whole-number coercion gaps.
 
 2026-09-02 seed hunt #469: reseeded from ArchLucid.Core; proved risk-register human-review and production-like quality-gate string whole-number coercion gaps.
 

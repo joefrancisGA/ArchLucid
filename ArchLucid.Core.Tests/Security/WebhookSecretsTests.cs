@@ -70,6 +70,19 @@ public sealed class WebhookSecretsTests
         WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), now.ToString(), 120).Should().BeTrue();
     }
 
+    [Fact]
+    public void TimestampWithinSkew_accepts_string_encoded_whole_number_epoch()
+    {
+        long now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
+
+        WebhookSecrets.TimestampWithinSkew(
+                TimeProvider.System.GetUtcNow(),
+                $"{now.ToString()}.0",
+                120)
+            .Should()
+            .BeTrue();
+    }
+
     private static string ComputeHmacHex(string secret, string body)
     {
         byte[] key = System.Text.Encoding.UTF8.GetBytes(secret);

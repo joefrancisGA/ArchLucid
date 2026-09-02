@@ -19,4 +19,13 @@ public sealed class AgentModelExecutionProfileParserTests
         ok.Should().BeTrue();
         profile.Should().Be(AgentModelExecutionProfile.HighAssurance);
     }
+
+    [Fact]
+    public void TryParse_accepts_string_encoded_whole_number_high_assurance_ordinal()
+    {
+        bool ok = AgentModelExecutionProfileParser.TryParse("2.0", out AgentModelExecutionProfile profile);
+
+        ok.Should().BeTrue();
+        profile.Should().Be(AgentModelExecutionProfile.HighAssurance);
+    }
 }

@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Core.Findings;
@@ -98,6 +100,38 @@ public static class FindingEnforcementTierClassifier
             return false;
         }
 
-        return Enum.TryParse(raw, ignoreCase: true, out tier) && Enum.IsDefined(tier);
+        string trimmed = raw.Trim();
+
+        if (TryParseWholeNumberString(trimmed, out int ordinal)
+            && Enum.IsDefined(typeof(FindingEnforcementTier), ordinal))
+        {
+            tier = (FindingEnforcementTier)ordinal;
+
+            return true;
+        }
+
+        return Enum.TryParse(trimmed, ignoreCase: true, out tier) && Enum.IsDefined(tier);
+    }
+
+    private static bool TryParseWholeNumberString(string raw, out int value)
+    {
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
