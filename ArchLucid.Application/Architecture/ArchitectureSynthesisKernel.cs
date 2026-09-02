@@ -32,6 +32,7 @@ public sealed class ArchitectureSynthesisKernel(
     TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
     TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
     IArchitectureIdentityService? architectureIdentityService,
+    IArchitectureVersionService? architectureVersionService,
     ILogger<ArchitectureSynthesisKernel> logger,
     TimeProvider timeProvider) : IArchitectureSynthesisKernel
 {
@@ -66,6 +67,8 @@ public sealed class ArchitectureSynthesisKernel(
         technologyLedgerEvidenceSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerEvidenceSeeder));
 
     private readonly IArchitectureIdentityService? _architectureIdentityService = architectureIdentityService;
+
+    private readonly IArchitectureVersionService? _architectureVersionService = architectureVersionService;
 
     private readonly ILogger<ArchitectureSynthesisKernel> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -144,6 +147,12 @@ public sealed class ArchitectureSynthesisKernel(
 
         Guid? architectureId = await TryEnsureArchitectureIdentityAsync(scope, runGuid, knowledgeModelId, cancellationToken);
 
+        if (architectureId.HasValue && _architectureVersionService is not null)
+        {
+            await TryEnsureArchitectureVersionAsync(scope, runGuid, architectureId.Value, request, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         await TechnologyLedgerRunCreateSeeding.TrySeedIntakeAsync(
             runId,
             request,
@@ -189,6 +198,31 @@ public sealed class ArchitectureSynthesisKernel(
             }
 
             return null;
+        }
+    }
+
+    private async Task TryEnsureArchitectureVersionAsync(
+        ScopeContext scope,
+        Guid runGuid,
+        Guid architectureId,
+        ArchitectureRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _architectureVersionService!
+                .EnsureRunVersionPinnedAsync(scope, runGuid, architectureId, request, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Architecture version persistence failed for RunId={RunId}; synthesis continues.",
+                    runGuid);
+            }
         }
     }
 

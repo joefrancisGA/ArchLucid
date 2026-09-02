@@ -92,6 +92,7 @@ public sealed class ArchitectureSynthesisKernelPriorRunCollisionTests
                 Mock.Of<ITechnologyLedgerRepository>(),
                 scopeProvider.Object),
             null,
+            null,
             NullLogger<ArchitectureSynthesisKernel>.Instance,
             TimeProvider.System);
 

@@ -322,6 +322,7 @@ public sealed class ArchitectureSynthesisKernelTests
                 Mock.Of<ArchLucid.Persistence.Data.Repositories.ITechnologyLedgerRepository>(),
                 scopeProvider ?? defaultScope.Object),
             null,
+            null,
             NullLogger<ArchitectureSynthesisKernel>.Instance,
             timeProvider ?? TimeProvider.System);
     }

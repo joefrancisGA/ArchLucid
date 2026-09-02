@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Runs.Coordination;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
@@ -25,6 +26,7 @@ public sealed class ArchitectureRunCreatePostCreateHooks(
     TimeProvider timeProvider,
     DefaultPolicyPackCloudBaselineApplicator defaultPolicyPackCloudBaselineApplicator,
     IArchitectureIdentityService architectureIdentityService,
+    IArchitectureVersionService architectureVersionService,
     ILogger<ArchitectureRunCreatePostCreateHooks> logger)
 {
     private readonly IAuditService _auditService =
@@ -35,6 +37,9 @@ public sealed class ArchitectureRunCreatePostCreateHooks(
 
     private readonly IArchitectureIdentityService _architectureIdentityService =
         architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
+
+    private readonly IArchitectureVersionService _architectureVersionService =
+        architectureVersionService ?? throw new ArgumentNullException(nameof(architectureVersionService));
 
     private readonly ILogger<ArchitectureRunCreatePostCreateHooks> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -128,9 +133,21 @@ public sealed class ArchitectureRunCreatePostCreateHooks(
 
         try
         {
-            await _architectureIdentityService
+            ArchitectureIdentityRecord? identity = await _architectureIdentityService
                 .TryEnsureReviewRunLinkedAsync(_scopeContextProvider.GetCurrentScope(), reviewRunGuid, request, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
+
+            if (identity?.ArchitectureId is Guid architectureId)
+            {
+                await _architectureVersionService
+                    .EnsureRunVersionPinnedAsync(
+                        _scopeContextProvider.GetCurrentScope(),
+                        reviewRunGuid,
+                        architectureId,
+                        request,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
