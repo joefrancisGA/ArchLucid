@@ -122,4 +122,20 @@ public sealed class AzureRetailPricesSkuMatchersTests
         ok.Should().BeTrue();
         monthly.Should().Be(7.30m);
     }
+
+    [Fact]
+    public void RowMatchesSku_rejects_d4_series_prefix_collision_against_d48()
+    {
+        AzureRetailPricesCatalogClient.RowMatchesSku("Standard_D4", "Standard_D48s_v5")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void RowMatchesSku_accepts_exact_d4s_v5_match()
+    {
+        AzureRetailPricesCatalogClient.RowMatchesSku("Standard_D4s_v5", "Standard_D4s_v5")
+            .Should()
+            .BeTrue();
+    }
 }

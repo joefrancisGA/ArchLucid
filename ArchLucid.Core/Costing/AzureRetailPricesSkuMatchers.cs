@@ -22,10 +22,60 @@ public sealed partial class AzureRetailPricesCatalogClient
                 targetCollapsed,
                 StringComparison.OrdinalIgnoreCase)
                ||
-               retailCollapsed.StartsWith(targetCollapsed, StringComparison.OrdinalIgnoreCase) ||
-               targetCollapsed.StartsWith(retailCollapsed, StringComparison.OrdinalIgnoreCase) ||
-               (targetCollapsed.Length > 4 && retailCollapsed.Contains(targetCollapsed,
-                   StringComparison.OrdinalIgnoreCase));
+               HasCollapsedSkuPrefix(retailCollapsed, targetCollapsed) ||
+               HasCollapsedSkuPrefix(targetCollapsed, retailCollapsed) ||
+               (targetCollapsed.Length > 4 && CollapsedSkuContains(retailCollapsed, targetCollapsed));
+    }
+
+    private static bool CollapsedSkuContains(string haystack, string needle)
+    {
+        if (needle.Length == 0 || haystack.Length < needle.Length)
+            return false;
+
+        int index = 0;
+
+        while (index <= haystack.Length - needle.Length)
+        {
+            index = haystack.IndexOf(needle, index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            if (HasCollapsedSkuBoundary(haystack, index, needle.Length))
+                return true;
+
+            index++;
+        }
+
+        return false;
+    }
+
+    private static bool HasCollapsedSkuPrefix(string haystack, string needle)
+        =>
+            HasCollapsedSkuBoundary(haystack, 0, needle.Length)
+            && haystack.StartsWith(needle, StringComparison.OrdinalIgnoreCase);
+
+    private static bool HasCollapsedSkuBoundary(string haystack, int index, int needleLength)
+    {
+        int endIndex = index + needleLength;
+
+        if (endIndex < haystack.Length)
+        {
+            char next = haystack[endIndex];
+
+            if (next is >= '0' and <= '9' or '-')
+                return false;
+        }
+
+        if (index > 0)
+        {
+            char previous = haystack[index - 1];
+
+            if (previous is >= '0' and <= '9')
+                return false;
+        }
+
+        return true;
     }
 
     internal static string CollapseComparableSku(string? value)

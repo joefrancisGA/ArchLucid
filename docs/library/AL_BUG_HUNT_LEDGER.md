@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 107
-- **bugs-found:** 219
+- **hunts:** 108
+- **bugs-found:** 220
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Commercial packaging ignored purchased caps for non-Active subscriptions
+- **last-bug:** 2026-09-02 — Azure retail SKU collapsed prefix collision matched D48 to D4
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2150,6 +2150,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-02 seed hunt #523: reseeded from ArchLucid.Core billing packaging resolver; proved non-Active subscription purchased-cap drift beyond GCP costing prefix fix.
 
+- [x] (proven) `AzureRetailPricesCatalogClient.RowMatchesCollapsed` — collapsed SKU `StartsWith`/`Contains` prefix collision — **hit 2026-09-02 (#525):** `Standard_D4` matched retail row `Standard_D48s_v5` after underscore collapse (`StandardD4` prefix of `StandardD48sv5`) and picked the wrong Azure retail price; fixed with boundary-aware `HasCollapsedSkuPrefix` / `CollapsedSkuContains` (`RowMatchesSku_rejects_d4_series_prefix_collision_against_d48`).
+
+2026-09-02 seed hunt #525: reseeded from ArchLucid.Core Azure retail SKU matchers; proved collapsed SKU prefix collision (parity with GCP #522 machine-type fix).
+
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
 2026-09-02 seed hunt #486: reseeded from ArchLucid.Core costing parsers after boolean-synonym sweep; proved AwsEc2 offer-index numeric USD price coercion gap.
@@ -2477,6 +2481,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DocumentConnector.DeltaAsync` spaced `REQ :` prefix vs `REQ:` — prior `TryGetPrefixedBody` fix already reports unchanged; regression `DocumentConnectorTests.DeltaAsync_SpacedRequirementPrefixChange_ReportsUnchanged`.
 
 2026-09-02 seed hunt #430: reseeded from parser files; proved simple-terraform HCL array literal gap; disproved Bicep inline-array and document spaced-prefix delta regressions.
+
+- [x] (proven) `SimpleTerraformResourceBlockParser` nested `site_config` blocks stored raw body and dropped inner `ip_security_restrictions` arrays — **hit 2026-09-02 (#524):** HCL `site_config { ip_security_restrictions = [ ... ] }` emitted only `tf.site_config` text and leaked inner scalars, so App Service network-rule expander never ran; fixed by flattening `site_config`/`properties` with balanced-brace extraction (Bicep parity) (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedSiteConfigIpSecurityRestrictionsArray_PreservesRulesForNetworkExpander`, `ParseAsync_NestedSiteConfigIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
+
+2026-09-02 seed hunt #524: reseeded from context-ingestion parsers; proved nested simple-terraform site_config array flatten gap beyond top-level HCL array fix (#430).
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
