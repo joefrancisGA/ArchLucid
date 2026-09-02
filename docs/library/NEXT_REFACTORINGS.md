@@ -114,7 +114,7 @@
 
 ## Active items (remaining)
 
-**2026-09-02 pass 7 — suggestions only; do not treat this list as in-progress implementation.** Evidence from current line counts after PR **#1186** (pass-6 items 1–10). Same constraints as prior passes: keep HTTP routes, OpenAPI wire shapes, and tenant isolation unchanged unless a follow-up explicitly says otherwise.
+**2026-09-02 pass-7 — suggestions only; do not treat this list as in-progress implementation.** Evidence from current line counts after PR **#1186** (pass-6 items 1–10). Same constraints as prior passes: keep HTTP routes, OpenAPI wire shapes, and tenant isolation unchanged unless a follow-up explicitly says otherwise.
 
 1. **Split leftover `GovernanceStickinessController.ExceptionsAndSchedules`** — Pass-6 extracted `GovernanceStickinessControllerCore`; Registers **207** and Dispositions **218** are in range, but `ExceptionsAndSchedules` is still **340** and mixes three route families: `risk-exceptions` (create/list/revoke/renew), `recurrence-schedules` (CRUD + preview), and `realized-value/attestation`. Split into `Exceptions`, `Schedules`, and `Attestation` partials that keep delegating to `GovernanceStickinessFacade` + `GovernanceStickinessHttpMapper`; routes and auth attributes stay equivalent. **Impact:** High (buyer governance APIs, IDOR/rate-limit surface) · **Effort:** Low–Medium · **Paths:** `ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.ExceptionsAndSchedules.cs`, `GovernanceStickinessControllerCore.cs`
 
