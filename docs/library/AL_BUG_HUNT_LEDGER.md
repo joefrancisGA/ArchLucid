@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 46
-- **bugs-found:** 108
+- **hunts:** 47
+- **bugs-found:** 113
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Service Bus string-encoded whole-number correlation, deduplication, severity normalization
+- **last-bug:** 2026-09-02 — finding enum boolean coercion; golden-corpus string whole-number agentType parameter
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1901,6 +1901,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RealLlmOutputStructuralValidator.EnumTryParseLenient` — string-encoded whole-number `agentType` rejected — **hit 2026-09-02 (#457):** `"agentType":"1.0"` failed structural validation while numeric `1.0` already accepted in #448; fixed with `TryParseWholeNumberString` (`ValidateAgentResultStructure_accepts_string_encoded_whole_number_double_agentType`).
 - [x] (proven) `IntegrationEventServiceBusCorrelationId.TryReadCorrelationIdToken` — string-encoded whole-number `correlationId` not normalized — **hit 2026-09-02 (#458):** `"correlationId":"42424242.0"` stayed decimal while numeric `42424242.0` normalized to `"42424242"` in #447; fixed with `TryParseWholeNumberString` (`TryResolveForPublish_reads_string_encoded_whole_number_double_correlationId_from_payload_when_activity_unset`).
 - [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryReadStringOrNumberToken` — string-encoded whole-number `deduplicationKey` / `severity` not normalized — **hit 2026-09-02 (#458):** `"deduplicationKey":"42424242.0"` and `"severity":"2.0"` kept decimal strings while numeric whole-number doubles normalized in #447; fixed with shared string whole-number coercion (`TryResolveForPublish_alert_resolved_maps_string_encoded_whole_number_double_deduplication_key`, `TryResolveForPublish_alert_fired_maps_string_encoded_whole_number_double_severity`).
+- [x] (proven) `FindingJsonConverter` enum readers — boolean / string-encoded boolean `severity` rejected — **hit 2026-09-02 (#459):** `"severity":true` and `"severity":"true"` threw while sibling numeric/score readers already coerced booleans to ordinals; fixed with `TryReadBooleanOrdinal` / `TryParseBooleanOrdinalString` (`Deserialize_boolean_severity_maps_warning`, `Deserialize_string_encoded_boolean_severity_maps_warning`).
+- [x] (proven) `FindingJsonConverter.ReadHumanReviewStatus` — boolean / string-encoded boolean review status rejected — **hit 2026-09-02 (#459):** `"humanReviewStatus":true` and `"humanReviewStatus":"true"` threw on snapshot reload; fixed with shared boolean ordinal coercion (`Deserialize_boolean_humanReviewStatus_maps_pending`, `Deserialize_string_encoded_boolean_humanReviewStatus_maps_pending`).
+- [x] (proven) `RealLlmOutputStructuralValidator.TryResolveAgentType` — string-encoded whole-number parameter rejected — **hit 2026-09-02 (#459):** `ValidateAgentResultStructure("1.0", …)` failed while JSON `"agentType":"1.0"` already accepted in #457; fixed with `TryParseWholeNumberString` (`ValidateAgentResultStructure_accepts_string_encoded_whole_number_double_agentType_parameter`).
+
+2026-09-02 seed hunt #459: reseeded from ArchLucid.Core; proved finding enum boolean coercion gaps and golden-corpus string whole-number agentType parameter parity.
 
 2026-09-02 seed hunt #458: reseeded from ArchLucid.Core; proved Service Bus publish string-encoded whole-number correlation, deduplication, and severity normalization gaps.
 

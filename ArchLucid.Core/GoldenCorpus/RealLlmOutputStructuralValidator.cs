@@ -247,6 +247,14 @@ public static class RealLlmOutputStructuralValidator
             return true;
         }
 
+        if (TryParseWholeNumberString(input.Trim(), out int wholeNumberOrdinal)
+            && Enum.IsDefined(typeof(AgentType), wholeNumberOrdinal))
+        {
+            type = (AgentType)wholeNumberOrdinal;
+
+            return true;
+        }
+
         error = $"Parameter agentType '{input}' is not a valid AgentType name or integer.";
 
         return false;
