@@ -3,10 +3,14 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Runs;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
@@ -44,6 +48,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class DocxExportController(
     IAuthorityQueryService authorityQueryService,
+    IRunDetailQueryService runDetailQueryService,
     IArtifactQueryService artifactQueryService,
     IDocxExportService docxExportService,
     IComparisonService comparisonService,
@@ -56,6 +61,9 @@ public sealed class DocxExportController(
 {
     private readonly ILogger<DocxExportController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     /// <summary>Streams a DOCX architecture package for <paramref name="runId" />.</summary>
     /// <param name="runId">Primary run (must have golden manifest).</param>
@@ -92,6 +100,21 @@ public sealed class DocxExportController(
             return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.",
                 ProblemTypes.ManifestNotFound);
 
+        ArchitectureRunDetail? architectureDetail =
+            await _runDetailQueryService.GetRunDetailAsync(runId.ToString("N"), ct).ConfigureAwait(false);
+
+        if (architectureDetail is not null)
+        {
+            try
+            {
+                AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(architectureDetail, runId.ToString("N"));
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
         ManifestDocument? manifest = runDetail.GoldenManifest;
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
             scope,
@@ -109,6 +132,26 @@ public sealed class DocxExportController(
                 return this.NotFoundProblem(
                     $"Compare run '{compareWithRunId.Value}' does not have a committed golden manifest.",
                     ProblemTypes.ManifestNotFound);
+
+            ArchitectureRunDetail? compareArchitectureDetail =
+                await _runDetailQueryService
+                    .GetRunDetailAsync(compareWithRunId.Value.ToString("N"), ct)
+                    .ConfigureAwait(false);
+
+            if (compareArchitectureDetail is not null)
+            {
+                try
+                {
+                    AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+                        compareArchitectureDetail,
+                        compareWithRunId.Value.ToString("N"));
+                }
+                catch (ConflictException ex)
+                {
+                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                }
+            }
+
             manifestComparison = comparisonService.Compare(manifest, targetDetail.GoldenManifest);
         }
 

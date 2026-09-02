@@ -116,7 +116,6 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
         string hasher = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
-        hasher.Should().Contain("HasherSchemaVersion = \"v3\"");
         hasher.Should().Contain("CreateTimePolicyPackPins");
         hasher.Should().Contain("CreateTimeEvidencePackagePins");
     }

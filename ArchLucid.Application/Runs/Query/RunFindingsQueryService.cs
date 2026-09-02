@@ -7,6 +7,7 @@ using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Http;
 using ArchLucid.Application.Reporting;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
@@ -145,6 +146,19 @@ public sealed class RunFindingsQueryService(
             {
                 Outcome = RunFindingsQueryOutcome.Conflict,
                 ProblemDetail = "Export requires a finalized review with a committed architecture snapshot."
+            };
+        }
+
+        try
+        {
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId);
+        }
+        catch (ConflictException ex)
+        {
+            return new RunFindingsCsvExportQueryResult
+            {
+                Outcome = RunFindingsQueryOutcome.Conflict,
+                ProblemDetail = ex.Message
             };
         }
 

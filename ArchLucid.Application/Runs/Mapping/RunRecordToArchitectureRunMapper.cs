@@ -1,6 +1,7 @@
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Runs;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Runs.Mapping;

@@ -1,6 +1,7 @@
-using ArchLucid.Core.Manifest;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Core.Runs;
 
 namespace ArchLucid.Persistence.Queries;
 
@@ -34,19 +35,8 @@ internal static class AuthorityRunMapper
             HasGovernanceWarnings = run.HasGovernanceWarnings,
             PackageOrigin = run.PackageOrigin,
             StructuralExecutionMode = run.StructuralExecutionMode,
-            AuthorityLifecyclePhase = ResolveListLifecyclePhase(run),
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run),
         };
-    }
-
-    private static AuthorityRunLifecyclePhase ResolveListLifecyclePhase(RunRecord run)
-    {
-        if (run.GoldenManifestId is Guid goldenManifestId && goldenManifestId != Guid.Empty)
-            return AuthorityRunLifecyclePhase.Complete;
-
-        if (run.ContextSnapshotId is Guid contextSnapshotId && contextSnapshotId != Guid.Empty)
-            return AuthorityRunLifecyclePhase.InProgress;
-
-        return AuthorityRunLifecyclePhase.NotStarted;
     }
 
     /// <summary>Projects a <see cref="ManifestDocument" /> to a <see cref="ManifestSummaryDto" />.</summary>

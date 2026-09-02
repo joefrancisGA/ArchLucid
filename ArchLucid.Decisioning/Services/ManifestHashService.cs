@@ -19,7 +19,7 @@ public sealed class ManifestHashService : IManifestHashService
     ///     Canonical projection schema version. Increment only with deliberate baseline re-lock
     ///     (<c>MANIFEST_HASH_HASHER_BASELINE.md</c>, <c>TB-1157</c>).
     /// </summary>
-    public const string HasherSchemaVersion = "v3";
+    public const string HasherSchemaVersion = "v4";
 
     /// <inheritdoc />
     public string ComputeHash(ManifestDocument manifest)
@@ -49,6 +49,7 @@ public sealed class ManifestHashService : IManifestHashService
                 .ThenBy(static row => row.PackageId)
                 .Select(static row => new { row.Provider, row.PackageId, row.CollectionUtc })
                 .ToArray(),
+            manifest.CreateTimeEvidencePackagePinsHashSha256,
             manifest.RuleSetId,
             manifest.RuleSetVersion,
             manifest.RuleSetHash,

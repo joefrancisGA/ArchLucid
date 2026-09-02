@@ -1,13 +1,18 @@
+using System.Text.Json;
+
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Models;
 
-namespace ArchLucid.Application.Runs;
+namespace ArchLucid.Core.Runs;
 
 /// <summary>
 ///     Derives operator-facing dead-letter state from persisted <c>dbo.Runs.LastFailureReason</c> JSON.
 /// </summary>
 public static class RunAuthorityPipelineDeadLetterDetection
 {
+    private const int SupportedSchemaVersion = 1;
+
     /// <summary>
     ///     <see langword="true" /> when <paramref name="record" /> carries a pipeline dead-letter failure summary.
     /// </summary>
@@ -24,7 +29,7 @@ public static class RunAuthorityPipelineDeadLetterDetection
     /// </summary>
     public static bool IsDeadLettered(string? lastFailureReason)
     {
-        AgentExecutionFailureSummary? summary = AgentExecutionFailureSummaryJson.TryDeserialize(lastFailureReason);
+        AgentExecutionFailureSummary? summary = TryDeserialize(lastFailureReason);
 
         if (summary is null)
             return false;
@@ -33,5 +38,31 @@ public static class RunAuthorityPipelineDeadLetterDetection
             summary.FailureClass,
             AgentExecutionFailureClasses.PipelineDeadLetter,
             StringComparison.Ordinal);
+    }
+
+    private static AgentExecutionFailureSummary? TryDeserialize(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
+
+        string trimmed = json.TrimStart();
+
+        if (!trimmed.StartsWith("{", StringComparison.Ordinal))
+            return null;
+
+        try
+        {
+            AgentExecutionFailureSummary? parsed =
+                JsonSerializer.Deserialize<AgentExecutionFailureSummary>(json, ContractJson.Default);
+
+            if (parsed is null || parsed.SchemaVersion != SupportedSchemaVersion)
+                return null;
+
+            return parsed;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 }
