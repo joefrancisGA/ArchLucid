@@ -1780,11 +1780,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 91
-- **bugs-found:** 203
+- **hunts:** 92
+- **bugs-found:** 204
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AWS offer index h hourly unit synonym
+- **last-bug:** 2026-09-02 — GCP billing catalog later hourly pricingInfo entry ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2077,6 +2077,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AwsEc2OfferIndexParser.TryReadHourlyUnit` — `h` hourly unit synonym rejected — **hit 2026-09-02 (#504):** `"unit": "h"` returned null while `"Hrs"` and boolean/`"on"` synonyms already parsed; fixed by accepting `h` alongside `Hrs` (`TryGetLinuxOnDemandHourlyUsd_parses_h_synonym_hourly_unit`).
 
 2026-09-02 seed hunt #504: reseeded from ArchLucid.Core costing parsers; proved AWS h hourly unit synonym gap (symmetric to #503 GCP Hrs fix).
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryFetchComputeHourlyUsdAsync` — only first `pricingInfo` entry consulted — **hit 2026-09-02 (#505):** SKU with non-hourly `pricingInfo[0]` (`usageUnit: "mo"`) and hourly `pricingInfo[1]` returned null instead of scanning later entries; fixed by iterating all `pricingInfo` rows (`TryGetComputeEngineMonthlyUsdAsync_uses_later_hourly_pricing_info_entry`).
+
+2026-09-02 seed hunt #505: reseeded from ArchLucid.Core costing parsers; proved GCP pricingInfo first-entry-only scan gap after #504 AWS h unit synonym fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

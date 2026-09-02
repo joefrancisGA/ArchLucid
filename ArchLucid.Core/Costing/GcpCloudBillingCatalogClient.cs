@@ -145,21 +145,22 @@ public sealed class GcpCloudBillingCatalogClient
                     continue;
                 }
 
-                JsonElement firstPricing = pricingInfo[0];
-
-                if (!TryGetPropertyCaseInsensitive(firstPricing, "pricingExpression", out JsonElement expression))
-                    continue;
-
-                if (!TryGetPropertyCaseInsensitive(expression, "usageUnit", out JsonElement usageUnit)
-                    || !IsHourlyUsageUnit(usageUnit))
+                foreach (JsonElement pricingEntry in pricingInfo.EnumerateArray())
                 {
-                    continue;
+                    if (!TryGetPropertyCaseInsensitive(pricingEntry, "pricingExpression", out JsonElement expression))
+                        continue;
+
+                    if (!TryGetPropertyCaseInsensitive(expression, "usageUnit", out JsonElement usageUnit)
+                        || !IsHourlyUsageUnit(usageUnit))
+                    {
+                        continue;
+                    }
+
+                    if (!TryReadTieredRateUsd(pricingEntry, out decimal hourly))
+                        continue;
+
+                    return hourly;
                 }
-
-                if (!TryReadTieredRateUsd(firstPricing, out decimal hourly))
-                    continue;
-
-                return hourly;
             }
 
             return null;
