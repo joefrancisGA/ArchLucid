@@ -3466,11 +3466,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 8
-- **bugs-found:** 15
+- **hunts:** 9
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Quick Scan captcha challenge without Turnstile mount
+- **last-bug:** 2026-09-02 — showcase embedded demo sign-in CTA missing returnUrl
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3494,6 +3494,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Quick Scan `SampleOnly` auto-sample `useEffect` overwrites a real analysis when capacity status loads after submit — **hit 2026-08-27:** effect lacked `result === null` guard; aligned with optimistic `isQuickScanAiSubmitAllowed(null)` race (`use-quick-scan-client.test.ts`).
 
 2026-09-02 thorough hunt #429: proved quick-scan capacity-banner recovery and progressive CAPTCHA Turnstile mount gaps.
+
+- [x] (proven) `DemoPreviewSignInCallout` / `DemoPreviewEvaluationCta` hardcoded `/auth/signin` without `returnUrl` on embedded showcase demo body — **hit 2026-09-02 (#535):** gated showcase visitors who signed in from the bottom demo preview CTAs did not return to `/architecture/reviews/{runId}` unlike `ShowcaseQuickNav`; fixed by threading `signInReturnPath` from `DemoPreviewMarketingBody` and using `buildAuthSignInHref` (`DemoPreviewCallouts.test.tsx`).
+
+2026-09-02 seed hunt #535: reseeded from showcase demo preview callouts; proved sign-in returnUrl parity gap vs `ShowcaseQuickNav`.
 
 2026-08-28 thorough hunt #7: proved sponsor digest signInUrl trailing-slash normalization; reseeded quick-scan capacity-banner and captcha candidates.
 - [x] (proven) Static-first showcase slugs skip API but pass `renderMode="api"` and `banner={null}` when API base is configured — **hit 2026-08-27:** conflated API configured with served-from-API; static-first branch now always uses `renderMode="static"` and static banner (`showcase-page.test.tsx`).
