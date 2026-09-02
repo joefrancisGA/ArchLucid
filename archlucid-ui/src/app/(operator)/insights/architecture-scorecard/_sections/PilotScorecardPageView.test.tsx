@@ -115,13 +115,19 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
-  it("renders Sources strip and directional claim discipline (SCX Evidence)", () => {
+  it("renders follow-up orientation strip and directional claim discipline (SCX Evidence)", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
     expect(screen.getByTestId("architecture-scorecard-sources")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Sources" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Sources for follow-up" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "Where to go next" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Sources" })).toBeNull();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-scorecard-orientation-top")).toBeNull();
+
+    const summaryRow = screen.getByTestId("review-scorecard-summary-row");
+    const orientation = screen.getByTestId("architecture-scorecard-orientation-bottom");
+
+    expect(summaryRow.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("uses consistent Architecture scorecard labeling and customer-safe subtitle", () => {

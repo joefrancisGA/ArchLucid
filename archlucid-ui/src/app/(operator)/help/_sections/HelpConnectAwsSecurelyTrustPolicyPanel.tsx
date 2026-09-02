@@ -103,7 +103,7 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
         </div>
       </div>
 
-      <details className="group space-y-3" open data-testid="connect-aws-securely-trust-policy-disclosure">
+      <details className="group space-y-3" data-testid="connect-aws-securely-trust-policy-disclosure">
         <summary className={cn("cursor-pointer list-none font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           <span className="inline-flex flex-wrap items-center justify-between gap-2">
             <span>{CONNECT_AWS_SECURELY_TRUST_POLICY_HEADING}</span>
