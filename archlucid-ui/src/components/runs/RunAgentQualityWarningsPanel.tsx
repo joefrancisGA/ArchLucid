@@ -22,11 +22,12 @@ import { buildPlainLanguageQualityBlockSummary, QUALITY_GATE_REJECTION_RUNBOOK_P
 
 export type RunAgentQualityWarningsPanelProps = {
   readonly runId: string;
+  readonly retryCount?: number | null;
   readonly rows: AgentQualityConcernRow[];
 };
 
 export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanelProps): React.JSX.Element {
-  const { runId, rows } = props;
+  const { runId, retryCount = null, rows } = props;
   const blockSummary = buildPlainLanguageQualityBlockSummary(rows);
 
   return (
@@ -95,7 +96,11 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
           </EnterpriseTable>
 
           <div className="flex flex-wrap items-center gap-3">
-            <ReRunReviewButton runId={runId} data-testid="ai-quality-warnings-re-run-review" />
+            <ReRunReviewButton
+              runId={runId}
+              retryCount={retryCount}
+              data-testid="ai-quality-warnings-re-run-review"
+            />
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Re-invokes agent execution for this review (same run id).
             </p>

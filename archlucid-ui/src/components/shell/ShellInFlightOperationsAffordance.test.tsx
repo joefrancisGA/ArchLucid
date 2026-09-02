@@ -49,6 +49,20 @@ describe("ShellInFlightOperationsAffordance", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("hides the trigger when only terminal operations remain in the hold window", () => {
+    trackInFlightOperation({
+      operationId: "run:demo",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/demo",
+      runId: "demo",
+      stepLabel: "Agent execution failed",
+      state: "Failed",
+    });
+
+    const { container } = render(<ShellInFlightOperationsAffordance />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("shows trigger and aria-live rows for tracked operations", async () => {
     trackInFlightOperation({
       operationId: "run:demo",
