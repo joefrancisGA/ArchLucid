@@ -55,13 +55,16 @@ public sealed class AuthenticationIdentityLinkingServiceTests
 
         TimeProvider clockProvider = clock ?? new FakeTimeProvider(DateTimeOffset.UtcNow);
 
+        AuthenticationIdentityLinkProposalPersistStage proposalPersistStage = new(proposals);
+        AuthenticationIdentityLinkProposalAuditNotifier proposalAuditNotifier = new(audit.Object);
+
         AuthenticationIdentityLinkProposalService proposalService = new(
             platformIdentity,
             users,
             identities,
-            proposals,
+            proposalPersistStage,
             reviews,
-            audit.Object,
+            proposalAuditNotifier,
             clockProvider);
 
         AuthenticationIdentityLinkChallengeService challengeService = new(
@@ -351,13 +354,16 @@ public sealed class AuthenticationIdentityLinkingServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
+        AuthenticationIdentityLinkProposalPersistStage proposalPersist = new(proposals.Object);
+        AuthenticationIdentityLinkProposalAuditNotifier proposalAudit = new(audit.Object);
+
         AuthenticationIdentityLinkProposalService sut = new(
             platformIdentity.Object,
             users.Object,
             identities.Object,
-            proposals.Object,
+            proposalPersist,
             reviews.Object,
-            audit.Object,
+            proposalAudit,
             TimeProvider.System);
 
         // CAS lost and the re-read proposal is not Confirmed: the confirm must fail rather
@@ -427,13 +433,16 @@ public sealed class AuthenticationIdentityLinkingServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
+        AuthenticationIdentityLinkProposalPersistStage proposalPersist = new(proposals.Object);
+        AuthenticationIdentityLinkProposalAuditNotifier proposalAudit = new(audit.Object);
+
         AuthenticationIdentityLinkProposalService sut = new(
             platformIdentity.Object,
             users.Object,
             identities.Object,
-            proposals.Object,
+            proposalPersist,
             reviews.Object,
-            audit.Object,
+            proposalAudit,
             TimeProvider.System);
 
         await Assert.ThrowsAsync<AuthenticationIdentityLinkProposalNotFoundException>(() =>
@@ -480,13 +489,16 @@ public sealed class AuthenticationIdentityLinkingServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
+        AuthenticationIdentityLinkProposalPersistStage proposalPersist = new(proposals.Object);
+        AuthenticationIdentityLinkProposalAuditNotifier proposalAudit = new(audit.Object);
+
         AuthenticationIdentityLinkProposalService sut = new(
             platformIdentity.Object,
             users.Object,
             identities.Object,
-            proposals.Object,
+            proposalPersist,
             reviews.Object,
-            audit.Object,
+            proposalAudit,
             TimeProvider.System);
 
         await Assert.ThrowsAsync<AuthenticationIdentityLinkProposalNotFoundException>(() =>
@@ -535,13 +547,16 @@ public sealed class AuthenticationIdentityLinkingServiceTests
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new DuplicateAuthenticationIdentityException(pendingProposal.ToExternalKey()));
 
+        AuthenticationIdentityLinkProposalPersistStage proposalPersist = new(proposals.Object);
+        AuthenticationIdentityLinkProposalAuditNotifier proposalAudit = new(audit.Object);
+
         AuthenticationIdentityLinkProposalService sut = new(
             platformIdentity.Object,
             users.Object,
             identities.Object,
-            proposals.Object,
+            proposalPersist,
             reviews.Object,
-            audit.Object,
+            proposalAudit,
             TimeProvider.System);
 
         await Assert.ThrowsAsync<DuplicateAuthenticationIdentityException>(() =>
@@ -612,13 +627,16 @@ public sealed class AuthenticationIdentityLinkingServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
+        AuthenticationIdentityLinkProposalPersistStage proposalPersist = new(proposals.Object);
+        AuthenticationIdentityLinkProposalAuditNotifier proposalAudit = new(audit.Object);
+
         AuthenticationIdentityLinkProposalService sut = new(
             platformIdentity.Object,
             users.Object,
             identities.Object,
-            proposals.Object,
+            proposalPersist,
             reviews.Object,
-            audit.Object,
+            proposalAudit,
             TimeProvider.System);
 
         AuthenticationIdentityRecord result = await sut.ConfirmLinkProposalAsync(

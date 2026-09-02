@@ -16,10 +16,8 @@ import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 import {
   CTO_DEMO_AUDIT_FILTER_QUERY_PARAM,
-  CTO_DEMO_AUDIT_FILTER_VALUE,
   isCtoDemoAuditFilterActive,
 } from "@/lib/cto-demo-audit-filter";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
@@ -32,6 +30,7 @@ import {
   toDatetimeLocalInputValue,
 } from "./audit-page-helpers";
 import { resolveAuditSearchPageForUi, shouldInjectAuditDemoOnSearchError } from "./resolve-audit-search-page-for-ui";
+import { useAuditPageUrlState } from "./use-audit-page-url-state";
 import {
   auditFiltersToQueryRecord,
   fetchAuditEventsSearch,
@@ -112,28 +111,7 @@ export function useAuditPageSearch(
   const lastAutoSearchUrlRunIdRef = useRef<string | null>(null);
   const ctoDemoAuditFilterActive = isCtoDemoAuditFilterActive(searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM));
 
-  useEffect(() => {
-    const fromQuery = searchParams.get("runId")?.trim() ?? "";
-
-    if (fromQuery.length > 0) {
-      setRunId(fromQuery);
-
-      return;
-    }
-
-    const resolvedRunId = resolveOperatorShellAuditRunId({
-      pathname: pathname ?? GOVERNANCE_AUDIT_PATH,
-      search: searchParams.toString(),
-      workspaceActiveRunId: workspaceRun?.activeRunId ?? null,
-    });
-
-    if (resolvedRunId === null || resolvedRunId.length === 0) {
-      return;
-    }
-
-    router.replace(auditTrailNavHref(resolvedRunId), { scroll: false });
-    setRunId(resolvedRunId);
-  }, [pathname, router, searchParams, workspaceRun?.activeRunId]);
+  useAuditPageUrlState({ runId, setRunId });
 
   const onClearCtoDemoAuditFilter = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -144,26 +122,6 @@ export function useAuditPageSearch(
       query.length > 0 ? `${GOVERNANCE_AUDIT_PATH}?${query}` : GOVERNANCE_AUDIT_PATH,
       { scroll: false },
     );
-  }, [router, searchParams]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    if (!readBuyerCtoDemoTourActive()) {
-      return;
-    }
-
-    const existingFilter = searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM);
-
-    if (existingFilter !== null && existingFilter.trim().length > 0) {
-      return;
-    }
-
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM, CTO_DEMO_AUDIT_FILTER_VALUE);
-    router.replace(`${GOVERNANCE_AUDIT_PATH}?${params.toString()}`, { scroll: false });
   }, [router, searchParams]);
 
   const loadTypes = useCallback(async () => {
