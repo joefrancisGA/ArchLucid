@@ -3,32 +3,49 @@
 
   - Runs.PinnedEvidencePackagePinsJson / PinnedEvidencePackagePinsHashSha256
   - Runs.PinnedFocusedPilotModeEnabled / PinnedFocusedPilotCloudProvider
+
+  After ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews. COL_LENGTH on the
+  synonym returns NULL, so ALTER TABLE dbo.Runs raises SQL 4909. DDL targets the physical
+  table (dbo.Reviews first, pre-295 dbo.Runs fallback) via sp_executesql.
 */
 
-IF COL_LENGTH(N'dbo.Runs', N'PinnedEvidencePackagePinsJson') IS NULL
-BEGIN
-    ALTER TABLE dbo.Runs
-        ADD PinnedEvidencePackagePinsJson NVARCHAR(MAX) NULL;
-END;
-GO
+DECLARE @runTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
 
-IF COL_LENGTH(N'dbo.Runs', N'PinnedEvidencePackagePinsHashSha256') IS NULL
-BEGIN
-    ALTER TABLE dbo.Runs
-        ADD PinnedEvidencePackagePinsHashSha256 VARBINARY(32) NULL;
-END;
-GO
+DECLARE @sql NVARCHAR(MAX);
 
-IF COL_LENGTH(N'dbo.Runs', N'PinnedFocusedPilotModeEnabled') IS NULL
+IF @runTable IS NOT NULL
+   AND COL_LENGTH(@runTable, N'PinnedEvidencePackagePinsJson') IS NULL
 BEGIN
-    ALTER TABLE dbo.Runs
-        ADD PinnedFocusedPilotModeEnabled BIT NULL;
-END;
-GO
+    SET @sql = N'ALTER TABLE ' + @runTable + N' ADD PinnedEvidencePackagePinsJson NVARCHAR(MAX) NULL;';
 
-IF COL_LENGTH(N'dbo.Runs', N'PinnedFocusedPilotCloudProvider') IS NULL
+    EXEC sp_executesql @sql;
+END
+
+IF @runTable IS NOT NULL
+   AND COL_LENGTH(@runTable, N'PinnedEvidencePackagePinsHashSha256') IS NULL
 BEGIN
-    ALTER TABLE dbo.Runs
-        ADD PinnedFocusedPilotCloudProvider INT NULL;
-END;
+    SET @sql = N'ALTER TABLE ' + @runTable + N' ADD PinnedEvidencePackagePinsHashSha256 VARBINARY(32) NULL;';
+
+    EXEC sp_executesql @sql;
+END
+
+IF @runTable IS NOT NULL
+   AND COL_LENGTH(@runTable, N'PinnedFocusedPilotModeEnabled') IS NULL
+BEGIN
+    SET @sql = N'ALTER TABLE ' + @runTable + N' ADD PinnedFocusedPilotModeEnabled BIT NULL;';
+
+    EXEC sp_executesql @sql;
+END
+
+IF @runTable IS NOT NULL
+   AND COL_LENGTH(@runTable, N'PinnedFocusedPilotCloudProvider') IS NULL
+BEGIN
+    SET @sql = N'ALTER TABLE ' + @runTable + N' ADD PinnedFocusedPilotCloudProvider INT NULL;';
+
+    EXEC sp_executesql @sql;
+END
 GO

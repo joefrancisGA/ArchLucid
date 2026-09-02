@@ -23,6 +23,8 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations", "343_RunCreatePinsWave6.sql"));
 
         sql.Should().Contain("PinnedEvidencePackagePinsJson");
+        sql.Should().Contain("@runTable");
+        sql.Should().NotMatchRegex(@"(?m)^\s*ALTER\s+TABLE\s+dbo\.Runs\b");
     }
 
     [Fact]
