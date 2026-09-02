@@ -28,7 +28,7 @@ public sealed class CostConstraintFindingEngineTests
             Edges = []
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -56,7 +56,7 @@ public sealed class CostConstraintFindingEngineTests
             Edges = []
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding f = findings.Should().ContainSingle().Subject;
         f.Severity.Should().Be(FindingSeverity.Warning);
@@ -89,7 +89,7 @@ public sealed class CostConstraintFindingEngineTests
             Edges = []
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding f = findings.Should().ContainSingle().Subject;
         f.Severity.Should().Be(FindingSeverity.Info);
@@ -114,7 +114,7 @@ public sealed class CostConstraintFindingEngineTests
             Edges = []
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding f = findings.Should().ContainSingle().Subject;
         CostConstraintFindingPayload payload = f.Payload.Should().BeOfType<CostConstraintFindingPayload>().Subject;
@@ -140,7 +140,7 @@ public sealed class CostConstraintFindingEngineTests
             Edges = []
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding f = findings.Should().ContainSingle().Subject;
         CostConstraintFindingPayload payload = f.Payload.Should().BeOfType<CostConstraintFindingPayload>().Subject;
@@ -173,7 +173,7 @@ public sealed class CostConstraintFindingEngineTests
             Edges = []
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().HaveCount(2);
         findings.Select(static f => f.RelatedNodeIds.Single()).Should().BeEquivalentTo(["a", "b"]);

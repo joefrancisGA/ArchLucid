@@ -133,6 +133,8 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         ComplianceRulePackValidator complianceValidator = new();
         GraphComplianceEvaluator complianceEvaluator = new();
 
+        // WK-06 actor slice: ExternalExposure was already in the prior 14-engine set;
+        // TrustBoundary + PrivilegedAccess join it. Policy-filtered packs stay in sibling tests (WK-22).
         return
         [
             new RequirementFindingEngine(),
@@ -145,6 +147,8 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new SecurityGapFindingEngine(),
             new SecurityCoverageFindingEngine(analyzer),
             new ExternalExposureFindingEngine(),
+            new TrustBoundaryFindingEngine(),
+            new PrivilegedAccessFindingEngine(),
             new ComplianceFindingEngine(complianceProvider, complianceValidator, complianceEvaluator),
             new CostConstraintFindingEngine(),
             new DeclarationSecurityBaselineFindingEngine(complianceProvider),

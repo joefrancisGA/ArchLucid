@@ -45,7 +45,7 @@ public sealed class OrphanedGcpResourceFindingEngineTests
 
         OrphanedGcpResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("OrphanedGcpResource");

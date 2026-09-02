@@ -4,7 +4,7 @@ using ArchLucid.Contracts.Drafts;
 
 namespace ArchLucid.Application.Drafts;
 
-/// <summary>Fail-closed review-start readiness for architecture drafts (TB-2282).</summary>
+/// <summary>Fail-closed review-start readiness for architecture drafts (TB-2282, TB-2343).</summary>
 public static class ArchitectureDraftReviewReadinessValidator
 {
     private const int MinimumOutcomeLength = 10;
@@ -29,6 +29,9 @@ public static class ArchitectureDraftReviewReadinessValidator
 
         if (!HasConfirmedActor(document.ActorSet))
             blockers.Add("confirmed actor");
+
+        if (ArchitectureDraftStructuredBrief.HasUnconfirmedStructuredBriefPlaceholders(document.StructuredBrief))
+            blockers.Add("structured brief placeholders");
 
         return blockers;
     }

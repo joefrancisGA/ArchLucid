@@ -79,7 +79,7 @@ public sealed class ComplianceFindingEngineTests
             Edges = []
         };
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().HaveCount(2);
         findings[0].Severity.Should().Be(FindingSeverity.Critical);

@@ -146,7 +146,11 @@ public sealed partial class RunDetailQueryService
             AgentTaskLoopComplete = RunKernelCompleteness.IsAgentTaskLoopComplete(
                 _runStateTransitionService,
                 run.Status,
-                results)
+                results),
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseResolver.Resolve(
+                run.GoldenManifestId,
+                manifest,
+                stageOutcomes)
         };
     }
 

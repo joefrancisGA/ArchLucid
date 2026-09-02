@@ -10685,6 +10685,13 @@
               "string"
             ]
           },
+          "spawnedArchitectureVersionId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "spawnedRunId": {
             "type": [
               "null",
@@ -26585,6 +26592,13 @@
             ]
           },
           "architectureRequestId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "architectureVersionId": {
+            "format": "uuid",
             "type": [
               "null",
               "string"
@@ -76749,6 +76763,15 @@
     },
     "/v1/architecture/request/idempotency": {
       "get": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -92825,7 +92848,7 @@
             "name": "occupancyKind",
             "schema": {
               "$ref": "#/components/schemas/WorkspaceSystemNameOccupancyKind",
-              "default": 0
+              "default": "Review"
             }
           }
         ],

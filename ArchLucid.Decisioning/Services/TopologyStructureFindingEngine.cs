@@ -3,6 +3,7 @@ using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Decisioning.Services;
 
@@ -12,7 +13,8 @@ public sealed class TopologyStructureFindingEngine : IFindingEngine
 
     public string Category => "Topology";
 
-    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+        CancellationToken ct)
     {
         IReadOnlyList<TopologyStructureGap> gaps = TopologyStructureAnalyzer.Analyze(graphSnapshot);
         List<Finding> findings = [];

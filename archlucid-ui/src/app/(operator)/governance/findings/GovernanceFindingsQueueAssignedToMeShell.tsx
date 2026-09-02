@@ -12,7 +12,8 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { EnterpriseInlineErrorNotification } from "@/components/EnterpriseInlineErrorNotification";
 import { GovernanceFindingsBuyerChrome } from "@/components/governance/findings/GovernanceFindingsBuyerChrome";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
-import { FindingsQueuePickReviewBeforeTriageStrip } from "@/components/governance/findings/FindingsQueuePickReviewBeforeTriageStrip";
+import { GovernanceFindingsRegisterFilterCompact } from "@/components/governance/findings/GovernanceFindingsRegisterFilterCompact";
+import { FindingsQueueScopeDisclosure } from "@/components/governance/findings/FindingsQueuePickReviewBeforeTriageStrip";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { GovernanceFindingsSavedViewsBar } from "@/components/governance/findings/GovernanceFindingsSavedViewsBar";
 import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
@@ -86,6 +87,7 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly assignedToMeLoadedFindingCount: number;
   readonly scopeRecordProjectId: string | undefined;
   readonly filterBarVisible: boolean;
+  readonly compactRegisterFilterVisible: boolean;
   readonly registerFilter: RiskRegisterFilter;
   readonly onRegisterFilterChange: (next: RiskRegisterFilter) => void;
   readonly onJobViewChange: (next: FindingJobView) => void;
@@ -158,6 +160,7 @@ export function GovernanceFindingsQueueAssignedToMeShell(
     assignedToMeLoadedFindingCount,
     scopeRecordProjectId,
     filterBarVisible,
+    compactRegisterFilterVisible,
     registerFilter,
     onRegisterFilterChange,
     onJobViewChange,
@@ -217,8 +220,10 @@ export function GovernanceFindingsQueueAssignedToMeShell(
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="governance-findings-run-scope-banner"
         >
-          {"Showing findings for review "}
-          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {"Showing findings for "}
+          <span className="font-medium text-al-text-primary">
+            {scopedRunContextTitle ?? scopedRunId}
+          </span>
           {" · "}
           <Link className={OPERATOR_LINK.inline} href={navHref}>
             Clear review scope
@@ -238,12 +243,12 @@ export function GovernanceFindingsQueueAssignedToMeShell(
             Compare with prior review (finding lifecycle)
           </Link>
         </p>
-      ) : scopedRunId === null || scopedRunId.length === 0 ? (
-        <FindingsQueuePickReviewBeforeTriageStrip
+      ) : (
+        <FindingsQueueScopeDisclosure
           selectedReviewId=""
           onSelectReview={onPickReviewForTriage}
         />
-      ) : null}
+      )}
 
       {scopedRunFilterActive ? (
         <IntegrationConnectChecklist
@@ -278,6 +283,14 @@ export function GovernanceFindingsQueueAssignedToMeShell(
 
       {!isAssignedToMe ? (
         <ArchitecturePosturePillarOverview projectId={scopeRecordProjectId} enabled />
+      ) : null}
+
+      {compactRegisterFilterVisible ? (
+        <GovernanceFindingsRegisterFilterCompact
+          registerFilter={registerFilter}
+          onRegisterFilterChange={onRegisterFilterChange}
+          onClearAllFilters={onClearAllFilters}
+        />
       ) : null}
 
       {filterBarVisible ? (

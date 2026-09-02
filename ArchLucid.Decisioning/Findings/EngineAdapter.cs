@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Decisioning.Interfaces;
@@ -11,7 +12,7 @@ namespace ArchLucid.Decisioning.Findings;
 internal sealed record EngineAdapter(
     string EngineType,
     string Category,
-    Func<GraphSnapshot, CancellationToken, Task<IReadOnlyList<Finding>>> AnalyzeAsync)
+    Func<GraphSnapshot, FindingAnalysisContext?, CancellationToken, Task<IReadOnlyList<Finding>>> AnalyzeAsync)
 {
     public static EngineAdapter FromGraphPure(IFindingEngine engine)
     {

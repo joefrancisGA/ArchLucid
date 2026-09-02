@@ -1,4 +1,5 @@
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { secondReviewFromPriorHref } from "@/lib/second-review-prior-package";
 import {
   SPONSOR_BRIEFING_EXPORT_LABEL,
   SPONSOR_BRIEFING_EXPORT_LABEL_LOWER,
@@ -69,7 +70,7 @@ export const REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY: readonly ReviewLifecycleNext
   {
     id: "compare",
     kind: "optional",
-    label: "Compare with prior review",
+    label: "Compare reviews",
     description: "Contrast this finalized review with an earlier one.",
     surfaces: ["post-commit-habit-loop", "review-package", "operator-home"],
     phases: ["post-finalize"],
@@ -85,8 +86,8 @@ export const REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY: readonly ReviewLifecycleNext
   {
     id: "schedule-recurrence",
     kind: "optional",
-    label: "Schedule recurring review",
-    description: "Set a cadence so the next review clones this package automatically.",
+    label: "Schedule follow-up review",
+    description: "Set a cadence so the next review clones this architecture package automatically.",
     surfaces: ["post-commit-habit-loop", "review-package"],
     phases: ["post-finalize"],
   },
@@ -109,7 +110,7 @@ export const REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY: readonly ReviewLifecycleNext
   {
     id: "second-review",
     kind: "optional",
-    label: "Start another review",
+    label: "Start follow-up review",
     description: "Run a follow-up architecture review when the team is ready to compare outcomes.",
     surfaces: ["post-commit-habit-loop", "operator-home", "review-package"],
     phases: ["post-finalize", "in-review"],
@@ -204,7 +205,7 @@ function resolveHref(id: ReviewLifecycleNextActionId, input: BuildReviewLifecycl
       return "/insights/architecture-scorecard";
 
     case "second-review":
-      return "/architecture/reviews/new";
+      return secondReviewFromPriorHref(runId);
 
     case "triage-findings":
       return buildReviewWorkspaceTabHref(runId, "findings");

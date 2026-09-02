@@ -61,7 +61,7 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
             ],
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("declaration-premise-conflict");
@@ -120,7 +120,7 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
             ],
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Error);
@@ -156,7 +156,7 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
             ],
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Warning);
@@ -203,7 +203,7 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
             ],
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Error);
@@ -218,7 +218,7 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
     [Fact]
     public async Task AnalyzeAsync_returns_empty_for_empty_graph()
     {
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -263,7 +263,7 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
             ],
         };
 
-        IReadOnlyList<Finding> siblingFindings = await _siblingEngine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> siblingFindings = await _siblingEngine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         siblingFindings.Should().ContainSingle();
         siblingFindings[0].FindingType.Should().Be("DeclarationSecurityBaselineFinding");
