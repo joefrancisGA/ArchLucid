@@ -47,8 +47,11 @@ public sealed partial class ReplayRunService
         ArchitectureRunDetail replayDetail = await _runDetailQueryService.GetRunDetailAsync(preparedReplayRunId, cancellationToken) ??
                                              throw new RunNotFoundException(preparedReplayRunId);
         IReadOnlyList<AgentTask> replayTasks = replayDetail.Tasks;
+        bool sourceAuthorityProgress = await SourceRunHasAuthorityStageProgressAsync(originalRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-        if (replayTasks.Count == 0 && sourceDetail.AuthorityPipelineComplete)
+        if (replayTasks.Count == 0
+            && (sourceDetail.AuthorityPipelineComplete || sourceAuthorityProgress))
             return await ExecuteAuthorityPreparedReplayAsync(
                 preparedReplayRunId,
                 originalRunId,
@@ -58,6 +61,12 @@ public sealed partial class ReplayRunService
                 request,
                 sourceDetail,
                 cancellationToken);
+
+        if (sourceAuthorityProgress)
+        {
+            throw new InvalidOperationException(
+                $"Replay blocked for run '{originalRunId}': authority stage outcomes exist; four-agent / DecisionEngineV2 replay is not permitted.");
+        }
 
         if (replayTasks.Count == 0)
             throw new InvalidOperationException($"No tasks found for replay run '{preparedReplayRunId}'.");

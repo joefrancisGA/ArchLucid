@@ -97,7 +97,7 @@ public sealed class ArchitectureSynthesisKernelPriorRunCollisionTests
                 scopeProvider.Object),
             CreateIdentityService(),
             CreateVersionService(runs),
-            Mock.Of<IRunPolicyPackPinService>(),
+            Mock.Of<IRunCreatePinOrchestrator>(),
             NullLogger<ArchitectureSynthesisKernel>.Instance,
             TimeProvider.System);
 

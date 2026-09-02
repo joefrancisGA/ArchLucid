@@ -42,7 +42,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
     IReviewModelAliasResolver reviewModelAliasResolver,
     IAgentModelAliasRegistry agentModelAliasRegistry,
     IAuditService auditService,
-    IRunPolicyPackPinService runPolicyPackPinService,
+    IRunCreatePinOrchestrator runCreatePinOrchestrator,
     ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
     private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator =
@@ -83,8 +83,8 @@ public sealed class ArchitectureRunAuthorityCoordination(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
-    private readonly IRunPolicyPackPinService _runPolicyPackPinService =
-        runPolicyPackPinService ?? throw new ArgumentNullException(nameof(runPolicyPackPinService));
+    private readonly IRunCreatePinOrchestrator _runCreatePinOrchestrator =
+        runCreatePinOrchestrator ?? throw new ArgumentNullException(nameof(runCreatePinOrchestrator));
 
     /// <inheritdoc/>
     public Task<CoordinationResult> CreateRunAsync(
@@ -241,8 +241,8 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
         header.PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request);
 
-        await _runPolicyPackPinService
-            .ApplyToRunHeaderAsync(header, scope, cancellationToken)
+        await _runCreatePinOrchestrator
+            .ApplyCreateTimePinsAsync(header, scope, request, cancellationToken)
             .ConfigureAwait(false);
 
         if (!deferred

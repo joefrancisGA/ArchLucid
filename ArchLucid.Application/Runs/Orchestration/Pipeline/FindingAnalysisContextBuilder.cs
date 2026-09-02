@@ -37,7 +37,7 @@ public sealed class FindingAnalysisContextBuilder(
     IArchitectureVersionRepository architectureVersionRepository,
     IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     IPolicyPackVersionRepository policyPackVersionRepository,
-    IEvidencePackagePinResolver evidencePackagePinResolver) : IFindingAnalysisContextBuilder
+    IRunEvidencePackagePinService runEvidencePackagePinService) : IFindingAnalysisContextBuilder
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -51,8 +51,8 @@ public sealed class FindingAnalysisContextBuilder(
     private readonly IPolicyPackVersionRepository _policyPackVersionRepository =
         policyPackVersionRepository ?? throw new ArgumentNullException(nameof(policyPackVersionRepository));
 
-    private readonly IEvidencePackagePinResolver _evidencePackagePinResolver =
-        evidencePackagePinResolver ?? throw new ArgumentNullException(nameof(evidencePackagePinResolver));
+    private readonly IRunEvidencePackagePinService _runEvidencePackagePinService =
+        runEvidencePackagePinService ?? throw new ArgumentNullException(nameof(runEvidencePackagePinService));
 
     public async Task<FindingAnalysisContext> BuildAsync(
         ScopeContext scope,
@@ -74,8 +74,8 @@ public sealed class FindingAnalysisContextBuilder(
         (IReadOnlyList<string> packIds, IReadOnlyList<PolicyPackContentDocument> packContents) =
             await ResolvePinnedPolicyPacksAsync(scope, header, cancellationToken).ConfigureAwait(false);
 
-        EvidencePackagePin? evidencePin =
-            await _evidencePackagePinResolver.TryResolveAzurePinAsync(scope, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<EvidencePackagePin> evidencePins = _runEvidencePackagePinService.ResolvePinsFromHeader(header);
+        EvidencePackagePin? primaryEvidencePin = evidencePins.FirstOrDefault();
 
         return new FindingAnalysisContext
         {
@@ -89,7 +89,8 @@ public sealed class FindingAnalysisContextBuilder(
             ContextCanonicalFingerprint = GraphSnapshotCanonicalFingerprint.Compute(contextSnapshot),
             KnowledgeModelFingerprint = GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(
                 knowledgeModel),
-            EvidencePin = evidencePin,
+            EvidencePin = primaryEvidencePin,
+            EvidencePins = evidencePins,
         };
     }
 
@@ -101,29 +102,22 @@ public sealed class FindingAnalysisContextBuilder(
     {
         if (!string.IsNullOrWhiteSpace(header?.PinnedPolicyPackIdsJson))
         {
-            if (TryDeserializePinnedRows(header.PinnedPolicyPackIdsJson, out PinnedPolicyPackRow[] pinnedRows))
+            if (!RunHeaderPinDeserializer.TryDeserializePolicyPackRows(
+                    header.PinnedPolicyPackIdsJson,
+                    out PinnedPolicyPackRow[] pinnedRows))
             {
-                IReadOnlyList<PolicyPackContentDocument> pinnedContents =
-                    await LoadPackContentsForPinnedRowsAsync(scope, pinnedRows, cancellationToken).ConfigureAwait(false);
-
-                string[] pinnedPackIds = pinnedRows
-                    .Select(static row => row.PolicyPackId)
-                    .ToArray();
-
-                return (pinnedPackIds, pinnedContents);
+                throw new ConflictException(
+                    "Finding analysis blocked: run policy pack pin JSON is not a versioned PinnedPolicyPackRow array.");
             }
 
-            string[]? legacyPinned = JsonSerializer.Deserialize<string[]>(
-                header.PinnedPolicyPackIdsJson,
-                ContractJson.CamelCaseIgnoreNullCompact);
+            IReadOnlyList<PolicyPackContentDocument> pinnedContents =
+                await LoadPackContentsForPinnedRowsAsync(scope, pinnedRows, cancellationToken).ConfigureAwait(false);
 
-            if (legacyPinned is { Length: > 0 })
-            {
-                IReadOnlyList<PolicyPackContentDocument> pinnedContents =
-                    await LoadPackContentsForIdsAsync(scope, legacyPinned, cancellationToken).ConfigureAwait(false);
+            string[] pinnedPackIds = pinnedRows
+                .Select(static row => row.PolicyPackId)
+                .ToArray();
 
-                return (legacyPinned, pinnedContents);
-            }
+            return (pinnedPackIds, pinnedContents);
         }
 
         IReadOnlyList<PolicyPackAssignment> assignments = await _policyPackAssignmentRepository
@@ -156,29 +150,6 @@ public sealed class FindingAnalysisContextBuilder(
         return (packIds, contents);
     }
 
-    private static bool TryDeserializePinnedRows(string json, out PinnedPolicyPackRow[] rows)
-    {
-        rows = [];
-
-        try
-        {
-            PinnedPolicyPackRow[]? parsed = JsonSerializer.Deserialize<PinnedPolicyPackRow[]>(
-                json,
-                ContractJson.CamelCaseIgnoreNullCompact);
-
-            if (parsed is { Length: > 0 })
-            {
-                rows = parsed;
-                return true;
-            }
-        }
-        catch (JsonException)
-        {
-        }
-
-        return false;
-    }
-
     private async Task<IReadOnlyList<PolicyPackContentDocument>> LoadPackContentsForPinnedRowsAsync(
         ScopeContext scope,
         IReadOnlyList<PinnedPolicyPackRow> pinnedRows,
@@ -193,41 +164,6 @@ public sealed class FindingAnalysisContextBuilder(
 
             PolicyPackVersion? version = await _policyPackVersionRepository
                 .GetByPackAndVersionAsync(packId, row.PolicyPackVersion, cancellationToken)
-                .ConfigureAwait(false);
-
-            PolicyPackContentDocument? document = PolicyPackContentDocumentJson.TryDeserialize(version?.ContentJson);
-
-            if (document is not null)
-                contents.Add(document);
-        }
-
-        return contents;
-    }
-
-    private async Task<IReadOnlyList<PolicyPackContentDocument>> LoadPackContentsForIdsAsync(
-        ScopeContext scope,
-        IReadOnlyList<string> packIds,
-        CancellationToken cancellationToken)
-    {
-        IReadOnlyList<PolicyPackAssignment> assignments = await _policyPackAssignmentRepository
-            .ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
-            .ConfigureAwait(false);
-
-        List<PolicyPackContentDocument> contents = [];
-
-        foreach (string packIdRaw in packIds)
-        {
-            if (!Guid.TryParse(packIdRaw, out Guid packId))
-                continue;
-
-            PolicyPackAssignment? assignment = assignments.FirstOrDefault(row =>
-                row.IsEnabled && row.PolicyPackId == packId);
-
-            if (assignment is null)
-                continue;
-
-            PolicyPackVersion? version = await _policyPackVersionRepository
-                .GetByPackAndVersionAsync(assignment.PolicyPackId, assignment.PolicyPackVersion, cancellationToken)
                 .ConfigureAwait(false);
 
             PolicyPackContentDocument? document = PolicyPackContentDocumentJson.TryDeserialize(version?.ContentJson);

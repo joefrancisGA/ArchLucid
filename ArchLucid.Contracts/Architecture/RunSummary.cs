@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Common;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -69,6 +71,13 @@ public sealed class RunSummary
 
     /// <summary>Golden manifest id when the run has a committed signed record.</summary>
     public Guid? GoldenManifestId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Authority pipeline lifecycle phase for list badges (wave-6 suggestion 58).</summary>
+    public AuthorityRunLifecyclePhase AuthorityLifecyclePhase
     {
         get;
         set;
