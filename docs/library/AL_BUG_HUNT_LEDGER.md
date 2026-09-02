@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 55
-- **bugs-found:** 143
+- **hunts:** 56
+- **bugs-found:** 145
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — explanation faithfulnessWarning whole-number double coercion
+- **last-bug:** 2026-09-02 — policy-pack advisory string whole-number coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1933,6 +1933,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadNonEmptyTextToken` — whole-number double `faithfulnessWarning` JSON token not normalized — **hit 2026-09-02 (#467):** `"faithfulnessWarning":42.0` kept decimal while integer JSON normalized to `"42"` in #439; fixed with whole-number token coercion (`FromAggregateJson_maps_whole_number_double_faithfulness_warning`).
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadNonEmptyTextToken` — string-encoded whole-number `faithfulnessWarning` not normalized — **hit 2026-09-02 (#467):** `"faithfulnessWarning":"42.0"` kept decimal while numeric whole-number doubles normalized in sibling readers #465; fixed with `TryParseWholeNumberString` (`FromAggregateJson_maps_string_encoded_whole_number_double_faithfulness_warning`).
+
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseRequireBudgetCap` — string-encoded whole-number advisory flag ignored — **hit 2026-09-02 (#468):** `policyCostRequireBudgetCap="1.0"` returned null instead of `true` while `"1"` already mapped; fixed with `TryParseWholeNumberString` (`Parse_require_budget_cap_string_encoded_whole_number_maps_true`).
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` — string-encoded whole-number severity ordinal ignored — **hit 2026-09-02 (#468):** `policyCostBreachSeverity="2.0"` returned null while `"2"` already mapped; fixed with whole-number ordinal coercion (`Parse_breach_severity_string_encoded_whole_number_ordinal_maps_label`).
+
+2026-09-02 seed hunt #468: reseeded from ArchLucid.Core; proved policy-pack advisory string whole-number coercion gaps.
 
 2026-09-02 seed hunt #467: reseeded from ArchLucid.Core; proved explanation faithfulnessWarning whole-number double coercion gaps.
 

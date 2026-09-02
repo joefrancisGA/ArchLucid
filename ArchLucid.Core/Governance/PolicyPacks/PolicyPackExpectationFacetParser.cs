@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 
@@ -117,6 +119,11 @@ public static class PolicyPackExpectationFacetParser
       return false;
     }
 
+    if (TryParseWholeNumberString(normalized, out int wholeNumber))
+    {
+      return wholeNumber != 0;
+    }
+
     return null;
   }
 
@@ -128,10 +135,43 @@ public static class PolicyPackExpectationFacetParser
       return null;
     }
 
-    return Enum.TryParse<FindingSeverity>(raw.Trim(), ignoreCase: true, out FindingSeverity parsed)
-        && Enum.IsDefined(parsed)
-        ? raw.Trim()
-        : null;
+    string trimmed = raw.Trim();
+
+    if (Enum.TryParse<FindingSeverity>(trimmed, ignoreCase: true, out FindingSeverity parsed)
+        && Enum.IsDefined(parsed))
+    {
+      return trimmed;
+    }
+
+    if (TryParseWholeNumberString(trimmed, out int ordinal)
+        && Enum.IsDefined(typeof(FindingSeverity), ordinal))
+    {
+      return trimmed;
+    }
+
+    return null;
+  }
+
+  private static bool TryParseWholeNumberString(string raw, out int value)
+  {
+    if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+    {
+      return true;
+    }
+
+    if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+        && double.IsFinite(numeric)
+        && numeric >= 0
+        && numeric == Math.Floor(numeric))
+    {
+      value = (int)numeric;
+
+      return true;
+    }
+
+    value = default;
+
+    return false;
   }
 
   private static IEnumerable<string> SplitDistinct(string raw) =>
