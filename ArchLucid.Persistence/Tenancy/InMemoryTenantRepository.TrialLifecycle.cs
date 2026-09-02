@@ -156,7 +156,7 @@ public sealed partial class InMemoryTenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || !string.Equals(existing.TrialStatus, expectedCurrentStatus, StringComparison.Ordinal))
                 return Task.FromResult(false);
 
-            _byId[tenantId] = CopyTenant(existing, trialStatus: nextStatus);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(existing, trialStatus: nextStatus);
 
             return Task.FromResult(true);
         }
@@ -186,7 +186,7 @@ public sealed partial class InMemoryTenantRepository
                 },
                 committedUtc);
 
-            _byId[tenantId] = CopyTenant(t, trialFirstManifestCommittedUtc: committedUtc);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(t, trialFirstManifestCommittedUtc: committedUtc);
 
             return Task.FromResult<TrialFirstManifestCommitOutcome?>(outcome);
         }
@@ -203,7 +203,7 @@ public sealed partial class InMemoryTenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
                 return Task.CompletedTask;
 
-            _byId[tenantId] = CopyTenant(t, trialExpiresUtc: expiresUtc);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(t, trialExpiresUtc: expiresUtc);
         }
 
         return Task.CompletedTask;

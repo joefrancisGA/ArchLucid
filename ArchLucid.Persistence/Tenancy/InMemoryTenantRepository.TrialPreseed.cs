@@ -19,7 +19,7 @@ public sealed partial class InMemoryTenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.TrialWelcomeRunId is not null || existing.TrialArchitecturePreseedEnqueuedUtc is not null)
                 return Task.CompletedTask;
 
-            _byId[tenantId] = CopyTenant(existing, trialArchitecturePreseedEnqueuedUtc: TimeProvider.System.GetUtcNow());
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(existing, trialArchitecturePreseedEnqueuedUtc: TimeProvider.System.GetUtcNow());
         }
 
         return Task.CompletedTask;
@@ -60,7 +60,7 @@ public sealed partial class InMemoryTenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.TrialWelcomeRunId is not null)
                 return Task.CompletedTask;
 
-            _byId[tenantId] = CopyTenant(existing, trialWelcomeRunId: welcomeRunId);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(existing, trialWelcomeRunId: welcomeRunId);
         }
 
         return Task.CompletedTask;
@@ -80,7 +80,7 @@ public sealed partial class InMemoryTenantRepository
             int nextAttempt = existing.TrialArchitecturePreseedAttemptCount + 1;
             DateTimeOffset? failedUtc = nextAttempt >= 5 ? TimeProvider.System.GetUtcNow() : existing.TrialArchitecturePreseedFailedUtc;
 
-            _byId[tenantId] = CopyTenant(
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(
                 existing,
                 trialArchitecturePreseedAttemptCount: nextAttempt,
                 trialArchitecturePreseedFailedUtc: failedUtc,

@@ -192,7 +192,7 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
         int batchSize,
         CancellationToken cancellationToken)
     {
-        int effectiveBatchSize = Math.Clamp(batchSize, 1, 10_000);
+        int effectiveBatchSize = DraftRequestRepositoryCore.ClampReaperBatchSize(batchSize);
         DateTime cutoff = updatedBeforeUtc.UtcDateTime;
 
         const string sql = """

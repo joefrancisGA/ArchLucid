@@ -39,16 +39,6 @@ public sealed partial class DapperTenantRepository(
     private readonly ITenantDatabaseResolver _tenantDatabaseResolver =
         tenantDatabaseResolver ?? throw new ArgumentNullException(nameof(tenantDatabaseResolver));
 
-    private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
-    {
-        if (trialExpiresUtc is null)
-            return 0;
-
-        double totalDays = (trialExpiresUtc.Value - TimeProvider.System.GetUtcNow()).TotalDays;
-        int days = (int)Math.Floor(totalDays);
-
-        return days < 0 ? 0 : days;
-    }
     private async Task<SqlConnection> OpenDirectoryMetadataConnectionAsync(CancellationToken cancellationToken)
     {
         if (_topologyOptions.CurrentValue.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
@@ -62,13 +52,13 @@ public sealed partial class DapperTenantRepository(
         Guid tenantId,
         CancellationToken ct)
     {
-        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
+        TenantSqlRow? row = await connection.QuerySingleOrDefaultAsync<TenantSqlRow>(
             new CommandDefinition(TenantDirectorySql.SelectById, new
             {
                 Id = tenantId
             }, cancellationToken: ct)).ConfigureAwait(false);
 
-        return row?.ToRecord();
+        return row is null ? null : TenantRepositoryCore.MapSqlRowToRecord(row);
     }
 
     private static async Task<TenantRecord?> QueryTenantBySlugAsync(
@@ -76,13 +66,13 @@ public sealed partial class DapperTenantRepository(
         string normalizedSlug,
         CancellationToken ct)
     {
-        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
+        TenantSqlRow? row = await connection.QuerySingleOrDefaultAsync<TenantSqlRow>(
             new CommandDefinition(TenantDirectorySql.SelectBySlug, new
             {
                 Slug = normalizedSlug
             }, cancellationToken: ct)).ConfigureAwait(false);
 
-        return row?.ToRecord();
+        return row is null ? null : TenantRepositoryCore.MapSqlRowToRecord(row);
     }
 
     private async Task<TenantRecord?> QueryTenantDirectoryByNormalizedOrganizationNameAsync(
@@ -137,12 +127,12 @@ public sealed partial class DapperTenantRepository(
         string normalizedOrganizationName,
         CancellationToken ct)
     {
-        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
+        TenantSqlRow? row = await connection.QuerySingleOrDefaultAsync<TenantSqlRow>(
             new CommandDefinition(TenantDirectorySql.SelectByNormalizedOrganizationName, new
             {
                 NormalizedOrganizationName = normalizedOrganizationName
             }, cancellationToken: ct)).ConfigureAwait(false);
 
-        return row?.ToRecord();
+        return row is null ? null : TenantRepositoryCore.MapSqlRowToRecord(row);
     }
 }
