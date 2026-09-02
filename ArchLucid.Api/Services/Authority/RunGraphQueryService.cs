@@ -142,15 +142,6 @@ public sealed class RunGraphQueryService(
 
     public async Task<RunStageTimelineQueryResult> GetRunStageTimelineAsync(string runId, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-        {
-            return new RunStageTimelineQueryResult
-            {
-                Outcome = RunGraphQueryOutcome.BadRequest,
-                ProblemDetail = "runId is required."
-            };
-        }
-
         if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
         {
             return new RunStageTimelineQueryResult

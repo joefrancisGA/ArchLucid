@@ -173,7 +173,7 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
     <div className="space-y-2" data-testid={REVIEW_WORKSPACE_TAB_STRIP_TEST_ID}>
       <div className="md:hidden">
         <Label htmlFor="review-detail-workspace-sections-select" className={OPERATOR_TYPOGRAPHY.helper}>
-          More sections
+          Review section
         </Label>
         <select
           id="review-detail-workspace-sections-select"
@@ -187,15 +187,32 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
             props.onTabChange(resolveReviewDetailTab(event.target.value));
           }}
         >
-          {allTabIds.map((tabId) => {
-            const count = countForTab(tabId, counts);
+          {primaryTabIds.length > 0 ? (
+            <optgroup label="Primary sections">
+              {primaryTabIds.map((tabId) => {
+                const count = countForTab(tabId, counts);
 
-            return (
-              <option key={tabId} value={tabId}>
-                {tabOptionLabel(props.lifecycle, tabId, count)}
-              </option>
-            );
-          })}
+                return (
+                  <option key={tabId} value={tabId}>
+                    {tabOptionLabel(props.lifecycle, tabId, count)}
+                  </option>
+                );
+              })}
+            </optgroup>
+          ) : null}
+          {secondaryTabIds.length > 0 ? (
+            <optgroup label="Additional sections">
+              {secondaryTabIds.map((tabId) => {
+                const count = countForTab(tabId, counts);
+
+                return (
+                  <option key={tabId} value={tabId}>
+                    {tabOptionLabel(props.lifecycle, tabId, count)}
+                  </option>
+                );
+              })}
+            </optgroup>
+          ) : null}
         </select>
       </div>
 

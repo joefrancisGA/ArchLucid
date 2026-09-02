@@ -1,4 +1,4 @@
-import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_HUB_UNFINISHED_WORK_HREF } from "@/lib/reviews-hub-unfinished-work-href";
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
@@ -17,7 +17,7 @@ export const OPERATOR_ATTENTION_KIND_DESTINATIONS: Record<
   OperatorAttentionKindDestination
 > = {
   "unfinished-work": {
-    href: REVIEWS_LIST_PATH,
+    href: REVIEWS_HUB_UNFINISHED_WORK_HREF,
     description: "Reviews and packages that need your next action.",
   },
   "assigned-to-me": {
