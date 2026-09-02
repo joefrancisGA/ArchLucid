@@ -38,7 +38,7 @@ internal static class RealModeSmokeCommand
             config,
             TimeSpan.FromSeconds(options.TimeoutSeconds + 60));
         session.SetAcceptJson();
-        HttpClient http = session.DetachClient();
+        HttpClient http = session.Http;
 
         RealModeSmokeRunner runner = new(http);
         RealModeSmokeReport report = await runner.RunAsync(options);
