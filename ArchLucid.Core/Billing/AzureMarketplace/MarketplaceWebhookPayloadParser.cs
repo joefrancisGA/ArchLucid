@@ -95,6 +95,9 @@ public static class MarketplaceWebhookPayloadParser
         if (q.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(q, out int wholeNumber))
             return Math.Max(1, wholeNumber);
 
+        if (q.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return Math.Max(1, q.ValueKind == JsonValueKind.True ? 1 : 0);
+
         if (q.ValueKind != JsonValueKind.String)
             return Math.Max(1, fallback);
 

@@ -187,6 +187,13 @@ public static class AzureExtractorPackageZipValidator
             && TryParseWholeNumberString(element.GetString(), out schemaVersion))
             return true;
 
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            schemaVersion = element.ValueKind == JsonValueKind.True ? 1 : 0;
+
+            return true;
+        }
+
         schemaVersion = default;
 
         return false;
