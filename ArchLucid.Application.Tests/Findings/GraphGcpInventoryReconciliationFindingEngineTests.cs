@@ -50,7 +50,7 @@ public sealed class GraphGcpInventoryReconciliationFindingEngineTests
 
         GraphGcpInventoryReconciliationFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.EngineType.Should().Be("gcp-inventory-reconciliation");
@@ -68,7 +68,7 @@ public sealed class GraphGcpInventoryReconciliationFindingEngineTests
 
         GraphGcpInventoryReconciliationFindingEngine sut = CreateSut(null);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");

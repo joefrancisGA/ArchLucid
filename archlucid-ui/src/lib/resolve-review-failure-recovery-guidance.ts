@@ -128,8 +128,8 @@ function recoveryStepsForFailureClass(
       ];
     case "invalidOperation":
       return [
-        "Review intake fields and attachments for invalid values or unsupported formats.",
-        "Correct the intake, then click Re-run review with the same intake.",
+        "Click Re-run review to resume processing with the same intake.",
+        "If it fails again before pipeline stages start, check AI configuration and that background review processing is running.",
       ];
     default:
       return null;
@@ -228,9 +228,15 @@ export function resolveReviewFailureRecoveryGuidance(
   const lastFailure = input.lastFailureSummary;
   const triageScenarioId = normalizeKey(lastFailure?.triageScenarioId);
   const failureClass = normalizeKey(lastFailure?.failureClass);
+  const reasonCode = normalizeKey(lastFailure?.reasonCode);
   const legacyStatus = normalizeKey(input.diagnosticContext?.legacyRunStatus);
   const isDeadLettered = input.diagnosticContext?.isDeadLettered === true;
   const completedStages = completedPipelineStages(input.summary ?? null);
+  // Bare invalidOperation before any pipeline stage is a deferred-pipeline miss, not bad intake.
+  const isDeferredPipelineInvalidOperation =
+    reasonCode === "NoScheduledAgentTasks" ||
+    reasonCode === "MissingArchitectureRequest" ||
+    (failureClass === "invalidOperation" && completedStages === 0);
 
   let recoverySteps: readonly string[] | null = null;
   let recoverySpecificity: "specific" | "generic" | "none" = "none";
@@ -243,6 +249,21 @@ export function resolveReviewFailureRecoveryGuidance(
       failureClass,
       effectiveSessionMode: input.effectiveSessionMode ?? null,
     });
+
+    if (steps !== null) {
+      recoverySteps = steps;
+      recoverySpecificity = "specific";
+    }
+  }
+
+  // Prefer Re-run / worker copy over intake or generic AI-config steps. Existing
+  // dbo.Runs.LastFailureReason rows may be a bare failureClass=invalidOperation.
+  if (recoverySteps === null && isDeferredPipelineInvalidOperation) {
+    const steps = recoveryStepsForFailureClass(
+      "invalidOperation",
+      canConfigureWorkspaceAi,
+      usesCustomerAiConnection,
+    );
 
     if (steps !== null) {
       recoverySteps = steps;

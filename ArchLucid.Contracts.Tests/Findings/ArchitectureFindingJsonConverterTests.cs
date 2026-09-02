@@ -197,6 +197,67 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_numeric_treatment_maps_promote_ordinal()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Security",
+                              "message": "Promote candidate with numeric treatment.",
+                              "treatment": 0
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.Treatment.Should().Be(FindingTreatment.Promote);
+    }
+
+    [Fact]
+    public void Deserialize_pascal_case_treatment_maps_promote()
+    {
+        const string json = """
+                            {
+                              "Severity": "Warning",
+                              "category": "Security",
+                              "message": "PascalCase treatment must map like enforcement tier.",
+                              "Treatment": "Promote"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.Severity.Should().Be(FindingSeverity.Warning);
+        finding.Treatment.Should().Be(FindingTreatment.Promote);
+    }
+
+    [Fact]
+    public void Deserialize_integer_treatment_out_of_range_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Security",
+                              "message": "Invalid treatment ordinal must not deserialize.",
+                              "treatment": 99
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding treatment value*");
+    }
+
+    [Fact]
     public void Deserialize_unknown_severity_label_throws()
     {
         const string json = """

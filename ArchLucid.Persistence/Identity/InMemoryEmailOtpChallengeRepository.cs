@@ -152,7 +152,6 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         lock (_completionLock)
         {
             List<Guid> activeIds = [];
-
             foreach (KeyValuePair<Guid, EmailOtpChallengeRecord> entry in _byId)
             {
                 EmailOtpChallengeRecord row = entry.Value;

@@ -54,7 +54,7 @@ public sealed class GcpCostRecommendationFindingEngineTests
 
         GcpCostRecommendationFindingEngine sut = CreateSut(CreatePackage("recommender-cost.json", costJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("GcpCostRecommendation");
@@ -72,7 +72,7 @@ public sealed class GcpCostRecommendationFindingEngineTests
     {
         GcpCostRecommendationFindingEngine sut = CreateSut(CreatePackage("manifest.json", "{}"));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }

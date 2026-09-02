@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Decisioning.Models;
 
@@ -22,5 +23,6 @@ public interface IEffectfulFindingEngine
 
     Task<IReadOnlyList<Finding>> AnalyzeAsync(
         GraphSnapshot graphSnapshot,
+        FindingAnalysisContext? analysisContext,
         CancellationToken ct);
 }

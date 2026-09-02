@@ -22,6 +22,7 @@ export ARCHLUCID_UPDATE_BUYER_OPENAPI_SNAPSHOT=1
 dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
   --no-build \
   -c Release \
+  --settings test.runsettings \
   --filter "FullyQualifiedName~OpenApiBuyerContractSnapshotTests"
 unset ARCHLUCID_UPDATE_BUYER_OPENAPI_SNAPSHOT
 

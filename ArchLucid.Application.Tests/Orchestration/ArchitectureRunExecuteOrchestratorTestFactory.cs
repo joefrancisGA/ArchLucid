@@ -7,6 +7,7 @@ using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Execute;
@@ -156,7 +157,7 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             preExecuteStage,
             agentLoopStage,
             args.Logger ?? NullLogger<ArchitectureRunExecuteOrchestrator>.Instance,
-            args.IncompleteAuthorityPipelineExecuteHandler);
+            args.IncompleteAuthorityPipelineExecuteHandler ?? CreateNoOpIncompleteAuthorityPipelineExecuteHandler());
     }
 
     internal static ArchitectureRunExecuteOrchestratorTailDependencies CreateStandardTailDependencies(
@@ -175,6 +176,19 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             Mock.Of<IRunStageOutcomesRepository>(),
             CreatePostExecuteHooks(runRepository: runs, scopeContextProvider: scopeContextProvider),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+    }
+
+    internal static IIncompleteAuthorityPipelineExecuteHandler CreateNoOpIncompleteAuthorityPipelineExecuteHandler()
+    {
+        Mock<IIncompleteAuthorityPipelineExecuteHandler> handler = new();
+        handler
+            .Setup(h => h.TryResumeAsync(
+                It.IsAny<ArchitectureRun>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ExecuteRunResult?)null);
+
+        return handler.Object;
     }
 
     internal static ArchitectureRunExecutePostExecuteHooks CreatePostExecuteHooks(

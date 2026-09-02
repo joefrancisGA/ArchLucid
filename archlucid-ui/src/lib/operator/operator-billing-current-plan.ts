@@ -28,6 +28,8 @@ type ResolveOperatorBillingCurrentPlanInput = {
   aiBudgetRemainingPercent: number | null;
   /** From `GET /v1/tenant/usage-status` — when false with a commercial tier, treat as paid. */
   isTrialUsage?: boolean | null;
+  /** From `GET /v1/billing/subscription-status` — when true without a tier label, still treat as paid. */
+  hasActiveSubscription?: boolean;
   commercialTier?: string | null;
   subscriptionLoadState?: OperatorBillingSubscriptionLoadState;
 };
@@ -91,6 +93,20 @@ export function resolveOperatorBillingCurrentPlan(
         workspaceSuffix !== null
           ? `${workspaceSuffix} is on the ${commercialTier} plan. Manage seats, invoices, and payment from Billing and plans.`
           : `This workspace is on the ${commercialTier} plan. Manage seats, invoices, and payment from Billing and plans.`,
+      workspaceLabel: workspaceSuffix,
+      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      hasPaidPlan: true,
+    };
+  }
+
+  if (input.hasActiveSubscription === true && input.isTrialUsage !== true) {
+    return {
+      planKind: "paid-plan",
+      headline: "Paid plan",
+      supportingLine:
+        workspaceSuffix !== null
+          ? `${workspaceSuffix} has an active paid subscription. Manage seats, invoices, and payment from Billing and plans.`
+          : "This workspace has an active paid subscription. Manage seats, invoices, and payment from Billing and plans.",
       workspaceLabel: workspaceSuffix,
       aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
       hasPaidPlan: true,

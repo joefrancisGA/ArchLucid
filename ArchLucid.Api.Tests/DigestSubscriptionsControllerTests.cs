@@ -45,6 +45,57 @@ public sealed class DigestSubscriptionsControllerTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task Create_trims_channel_type_and_destination_before_persisting()
+    {
+        DigestSubscription? captured = null;
+        Mock<IDigestSubscriptionRepository> subscriptions = new();
+        subscriptions
+            .Setup(repository => repository.CreateAsync(It.IsAny<DigestSubscription>(), It.IsAny<CancellationToken>()))
+            .Callback<DigestSubscription, CancellationToken>((subscription, _) => captured = subscription)
+            .Returns(Task.CompletedTask);
+
+        DigestSubscriptionsController sut = CreateController(subscriptions.Object);
+
+        IActionResult action = await sut.Create(
+            new DigestSubscription
+            {
+                ChannelType = $"  {DigestDeliveryChannelType.Email}  ",
+                Destination = "  user@example.com  ",
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        captured.Should().NotBeNull();
+        captured!.ChannelType.Should().Be(DigestDeliveryChannelType.Email);
+        captured.Destination.Should().Be("user@example.com");
+    }
+
+    [Theory]
+    [InlineData("PagerDuty")]
+    [InlineData("UnknownChannel")]
+    public async Task Create_rejects_unknown_channel_types(string channelType)
+    {
+        Mock<IDigestSubscriptionRepository> subscriptions = new();
+        DigestSubscriptionsController sut = CreateController(subscriptions.Object);
+
+        IActionResult action = await sut.Create(
+            new DigestSubscription
+            {
+                ChannelType = channelType,
+                Destination = "user@example.com",
+            },
+            CancellationToken.None);
+
+        ObjectResult problem = action.Should().BeOfType<ObjectResult>().Subject;
+        problem.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        subscriptions.Verify(
+            repository => repository.CreateAsync(
+                It.IsAny<DigestSubscription>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     [Theory]
     [InlineData(DigestDeliveryChannelType.SlackWebhook, "http://hooks.slack.com/services/test")]
     [InlineData(DigestDeliveryChannelType.TeamsWebhook, "https://127.0.0.1/webhook")]

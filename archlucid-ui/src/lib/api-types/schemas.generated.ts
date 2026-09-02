@@ -3079,6 +3079,8 @@ export interface components {
             /** Format: uuid */
             projectId?: string;
             redirectReason?: null | string;
+            /** Format: uuid */
+            spawnedArchitectureVersionId?: null | string;
             spawnedRunId?: null | string;
             status?: components["schemas"]["DraftRequestStatus"];
             /** Format: uuid */
@@ -7722,6 +7724,8 @@ export interface components {
             /** Format: uuid */
             architectureId?: null | string;
             architectureRequestId?: null | string;
+            /** Format: uuid */
+            architectureVersionId?: null | string;
             /** Format: date-time */
             archivedUtc?: null | string;
             /** Format: uuid */

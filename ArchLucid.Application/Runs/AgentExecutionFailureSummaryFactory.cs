@@ -186,6 +186,16 @@ public static class AgentExecutionFailureSummaryFactory
             return AgentExecutionTraceFailureReasonCodes.PromptInjectionDetected;
         }
 
+        if (root is InvalidOperationException invalidOperation)
+        {
+            string? invalidOperationReason = ResolveInvalidOperationReasonCode(invalidOperation);
+
+            if (invalidOperationReason is not null)
+            {
+                return invalidOperationReason;
+            }
+        }
+
         return root switch
         {
             CostLimitExceededException cost when cost.Kind == CostLimitExceededKind.RunTokenBudget
@@ -193,5 +203,33 @@ public static class AgentExecutionFailureSummaryFactory
             CostLimitExceededException => AgentExecutionTraceFailureReasonCodes.RunCostLimitExceeded,
             _ => null,
         };
+    }
+
+    /// <summary>
+    ///     Maps known execute-time <see cref="InvalidOperationException" /> messages to stable reason codes
+    ///     without copying the exception text into <c>LastFailureReason</c>.
+    /// </summary>
+    internal static string? ResolveInvalidOperationReasonCode(InvalidOperationException ex)
+    {
+        ArgumentNullException.ThrowIfNull(ex);
+
+        if (ex is NoScheduledAgentTasksException)
+        {
+            return AgentExecutionTraceFailureReasonCodes.NoScheduledAgentTasks;
+        }
+
+        string message = ex.Message;
+
+        if (message.Contains("No tasks found for run", StringComparison.OrdinalIgnoreCase))
+        {
+            return AgentExecutionTraceFailureReasonCodes.NoScheduledAgentTasks;
+        }
+
+        if (message.Contains("cannot resume the deferred authority pipeline", StringComparison.OrdinalIgnoreCase))
+        {
+            return AgentExecutionTraceFailureReasonCodes.MissingArchitectureRequest;
+        }
+
+        return null;
     }
 }

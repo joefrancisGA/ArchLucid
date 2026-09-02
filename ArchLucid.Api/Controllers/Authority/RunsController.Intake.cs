@@ -250,6 +250,11 @@ public sealed partial class RunsController
         if (string.IsNullOrWhiteSpace(input.SuggestionText))
             return this.BadRequestProblem("SuggestionText is required.", ProblemTypes.ValidationFailed);
 
+        if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(input.SuggestionText))
+            return this.BadRequestProblem(
+                $"SuggestionText must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+
         ExplainStructuredBriefSuggestionResponse response =
             await structuredBriefSuggestionExplainService.ExplainAsync(input, cancellationToken);
 

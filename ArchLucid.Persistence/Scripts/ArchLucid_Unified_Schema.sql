@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 338_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 341_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -9007,4 +9007,126 @@ BEGIN
         CONSTRAINT PK_WizardIntakeDrafts PRIMARY KEY (TenantId, WorkspaceId, WizardId),
         CONSTRAINT CK_WizardIntakeDrafts_StateJson CHECK (ISJSON(StateJson) = 1)
     );
+END;
+
+GO
+
+/* 339: Architecture version lattice — immutable content-addressed revisions per architecture identity. */
+
+IF OBJECT_ID(N'dbo.ArchitectureVersions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureVersions
+    (
+        ArchitectureVersionId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_ArchitectureVersions PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        ArchitectureId        UNIQUEIDENTIFIER NOT NULL,
+        TenantId              UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId           UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId        UNIQUEIDENTIFIER NOT NULL,
+        VersionNumber         INT              NOT NULL,
+        ContentHashSha256     VARBINARY(32)    NOT NULL,
+        IntakeRequestHashSha256 VARBINARY(32)  NULL,
+        SourceRequestId       NVARCHAR(64)     NULL,
+        CreatedUtc            DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureVersions_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_ArchitectureVersions_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId),
+        CONSTRAINT UQ_ArchitectureVersions_Architecture_VersionNumber
+            UNIQUE (ArchitectureId, VersionNumber),
+        CONSTRAINT UQ_ArchitectureVersions_Architecture_ContentHash
+            UNIQUE (ArchitectureId, ContentHashSha256)
+    );
+
+    CREATE INDEX IX_ArchitectureVersions_Scope_Architecture
+        ON dbo.ArchitectureVersions (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId, VersionNumber DESC);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.ArchitectureVersions', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ArchitectureVersions', N'IntakeRequestHashSha256') IS NULL
+BEGIN
+    ALTER TABLE dbo.ArchitectureVersions
+        ADD IntakeRequestHashSha256 VARBINARY(32) NULL;
+END;
+
+GO
+
+DECLARE @architectureVersionRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @architectureVersionRunSql NVARCHAR(MAX);
+
+IF @architectureVersionRunTable IS NOT NULL
+BEGIN
+    IF COL_LENGTH(@architectureVersionRunTable, N'ArchitectureVersionId') IS NULL
+    BEGIN
+        SET @architectureVersionRunSql = N'ALTER TABLE ' + @architectureVersionRunTable + N' ADD ArchitectureVersionId UNIQUEIDENTIFIER NULL;';
+
+        EXEC sp_executesql @architectureVersionRunSql;
+    END
+
+    IF COL_LENGTH(@architectureVersionRunTable, N'ArchitectureVersionId') IS NOT NULL
+       AND NOT EXISTS (
+           SELECT 1
+           FROM sys.indexes
+           WHERE name = N'IX_Runs_ArchitectureVersionId'
+             AND object_id = OBJECT_ID(@architectureVersionRunTable))
+    BEGIN
+        SET @architectureVersionRunSql = N'
+            CREATE INDEX IX_Runs_ArchitectureVersionId
+                ON ' + @architectureVersionRunTable + N' (TenantId, WorkspaceId, ScopeProjectId, ArchitectureVersionId)
+                WHERE ArchitectureVersionId IS NOT NULL;';
+
+        EXEC sp_executesql @architectureVersionRunSql;
+    END
+END
+
+GO
+
+/* 340: Draft spawn revision pin on intake drafts. */
+
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'SpawnedArchitectureVersionId') IS NULL
+BEGIN
+    ALTER TABLE dbo.DraftRequests
+        ADD SpawnedArchitectureVersionId UNIQUEIDENTIFIER NULL;
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'SpawnedArchitectureVersionId') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_DraftRequests_SpawnedArchitectureVersionId'
+         AND object_id = OBJECT_ID(N'dbo.DraftRequests'))
+BEGIN
+    CREATE INDEX IX_DraftRequests_SpawnedArchitectureVersionId
+        ON dbo.DraftRequests (TenantId, WorkspaceId, ProjectId, SpawnedArchitectureVersionId)
+        WHERE SpawnedArchitectureVersionId IS NOT NULL;
+END;
+
+GO
+
+/* 341: Draft document content hash pin at spawn. */
+
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'DocumentContentHashSha256') IS NULL
+BEGIN
+    ALTER TABLE dbo.DraftRequests
+        ADD DocumentContentHashSha256 VARBINARY(32) NULL;
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'SpawnedDocumentContentHashSha256') IS NULL
+BEGIN
+    ALTER TABLE dbo.DraftRequests
+        ADD SpawnedDocumentContentHashSha256 VARBINARY(32) NULL;
 END;

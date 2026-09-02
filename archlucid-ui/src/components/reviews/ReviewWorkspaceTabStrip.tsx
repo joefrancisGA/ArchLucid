@@ -150,16 +150,30 @@ function renderTabTrigger(
 }
 
 /** TB-2367 — single tab list for create-home and committed review workspace lifecycles. */
+function ReviewWorkspaceTabDivider(): React.JSX.Element {
+  return (
+    <span
+      role="separator"
+      aria-orientation="vertical"
+      aria-hidden
+      className="mx-1 hidden h-6 w-px shrink-0 self-center bg-neutral-300 md:inline-block dark:bg-neutral-700"
+      data-testid="review-detail-workspace-tab-divider"
+    />
+  );
+}
+
 export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): React.JSX.Element {
   const counts = props.tabCounts ?? {};
   const tabsVariant = props.lifecycle === "create-home" ? "pill" : "line";
-  const allTabIds = [...props.resolvedTabs.visibleTabIds, ...props.resolvedTabs.moreTabIds];
+  const primaryTabIds = props.resolvedTabs.visibleTabIds;
+  const secondaryTabIds = props.resolvedTabs.moreTabIds;
+  const allTabIds = [...primaryTabIds, ...secondaryTabIds];
 
   return (
     <div className="space-y-2" data-testid={REVIEW_WORKSPACE_TAB_STRIP_TEST_ID}>
       <div className="md:hidden">
         <Label htmlFor="review-detail-workspace-sections-select" className={OPERATOR_TYPOGRAPHY.helper}>
-          More sections
+          Review section
         </Label>
         <select
           id="review-detail-workspace-sections-select"
@@ -173,15 +187,32 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
             props.onTabChange(resolveReviewDetailTab(event.target.value));
           }}
         >
-          {allTabIds.map((tabId) => {
-            const count = countForTab(tabId, counts);
+          {primaryTabIds.length > 0 ? (
+            <optgroup label="Primary sections">
+              {primaryTabIds.map((tabId) => {
+                const count = countForTab(tabId, counts);
 
-            return (
-              <option key={tabId} value={tabId}>
-                {tabOptionLabel(props.lifecycle, tabId, count)}
-              </option>
-            );
-          })}
+                return (
+                  <option key={tabId} value={tabId}>
+                    {tabOptionLabel(props.lifecycle, tabId, count)}
+                  </option>
+                );
+              })}
+            </optgroup>
+          ) : null}
+          {secondaryTabIds.length > 0 ? (
+            <optgroup label="Additional sections">
+              {secondaryTabIds.map((tabId) => {
+                const count = countForTab(tabId, counts);
+
+                return (
+                  <option key={tabId} value={tabId}>
+                    {tabOptionLabel(props.lifecycle, tabId, count)}
+                  </option>
+                );
+              })}
+            </optgroup>
+          ) : null}
         </select>
       </div>
 
@@ -200,7 +231,9 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
               "-mx-1 overflow-x-auto px-1",
             )}
           >
-            {allTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
+            {primaryTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
+            {secondaryTabIds.length > 0 ? <ReviewWorkspaceTabDivider /> : null}
+            {secondaryTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
           </TabsList>
         </Tabs>
       </div>

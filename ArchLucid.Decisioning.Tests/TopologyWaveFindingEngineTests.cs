@@ -42,7 +42,7 @@ public sealed class TopologyWaveFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("requirement-expectation");
@@ -73,7 +73,7 @@ public sealed class TopologyWaveFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("security-baseline-expectation");
@@ -114,7 +114,7 @@ public sealed class TopologyWaveFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("security-baseline-completeness");

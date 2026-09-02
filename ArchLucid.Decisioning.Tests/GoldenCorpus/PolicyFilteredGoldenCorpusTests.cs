@@ -134,7 +134,7 @@ public sealed class PolicyFilteredGoldenCorpusTests
         GraphComplianceEvaluator evaluator = new();
         ComplianceFindingEngine engine = new(provider, validator, evaluator);
 
-        return await engine.AnalyzeAsync(graph, CancellationToken.None);
+        return await engine.AnalyzeAsync(graph, null, CancellationToken.None);
     }
 
     private static HashSet<string> ExtractRuleIds(IReadOnlyList<Finding> findings)

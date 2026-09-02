@@ -159,9 +159,9 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
                                LockoutEnd = CASE
                                    WHEN AccessFailedCount + 1 >= @MaxAttemptsBeforeLockout
                                        THEN CASE
-                                           WHEN LockoutEnd IS NULL OR LockoutEnd < @LockoutEndUtcIfThresholdReached
-                                               THEN @LockoutEndUtcIfThresholdReached
-                                           ELSE LockoutEnd
+                                          WHEN LockoutEnd IS NULL OR LockoutEnd < @LockoutEndUtcIfThresholdReached
+                                              THEN @LockoutEndUtcIfThresholdReached
+                                          ELSE LockoutEnd
                                        END
                                    ELSE LockoutEnd
                                END

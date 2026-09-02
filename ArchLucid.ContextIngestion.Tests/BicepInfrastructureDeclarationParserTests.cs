@@ -158,4 +158,72 @@ public sealed class BicepInfrastructureDeclarationParserTests
         disabledObjects.Should().ContainSingle();
         disabledObjects[0].ObjectId.Should().Be(enabledObjects[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_DuplicateSymbolicNamesDifferentApiVersions_EmitDistinctObjectIds()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            DeclarationId = "decl-bicep-duplicate-storage",
+            Content = """
+                      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                      }
+                      resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
+        result.Should().OnlyContain(o => o.Properties.ContainsKey("bicepOccurrence"));
+    }
+
+    [Fact]
+    public async Task ParseAsync_BlockCommentBeforeAssignment_StillParsesPublicNetworkAccess()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                        properties: {
+                          /* skip */
+                          publicNetworkAccess: 'Enabled'
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.publicnetworkaccess"].Should().Be("enabled");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InlineBlockCommentAfterValue_ParsesCleanPublicNetworkAccess()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                        properties: {
+                          publicNetworkAccess: 'Enabled' /* primary region */
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.publicnetworkaccess"].Should().Be("enabled");
+    }
 }

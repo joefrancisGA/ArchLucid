@@ -8,7 +8,8 @@ export type ArchitectureReviewReadinessBlockerId =
   | "architecture-overview"
   | "business-outcome"
   | "confirmed-actor"
-  | "quality-attributes";
+  | "quality-attributes"
+  | "structured-brief-placeholders";
 
 export const ARCHITECTURE_REVIEW_READINESS_BLOCKER_MESSAGES: Readonly<
   Record<ArchitectureReviewReadinessBlockerId, string>
@@ -19,6 +20,8 @@ export const ARCHITECTURE_REVIEW_READINESS_BLOCKER_MESSAGES: Readonly<
   "confirmed-actor": "at least one confirmed person or system in the actor list",
   "quality-attributes":
     "at least one quality attribute (numeric such as RTO 4h or p95 latency 200ms, or qualitative such as defense in depth)",
+  "structured-brief-placeholders":
+    "confirmed constraints, assumptions, capabilities, or quality attributes instead of Unknown — confirm before review placeholders",
 };
 
 export function formatArchitectureReviewReadinessMessage(

@@ -6,6 +6,27 @@ import { resolveReviewDetailVisibleTabs } from "@/lib/resolve-review-detail-visi
 import { REVIEW_DETAIL_TAB_LABELS, type ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 describe("ReviewWorkspaceTabStrip", () => {
+  it("renders primary and secondary tab groups with a divider on desktop", () => {
+    const resolved = resolveReviewDetailVisibleTabs({
+      manifestId: "manifest-1",
+      showProgressTracker: false,
+      runCompleted: true,
+    });
+    const onTabChange = vi.fn();
+
+    render(
+      <ReviewWorkspaceTabStrip
+        lifecycle="finalized"
+        activeTab="activity"
+        resolvedTabs={resolved}
+        onTabChange={onTabChange}
+      />,
+    );
+
+    expect(resolved.moreTabIds.length).toBeGreaterThan(0);
+    expect(screen.getByTestId("review-detail-workspace-tab-divider")).toBeInTheDocument();
+  });
+
   it("renders all workspace tabs in the desktop strip and a mobile section picker", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: "manifest-1",
@@ -29,7 +50,7 @@ describe("ReviewWorkspaceTabStrip", () => {
       expect(screen.getByRole("tab", { name: new RegExp(REVIEW_DETAIL_TAB_LABELS[tabId], "i") })).toBeInTheDocument();
     }
 
-    expect(screen.getByText("More sections")).toBeInTheDocument();
+    expect(screen.getByText("Review section")).toBeInTheDocument();
     expect(screen.getByTestId("review-detail-workspace-sections-select")).toBeInTheDocument();
   });
 

@@ -107,7 +107,7 @@ public sealed class ArchitectureDraftStructuredBrief
             return [];
 
         return value
-            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(entry => entry.Length > 0)
             .ToList();
     }
@@ -115,11 +115,59 @@ public sealed class ArchitectureDraftStructuredBrief
     /// <summary>TB-2282: at least one confirmed quality-attribute chip is required for review start.</summary>
     public static bool QualityAttributeMeetsMinimum(string? qualityAttribute)
     {
-        foreach (string entry in ParseQualityAttributeEntries(qualityAttribute))
+        IReadOnlyList<string> entries = ParseQualityAttributeEntries(qualityAttribute);
+
+        if (entries.Count == 0)
+            return false;
+
+        foreach (string entry in entries)
         {
-            if (IsConfirmedBriefEntry(entry))
-                return true;
+
+            if (!IsConfirmedBriefEntry(entry))
+                return false;
         }
+
+        return true;
+    }
+
+    /// <summary>TB-2343: non-empty list whose entries are exclusively unknown sentinels.</summary>
+    public static bool ListIsOnlyUnknownPlaceholders(IReadOnlyList<string> entries)
+    {
+        ArgumentNullException.ThrowIfNull(entries);
+
+        return entries.Count > 0 && entries.All(IsUnknownConfirmSentinel);
+    }
+
+    /// <summary>TB-2343: quality attribute populated only with unknown sentinel chips.</summary>
+    public static bool QualityAttributeIsOnlyUnknownPlaceholder(string? qualityAttribute)
+    {
+        IReadOnlyList<string> entries = ParseQualityAttributeEntries(qualityAttribute);
+
+        return entries.Count > 0 && entries.All(IsUnknownConfirmSentinel);
+    }
+
+    /// <summary>TB-2343: structured brief still contains explicit unknown placeholders that must be confirmed.</summary>
+    public static bool HasUnconfirmedStructuredBriefPlaceholders(ArchitectureDraftStructuredBrief brief)
+    {
+        ArgumentNullException.ThrowIfNull(brief);
+
+        if (ListIsOnlyUnknownPlaceholders(brief.ConfirmedConstraints))
+            return true;
+
+        if (ListIsOnlyUnknownPlaceholders(brief.ConfirmedAssumptions))
+            return true;
+
+        if (ListIsOnlyUnknownPlaceholders(brief.ConfirmedRequiredCapabilities))
+            return true;
+
+        if (QualityAttributeIsOnlyUnknownPlaceholder(brief.QualityAttribute))
+            return true;
+
+        if (IsUnknownConfirmSentinel(brief.FailureModeNote))
+            return true;
+
+        if (IsUnknownConfirmSentinel(brief.OperationalOwner))
+            return true;
 
         return false;
     }

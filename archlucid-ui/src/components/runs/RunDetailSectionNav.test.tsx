@@ -78,7 +78,7 @@ describe("RunDetailSectionNav", () => {
       />,
     );
 
-    const nav = getByRole("navigation", { name: "Review detail sections" });
+    const nav = getByRole("navigation", { name: "On this page sections" });
 
     expect(nav.className).toContain("top-16");
     expect(nav.className).not.toContain("top-40");
@@ -99,7 +99,7 @@ describe("RunDetailSectionNav", () => {
       />,
     );
 
-    const nav = getByRole("navigation", { name: "Review detail sections" });
+    const nav = getByRole("navigation", { name: "On this page sections" });
 
     expect(nav.className).toContain("top-40");
     expect(nav.className).toContain("lg:top-44");

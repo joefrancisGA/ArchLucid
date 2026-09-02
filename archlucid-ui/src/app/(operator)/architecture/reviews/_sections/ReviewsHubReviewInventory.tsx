@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useSyncExternalStore } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
@@ -47,6 +48,7 @@ import {
   sortRunsForInventory,
   type ReviewFilterId,
 } from "./reviews-hub-inventory-filters";
+import { REVIEWS_HUB_NEEDS_ATTENTION_FILTER } from "@/lib/reviews-hub-unfinished-work-href";
 import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
 type ReviewsHubReviewInventoryProps = {
@@ -87,10 +89,23 @@ function ReviewFilterChip(props: {
   );
 }
 
+function resolveInitialInventoryFilter(searchParams: URLSearchParams): ReviewFilterId {
+  const filter = searchParams.get("filter");
+
+  if (filter === REVIEWS_HUB_NEEDS_ATTENTION_FILTER) {
+    return REVIEWS_HUB_NEEDS_ATTENTION_FILTER;
+  }
+
+  return "all";
+}
+
 /** Filterable review inventory for `/architecture/reviews`. */
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>("all");
+  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(() =>
+    resolveInitialInventoryFilter(searchParams),
+  );
   const { isFavorite } = useFavoriteReviews();
   const { archivedRuns } = useArchivedReviewsClientCache();
   const draftEntries = useArchitectureDraftRegistryEntries();

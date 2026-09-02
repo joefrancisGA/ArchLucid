@@ -34,7 +34,7 @@ public sealed class CostBreachFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -61,7 +61,7 @@ public sealed class CostBreachFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -89,7 +89,7 @@ public sealed class CostBreachFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.EngineType.Should().Be("cost-breach");
