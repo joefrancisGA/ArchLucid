@@ -32,6 +32,13 @@ internal static class GraphJsonElementReaders
                 if (normalized[key] is null)
                 {
                     normalized[key] = string.Empty;
+
+                    continue;
+                }
+
+                if (TryNormalizeBooleanString(normalized[key], out string? coerced))
+                {
+                    normalized[key] = coerced!;
                 }
             }
 
@@ -53,7 +60,16 @@ internal static class GraphJsonElementReaders
 
                 if (property.Value.ValueKind == JsonValueKind.String)
                 {
-                    result[property.Name] = property.Value.GetString() ?? "";
+                    string? raw = property.Value.GetString() ?? "";
+
+                    if (TryNormalizeBooleanString(raw, out string? coerced))
+                    {
+                        result[property.Name] = coerced!;
+                    }
+                    else
+                    {
+                        result[property.Name] = raw;
+                    }
 
                     continue;
                 }
@@ -133,7 +149,16 @@ internal static class GraphJsonElementReaders
     {
         if (element.ValueKind == JsonValueKind.String)
         {
-            value = element.GetString();
+            string? raw = element.GetString();
+
+            if (TryNormalizeBooleanString(raw, out string? normalized))
+            {
+                value = normalized;
+
+                return true;
+            }
+
+            value = raw;
 
             return true;
         }
@@ -148,6 +173,34 @@ internal static class GraphJsonElementReaders
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
             value = element.GetRawText();
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
+    }
+
+    private static bool TryNormalizeBooleanString(string? raw, out string? value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = null;
+
+            return false;
+        }
+
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "true";
+
+            return true;
+        }
+
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "false";
 
             return true;
         }

@@ -44,6 +44,23 @@ public sealed class GraphJsonElementReadersPropertiesTests
     }
 
     [Fact]
+    public void ReadProperties_string_encoded_boolean_values_coerce_to_lowercase_strings()
+    {
+        const string json =
+            """{"nodeId":"n1","nodeType":"t","label":"l","properties":{"enabled":"True","region":"eastus"}}""";
+
+        JsonSerializerOptions options = new();
+        options.Converters.Add(new GraphNodeJsonConverter());
+
+        GraphNode? node = JsonSerializer.Deserialize<GraphNode>(json, options);
+
+        node.Should().NotBeNull();
+        node!.Properties.Should().HaveCount(2);
+        node.Properties.Should().ContainKey("enabled").WhoseValue.Should().Be("true");
+        node.Properties.Should().ContainKey("region").WhoseValue.Should().Be("eastus");
+    }
+
+    [Fact]
     public void ReadProperties_null_values_coerce_to_empty_strings()
     {
         const string json =

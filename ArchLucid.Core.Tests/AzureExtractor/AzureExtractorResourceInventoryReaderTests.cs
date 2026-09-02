@@ -64,6 +64,32 @@ public sealed class AzureExtractorResourceInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_string_encoded_boolean_name_and_resourceType_coerce_to_lowercase_strings()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "name": "True",
+                "resourceType": "False",
+                "location": "eastus"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        error.Should().BeNull();
+        lines.Should().NotBeNull();
+        lines!.Should().ContainSingle();
+        lines[0].Name.Should().Be("true");
+        lines[0].ResourceType.Should().Be("false");
+    }
+
+    [Fact]
     public void TryReadFromZip_numeric_sku_name_coerces_to_string()
     {
         byte[] zipBytes = BuildZip(

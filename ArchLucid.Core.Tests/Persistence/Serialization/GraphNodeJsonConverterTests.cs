@@ -41,4 +41,19 @@ public sealed class GraphNodeJsonConverterTests
         node.Should().NotBeNull();
         node!.NodeId.Should().Be("true");
     }
+
+    [Fact]
+    public void Read_string_encoded_boolean_nodeId_coerces_to_lowercase_string()
+    {
+        const string json =
+            """{"nodeId":"True","nodeType":"TopologyResource","label":"api"}""";
+
+        JsonSerializerOptions options = new();
+        options.Converters.Add(new GraphNodeJsonConverter());
+
+        GraphNode? node = JsonSerializer.Deserialize<GraphNode>(json, options);
+
+        node.Should().NotBeNull();
+        node!.NodeId.Should().Be("true");
+    }
 }

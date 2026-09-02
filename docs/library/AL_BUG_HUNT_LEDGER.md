@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 49
-- **bugs-found:** 119
+- **hunts:** 50
+- **bugs-found:** 123
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — finding string-encoded boolean scalar/list/properties normalization
+- **last-bug:** 2026-09-02 — graph/azure/marketplace string-encoded boolean case normalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1908,6 +1908,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadStringDictValue` — string-encoded whole-number `relatedNodeIds` / `properties` entries not normalized — **hit 2026-09-02 (#460):** `"relatedNodeIds":["42.0"]` and `"properties":{"resourceId":"42.0"}` kept decimal strings while numeric whole-number doubles normalized in #447; fixed with shared long whole-number string coercion (`Deserialize_relatedNodeIds_string_encoded_whole_number_double_entries_coerce_to_strings`, `Deserialize_properties_string_encoded_whole_number_double_values_coerce_to_strings`).
 - [x] (proven) `FindingJsonConverter.ReadOptionalString` — string-encoded boolean `runIdRef` case not normalized — **hit 2026-09-02 (#461):** `"runIdRef":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryCoerceStringTokenToRawText` (`Deserialize_string_encoded_boolean_runIdRef_coerces_to_lowercase_string`).
 - [x] (proven) `FindingJsonConverter.ReadStringDictValue` — string-encoded boolean `properties` / `recommendedActions` case not normalized — **hit 2026-09-02 (#461):** `"enabled":"True"` and `"recommendedActions":["True"]` kept PascalCase while boolean JSON tokens used lowercase `GetRawText()`; fixed with shared string boolean coercion (`Deserialize_properties_string_encoded_boolean_values_coerce_to_lowercase_strings`, `Deserialize_recommendedActions_string_encoded_boolean_entries_coerce_to_lowercase_strings`).
+
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — string-encoded boolean `name` / `resourceType` case not normalized — **hit 2026-09-02 (#462):** `"name":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryReadFromZip_string_encoded_boolean_name_and_resourceType_coerce_to_lowercase_strings`).
+- [x] (proven) `GraphJsonElementReaders.TryReadStringToken` / `ReadProperties` — string-encoded boolean graph tokens case not normalized — **hit 2026-09-02 (#462):** `"nodeId":"True"` and `"properties":{"enabled":"True"}` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with shared boolean normalization (`Read_string_encoded_boolean_nodeId_coerces_to_lowercase_string`, `ReadProperties_string_encoded_boolean_values_coerce_to_lowercase_strings`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryGetStringPropertyCaseInsensitive` — string-encoded boolean `planId` case not normalized — **hit 2026-09-02 (#462):** `"planId":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryGetPlanId_reads_string_encoded_boolean_planId`).
+
+2026-09-02 seed hunt #462: reseeded from ArchLucid.Core; proved graph/azure/marketplace string-encoded boolean case normalization gaps.
 
 2026-09-02 seed hunt #461: reseeded from ArchLucid.Core; proved finding string-encoded boolean scalar/list/properties normalization gaps.
 

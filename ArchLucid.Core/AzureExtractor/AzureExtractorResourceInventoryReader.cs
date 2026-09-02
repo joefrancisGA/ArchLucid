@@ -110,7 +110,16 @@ public static class AzureExtractorResourceInventoryReader
     {
         if (element.ValueKind is JsonValueKind.String)
         {
-            value = element.GetString();
+            string? raw = element.GetString();
+
+            if (TryNormalizeBooleanString(raw, out string? normalized))
+            {
+                value = normalized;
+
+                return true;
+            }
+
+            value = raw;
 
             return true;
         }
@@ -139,19 +148,9 @@ public static class AzureExtractorResourceInventoryReader
         if (!row.TryGetProperty("sku", out JsonElement sku) && !row.TryGetProperty("Sku", out sku))
             return null;
 
-        if (sku.ValueKind is JsonValueKind.String)
+        if (TryReadStringToken(sku, out string? skuText))
         {
-            return sku.GetString()?.Trim();
-        }
-
-        if (sku.ValueKind is JsonValueKind.Number)
-        {
-            return sku.GetRawText();
-        }
-
-        if (sku.ValueKind is JsonValueKind.True or JsonValueKind.False)
-        {
-            return sku.GetRawText();
+            return skuText?.Trim();
         }
 
         if (sku.ValueKind is JsonValueKind.Object && sku.TryGetProperty("name", out JsonElement skuNameProp)
@@ -167,5 +166,33 @@ public static class AzureExtractorResourceInventoryReader
         }
 
         return null;
+    }
+
+    private static bool TryNormalizeBooleanString(string? raw, out string? value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = null;
+
+            return false;
+        }
+
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "true";
+
+            return true;
+        }
+
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "false";
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
     }
 }
