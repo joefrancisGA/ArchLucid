@@ -9,26 +9,7 @@ namespace ArchLucid.Persistence.Data.Repositories;
 /// <summary>In-memory <see cref="ILlmTenantBudgetRepository" /> for non-SQL storage modes.</summary>
 public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetRepository
 {
-    private sealed class Row
-    {
-        public long TokensConsumed;
-
-        public long ReservedTokens;
-
-        public decimal CommittedUsd;
-
-        public decimal ReservedUsd;
-
-        public decimal PurchasedCapBumpUsd;
-
-        public bool WarnedApproaching;
-
-        public long Version;
-
-        public byte[] RowVersionBytes => BitConverter.GetBytes(Version);
-    }
-
-    private readonly ConcurrentDictionary<(Guid TenantId, LlmBudgetPeriod Period, string PeriodKey), Row> _rows = new();
+    private readonly ConcurrentDictionary<(Guid TenantId, LlmBudgetPeriod Period, string PeriodKey), LlmTenantBudgetMutableRow> _rows = new();
 
     private readonly ConcurrentDictionary<(Guid TenantId, LlmBudgetPeriod Period, string PeriodKey), object> _locks = new();
 
@@ -49,18 +30,7 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
 
         lock (gate)
         {
-            Row row = _rows.GetOrAdd(
-                key,
-                _ => new Row
-                {
-                    TokensConsumed = 0,
-                    ReservedTokens = 0,
-                    CommittedUsd = 0m,
-                    ReservedUsd = 0m,
-                    PurchasedCapBumpUsd = 0m,
-                    WarnedApproaching = false,
-                    Version = 1
-                });
+            LlmTenantBudgetMutableRow row = _rows.GetOrAdd(key, _ => CreateRow());
 
             return Task.FromResult(ToModel(row));
         }
@@ -83,40 +53,22 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
 
         lock (gate)
         {
-            if (!_rows.TryGetValue(key, out Row? row) || !row.RowVersionBytes.AsSpan().SequenceEqual(request.ExpectedRowVersion))
+            if (!_rows.TryGetValue(key, out LlmTenantBudgetMutableRow? row)
+                || !LlmTenantBudgetPeriodCore.RowVersionsMatch(row.RowVersionBytes, request.ExpectedRowVersion))
+            {
                 return Task.FromResult(new LlmTenantBudgetReserveResult { ConcurrencyConflict = true });
+            }
 
             if (request.Period is LlmBudgetPeriod.Daily or LlmBudgetPeriod.JudgeDaily)
-            {
-                if (request.ReserveTokens < 1)
-                    return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
-
-                if (request.HardCapTokens is null)
-                    throw new ArgumentException("HardCapTokens is required for daily reserve.", nameof(request));
-
-                if (row.TokensConsumed + row.ReservedTokens + request.ReserveTokens > request.HardCapTokens.Value)
-                    return Task.FromResult(
-                        new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = ToModel(row) });
-
-                row.ReservedTokens += request.ReserveTokens;
-                row.Version++;
-
-                return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
-            }
+                return Task.FromResult(LlmTenantBudgetReserveCore.TryReserveDaily(row, request, ToModel));
 
             if (request.Period != LlmBudgetPeriod.Monthly)
                 throw new ArgumentOutOfRangeException(nameof(request), request.Period, null);
 
-            if (request.ReserveUsd <= 0m)
-                return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
-
-            if (request.HardCapUsd is null)
-                throw new ArgumentException("HardCapUsd is required for monthly reserve.", nameof(request));
-
-            (int sqlYear, int sqlMonth) = ReadUtcYearMonth();
-            (int requestYear, int requestMonth) = ParseUtcYearMonth(request.PeriodKey);
+            (int sqlYear, int sqlMonth) = LlmTenantBudgetPeriodCore.ReadUtcYearMonth();
+            (int requestYear, int requestMonth) = LlmTenantBudgetPeriodCore.ParseUtcYearMonth(request.PeriodKey);
             bool periodKeyMismatch = requestYear != sqlYear || requestMonth != sqlMonth;
-            string sqlPeriodKey = FormatUtcYearMonth(sqlYear, sqlMonth);
+            string sqlPeriodKey = LlmTenantBudgetPeriodCore.FormatUtcYearMonth(sqlYear, sqlMonth);
             string authoritativePeriodKey = sqlPeriodKey;
 
             (Guid, LlmBudgetPeriod, string) sqlKey = (request.TenantId, LlmBudgetPeriod.Monthly, sqlPeriodKey);
@@ -124,46 +76,29 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
 
             lock (sqlGate)
             {
-                Row sqlRow = _rows.GetOrAdd(
-                    sqlKey,
-                    _ => new Row
-                    {
-                        TokensConsumed = 0,
-                        ReservedTokens = 0,
-                        CommittedUsd = 0m,
-                        ReservedUsd = 0m,
-                        PurchasedCapBumpUsd = 0m,
-                        WarnedApproaching = false,
-                        Version = 1
-                    });
+                LlmTenantBudgetMutableRow sqlRow = _rows.GetOrAdd(sqlKey, _ => CreateRow());
 
-                if (!sqlRow.RowVersionBytes.AsSpan().SequenceEqual(request.ExpectedRowVersion))
+                if (!LlmTenantBudgetPeriodCore.RowVersionsMatch(sqlRow.RowVersionBytes, request.ExpectedRowVersion))
                     return Task.FromResult(new LlmTenantBudgetReserveResult { ConcurrencyConflict = true });
 
-                if (sqlRow.CommittedUsd + sqlRow.ReservedUsd + request.ReserveUsd > request.HardCapUsd.Value)
+                LlmTenantBudgetReserveResult reserveResult =
+                    LlmTenantBudgetReserveCore.TryReserveMonthly(sqlRow, request, ToModel);
+
+                if (periodKeyMismatch)
                 {
                     return Task.FromResult(
                         new LlmTenantBudgetReserveResult
                         {
-                            HardCapBlocked = true,
-                            NewState = ToModel(sqlRow),
-                            PeriodKeyMismatch = periodKeyMismatch,
-                            AuthoritativePeriodKey = periodKeyMismatch ? authoritativePeriodKey : null
+                            ConcurrencyConflict = reserveResult.ConcurrencyConflict,
+                            HardCapBlocked = reserveResult.HardCapBlocked,
+                            NewState = reserveResult.NewState,
+                            PeriodKeyMismatch = true,
+                            AuthoritativePeriodKey = authoritativePeriodKey
                         });
                 }
 
-                sqlRow.ReservedUsd += request.ReserveUsd;
-                sqlRow.Version++;
-
-                return Task.FromResult(
-                    new LlmTenantBudgetReserveResult
-                    {
-                        NewState = ToModel(sqlRow),
-                        PeriodKeyMismatch = periodKeyMismatch,
-                        AuthoritativePeriodKey = periodKeyMismatch ? authoritativePeriodKey : null
-                    });
+                return Task.FromResult(reserveResult);
             }
-
         }
     }
 
@@ -184,18 +119,7 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
 
         lock (gate)
         {
-            Row row = _rows.GetOrAdd(
-                key,
-                _ => new Row
-                {
-                    TokensConsumed = 0,
-                    ReservedTokens = 0,
-                    CommittedUsd = 0m,
-                    ReservedUsd = 0m,
-                    PurchasedCapBumpUsd = 0m,
-                    WarnedApproaching = false,
-                    Version = 1
-                });
+            LlmTenantBudgetMutableRow row = _rows.GetOrAdd(key, _ => CreateRow());
 
             row.PurchasedCapBumpUsd += addUsd;
             row.Version++;
@@ -208,9 +132,8 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
     public Task<string> GetSqlUtcMonthlyPeriodKeyAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        DateTime utc = TimeProvider.System.UtcNowDateTime();
 
-        return Task.FromResult(LlmTenantBudgetPeriodCore.ResolveMonthlyPeriodKey());//(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", utc.Year, utc.Month));
+        return Task.FromResult(LlmTenantBudgetPeriodCore.ResolveMonthlyPeriodKey());
     }
 
     /// <inheritdoc />
@@ -230,105 +153,66 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
 
         lock (gate)
         {
-            if (!_rows.TryGetValue(key, out Row? row) || !row.RowVersionBytes.AsSpan().SequenceEqual(request.ExpectedRowVersion))
+            if (!_rows.TryGetValue(key, out LlmTenantBudgetMutableRow? row)
+                || !LlmTenantBudgetPeriodCore.RowVersionsMatch(row.RowVersionBytes, request.ExpectedRowVersion))
+            {
                 return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });
+            }
 
             if (request.Period is LlmBudgetPeriod.Daily or LlmBudgetPeriod.JudgeDaily)
-            {
-                if (request.ReleaseReservedTokens > row.ReservedTokens)
-                    return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });
-
-                if (request is { ActualTokens: 0, ReleaseReservedTokens: 0 })
-                    return Task.FromResult(new LlmTenantBudgetSettleResult { NewState = ToModel(row) });
-
-                long oldTotal = row.TokensConsumed;
-                bool oldWarned = row.WarnedApproaching;
-
-                row.TokensConsumed += request.ActualTokens;
-                row.ReservedTokens -= request.ReleaseReservedTokens;
-
-                if (!row.WarnedApproaching && oldTotal < request.WarnAtTokens
-                    && row.TokensConsumed >= request.WarnAtTokens)
-                    row.WarnedApproaching = true;
-
-                row.Version++;
-
-                bool shouldAudit = !oldWarned && oldTotal < request.WarnAtTokens
-                    && row.TokensConsumed >= request.WarnAtTokens;
-
-                return Task.FromResult(
-                    new LlmTenantBudgetSettleResult { NewState = ToModel(row), ShouldEmitWarnAudit = shouldAudit });
-            }
+                return Task.FromResult(LlmTenantBudgetSettleCore.TrySettleDaily(row, request, ToModel));
 
             if (request.Period != LlmBudgetPeriod.Monthly)
                 throw new ArgumentOutOfRangeException(nameof(request), request.Period, null);
 
-            (int sqlYear, int sqlMonth) = ReadUtcYearMonth();
-            (int mintedYear, int mintedMonth) = ParseUtcYearMonth(request.PeriodKey);
+            (int sqlYear, int sqlMonth) = LlmTenantBudgetPeriodCore.ReadUtcYearMonth();
+            (int mintedYear, int mintedMonth) = LlmTenantBudgetPeriodCore.ParseUtcYearMonth(request.PeriodKey);
             bool periodKeyMismatch = mintedYear != sqlYear || mintedMonth != sqlMonth;
-            string authoritativePeriodKey = FormatUtcYearMonth(sqlYear, sqlMonth);
+            string authoritativePeriodKey = LlmTenantBudgetPeriodCore.FormatUtcYearMonth(sqlYear, sqlMonth);
             (Guid, LlmBudgetPeriod, string) mintedKey = (request.TenantId, LlmBudgetPeriod.Monthly, request.PeriodKey);
             object mintedGate = _locks.GetOrAdd(mintedKey, _ => new object());
 
             lock (mintedGate)
             {
-                Row mintedRow = _rows.GetOrAdd(
-                    mintedKey,
-                    _ => new Row
-                    {
-                        TokensConsumed = 0,
-                        ReservedTokens = 0,
-                        CommittedUsd = 0m,
-                        ReservedUsd = 0m,
-                        PurchasedCapBumpUsd = 0m,
-                        WarnedApproaching = false,
-                        Version = 1
-                    });
+                LlmTenantBudgetMutableRow mintedRow = _rows.GetOrAdd(mintedKey, _ => CreateRow());
 
-                if (!mintedRow.RowVersionBytes.AsSpan().SequenceEqual(request.ExpectedRowVersion))
+                if (!LlmTenantBudgetPeriodCore.RowVersionsMatch(mintedRow.RowVersionBytes, request.ExpectedRowVersion))
                     return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });
 
-                if (request.ReleaseReservedUsd > mintedRow.ReservedUsd)
-                    return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });
+                LlmTenantBudgetSettleResult settleResult =
+                    LlmTenantBudgetSettleCore.TrySettleMonthly(mintedRow, request, ToModel);
 
-                if (request is { ActualUsd: 0m, ReleaseReservedUsd: 0m })
+                if (periodKeyMismatch)
                 {
                     return Task.FromResult(
                         new LlmTenantBudgetSettleResult
                         {
-                            NewState = ToModel(mintedRow),
-                            PeriodKeyMismatch = periodKeyMismatch,
-                            AuthoritativePeriodKey = periodKeyMismatch ? authoritativePeriodKey : null
+                            ConcurrencyConflict = settleResult.ConcurrencyConflict,
+                            NewState = settleResult.NewState,
+                            ShouldEmitWarnAudit = settleResult.ShouldEmitWarnAudit,
+                            PeriodKeyMismatch = true,
+                            AuthoritativePeriodKey = authoritativePeriodKey
                         });
                 }
 
-                decimal oldSpent = mintedRow.CommittedUsd;
-                bool oldWarned = mintedRow.WarnedApproaching;
-
-                mintedRow.CommittedUsd += request.ActualUsd;
-                mintedRow.ReservedUsd -= request.ReleaseReservedUsd;
-
-                if (!mintedRow.WarnedApproaching && oldSpent < request.WarnAtUsd && mintedRow.CommittedUsd >= request.WarnAtUsd)
-                    mintedRow.WarnedApproaching = true;
-
-                mintedRow.Version++;
-
-                bool shouldAudit = !oldWarned && oldSpent < request.WarnAtUsd && mintedRow.CommittedUsd >= request.WarnAtUsd;
-
-                return Task.FromResult(
-                    new LlmTenantBudgetSettleResult
-                    {
-                        NewState = ToModel(mintedRow),
-                        ShouldEmitWarnAudit = shouldAudit,
-                        PeriodKeyMismatch = periodKeyMismatch,
-                        AuthoritativePeriodKey = periodKeyMismatch ? authoritativePeriodKey : null
-                    });
+                return Task.FromResult(settleResult);
             }
-
         }
     }
 
-    private static LlmTenantBudgetStateReadModel ToModel(Row row)
+    private static LlmTenantBudgetMutableRow CreateRow() =>
+        new()
+        {
+            TokensConsumed = 0,
+            ReservedTokens = 0,
+            CommittedUsd = 0m,
+            ReservedUsd = 0m,
+            PurchasedCapBumpUsd = 0m,
+            WarnedApproaching = false,
+            Version = 1
+        };
+
+    private static LlmTenantBudgetStateReadModel ToModel(LlmTenantBudgetMutableRow row)
     {
         return new LlmTenantBudgetStateReadModel
         {
@@ -341,27 +225,4 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
             RowVersion = row.RowVersionBytes
         };
     }
-
-    private static (int Year, int Month) ReadUtcYearMonth()
-    {
-        DateTime utc = TimeProvider.System.UtcNowDateTime();
-
-        return (utc.Year, utc.Month);
-    }
-
-    private static (int Year, int Month) ParseUtcYearMonth(string periodKey)
-    {
-        string[] parts = periodKey.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        if (parts.Length != 2)
-            throw new FormatException("Monthly period key must be yyyy-MM.");
-
-        int y = int.Parse(parts[0], CultureInfo.InvariantCulture);
-        int m = int.Parse(parts[1], CultureInfo.InvariantCulture);
-
-        return (y, m);
-    }
-
-    private static string FormatUtcYearMonth(int utcYear, int utcMonth) =>
-        string.Format(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", utcYear, utcMonth);
 }

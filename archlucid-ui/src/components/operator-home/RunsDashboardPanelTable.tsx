@@ -43,6 +43,7 @@ export type RunsDashboardPanelTableProps = {
   readonly restoreBusyRequestId: string | null;
   readonly onRestoreArchivedRequest: (requestId: string) => void;
   readonly onClearGovernanceWarningsFilter: () => void;
+  readonly onClearStatusFilter: () => void;
 };
 
 export function RunsDashboardPanelTable({
@@ -74,6 +75,7 @@ export function RunsDashboardPanelTable({
   restoreBusyRequestId,
   onRestoreArchivedRequest,
   onClearGovernanceWarningsFilter,
+  onClearStatusFilter,
 }: RunsDashboardPanelTableProps) {
   return (
     <>
@@ -125,6 +127,7 @@ export function RunsDashboardPanelTable({
           restoreBusyRequestId={restoreBusyRequestId}
           contentTestId="runs-dashboard-tab-approved"
           statusFilterEmptyMessage={BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES}
+          onClearStatusFilter={onClearStatusFilter}
           onRestoreArchivedRequest={onRestoreArchivedRequest}
           pagePrimaryOwnedElsewhere={hideHeading}
         />
@@ -148,6 +151,7 @@ export function RunsDashboardPanelTable({
             restoreBusyRequestId={restoreBusyRequestId}
             contentTestId="runs-dashboard-tab-attention"
             statusFilterEmptyMessage={RUNS_DASHBOARD_LABELS.noReviewsNeedAttention}
+            onClearStatusFilter={onClearStatusFilter}
             onRestoreArchivedRequest={onRestoreArchivedRequest}
             pagePrimaryOwnedElsewhere={hideHeading}
           />
@@ -182,6 +186,7 @@ export function RunsDashboardPanelTable({
             restoreBusyRequestId={restoreBusyRequestId}
             contentTestId="runs-dashboard-tab-outcomes"
             statusFilterEmptyMessage={BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES}
+            onClearStatusFilter={onClearStatusFilter}
             onRestoreArchivedRequest={onRestoreArchivedRequest}
             pagePrimaryOwnedElsewhere={hideHeading}
           />

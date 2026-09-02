@@ -81,13 +81,35 @@ public static class WebhookSecrets
         if (string.IsNullOrWhiteSpace(unixSecondsRaw))
             return false;
 
-        if (!long.TryParse(unixSecondsRaw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out long unix))
+        if (!TryParseWholeNumberLong(unixSecondsRaw.Trim(), out long unix))
             return false;
 
         DateTimeOffset payload = DateTimeOffset.FromUnixTimeSeconds(unix);
         double deltaSeconds = Math.Abs((utcNow - payload).TotalSeconds);
 
         return deltaSeconds <= skewSeconds;
+    }
+
+    private static bool TryParseWholeNumberLong(string raw, out long value)
+    {
+        if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (long)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static int ParseHexNibble(char c)

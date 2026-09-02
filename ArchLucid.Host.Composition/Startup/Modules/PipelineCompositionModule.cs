@@ -3,6 +3,7 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Analysis.ReplayComparison;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
@@ -77,6 +78,12 @@ public static class PipelineCompositionModule
         services.AddSingleton<IConsultingDocxTemplateProfileResolver, DefaultConsultingDocxTemplateProfileResolver>();
         services.AddScoped<IConsultingDocxTemplateRecommendationService, ConsultingDocxTemplateRecommendationService>();
         services.AddScoped<IConsultingDocxExportProfileSelector, ConsultingDocxExportProfileSelector>();
+        services.AddScoped<IReplayComparisonDiffSlice, ReplayComparisonAgentResultsDiffSlice>();
+        services.AddScoped<IReplayComparisonDiffSlice, ReplayComparisonManifestsDiffSlice>();
+        services.AddScoped<IReplayComparisonDiffSlice, ReplayComparisonExportsDiffSlice>();
+        services.AddScoped<IReplayComparisonDiffSlice, ReplayComparisonFindingLifecycleDiffSlice>();
+        services.AddScoped<IReplayComparisonDiffSlice, ReplayComparisonInterpretationDiffSlice>();
+        services.AddScoped<EndToEndReplayComparisonReportComposer>();
         services.AddScoped<IEndToEndReplayComparisonService, EndToEndReplayComparisonService>();
         services.AddScoped<IEndToEndReplayComparisonSummaryFormatter, MarkdownEndToEndReplayComparisonSummaryFormatter>();
         services.AddScoped<IEndToEndReplayComparisonExportService, EndToEndReplayComparisonExportService>();

@@ -74,6 +74,42 @@ public sealed class QualityGateWarnOnlyProductionLikeConfigurationLintTests
             .BeTrue();
     }
 
+    [Fact]
+    public void ShouldEmitFinding_production_real_string_encoded_whole_number_warn_only_emits_rule()
+    {
+        IConfiguration configuration = BuildConfig("Real", "0.0");
+
+        QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding(
+                configuration,
+                Environments.Production)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void ShouldEmitFinding_production_real_string_encoded_boolean_warn_only_emits_rule()
+    {
+        IConfiguration configuration = BuildConfig("Real", "False");
+
+        QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding(
+                configuration,
+                Environments.Production)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void ShouldEmitFinding_production_real_off_synonym_warn_only_emits_rule()
+    {
+        IConfiguration configuration = BuildConfig("Real", "off");
+
+        QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding(
+                configuration,
+                Environments.Production)
+            .Should()
+            .BeTrue();
+    }
+
     private static IConfiguration BuildConfig(string agentExecutionMode, string? qualityGateMode)
     {
         List<KeyValuePair<string, string?>> pairs =

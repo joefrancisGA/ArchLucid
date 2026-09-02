@@ -1,4 +1,5 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
@@ -27,6 +28,8 @@ public sealed class CommitOutputIntegrityService(
     IRunRepository runRepository,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IRunPolicyPackPinService runPolicyPackPinService,
+    IRunEvidencePackagePinService runEvidencePackagePinService,
+    IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
     IDraftRequestRepository draftRequestRepository,
     IArchitectureVersionRepository architectureVersionRepository) : ICommitOutputIntegrityService
 {
@@ -47,6 +50,12 @@ public sealed class CommitOutputIntegrityService(
 
     private readonly IRunPolicyPackPinService _runPolicyPackPinService =
         runPolicyPackPinService ?? throw new ArgumentNullException(nameof(runPolicyPackPinService));
+
+    private readonly IRunEvidencePackagePinService _runEvidencePackagePinService =
+        runEvidencePackagePinService ?? throw new ArgumentNullException(nameof(runEvidencePackagePinService));
+
+    private readonly IArchitectureKnowledgeModelAccess _architectureKnowledgeModelAccess =
+        architectureKnowledgeModelAccess ?? throw new ArgumentNullException(nameof(architectureKnowledgeModelAccess));
 
     private readonly IDraftRequestRepository _draftRequestRepository =
         draftRequestRepository ?? throw new ArgumentNullException(nameof(draftRequestRepository));
@@ -170,10 +179,19 @@ public sealed class CommitOutputIntegrityService(
                 "Commit blocked: pinned ArchitectureVersionId was not found.");
         }
 
+        Contracts.ArchitectureIntelligence.ArchitectureKnowledgeModel? knowledgeModel = null;
+
+        if (Guid.TryParseExact(runId, "N", out Guid runGuidForKm) || Guid.TryParse(runId, out runGuidForKm))
+        {
+            knowledgeModel = await _architectureKnowledgeModelAccess
+                .GetForRunAsync(scope, runGuidForKm, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         ArchitectureVersionContentFingerprintVerifier.EnsurePinnedVersionMatchesRequestOrThrow(
             version,
             architectureRequest,
-            knowledgeModel: null);
+            knowledgeModel);
     }
 
     private async Task EnsureCreateTimePinsUnchangedOrThrowAsync(
@@ -191,6 +209,10 @@ public sealed class CommitOutputIntegrityService(
             return;
 
         await _runPolicyPackPinService
+            .VerifyPinIntegrityOrThrowAsync(header, scope, cancellationToken)
+            .ConfigureAwait(false);
+
+        await _runEvidencePackagePinService
             .VerifyPinIntegrityOrThrowAsync(header, scope, cancellationToken)
             .ConfigureAwait(false);
 

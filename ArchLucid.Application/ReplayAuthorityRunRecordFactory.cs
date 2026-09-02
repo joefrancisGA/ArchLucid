@@ -13,8 +13,8 @@ internal static class ReplayAuthorityRunRecordFactory
 {
     /// <summary>
     ///     Creates the authority row for a new replay run id. When the source run exists in <c>dbo.Runs</c>,
-    ///     tenant/workspace/scope are cloned from that row; otherwise the HTTP (or job) <paramref name="callScope" />
-    ///     applies. <see cref="RunRecord.ProjectId" /> follows the coordinator slug convention (request
+    ///     tenant/workspace/scope and create-time pins are cloned from that row; otherwise the HTTP (or job)
+    ///     <paramref name="callScope" /> applies. <see cref="RunRecord.ProjectId" /> follows the coordinator slug convention (request
     ///     <c>SystemName</c>) when the source row has no project id.
     /// </summary>
     public static RunRecord CreateForReplay(
@@ -45,6 +45,14 @@ internal static class ReplayAuthorityRunRecordFactory
                 StructuralExecutionMode = StructuralExecutionMode.Simulator,
                 PackageOrigin = sourceAuthorityRun.PackageOrigin
                     ?? ArchitecturePackageOriginResolver.Resolve(request),
+                ArchitectureVersionId = sourceAuthorityRun.ArchitectureVersionId,
+                KnowledgeModelId = sourceAuthorityRun.KnowledgeModelId,
+                PinnedPolicyPackIdsJson = sourceAuthorityRun.PinnedPolicyPackIdsJson,
+                PinnedPolicyPackIdsHashSha256 = sourceAuthorityRun.PinnedPolicyPackIdsHashSha256,
+                PinnedEvidencePackagePinsJson = sourceAuthorityRun.PinnedEvidencePackagePinsJson,
+                PinnedEvidencePackagePinsHashSha256 = sourceAuthorityRun.PinnedEvidencePackagePinsHashSha256,
+                PinnedFocusedPilotModeEnabled = sourceAuthorityRun.PinnedFocusedPilotModeEnabled,
+                PinnedFocusedPilotCloudProvider = sourceAuthorityRun.PinnedFocusedPilotCloudProvider,
             };
 
         return new RunRecord

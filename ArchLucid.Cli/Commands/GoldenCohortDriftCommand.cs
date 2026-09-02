@@ -63,7 +63,7 @@ internal static class GoldenCohortDriftCommand
             return CliExitCode.UsageError;
         }
 
-        if (strictReal && !IsRealLlmContext())
+        if (strictReal && !GoldenCohortDriftParser.IsRealLlmContext())
         {
             await Console.Error.WriteLineAsync(
                 "Refusing --strict-real: set ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true and/or " +
@@ -190,7 +190,7 @@ internal static class GoldenCohortDriftCommand
                 }
             }
 
-            List<AgentResult>? agentResults = TryParseAgentResults(getRun.Results, item.Id, out string? parseError);
+            List<AgentResult>? agentResults = GoldenCohortDriftParser.TryParseAgentResults(getRun.Results, item.Id, out string? parseError);
 
             if (parseError is not null)
             {
@@ -204,17 +204,15 @@ internal static class GoldenCohortDriftCommand
 
             if (!structuralOnly)
             {
-                SortedSet<string> actualCategories =
-                    GoldenCohortFindingCategoryAggregator.DistinctCategories(agentResults);
-                SortedSet<string> expectedCategories = new(StringComparer.Ordinal);
-
-                foreach (string c in item.ExpectedFindingCategories.Where(c => !string.IsNullOrWhiteSpace(c)))
+                if (!GoldenCohortDriftParser.CategoriesMatch(item, agentResults))
                 {
-                    expectedCategories.Add(c.Trim());
-                }
+                    SortedSet<string> actualCategories =
+                        GoldenCohortFindingCategoryAggregator.DistinctCategories(agentResults);
+                    SortedSet<string> expectedCategories = new(StringComparer.Ordinal);
 
-                if (!actualCategories.SetEquals(expectedCategories))
-                {
+                    foreach (string c in item.ExpectedFindingCategories.Where(c => !string.IsNullOrWhiteSpace(c)))
+                        expectedCategories.Add(c.Trim());
+
                     await Console.Error.WriteLineAsync(
                         $"[{item.Id}] finding category multiset mismatch. expected={string.Join(", ", expectedCategories)} " +
                         $"actual={string.Join(", ", actualCategories)}");
@@ -226,40 +224,7 @@ internal static class GoldenCohortDriftCommand
             if (!runStructural)
                 continue;
 
-            // Serialize the raw API result object so extra JSON (e.g. per-finding `trace`) is not dropped by
-            // ArchLucid.Contracts.Agents.AgentResult round-trip.
-            for (int ri = 0; ri < getRun.Results.Count; ri++)
-            {
-                object raw = getRun.Results[ri];
-                string resultJson = JsonSerializer.Serialize(raw, ContractJson.Default);
-                AgentResult? r = JsonSerializer.Deserialize<AgentResult>(resultJson, ContractJson.Default);
-
-                if (r is null)
-                {
-                    await Console.Error.WriteLineAsync(
-                        $"[{item.Id}] could not read agentType for structural validation at result index {ri.ToString(CultureInfo.InvariantCulture)}.");
-
-                    return CliExitCode.OperationFailed;
-                }
-
-                RealLlmStructuralValidationResult v =
-                    RealLlmOutputStructuralValidator.ValidateAgentResultStructure(r.AgentType.ToString(), resultJson);
-
-                if (v.IsValid)
-                    continue;
-
-                structuralFailures.Add(
-                    new GoldenCohortDriftStructuralFailure
-                    {
-                        CohortItemId = item.Id,
-                        RunId = runId,
-                        Code = "structuralValidation",
-                        Message = "One or more structural checks failed for an agent result.",
-                        AgentType = r.AgentType.ToString(),
-                        ResultId = r.ResultId,
-                        Validation = v
-                    });
-            }
+            structuralFailures.AddRange(GoldenCohortDriftParser.ValidateStructuralResults(item, runId, getRun.Results));
         }
 
         if (structuralFailures.Count > 0)
@@ -300,65 +265,6 @@ internal static class GoldenCohortDriftCommand
         }
 
         return CliExitCode.Success;
-    }
-
-    private static List<AgentResult>? TryParseAgentResults(
-        List<object> raw,
-        string itemId,
-        out string? error)
-    {
-        error = null;
-
-        List<AgentResult> list = [];
-        int i = 0;
-
-        foreach (AgentResult? ar in raw.Select(o => JsonSerializer.Serialize(o, ContractJson.Default))
-                     .Select(j => JsonSerializer.Deserialize<AgentResult>(j, ContractJson.Default)))
-        {
-            if (ar is null)
-            {
-                error =
-                    $"[{itemId}] could not deserialize agent result at index {i.ToString(CultureInfo.InvariantCulture)}.";
-
-                return null;
-            }
-
-            list.Add(ar);
-            i++;
-        }
-
-        if (list.Count != 0)
-            return list;
-        error = $"[{itemId}] no agent results returned for drift analysis.";
-
-        return null;
-    }
-
-    private static bool IsRealLlmContext()
-    {
-        return IsTruthyEnvironment("ARCHLUCID_GOLDEN_COHORT_REAL_LLM")
-               || string.Equals(
-                   Environment.GetEnvironmentVariable("ARCHLUCID_AGENT_EXECUTION_MODE")?.Trim() ?? string.Empty,
-                   "Real",
-                   StringComparison.OrdinalIgnoreCase)
-               || string.Equals(
-                   Environment.GetEnvironmentVariable("AgentExecution__Mode")?.Trim() ?? string.Empty,
-                   "Real",
-                   StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsTruthyEnvironment(string name)
-    {
-        string? raw = Environment.GetEnvironmentVariable(name);
-
-        if (string.IsNullOrWhiteSpace(raw))
-            return false;
-
-        string v = raw.Trim();
-
-        return string.Equals(v, "1", StringComparison.Ordinal)
-               || string.Equals(v, "true", StringComparison.OrdinalIgnoreCase)
-               || string.Equals(v, "yes", StringComparison.OrdinalIgnoreCase);
     }
 
     public sealed class GoldenCohortDriftStructuralFailure

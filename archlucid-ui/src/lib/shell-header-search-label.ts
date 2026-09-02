@@ -1,10 +1,7 @@
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import { isSponsorDashboardPath } from "@/lib/sponsor/sponsor-dashboard-route";
 
-import {
-  isGovernanceFindingsQueueHeaderSearchPath,
-  isReviewsHubInventoryHeaderSearchPath,
-} from "@/lib/shell-header-route-local-search";
+import { isReviewsHubInventoryHeaderSearchPath } from "@/lib/shell-header-route-local-search";
 import { isReviewDetailHeaderSearchPath } from "@/lib/review-detail-header-section-search";
 
 /** Buyer-polished header search: route-aware label for the shell search + command palette. */
@@ -13,10 +10,6 @@ export function resolveShellHeaderSearchLabel(pathname: string): string {
 
   if (isReviewsHubInventoryHeaderSearchPath(path)) {
     return "Filter reviews";
-  }
-
-  if (isGovernanceFindingsQueueHeaderSearchPath(path)) {
-    return "Filter findings";
   }
 
   if (isReviewDetailHeaderSearchPath(path)) {
@@ -66,10 +59,6 @@ export function resolveShellHeaderSearchPlaceholder(pathname: string): string {
 
   if (isReviewsHubInventoryHeaderSearchPath(path)) {
     return "Filter reviews in this list…";
-  }
-
-  if (isGovernanceFindingsQueueHeaderSearchPath(path)) {
-    return "Filter findings in this queue…";
   }
 
   if (isReviewDetailHeaderSearchPath(path)) {

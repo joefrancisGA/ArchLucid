@@ -196,26 +196,15 @@ public sealed class ReplayRunServiceTests
 
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
 
-        ReplayRunService sut = new(
+        ReplayRunService sut = ReplayRunServiceTestSupport.BuildFromMocks(
             resolver.Object,
             decision.Object,
-            EmptyEvaluationService(),
-            EmptyDecisionEngineV2(),
             requestRepo.Object,
             detail.Object,
             authorityRuns.Object,
             scopeProvider.Object,
-            CreateAuthorityChainWriterMock().Object,
             evidenceRepo.Object,
-            NoOpTaskRepository(),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IAuditService>(),
-            UnitTestActor(),
-            Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommitOrchestrator>(),
-            Mock.Of<ICommitRunIdempotencyCoordinator>(),
-            EmptyStageOutcomesRepository(),
-            NullLogger<ReplayRunService>.Instance);
+            NoOpTaskRepository());
 
         Func<Task> act = async () => await sut.ReplayAsync("missing", ExecutionModes.Current, false, null, CancellationToken.None);
 
@@ -254,8 +243,8 @@ public sealed class ReplayRunServiceTests
         ArchitectureRunDetail detailDto = new() { Run = originalRun, Tasks = [task], };
 
         Mock<IRunDetailQueryService> detail = new();
-        Mock<IAgentTaskRepository> taskRepo = CapturingTaskRepository(out List<AgentTask> preparedTasks);
-        StubRunDetailForOriginalAndPreparedReplay(detail, originalRunId, detailDto, preparedTasks);
+        Mock<IAgentTaskRepository> taskRepo = ReplayRunServiceTestSupport.CapturingTaskRepository(out List<AgentTask> preparedTasks);
+        ReplayRunServiceTestSupport.StubRunDetailForOriginalAndPreparedReplay(detail, originalRunId, detailDto, preparedTasks);
 
         ArchitectureRequest request = new()
         {
@@ -315,26 +304,15 @@ public sealed class ReplayRunServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
-        ReplayRunService sut = new(
+        ReplayRunService sut = ReplayRunServiceTestSupport.BuildFromMocks(
             resolver.Object,
             decision.Object,
-            EmptyEvaluationService(),
-            EmptyDecisionEngineV2(),
             requestRepo.Object,
             detail.Object,
             authorityRuns.Object,
             scopeProvider.Object,
-            CreateAuthorityChainWriterMock().Object,
             evidenceRepo.Object,
-            taskRepo.Object,
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IAuditService>(),
-            UnitTestActor(),
-            Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommitOrchestrator>(),
-            Mock.Of<ICommitRunIdempotencyCoordinator>(),
-            EmptyStageOutcomesRepository(),
-            NullLogger<ReplayRunService>.Instance);
+            taskRepo.Object);
 
         ReplayRunResult output = await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: false, null, CancellationToken.None);
 
@@ -387,8 +365,8 @@ public sealed class ReplayRunServiceTests
         ArchitectureRunDetail detailDto = new() { Run = originalRun, Tasks = [task], };
 
         Mock<IRunDetailQueryService> detail = new();
-        Mock<IAgentTaskRepository> taskRepo = CapturingTaskRepository(out List<AgentTask> preparedTasks);
-        StubRunDetailForOriginalAndPreparedReplay(detail, originalRunId, detailDto, preparedTasks);
+        Mock<IAgentTaskRepository> taskRepo = ReplayRunServiceTestSupport.CapturingTaskRepository(out List<AgentTask> preparedTasks);
+        ReplayRunServiceTestSupport.StubRunDetailForOriginalAndPreparedReplay(detail, originalRunId, detailDto, preparedTasks);
 
         ArchitectureRequest request = new()
         {
@@ -505,26 +483,18 @@ public sealed class ReplayRunServiceTests
 
         Mock<IAuthorityCommittedManifestChainWriter> chainWriter = CreateAuthorityChainWriterMock();
 
-        ReplayRunService sut = new(
+        ReplayRunService sut = ReplayRunServiceTestSupport.BuildFromMocks(
             resolver.Object,
             decision.Object,
-            evaluationService.Object,
-            engineV2.Object,
             requestRepo.Object,
             detail.Object,
             authorityRuns.Object,
             scopeProvider.Object,
-            chainWriter.Object,
             evidenceRepo.Object,
             taskRepo.Object,
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IAuditService>(),
-            UnitTestActor(),
-            Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommitOrchestrator>(),
-            Mock.Of<ICommitRunIdempotencyCoordinator>(),
-            EmptyStageOutcomesRepository(),
-            NullLogger<ReplayRunService>.Instance);
+            evaluationService.Object,
+            engineV2.Object,
+            chainWriter.Object);
 
         ReplayRunResult output =
             await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: true, manifestVersionOverride: "v-override", CancellationToken.None);
@@ -606,8 +576,8 @@ public sealed class ReplayRunServiceTests
         ArchitectureRunDetail detailDto = new() { Run = originalRun, Tasks = [task], };
 
         Mock<IRunDetailQueryService> detail = new();
-        Mock<IAgentTaskRepository> taskRepo = CapturingTaskRepository(out List<AgentTask> preparedTasks);
-        StubRunDetailForOriginalAndPreparedReplay(detail, originalRunId, detailDto, preparedTasks);
+        Mock<IAgentTaskRepository> taskRepo = ReplayRunServiceTestSupport.CapturingTaskRepository(out List<AgentTask> preparedTasks);
+        ReplayRunServiceTestSupport.StubRunDetailForOriginalAndPreparedReplay(detail, originalRunId, detailDto, preparedTasks);
 
         ArchitectureRequest request = new()
         {
@@ -657,26 +627,15 @@ public sealed class ReplayRunServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
-        ReplayRunService sut = new(
+        ReplayRunService sut = ReplayRunServiceTestSupport.BuildFromMocks(
             resolver.Object,
             decision.Object,
-            EmptyEvaluationService(),
-            EmptyDecisionEngineV2(),
             requestRepo.Object,
             detail.Object,
             authorityRuns.Object,
             scopeProvider.Object,
-            CreateAuthorityChainWriterMock().Object,
             evidenceRepo.Object,
-            taskRepo.Object,
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IAuditService>(),
-            UnitTestActor(),
-            Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommitOrchestrator>(),
-            Mock.Of<ICommitRunIdempotencyCoordinator>(),
-            EmptyStageOutcomesRepository(),
-            NullLogger<ReplayRunService>.Instance);
+            taskRepo.Object);
 
         ReplayRunResult output = await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: false, null, CancellationToken.None);
 

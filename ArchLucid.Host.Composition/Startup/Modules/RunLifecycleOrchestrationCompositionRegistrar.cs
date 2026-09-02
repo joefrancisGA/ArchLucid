@@ -28,6 +28,7 @@ using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Integrations;
 using ArchLucid.Application.Integrations.Confluence;
+using ArchLucid.Application.Replay;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.OperatorHome;
@@ -104,8 +105,12 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureRunExecuteBaselineMutationHook, ArchitectureRunExecuteBaselineMutationHook>();
         services.AddScoped<IArchitectureRunExecuteOutboxPublishHook, ArchitectureRunExecuteOutboxPublishHook>();
         services.AddScoped<IIncompleteAuthorityPipelineExecuteHandler, IncompleteAuthorityPipelineExecuteHandler>();
+        services.AddScoped<IArchitectureRunExecuteIdempotencyStage, ArchitectureRunExecuteIdempotencyStage>();
+        services.AddScoped<IArchitectureRunExecuteCancellationGuardStage, ArchitectureRunExecuteCancellationGuardStage>();
         services.AddScoped<IArchitectureRunExecutePreExecuteStage, ArchitectureRunExecutePreExecuteStage>();
+        services.AddScoped<IArchitectureRunExecutePersistRowsStage, ArchitectureRunExecutePersistRowsStage>();
         services.AddScoped<IArchitectureRunExecutePersistenceStage, ArchitectureRunExecutePersistenceStage>();
+        services.AddScoped<IArchitectureRunExecuteQualityGateRetryStage, ArchitectureRunExecuteQualityGateRetryStage>();
         services.AddScoped<IArchitectureRunExecuteQualityGateStage, ArchitectureRunExecuteQualityGateStage>();
         services.AddScoped<IAgentLoopPrepareStage, AgentLoopPrepareStage>();
         services.AddScoped<IAgentLoopInvokeStage, AgentLoopInvokeStage>();
@@ -209,6 +214,10 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IPublicShowcaseCommitPageClient, PublicShowcaseCommitPageClient>();
         services.AddScoped<IRunRationaleService, RunRationaleService>();
         services.AddScoped<IArchitectureRunProvenanceService, ArchitectureRunProvenanceService>();
+        services.AddScoped<IReplayRunCloneStage, ReplayRunCloneStage>();
+        services.AddScoped<IReplayRunPrepareStage, ReplayRunPrepareStage>();
+        services.AddScoped<IReplayRunCommitStage, ReplayRunCommitStage>();
+        services.AddScoped<IReplayRunExecutePreparedStage, ReplayRunExecutePreparedStage>();
         services.AddScoped<IReplayRunService, ReplayRunService>();
         services.AddSingleton<ArchitectureRunAsyncOperationQueue>();
         services.AddSingleton<IArchitectureRunAsyncOperationQueue>(static sp =>

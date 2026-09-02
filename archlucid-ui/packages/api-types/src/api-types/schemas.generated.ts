@@ -1750,25 +1750,8 @@ export interface components {
             /** Format: int32 */
             workspaces?: number;
         };
-        BillingCheckoutResponseDto: {
-            checkoutUrl: string;
-            /** Format: date-time */
-            expiresUtc?: null | string;
-            providerSessionId: string;
-        };
         BillingPortalPostRequest: {
             returnUrl?: null | string;
-        };
-        BillingPortalResponseDto: {
-            portalUrl: string;
-            providerSessionId: string;
-        };
-        BillingSubscriptionStatusResponseDto: {
-            hasSubscription?: boolean;
-            isPaymentPastDue?: boolean;
-            provider?: null | string;
-            status?: null | string;
-            tierCode?: null | string;
         };
         BoardPackPdfPostRequest: {
             /** Format: date-time */
@@ -3639,7 +3622,6 @@ export interface components {
         };
         /** @enum {unknown} */
         FindingClassification: "DecisionGradeFinding" | "ChecklistCoverage" | null;
-        /** @enum {unknown} */
         FindingConfidenceLevel: "High" | "Medium" | "Low" | null;
         /** @enum {string} */
         FindingCorrelationMethod: "None" | "PolicyRuleAndFingerprint" | "MessageCategoryFuzzy";
@@ -5033,12 +5015,16 @@ export interface components {
             warnings?: string[];
         };
         ManifestDocument: {
+            /** Format: uuid */
+            architectureVersionId?: null | string;
             assumptions?: string[];
             compliance?: components["schemas"]["ComplianceSection"];
             constraints?: components["schemas"]["ConstraintSection"];
             /** Format: uuid */
             contextSnapshotId?: string;
             cost?: components["schemas"]["CostSection"];
+            createTimeEvidencePackagePins?: components["schemas"]["PinnedEvidencePackageRow"][];
+            createTimePolicyPackPins?: components["schemas"]["PinnedPolicyPackRow"][];
             /** Format: date-time */
             createdUtc?: string;
             /** Format: uuid */
@@ -5838,6 +5824,17 @@ export interface components {
         PinRunResponse: {
             isPinned?: boolean;
             runId?: string;
+        };
+        PinnedEvidencePackageRow: {
+            /** Format: date-time */
+            collectionUtc: null | string;
+            /** Format: uuid */
+            packageId: string;
+            provider: string;
+        };
+        PinnedPolicyPackRow: {
+            policyPackId: string;
+            policyPackVersion: string;
         };
         PlanningMaterializeCitation: {
             commentSnippet?: null | string;
@@ -7650,6 +7647,7 @@ export interface components {
             runId?: string;
         };
         RunListItemResponse: {
+            authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             /** Format: date-time */
             completedUtc?: null | string;
             /** Format: date-time */
@@ -7778,6 +7776,12 @@ export interface components {
             packageOrigin?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
             /** Format: byte */
+            pinnedEvidencePackagePinsHashSha256?: null | string;
+            pinnedEvidencePackagePinsJson?: null | string;
+            /** Format: int32 */
+            pinnedFocusedPilotCloudProvider?: null | number;
+            pinnedFocusedPilotModeEnabled?: null | boolean;
+            /** Format: byte */
             pinnedPolicyPackIdsHashSha256?: null | string;
             pinnedPolicyPackIdsJson?: null | string;
             projectId: string;
@@ -7880,6 +7884,7 @@ export interface components {
             runId: string;
         };
         RunSummaryResponse: {
+            authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             createdByUserId?: null | string;
             /** Format: date-time */
             createdUtc: string;

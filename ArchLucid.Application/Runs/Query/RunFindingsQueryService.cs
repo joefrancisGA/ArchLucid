@@ -148,6 +148,19 @@ public sealed class RunFindingsQueryService(
             };
         }
 
+        try
+        {
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId);
+        }
+        catch (ConflictException ex)
+        {
+            return new RunFindingsCsvExportQueryResult
+            {
+                Outcome = RunFindingsQueryOutcome.Conflict,
+                ProblemDetail = ex.Message
+            };
+        }
+
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         Guid? findingsSnapshotId = null;
 
