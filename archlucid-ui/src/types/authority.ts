@@ -208,6 +208,8 @@ export type RunTrustEvidenceCard = {
 
 /** Optional fields sporadically merged onto authority run detail JSON beside `RunDetailDto`. */
 type RunDetailOptionalWireExtras = {
+  /** OpenAPI `RunDetailDto` may lag `RunDetailsResponse`; wire carries lifecycle phase on authority GET. */
+  authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"] | null;
   trustEvidenceCard?: RunTrustEvidenceCard | null;
   agentExecutionLlmCostEstimate?: components["schemas"]["RunAgentLlmCostEstimateResponse"] | null;
   degradedFindingCoverage?: boolean;

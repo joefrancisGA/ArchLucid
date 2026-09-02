@@ -454,18 +454,6 @@ export function useRunsDashboardPanel({
     (value: boolean) => {
       setGovernanceWarningsOnly(value);
 
-      router.replace(
-        runsDashboardHomeHrefFromSearch(searchParams.toString(), { governanceWarningsOnly: value }),
-        { scroll: false },
-      );
-    },
-    [router, searchParams],
-  );
-
-  const setGovernanceWarningsOnlyWithUrl = useCallback(
-    (value: boolean) => {
-      setGovernanceWarningsOnly(value);
-
       const nextHref = value
         ? homeGovernanceWarningsHrefFromSearch(searchParams.toString())
         : homeGovernanceWarningsClearHrefFromSearch(searchParams.toString());
