@@ -58,8 +58,12 @@ public sealed class GraphAwsInventoryReconciliationFindingEngine(
         }
 
         CloudInventoryExtractorPackageDownloadRecord? download =
-            await _packageRepository.TryGetLatestDownloadInScopeAsync(scope, CloudProvider.Aws, ct)
-                .ConfigureAwait(false);
+            await EffectfulFindingEngineEvidenceLoader.TryResolveCloudDownloadAsync(
+                _packageRepository,
+                scope,
+                CloudProvider.Aws,
+                analysisContext,
+                ct).ConfigureAwait(false);
 
         string? resourcesJson = download is null || download.PackageBytes.Length == 0
             ? null

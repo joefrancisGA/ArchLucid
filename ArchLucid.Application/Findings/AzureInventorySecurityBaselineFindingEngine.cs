@@ -42,9 +42,10 @@ public sealed class AzureInventorySecurityBaselineFindingEngine(
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        DateTime? collectionUtc = await _packageRepository
-            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, ct)
-            .ConfigureAwait(false);
+        DateTime? collectionUtc = analysisContext?.EvidencePin?.CollectionUtc
+            ?? await _packageRepository
+                .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, ct)
+                .ConfigureAwait(false);
 
         if (InventoryCollectionFreshnessGate.ShouldSuppressInventoryFindings(
                 collectionUtc,
@@ -55,7 +56,11 @@ public sealed class AzureInventorySecurityBaselineFindingEngine(
         }
 
         AzureExtractorPackageDownloadRecord? download =
-            await _packageRepository.TryGetLatestDownloadInScopeAsync(scope, ct).ConfigureAwait(false);
+            await EffectfulFindingEngineEvidenceLoader.TryResolveAzureDownloadAsync(
+                _packageRepository,
+                scope,
+                analysisContext,
+                ct).ConfigureAwait(false);
 
         if (download is null || download.PackageBytes.Length == 0)
         {

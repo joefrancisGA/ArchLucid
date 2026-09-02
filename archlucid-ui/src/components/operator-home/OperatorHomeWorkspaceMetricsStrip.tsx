@@ -8,6 +8,7 @@ import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readine
 import {
   deriveOperatorHomeWorkspaceMetrics,
   formatOperatorHomeCompactMetricsLine,
+  formatSetupReadinessLabel,
 } from "@/lib/operator/operator-home-workspace-metrics";
 import { OperatorHomeGovernanceWarningsMetricLink } from "@/components/operator-home/OperatorHomeGovernanceWarningsMetricLink";
 import {
@@ -24,6 +25,7 @@ type OperatorHomeWorkspaceMetricsStripProps = {
 type MetricTileProps = {
   readonly label: string;
   readonly href?: string;
+  readonly ariaLabel?: string;
 };
 
 function MetricTile(props: MetricTileProps): React.JSX.Element {
@@ -34,7 +36,11 @@ function MetricTile(props: MetricTileProps): React.JSX.Element {
   return (
     <div className="min-w-0">
       {props.href !== undefined ? (
-        <Link href={props.href} className={cn(OPERATOR_LINK.inline, "no-underline hover:underline")}>
+        <Link
+          href={props.href}
+          className={cn(OPERATOR_LINK.inline, "no-underline hover:underline")}
+          aria-label={props.ariaLabel}
+        >
           {content}
         </Link>
       ) : (
@@ -64,6 +70,10 @@ export function OperatorHomeWorkspaceMetricsStrip(
   const setupLabel = readiness.phase === "loading"
     ? "Setup …"
     : `Setup ${readiness.readyCount}/${readiness.totalCount}`;
+  const setupAriaLabel =
+    readiness.phase === "loading"
+      ? "Workspace setup readiness loading"
+      : `Workspace setup: ${formatSetupReadinessLabel(readiness.readyCount, readiness.totalCount)}`;
   const compactLine = formatOperatorHomeCompactMetricsLine({
     metrics,
     setupReadyCount: readiness.readyCount,
@@ -92,6 +102,7 @@ export function OperatorHomeWorkspaceMetricsStrip(
         <MetricTile
           label={setupLabel}
           href={readiness.phase === "loading" ? undefined : OPERATOR_HOME_SETUP_READINESS_HREF}
+          ariaLabel={setupAriaLabel}
         />
       </div>
     </section>

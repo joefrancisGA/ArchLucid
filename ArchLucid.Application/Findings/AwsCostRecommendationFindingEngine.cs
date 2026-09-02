@@ -52,7 +52,8 @@ public sealed class AwsCostRecommendationFindingEngine(
                 "aws-cost-entry",
                 "AWS cost recommendation grounded in extractor inventory evidence.",
                 "extractor-aws-cost-json",
-                "Emitted a typed finding for each AWS cost recommendation row in the inventory ZIP."),
+                "Emitted a typed finding for each AWS cost recommendation row in the inventory ZIP.",
+                analysisContext),
             ct);
     }
 }

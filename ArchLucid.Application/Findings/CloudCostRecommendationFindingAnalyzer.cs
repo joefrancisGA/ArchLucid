@@ -28,9 +28,10 @@ internal static class CloudCostRecommendationFindingAnalyzer
         ArgumentException.ThrowIfNullOrWhiteSpace(request.DecisionTaken);
 
         ScopeContext scope = request.ScopeContextProvider.GetCurrentScope();
-        DateTime? collectionUtc = await request.PackageRepository
-            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, request.CloudProvider, cancellationToken)
-            .ConfigureAwait(false);
+        DateTime? collectionUtc = request.AnalysisContext?.EvidencePin?.CollectionUtc
+            ?? await request.PackageRepository
+                .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, request.CloudProvider, cancellationToken)
+                .ConfigureAwait(false);
 
         if (InventoryCollectionFreshnessGate.ShouldSuppressInventoryFindings(
                 collectionUtc,
@@ -40,9 +41,13 @@ internal static class CloudCostRecommendationFindingAnalyzer
             return [];
         }
 
-        CloudInventoryExtractorPackageDownloadRecord? download = await request.PackageRepository
-            .TryGetLatestDownloadInScopeAsync(scope, request.CloudProvider, cancellationToken)
-            .ConfigureAwait(false);
+        CloudInventoryExtractorPackageDownloadRecord? download =
+            await EffectfulFindingEngineEvidenceLoader.TryResolveCloudDownloadAsync(
+                request.PackageRepository,
+                scope,
+                request.CloudProvider,
+                request.AnalysisContext,
+                cancellationToken).ConfigureAwait(false);
 
         if (download is null || download.PackageBytes.Length == 0)
         {

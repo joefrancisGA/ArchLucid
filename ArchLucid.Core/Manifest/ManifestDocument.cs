@@ -67,6 +67,13 @@ public class ManifestDocument
         set;
     }
 
+    /// <summary>Wave-5 suggestion 45: architecture version bound into manifest hash projection.</summary>
+    public Guid? ArchitectureVersionId
+    {
+        get;
+        set;
+    }
+
     public DateTime CreatedUtc
     {
         get;

@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 341_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 342_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -9129,4 +9129,22 @@ IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.DraftRequests
         ADD SpawnedDocumentContentHashSha256 VARBINARY(32) NULL;
+END;
+
+GO
+
+/* 342: Wave-4 robustness — pin theory-in-force policy pack ids on run create. */
+
+IF COL_LENGTH(N'dbo.Runs', N'PinnedPolicyPackIdsJson') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs
+        ADD PinnedPolicyPackIdsJson NVARCHAR(MAX) NULL;
+END;
+
+GO
+
+IF COL_LENGTH(N'dbo.Runs', N'PinnedPolicyPackIdsHashSha256') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs
+        ADD PinnedPolicyPackIdsHashSha256 VARBINARY(32) NULL;
 END;

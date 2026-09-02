@@ -6,9 +6,9 @@ import { FirstReviewGuidePageClient } from "./FirstReviewGuidePageClient";
 import {
   BUYER_ONBOARDING_PAGE_LEAD,
   BUYER_ONBOARDING_PAGE_TITLE,
+  FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
-import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID } from "@/lib/first-review-guide-route";
 import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
@@ -128,7 +128,9 @@ describe("FirstReviewGuidePageClient", () => {
     );
     expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-walkthrough")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(
+      FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
+    );
     expect(screen.queryByTestId("first-review-guide-header-loading")).not.toBeInTheDocument();
 
     const startReviewLinks = screen.getAllByRole("link", { name: /start review/i });

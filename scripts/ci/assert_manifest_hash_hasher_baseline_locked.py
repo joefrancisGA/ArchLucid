@@ -18,7 +18,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 SERVICE_REL = "ArchLucid.Decisioning/Services/ManifestHashService.cs"
-BASELINE_JSON_REL = "tests/manifest-hash/hasher-baseline-v1.json"
+BASELINE_JSON_REL = "tests/manifest-hash/hasher-baseline-v2.json"
 BASELINE_DOC_REL = "docs/library/MANIFEST_HASH_HASHER_BASELINE.md"
 
 _BASELINE_JSON_PATTERN = re.compile(

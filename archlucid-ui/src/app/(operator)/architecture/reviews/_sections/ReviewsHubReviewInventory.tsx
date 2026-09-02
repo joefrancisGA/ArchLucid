@@ -164,7 +164,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     }
 
     return counts;
-  }, [mergedRuns, ownerContext, visibilityFilteredRuns]);
+  }, [mergedRuns, ownerContext]);
 
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(

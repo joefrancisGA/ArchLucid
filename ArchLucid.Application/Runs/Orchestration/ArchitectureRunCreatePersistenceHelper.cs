@@ -25,6 +25,7 @@ public sealed class ArchitectureRunCreatePersistenceHelper(
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
     IRunStateTransitionService runStateTransitionService,
+    IRunPolicyPackPinService runPolicyPackPinService,
     ILogger<ArchitectureRunCreatePersistenceHelper> logger)
 {
     private readonly IArchitectureRequestRepository _requestRepository =
@@ -47,6 +48,9 @@ public sealed class ArchitectureRunCreatePersistenceHelper(
 
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
+
+    private readonly IRunPolicyPackPinService _runPolicyPackPinService =
+        runPolicyPackPinService ?? throw new ArgumentNullException(nameof(runPolicyPackPinService));
 
     private readonly ILogger<ArchitectureRunCreatePersistenceHelper> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -152,6 +156,10 @@ public sealed class ArchitectureRunCreatePersistenceHelper(
             header.LegacyRunStatus = targetLegacyRunStatus;
 
         header.PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request);
+
+        await _runPolicyPackPinService
+            .ApplyToRunHeaderAsync(header, scope, cancellationToken)
+            .ConfigureAwait(false);
 
         if (uow.SupportsExternalTransaction)
             await _runRepository.UpdateAsync(header, cancellationToken, uow.Connection, uow.Transaction);

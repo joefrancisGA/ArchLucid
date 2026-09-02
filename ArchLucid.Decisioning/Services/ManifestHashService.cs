@@ -19,7 +19,7 @@ public sealed class ManifestHashService : IManifestHashService
     ///     Canonical projection schema version. Increment only with deliberate baseline re-lock
     ///     (<c>MANIFEST_HASH_HASHER_BASELINE.md</c>, <c>TB-1157</c>).
     /// </summary>
-    public const string HasherSchemaVersion = "v1";
+    public const string HasherSchemaVersion = "v2";
 
     /// <inheritdoc />
     public string ComputeHash(ManifestDocument manifest)
@@ -38,6 +38,7 @@ public sealed class ManifestHashService : IManifestHashService
             manifest.GraphSnapshotId,
             manifest.FindingsSnapshotId,
             manifest.DecisionTraceId,
+            manifest.ArchitectureVersionId,
             manifest.RuleSetId,
             manifest.RuleSetVersion,
             manifest.RuleSetHash,

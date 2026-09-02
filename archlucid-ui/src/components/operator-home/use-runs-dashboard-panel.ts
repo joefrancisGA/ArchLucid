@@ -31,6 +31,8 @@ import {
   subscribeOperatorHomeLifecycleRefresh,
 } from "@/lib/operator/operator-home-lifecycle-notify";
 import {
+  homeGovernanceWarningsClearHrefFromSearch,
+  homeGovernanceWarningsHrefFromSearch,
   homeGovernanceWarningsQueryEnabled,
   parseRunsDashboardShowArchivedFromSearch,
   parseRunsDashboardTabFromSearch,
@@ -456,6 +458,19 @@ export function useRunsDashboardPanel({
         runsDashboardHomeHrefFromSearch(searchParams.toString(), { governanceWarningsOnly: value }),
         { scroll: false },
       );
+    },
+    [router, searchParams],
+  );
+
+  const setGovernanceWarningsOnlyWithUrl = useCallback(
+    (value: boolean) => {
+      setGovernanceWarningsOnly(value);
+
+      const nextHref = value
+        ? homeGovernanceWarningsHrefFromSearch(searchParams.toString())
+        : homeGovernanceWarningsClearHrefFromSearch(searchParams.toString());
+
+      router.replace(nextHref, { scroll: false });
     },
     [router, searchParams],
   );
