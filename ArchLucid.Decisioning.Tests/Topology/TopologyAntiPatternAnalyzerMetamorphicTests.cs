@@ -28,7 +28,7 @@ public sealed class TopologyAntiPatternAnalyzerMetamorphicTests
     private IReadOnlyList<string> GapCodes(GraphSnapshot graph)
     {
         IReadOnlyList<Finding> findings =
-            _engine.AnalyzeAsync(graph, CancellationToken.None).GetAwaiter().GetResult();
+            _engine.AnalyzeAsync(graph, null, CancellationToken.None).GetAwaiter().GetResult();
 
         return findings
             .Select(static finding => FindingPayloadConverter.ToTopologyGapPayload(finding)?.GapCode)

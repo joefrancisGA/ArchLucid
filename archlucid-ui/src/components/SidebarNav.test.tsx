@@ -3,13 +3,13 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SidebarNav } from "@/components/SidebarNav";
-import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import {
   SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION,
   SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
 } from "@/lib/sidebar-nav-group-expansion-storage";
 import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+import { PACKAGES_NAV_HREF } from "@/lib/usability/usability-consolidation";
+import { governanceModeVocabulary } from "@/lib/vocabulary/governance-mode-vocabulary";
 
 const mockPathname = vi.hoisted(() => vi.fn(() => "/"));
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
@@ -109,14 +109,12 @@ describe("SidebarNav (primary navigation)", () => {
     const reviewNav = screen.getByRole("group", { name: "Architecture" });
     expect(reviewNav).toBeInTheDocument();
     expect(within(reviewNav).getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
-    expect(within(reviewNav).getByRole("link", { name: ARCHITECTURE_DRAFTS_LIST_LABEL })).toHaveAttribute(
-      "href",
-      ARCHITECTURES_LIST_PATH,
-    );
-    expect(within(reviewNav).getByRole("link", { name: "Reviews" })).toHaveAttribute(
-      "href",
-      "/architecture/reviews",
-    );
+    // Catalog label is "Packages"; sidebar presentation maps `/architecture/reviews` to governance vocabulary.
+    expect(
+      within(reviewNav).getByRole("link", {
+        name: governanceModeVocabulary(governanceModeMock.enabled).reviewPlural,
+      }),
+    ).toHaveAttribute("href", PACKAGES_NAV_HREF);
 
     expect(screen.queryByTestId("operate-features-unlock-panel")).toBeNull();
     expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
@@ -127,10 +125,19 @@ describe("SidebarNav (primary navigation)", () => {
   it("expands Analysis with a chevron disclosure", async () => {
     render(<SidebarNav />);
 
-    fireEvent.click(screen.getByTestId("sidebar-group-toggle-operate-analysis"));
+    const analysisToggle = screen.getByTestId("sidebar-group-toggle-operate-analysis");
+    expect(analysisToggle).toHaveAttribute("aria-expanded", "true");
+
+    fireEvent.click(analysisToggle);
 
     await waitFor(() => {
-      expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "true");
+      expect(analysisToggle).toHaveAttribute("aria-expanded", "false");
+    });
+
+    fireEvent.click(analysisToggle);
+
+    await waitFor(() => {
+      expect(analysisToggle).toHaveAttribute("aria-expanded", "true");
     });
 
     const analysisNav = screen.getByRole("group", { name: "Insights" });
@@ -162,7 +169,10 @@ describe("SidebarNav (primary navigation)", () => {
     });
 
     expect(screen.getByRole("group", { name: "Approval" })).toBeInTheDocument();
-    expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute(
+      "aria-expanded",
+      SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION["operate-analysis"] ? "true" : "false",
+    );
   });
 
   it("does not show progressive-disclosure unlock or more-destinations chrome", () => {
@@ -232,10 +242,11 @@ describe("SidebarNav buyer-polished desktop shell", () => {
 
     const nav = screen.getByRole("group", { name: "Architecture" });
     expect(within(nav).getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
-    expect(within(nav).getByRole("link", { name: ARCHITECTURE_DRAFTS_LIST_LABEL })).toHaveAttribute(
-      "href",
-      ARCHITECTURES_LIST_PATH,
-    );
+    expect(
+      within(nav).getByRole("link", {
+        name: governanceModeVocabulary(governanceModeMock.enabled).reviewPlural,
+      }),
+    ).toHaveAttribute("href", PACKAGES_NAV_HREF);
 
     expect(screen.queryByTestId("operate-features-unlock-panel")).toBeNull();
     expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();

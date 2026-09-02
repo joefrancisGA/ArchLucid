@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
@@ -68,8 +69,8 @@ public sealed class FindingsOrchestratorTests
 
         await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
-        e1.Verify(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()), Times.Once);
-        e2.Verify(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()), Times.Once);
+        e1.Verify(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()), Times.Once);
+        e2.Verify(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -79,7 +80,7 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingEngine> e1 = new(MockBehavior.Strict);
         e1.Setup(x => x.EngineType).Returns("bad");
         e1.Setup(x => x.Category).Returns("Security");
-        e1.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
+        e1.Setup(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("boom"));
 
         Mock<IFindingPayloadValidator> validator = new(MockBehavior.Strict);
@@ -114,7 +115,7 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingEngine> bad = new(MockBehavior.Strict);
         bad.Setup(x => x.EngineType).Returns("bad");
         bad.Setup(x => x.Category).Returns("Security");
-        bad.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
+        bad.Setup(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("boom"));
 
         Mock<IFindingEngine> good = CreateEngine("good", "Security", [ok]);
@@ -253,7 +254,7 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingEngine> e1 = new(MockBehavior.Strict);
         e1.Setup(x => x.EngineType).Returns("bad");
         e1.Setup(x => x.Category).Returns("Security");
-        e1.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
+        e1.Setup(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new OperationCanceledException());
 
         Mock<IFindingPayloadValidator> validator = new(MockBehavior.Strict);
@@ -465,7 +466,7 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingEngine> bad = new(MockBehavior.Strict);
         bad.Setup(x => x.EngineType).Returns("fail");
         bad.Setup(x => x.Category).Returns("Security");
-        bad.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
+        bad.Setup(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("boom"));
 
         Mock<IFindingEngine> good = CreateEngine("ok", "Security", []);
@@ -518,14 +519,14 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingEngine> e1 = new(MockBehavior.Strict);
         e1.Setup(x => x.EngineType).Returns("e1");
         e1.Setup(x => x.Category).Returns("Security");
-        e1.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
-            .Returns((GraphSnapshot g, CancellationToken ct) => DelayedAnalyze(g, ct));
+        e1.Setup(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
+            .Returns((GraphSnapshot g, FindingAnalysisContext? _, CancellationToken ct) => DelayedAnalyze(g, ct));
 
         Mock<IFindingEngine> e2 = new(MockBehavior.Strict);
         e2.Setup(x => x.EngineType).Returns("e2");
         e2.Setup(x => x.Category).Returns("Topology");
-        e2.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
-            .Returns((GraphSnapshot g, CancellationToken ct) => DelayedAnalyze(g, ct));
+        e2.Setup(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
+            .Returns((GraphSnapshot g, FindingAnalysisContext? _, CancellationToken ct) => DelayedAnalyze(g, ct));
 
         Mock<IFindingPayloadValidator> validator = new();
         FindingsOrchestrator sut = new(
@@ -678,7 +679,7 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingEngine> mock = new(MockBehavior.Strict);
         mock.Setup(x => x.EngineType).Returns(engineType);
         mock.Setup(x => x.Category).Returns(category);
-        mock.Setup(x => x.AnalyzeAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()))
+        mock.Setup(x => x.AnalyzeAsync(It.IsAny<GraphSnapshot>(), It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(findings);
         return mock;
     }
@@ -691,7 +692,7 @@ public sealed class FindingsOrchestratorTests
         Mock<IEffectfulFindingEngine> mock = new(MockBehavior.Strict);
         mock.Setup(x => x.EngineType).Returns(engineType);
         mock.Setup(x => x.Category).Returns(category);
-        mock.Setup(x => x.AnalyzeAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()))
+        mock.Setup(x => x.AnalyzeAsync(It.IsAny<GraphSnapshot>(), It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(findings);
         return mock;
     }

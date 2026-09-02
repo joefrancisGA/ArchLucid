@@ -42,7 +42,7 @@ public sealed class CostPolicyExpectationFindingEngineTests
             ],
         };
 
-        IReadOnlyList<Finding> findings = await _constraintEngine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _constraintEngine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.Title.Should().Be("Policy requires a monthly budget cap");
@@ -84,7 +84,7 @@ public sealed class CostPolicyExpectationFindingEngineTests
             ],
         };
 
-        IReadOnlyList<Finding> findings = await _constraintEngine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _constraintEngine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Title.Should().StartWith("Cost constraint:");
@@ -121,7 +121,7 @@ public sealed class CostPolicyExpectationFindingEngineTests
             ],
         };
 
-        IReadOnlyList<Finding> findings = await _breachEngine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _breachEngine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Critical);
     }
@@ -157,7 +157,7 @@ public sealed class CostPolicyExpectationFindingEngineTests
             ],
         };
 
-        IReadOnlyList<Finding> findings = await _breachEngine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _breachEngine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Warning);
     }

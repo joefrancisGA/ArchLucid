@@ -35,7 +35,7 @@ public sealed class DeclarationSecurityBaselineFindingEngineTests
       ],
     };
 
-    IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
+    IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
     findings.Should().ContainSingle();
     findings[0].EngineType.Should().Be("declaration-security-baseline");

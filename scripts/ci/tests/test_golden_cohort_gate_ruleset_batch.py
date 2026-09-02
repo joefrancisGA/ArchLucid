@@ -12,7 +12,7 @@ RULESET = REPO_ROOT / ".github" / "rulesets" / "golden-cohort-gate-required-chec
 REQUIRED_CONTEXTS = (
     "cohort-real-llm-gate",
     "Security: gitleaks (secret scan)",
-    ".NET: push corset (build + fast core Core/Decisioning)",
+    ".NET: fast core (corset)",
     "Operator UI: typecheck (blocking)",
     "CI: beta-readiness wiring guards",
 )

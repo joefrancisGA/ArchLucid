@@ -106,6 +106,7 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             resolvedTimeProvider,
             defaultPolicyPackCloudBaselineApplicator,
             architectureIdentityService,
+            Mock.Of<IArchitectureVersionService>(),
             NullLogger<ArchitectureRunCreatePostCreateHooks>.Instance);
 
         return new ArchitectureRunCreateOrchestrator(

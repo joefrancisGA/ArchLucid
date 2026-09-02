@@ -95,6 +95,7 @@ internal static class MvcExtensions
             options.AddOperationTransformer<MicrosoftOpenApiAudienceOperationTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiEvidenceBulkUploadOperationTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiRequiredJsonRequestBodyOperationTransformer>();
+            options.AddOperationTransformer<MicrosoftOpenApiStringEnumParameterDefaultOperationTransformer>();
             options.AddDocumentTransformer<MicrosoftOpenApiQualityDimensionDocumentTransformer>();
             options.AddDocumentTransformer<MicrosoftOpenApiAudienceSchemaDocumentTransformer>();
             options.AddSchemaTransformer<MicrosoftOpenApiJsonStringEnumSchemaTransformer>();

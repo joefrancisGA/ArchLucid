@@ -9510,6 +9510,13 @@ export interface components {
         WorkspaceModelExecutionProfileUpdateRequest: {
             profile?: string;
         };
+        WorkspaceSystemNameAvailabilityResponse: {
+            conflictMessage?: null | string;
+            isAvailable?: boolean;
+            systemName?: string;
+        };
+        /** @enum {string} */
+        WorkspaceSystemNameOccupancyKind: "Review" | "Architecture";
     };
     responses: never;
     parameters: never;

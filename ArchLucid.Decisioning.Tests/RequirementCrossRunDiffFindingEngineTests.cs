@@ -39,7 +39,7 @@ public sealed class RequirementCrossRunDiffFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Warning);
@@ -83,7 +83,7 @@ public sealed class RequirementCrossRunDiffFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Info);

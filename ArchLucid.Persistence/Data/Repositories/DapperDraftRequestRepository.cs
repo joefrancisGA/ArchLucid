@@ -41,6 +41,7 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
         Guid draftId = Guid.NewGuid();
         DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
         string documentJson = JsonSerializer.Serialize(document, JsonOptions);
+        byte[] documentContentHashSha256 = DraftDocumentContentFingerprint.Compute(document);
         DraftRequestResponse response = new()
         {
             DraftId = draftId,
@@ -49,6 +50,7 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
             ProjectId = projectId,
             Status = DraftRequestStatus.Drafting,
             Document = document,
+            DocumentContentHashSha256 = documentContentHashSha256,
             CreatedByUserId = createdByUserId,
             CreatedUtc = now,
             UpdatedUtc = now,
@@ -64,6 +66,7 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
                                CreatedByUserId,
                                Status,
                                DocumentJson,
+                               DocumentContentHashSha256,
                                ReadModelJson,
                                ReadModelSchemaVersion,
                                CreatedUtc,
@@ -76,6 +79,7 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
                                @CreatedByUserId,
                                @Status,
                                @DocumentJson,
+                               @DocumentContentHashSha256,
                                @ReadModelJson,
                                @ReadModelSchemaVersion,
                                @CreatedUtc,
@@ -95,6 +99,7 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
                     CreatedByUserId = createdByUserId,
                     Status = DraftRequestStatus.Drafting.ToString(),
                     DocumentJson = documentJson,
+                    DocumentContentHashSha256 = documentContentHashSha256,
                     ReadModelJson = readModelJson,
                     ReadModelSchemaVersion = DraftRequestReadModelSchema.CurrentVersion,
                     CreatedUtc = now,
@@ -116,23 +121,29 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
         DraftRequestDocument document,
         string? redirectReason,
         string? spawnedRunId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? spawnedArchitectureVersionId = null,
+        byte[]? spawnedDocumentContentHashSha256 = null)
     {
         ArgumentNullException.ThrowIfNull(document);
         PersistenceTenantScope.RequireEntityTenant(tenantId);
 
         DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
         string documentJson = JsonSerializer.Serialize(document, JsonOptions);
+        byte[] documentContentHashSha256 = DraftDocumentContentFingerprint.Compute(document);
 
         const string sql = """
                            UPDATE dbo.DraftRequests
                            SET
                                Status = @Status,
                                DocumentJson = @DocumentJson,
+                               DocumentContentHashSha256 = @DocumentContentHashSha256,
+                               SpawnedDocumentContentHashSha256 = COALESCE(@SpawnedDocumentContentHashSha256, SpawnedDocumentContentHashSha256),
                                ReadModelJson = NULL,
                                ReadModelSchemaVersion = 0,
                                RedirectReason = @RedirectReason,
                                SpawnedRunId = @SpawnedRunId,
+                               SpawnedArchitectureVersionId = @SpawnedArchitectureVersionId,
                                UpdatedUtc = @UpdatedUtc
                            WHERE DraftId = @DraftId
                              AND TenantId = @TenantId
@@ -154,8 +165,11 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
                     ProjectId = projectId,
                     Status = status.ToString(),
                     DocumentJson = documentJson,
+                    DocumentContentHashSha256 = documentContentHashSha256,
+                    SpawnedDocumentContentHashSha256 = spawnedDocumentContentHashSha256,
                     RedirectReason = redirectReason,
                     SpawnedRunId = spawnedRunId,
+                    SpawnedArchitectureVersionId = spawnedArchitectureVersionId,
                     UpdatedUtc = now,
                 },
                 cancellationToken: cancellationToken,

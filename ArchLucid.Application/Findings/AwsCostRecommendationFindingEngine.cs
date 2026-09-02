@@ -5,6 +5,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Contracts.Architecture;
 
 using Microsoft.Extensions.Options;
 
@@ -33,7 +34,8 @@ public sealed class AwsCostRecommendationFindingEngine(
     public string Category => "CostOptimization";
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 

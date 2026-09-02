@@ -21,7 +21,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().HaveCount(2);
         findings.Should().Contain(f => f.Title.Contains("public network access", StringComparison.OrdinalIgnoreCase));
@@ -35,7 +35,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -47,7 +47,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Title.Should().Contain("public network access", because: "data-protection theme");
@@ -62,7 +62,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Title.Should().Contain("HTTPS only", because: "transport-security theme");
@@ -76,7 +76,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Title.Should().Contain("HTTPS only", because: "transport-security theme");
@@ -90,7 +90,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Title.Should().Contain("public network access", because: "data-protection theme");
@@ -104,7 +104,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Title.Should().Contain("HTTPS only", because: "transport-security theme");
@@ -118,7 +118,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Title.Should().Contain("public network access", because: "data-protection theme");
@@ -132,7 +132,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -144,7 +144,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationPremiseConflictFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePrivateBaselinePublicDeclarationGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].PolicyRuleId.Should().Be("cis-az-006");
@@ -157,7 +157,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
         DeclarationPremiseConflictFindingEngine sut = new(provider);
         GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePrivateBaselinePublicDeclarationGraph();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
