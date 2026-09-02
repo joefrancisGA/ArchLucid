@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — wave-2 robustness controls for architecture creation and review (branch `robust`).
+
 # Architecture create/review robustness — wave 2
 
 Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS.md`](ARCHITECTURE_REVIEW_ROBUSTNESS.md) (suggestions 1–10).
