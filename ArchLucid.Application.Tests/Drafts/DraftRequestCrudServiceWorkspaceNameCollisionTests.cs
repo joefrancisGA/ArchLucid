@@ -1,7 +1,7 @@
 using ArchLucid.Application.Authorization;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
-using ArchLucid.Application.Drafts;
+using ArchLucid.Application.Drafts.Stages;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
@@ -43,10 +43,9 @@ public sealed class DraftRequestCrudServiceWorkspaceNameCollisionTests
 
         DraftRequestCrudService sut = new(
             repository,
-            Mock.Of<IQuestionSelectionEngine>(),
-            Mock.Of<IPriorPackageSemanticMergeService>(),
-            guard.Object,
-            Mock.Of<IWorkOwnershipDeleteAuthorizationService>());
+            new DraftRequestCreateStage(repository, Mock.Of<IPriorPackageSemanticMergeService>()),
+            new DraftRequestMutateStage(repository, Mock.Of<IQuestionSelectionEngine>(), guard.Object),
+            new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 
         DraftRequestResponse created = await repository.CreateAsync(
             Scope.TenantId,

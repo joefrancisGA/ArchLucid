@@ -1,4 +1,5 @@
 using ArchLucid.Application.Planning;
+using ArchLucid.Application.Planning.Stages;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Llm;
 
@@ -36,9 +37,8 @@ public sealed class ArchitectureRequestDraftServiceTests
         Mock<IBriefAssumptionEvidenceContradictionPass> contradictionPass = CreateEmptyContradictionPassMock();
 
         ArchitectureRequestDraftService sut = new(
-            client.Object,
-            semanticPass.Object,
-            contradictionPass.Object,
+            new ArchitectureRequestDraftExtractStage(client.Object),
+            new ArchitectureRequestDraftNormalizeStage(semanticPass.Object, contradictionPass.Object),
             NullLogger<ArchitectureRequestDraftService>.Instance);
 
         DraftArchitectureRequestResponse response = await sut.DraftAsync(
@@ -74,9 +74,8 @@ public sealed class ArchitectureRequestDraftServiceTests
         Mock<IBriefAssumptionEvidenceContradictionPass> contradictionPass = CreateEmptyContradictionPassMock();
 
         ArchitectureRequestDraftService sut = new(
-            client.Object,
-            semanticPass.Object,
-            contradictionPass.Object,
+            new ArchitectureRequestDraftExtractStage(client.Object),
+            new ArchitectureRequestDraftNormalizeStage(semanticPass.Object, contradictionPass.Object),
             NullLogger<ArchitectureRequestDraftService>.Instance);
 
         DraftArchitectureRequestResponse response = await sut.DraftAsync(

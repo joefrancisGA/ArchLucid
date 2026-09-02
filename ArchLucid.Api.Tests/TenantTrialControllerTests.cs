@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Tenancy;
+using ArchLucid.Application.Tests.Tenancy;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Core.Audit;
@@ -649,7 +650,7 @@ public sealed class TenantTrialControllerTests
         ITrialIdentityUserRepository trialUsers,
         IOptionsMonitor<TrialLifecycleSchedulerOptions> schedulerOpts,
         ISelfServiceTrialAbuseRepository? trialAbuseRepository = null) =>
-        new(new TenantTrialFacade(
+        new(TenantTrialFacadeTestSupport.Create(
             tenants,
             scopeProvider,
             audit,

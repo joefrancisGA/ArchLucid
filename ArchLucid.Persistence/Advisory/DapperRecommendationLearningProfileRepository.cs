@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
 
 using ArchLucid.Persistence.Connections;
 
@@ -18,13 +17,6 @@ namespace ArchLucid.Persistence.Advisory;
 public sealed class DapperRecommendationLearningProfileRepository(ISqlConnectionFactory connectionFactory)
     : IRecommendationLearningProfileRepository
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        WriteIndented = false
-    };
-
     public async Task SaveAsync(RecommendationLearningProfile profile, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(profile);
@@ -51,7 +43,7 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
             """;
 
         Guid profileId = Guid.NewGuid();
-        string json = JsonSerializer.Serialize(profile, JsonOptions);
+        string json = RecommendationLearningProfileRepositoryCore.SerializeProfile(profile);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
@@ -64,7 +56,7 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
                     profile.WorkspaceId,
                     profile.ProjectId,
                     profile.GeneratedUtc,
-                    ProfileJson = json
+                    ProfileJson = json,
                 },
                 cancellationToken: ct));
     }
@@ -92,7 +84,6 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
             workspaceId,
             projectId,
             profileId: null,
-            take: 1,
             ct).ConfigureAwait(false);
 
         return row is null ? null : ToRecord(row);
@@ -105,7 +96,7 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
         int take,
         CancellationToken ct)
     {
-        int boundedTake = Math.Clamp(take, 1, 100);
+        int boundedTake = RecommendationLearningProfileRepositoryCore.ClampHistoryTake(take);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
@@ -151,7 +142,6 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
             workspaceId,
             projectId,
             profileId,
-            take: null,
             ct).ConfigureAwait(false);
 
         return row is null ? null : ToRecord(row);
@@ -162,7 +152,6 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
         Guid workspaceId,
         Guid projectId,
         Guid? profileId,
-        int? take,
         CancellationToken ct)
     {
         string sql = profileId.HasValue
@@ -206,44 +195,14 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
                     WorkspaceId = workspaceId,
                     ProjectId = projectId,
                     ProfileId = profileId,
-                    Take = take,
                 },
                 cancellationToken: ct)).ConfigureAwait(false);
     }
 
-    private RecommendationLearningProfileRecord ToRecord(ProfileRow row)
-    {
-        RecommendationLearningProfile? profile;
-        try
-        {
-            profile = JsonSerializer.Deserialize<RecommendationLearningProfile>(row.ProfileJson, JsonOptions);
-        }
-        catch (JsonException ex)
-        {
-            throw new InvalidOperationException(
-                $"RecommendationLearningProfile JSON for profile={row.ProfileId} is corrupt.",
-                ex);
-        }
-
-        if (profile is null)
-        {
-            throw new InvalidOperationException($"RecommendationLearningProfile JSON for profile={row.ProfileId} was empty.");
-        }
-
-        return new RecommendationLearningProfileRecord
-        {
-            ProfileId = row.ProfileId,
-            Profile = NormalizeDictionaryComparers(profile),
-        };
-    }
-
-    private static RecommendationLearningProfile NormalizeDictionaryComparers(RecommendationLearningProfile profile)
-    {
-        profile.CategoryWeights = new Dictionary<string, double>(profile.CategoryWeights, StringComparer.OrdinalIgnoreCase);
-        profile.UrgencyWeights = new Dictionary<string, double>(profile.UrgencyWeights, StringComparer.OrdinalIgnoreCase);
-        profile.SignalTypeWeights = new Dictionary<string, double>(profile.SignalTypeWeights, StringComparer.OrdinalIgnoreCase);
-        return profile;
-    }
+    private static RecommendationLearningProfileRecord ToRecord(ProfileRow row) =>
+        RecommendationLearningProfileRepositoryCore.ToRecord(
+            row.ProfileId,
+            RecommendationLearningProfileRepositoryCore.DeserializeProfile(row.ProfileJson, row.ProfileId));
 
     private sealed class ProfileRow
     {

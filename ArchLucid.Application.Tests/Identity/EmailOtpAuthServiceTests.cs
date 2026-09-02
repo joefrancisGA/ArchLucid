@@ -59,7 +59,7 @@ public sealed class EmailOtpAuthServiceTests
 
         InMemoryTenantIdentityProviderConfigurationRepository idpConfigs = new();
 
-        IAuthSignInRoutingService routingService = new AuthSignInRoutingService(
+        IAuthSignInRoutingService routingService = AuthSignInRoutingServiceTestSupport.Create(
             signInDomains,
             recoveryAdmins,
             idpConfigs,
@@ -292,7 +292,7 @@ public sealed class EmailOtpAuthServiceTests
             Options.Create(new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 }),
             challenges,
             new EmailOtpSignInDomainPolicyService(
-                new AuthSignInRoutingService(
+                AuthSignInRoutingServiceTestSupport.Create(
                     signInDomains,
                     new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
                     idp,
@@ -376,7 +376,7 @@ public sealed class EmailOtpAuthServiceTests
             Options.Create(new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 }),
             new InMemoryEmailOtpChallengeRepository(),
             new EmailOtpSignInDomainPolicyService(
-                new AuthSignInRoutingService(
+                AuthSignInRoutingServiceTestSupport.Create(
                     signInDomains,
                     recoveryAdmins,
                     idp,
@@ -591,7 +591,7 @@ public sealed class EmailOtpAuthServiceTests
             Options.Create(new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 }),
             new InMemoryEmailOtpChallengeRepository(),
             new EmailOtpSignInDomainPolicyService(
-                new AuthSignInRoutingService(
+                AuthSignInRoutingServiceTestSupport.Create(
                     signInDomains,
                     recoveryAdmins,
                     idp,

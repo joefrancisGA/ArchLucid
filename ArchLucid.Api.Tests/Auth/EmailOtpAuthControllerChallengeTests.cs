@@ -2,6 +2,7 @@ using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Controllers.Auth;
 using ArchLucid.Api.Models.Auth;
 using ArchLucid.Application.Identity;
+using ArchLucid.Application.Tests.Identity;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -45,7 +46,7 @@ public sealed class EmailOtpAuthControllerChallengeTests
             Options.Create(options),
             new InMemoryEmailOtpChallengeRepository(),
             new EmailOtpSignInDomainPolicyService(
-                new AuthSignInRoutingService(
+                AuthSignInRoutingServiceTestSupport.Create(
                     new InMemoryTenantSignInEmailDomainRepository(),
                     new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
                     new InMemoryTenantIdentityProviderConfigurationRepository(),

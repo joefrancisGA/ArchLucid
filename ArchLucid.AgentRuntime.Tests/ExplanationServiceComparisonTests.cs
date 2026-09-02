@@ -1,4 +1,5 @@
 ﻿using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.AgentRuntime.Tests.Explanation;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Validation;
@@ -22,12 +23,11 @@ public sealed class ExplanationServiceComparisonTests
     public async Task ExplainComparisonAsync_returns_heuristic_summary_when_llm_json_does_not_bind()
     {
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => "{}");
-        ExplanationService svc = new(
+        ExplanationService svc = ExplanationServiceTestSupport.Create(
             client,
-            new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
-            Options.Create(new ExplanationServiceOptions()),
-            new PassthroughSchemaValidationService(),
-            NullLogger<ExplanationService>.Instance);
+            deterministic: new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
+            explanationOptions: Options.Create(new ExplanationServiceOptions()),
+            schemaValidation: new PassthroughSchemaValidationService());
         ComparisonResult comparison = new()
         {
             BaseRunId = Guid.NewGuid(), TargetRunId = Guid.NewGuid(), SummaryHighlights = ["Highlight A"]

@@ -1,7 +1,5 @@
 using System.Collections.Concurrent;
-using System.Text.Json;
 
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Operator;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -9,7 +7,7 @@ namespace ArchLucid.Persistence.Data.Repositories;
 /// <summary>In-memory saved views for JWT integration tests without SQL.</summary>
 public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepository
 {
-    private readonly ConcurrentDictionary<Guid, StoredView> _views = new();
+    private readonly ConcurrentDictionary<Guid, OperatorSavedViewStoredRow> _views = new();
 
     /// <inheritdoc />
     public Task<IReadOnlyList<OperatorSavedViewResponse>> ListAsync(
@@ -18,18 +16,18 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         string? surface,
         CancellationToken cancellationToken)
     {
-        IEnumerable<StoredView> query = _views.Values.Where(view =>
-            view.TenantId == tenantId
-            && (string.Equals(view.UserId, userId, StringComparison.Ordinal) || view.IsShared));
+        IEnumerable<OperatorSavedViewStoredRow> query = _views.Values.Where(view =>
+            OperatorSavedViewRepositoryCore.IsVisibleToUser(
+                tenantId,
+                userId,
+                view.UserId,
+                view.TenantId,
+                view.IsShared)
+            && OperatorSavedViewRepositoryCore.MatchesSurface(view.Surface, surface));
 
-        if (!string.IsNullOrWhiteSpace(surface))
-        {
-            query = query.Where(view => string.Equals(view.Surface, surface, StringComparison.OrdinalIgnoreCase));
-        }
-
-        IReadOnlyList<OperatorSavedViewResponse> rows = query
-            .OrderBy(view => view.Name, StringComparer.Ordinal)
-            .Select(view => MapStored(view, userId))
+        IReadOnlyList<OperatorSavedViewResponse> rows = OperatorSavedViewRepositoryCore
+            .OrderByName(query)
+            .Select(view => OperatorSavedViewRepositoryCore.MapToResponse(view, userId))
             .ToList();
 
         return Task.FromResult(rows);
@@ -46,20 +44,13 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         bool isShared,
         CancellationToken cancellationToken)
     {
-        bool duplicate = _views.Values.Any(view =>
-            view.TenantId == tenantId
-            && string.Equals(view.UserId, userId, StringComparison.Ordinal)
-            && string.Equals(view.Surface, surface, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(view.Name, name, StringComparison.Ordinal));
-
-        if (duplicate)
+        if (OperatorSavedViewRepositoryCore.IsDuplicateName(_views.Values, tenantId, userId, surface, name))
         {
-            throw new InvalidOperationException(
-                $"A saved view named '{name}' already exists for surface '{surface}'.");
+            throw OperatorSavedViewRepositoryCore.CreateDuplicateNameException(name, surface);
         }
 
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
-        StoredView stored = new()
+        OperatorSavedViewStoredRow stored = new()
         {
             Id = Guid.NewGuid(),
             TenantId = tenantId,
@@ -70,12 +61,13 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
             PayloadJson = payloadJson,
             IsShared = isShared,
             CreatedUtc = now,
-            UpdatedUtc = now
+            UpdatedUtc = now,
         };
 
         _views[stored.Id] = stored;
 
-        return Task.FromResult<OperatorSavedViewResponse?>(MapStored(stored, userId));
+        return Task.FromResult<OperatorSavedViewResponse?>(
+            OperatorSavedViewRepositoryCore.MapToResponse(stored, userId));
     }
 
     /// <inheritdoc />
@@ -85,98 +77,12 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         Guid viewId,
         CancellationToken cancellationToken)
     {
-        if (!_views.TryGetValue(viewId, out StoredView? stored))
-        {
+        if (!_views.TryGetValue(viewId, out OperatorSavedViewStoredRow? stored))
             return Task.FromResult(false);
-        }
 
         if (stored.TenantId != tenantId || !string.Equals(stored.UserId, userId, StringComparison.Ordinal))
-        {
             return Task.FromResult(false);
-        }
 
         return Task.FromResult(_views.TryRemove(viewId, out _));
-    }
-
-    private static OperatorSavedViewResponse MapStored(StoredView stored, string currentUserId)
-    {
-        OperatorSavedViewPayload payload =
-            JsonSerializer.Deserialize<OperatorSavedViewPayload>(stored.PayloadJson, ContractJson.CamelCaseDeserializeCaseInsensitive)
-            ?? new OperatorSavedViewPayload();
-
-        return new OperatorSavedViewResponse
-        {
-            Id = stored.Id,
-            Surface = stored.Surface,
-            Name = stored.Name,
-            Payload = payload,
-            CreatedUtc = stored.CreatedUtc,
-            UpdatedUtc = stored.UpdatedUtc,
-            IsShared = stored.IsShared,
-            IsOwnedByCurrentUser = string.Equals(stored.UserId, currentUserId, StringComparison.Ordinal)
-        };
-    }
-
-    private sealed class StoredView
-    {
-        public Guid Id
-        {
-            get;
-            init;
-        }
-
-        public Guid TenantId
-        {
-            get;
-            init;
-        }
-
-        public string UserId
-        {
-            get;
-            init;
-        } = string.Empty;
-
-        public string Surface
-        {
-            get;
-            init;
-        } = string.Empty;
-
-        public string Name
-        {
-            get;
-            init;
-        } = string.Empty;
-
-        public string? SortKey
-        {
-            get;
-            init;
-        }
-
-        public bool IsShared
-        {
-            get;
-            init;
-        }
-
-        public string PayloadJson
-        {
-            get;
-            init;
-        } = string.Empty;
-
-        public DateTimeOffset CreatedUtc
-        {
-            get;
-            init;
-        }
-
-        public DateTimeOffset UpdatedUtc
-        {
-            get;
-            init;
-        }
     }
 }

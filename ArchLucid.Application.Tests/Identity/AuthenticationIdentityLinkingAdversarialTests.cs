@@ -143,7 +143,7 @@ public sealed class AuthenticationIdentityLinkingAdversarialTests
 
                 users,
 
-                new AuthSignInRoutingService(
+                AuthSignInRoutingServiceTestSupport.Create(
 
                     new InMemoryTenantSignInEmailDomainRepository(),
 

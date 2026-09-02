@@ -8,7 +8,9 @@ using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Operator;
 using ArchLucid.Application.Operator.Probes;
 using ArchLucid.Application.Support;
+using ArchLucid.Application.Identity.SignInRouting;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Application.Tenancy.Trial;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Http;
 using ArchLucid.Core.Metering;
@@ -86,6 +88,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPostAuthWorkspaceBootstrapService, PostAuthWorkspaceBootstrapService>();
         services.AddScoped<IPostAuthBootstrapService, PostAuthBootstrapService>();
         services.AddScoped<IEmailOtpSignInDomainPolicyService, EmailOtpSignInDomainPolicyService>();
+        services.AddScoped<IAuthSignInBypassResolver, AuthSignInBypassResolver>();
+        services.AddScoped<IAuthSignInRoutingEvaluator, AuthSignInRoutingEvaluator>();
         services.AddScoped<IAuthSignInRoutingService, AuthSignInRoutingService>();
         services.AddScoped<AuthDomainDnsVerificationService>();
         services.AddScoped<TenantAuthDomainVerificationService>();
@@ -126,6 +130,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDefaultPolicyPackSeeder, DefaultPolicyPackSeeder>();
         services.AddScoped<DefaultPolicyPackCloudBaselineApplicator>();
         services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();
+        services.AddScoped<ITenantTrialAbuseGuard, TenantTrialAbuseGuard>();
+        services.AddScoped<ITenantTrialIdentityHandoffStage, TenantTrialIdentityHandoffStage>();
+        services.AddScoped<ITenantTrialConversionStage, TenantTrialConversionStage>();
         services.AddScoped<ITenantTrialFacade, TenantTrialFacade>();
         services.AddScoped<IMarketingAttributionService, MarketingAttributionService>();
         services.AddScoped<TrialLimitGate>();
