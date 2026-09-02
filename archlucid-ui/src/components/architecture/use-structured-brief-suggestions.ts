@@ -405,3 +405,5 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
     failureModeSuggestError,
   };
 }
+
+export type StructuredBriefSuggestionsState = ReturnType<typeof useStructuredBriefSuggestions>;
