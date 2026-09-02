@@ -505,6 +505,41 @@ public sealed class GcpCloudBillingCatalogClientTests
         monthly.Should().Be(7.59m);
     }
 
+    [Fact]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_parses_pascal_case_pricing_info_property()
+    {
+        const string catalogJson = """
+            {
+              "skus": [
+                {
+                  "description": "Compute Engine n1-standard-1 in us-central1",
+                  "PricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": 0,
+                              "nanos": 10400000
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(catalogJson);
+
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().Be(7.59m);
+    }
+
     private static GcpCloudBillingCatalogClient CreateClient(string catalogJson)
     {
         HttpClient httpClient = new(new StubHttpMessageHandler(_ =>

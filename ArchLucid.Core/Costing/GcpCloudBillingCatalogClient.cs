@@ -139,7 +139,7 @@ public sealed class GcpCloudBillingCatalogClient
                     continue;
                 }
 
-                if (!sku.TryGetProperty("pricingInfo", out JsonElement pricingInfo)
+                if (!TryGetPropertyCaseInsensitive(sku, "pricingInfo", out JsonElement pricingInfo)
                     || pricingInfo.GetArrayLength() == 0)
                 {
                     continue;
@@ -147,7 +147,7 @@ public sealed class GcpCloudBillingCatalogClient
 
                 JsonElement firstPricing = pricingInfo[0];
 
-                if (!firstPricing.TryGetProperty("pricingExpression", out JsonElement expression))
+                if (!TryGetPropertyCaseInsensitive(firstPricing, "pricingExpression", out JsonElement expression))
                     continue;
 
                 if (!TryGetPropertyCaseInsensitive(expression, "usageUnit", out JsonElement usageUnit)

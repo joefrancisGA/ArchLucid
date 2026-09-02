@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 83
-- **bugs-found:** 195
+- **hunts:** 84
+- **bugs-found:** 196
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AwsEc2/GCP case-sensitive nested price property names
+- **last-bug:** 2026-09-02 — AwsEc2/GCP case-sensitive priceDimensions/pricingInfo lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2041,6 +2041,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AwsEc2OfferIndexParser` / `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — case-sensitive nested price JSON property names — **hit 2026-09-02 (#495):** PascalCase `"PricePerUnit"`, `"TieredRates"`, `"UnitPrice"`, `"Units"`, and `"Nanos"` skipped hourly SKUs while canonical casing matched; fixed with case-insensitive property lookup on nested price paths (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_price_per_unit_property`, `TryGetComputeEngineMonthlyUsdAsync_parses_pascal_case_tiered_rate_properties`).
 
 2026-09-02 seed hunt #495: reseeded from ArchLucid.Core costing parsers; proved case-sensitive nested price property lookup after #494 attribute/description casing fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser` / `GcpCloudBillingCatalogClient` — case-sensitive `priceDimensions` / `pricingInfo` / `pricingExpression` JSON property names — **hit 2026-09-02 (#496):** PascalCase `"PriceDimensions"`, `"PricingInfo"`, and `"PricingExpression"` skipped hourly SKUs while canonical casing matched; fixed with case-insensitive property lookup (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_price_dimensions_property`, `TryGetComputeEngineMonthlyUsdAsync_parses_pascal_case_pricing_info_property`).
+
+2026-09-02 seed hunt #496: reseeded from ArchLucid.Core costing parsers; proved case-sensitive priceDimensions/pricingInfo property lookup after #495 nested price casing fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

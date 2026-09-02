@@ -60,7 +60,7 @@ public static class AwsEc2OfferIndexParser
 
             foreach (JsonProperty skuTerm in skuTerms.EnumerateObject())
             {
-                if (!skuTerm.Value.TryGetProperty("priceDimensions", out JsonElement dimensions))
+                if (!TryGetPropertyCaseInsensitive(skuTerm.Value, "priceDimensions", out JsonElement dimensions))
                     continue;
 
                 foreach (JsonProperty dimension in dimensions.EnumerateObject())
