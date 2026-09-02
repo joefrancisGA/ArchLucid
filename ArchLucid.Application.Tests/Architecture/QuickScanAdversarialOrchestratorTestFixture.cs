@@ -1,4 +1,5 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Architecture.Execute;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -110,7 +111,7 @@ internal sealed class QuickScanAdversarialOrchestratorTestFixture
     }
 
     public QuickScanExecutionOrchestrator CreateOrchestrator() =>
-        new(
+        QuickScanExecutionOrchestratorTestFactory.CreateOrchestrator(
             QuickScanService.Object,
             Guard.Object,
             Telemetry.Object,
@@ -123,9 +124,7 @@ internal sealed class QuickScanAdversarialOrchestratorTestFixture
             Operational.Object,
             UsageRecorder.Object,
             Audit.Object,
-            LlmCostEstimator.Object,
-            NullLogger<QuickScanExecutionOrchestrator>.Instance,
-            TimeProvider.System);
+            LlmCostEstimator.Object);
 
     public static QuickScanExecutionRequestContext AnonymousContext(string sessionId = "session-adversarial") =>
         new()

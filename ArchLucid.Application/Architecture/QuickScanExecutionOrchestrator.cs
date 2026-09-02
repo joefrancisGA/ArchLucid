@@ -1,32 +1,24 @@
+using ArchLucid.Application.Architecture.Execute;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Core.Audit;
-using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.QuickScan;
-
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Architecture;
 
 /// <inheritdoc cref="IQuickScanExecutionOrchestrator" />
 public sealed partial class QuickScanExecutionOrchestrator(
-    IQuickScanService quickScanService,
-    IQuickScanGuard quickScanGuard,
-    IQuickScanTelemetry quickScanTelemetry,
-    IOptionsMonitor<QuickScanOptions> quickScanOptions,
-    IOptionsMonitor<QuickScanSafetyOptions> quickScanSafetyOptions,
-    IQuickScanCostEstimator quickScanCostEstimator,
-    IQuickScanGlobalBudgetReservationService quickScanGlobalBudgetReservationService,
-    IQuickScanDistributedConcurrencyService quickScanDistributedConcurrencyService,
-    IQuickScanIdentityAbuseService quickScanIdentityAbuseService,
-    IQuickScanSafetyOperationalStateProvider quickScanSafetyOperationalStateProvider,
-    IQuickScanUsageRecorder quickScanUsageRecorder,
-    IAuditService auditService,
-    ILlmCostEstimator costEstimator,
-    ILogger<QuickScanExecutionOrchestrator> logger,
-    TimeProvider timeProvider) : IQuickScanExecutionOrchestrator
+    IQuickScanExecutionPreExecuteStage preExecuteStage,
+    IQuickScanExecutionBudgetAndConcurrencyStage budgetAndConcurrencyStage,
+    IQuickScanExecutionScanInvokeStage scanInvokeStage,
+    IQuickScanExecutionUsageAndAuditStage usageAndAuditStage) : IQuickScanExecutionOrchestrator
 {
-    private readonly IQuickScanUsageRecorder _quickScanUsageRecorder =
-        quickScanUsageRecorder ?? throw new ArgumentNullException(nameof(quickScanUsageRecorder));
+    private readonly IQuickScanExecutionPreExecuteStage _preExecuteStage =
+        preExecuteStage ?? throw new ArgumentNullException(nameof(preExecuteStage));
+
+    private readonly IQuickScanExecutionBudgetAndConcurrencyStage _budgetAndConcurrencyStage =
+        budgetAndConcurrencyStage ?? throw new ArgumentNullException(nameof(budgetAndConcurrencyStage));
+
+    private readonly IQuickScanExecutionScanInvokeStage _scanInvokeStage =
+        scanInvokeStage ?? throw new ArgumentNullException(nameof(scanInvokeStage));
+
+    private readonly IQuickScanExecutionUsageAndAuditStage _usageAndAuditStage =
+        usageAndAuditStage ?? throw new ArgumentNullException(nameof(usageAndAuditStage));
 }
