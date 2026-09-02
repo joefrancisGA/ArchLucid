@@ -98,6 +98,8 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Claims API" })).toBeInTheDocument();
     expect(screen.getByText("Claims platform review")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-copy-identifiers-disclosure")).toBeInTheDocument();
+    expect(screen.getByText("Copy identifiers")).toBeInTheDocument();
     expect(screen.getByText("Review ID")).toBeInTheDocument();
     expect(screen.getByText("Finalized review record ID")).toBeInTheDocument();
     expect(screen.getByText("run-1")).toBeInTheDocument();

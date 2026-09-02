@@ -37,7 +37,7 @@ export type GovernanceFindingsQueueFacetsResolved = {
 };
 
 export const DEFAULT_GOVERNANCE_FINDINGS_QUEUE_FACETS: GovernanceFindingsQueueFacetsResolved = {
-  registerFilter: "all",
+  registerFilter: "open",
   jobView: DEFAULT_FINDING_JOB_VIEW,
   nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
 };
