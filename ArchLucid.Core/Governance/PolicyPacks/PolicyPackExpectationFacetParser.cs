@@ -107,14 +107,16 @@ public static class PolicyPackExpectationFacetParser
 
     if (normalized.Equals("true", StringComparison.OrdinalIgnoreCase)
         || normalized.Equals("1", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("yes", StringComparison.OrdinalIgnoreCase))
+        || normalized.Equals("yes", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("on", StringComparison.OrdinalIgnoreCase))
     {
       return true;
     }
 
     if (normalized.Equals("false", StringComparison.OrdinalIgnoreCase)
         || normalized.Equals("0", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("no", StringComparison.OrdinalIgnoreCase))
+        || normalized.Equals("no", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("off", StringComparison.OrdinalIgnoreCase))
     {
       return false;
     }
