@@ -8,6 +8,7 @@ import {
   SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
 import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
 export type ValueReportOutcomesTab = {
   readonly href: string;
@@ -46,6 +47,12 @@ function matchesArchitectureScorecard(path: string): boolean {
   );
 }
 
+function matchesWorkspaceHealth(path: string): boolean {
+  const normalized = normalizeOutcomesPath(path);
+
+  return normalized === WORKSPACE_HEALTH_PATH || normalized.startsWith(`${WORKSPACE_HEALTH_PATH}/`);
+}
+
 export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
   {
     href: SPONSOR_REPORT_PATH,
@@ -61,6 +68,11 @@ export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
     href: SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
     label: BUYER_TERMINOLOGY.reviewScorecard,
     match: matchesArchitectureScorecard,
+  },
+  {
+    href: WORKSPACE_HEALTH_PATH,
+    label: "Workspace health",
+    match: matchesWorkspaceHealth,
   },
 ] as const;
 

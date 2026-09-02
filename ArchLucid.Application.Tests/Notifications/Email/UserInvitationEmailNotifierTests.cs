@@ -87,10 +87,45 @@ public sealed class UserInvitationEmailNotifierTests
 
         sentMessage.Should().NotBeNull();
         sentMessage!.HtmlBody.Should().Contain(
-            "<a href=\"https://app.example.com/architecture/reviews/run-abc\">Retail API platform</a>");
+            "<a href=\"https://app.example.com/architecture/reviews/run-abc\" rel=\"noopener noreferrer\">Retail API platform</a>");
         sentMessage.TextBody.Should().Contain(
             "Retail API platform (https://app.example.com/architecture/reviews/run-abc)");
         sentMessage.TextBody.Should().NotContain("[Retail API platform]");
+    }
+
+    [SkippableTheory]
+    [InlineData("javascript:alert(1)")]
+    [InlineData("data:text/html;base64,PGI+")]
+    [InlineData("not a valid uri")]
+    public async Task TrySendInvitationAsync_renders_invalid_markdown_link_schemes_as_plain_text(string unsafeUrl)
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        string personalMessage = $"Click [here]({unsafeUrl}) for details.";
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader",
+            14,
+            personalMessage,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+
+        string encodedUrl = System.Net.WebUtility.HtmlEncode(unsafeUrl);
+        sentMessage!.HtmlBody.Should().NotContain($"<a href=\"{encodedUrl}\"");
+        sentMessage.HtmlBody.Should().Contain($"here ({encodedUrl})");
     }
 
     private static IOptionsMonitor<EmailNotificationOptions> BuildOptions(EmailNotificationOptions value)

@@ -31,8 +31,13 @@ def main(argv: list[str] | None = None) -> int:
 
     root = repo_root()
     errors: list[str] = []
-    packet = build_packet(root)
 
+    try:
+        packet = build_packet(root)
+    except FileNotFoundError as ex:
+        missing = ex.filename or str(ex)
+        print(f"missing input file for offline finding-delta packet: {missing}", file=sys.stderr)
+        return 1
     if packet["onlyInSoc2Count"] < 1 or packet["onlyInCisAzureCount"] < 1:
         errors.append("SOC 2 vs CIS Azure sample packs must differ in complianceRuleKeys")
 
@@ -48,18 +53,27 @@ def main(argv: list[str] | None = None) -> int:
     if "identity" in json.dumps(packet["soc2"]["advisoryExtras"]):
         errors.append(f"{SOC2_REL}: must not stamp topology identity (honesty)")
 
-    demo_script = (root / _DEMO_SCRIPT).read_text(encoding="utf-8", errors="replace")
+    try:
+        demo_script = (root / _DEMO_SCRIPT).read_text(encoding="utf-8", errors="replace")
+    except OSError as ex:
+        errors.append(f"{_DEMO_SCRIPT}: {ex}")
+        demo_script = ""
 
-    if "OfflineFindingDelta" not in demo_script:
+    if demo_script and "OfflineFindingDelta" not in demo_script:
         errors.append(f"{_DEMO_SCRIPT}: missing -OfflineFindingDelta switch")
 
-    demo_doc = (root / _DEMO_DOC).read_text(encoding="utf-8", errors="replace")
+    try:
+        demo_doc = (root / _DEMO_DOC).read_text(encoding="utf-8", errors="replace")
+    except OSError as ex:
+        errors.append(f"{_DEMO_DOC}: {ex}")
+        demo_doc = None
 
-    if "OfflineFindingDelta" not in demo_doc:
-        errors.append(f"{_DEMO_DOC}: missing OfflineFindingDelta SE path")
+    if demo_doc is not None:
+        if "OfflineFindingDelta" not in demo_doc:
+            errors.append(f"{_DEMO_DOC}: missing OfflineFindingDelta SE path")
 
-    if "cost.requireBudgetCap" not in demo_doc:
-        errors.append(f"{_DEMO_DOC}: missing FinOps overlay extra talk track")
+        if "cost.requireBudgetCap" not in demo_doc:
+            errors.append(f"{_DEMO_DOC}: missing FinOps overlay extra talk track")
 
     for relative in (SOC2_REL, CIS_REL, FINOPS_REL):
         if not (root / relative).is_file():

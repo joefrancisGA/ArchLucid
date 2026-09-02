@@ -26,7 +26,7 @@ export function ValueReportOutcomesNav(): React.JSX.Element | null {
     <nav
       className="border-b border-neutral-200 dark:border-neutral-800"
       data-testid="value-report-outcomes-nav"
-      aria-label="Sponsor report sections"
+      aria-label="Outcomes report sections"
     >
       <div className="-mb-px flex flex-wrap gap-1">
         {visibleTabs.map((tab) => {

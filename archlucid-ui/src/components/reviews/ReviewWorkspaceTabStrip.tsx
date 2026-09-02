@@ -2,6 +2,7 @@
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
+import { ReviewWorkspaceMoreTabsMenu } from "@/components/reviews/ReviewWorkspaceMoreTabsMenu";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveReviewWorkspaceTabLabel } from "@/lib/resolve-review-workspace-tab-label";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
@@ -101,60 +102,70 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
         value={props.activeTab}
         onValueChange={(value) => props.onTabChange(resolveReviewDetailTab(value))}
       >
-        <TabsList
-          aria-label="Review workspace sections"
-          data-testid={REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID}
-          className={cn(
-            tabsVariant === "line" ? "overflow-y-hidden" : undefined,
-            "-mx-1 overflow-x-auto px-1",
-          )}
-        >
-          {props.resolvedTabs.visibleTabIds.map((tabId) => {
-            const count = countForTab(tabId, counts);
+        {/* ARIA: tablist may only contain role="tab" children, so the More sections
+            menu sits in a sibling row visually aligned next to the tab strip. */}
+        <div className="flex w-max min-w-full items-center gap-1">
+          <TabsList
+            aria-label="Review workspace sections"
+            data-testid={REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID}
+            className={cn(
+              tabsVariant === "line" ? "overflow-y-hidden" : undefined,
+              "-mx-1 flex w-max min-w-0 items-center gap-1 overflow-x-auto px-1",
+            )}
+          >
+            {props.resolvedTabs.visibleTabIds.map((tabId) => {
+              const count = countForTab(tabId, counts);
 
-            return (
-              <TabsTrigger
-                key={tabId}
-                value={tabId}
-                data-testid={`review-detail-workspace-tab-${tabId}`}
-                className="whitespace-nowrap"
-              >
-                <span className="inline-flex items-center gap-2">
-                  {resolveReviewWorkspaceTabLabel(props.lifecycle, tabId)}
-                  {props.isTabNewSinceLastVisit?.(tabId) === true ? (
-                    <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
-                  ) : null}
-                </span>
-                {count !== null ? (
-                  <span
-                    className={cn(
-                      "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
-                      OPERATOR_TYPOGRAPHY.helper,
-                    )}
-                    aria-label={
-                      tabId === "decisions-remediation"
-                        ? clarificationsTabAriaLabel(count)
-                        : tabId === "findings"
-                          ? findingsTabAriaLabel(count)
-                          : undefined
-                    }
-                    data-testid={
-                      tabId === "decisions-remediation"
-                        ? "architecture-workspace-clarifications-count"
-                        : tabId === "architecture"
-                          ? "architecture-workspace-diagram-count"
-                          : tabId === "findings"
-                            ? "architecture-workspace-findings-count"
-                            : undefined
-                    }
-                  >
-                    {count}
+              return (
+                <TabsTrigger
+                  key={tabId}
+                  value={tabId}
+                  data-testid={`review-detail-workspace-tab-${tabId}`}
+                  className="whitespace-nowrap"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    {resolveReviewWorkspaceTabLabel(props.lifecycle, tabId)}
+                    {props.isTabNewSinceLastVisit?.(tabId) === true ? (
+                      <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
+                    ) : null}
                   </span>
-                ) : null}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
+                  {count !== null ? (
+                    <span
+                      className={cn(
+                        "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
+                        OPERATOR_TYPOGRAPHY.helper,
+                      )}
+                      aria-label={
+                        tabId === "decisions-remediation"
+                          ? clarificationsTabAriaLabel(count)
+                          : tabId === "findings"
+                            ? findingsTabAriaLabel(count)
+                            : undefined
+                      }
+                      data-testid={
+                        tabId === "decisions-remediation"
+                          ? "architecture-workspace-clarifications-count"
+                          : tabId === "architecture"
+                            ? "architecture-workspace-diagram-count"
+                            : tabId === "findings"
+                              ? "architecture-workspace-findings-count"
+                              : undefined
+                      }
+                    >
+                      {count}
+                    </span>
+                  ) : null}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+          <ReviewWorkspaceMoreTabsMenu
+            lifecycle={props.lifecycle}
+            moreTabIds={props.resolvedTabs.moreTabIds}
+            activeTab={props.activeTab}
+            onTabChange={props.onTabChange}
+          />
+        </div>
       </Tabs>
     </div>
   );
