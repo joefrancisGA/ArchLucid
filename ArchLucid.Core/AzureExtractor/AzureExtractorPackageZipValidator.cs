@@ -180,12 +180,34 @@ public static class AzureExtractorPackageZipValidator
 
     private static bool TryReadSchemaVersion(JsonElement element, out int schemaVersion)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out schemaVersion))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberSchemaVersion(element, out schemaVersion))
             return true;
 
         if (element.ValueKind == JsonValueKind.String
             && int.TryParse(element.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out schemaVersion))
             return true;
+
+        schemaVersion = default;
+
+        return false;
+    }
+
+    private static bool TryReadWholeNumberSchemaVersion(JsonElement element, out int schemaVersion)
+    {
+        if (element.TryGetInt32(out schemaVersion))
+        {
+            return true;
+        }
+
+        if (element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            schemaVersion = (int)numeric;
+
+            return true;
+        }
 
         schemaVersion = default;
 

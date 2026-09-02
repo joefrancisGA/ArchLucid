@@ -155,6 +155,11 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         if (element.ValueKind != JsonValueKind.String)
         {
+            if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            {
+                return element.ValueKind == JsonValueKind.True ? 1.0 : 0.0;
+            }
+
             return null;
         }
 
@@ -191,6 +196,13 @@ public static class RunExplanationConfidenceCalloutBuilder
             if (element.TryGetInt32(out int numeric))
             {
                 return numeric != 0;
+            }
+
+            if (element.TryGetDouble(out double wholeNumber)
+                && double.IsFinite(wholeNumber)
+                && wholeNumber == Math.Floor(wholeNumber))
+            {
+                return wholeNumber != 0;
             }
 
             return false;
