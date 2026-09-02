@@ -91,7 +91,10 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
                       <FieldHelpTooltip label={identifier.label} hint={identifier.hint} />
                     </span>
                   </th>
-                  <td className={cn(HELP_PAGE_LAYOUT.tableBodyCell, "font-mono text-sm")}>{identifier.value}</td>
+                  <td className={cn(HELP_PAGE_LAYOUT.tableBodyCell, "font-mono text-sm")}>
+                    {identifier.value}
+                    {identifier.isPlaceholder ? <span className="sr-only"> (placeholder)</span> : null}
+                  </td>
                 </tr>
               ))}
             </tbody>
