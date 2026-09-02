@@ -1,5 +1,4 @@
 import { ensureAppInsights } from "@/lib/telemetry";
-import type { DraftRequestResponse } from "@/types/draft-intake";
 
 const ACK_STORAGE_PREFIX = "archlucid.architecture_draft_handoff_ack.v1.";
 
