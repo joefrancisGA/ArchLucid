@@ -455,7 +455,14 @@ public sealed class GcpCloudBillingCatalogClient
         char next = description[endIndex];
 
         // Reject prefix collisions such as n1-standard-1 matching n1-standard-10.
-        return next is not (>= '0' and <= '9') && next != '-';
+        if (next is >= '0' and <= '9' or '-')
+            return false;
+
+        // Reject letter-variant suffixes such as n1-standard-1 matching n1-standard-1d.
+        if (char.IsDigit(description[endIndex - 1]) && char.IsLetter(next))
+            return false;
+
+        return true;
     }
 
     private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
