@@ -30,7 +30,8 @@ internal sealed class TopologyRelationshipEdgeInferenceRule : IGraphEdgeInferenc
                 GraphEdgeInferenceSources.TopologyExposes,
                 topologyById);
 
-            if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "connectedToNodeIds", out string? connectedRaw)
+            const string ConnectedToNodeIdsPropertyKey = "connectedToNodeIds";
+            if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, ConnectedToNodeIdsPropertyKey, out string? connectedRaw)
                 && !string.IsNullOrWhiteSpace(connectedRaw))
             {
                 foreach (string targetId in connectedRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
