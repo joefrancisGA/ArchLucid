@@ -52,9 +52,9 @@ public static class MarketplaceWebhookPayloadParser
             if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            if (property.Value.ValueKind == JsonValueKind.Number && property.Value.TryGetInt64(out long numeric))
+            if (property.Value.ValueKind == JsonValueKind.Number)
             {
-                value = numeric.ToString(CultureInfo.InvariantCulture);
+                value = property.Value.GetRawText();
 
                 return true;
             }
