@@ -13,7 +13,7 @@ export type UseAskPageStreamOptions = {
   readonly baseRunId: string;
   readonly targetRunId: string;
   readonly question: string;
-  readonly setQuestion: (value: string) => void;
+  readonly setQuestion: React.Dispatch<React.SetStateAction<string>>;
   readonly setSelectedThreadId: (threadId: string) => void;
   readonly setMessages: React.Dispatch<React.SetStateAction<ConversationMessage[]>>;
   readonly setActionFailure: (failure: ApiLoadFailureState | null) => void;

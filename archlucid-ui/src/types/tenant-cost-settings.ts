@@ -1,15 +1,18 @@
-export type TenantCostSettingsResponse = {
-  architectHourlyRateUsd: number;
-  averageIncidentCostUsd: number;
-  eaDiscountMultiplier: number;
-  eaDiscountPercentage: number;
-  isTenantConfigured: boolean;
-  updatedUtc: string | null;
-};
+import type { components } from "@/lib/openapi-schemas";
 
-export type TenantCostSettingsPutRequest = {
-  architectHourlyRateUsd: number;
-  averageIncidentCostUsd: number;
-  eaDiscountMultiplier?: number;
-  eaDiscountPercentage?: number;
-};
+type TenantCostSettingsGetResponseSchema = components["schemas"]["TenantCostSettingsGetResponse"];
+
+export type TenantCostSettingsResponse = TenantCostSettingsGetResponseSchema &
+  Required<
+    Pick<
+      TenantCostSettingsGetResponseSchema,
+      | "architectHourlyRateUsd"
+      | "averageIncidentCostUsd"
+      | "eaDiscountMultiplier"
+      | "eaDiscountPercentage"
+      | "isTenantConfigured"
+      | "updatedUtc"
+    >
+  >;
+
+export type TenantCostSettingsPutRequest = components["schemas"]["TenantCostSettingsPutRequest"];

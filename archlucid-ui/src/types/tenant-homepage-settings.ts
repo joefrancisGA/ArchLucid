@@ -1,21 +1,16 @@
-export type TenantHomepageSettingsResponse = {
-  selectedRunId: string | null;
-  isConfigured: boolean;
-  isAvailable: boolean;
-  reviewTitle: string | null;
-  architectureName: string | null;
-  completedUtc: string | null;
-  isSampleApproved: boolean;
-};
+import type { components } from "@/lib/openapi-schemas";
 
-export type FeaturedCompletedSampleCandidate = {
-  runId: string;
-  reviewTitle: string;
-  architectureName: string;
-  completedUtc: string;
-  isSampleApproved: boolean;
-};
+type TenantHomepageSettingsGetResponseSchema = components["schemas"]["TenantHomepageSettingsGetResponse"];
 
-export type TenantHomepageSettingsPutRequest = {
-  selectedRunId: string | null;
-};
+export type TenantHomepageSettingsResponse = TenantHomepageSettingsGetResponseSchema &
+  Required<
+    Pick<
+      TenantHomepageSettingsGetResponseSchema,
+      "selectedRunId" | "isConfigured" | "isAvailable" | "isSampleApproved"
+    >
+  >;
+
+export type FeaturedCompletedSampleCandidate =
+  components["schemas"]["FeaturedCompletedSampleCandidateResponse"];
+
+export type TenantHomepageSettingsPutRequest = components["schemas"]["TenantHomepageSettingsPutRequest"];

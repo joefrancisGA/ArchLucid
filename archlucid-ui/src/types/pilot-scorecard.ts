@@ -1,3 +1,4 @@
+/** UI JSON from pilot scorecard endpoints; wire shape is not yet aliased to OpenAPI `PilotScorecardResponse`. */
 export type PilotScorecardJson = {
   tenantId: string;
   totalRunsCommitted: number;

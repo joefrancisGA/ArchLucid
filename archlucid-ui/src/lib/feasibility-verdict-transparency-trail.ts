@@ -41,9 +41,9 @@ function pushInferredDriver(
 
 /** Surfaces structured verdict drivers from the transparency trail instead of raw inferred keys. */
 export function parseFeasibilityVerdictDrivers(
-  trail: TransparencyTrail | undefined,
+  trail: TransparencyTrail | null | undefined,
 ): readonly FeasibilityVerdictDriver[] {
-  if (trail === undefined) {
+  if (trail === undefined || trail === null) {
     return [];
   }
 
