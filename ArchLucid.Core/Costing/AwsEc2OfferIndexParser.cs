@@ -129,7 +129,7 @@ public static class AwsEc2OfferIndexParser
             return hourlyUsd > 0m;
         }
 
-        return decimal.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out hourlyUsd)
+        return decimal.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out hourlyUsd)
             && hourlyUsd > 0m;
     }
 
@@ -191,7 +191,7 @@ public static class AwsEc2OfferIndexParser
         if (element.ValueKind is not JsonValueKind.String)
             return false;
 
-        value = element.GetString();
+        value = element.GetString()?.Trim();
 
         return !string.IsNullOrWhiteSpace(value);
     }

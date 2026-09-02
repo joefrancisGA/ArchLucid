@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 78
-- **bugs-found:** 190
+- **hunts:** 79
+- **bugs-found:** 191
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — costing parser unit/usageUnit trim and GCP boolean price tokens
+- **last-bug:** 2026-09-02 — AwsEc2OfferIndexParser whitespace-padded product attributes ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2021,6 +2021,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GcpCloudBillingCatalogClient.TryReadInt32Token` / `TryReadInt64Token` — boolean `unitPrice.units` / `unitPrice.nanos` JSON tokens ignored — **hit 2026-09-02 (#490):** `"nanos":true` returned null after #487–#488 numeric fixes; fixed with boolean coercion on units/nanos readers (`TryGetComputeEngineMonthlyUsdAsync_parses_boolean_unit_price_tokens`).
 
 2026-09-02 seed hunt #490: reseeded from ArchLucid.Core costing parsers; proved whitespace-padded unit matching and GCP boolean units/nanos coercion gaps after #489 AWS USD boolean fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadAttribute` — whitespace-padded product attribute strings rejected — **hit 2026-09-02 (#491):** `"instanceType":" t3.micro "` failed to match `t3.micro` while unpadded attributes worked; fixed by trimming attribute values and USD price strings (`TryGetLinuxOnDemandHourlyUsd_parses_whitespace_padded_instance_type_attribute`, `TryGetLinuxOnDemandHourlyUsd_parses_whitespace_padded_usd_price_string`).
+
+2026-09-02 seed hunt #491: reseeded from ArchLucid.Core costing parsers; proved AWS offer-index attribute trim gap after #490 unit/usageUnit trim fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
