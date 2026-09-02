@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 113
-- **bugs-found:** 225
+- **hunts:** 114
+- **bugs-found:** 226
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — marketplace planId backslash/pipe enterprise token gap
+- **last-bug:** 2026-09-02 — Azure retail /h UOM false-positive on 1/health
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2173,6 +2173,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — backslash/pipe-delimited `enterprise` token not recognized — **hit 2026-09-02 (#532):** `contoso\enterprise\monthly` and `contoso|enterprise|annual` returned `Standard` because `IsPlanIdDelimiter` omitted `\` and `|` after #526 slash/colon fix; fixed by extending delimiters (`TierStorageCodeFromPlanId_maps_backslash_or_pipe_delimited_enterprise_token`).
 
 2026-09-02 seed hunt #532: reseeded from ArchLucid.Core marketplace webhook parser; proved backslash/pipe planId enterprise token gap beyond #526 delimiter fix.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — `/h` substring false-positive on `1/health` — **hit 2026-09-02 (#533):** bare `Contains("/h")` matched non-hourly `1/health` unit-of-measure and treated the row as hourly consumption after #518 `/h` synonym fix; fixed with boundary-aware `ContainsSlashHourToken` (`LooksLikeConsumptionUsd_rejects_health_unit_of_measure_false_positive`, `TryMonthlyUsdFromRow_rejects_health_unit_of_measure_false_positive`).
+
+2026-09-02 seed hunt #533: reseeded from ArchLucid.Core Azure retail SKU matchers; proved `/h` UOM substring false-positive beyond hourly synonym sweep.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
