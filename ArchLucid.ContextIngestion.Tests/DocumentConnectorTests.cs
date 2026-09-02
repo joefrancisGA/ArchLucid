@@ -362,4 +362,59 @@ public sealed class DocumentConnectorTests
         secondDelta.AddedCount.Should().Be(0);
         secondDelta.RemovedCount.Should().Be(0);
     }
+
+    [Fact]
+    public async Task DeltaAsync_SpacedRequirementPrefixChange_ReportsUnchanged()
+    {
+        DocumentConnector connector = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([new PlainTextContextDocumentParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload spaced = new()
+        {
+            Documents =
+            [
+                new ContextDocumentReference
+                {
+                    DocumentId = "doc-1",
+                    Name = "spec.txt",
+                    ContentType = "text/plain",
+                    Content = "REQ : Must Encrypt",
+                }
+            ],
+        };
+
+        RawContextPayload canonical = new()
+        {
+            Documents =
+            [
+                new ContextDocumentReference
+                {
+                    DocumentId = "doc-1",
+                    Name = "spec.txt",
+                    ContentType = "text/plain",
+                    Content = "REQ: Must Encrypt",
+                }
+            ],
+        };
+
+        NormalizedContextBatch spacedBatch = await connector.NormalizeAsync(spaced, CancellationToken.None);
+        NormalizedContextBatch canonicalBatch = await connector.NormalizeAsync(canonical, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = spacedBatch.CanonicalObjects,
+        };
+
+        ContextDelta delta = await connector.DeltaAsync(canonicalBatch, previous, CancellationToken.None);
+
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+        delta.ModifiedCount.Should().Be(0);
+        delta.UnchangedCount.Should().Be(1);
+    }
 }

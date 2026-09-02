@@ -24,7 +24,18 @@ internal static class GraphJsonElementReaders
 #pragma warning restore IDE0028 // Simplify collection initialization
 
 #pragma warning disable IDE0028 // Simplify collection initialization
-            return new Dictionary<string, string>(deserialized, StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, string> normalized =
+                new Dictionary<string, string>(deserialized, StringComparer.OrdinalIgnoreCase);
+
+            foreach (string key in normalized.Keys.ToList())
+            {
+                if (normalized[key] is null)
+                {
+                    normalized[key] = string.Empty;
+                }
+            }
+
+            return normalized;
 #pragma warning restore IDE0028 // Simplify collection initialization
         }
         catch (JsonException)
@@ -33,10 +44,29 @@ internal static class GraphJsonElementReaders
 
             foreach (JsonProperty property in propsEl.EnumerateObject())
             {
-                if (property.Value.ValueKind != JsonValueKind.String)
-                    continue;
+                if (property.Value.ValueKind == JsonValueKind.Null)
+                {
+                    result[property.Name] = string.Empty;
 
-                result[property.Name] = property.Value.GetString() ?? "";
+                    continue;
+                }
+
+                if (property.Value.ValueKind == JsonValueKind.String)
+                {
+                    result[property.Name] = property.Value.GetString() ?? "";
+
+                    continue;
+                }
+
+                if (property.Value.ValueKind == JsonValueKind.Number)
+                {
+                    result[property.Name] = property.Value.GetRawText();
+                }
+
+                if (property.Value.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                {
+                    result[property.Name] = property.Value.GetRawText();
+                }
             }
 
             return result;
@@ -47,8 +77,8 @@ internal static class GraphJsonElementReaders
     {
         foreach (string name in names)
 
-            if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
-                return el.GetString();
+            if (TryGetIgnoreCase(root, name, out JsonElement el) && TryReadStringToken(el, out string? value))
+                return value;
 
         return null;
     }
@@ -79,6 +109,34 @@ internal static class GraphJsonElementReaders
         }
 
         value = default;
+        return false;
+    }
+
+    private static bool TryReadStringToken(JsonElement element, out string? value)
+    {
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            value = element.GetString();
+
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            value = element.GetRawText();
+
+            return true;
+        }
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.GetRawText();
+
+            return true;
+        }
+
+        value = null;
+
         return false;
     }
 }

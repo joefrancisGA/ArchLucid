@@ -70,6 +70,58 @@ public sealed class FindingDispositionServiceNotesTests
         result.EvidenceRequestText.Should().BeNull();
     }
 
+    [Fact]
+    public async Task RecordAsync_needs_evidence_drops_revisit_and_trade_off_fields()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-notes-003",
+            Disposition = Disposition.NeedsEvidence,
+            EvidenceRequestText = "Provide SOC 2 Type II attestation for the data store.",
+            TradeOffAcknowledgment = "must not appear on needs-evidence events",
+            RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(14),
+        };
+
+        FindingDispositionEventDto result = await sut.RecordAsync(request, Scope, "alice", CancellationToken.None);
+
+        result.EvidenceRequestText.Should().Be("Provide SOC 2 Type II attestation for the data store.");
+        result.Rationale.Should().BeNull();
+        result.RevisitDueUtc.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ListHistoryAsync_excludes_disposition_events_from_other_project()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        ScopeContext otherProjectScope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+        };
+
+        await sut.RecordAsync(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "shared-finding-id",
+                Disposition = Disposition.Remediated,
+                Rationale = "Remediated in the other project.",
+            },
+            otherProjectScope,
+            "bob",
+            CancellationToken.None);
+
+        IReadOnlyList<FindingDispositionEventDto> history =
+            await sut.ListHistoryAsync(Scope, "shared-finding-id", CancellationToken.None);
+
+        history.Should().BeEmpty();
+    }
+
     private static FindingDispositionService CreateService(ConcurrentFindingReviewTrailRepository trailRepository)
     {
         FindingReviewTrailAppendService appendService = new(trailRepository, Mock.Of<IAuditService>());
