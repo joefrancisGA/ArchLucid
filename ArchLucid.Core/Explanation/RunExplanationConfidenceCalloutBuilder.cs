@@ -244,14 +244,18 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
             || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase))
+            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
         if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
             || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("no", StringComparison.OrdinalIgnoreCase))
+            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }

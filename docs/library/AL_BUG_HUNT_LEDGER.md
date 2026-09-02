@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 65
-- **bugs-found:** 162
+- **hunts:** 66
+- **bugs-found:** 164
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — policy-pack require-budget-cap on/off synonyms
+- **last-bug:** 2026-09-02 — boolean advisory synonym coercion gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1962,6 +1962,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPackExpectationFacet.IsEmpty` — explicit `RequireBudgetCap=false` treated as empty — **hit 2026-09-02 (#476):** parsed opt-out `"0"` / `"False"` returned `IsEmpty=true` while `RequireBudgetCap` was set, conflating explicit false with unset; fixed by requiring `RequireBudgetCap.HasValue` (`Parse_explicit_false_require_budget_cap_facet_is_not_empty`).
 
 - [x] (proven) `PolicyPackExpectationFacetParser.ParseRequireBudgetCap` — `on` / `off` advisory synonyms ignored — **hit 2026-09-02 (#477):** `cost.requireBudgetCap="on"` / `"off"` returned null while `"yes"` / `"no"` already mapped; fixed by accepting on/off alongside yes/no (`Parse_require_budget_cap_on_off_synonyms_map_true_and_false`).
+
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseRequireBudgetCap` — `enabled` / `disabled` advisory synonyms ignored — **hit 2026-09-02 (#478):** `cost.requireBudgetCap="enabled"` / `"disabled"` returned null while yes/no/on/off already mapped; fixed by accepting enabled/disabled (`Parse_require_budget_cap_enabled_disabled_synonyms_map_true_and_false`).
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadBoolean` — string-encoded `on` / `off` / `enabled` / `disabled` fallback flags ignored — **hit 2026-09-02 (#478):** `"deterministicFallbackUsed":"on"` left fallback false so PASS was returned instead of HOLD while yes/no already mapped; fixed by accepting on/off/enabled/disabled (`FromAggregateJson_maps_string_encoded_on_deterministic_fallback_flag`).
+
+2026-09-02 seed hunt #478: reseeded from ArchLucid.Core; proved require-budget-cap enabled/disabled and explanation fallback on/off boolean synonym gaps.
 
 2026-09-02 seed hunt #477: reseeded from ArchLucid.Core; proved policy-pack require-budget-cap on/off synonym gap; added FilterRules whole-number rule-priority regression coverage.
 

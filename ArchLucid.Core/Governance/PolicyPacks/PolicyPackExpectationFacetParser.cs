@@ -108,7 +108,8 @@ public static class PolicyPackExpectationFacetParser
     if (normalized.Equals("true", StringComparison.OrdinalIgnoreCase)
         || normalized.Equals("1", StringComparison.OrdinalIgnoreCase)
         || normalized.Equals("yes", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("on", StringComparison.OrdinalIgnoreCase))
+        || normalized.Equals("on", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("enabled", StringComparison.OrdinalIgnoreCase))
     {
       return true;
     }
@@ -116,7 +117,8 @@ public static class PolicyPackExpectationFacetParser
     if (normalized.Equals("false", StringComparison.OrdinalIgnoreCase)
         || normalized.Equals("0", StringComparison.OrdinalIgnoreCase)
         || normalized.Equals("no", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("off", StringComparison.OrdinalIgnoreCase))
+        || normalized.Equals("off", StringComparison.OrdinalIgnoreCase)
+        || normalized.Equals("disabled", StringComparison.OrdinalIgnoreCase))
     {
       return false;
     }
