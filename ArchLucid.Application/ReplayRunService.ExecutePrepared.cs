@@ -237,9 +237,10 @@ public sealed partial class ReplayRunService
             };
         }
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        CommitRunIdempotencyOutcome commitOutcome = await _architectureRunCommandService
-            .CommitRunAsync(scope, preparedReplayRunId, request: null, idempotencyKey: null, cancellationToken)
+        // Commit through the orchestrator — not IArchitectureRunCommandService — so replay does not
+        // form a DI cycle with ArchitectureRunCommandService (which already depends on IReplayRunService).
+        CommitRunResult commitResult = await _architectureRunCommitOrchestrator
+            .CommitRunAsync(preparedReplayRunId, request: null, cancellationToken)
             .ConfigureAwait(false);
 
         return new ReplayRunResult
@@ -248,9 +249,9 @@ public sealed partial class ReplayRunService
             ReplayRunId = preparedReplayRunId,
             ExecutionMode = executionMode,
             Results = [],
-            Manifest = commitOutcome.Result.Manifest,
-            DecisionTraces = commitOutcome.Result.DecisionTraces,
-            Warnings = commitOutcome.Result.Warnings
+            Manifest = commitResult.Manifest,
+            DecisionTraces = commitResult.DecisionTraces,
+            Warnings = commitResult.Warnings
         };
     }
 }

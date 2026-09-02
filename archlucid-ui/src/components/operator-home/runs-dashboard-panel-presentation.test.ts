@@ -29,5 +29,11 @@ describe("home governance warnings URL helpers", () => {
     expect(runsDashboardHomeHrefFromSearch("", { tab: "approved", showArchived: true })).toBe(
       "/?tab=approved&archived=1",
     );
+    expect(runsDashboardHomeHrefFromSearch("tab=approved&archived=1", { showArchived: false })).toBe(
+      "/?tab=approved",
+    );
+    expect(
+      runsDashboardHomeHrefFromSearch("warnings=1&archived=1", { governanceWarningsOnly: false }),
+    ).toBe("/?archived=1");
   });
 });

@@ -57,7 +57,7 @@ public sealed partial class ReplayRunService(
     IAuditService auditService,
     IActorContext actorContext,
     IAuthorityRunOrchestrator authorityRunOrchestrator,
-    IArchitectureRunCommandService architectureRunCommandService,
+    IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     ILogger<ReplayRunService> logger) : IReplayRunService
 {
@@ -89,8 +89,8 @@ public sealed partial class ReplayRunService(
     private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator =
         authorityRunOrchestrator ?? throw new ArgumentNullException(nameof(authorityRunOrchestrator));
 
-    private readonly IArchitectureRunCommandService _architectureRunCommandService =
-        architectureRunCommandService ?? throw new ArgumentNullException(nameof(architectureRunCommandService));
+    private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator =
+        architectureRunCommitOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
 
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
         runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));

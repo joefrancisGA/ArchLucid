@@ -212,7 +212,7 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuditService>(),
             UnitTestActor(),
             Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommandService>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
             EmptyStageOutcomesRepository(),
             NullLogger<ReplayRunService>.Instance);
 
@@ -330,7 +330,7 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuditService>(),
             UnitTestActor(),
             Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommandService>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
             EmptyStageOutcomesRepository(),
             NullLogger<ReplayRunService>.Instance);
 
@@ -519,7 +519,7 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuditService>(),
             UnitTestActor(),
             Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommandService>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
             EmptyStageOutcomesRepository(),
             NullLogger<ReplayRunService>.Instance);
 
@@ -670,7 +670,7 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuditService>(),
             UnitTestActor(),
             Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommandService>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
             EmptyStageOutcomesRepository(),
             NullLogger<ReplayRunService>.Instance);
 
