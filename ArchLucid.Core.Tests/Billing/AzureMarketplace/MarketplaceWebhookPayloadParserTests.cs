@@ -58,4 +58,15 @@ public sealed class MarketplaceWebhookPayloadParserTests
 
         quantity.Should().Be(5);
     }
+
+    [Fact]
+    public void TryGetPlanId_reads_boolean_planId()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"planId":true}""");
+
+        bool found = MarketplaceWebhookPayloadParser.TryGetPlanId(document.RootElement, out string? planId);
+
+        found.Should().BeTrue();
+        planId.Should().Be("true");
+    }
 }

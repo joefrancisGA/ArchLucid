@@ -59,6 +59,13 @@ public static class MarketplaceWebhookPayloadParser
                 return true;
             }
 
+            if (property.Value.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            {
+                value = property.Value.GetRawText();
+
+                return true;
+            }
+
             if (property.Value.ValueKind != JsonValueKind.String)
             {
                 value = null;
