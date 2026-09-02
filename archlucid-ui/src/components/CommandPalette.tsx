@@ -76,6 +76,10 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
     return "Search review change comparison";
   }
 
+  if (path.startsWith("/governance/findings")) {
+    return "Search findings";
+  }
+
   if (path.startsWith("/governance")) {
     return "Search policy record";
   }
