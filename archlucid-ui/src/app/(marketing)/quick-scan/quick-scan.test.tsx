@@ -12,6 +12,17 @@ vi.mock("@/lib/quick-scan/quick-scan-telemetry", () => ({
   trackQuickScanSampleViewed: vi.fn(),
 }));
 
+vi.mock("@/components/auth/TurnstileBotChallenge", () => ({
+  TurnstileBotChallenge: () => <div data-testid="turnstile-bot-challenge" />,
+}));
+
+vi.mock("@/lib/auth/turnstile-config", () => ({
+  isTurnstileBotChallengeConfigured: vi.fn(() => true),
+  readTurnstileSiteKey: vi.fn(() => "site-key-test"),
+}));
+
+import { isTurnstileBotChallengeConfigured } from "@/lib/auth/turnstile-config";
+
 describe("QuickScanClient", () => {
   it("renders layout-pass chrome without pristine field errors", () => {
     vi.stubGlobal(
@@ -73,6 +84,53 @@ describe("QuickScanClient", () => {
         "href",
         "/auth/signin?returnUrl=%2Fquick-scan",
       );
+    });
+  });
+
+  it("mounts Turnstile challenge after QUICK_SCAN_CAPTCHA_REQUIRED response", async () => {
+    vi.mocked(isTurnstileBotChallengeConfigured).mockReturnValue(true);
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          enabled: true,
+          capacityAvailable: true,
+          requireSignIn: false,
+          sampleResultAvailable: true,
+          capacityState: "Available",
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+        text: async () =>
+          JSON.stringify({
+            detail: "Complete the security check to continue with Quick Scan.",
+            extensions: { errorCode: "QUICK_SCAN_CAPTCHA_REQUIRED" },
+          }),
+      });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<QuickScanClient />);
+
+    fireEvent.change(screen.getByLabelText(/System name/i), { target: { value: "Contoso" } });
+    fireEvent.change(screen.getByLabelText(/Primary environment/i), { target: { value: "Azure" } });
+    fireEvent.change(screen.getByLabelText(/Describe the system/i), {
+      target: { value: "A multi-region workflow with audit logging." },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-scan-submit")).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("quick-scan-submit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-scan-captcha-challenge")).toBeInTheDocument();
+      expect(screen.getByTestId("turnstile-bot-challenge")).toBeInTheDocument();
     });
   });
 });

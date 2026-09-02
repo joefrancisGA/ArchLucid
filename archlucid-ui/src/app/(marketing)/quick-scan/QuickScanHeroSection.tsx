@@ -11,6 +11,7 @@ import {
 } from "@/app/(marketing)/quick-scan/quick-scan-page-content";
 import { QuickScanForm } from "@/app/(marketing)/quick-scan/QuickScanForm";
 import { QuickScanScopeDisclosure } from "@/components/marketing/quick-scan/QuickScanScopeDisclosure";
+import { TurnstileBotChallenge } from "@/components/auth/TurnstileBotChallenge";
 import { SeeItDeliverablePreview } from "@/app/(marketing)/see-it/SeeItDeliverablePreview";
 import type { QuickScanClientState } from "@/app/(marketing)/quick-scan/use-quick-scan-client";
 import { Button } from "@/components/ui/button";
@@ -155,6 +156,15 @@ export function QuickScanHeroSection(props: QuickScanHeroSectionProps): ReactEle
           >
             {client.statusMessage}
           </div>
+
+          {client.captchaChallengeRequired && client.turnstileConfigured ? (
+            <div className={cn(DESIGN_TOKENS.callout.warn, "p-4")} data-testid="quick-scan-captcha-challenge">
+              <p className={MARKETING_TYPOGRAPHY.body}>
+                Complete the security check below, then choose Analyze architecture again.
+              </p>
+              <TurnstileBotChallenge onTokenChange={client.handleBotChallengeTokenChange} />
+            </div>
+          ) : null}
 
           {client.capacityMessage !== null ? (
             <div className={cn(DESIGN_TOKENS.callout.warn, "p-4")}>

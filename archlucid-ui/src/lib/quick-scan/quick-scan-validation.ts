@@ -82,7 +82,9 @@ export function quickScanIncompleteReason(errors: QuickScanFieldErrors): string 
   return null;
 }
 
-export function buildQuickScanRequestBody(values: QuickScanFormValues) {
+export function buildQuickScanRequestBody(values: QuickScanFormValues, botChallengeToken?: string | null) {
+  const trimmedToken = botChallengeToken?.trim();
+
   return {
     systemName: values.systemName.trim(),
     primaryEnvironment: values.primaryEnvironment,
@@ -92,5 +94,6 @@ export function buildQuickScanRequestBody(values: QuickScanFormValues) {
         : undefined,
     description: values.description.trim(),
     architectureConcerns: values.architectureConcerns,
+    botChallengeToken: trimmedToken && trimmedToken.length > 0 ? trimmedToken : undefined,
   };
 }
