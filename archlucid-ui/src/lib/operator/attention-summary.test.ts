@@ -19,7 +19,7 @@ describe("attention-summary (TB-2369)", () => {
     const alerts = summaries.find((row) => row.partition === "alerts");
     const awaiting = summaries.find((row) => row.partition === "awaiting-approval");
 
-    expect(unfinished?.totalCount).toBe(1);
+    expect(unfinished?.totalCount).toBe(2);
     expect(unfinished?.label).toBe(OPERATOR_ATTENTION_KIND_LABELS["unfinished-work"]);
     expect(assigned?.totalCount).toBe(4);
     expect(alerts?.totalCount).toBe(3);

@@ -27,6 +27,10 @@ import {
   REVIEWS_HUB_SUMMARY_FINDINGS_HREF,
   REVIEWS_HUB_SUMMARY_OPEN_RISKS_HREF,
 } from "./reviews-hub-summary-destinations";
+import {
+  resolveReviewsHubHeaderPrimary,
+  shouldShowReviewsHubResumeDrafts,
+} from "./reviews-hub-header-primary";
 import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
 type ReviewsHubSummaryRowProps = {
@@ -118,6 +122,7 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
   const { summary } = props;
   const draftEntries = useArchitectureDraftRegistryEntries();
   const draftsReady = countArchitectureDraftsReadyForReview(draftEntries);
+  const draftPrimary = resolveReviewsHubHeaderPrimary(draftEntries);
   const attentionMetricsAllZero =
     summary.findings === 0 && summary.openRisks === 0 && summary.readyForGovernance === 0;
 
@@ -160,7 +165,14 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
   metrics.push({
     label: REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
     value: draftsReady,
-    onClick: draftsReady > 0 ? scrollToReadyForReviewSection : undefined,
+    href:
+      draftsReady === 1 && draftPrimary.continuesSingleDraft
+        ? draftPrimary.href
+        : undefined,
+    onClick:
+      draftsReady > 0 && shouldShowReviewsHubResumeDrafts(draftEntries.length)
+        ? scrollToReadyForReviewSection
+        : undefined,
     testId: "reviews-hub-summary-ready-for-review",
   });
 

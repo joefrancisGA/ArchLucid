@@ -91,6 +91,6 @@ describe("useOperatorAttentionSummary (TB-2369)", () => {
       expect(screen.getByTestId("assigned-count")).toHaveTextContent("4");
     });
 
-    expect(screen.getByTestId("unfinished-summary")).toHaveTextContent("1");
+    expect(screen.getByTestId("unfinished-summary")).toHaveTextContent("2");
   });
 });

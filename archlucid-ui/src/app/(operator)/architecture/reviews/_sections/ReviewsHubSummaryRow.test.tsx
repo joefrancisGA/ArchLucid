@@ -1,13 +1,21 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 
 vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
-  useArchitectureDraftRegistryEntries: () => [],
+  useArchitectureDraftRegistryEntries: vi.fn(() => []),
 }));
 
+const useArchitectureDraftRegistryEntriesMock = vi.mocked(useArchitectureDraftRegistryEntries);
+
 describe("ReviewsHubSummaryRow", () => {
+  beforeEach(() => {
+    useArchitectureDraftRegistryEntriesMock.mockReturnValue([]);
+  });
+
   it("links posture counts to queues and inventory filters", () => {
     render(
       <ReviewsHubSummaryRow
@@ -37,6 +45,37 @@ describe("ReviewsHubSummaryRow", () => {
     expect(screen.getByRole("link", { name: /1 Awaiting approval/ })).toHaveAttribute(
       "href",
       "/governance/approval-queue",
+    );
+  });
+
+  it("opens the sole ready draft instead of scrolling when only one draft is ready", () => {
+    useArchitectureDraftRegistryEntriesMock.mockReturnValue([
+      {
+        architectureId: "draft-001",
+        displayName: "Payments",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-15T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
+      },
+    ]);
+
+    render(
+      <ReviewsHubSummaryRow
+        summary={{
+          inProgress: 0,
+          committed: 0,
+          findings: 0,
+          openRisks: 0,
+          readyForGovernance: 0,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("reviews-hub-summary-ready-for-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/draft-001",
     );
   });
 });

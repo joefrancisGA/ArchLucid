@@ -45,7 +45,10 @@ import {
   matchesSearch,
   mergeRunsWithArchivedCache,
   parseReviewsHubInventoryFilter,
+  parseReviewsHubInventorySearchQuery,
   reviewsHubInventoryHrefFromSearch,
+  reviewsHubInventorySearchHrefFromSearch,
+  countRunsMatchingInventoryFilter,
   INVENTORY_FILTER_OPTIONS,
   sortRunsForInventory,
   type ReviewFilterId,
@@ -76,16 +79,25 @@ function getServerOperatorScopeRecordSnapshot(): OperatorScopeRecord | null {
 function ReviewFilterChip(props: {
   readonly option: { id: ReviewFilterId; label: string };
   readonly selected: boolean;
+  readonly count: number;
   readonly onSelect: (id: ReviewFilterId) => void;
 }): React.JSX.Element {
   return (
     <FilterChip
       className={buyerFilterChipClass(props.selected, false)}
       aria-pressed={props.selected}
-      aria-label={`Filter reviews: ${props.option.label}`}
+      aria-label={`Filter reviews: ${props.option.label}${props.count > 0 ? ` (${props.count})` : ""}`}
       onClick={() => props.onSelect(props.option.id)}
     >
-      {props.option.label}
+      <span>{props.option.label}</span>
+      {props.count > 0 ? (
+        <span
+          className="ml-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-100"
+          aria-hidden
+        >
+          {props.count}
+        </span>
+      ) : null}
     </FilterChip>
   );
 }
@@ -94,13 +106,34 @@ function ReviewFilterChip(props: {
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(() =>
+    parseReviewsHubInventorySearchQuery(searchParams.get("q")),
+  );
   const urlFilter = parseReviewsHubInventoryFilter(searchParams.get("filter"));
+  const urlSearchQuery = parseReviewsHubInventorySearchQuery(searchParams.get("q"));
   const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(urlFilter);
 
   useEffect(() => {
     setActiveFilter(urlFilter);
   }, [urlFilter]);
+
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = reviewsHubInventorySearchHrefFromSearch(searchParams.toString(), searchQuery);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [router, searchParams, searchQuery]);
 
   const selectInventoryFilter = useCallback(
     (filter: ReviewFilterId) => {
@@ -139,6 +172,19 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
 
     return mergedRuns.filter((run) => !isArchivedRun(run));
   }, [activeFilter, mergedRuns]);
+
+  const filterCounts = useMemo(() => {
+    const counts = new Map<ReviewFilterId, number>();
+
+    for (const option of INVENTORY_FILTER_OPTIONS) {
+      counts.set(
+        option.id,
+        countRunsMatchingInventoryFilter(visibilityFilteredRuns, option.id, ownerContext, mergedRuns),
+      );
+    }
+
+    return counts;
+  }, [mergedRuns, ownerContext, visibilityFilteredRuns]);
 
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(
@@ -223,6 +269,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                     key={option.id}
                     option={option}
                     selected={activeFilter === option.id}
+                    count={filterCounts.get(option.id) ?? 0}
                     onSelect={selectInventoryFilter}
                   />
                 ))}

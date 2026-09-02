@@ -18,6 +18,14 @@ describe("RunDetailSectionNav", () => {
 
   beforeEach(() => {
     buyerPolishedShellVitestOverride.value = null;
+    class IntersectionObserverMock {
+      observe = vi.fn();
+      disconnect = vi.fn();
+      unobserve = vi.fn();
+      constructor() {}
+    }
+
+    vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
   });
 
   afterEach(() => {

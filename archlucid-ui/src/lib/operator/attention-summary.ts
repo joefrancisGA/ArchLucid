@@ -28,11 +28,15 @@ function normalizeCount(value: number | undefined): number {
 }
 
 function unfinishedWorkPartitionTotal(input: SummarizeAttentionSurfacesInput): number {
+  if (input["unfinished-work-rail"] !== undefined) {
+    return normalizeCount(input["unfinished-work-rail"]);
+  }
+
   if (input["run-work-queue-needs-attention"] !== undefined) {
     return normalizeCount(input["run-work-queue-needs-attention"]);
   }
 
-  return normalizeCount(input["unfinished-work-rail"]);
+  return 0;
 }
 
 /** TB-2369 — roll attention surface counts into partition summaries for home + nav badges. */

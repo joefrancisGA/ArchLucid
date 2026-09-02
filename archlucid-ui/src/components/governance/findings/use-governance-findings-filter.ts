@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -43,6 +43,8 @@ export type UseGovernanceFindingsFilterOptions = {
 export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilterOptions) {
   const mode = options?.mode ?? "tenant";
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const [registerFilter, setRegisterFilterState] = useState<RiskRegisterFilter>(() =>
     initialRegisterFilterFromUrlOrStorage(searchParams.get("filter"), mode),
   );
@@ -74,7 +76,19 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
   const setRegisterFilter = useCallback((next: RiskRegisterFilter): void => {
     setRegisterFilterState(next);
     patchGovernanceFindingsQueueFacets({ registerFilter: next }, mode);
-  }, [mode]);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (next === "all") {
+      params.delete("filter");
+    } else {
+      params.set("filter", next);
+    }
+
+    const query = params.toString();
+
+    router.replace(query.length === 0 ? pathname : `${pathname}?${query}`, { scroll: false });
+  }, [mode, pathname, router, searchParams]);
 
   const saveCurrentFilterAsPreset = useCallback((): void => {
     if (registerFilter === "all") {

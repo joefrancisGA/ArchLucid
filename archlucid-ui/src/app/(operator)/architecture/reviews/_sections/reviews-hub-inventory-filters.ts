@@ -74,6 +74,45 @@ export function reviewsHubInventoryHrefFromSearch(
   return query.length === 0 ? pathname : `${pathname}?${query}`;
 }
 
+export const REVIEWS_HUB_INVENTORY_SEARCH_PARAM = "q";
+
+/** Parses `?q=` from the reviews hub URL. */
+export function parseReviewsHubInventorySearchQuery(raw: string | null | undefined): string {
+  if (raw === null || raw === undefined) {
+    return "";
+  }
+
+  return raw;
+}
+
+export function reviewsHubInventorySearchHrefFromSearch(
+  currentSearch: string,
+  query: string,
+  pathname: string = "/architecture/reviews",
+): string {
+  const params = new URLSearchParams(currentSearch);
+  const trimmed = query.trim();
+
+  if (trimmed.length === 0) {
+    params.delete(REVIEWS_HUB_INVENTORY_SEARCH_PARAM);
+  } else {
+    params.set(REVIEWS_HUB_INVENTORY_SEARCH_PARAM, trimmed);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function countRunsMatchingInventoryFilter(
+  runs: readonly RunSummary[],
+  filter: ReviewFilterId,
+  ownerContext: ReviewPackageOwnerResolutionContext,
+  siblingRuns: readonly RunSummary[],
+): number {
+  return runs.filter((run) => matchesFilter(run, filter, ownerContext, siblingRuns)).length;
+}
+
 export function matchesSearch(
   run: RunSummary,
   query: string,

@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   parseReviewsHubInventoryFilter,
+  parseReviewsHubInventorySearchQuery,
   reviewsHubInventoryFilterHref,
   reviewsHubInventoryHrefFromSearch,
+  reviewsHubInventorySearchHrefFromSearch,
+  countRunsMatchingInventoryFilter,
 } from "./reviews-hub-inventory-filters";
 
 describe("reviews hub inventory filter URL", () => {
@@ -29,5 +32,14 @@ describe("reviews hub inventory filter URL", () => {
       "/architecture/reviews?q=payments&filter=finalized",
     );
     expect(reviewsHubInventoryHrefFromSearch("filter=Active", "all")).toBe("/architecture/reviews");
+  });
+
+  it("syncs inventory search with ?q=", () => {
+    expect(parseReviewsHubInventorySearchQuery("payments")).toBe("payments");
+    expect(parseReviewsHubInventorySearchQuery(null)).toBe("");
+    expect(reviewsHubInventorySearchHrefFromSearch("filter=Active", "payments")).toBe(
+      "/architecture/reviews?filter=Active&q=payments",
+    );
+    expect(reviewsHubInventorySearchHrefFromSearch("q=old", "")).toBe("/architecture/reviews");
   });
 });
