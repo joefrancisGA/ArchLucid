@@ -42,6 +42,13 @@ public sealed partial class FindingJsonConverter
         if (el.ValueKind == JsonValueKind.Number && el.TryGetInt64(out long numeric))
             return numeric.ToString(CultureInfo.InvariantCulture);
 
+        if (el.ValueKind == JsonValueKind.Number
+            && el.TryGetDouble(out double wholeNumber)
+            && double.IsFinite(wholeNumber)
+            && wholeNumber >= 0
+            && wholeNumber == Math.Floor(wholeNumber))
+            return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
+
         return null;
     }
 
@@ -122,6 +129,13 @@ public sealed partial class FindingJsonConverter
 
     private static bool TryReadWholeNumberInt32(JsonElement element, out int value)
     {
+        if (element.ValueKind != JsonValueKind.Number)
+        {
+            value = default;
+
+            return false;
+        }
+
         if (element.TryGetInt32(out value))
         {
             return true;
@@ -169,7 +183,7 @@ public sealed partial class FindingJsonConverter
 
     private static bool TryReadInt32(JsonElement element, out int value)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out value))
+        if (TryReadWholeNumberInt32(element, out value))
             return true;
 
         if (element.ValueKind == JsonValueKind.String

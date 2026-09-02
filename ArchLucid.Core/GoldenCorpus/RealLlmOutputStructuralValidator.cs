@@ -258,10 +258,60 @@ public static class RealLlmOutputStructuralValidator
         return agentTypeEl.ValueKind switch
         {
             JsonValueKind.String => EnumTryParseLenient(agentTypeEl.GetString(), expected, out message),
-            JsonValueKind.Number => agentTypeEl.TryGetInt32(out int n) && Enum.IsDefined(typeof(AgentType), n) &&
-                (AgentType)n == expected || SetMsg(out message, "agentType number does not match the expected type."),
+            JsonValueKind.Number => TryReadWholeNumberAgentType(agentTypeEl, expected, out message),
             _ => SetFalse(out message, "agentType must be a string or number.")
         };
+    }
+
+    private static bool TryReadWholeNumberAgentType(JsonElement agentTypeEl, AgentType expected, out string? message)
+    {
+        message = null;
+
+        if (!TryReadWholeNumberInt32(agentTypeEl, out int agentTypeOrdinal))
+        {
+            return SetFalse(out message, "agentType must be a string or number.");
+        }
+
+        if (!Enum.IsDefined(typeof(AgentType), agentTypeOrdinal))
+        {
+            return SetMsg(out message, "agentType number does not match the expected type.");
+        }
+
+        if ((AgentType)agentTypeOrdinal == expected)
+        {
+            return true;
+        }
+
+        return SetMsg(out message, "agentType number does not match the expected type.");
+    }
+
+    private static bool TryReadWholeNumberInt32(JsonElement element, out int value)
+    {
+        if (element.ValueKind != JsonValueKind.Number)
+        {
+            value = default;
+
+            return false;
+        }
+
+        if (element.TryGetInt32(out value))
+        {
+            return true;
+        }
+
+        if (element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static bool EnumTryParseLenient(string? text, AgentType expected, out string? message)

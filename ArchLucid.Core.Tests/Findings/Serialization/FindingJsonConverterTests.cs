@@ -848,6 +848,100 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_whole_number_double_humanReviewStatus_maps_pending()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": 1.0
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.HumanReviewStatus.Should().Be(FindingHumanReviewStatus.Pending);
+    }
+
+    [Fact]
+    public void Deserialize_whole_number_double_runIdRef_coerces_to_string()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": "Pending",
+                              "runIdRef": 42.0
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.RunIdRef.Should().Be("42");
+    }
+
+    [Fact]
+    public void Deserialize_whole_number_double_findingSchemaVersion_maps_version()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2.0,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": "Pending"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.FindingSchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
     public void Deserialize_pascal_case_confidenceScore_maps_value()
     {
         const string json = """

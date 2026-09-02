@@ -64,7 +64,7 @@ public sealed partial class FindingJsonConverter
         if (element.ValueKind == JsonValueKind.Null)
             return null;
 
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(element, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingConfidenceLevel), numeric))
                 throw new JsonException($"Unknown finding confidence level value '{numeric}'.");
@@ -96,7 +96,7 @@ public sealed partial class FindingJsonConverter
 
     private static FindingEnforcementTier ReadEnforcementTier(JsonElement element)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(element, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingEnforcementTier), numeric))
                 throw new JsonException($"Unknown finding enforcement tier value '{numeric}'.");
@@ -117,7 +117,7 @@ public sealed partial class FindingJsonConverter
 
     private static FindingTreatment? ReadTreatment(JsonElement element)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(element, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingTreatment), numeric))
                 throw new JsonException($"Unknown finding treatment value '{numeric}'.");
@@ -149,7 +149,7 @@ public sealed partial class FindingJsonConverter
 
     private static FindingClassification? ReadClassification(JsonElement element)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(element, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingClassification), numeric))
                 throw new JsonException($"Unknown finding classification value '{numeric}'.");
@@ -181,7 +181,7 @@ public sealed partial class FindingJsonConverter
 
     private static FindingHumanReviewStatus ReadHumanReviewStatus(JsonElement element)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(element, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), numeric))
                 throw new JsonException($"Unknown finding human review status value '{numeric}'.");
