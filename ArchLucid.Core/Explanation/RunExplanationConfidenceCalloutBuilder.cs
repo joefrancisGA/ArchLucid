@@ -331,6 +331,14 @@ public static class RunExplanationConfidenceCalloutBuilder
                 return !string.IsNullOrWhiteSpace(value);
             }
 
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryParseWholeNumberString(raw.Trim(), out int numericFromString))
+            {
+                value = numericFromString.ToString(CultureInfo.InvariantCulture);
+
+                return !string.IsNullOrWhiteSpace(value);
+            }
+
             value = raw;
 
             return !string.IsNullOrWhiteSpace(value);
@@ -338,6 +346,23 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         if (element.ValueKind == JsonValueKind.Number)
         {
+            if (element.TryGetInt64(out long numeric))
+            {
+                value = numeric.ToString(CultureInfo.InvariantCulture);
+
+                return !string.IsNullOrWhiteSpace(value);
+            }
+
+            if (element.TryGetDouble(out double wholeNumber)
+                && double.IsFinite(wholeNumber)
+                && wholeNumber >= 0
+                && wholeNumber == Math.Floor(wholeNumber))
+            {
+                value = ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
+
+                return !string.IsNullOrWhiteSpace(value);
+            }
+
             value = element.GetRawText();
 
             return !string.IsNullOrWhiteSpace(value);

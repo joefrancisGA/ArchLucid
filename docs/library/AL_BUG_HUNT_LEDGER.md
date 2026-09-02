@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 54
-- **bugs-found:** 141
+- **hunts:** 55
+- **bugs-found:** 143
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — golden-corpus boolean agentType coercion parity
+- **last-bug:** 2026-09-02 — explanation faithfulnessWarning whole-number double coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1930,6 +1930,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RealLlmOutputStructuralValidator.JsonAgentTypeMatchesExpected` — boolean `agentType` JSON rejected — **hit 2026-09-02 (#466):** `"agentType":true` failed structural validation while sibling finding fields already accepted boolean tokens; fixed with `TryReadBooleanOrdinalAgentType` (`ValidateAgentResultStructure_accepts_boolean_agentType`).
 - [x] (proven) `RealLlmOutputStructuralValidator.EnumTryParseLenient` — string-encoded boolean `agentType` rejected — **hit 2026-09-02 (#466):** `"agentType":"True"` failed validation while numeric/string whole-number ordinals already accepted; fixed with `TryParseBooleanOrdinalString` (`ValidateAgentResultStructure_accepts_string_encoded_boolean_agentType`).
 - [x] (proven) `RealLlmOutputStructuralValidator.TryResolveAgentType` — string-encoded boolean parameter rejected — **hit 2026-09-02 (#466):** `ValidateAgentResultStructure("True", …)` failed while JSON `"agentType":"True"` parity was missing; fixed with shared boolean ordinal coercion (`ValidateAgentResultStructure_accepts_string_encoded_boolean_agentType_parameter`).
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadNonEmptyTextToken` — whole-number double `faithfulnessWarning` JSON token not normalized — **hit 2026-09-02 (#467):** `"faithfulnessWarning":42.0` kept decimal while integer JSON normalized to `"42"` in #439; fixed with whole-number token coercion (`FromAggregateJson_maps_whole_number_double_faithfulness_warning`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadNonEmptyTextToken` — string-encoded whole-number `faithfulnessWarning` not normalized — **hit 2026-09-02 (#467):** `"faithfulnessWarning":"42.0"` kept decimal while numeric whole-number doubles normalized in sibling readers #465; fixed with `TryParseWholeNumberString` (`FromAggregateJson_maps_string_encoded_whole_number_double_faithfulness_warning`).
+
+2026-09-02 seed hunt #467: reseeded from ArchLucid.Core; proved explanation faithfulnessWarning whole-number double coercion gaps.
 
 2026-09-02 seed hunt #466: reseeded from ArchLucid.Core; proved golden-corpus boolean agentType coercion gaps.
 
