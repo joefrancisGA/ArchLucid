@@ -41,8 +41,8 @@ public sealed partial class FindingJsonConverter
             string? raw = el.GetString();
 
             if (!string.IsNullOrWhiteSpace(raw)
-                && TryParseWholeNumberLongString(raw, out long numericFromString))
-                return numericFromString.ToString(CultureInfo.InvariantCulture);
+                && TryCoerceStringTokenToRawText(raw, out string? coerced))
+                return coerced;
 
             return raw;
         }
@@ -127,8 +127,8 @@ public sealed partial class FindingJsonConverter
             string? raw = element.GetString() ?? "";
 
             if (!string.IsNullOrWhiteSpace(raw)
-                && TryParseWholeNumberLongString(raw, out long numericFromString))
-                return numericFromString.ToString(CultureInfo.InvariantCulture);
+                && TryCoerceStringTokenToRawText(raw, out string? coerced))
+                return coerced ?? "";
 
             return raw;
         }
@@ -280,6 +280,27 @@ public sealed partial class FindingJsonConverter
         }
 
         value = default;
+
+        return false;
+    }
+
+    private static bool TryCoerceStringTokenToRawText(string raw, out string? value)
+    {
+        if (TryParseBooleanString(raw, out bool boolean))
+        {
+            value = boolean ? "true" : "false";
+
+            return true;
+        }
+
+        if (TryParseWholeNumberLongString(raw, out long numericFromString))
+        {
+            value = numericFromString.ToString(CultureInfo.InvariantCulture);
+
+            return true;
+        }
+
+        value = null;
 
         return false;
     }

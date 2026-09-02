@@ -458,6 +458,38 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_properties_string_encoded_boolean_values_coerce_to_lowercase_strings()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": { "enabled": "True", "region": "eastus" },
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": "Pending"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.Properties["enabled"].Should().Be("true");
+        finding.Properties["region"].Should().Be("eastus");
+    }
+
+    [Fact]
     public void Deserialize_recommendedActions_boolean_entries_coerce_to_strings()
     {
         const string json = """
@@ -472,6 +504,37 @@ public sealed class FindingJsonConverterTests
                               "rationale": "No subnet is defined for worker pool isolation.",
                               "relatedNodeIds": [],
                               "recommendedActions": [true, "review"],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": "Pending"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.RecommendedActions.Should().Equal("true", "review");
+    }
+
+    [Fact]
+    public void Deserialize_recommendedActions_string_encoded_boolean_entries_coerce_to_lowercase_strings()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": ["True", "review"],
                               "properties": {},
                               "payloadType": null,
                               "payload": null,
@@ -1253,6 +1316,38 @@ public sealed class FindingJsonConverterTests
 
         finding.Should().NotBeNull();
         finding!.RunIdRef.Should().Be("42");
+    }
+
+    [Fact]
+    public void Deserialize_string_encoded_boolean_runIdRef_coerces_to_lowercase_string()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": "Pending",
+                              "runIdRef": "True"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.RunIdRef.Should().Be("true");
     }
 
     [Fact]
