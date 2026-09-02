@@ -37,8 +37,14 @@ export function writeDigestBrowseLastViewedId(digestId: string): void {
 }
 
 function toTarget(digest: ArchitectureDigest): DigestsBrowseContinueLastTarget {
+  const digestId = digest.digestId?.trim() ?? "";
+
+  if (digestId.length === 0) {
+    throw new Error("resolveContinueLastDigestBrowse requires digest.digestId.");
+  }
+
   return {
-    digestId: digest.digestId ?? "",
+    digestId,
     title: (digest.title ?? "").trim().length > 0 ? (digest.title ?? "") : "Architecture digest",
   };
 }
