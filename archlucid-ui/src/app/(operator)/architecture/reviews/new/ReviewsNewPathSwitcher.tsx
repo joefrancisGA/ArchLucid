@@ -83,7 +83,7 @@ export function ReviewsNewPathSwitcher() {
   const showJobChooserStartOptions = activePath === "quick-review" && !hasAcceleratorStartIntent;
   const specimenPreviewPresentation = useReviewsNewSpecimenPreviewPresentation();
   const commitQuery = useCorePilotCommitContextQuery();
-  const isReturningTenant = commitQuery.data?.hasCommittedManifest === true;
+  const isReturningTenant = commitQuery.isPending || commitQuery.data?.hasCommittedManifest === true;
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
