@@ -172,10 +172,32 @@ public sealed partial class AzureRetailPricesCatalogClient
             || trimmed.Contains("hrs", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains(" hr", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("/hr", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("/h", StringComparison.OrdinalIgnoreCase)
+            || ContainsSlashHourToken(trimmed)
             || trimmed.Contains(" h", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsSlashHourToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/h", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterH = index + 2;
+
+            if (afterH >= trimmed.Length || !char.IsLetter(trimmed[afterH]))
+                return true;
+
+            index = afterH;
+        }
+
+        return false;
     }
 
     internal static bool IsMonthlyMeter(string uom)
