@@ -9,6 +9,7 @@ export const emptyCorePilotCommitContext: CorePilotCommitContext = {
   firstCommittedRunId: null,
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 /** Vitest partial mock — keeps module exports and wires cached reads to the same fn. */

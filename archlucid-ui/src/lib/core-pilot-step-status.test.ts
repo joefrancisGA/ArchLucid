@@ -17,6 +17,7 @@ const emptyTenant: CorePilotCommitContext = {
   firstCommittedRunId: null,
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 const inProgressRun: CorePilotCommitContext = {
@@ -36,6 +37,7 @@ const committedTenant: CorePilotCommitContext = {
   firstCommittedRunId: "run-committed",
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 const noSkips = Array.from({ length: 7 }, () => false);

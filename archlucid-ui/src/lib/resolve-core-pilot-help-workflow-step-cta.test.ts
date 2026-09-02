@@ -16,6 +16,7 @@ const emptyCtx: CorePilotCommitContext = {
   firstCommittedRunId: null,
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 const step3 = CORE_PILOT_HELP_WORKFLOW_STEPS[2]!;
