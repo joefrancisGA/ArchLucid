@@ -25,4 +25,21 @@ public sealed class GraphJsonElementReadersPropertiesTests
         node.Should().NotBeNull();
         node!.Properties.Should().ContainKey("resourceId").WhoseValue.Should().Be("12345");
     }
+
+    [Fact]
+    public void ReadProperties_boolean_values_coerce_to_strings()
+    {
+        const string json =
+            """{"nodeId":"n1","nodeType":"t","label":"l","properties":{"enabled":true,"region":"eastus"}}""";
+
+        JsonSerializerOptions options = new();
+        options.Converters.Add(new GraphNodeJsonConverter());
+
+        GraphNode? node = JsonSerializer.Deserialize<GraphNode>(json, options);
+
+        node.Should().NotBeNull();
+        node!.Properties.Should().HaveCount(2);
+        node.Properties.Should().ContainKey("enabled").WhoseValue.Should().Be("true");
+        node.Properties.Should().ContainKey("region").WhoseValue.Should().Be("eastus");
+    }
 }

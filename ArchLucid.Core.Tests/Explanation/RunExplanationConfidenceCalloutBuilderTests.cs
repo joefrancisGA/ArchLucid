@@ -99,4 +99,19 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals!.CitationCount.Should().Be(2);
         RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
     }
+
+    [Fact]
+    public void FromAggregateJson_maps_boolean_faithfulness_warning()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessWarning": true
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessWarning.Should().Be("true");
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
 }

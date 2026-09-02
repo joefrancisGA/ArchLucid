@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 28
-- **bugs-found:** 59
+- **hunts:** 29
+- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — explanation aggregate numeric fallback flag; numeric faithfulness warning; string-encoded citation count
+- **last-bug:** 2026-09-02 — graph properties boolean coercion; explanation aggregate boolean faithfulness warning
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1854,6 +1854,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — numeric `deterministicFallbackUsed` ignored (boolean/string JSON only) — **hit 2026-09-02 (#439):** `"deterministicFallbackUsed":1` left fallback false so HOLD disposition was skipped; fixed with numeric boolean coercion in `TryReadBoolean` (`FromAggregateJson_maps_numeric_deterministic_fallback_flag`).
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — numeric `faithfulnessWarning` ignored (string JSON only) — **hit 2026-09-02 (#439):** `"faithfulnessWarning":42` dropped warning text so WARN disposition was skipped; fixed with `TryReadNonEmptyTextToken` (`FromAggregateJson_maps_numeric_faithfulness_warning`).
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — string-encoded `citations` count ignored (array/number JSON only) — **hit 2026-09-02 (#439):** `"citations":"2"` left `CitationCount` null; fixed with string numeric coercion (`FromAggregateJson_maps_string_encoded_citation_count`).
+- [x] (proven) `GraphJsonElementReaders.ReadProperties` — boolean `properties` bag entries dropped on dictionary deserialize fallback — **hit 2026-09-02 (#440):** `"properties":{"enabled":true}` hydrated without boolean keys; fixed by coercing true/false tokens to strings (`ReadProperties_boolean_values_coerce_to_strings`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — boolean `faithfulnessWarning` ignored (string/number JSON only) — **hit 2026-09-02 (#440):** `"faithfulnessWarning":true` dropped warning text so WARN disposition was skipped; fixed by extending `TryReadNonEmptyTextToken` (`FromAggregateJson_maps_boolean_faithfulness_warning`).
+
+2026-09-02 seed hunt #440: reseeded from ArchLucid.Core; proved graph properties boolean coercion and explanation aggregate boolean faithfulness warning gaps.
 
 2026-09-02 seed hunt #439: reseeded from ArchLucid.Core; proved explanation aggregate numeric fallback flag, numeric faithfulness warning, and string-encoded citation count gaps.
 

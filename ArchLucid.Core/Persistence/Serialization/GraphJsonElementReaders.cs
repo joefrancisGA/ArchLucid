@@ -44,6 +44,11 @@ internal static class GraphJsonElementReaders
                 {
                     result[property.Name] = property.Value.GetRawText();
                 }
+
+                if (property.Value.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                {
+                    result[property.Name] = property.Value.GetRawText();
+                }
             }
 
             return result;
