@@ -41,6 +41,8 @@ public sealed partial class DapperDraftRequestRepository
                                RedirectReason,
                                SpawnedRunId,
                                SpawnedArchitectureVersionId,
+                               DocumentContentHashSha256,
+                               SpawnedDocumentContentHashSha256,
                                CreatedByUserId,
                                CreatedUtc,
                                UpdatedUtc
@@ -154,6 +156,8 @@ public sealed partial class DapperDraftRequestRepository
                                RedirectReason,
                                SpawnedRunId,
                                SpawnedArchitectureVersionId,
+                               DocumentContentHashSha256,
+                               SpawnedDocumentContentHashSha256,
                                CreatedByUserId,
                                CreatedUtc,
                                UpdatedUtc

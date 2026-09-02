@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Common;
@@ -36,7 +37,8 @@ public sealed class GcpInventorySecurityBaselineFindingEngine(
     public string Category => "Security";
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 

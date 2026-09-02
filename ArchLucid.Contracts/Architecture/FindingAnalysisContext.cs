@@ -46,4 +46,11 @@ public sealed class FindingAnalysisContext
         get;
         init;
     } = string.Empty;
+
+    /// <summary>Categories that enabled policy packs require engines to cover (wave-3 suggestion 26).</summary>
+    public IReadOnlyList<string> RequiredFindingCategories
+    {
+        get;
+        init;
+    } = [];
 }

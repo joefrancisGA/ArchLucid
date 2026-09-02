@@ -2,6 +2,7 @@ using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Decisioning.Services;
 
@@ -13,6 +14,7 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
 
     public Task<IReadOnlyList<Finding>> AnalyzeAsync(
         GraphSnapshot graphSnapshot,
+        FindingAnalysisContext? analysisContext,
         CancellationToken ct)
     {
         PolicyCoverageResult result = analyzer.AnalyzePolicy(graphSnapshot);

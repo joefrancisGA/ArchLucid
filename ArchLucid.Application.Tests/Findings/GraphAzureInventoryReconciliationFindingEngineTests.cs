@@ -65,7 +65,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
 
         GraphAzureInventoryReconciliationFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.EngineType.Should().Be("azure-inventory-reconciliation");
@@ -107,7 +107,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
 
         GraphAzureInventoryReconciliationFindingEngine sut = CreateSut(package);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");
@@ -140,7 +140,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
 
         GraphAzureInventoryReconciliationFindingEngine sut = CreateSut(null);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");
@@ -180,7 +180,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
 
         GraphAzureInventoryReconciliationFindingEngine sut = CreateSut(package);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");

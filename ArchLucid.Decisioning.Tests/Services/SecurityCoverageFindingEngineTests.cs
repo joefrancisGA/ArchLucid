@@ -28,7 +28,7 @@ public sealed class SecurityCoverageFindingEngineTests
 
         SecurityCoverageFindingEngine sut = new(_analyzer.Object);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -47,7 +47,7 @@ public sealed class SecurityCoverageFindingEngineTests
 
         SecurityCoverageFindingEngine sut = new(_analyzer.Object);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         Finding finding = findings[0];

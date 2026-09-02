@@ -121,11 +121,8 @@ public static class FindingEnginePluginDiscovery
 
                 if (BuiltInEngineTypeIds.Contains(engineTypeId))
                 {
-                    logger.LogWarning(
-                        "Skipping plugin {TypeName}: EngineType '{EngineType}' collides with a built-in engine.",
-                        candidate.FullName,
-                        engineTypeId);
-                    continue;
+                    throw new InvalidOperationException(
+                        $"Finding engine plugin '{candidate.FullName}' uses EngineType '{engineTypeId}' which collides with a built-in product engine.");
                 }
 
                 if (!seenEngineTypes.Add(engineTypeId))

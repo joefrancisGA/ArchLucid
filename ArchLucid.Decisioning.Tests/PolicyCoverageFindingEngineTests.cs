@@ -32,7 +32,7 @@ public sealed class PolicyCoverageFindingEngineTests
         PolicyCoverageFindingEngine sut = new(_analyzer.Object);
         GraphSnapshot graph = new();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("PolicyCoverageFinding");
@@ -60,7 +60,7 @@ public sealed class PolicyCoverageFindingEngineTests
 
         PolicyCoverageFindingEngine sut = new(_analyzer.Object);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -78,7 +78,7 @@ public sealed class PolicyCoverageFindingEngineTests
 
         PolicyCoverageFindingEngine sut = new(_analyzer.Object);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         PolicyCoverageFindingPayload? payload = findings[0].Payload as PolicyCoverageFindingPayload;

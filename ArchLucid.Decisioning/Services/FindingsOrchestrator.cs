@@ -81,7 +81,7 @@ public partial class FindingsOrchestrator(
             : null;
 
         Task<EngineInvocationOutcome>[] invocationTasks = primaryAdapters
-            .Select(adapter => InvokeEngineAsync(adapter, graphSnapshot, ct))
+            .Select(adapter => InvokeEngineAsync(adapter, graphSnapshot, analysisContext, ct))
             .ToArray();
 
         EngineInvocationOutcome[] outcomes = await AwaitEngineInvocationsAsync(invocationTasks);
@@ -107,7 +107,7 @@ public partial class FindingsOrchestrator(
                 CollectPortfolioRecurrenceIdentities(allFindings));
 
             EngineInvocationOutcome portfolioOutcome =
-                await InvokeEngineAsync(portfolioRecurrenceAdapter, graphSnapshot, ct);
+                await InvokeEngineAsync(portfolioRecurrenceAdapter, graphSnapshot, analysisContext, ct);
 
             AppendEngineOutcome(
                 runId,
@@ -334,13 +334,14 @@ public partial class FindingsOrchestrator(
     private async Task<EngineInvocationOutcome> InvokeEngineAsync(
         EngineAdapter engine,
         GraphSnapshot graphSnapshot,
+        FindingAnalysisContext? analysisContext,
         CancellationToken ct)
     {
         Stopwatch sw = Stopwatch.StartNew();
 
         try
         {
-            IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, ct);
+            IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, analysisContext, ct);
             sw.Stop();
 
             return new EngineInvocationOutcome(engine, findings, null, sw.ElapsedMilliseconds);

@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Persistence.Interfaces;
 
 namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
@@ -73,6 +74,7 @@ public sealed class FindingAnalysisContextBuilder(
             ContextSnapshotId = contextSnapshot.SnapshotId,
             ArchitectureVersionId = header?.ArchitectureVersionId,
             EnabledPolicyPackIds = packIds,
+            RequiredFindingCategories = PolicyPackRequiredFindingCategoryResolver.ResolveRequiredCategories(packIds),
             Prior = prior,
             ContextCanonicalFingerprint = GraphSnapshotCanonicalFingerprint.Compute(contextSnapshot),
             KnowledgeModelFingerprint = GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(

@@ -60,6 +60,20 @@ public sealed class DraftRequestResponse
         set;
     }
 
+    /// <summary>SHA-256 of canonical draft document JSON (current revision).</summary>
+    public byte[]? DocumentContentHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Document hash pinned when the draft transitioned to <see cref="DraftRequestStatus.RunSpawned" />.</summary>
+    public byte[]? SpawnedDocumentContentHashSha256
+    {
+        get;
+        set;
+    }
+
     /// <summary>Canonical actor key or mailbox captured when the draft was created.</summary>
     public string CreatedByUserId
     {
