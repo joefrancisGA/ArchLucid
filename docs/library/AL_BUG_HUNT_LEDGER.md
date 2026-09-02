@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 74
-- **bugs-found:** 186
+- **hunts:** 75
+- **bugs-found:** 187
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AwsEc2OfferIndexParser numeric USD price token ignored
+- **last-bug:** 2026-09-02 — GcpCloudBillingCatalogClient numeric units/nanos price tokens ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2010,6 +2010,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureExtractorResourceInventoryReader.TryNormalizeBooleanString` — `on` inventory name synonym ignored — **hit 2026-09-02 (#484):** `"name":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryReadFromZip_string_encoded_on_name_coerces_to_lowercase_string`).
 
 - [x] (proven) `AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd` — numeric `pricePerUnit.USD` JSON tokens ignored (string round-trip only) — **hit 2026-09-02 (#486):** `"USD":0.0104` returned null while `"0.0104"` parsed; fixed with `TryReadUsdPrice` number coercion (`TryGetLinuxOnDemandHourlyUsd_parses_numeric_usd_price`).
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — numeric `unitPrice.units` / `unitPrice.nanos` JSON tokens ignored (string round-trip only) — **hit 2026-09-02 (#487):** `"nanos":10400000` returned null while `"10400000"` parsed; fixed with `TryReadInt64Token` / `TryReadInt32Token` (`TryGetComputeEngineMonthlyUsdAsync_parses_numeric_unit_price_tokens`).
+
+2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
 2026-09-02 seed hunt #486: reseeded from ArchLucid.Core costing parsers after boolean-synonym sweep; proved AwsEc2 offer-index numeric USD price coercion gap.
 

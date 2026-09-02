@@ -195,15 +195,73 @@ public sealed class GcpCloudBillingCatalogClient
         if (!unitPrice.TryGetProperty("nanos", out JsonElement nanosElement))
             return false;
 
-        if (!long.TryParse(unitsElement.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out long units))
+        if (!TryReadInt64Token(unitsElement, out long units))
             units = 0;
 
-        if (!int.TryParse(nanosElement.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int nanos))
+        if (!TryReadInt32Token(nanosElement, out int nanos))
             nanos = 0;
 
         hourlyUsd = units + nanos / 1_000_000_000m;
 
         return hourlyUsd > 0m;
+    }
+
+    private static bool TryReadInt64Token(JsonElement element, out long value)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out value))
+            return true;
+
+        if (element.ValueKind != JsonValueKind.String)
+        {
+            value = default;
+
+            return false;
+        }
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        return long.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+    }
+
+    private static bool TryReadInt32Token(JsonElement element, out int value)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out value))
+            return true;
+
+        if (element.ValueKind == JsonValueKind.Number
+            && element.TryGetInt64(out long wholeNumber)
+            && wholeNumber >= int.MinValue
+            && wholeNumber <= int.MaxValue)
+        {
+            value = (int)wholeNumber;
+
+            return true;
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+        {
+            value = default;
+
+            return false;
+        }
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        return int.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
     }
 
     private sealed record CachedLookup
