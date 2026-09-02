@@ -27,17 +27,21 @@ import {
   provenanceNodeDisplayName,
   provenanceNodeTypeLabel,
 } from "@/lib/provenance-node-presentation";
-import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
+import type {
+  ArchitectureLinkageEdges,
+  ArchitectureLinkageNodes,
+  NormalizedArchitectureRunProvenanceGraph,
+} from "@/types/architecture-provenance";
 
 import { provenanceViewPanelProps } from "./ProvenanceViewModeSwitcher";
 import { SEARCH_THRESHOLD } from "./use-provenance-page-workspace";
 
-type ProvenanceGraphNode = ArchitectureRunProvenanceGraph["nodes"][number];
-type ProvenanceGraphEdge = ArchitectureRunProvenanceGraph["edges"][number];
+type ProvenanceGraphNode = ArchitectureLinkageNodes[number];
+type ProvenanceGraphEdge = ArchitectureLinkageEdges[number];
 
 export type ProvenancePageWorkspaceTablesSectionProps = {
   readonly runId: string;
-  readonly graph: ArchitectureRunProvenanceGraph;
+  readonly graph: NormalizedArchitectureRunProvenanceGraph;
   readonly selectedNodeId: string | null;
   readonly highlightedEdgeId: string | null;
   readonly nodeSearch: string;

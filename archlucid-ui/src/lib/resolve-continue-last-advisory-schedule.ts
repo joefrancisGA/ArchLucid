@@ -37,9 +37,15 @@ export function writeAdvisoryScheduleLastViewedId(scheduleId: string): void {
 }
 
 function toTarget(schedule: AdvisoryScanSchedule): AdvisorySchedulesContinueLastTarget {
+  const scheduleId = schedule.scheduleId?.trim() ?? "";
+
+  if (scheduleId.length === 0) {
+    throw new Error("Advisory scan schedule is missing scheduleId.");
+  }
+
   return {
-    scheduleId: schedule.scheduleId,
-    name: schedule.name.trim().length > 0 ? schedule.name : "Advisory scan schedule",
+    scheduleId,
+    name: (schedule.name ?? "").trim().length > 0 ? (schedule.name ?? "") : "Advisory scan schedule",
   };
 }
 
@@ -59,7 +65,7 @@ function compareSoonestNextRun(left: AdvisoryScanSchedule, right: AdvisoryScanSc
     return 1;
   }
 
-  return right.createdUtc.localeCompare(left.createdUtc);
+  return (right.createdUtc ?? "").localeCompare(left.createdUtc ?? "");
 }
 
 /** Resolves the advisory schedule to pin as Continue last viewed. */

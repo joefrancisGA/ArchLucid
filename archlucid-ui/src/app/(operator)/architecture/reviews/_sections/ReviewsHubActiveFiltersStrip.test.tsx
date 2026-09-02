@@ -18,11 +18,12 @@ describe("ReviewsHubActiveFiltersStrip", () => {
     );
 
     expect(screen.getByTestId("reviews-hub-active-filters-strip")).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("reviews-hub-active-search-chip-dismiss"));
-    expect(onClearSearch).toHaveBeenCalledTimes(1);
-    expect(onClearFilter).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTestId("reviews-hub-active-filter-chip-dismiss"));
+    const clear = screen.getByTestId("reviews-hub-active-filters-clear");
+
+    expect(clear).toHaveClass("border-neutral-300");
+    fireEvent.click(clear);
+    expect(onClearSearch).toHaveBeenCalledTimes(1);
     expect(onClearFilter).toHaveBeenCalledTimes(1);
   });
 
