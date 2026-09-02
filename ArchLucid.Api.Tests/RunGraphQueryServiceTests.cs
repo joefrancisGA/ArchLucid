@@ -51,11 +51,31 @@ public sealed class RunGraphQueryServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task GetRunStageTimelineAsync_returns_not_found_for_whitespace_run_id_like_GetRunDetail()
+    {
+        Mock<IRunRepository> runs = new();
+        RunGraphQueryService sut = CreateService(Mock.Of<IRunDetailQueryService>(), runs.Object);
+
+        RunStageTimelineQueryResult result = await sut.GetRunStageTimelineAsync("   ", CancellationToken.None);
+
+        result.Outcome.Should().Be(RunGraphQueryOutcome.NotFound);
+        result.ProblemDetail.Should().ContainEquivalentOf("not found");
+        runs.Verify(
+            r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static RunGraphQueryService CreateService(IRunDetailQueryService runDetailQueryService) =>
+        CreateService(runDetailQueryService, Mock.Of<IRunRepository>());
+
+    private static RunGraphQueryService CreateService(
+        IRunDetailQueryService runDetailQueryService,
+        IRunRepository authorityRunRepository) =>
         new(
             runDetailQueryService,
             Mock.Of<IRunRoiEstimator>(),
-            Mock.Of<IRunRepository>(),
+            authorityRunRepository,
             Mock.Of<IRunStageOutcomesRepository>(),
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IRunTrustEvidenceCardBuilder>(),

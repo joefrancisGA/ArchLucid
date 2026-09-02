@@ -147,6 +147,24 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ExplainStructuredBriefSuggestion_returns_bad_request_when_suggestion_text_exceeds_chat_intake_max_length()
+    {
+        RunsController controller = CreateController();
+
+        ExplainStructuredBriefSuggestionInput input = new()
+        {
+            SourceText = "Tenant migration platform with private networking and EU residency goals.",
+            SuggestionKind = StructuredBriefSuggestionKind.Constraint,
+            SuggestionText = OverLimitIntakeText.Value,
+        };
+
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_exceeds_chat_intake_max_length()
     {
         RunsController controller = CreateController();
