@@ -49,7 +49,7 @@ public static class MarketplaceWebhookPayloadParser
     }
 
     private static bool IsPlanIdDelimiter(char value) =>
-        value is '-' or '_' or ' ' or '.' or '/' or ':';
+        value is '-' or '_' or ' ' or '.' or '/' or ':' or '\\' or '|';
 
     /// <summary>Reads <c>planId</c> when present (string or number, coerced to invariant string).</summary>
     public static bool TryGetPlanId(JsonElement root, out string? planId)

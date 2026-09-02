@@ -202,4 +202,14 @@ public sealed class MarketplaceWebhookPayloadParserTests
             .Should()
             .Be(nameof(TenantTier.Enterprise));
     }
+
+    [Theory]
+    [InlineData(@"contoso\enterprise\monthly")]
+    [InlineData("contoso|enterprise|annual")]
+    public void TierStorageCodeFromPlanId_maps_backslash_or_pipe_delimited_enterprise_token(string planId)
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+            .Should()
+            .Be(nameof(TenantTier.Enterprise));
+    }
 }

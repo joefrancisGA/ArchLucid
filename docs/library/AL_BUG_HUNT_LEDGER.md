@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 112
-- **bugs-found:** 224
+- **hunts:** 113
+- **bugs-found:** 225
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — GCP machine-type letter-suffix prefix collision
+- **last-bug:** 2026-09-02 — marketplace planId backslash/pipe enterprise token gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2169,6 +2169,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GcpCloudBillingCatalogClient.DescriptionMatchesMachineType` — letter-variant machine-type suffix prefix collision — **hit 2026-09-02 (#531):** lookup `n1-standard-1` matched catalog SKU `n1-standard-1d` after #522 digit-boundary fix because trailing `d` was not rejected; fixed by rejecting letter suffixes immediately following a digit (`TryGetComputeEngineMonthlyUsdAsync_rejects_letter_suffix_machine_type_collision`).
 
 2026-09-02 seed hunt #531: reseeded from ArchLucid.Core GCP billing catalog; proved letter-suffix machine-type collision (parity with Azure #529).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — backslash/pipe-delimited `enterprise` token not recognized — **hit 2026-09-02 (#532):** `contoso\enterprise\monthly` and `contoso|enterprise|annual` returned `Standard` because `IsPlanIdDelimiter` omitted `\` and `|` after #526 slash/colon fix; fixed by extending delimiters (`TierStorageCodeFromPlanId_maps_backslash_or_pipe_delimited_enterprise_token`).
+
+2026-09-02 seed hunt #532: reseeded from ArchLucid.Core marketplace webhook parser; proved backslash/pipe planId enterprise token gap beyond #526 delimiter fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
