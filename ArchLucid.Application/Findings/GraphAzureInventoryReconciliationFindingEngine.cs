@@ -57,7 +57,11 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
         }
 
         AzureExtractorPackageDownloadRecord? download =
-            await _packageRepository.TryGetLatestDownloadInScopeAsync(scope, ct).ConfigureAwait(false);
+            await EffectfulFindingEngineEvidenceLoader.TryResolveAzureDownloadAsync(
+                _packageRepository,
+                scope,
+                analysisContext,
+                ct).ConfigureAwait(false);
 
         // Missing download rows are treated like absent inventory (same as empty/corrupt package bytes).
         string? resourcesJson = download is null || download.PackageBytes.Length == 0

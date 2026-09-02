@@ -32,9 +32,9 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
     [Fact]
     public async Task SimulateBulk_returns_bad_request_when_run_ids_is_null()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = CreateController(httpFacade);
 
         PolicyPackSimulateBulkRequest request = new() { RunIds = null! };
 
@@ -45,15 +45,15 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task SimulateBulk_returns_bad_request_when_all_run_ids_are_whitespace()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = CreateController(httpFacade);
 
         PolicyPackSimulateBulkRequest request = new() { RunIds = ["", "  "] };
 
@@ -64,15 +64,15 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task SimulateBulk_returns_bad_request_when_run_id_is_not_a_guid()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = CreateController(httpFacade);
 
         PolicyPackSimulateBulkRequest request = new()
         {
@@ -90,15 +90,15 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task SimulateBulk_returns_bad_request_when_run_id_is_empty_guid()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = CreateController(httpFacade);
 
         PolicyPackSimulateBulkRequest request = new() { RunIds = [Guid.Empty.ToString("D")] };
 
@@ -109,15 +109,15 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task SimulateBulk_returns_bad_request_for_count_cap_when_fifty_one_ids_include_malformed_trailer()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = CreateController(httpFacade);
 
         List<string> runIds = Enumerable
             .Range(0, 50)
@@ -136,15 +136,15 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
             .Which.Detail.Should().Contain("At most 50 run ids");
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task SimulateBulk_returns_bad_request_when_more_than_fifty_run_ids()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = CreateController(httpFacade);
 
         List<string> runIds = Enumerable
             .Range(0, 51)
@@ -162,7 +162,7 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
             .Which.Detail.Should().Contain("At most 50 run ids");
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -170,17 +170,20 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
     {
         Guid foreignPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
-        workflow
-            .Setup(f => f.TrySimulateBulkAsync(
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.SimulateBulkAsync(
                 foreignPackId,
                 It.IsAny<IReadOnlyList<string>>(),
                 It.IsAny<bool?>(),
                 It.IsAny<int?>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((PolicyPackSimulateBulkSummary?)null);
+            .ReturnsAsync(new PolicyPackHttpResult<PolicyPackSimulateBulkSummary>
+            {
+                Outcome = PolicyPackHttpOutcome.ResourceNotFound,
+            });
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = CreateController(httpFacade);
 
         string runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa").ToString("D");
         PolicyPackSimulateBulkRequest request = new() { RunIds = [runId] };
@@ -218,17 +221,17 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
             ],
         };
 
-        Mock<IPolicyPackWorkflowFacade> workflow = new();
-        workflow
-            .Setup(f => f.TrySimulateBulkAsync(
+        Mock<IPolicyPackHttpFacade> httpFacade = new();
+        httpFacade
+            .Setup(f => f.SimulateBulkAsync(
                 packId,
                 It.IsAny<IReadOnlyList<string>>(),
                 It.IsAny<bool?>(),
                 It.IsAny<int?>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(summary);
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPackSimulateBulkSummary>.Success(summary));
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = CreateController(httpFacade);
 
         PolicyPackSimulateBulkRequest request = new() { RunIds = [runId] };
 
@@ -239,30 +242,12 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
     }
 
     private static PolicyPacksController CreateController(
-        Mock<IPolicyPackWorkflowFacade> workflow,
+        Mock<IPolicyPackHttpFacade> httpFacade,
         bool tenantExists = true)
     {
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+        if (!tenantExists)
+            PolicyPacksControllerTestSupport.SetupScopeNotFoundDefaults(httpFacade);
 
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                tenantExists
-                    ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" }
-                    : null);
-
-        PolicyPacksController controller = new(
-            workflow.Object,
-            new CreatePolicyPackRequestValidator(),
-            new PublishPolicyPackVersionRequestValidator(),
-            new AssignPolicyPackRequestValidator(),
-            scopeProvider.Object,
-            tenants.Object);
-
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
-
-        return controller;
+        return PolicyPacksControllerTestSupport.CreateController(httpFacade);
     }
 }

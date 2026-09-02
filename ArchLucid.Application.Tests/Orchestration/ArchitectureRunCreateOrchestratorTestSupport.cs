@@ -3,7 +3,10 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Runs.Coordination;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Create.Hooks;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Concurrency;
@@ -74,7 +77,7 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
         usageMetering ??= Mock.Of<IUsageMeteringService>();
         timeProvider ??= TimeProvider.System;
         defaultPolicyPackCloudBaselineApplicator ??= CreatePolicyPackCloudBaselineApplicator();
-        architectureIdentityService ??= Mock.Of<IArchitectureIdentityService>();
+        architectureIdentityService ??= CreateDefaultArchitectureIdentityService();
 
         TimeProvider resolvedTimeProvider = timeProvider;
         IOptions<ArchitectureRunCreateOptions> resolvedCreateRunOptions = createRunOptions;
@@ -97,17 +100,32 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             runRepository,
             scopeContextProvider,
             runStateTransitionService,
+            new RunCreatePinOrchestrator(
+                new RunPolicyPackPinService(new InMemoryPolicyPackAssignmentRepository()),
+                new RunEvidencePackagePinService(
+                    new NoOpAzureExtractorPackageRepository(),
+                    new NoOpCloudInventoryExtractorPackageRepository()),
+                new RunGovernanceScopePinService()),
             NullLogger<ArchitectureRunCreatePersistenceHelper>.Instance);
 
         ArchitectureRunCreatePostCreateHooks postCreateHooks = new(
-            auditService,
-            scopeContextProvider,
-            usageMetering,
-            resolvedTimeProvider,
-            defaultPolicyPackCloudBaselineApplicator,
-            architectureIdentityService,
-            Mock.Of<IArchitectureVersionService>(),
-            NullLogger<ArchitectureRunCreatePostCreateHooks>.Instance);
+            new ArchitectureRunCreateAuditHook(
+                auditService,
+                scopeContextProvider,
+                NullLogger<ArchitectureRunCreateAuditHook>.Instance),
+            new ArchitectureRunCreateMeteringHook(
+                usageMetering,
+                resolvedTimeProvider,
+                NullLogger<ArchitectureRunCreateMeteringHook>.Instance),
+            new ArchitectureRunCreatePolicyBaselineHook(
+                defaultPolicyPackCloudBaselineApplicator,
+                scopeContextProvider,
+                NullLogger<ArchitectureRunCreatePolicyBaselineHook>.Instance),
+            new ArchitectureRunCreateIdentityLinkHook(
+                architectureIdentityService,
+                Mock.Of<IArchitectureVersionService>(),
+                scopeContextProvider),
+            scopeContextProvider);
 
         return new ArchitectureRunCreateOrchestrator(
             coordination,
@@ -131,5 +149,23 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             postCreateHooks,
             resolvedTimeProvider,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+    }
+
+    private static IArchitectureIdentityService CreateDefaultArchitectureIdentityService()
+    {
+        Mock<IArchitectureIdentityService> identity = new();
+        identity
+            .Setup(s => s.TryEnsureReviewRunLinkedAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Contracts.Architecture.ArchitectureIdentityRecord
+            {
+                ArchitectureId = Guid.NewGuid(),
+            });
+
+        return identity.Object;
     }
 }

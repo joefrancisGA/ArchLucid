@@ -77,8 +77,9 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
 
                 break;
             case JsonValueKind.Array:
-                List<JsonElement> leftArray = left.EnumerateArray().ToList();
-                List<JsonElement> rightArray = right.EnumerateArray().ToList();
+                List<JsonElement> leftArray = SortJsonArrayElements(left);
+                List<JsonElement> rightArray = SortJsonArrayElements(right);
+
                 if (leftArray.Count != rightArray.Count)
                     items.Add(new DriftItem
                     {
@@ -88,8 +89,10 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                         RegeneratedValue = rightArray.Count.ToString(),
                         Description = "Array length changed."
                     });
+
                 for (int i = 0; i < Math.Min(leftArray.Count, rightArray.Count); i++)
                     CompareElement($"{path}[{i}]", leftArray[i], rightArray[i], items);
+
                 break;
             default:
                 if (left.ToString() != right.ToString())
@@ -103,5 +106,24 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                     });
                 break;
         }
+    }
+
+    private static List<JsonElement> SortJsonArrayElements(JsonElement array)
+    {
+        return array.EnumerateArray()
+            .Select(element => (SortKey: BuildArrayElementSortKey(element), Element: element))
+            .OrderBy(pair => pair.SortKey, StringComparer.Ordinal)
+            .Select(pair => pair.Element)
+            .ToList();
+    }
+
+    private static string BuildArrayElementSortKey(JsonElement element)
+    {
+        if (element.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+        {
+            return JsonSerializer.Serialize(element, JsonOptions);
+        }
+
+        return element.GetRawText();
     }
 }

@@ -188,4 +188,44 @@ public sealed class SqlArchitectureVersionRepository(ISqlConnectionFactory conne
                 },
                 cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
+
+    public async Task<ArchitectureVersionRecord?> GetByArchitectureIdAndVersionNumberAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        int versionNumber,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (architectureId == Guid.Empty || versionNumber < 1)
+            return null;
+
+        const string sql = """
+                           SELECT TOP (1)
+                               ArchitectureVersionId, ArchitectureId, TenantId, WorkspaceId, ScopeProjectId,
+                               VersionNumber, ContentHashSha256, IntakeRequestHashSha256, SourceRequestId, CreatedUtc
+                           FROM dbo.ArchitectureVersions
+                           WHERE ArchitectureId = @ArchitectureId
+                             AND VersionNumber = @VersionNumber
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId;
+                           """;
+
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        return await connection.QuerySingleOrDefaultAsync<ArchitectureVersionRecord>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ArchitectureId = architectureId,
+                    VersionNumber = versionNumber,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+    }
 }

@@ -1,6 +1,7 @@
 // Outbox-processor composition registrations (extracted from ServiceCollectionExtensions.SchedulingAndAlerts).
 
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Http;
@@ -49,6 +50,9 @@ internal static class OutboxProcessorsCompositionRegistrar
     internal static void RegisterRetrievalIndexingOutbox(IServiceCollection services, ArchLucidHostingRole hostingRole)
     {
         services.AddSingleton<IRetrievalIndexingOutboxProcessor, RetrievalIndexingOutboxProcessor>();
+        services.AddScoped<IAuthorityPipelineWorkHandler, AuthorityPipelineExecuteWorkHandler>();
+        services.AddScoped<IAuthorityPipelineWorkHandler, AuthorityPipelineCommitWorkHandler>();
+        services.AddScoped<IAuthorityPipelineWorkHandler, AuthorityPipelineExtractorWorkHandler>();
         services.AddSingleton<IAuthorityPipelineWorkProcessor, AuthorityPipelineWorkProcessor>();
 
         if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))

@@ -6,6 +6,7 @@ import {
 } from "@/lib/architecture/architecture-intelligence-api";
 import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 export type ArchitectureIntelligenceSourceContext = {
   readonly runId: string | null;
@@ -22,9 +23,10 @@ export function useArchitectureIntelligenceSourceContextQuery(
   options?: UseArchitectureIntelligenceSourceContextQueryOptions,
 ) {
   const trimmed = runId.trim();
+  const scope = useOperatorScopeQueryKey();
 
   return createOperatorQueryHook<ArchitectureIntelligenceSourceContext>({
-    queryKey: operatorQueryKeys.architectureIntelligenceSourceContext(trimmed),
+    queryKey: operatorQueryKeys.architectureIntelligenceSourceContext(scope, trimmed),
     queryFn: async () => {
       const context = await fetchArchitectureIntelligenceProductSourceContext(trimmed);
 

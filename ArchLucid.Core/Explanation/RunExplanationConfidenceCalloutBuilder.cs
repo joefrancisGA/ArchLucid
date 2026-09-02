@@ -29,29 +29,41 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         double? ratio = null;
 
-        if (TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl)
-            && ratioEl.ValueKind == JsonValueKind.Number
-            && ratioEl.TryGetDouble(out double parsedRatio)
-            && double.IsFinite(parsedRatio))
+        if (TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl))
         {
-            ratio = parsedRatio;
+            ratio = TryReadFiniteDouble(ratioEl);
         }
 
         bool fallback =
             (TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out JsonElement direct)
-             && direct.ValueKind == JsonValueKind.True)
+             && TryReadBoolean(direct))
             || (TryGetPropertyCaseInsensitive(root, "usedDeterministicFallback", out JsonElement legacy)
-                && legacy.ValueKind == JsonValueKind.True);
+                && TryReadBoolean(legacy));
 
         string? warning = TryGetPropertyCaseInsensitive(root, "faithfulnessWarning", out JsonElement warningEl)
-                          && warningEl.ValueKind == JsonValueKind.String
-            ? warningEl.GetString()?.Trim()
+                          && TryReadNonEmptyTextToken(warningEl, out string? warningText)
+            ? warningText?.Trim()
             : null;
 
         int? citationCount = null;
 
-        if (TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl) && citationsEl.ValueKind == JsonValueKind.Array)
-            citationCount = citationsEl.GetArrayLength();
+        if (TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl))
+        {
+            if (citationsEl.ValueKind == JsonValueKind.Array)
+            {
+                citationCount = citationsEl.GetArrayLength();
+            }
+            else if (citationsEl.ValueKind == JsonValueKind.Number
+                     && TryReadWholeNumber(citationsEl, out int wholeNumberCount))
+            {
+                citationCount = wholeNumberCount;
+            }
+            else if (citationsEl.ValueKind == JsonValueKind.String
+                     && TryParseWholeNumberString(citationsEl.GetString(), out int stringEncodedCount))
+            {
+                citationCount = stringEncodedCount;
+            }
+        }
 
         return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);
     }
@@ -128,6 +140,180 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         value = default;
+
+        return false;
+    }
+
+    private static double? TryReadFiniteDouble(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Number
+            && element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric))
+        {
+            return numeric;
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+        {
+            if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            {
+                return element.ValueKind == JsonValueKind.True ? 1.0 : 0.0;
+            }
+
+            return null;
+        }
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return null;
+        }
+
+        if (double.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
+            && double.IsFinite(parsed))
+        {
+            return parsed;
+        }
+
+        return null;
+    }
+
+    private static bool TryReadBoolean(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.True)
+        {
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.False)
+        {
+            return false;
+        }
+
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            if (element.TryGetInt32(out int numeric))
+            {
+                return numeric != 0;
+            }
+
+            if (element.TryGetDouble(out double wholeNumber)
+                && double.IsFinite(wholeNumber)
+                && wholeNumber == Math.Floor(wholeNumber))
+            {
+                return wholeNumber != 0;
+            }
+
+            return false;
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        string? raw = element.GetString()?.Trim();
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return false;
+        }
+
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("no", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return false;
+    }
+
+    private static bool TryReadWholeNumber(JsonElement element, out int value)
+    {
+        if (element.TryGetInt32(out value))
+        {
+            return true;
+        }
+
+        if (element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberString(string? raw, out int value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryReadNonEmptyTextToken(JsonElement element, out string? value)
+    {
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            value = element.GetString();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            value = element.GetRawText();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.GetRawText();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        value = null;
 
         return false;
     }

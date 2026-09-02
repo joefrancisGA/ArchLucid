@@ -99,6 +99,9 @@ public sealed class PolicyPackResolverTests
         PolicyPack pack = new()
         {
             PolicyPackId = packId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
             Name = "Security baseline",
             PackType = PolicyPackType.BuiltIn
         };
@@ -305,10 +308,26 @@ public sealed class PolicyPackResolverTests
         Mock<IPolicyPackRepository> packs = new();
         packs
             .Setup(r => r.GetByIdAsync(packA, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PolicyPack { PolicyPackId = packA, Name = "First", PackType = PolicyPackType.BuiltIn });
+            .ReturnsAsync(new PolicyPack
+            {
+                PolicyPackId = packA,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                Name = "First",
+                PackType = PolicyPackType.BuiltIn,
+            });
         packs
             .Setup(r => r.GetByIdAsync(packB, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PolicyPack { PolicyPackId = packB, Name = "Second", PackType = PolicyPackType.WorkspaceCustom });
+            .ReturnsAsync(new PolicyPack
+            {
+                PolicyPackId = packB,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                Name = "Second",
+                PackType = PolicyPackType.WorkspaceCustom,
+            });
 
         Mock<IPolicyPackVersionRepository> versions = new();
         versions

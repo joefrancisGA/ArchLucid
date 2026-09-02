@@ -350,6 +350,10 @@ public static class DeclarationPremiseConflictClassifier
 
         ReadOnlySpan<string> negationSuffixes =
         [
+            "no requirement to",
+            "no need to",
+            "not required to",
+            "not obliged to",
             "do not",
             "don't",
             "does not",

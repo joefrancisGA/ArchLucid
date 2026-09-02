@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import {
+  expectWhereToGoNextFollowUpLinks,
+} from "@/lib/claim-discipline-test-helpers";
 
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
 import {
@@ -9,7 +11,7 @@ import {
 } from "@/lib/connect-aws-securely-help-evidence-copy";
 
 describe("ConnectAwsSecurelyHelpEvidenceOrientationStrip", () => {
-  it("renders claim discipline and Sources follow-up links", () => {
+  it("renders claim discipline and filtered Where to go next links", () => {
     render(<ConnectAwsSecurelyHelpEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("connect-aws-securely-help-orientation")).toBeInTheDocument();
@@ -17,8 +19,6 @@ describe("ConnectAwsSecurelyHelpEvidenceOrientationStrip", () => {
       CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
     );
 
-    for (const source of CONNECT_AWS_SECURELY_SOURCES) {
-      expectFollowUpLink(screen, source);
-    }
+    expectWhereToGoNextFollowUpLinks(screen, CONNECT_AWS_SECURELY_SOURCES);
   });
 });

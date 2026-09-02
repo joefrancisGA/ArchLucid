@@ -316,4 +316,46 @@ public sealed class RunRecord
         get;
         set;
     }
+
+    /// <summary>JSON array of enabled policy pack ids pinned at run create (wave-4 suggestion 34).</summary>
+    public string? PinnedPolicyPackIdsJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SHA-256 of canonical <see cref="PinnedPolicyPackIdsJson" /> at create.</summary>
+    public byte[]? PinnedPolicyPackIdsHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>JSON array of pinned extractor packages at run create (wave-6 suggestions 51/55).</summary>
+    public string? PinnedEvidencePackagePinsJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SHA-256 of canonical <see cref="PinnedEvidencePackagePinsJson" /> at create.</summary>
+    public byte[]? PinnedEvidencePackagePinsHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Focused pilot mode token was active on the create request (wave-6 suggestion 53).</summary>
+    public bool? PinnedFocusedPilotModeEnabled
+    {
+        get;
+        set;
+    }
+
+    /// <summary><see cref="Contracts.Common.CloudProvider" /> stored as int when focused pilot was pinned.</summary>
+    public int? PinnedFocusedPilotCloudProvider
+    {
+        get;
+        set;
+    }
 }

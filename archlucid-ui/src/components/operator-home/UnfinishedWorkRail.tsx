@@ -177,7 +177,7 @@ function UnfinishedWorkRailList(props: {
  */
 export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
-  const { hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot, reportHomeAttentionPreviewExcludedRunIds } =
+  const { hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot, reportHomeAttentionPreviewExcludedRunIds, reportUnfinishedWorkRailCount } =
     useOperatorHomeWorkspaceActivity();
   const incompleteWizards = useSyncExternalStore(
     subscribeWizardSessions,
@@ -220,6 +220,10 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
   useEffect(() => {
     reportHomeAttentionPreviewExcludedRunIds(homeAttentionPreviewExcludedRunIds);
   }, [homeAttentionPreviewExcludedRunIds, reportHomeAttentionPreviewExcludedRunIds]);
+
+  useEffect(() => {
+    reportUnfinishedWorkRailCount(items.length === 0 ? 0 : railSummary.totalCount);
+  }, [items.length, railSummary.totalCount, reportUnfinishedWorkRailCount]);
 
   if (items.length === 0) {
     return null;

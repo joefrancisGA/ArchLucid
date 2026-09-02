@@ -35,10 +35,13 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(packetDirectory);
 
-        string? manifestJson = TryReadFile(Path.Combine(packetDirectory, SponsorPacketArtifactCatalog.PackManifestFileName));
-        string? SponsorReportJson = TryReadFile(Path.Combine(packetDirectory, SponsorPacketArtifactCatalog.SponsorReportFileName));
-        string? limitationsMd = TryReadFile(Path.Combine(packetDirectory, "limitations.md"));
-        string? firstValueReportMd = TryReadFile(Path.Combine(packetDirectory, SponsorPacketArtifactCatalog.FirstValueReportFileName));
+        string? manifestJson = BuyerPacketFolderWriter.TryReadText(
+            Path.Combine(packetDirectory, SponsorPacketArtifactCatalog.PackManifestFileName));
+        string? SponsorReportJson = BuyerPacketFolderWriter.TryReadText(
+            Path.Combine(packetDirectory, SponsorPacketArtifactCatalog.SponsorReportFileName));
+        string? limitationsMd = BuyerPacketFolderWriter.TryReadText(Path.Combine(packetDirectory, "limitations.md"));
+        string? firstValueReportMd = BuyerPacketFolderWriter.TryReadText(
+            Path.Combine(packetDirectory, SponsorPacketArtifactCatalog.FirstValueReportFileName));
         string runId = ExtractRunIdFromManifest(manifestJson) ?? Path.GetFileName(packetDirectory.TrimEnd(Path.DirectorySeparatorChar));
 
         return Build(new BriefInputs(runId, manifestJson, SponsorReportJson, limitationsMd, firstValueReportMd));
@@ -410,14 +413,6 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         };
 
         sb.AppendLine(step);
-    }
-
-    private static string? TryReadFile(string path)
-    {
-        if (!File.Exists(path))
-            return null;
-
-        return File.ReadAllText(path, Encoding.UTF8);
     }
 
     private static string? ExtractRunIdFromManifest(string? json)

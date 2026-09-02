@@ -1,17 +1,13 @@
-using System.Text.Json;
-
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Core.Audit;
+using ArchLucid.Application.Advisory;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Security;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Persistence.Advisory;
 
 using Asp.Versioning;
 
@@ -25,29 +21,22 @@ namespace ArchLucid.Api.Controllers.Advisory;
 ///     Manages <see cref="DigestSubscription" /> routes for architecture digests (email/webhook delivery after advisory
 ///     scans).
 /// </summary>
-/// <remarks>
-///     Parallels alert routing: create/list/toggle subscriptions and inspect <see cref="DigestDeliveryAttempt" /> history.
-///     Invoked after <see cref="IArchitectureDigestRepository" /> persistence from <c>AdvisoryScanRunner</c> via
-///     <see cref="IDigestDeliveryDispatcher" />.
-/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/digest-subscriptions")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class DigestSubscriptionsController(
-    IScopeContextProvider scopeProvider,
-    IDigestSubscriptionRepository subscriptionRepository,
-    IDigestDeliveryAttemptRepository attemptRepository,
-    IArchitectureDigestRepository digestRepository,
-    IAuditService auditService)
-    : ControllerBase
+public sealed class DigestSubscriptionsController(IDigestSubscriptionFacade digestSubscriptionFacade) : ControllerBase
 {
+    private readonly IDigestSubscriptionFacade _digestSubscriptionFacade =
+        digestSubscriptionFacade ?? throw new ArgumentNullException(nameof(digestSubscriptionFacade));
+
     /// <summary>Creates a subscription stamped with the current scope; mutating action requires execute authority.</summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Audit: IDigestSubscriptionFacade.CreateAsync logs DigestSubscriptionCreated.")]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -59,69 +48,26 @@ public sealed class DigestSubscriptionsController(
         if (subscription is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(subscription.ChannelType) || string.IsNullOrWhiteSpace(subscription.Destination))
-            return this.BadRequestProblem("ChannelType and Destination are required.", ProblemTypes.ValidationFailed);
+        DigestSubscriptionCreateResult result = await _digestSubscriptionFacade.CreateAsync(subscription, ct)
+            .ConfigureAwait(false);
 
-        string channelType = subscription.ChannelType.Trim();
-        string destination = subscription.Destination.Trim();
-
-        if (!IsSupportedChannelType(channelType))
-            return this.BadRequestProblem(
-                $"ChannelType '{channelType}' is not supported.",
-                ProblemTypes.ValidationFailed);
-
-        if (IsOutboundWebhookChannel(channelType))
+        return result.Outcome switch
         {
-            string? destinationRejection =
-                AlertRoutingWebhookDestinationPolicy.TryGetRejectionReason(destination);
-
-            if (destinationRejection is not null)
-                return this.BadRequestProblem(destinationRejection, ProblemTypes.ValidationFailed);
-        }
-
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-
-        subscription.SubscriptionId = Guid.NewGuid();
-        subscription.TenantId = scope.TenantId;
-        subscription.WorkspaceId = scope.WorkspaceId;
-        subscription.ProjectId = scope.ProjectId;
-        subscription.ChannelType = channelType;
-        subscription.Destination = destination;
-        subscription.CreatedUtc = TimeProvider.System.UtcNowDateTime();
-        if (string.IsNullOrWhiteSpace(subscription.MetadataJson))
-            subscription.MetadataJson = "{}";
-
-        await subscriptionRepository.CreateAsync(subscription, ct);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.DigestSubscriptionCreated,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    subscriptionId = subscription.SubscriptionId,
-                    subscription.Name,
-                    subscription.ChannelType
-                })
-            },
-            ct);
-
-        return Ok(subscription);
+            DigestSubscriptionHttpOutcome.Success => Ok(result.Subscription!),
+            DigestSubscriptionHttpOutcome.ValidationFailed => this.BadRequestProblem(
+                result.Message ?? "Validation failed.",
+                ProblemTypes.ValidationFailed),
+            _ => throw new InvalidOperationException($"Unexpected create outcome: {result.Outcome}."),
+        };
     }
 
-    /// <summary>Lists digest subscriptions for the caller’s tenant/workspace/project.</summary>
+    /// <summary>Lists digest subscriptions for the caller's tenant/workspace/project.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<DigestSubscription>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<DigestSubscription>>> List(CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-
-        IReadOnlyList<DigestSubscription> result = await subscriptionRepository.ListByScopeAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            ct);
-
+        IReadOnlyList<DigestSubscription> result = await _digestSubscriptionFacade.ListByScopeAsync(ct)
+            .ConfigureAwait(false);
         return Ok(result);
     }
 
@@ -129,34 +75,22 @@ public sealed class DigestSubscriptionsController(
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{subscriptionId:guid}/toggle")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Audit: IDigestSubscriptionFacade.ToggleAsync logs DigestSubscriptionToggled.")]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Toggle(
-        Guid subscriptionId,
-        CancellationToken ct = default)
+    public async Task<IActionResult> Toggle(Guid subscriptionId, CancellationToken ct = default)
     {
-        DigestSubscription? subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
-        if (subscription is null)
-            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+        DigestSubscriptionToggleResult result = await _digestSubscriptionFacade.ToggleAsync(subscriptionId, ct)
+            .ConfigureAwait(false);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        if (!MatchesScope(subscription, scope))
-            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
-
-        subscription.IsEnabled = !subscription.IsEnabled;
-        await subscriptionRepository.UpdateAsync(subscription, ct);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.DigestSubscriptionToggled,
-                DataJson = JsonSerializer.Serialize(new { subscriptionId, enabled = subscription.IsEnabled })
-            },
-            ct);
-
-        return Ok(subscription);
+        return result.Outcome switch
+        {
+            DigestSubscriptionHttpOutcome.Success => Ok(result.Subscription!),
+            DigestSubscriptionHttpOutcome.ResourceNotFound => this.NotFoundProblem(
+                $"Digest subscription '{subscriptionId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound),
+            _ => throw new InvalidOperationException($"Unexpected toggle outcome: {result.Outcome}."),
+        };
     }
 
     /// <summary>Recent delivery attempts for a subscription in scope.</summary>
@@ -168,44 +102,37 @@ public sealed class DigestSubscriptionsController(
         [FromQuery] int take = 50,
         CancellationToken ct = default)
     {
-        DigestSubscription? subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
-        if (subscription is null)
-            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+        DigestSubscriptionAttemptsResult result =
+            await _digestSubscriptionFacade.ListAttemptsBySubscriptionAsync(subscriptionId, take, ct)
+                .ConfigureAwait(false);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        if (!MatchesScope(subscription, scope))
-            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
-
-        IReadOnlyList<DigestDeliveryAttempt> attempts =
-            await attemptRepository.ListBySubscriptionAsync(subscriptionId,
-                Math.Clamp(take, 1, PaginationDefaults.MaxPageSize), ct);
-        return Ok(attempts);
+        return result.Outcome switch
+        {
+            DigestSubscriptionHttpOutcome.Success => Ok(result.Attempts!),
+            DigestSubscriptionHttpOutcome.ResourceNotFound => this.NotFoundProblem(
+                $"Digest subscription '{subscriptionId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound),
+            _ => throw new InvalidOperationException($"Unexpected attempts outcome: {result.Outcome}."),
+        };
     }
 
     /// <summary>All delivery attempts recorded for a digest that belongs to the current scope.</summary>
     [HttpGet("digests/{digestId:guid}/attempts")]
     [ProducesResponseType(typeof(IReadOnlyList<DigestDeliveryAttempt>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAttemptsForDigest(
-        Guid digestId,
-        CancellationToken ct = default)
+    public async Task<IActionResult> GetAttemptsForDigest(Guid digestId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        ArchitectureDigest? digest = await digestRepository.GetByIdAsync(digestId, ct);
+        DigestSubscriptionAttemptsResult result =
+            await _digestSubscriptionFacade.ListAttemptsByDigestAsync(digestId, ct).ConfigureAwait(false);
 
-        if (digest is null)
-            return this.NotFoundProblem($"Digest '{digestId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        if (digest.TenantId != scope.TenantId ||
-            digest.WorkspaceId != scope.WorkspaceId ||
-            digest.ProjectId != scope.ProjectId)
-            return this.NotFoundProblem($"Digest '{digestId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
-
-        IReadOnlyList<DigestDeliveryAttempt> attempts = await attemptRepository.ListByDigestAsync(digestId, ct);
-        return Ok(attempts);
+        return result.Outcome switch
+        {
+            DigestSubscriptionHttpOutcome.Success => Ok(result.Attempts!),
+            DigestSubscriptionHttpOutcome.ResourceNotFound => this.NotFoundProblem(
+                $"Digest '{digestId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound),
+            _ => throw new InvalidOperationException($"Unexpected digest attempts outcome: {result.Outcome}."),
+        };
     }
 
     /// <summary>
@@ -222,38 +149,18 @@ public sealed class DigestSubscriptionsController(
         if (!TryParseDigestIds(digestIds, out List<Guid> parsedIds, out string? parseError))
             return this.BadRequestProblem(parseError!, ProblemTypes.ValidationFailed);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        IReadOnlyList<DigestDeliveryAttempt> attempts =
-            await attemptRepository.ListByDigestIdsAsync(
-                parsedIds,
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                ct);
+        (DigestSubscriptionHttpOutcome outcome, DigestDeliveryAttemptsBatchDto? batch, string? message) =
+            await _digestSubscriptionFacade.ListAttemptsByDigestIdsAsync(parsedIds, ct)
+                .ConfigureAwait(false);
 
-        Dictionary<Guid, List<DigestDeliveryAttempt>> byDigest = attempts
-            .GroupBy(a => a.DigestId)
-            .ToDictionary(
-                g => g.Key,
-                g => g.OrderByDescending(x => x.AttemptedUtc).ToList());
-
-        List<DigestDeliveryAttemptsForDigestResponse> items = [];
-
-        foreach (Guid digestId in parsedIds.Distinct())
+        return outcome switch
         {
-            List<DigestDeliveryAttempt> forDigest =
-                byDigest.TryGetValue(digestId, out List<DigestDeliveryAttempt>? list)
-                    ? list
-                    : [];
-
-            items.Add(new DigestDeliveryAttemptsForDigestResponse
-            {
-                DigestId = digestId,
-                Attempts = forDigest
-            });
-        }
-
-        return Ok(new DigestDeliveryAttemptsBatchResponse { Items = items });
+            DigestSubscriptionHttpOutcome.Success => Ok(MapBatch(batch!)),
+            DigestSubscriptionHttpOutcome.ValidationFailed => this.BadRequestProblem(
+                message ?? "Validation failed.",
+                ProblemTypes.ValidationFailed),
+            _ => throw new InvalidOperationException($"Unexpected batch attempts outcome: {outcome}."),
+        };
     }
 
     private static bool TryParseDigestIds(
@@ -298,23 +205,15 @@ public sealed class DigestSubscriptionsController(
         return true;
     }
 
-    private static bool MatchesScope(DigestSubscription subscription, ScopeContext scope)
-    {
-        return subscription.TenantId == scope.TenantId &&
-               subscription.WorkspaceId == scope.WorkspaceId &&
-               subscription.ProjectId == scope.ProjectId;
-    }
-
-    private static bool IsSupportedChannelType(string channelType)
-    {
-        return string.Equals(channelType, DigestDeliveryChannelType.Email, StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(channelType, DigestDeliveryChannelType.TeamsWebhook, StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(channelType, DigestDeliveryChannelType.SlackWebhook, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsOutboundWebhookChannel(string? channelType)
-    {
-        return string.Equals(channelType, DigestDeliveryChannelType.TeamsWebhook, StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(channelType, DigestDeliveryChannelType.SlackWebhook, StringComparison.OrdinalIgnoreCase);
-    }
+    private static DigestDeliveryAttemptsBatchResponse MapBatch(DigestDeliveryAttemptsBatchDto batch) =>
+        new()
+        {
+            Items = batch.Items
+                .Select(static item => new DigestDeliveryAttemptsForDigestResponse
+                {
+                    DigestId = item.DigestId,
+                    Attempts = item.Attempts.ToList(),
+                })
+                .ToList(),
+        };
 }

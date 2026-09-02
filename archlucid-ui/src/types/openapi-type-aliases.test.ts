@@ -99,6 +99,77 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
   ThresholdRecommendationResult: "ThresholdRecommendationResult",
   CompositeAlertRuleCondition: "AlertRuleCondition",
   CompositeAlertRule: "CompositeAlertRule",
+  TenantTrialStatusPayload: "TenantTrialStatusResponse",
+  TenantHomepageSettingsResponse: "TenantHomepageSettingsGetResponse",
+  FeaturedCompletedSampleCandidate: "FeaturedCompletedSampleCandidateResponse",
+  TenantHomepageSettingsPutRequest: "TenantHomepageSettingsPutRequest",
+  TenantCostSettingsResponse: "TenantCostSettingsGetResponse",
+  TenantCostSettingsPutRequest: "TenantCostSettingsPutRequest",
+  TenantCostEstimateResponse: "TenantCostEstimateResponse",
+  GovernanceResolutionCandidate: "GovernanceResolutionCandidate",
+  GovernanceResolutionDecision: "GovernanceResolutionDecision",
+  GovernanceConflictRecord: "GovernanceConflictRecord",
+  EffectiveGovernanceResolutionResult: "EffectiveGovernanceResolutionResult",
+  PolicyPackDryRunSeverityCount: "PolicyPackDryRunSeverityCount",
+  PolicyPackDryRunThresholdOutcome: "PolicyPackDryRunThresholdOutcome",
+  PolicyPackDryRunRunItem: "PolicyPackDryRunRunItem",
+  PolicyPackDryRunDeltaCounts: "PolicyPackDryRunDeltaCounts",
+  PolicyPackDryRunResponse: "PolicyPackDryRunResponse",
+  PolicyPackDryRunRequest: "PolicyPackDryRunRequest",
+  PreFinalizeChecklistItemStatus: "PreFinalizeChecklistItemStatus",
+  PreFinalizeChecklistItem: "PreFinalizeChecklistItem",
+  PreFinalizeChecklistResult: "PreFinalizeChecklistResult",
+  ProductLearningDashboardSummaryResponse: "ProductLearningDashboardSummaryResponse",
+  ArtifactOutcomeTrend: "ArtifactOutcomeTrend",
+  ImprovementOpportunity: "ImprovementOpportunity",
+  TriageQueueItem: "TriageQueueItem",
+  ProductLearningImprovementOpportunitiesResponse: "ProductLearningImprovementOpportunitiesResponse",
+  ProductLearningArtifactOutcomeTrendsResponse: "ProductLearningArtifactOutcomeTrendsResponse",
+  ProductLearningTriageQueueResponse: "ProductLearningTriageQueueResponse",
+  ProductLearningDashboardBundle: "ProductLearningDashboardBundleResponse",
+  PilotValueReportSeverityJson: "PilotValueReportSeverityBreakdown",
+  PilotValueReportTimelineRow: "PilotValueReportRunTimelinePoint",
+  PilotValueReportJson: "PilotValueReport",
+  PolicyPackChangeLogEntry: "PolicyPackChangeLogEntry",
+  GovernanceDashboardSummary: "GovernanceDashboardSummary",
+  FeasibilityVerdictKind: "FeasibilityVerdictKind",
+  AssertedTrailEntry: "AssertedTrailEntry",
+  InferredTrailEntry: "InferredTrailEntry",
+  SkippedQuestionTrailEntry: "SkippedQuestionTrailEntry",
+  TransparencyTrail: "TransparencyTrail",
+  SoftInfeasibilityEnvelope: "SoftInfeasibilityEnvelope",
+  ManifestFeasibilityVerdict: "FeasibilityVerdict",
+  GovernanceEnvironmentDefinition: "GovernanceEnvironmentDefinition",
+  GovernanceEnvironmentTransition: "GovernanceEnvironmentTransition",
+  GovernanceEnvironmentCatalog: "GovernanceEnvironmentCatalog",
+  ReplaceGovernanceEnvironmentCatalogRequest: "ReplaceGovernanceEnvironmentCatalogRequest",
+  DraftRequestStatus: "DraftRequestStatus",
+  ActorKind: "ActorKind",
+  TrustOrigin: "TrustOrigin",
+  InteractionContract: "InteractionContract",
+  ActorOrigin: "ActorOrigin",
+  DraftBranchOverrideKind: "DraftBranchOverrideKind",
+  BranchDraftRequest: "BranchDraftRequest",
+  DraftBranchQuotaResponse: "DraftBranchQuotaResponse",
+  CreateDraftRequest: "CreateDraftRequest",
+  PatchDraftRequest: "PatchDraftRequest",
+  DraftIntakeReasonRequest: "DraftIntakeReasonRequest",
+  StageTimelineSummary: "StageTimelineSummary",
+  RecommendationLearningProfileState: "RecommendationLearningProfileState",
+  RecommendationLearningOutcomeEligibility: "RecommendationLearningOutcomeEligibilityBreakdown",
+  RecommendationLearningProfileMetadata: "RecommendationLearningProfileMetadataResponse",
+  RecommendationLearningOperationalStatus: "RecommendationLearningOperationalStatusResponse",
+  RecommendationLearningValidationCheck: "RecommendationLearningValidationCheck",
+  RecommendationLearningWeightDelta: "RecommendationLearningWeightDelta",
+  LearningProfile: "RecommendationLearningProfile",
+  RecommendationLearningPreview: "RecommendationLearningPreviewResponse",
+  RecommendationLearningProfileHistoryItem: "RecommendationLearningProfileHistoryItem",
+  RecommendationLearningRollbackRequest: "RecommendationLearningRollbackRequest",
+  RecommendationLearningOpsPageResponse: "RecommendationLearningOpsPageResponse",
+  GlobalSearchResponse: "GlobalSearchResponse",
+  GlobalSearchFinding: "GlobalSearchFindingResponse",
+  GlobalSearchRun: "GlobalSearchRunResponse",
+  GlobalSearchPolicyPack: "GlobalSearchPolicyPackResponse",
 } as const satisfies Record<string, keyof components["schemas"]>;
 
 type AssertExtends<Base, Derived extends Base> = Derived;
@@ -358,6 +429,86 @@ type _CompositeAlertRuleAliases = [
   AssertExtends<components["schemas"]["CompositeAlertRule"], import("@/types/composite-alert-rules").CompositeAlertRule>,
 ];
 
+type _DraftIntakeAliases = [
+  AssertExtends<components["schemas"]["DraftRequestStatus"], import("@/types/draft-intake").DraftRequestStatus>,
+  AssertExtends<components["schemas"]["ActorKind"], import("@/types/draft-intake").ActorKind>,
+  AssertExtends<components["schemas"]["TrustOrigin"], import("@/types/draft-intake").TrustOrigin>,
+  AssertExtends<components["schemas"]["InteractionContract"], import("@/types/draft-intake").InteractionContract>,
+  AssertExtends<components["schemas"]["ActorOrigin"], import("@/types/draft-intake").ActorOrigin>,
+  AssertExtends<
+    components["schemas"]["DraftBranchOverrideKind"],
+    import("@/types/draft-intake").DraftBranchOverrideKind
+  >,
+  AssertExtends<components["schemas"]["BranchDraftRequest"], import("@/types/draft-intake").BranchDraftRequest>,
+  AssertExtends<
+    components["schemas"]["DraftBranchQuotaResponse"],
+    import("@/types/draft-intake").DraftBranchQuotaResponse
+  >,
+  AssertExtends<components["schemas"]["CreateDraftRequest"], import("@/types/draft-intake").CreateDraftRequest>,
+  AssertExtends<components["schemas"]["PatchDraftRequest"], import("@/types/draft-intake").PatchDraftRequest>,
+  AssertExtends<
+    components["schemas"]["DraftIntakeReasonRequest"],
+    import("@/types/draft-intake").DraftIntakeReasonRequest
+  >,
+];
+
+type _StageTimelineAliases = [
+  AssertExtends<components["schemas"]["StageTimelineSummary"], import("@/types/stage-timeline").StageTimelineSummary>,
+];
+
+type _RecommendationLearningOperationalAliases = [
+  AssertExtends<
+    components["schemas"]["RecommendationLearningProfileState"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningProfileState
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningOutcomeEligibilityBreakdown"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningOutcomeEligibility
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningProfileMetadataResponse"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningProfileMetadata
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningOperationalStatusResponse"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningOperationalStatus
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningValidationCheck"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningValidationCheck
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningWeightDelta"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningWeightDelta
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningProfile"],
+    import("@/types/recommendation-learning-operational").LearningProfile
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningPreviewResponse"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningPreview
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningProfileHistoryItem"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningProfileHistoryItem
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningRollbackRequest"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningRollbackRequest
+  >,
+];
+
+type _GlobalSearchAliases = [
+  AssertExtends<components["schemas"]["GlobalSearchResponse"], import("@/types/global-search").GlobalSearchResponse>,
+  AssertExtends<components["schemas"]["GlobalSearchFindingResponse"], import("@/types/global-search").GlobalSearchFinding>,
+  AssertExtends<components["schemas"]["GlobalSearchRunResponse"], import("@/types/global-search").GlobalSearchRun>,
+  AssertExtends<
+    components["schemas"]["GlobalSearchPolicyPackResponse"],
+    import("@/types/global-search").GlobalSearchPolicyPack
+  >,
+];
+
 const _compileTimeAliasGuards: [
   _AuthorityAliases,
   _OperateRhythmAliases,
@@ -375,6 +526,10 @@ const _compileTimeAliasGuards: [
   _EvolutionAliases,
   _AlertTuningAliases,
   _CompositeAlertRuleAliases,
+  _DraftIntakeAliases,
+  _StageTimelineAliases,
+  _RecommendationLearningOperationalAliases,
+  _GlobalSearchAliases,
 ] = [
   [] as unknown as _AuthorityAliases,
   [] as unknown as _OperateRhythmAliases,
@@ -392,6 +547,10 @@ const _compileTimeAliasGuards: [
   [] as unknown as _EvolutionAliases,
   [] as unknown as _AlertTuningAliases,
   [] as unknown as _CompositeAlertRuleAliases,
+  [] as unknown as _DraftIntakeAliases,
+  [] as unknown as _StageTimelineAliases,
+  [] as unknown as _RecommendationLearningOperationalAliases,
+  [] as unknown as _GlobalSearchAliases,
 ];
 void _compileTimeAliasGuards;
 
@@ -405,6 +564,6 @@ describe("openapi type alias schema keys", () => {
   });
 
   it("keeps the mapping table in sync with the number of guarded aliases", () => {
-    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(91);
+    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(162);
   });
 });

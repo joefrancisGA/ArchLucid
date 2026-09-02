@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using ArchLucid.Core.Tenancy;
 
+using ArchLucid.Persistence.Coordination;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Projection;
 using ArchLucid.Persistence.Orchestration;
@@ -62,8 +63,8 @@ public sealed class DapperPostCommitProjectionOutboxRepository(ISqlConnectionFac
         int leaseDurationSeconds,
         CancellationToken ct)
     {
-        int take = Math.Clamp(maxBatch, 1, 100);
-        int lease = Math.Clamp(leaseDurationSeconds, 60, 7200);
+        int take = CoordinationOutboxRepositoryCore.ClampDequeueBatch(maxBatch);
+        int lease = CoordinationOutboxRepositoryCore.ClampLeaseDurationSeconds(leaseDurationSeconds);
 
         const string sql = """
                            ;WITH cte AS (
@@ -140,7 +141,7 @@ public sealed class DapperPostCommitProjectionOutboxRepository(ISqlConnectionFac
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { OutboxId = outboxId, NextAttemptUtc = NormalizeSqlUtc(nextAttemptUtc), Err = err },
+                new { OutboxId = outboxId, NextAttemptUtc = CoordinationOutboxRepositoryCore.NormalizeUtc(nextAttemptUtc), Err = err },
                 cancellationToken: ct));
     }
 
@@ -196,10 +197,4 @@ public sealed class DapperPostCommitProjectionOutboxRepository(ISqlConnectionFac
         return await connection.ExecuteScalarAsync<long>(new CommandDefinition(sql, cancellationToken: ct));
     }
 
-    private static DateTime NormalizeSqlUtc(DateTime value)
-    {
-        return value.Kind is DateTimeKind.Unspecified
-            ? DateTime.SpecifyKind(value, DateTimeKind.Utc)
-            : value.ToUniversalTime();
-    }
 }

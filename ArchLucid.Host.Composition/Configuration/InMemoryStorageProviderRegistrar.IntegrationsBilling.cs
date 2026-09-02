@@ -183,6 +183,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddScoped<ItsmInboundJiraWebhookProcessor>();
         services.AddScoped<ItsmInboundServiceNowWebhookProcessor>();
         services.AddScoped<ItsmInboundWebhookSyncService>();
+        services.AddScoped<IItsmInboundWebhookFacade, ItsmInboundWebhookFacade>();
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<IHostLeaderLeaseRepository, NoOpHostLeaderLeaseRepository>();

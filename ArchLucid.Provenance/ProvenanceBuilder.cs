@@ -23,9 +23,9 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         DecisionProvenanceGraph result = new() { Id = Guid.NewGuid(), RunId = runId };
 
-        Dictionary<string, Guid> nodeMap = new(StringComparer.Ordinal);
+        Dictionary<string, Guid> nodeMap = new(StringComparer.OrdinalIgnoreCase);
 
-        HashSet<string> graphNodeIds = new(graph.Nodes.Select(n => n.NodeId), StringComparer.Ordinal);
+        HashSet<string> graphNodeIds = new(graph.Nodes.Select(n => n.NodeId), StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode n in graph.Nodes)
 

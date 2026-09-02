@@ -100786,11 +100786,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["BillingCheckoutResponseDto"];
-                        "text/json": components["schemas"]["BillingCheckoutResponseDto"];
-                        "text/plain": components["schemas"]["BillingCheckoutResponseDto"];
-                    };
+                    content?: never;
                 };
                 /** @description Bad Request (validation or malformed input). */
                 400: {
@@ -100922,11 +100918,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["OutboundWebhookDryRunResponse"];
-                        "text/json": components["schemas"]["OutboundWebhookDryRunResponse"];
-                        "text/plain": components["schemas"]["OutboundWebhookDryRunResponse"];
-                    };
+                    content?: never;
                 };
                 /** @description Bad Request (validation or malformed input). */
                 400: {
@@ -101064,11 +101056,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["BillingPortalResponseDto"];
-                        "text/json": components["schemas"]["BillingPortalResponseDto"];
-                        "text/plain": components["schemas"]["BillingPortalResponseDto"];
-                    };
+                    content?: never;
                 };
                 /** @description Bad Request (validation or malformed input). */
                 400: {
@@ -101198,11 +101186,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["BillingSubscriptionStatusResponseDto"];
-                        "text/json": components["schemas"]["BillingSubscriptionStatusResponseDto"];
-                        "text/plain": components["schemas"]["BillingSubscriptionStatusResponseDto"];
-                    };
+                    content?: never;
                 };
                 /** @description Bad Request (validation or malformed input). */
                 400: {

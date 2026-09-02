@@ -223,7 +223,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     internal static bool ArePersistedResultsCompleteForTasks(
         IReadOnlyList<AgentTask> tasks,
         IReadOnlyList<AgentResult> existingResults) =>
-        ArchitectureRunExecutePreExecuteStage.ArePersistedResultsCompleteForTasks(tasks, existingResults);
+        ArchitectureRunExecuteIdempotencyStage.ArePersistedResultsCompleteForTasksCore(tasks, existingResults);
 
     private static void ValidateDependencies(
         IRunRepository runRepository,

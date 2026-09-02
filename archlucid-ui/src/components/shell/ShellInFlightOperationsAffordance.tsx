@@ -48,8 +48,10 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
     };
   }, [router]);
 
+  const inFlightCount = operations.filter((row) => !isTerminalOperationState(row.state)).length;
+
   useEffect(() => {
-    if (operations.length === 0) {
+    if (inFlightCount === 0) {
       return;
     }
 
@@ -60,9 +62,7 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
     return () => {
       window.clearInterval(timer);
     };
-  }, [operations.length]);
-
-  const inFlightCount = operations.filter((row) => !isTerminalOperationState(row.state)).length;
+  }, [inFlightCount]);
 
   if (operations.length === 0 || inFlightCount === 0) {
     return null;

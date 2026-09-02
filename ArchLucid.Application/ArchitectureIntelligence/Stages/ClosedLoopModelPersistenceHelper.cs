@@ -5,11 +5,13 @@ using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.ArchitectureIntelligence.Stages;
 
+// MS.DI treats constructor parameters as required unless they have a default.
+// These ports are optional so golden / in-memory composition can omit ledger and scope.
 public sealed class ClosedLoopModelPersistenceHelper(
-    IArchitectureIntelligencePersistence? persistence,
-    IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
-    ITechnologyLedgerRepository? technologyLedgerRepository,
-    IScopeContextProvider? scopeContextProvider)
+    IArchitectureIntelligencePersistence? persistence = null,
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
+    ITechnologyLedgerRepository? technologyLedgerRepository = null,
+    IScopeContextProvider? scopeContextProvider = null)
 {
     private readonly IArchitectureIntelligencePersistence? _persistence = persistence;
     private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;

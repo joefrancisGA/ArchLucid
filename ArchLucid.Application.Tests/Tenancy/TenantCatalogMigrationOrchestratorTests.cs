@@ -144,6 +144,98 @@ public sealed class TenantCatalogMigrationOrchestratorTests
     }
 
     [Fact]
+    public async Task StartAsync_rejects_erasure_quarantined_tenant_without_creating_migration()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 9, 2, 12, 0, 0, TimeSpan.Zero));
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = TenantId,
+                    Name = "Acme",
+                    Slug = "acme",
+                    Tier = TenantTier.Standard,
+                    DataRegion = TenantDataRegions.Default,
+                    CreatedUtc = clock.GetUtcNow().AddDays(-30),
+                    OffboardedUtc = clock.GetUtcNow().AddHours(-1),
+                });
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Loose);
+        TenantSuspendCommandService suspend = new(tenants.Object, audit.Object, clock);
+
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(
+            migrations,
+            tenants.Object,
+            suspend);
+
+        (TenantCatalogMigrationCommandOutcome outcome, Guid? migrationId) =
+            await sut.StartAsync(TenantId, "corr-offboard", "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.InErasureQuarantine, outcome);
+        Assert.Null(migrationId);
+        Assert.Null(await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None));
+        tenants.Verify(t => t.SuspendTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task StartAsync_suspends_before_inserting_migration_record()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 9, 2, 12, 0, 0, TimeSpan.Zero));
+        List<string> operationOrder = [];
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ActiveTenant(clock));
+        tenants
+            .Setup(t => t.SuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .Callback(() => operationOrder.Add("suspend"))
+            .Returns(Task.CompletedTask);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        audit
+            .Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        InMemoryTenantCatalogMigrationRepository trackingMigrations = new();
+        Mock<ITenantCatalogMigrationRepository> migrationSpy = new(MockBehavior.Strict);
+        migrationSpy
+            .Setup(r => r.GetActiveByTenantIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .Returns<Guid, CancellationToken>((_, _) => trackingMigrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None));
+        migrationSpy
+            .Setup(r => r.InsertAsync(It.IsAny<TenantCatalogMigrationRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<TenantCatalogMigrationRecord, CancellationToken>((record, _) =>
+            {
+                operationOrder.Add("insert");
+                trackingMigrations.InsertAsync(record, CancellationToken.None).GetAwaiter().GetResult();
+            })
+            .Returns(Task.CompletedTask);
+
+        TenantSuspendCommandService suspend = new(tenants.Object, audit.Object, clock);
+
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrationSpy.Object,
+            tenants.Object,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        (TenantCatalogMigrationCommandOutcome outcome, Guid? migrationId) =
+            await sut.StartAsync(TenantId, "corr-order", "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, outcome);
+        Assert.NotNull(migrationId);
+        Assert.Equal(["suspend", "insert"], operationOrder);
+    }
+
+    [Fact]
     public async Task RunVerificationAsync_allows_retry_after_failed_verification()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();
@@ -178,7 +270,7 @@ public sealed class TenantCatalogMigrationOrchestratorTests
                     AuthorizationBoundaryVerified = true,
                 });
 
-        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations, verification.Object);
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations, verificationProbe: verification.Object);
 
         (TenantCatalogMigrationCommandOutcome firstOutcome, _) =
             await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
@@ -198,11 +290,13 @@ public sealed class TenantCatalogMigrationOrchestratorTests
 
     private static TenantCatalogMigrationOrchestrator CreateOrchestrator(
         InMemoryTenantCatalogMigrationRepository migrations,
+        ITenantRepository? tenantRepository = null,
+        ITenantSuspendCommandService? tenantSuspendCommandService = null,
         ITenantMigrationVerificationProbe? verificationProbe = null,
         ITenantMigrationProjectionRefreshService? projectionRefreshService = null)
     {
-        Mock<ITenantRepository> tenants = new(MockBehavior.Loose);
-        Mock<ITenantSuspendCommandService> suspend = new(MockBehavior.Loose);
+        ITenantRepository tenants = tenantRepository ?? CreateDefaultTenantRepository().Object;
+        ITenantSuspendCommandService suspend = tenantSuspendCommandService ?? new Mock<ITenantSuspendCommandService>(MockBehavior.Loose).Object;
         ITenantMigrationProjectionRefreshService projection;
         if (projectionRefreshService is not null)
         {
@@ -249,11 +343,59 @@ public sealed class TenantCatalogMigrationOrchestratorTests
 
         return new TenantCatalogMigrationOrchestrator(
             migrations,
-            tenants.Object,
-            suspend.Object,
+            tenants,
+            suspend,
             projection,
             verification,
             audit.Object,
             clock);
     }
+
+    private static Mock<ITenantRepository> CreateDefaultTenantRepository()
+    {
+        Mock<ITenantRepository> tenants = new(MockBehavior.Loose);
+        return tenants;
+    }
+
+    private static ITenantMigrationProjectionRefreshService CreateDefaultProjectionRefresh()
+    {
+        Mock<ITenantMigrationProjectionRefreshService> projectionMock = new(MockBehavior.Strict);
+        projectionMock
+            .Setup(service => service.RefreshAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantMigrationProjectionRefreshResult
+                {
+                    RetrievalIndexingRowsProcessed = 3,
+                    RoiCacheKeysInvalidated = 1,
+                    TenantScopeCachesInvalidated = 7,
+                });
+        return projectionMock.Object;
+    }
+
+    private static ITenantMigrationVerificationProbe CreateDefaultVerificationProbe()
+    {
+        Mock<ITenantMigrationVerificationProbe> verificationMock = new(MockBehavior.Strict);
+        verificationMock
+            .Setup(probe => probe.RunAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantMigrationVerificationProbeResult
+                {
+                    Passed = true,
+                    ProbeRunId = "run-1",
+                    WriteFreezeVerified = true,
+                    AuthorizationBoundaryVerified = true,
+                });
+        return verificationMock.Object;
+    }
+
+    private static TenantRecord ActiveTenant(FakeTimeProvider clock) =>
+        new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+        };
 }

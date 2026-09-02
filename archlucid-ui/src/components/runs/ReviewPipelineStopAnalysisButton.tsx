@@ -1,17 +1,20 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_PIPELINE_STOP_ANALYSIS_CTA,
   REVIEW_PIPELINE_STOP_ANALYSIS_HELP,
   REVIEW_PIPELINE_STOP_ANALYSIS_IN_FLIGHT_CTA,
+  REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_DETAIL,
+  REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_HEADLINE,
   requestReviewPipelineStopAnalysis,
 } from "@/lib/operations/review-pipeline-stop-analysis";
 import { showError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ReviewPipelineStopAnalysisButtonProps = {
   readonly runId: string;
@@ -31,15 +34,22 @@ export function ReviewPipelineStopAnalysisButton({
   const [stopping, setStopping] = useState(false);
   const [cancelRequested, setCancelRequested] = useState(false);
 
+  useEffect(() => {
+    setCancelRequested(false);
+  }, [runId]);
+
   const handleStop = useCallback(async () => {
     if (stopping || cancelRequested) {
       return;
     }
 
+    const startedAtMs = Date.now();
+
     setStopping(true);
 
     try {
       await requestReviewPipelineStopAnalysis(runId);
+      await awaitMinimumVisibleDuration(startedAtMs);
       setCancelRequested(true);
     } catch (error: unknown) {
       const detail = error instanceof Error ? error.message : "Try again in a moment.";
@@ -52,22 +62,39 @@ export function ReviewPipelineStopAnalysisButton({
   const label = stopping || cancelRequested ? REVIEW_PIPELINE_STOP_ANALYSIS_IN_FLIGHT_CTA : REVIEW_PIPELINE_STOP_ANALYSIS_CTA;
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-2", className)}>
-      <Button
-        type="button"
-        variant="destructive"
-        size="sm"
-        disabled={disabled || stopping || cancelRequested}
-        data-testid="review-pipeline-stop-analysis"
-        onClick={() => {
-          void handleStop();
-        }}
-      >
-        {label}
-      </Button>
-      <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        {REVIEW_PIPELINE_STOP_ANALYSIS_HELP}
-      </span>
+    <div className={cn("space-y-2", className)}>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          disabled={disabled || stopping || cancelRequested}
+          data-testid="review-pipeline-stop-analysis"
+          onClick={() => {
+            void handleStop();
+          }}
+        >
+          {label}
+        </Button>
+        <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {REVIEW_PIPELINE_STOP_ANALYSIS_HELP}
+        </span>
+      </div>
+      {cancelRequested ? (
+        <div
+          className={cn(DESIGN_TOKENS.callout.info, "p-3")}
+          data-testid="review-pipeline-stop-analysis-outcome"
+          role="status"
+          aria-live="polite"
+        >
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_HEADLINE}
+          </p>
+          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_DETAIL}
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

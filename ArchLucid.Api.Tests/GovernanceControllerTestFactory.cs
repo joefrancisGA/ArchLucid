@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -33,6 +34,7 @@ internal static class GovernanceControllerTestFactory
         IComplianceDriftTrendService? complianceDriftTrendService = null,
         IPolicyPackDryRunService? policyPackDryRunService = null,
         IPolicyPackGovernanceDryRunService? policyPackGovernanceDryRunService = null,
+        IPolicyPackHttpFacade? policyPackHttpFacade = null,
         IPolicyPackSchemaKeysService? policyPackSchemaKeysService = null,
         IAuditService? auditService = null,
         IPolicyPackDraftService? policyPackDraftService = null,
@@ -77,6 +79,7 @@ internal static class GovernanceControllerTestFactory
             scope,
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),
             policyPackGovernanceDryRunService ?? Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            policyPackHttpFacade ?? Mock.Of<IPolicyPackHttpFacade>(),
             policyPackSchemaKeysService ?? Mock.Of<IPolicyPackSchemaKeysService>(),
             auditService ?? Mock.Of<IAuditService>(),
             policyPackDraftService ?? Mock.Of<IPolicyPackDraftService>(),

@@ -8,11 +8,35 @@
 export const ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY =
   "Identity, administrator access, platform health, and ROI baseline — optional before your first review.";
 
+/** Explains which steps the home Setup readiness link counts (excludes ROI baseline). */
+export const FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_PROGRESS_LEAD =
+  "The Setup link on Home tracks identity (SSO), administrator access, and platform health on self-hosted stacks. ROI baseline is separate and does not affect that count.";
+
+/** Collapsed summary when workspace setup steps remain incomplete. */
+export function formatOptionalWorkspaceSetupCollapsedSummary(
+  readyCount: number,
+  totalCount: number,
+): string {
+  if (totalCount <= 0 || readyCount >= totalCount) {
+    return ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY;
+  }
+
+  const stepNames =
+    totalCount >= 3
+      ? "identity (SSO), administrator access, and platform health"
+      : "identity (SSO) and administrator access";
+
+  return `${readyCount} of ${totalCount} workspace setup steps ready — ${stepNames}.`;
+}
+
 /** Post-registration trial handoff on `/architecture/first-review-guide` (TB-679). */
 export const GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD =
   "Confirm trial limits below, then use the checklist on this page or start a review with the sample highlighted on step one.";
 
 export const BUYER_ONBOARDING_PAGE_TITLE = "First review guide";
+
+/** Visible label on the page header contextual help trigger (distinct from shortened "Help"). */
+export const FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL = "First Review Guide";
 
 export const BUYER_ONBOARDING_PAGE_LEAD =
   "Create, evaluate, and finalize your first evidence-backed architecture review.";
@@ -21,12 +45,26 @@ export const FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE = "Your first review";
 
 export const FIRST_REVIEW_GUIDE_OUTCOMES_TITLE = "What you will have";
 
+export const FIRST_REVIEW_GUIDE_OUTCOMES_COMPLETED_TITLE = "What you have";
+
 export const FIRST_REVIEW_GUIDE_OUTCOMES: readonly string[] = [
   "A finalized architecture review record",
   "Evidence-backed findings",
   "Recorded decisions and exceptions",
   "A shareable review",
 ] as const;
+
+export const FIRST_REVIEW_GUIDE_OUTCOMES_COMPLETED: readonly string[] = [
+  "A sealed review record",
+  "Evidence-backed findings",
+  "Recorded decisions and exceptions",
+  "A shareable architecture package",
+] as const;
+
+export const FIRST_REVIEW_GUIDE_SAMPLE_REVIEW_RAIL_TITLE = "Sample architecture package";
+
+export const FIRST_REVIEW_GUIDE_SAMPLE_REVIEW_RAIL_BODY =
+  "Open a finalized sample architecture package with demo findings and decisions when you want a reference walkthrough.";
 
 export const FIRST_REVIEW_GUIDE_REQUIRED_SETUP_TITLE = "Required before you start";
 
@@ -39,8 +77,6 @@ export const FIRST_REVIEW_GUIDE_GET_MORE_TITLE = "Get more from ArchLucid";
 
 export const FIRST_REVIEW_GUIDE_GET_MORE_ROI_COPY =
   "Add an ROI baseline to estimate savings and support sponsor reporting.";
-
-export const FIRST_REVIEW_GUIDE_HELP_TITLE = "Need help?";
 
 export const FIRST_REVIEW_GUIDE_TEMPLATE_LABEL = "Templates";
 

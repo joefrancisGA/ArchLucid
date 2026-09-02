@@ -89,7 +89,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
 
         JsonElement? typed = includeTypedPayload
             ? TryPayloadElement(match)
-            : BuildMetadataTypedPayload(match.Title, match.Rationale);
+            : FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(match.Title, match.Rationale);
 
         List<string> recommendedActions = match.RecommendedActions
             .Where(static a => !string.IsNullOrWhiteSpace(a))
@@ -123,21 +123,6 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             RunStructuralExecutionMode = detail.Run.StructuralExecutionMode,
             RunRealModeFellBackToSimulator = detail.Run.RealModeFellBackToSimulator,
         };
-    }
-
-    private static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)
-    {
-        if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(rationale))
-            return null;
-
-        Dictionary<string, string?> slim = new(StringComparer.Ordinal)
-        {
-            ["title"] = string.IsNullOrWhiteSpace(title) ? null : title.Trim(),
-            ["rationale"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
-            ["whyThisMatters"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
-        };
-
-        return JsonSerializer.SerializeToElement(slim);
     }
 
     private static JsonElement? TryPayloadElement(Finding finding)

@@ -16,7 +16,7 @@ public sealed class InMemoryCoverageAssignmentRepository : ICoverageAssignmentRe
 
         lock (_gate)
         {
-            _items.Add(Clone(assignment));
+            _items.Add(CoverageAssignmentRepositoryCore.Clone(assignment));
         }
 
         return Task.CompletedTask;
@@ -33,10 +33,9 @@ public sealed class InMemoryCoverageAssignmentRepository : ICoverageAssignmentRe
 
         lock (_gate)
         {
-            List<CoverageAssignment> list = _items
-                .Where(row => string.Equals(row.RunId, runId, StringComparison.Ordinal))
-                .OrderBy(row => row.CreatedUtc)
-                .Select(Clone)
+            List<CoverageAssignment> list = CoverageAssignmentRepositoryCore
+                .FilterByRunId(_items, runId)
+                .Select(CoverageAssignmentRepositoryCore.Clone)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<CoverageAssignment>>(list);
@@ -53,37 +52,13 @@ public sealed class InMemoryCoverageAssignmentRepository : ICoverageAssignmentRe
 
         lock (_gate)
         {
-            List<CoverageAssignment> list = _items
-                .Where(row => row.TenantId == tenantId
-                              && row.WorkspaceId == workspaceId
-                              && row.ProjectId == projectId
-                              && row.RunId is null)
-                .OrderBy(row => row.CreatedUtc)
-                .Select(Clone)
+            List<CoverageAssignment> list = CoverageAssignmentRepositoryCore
+                .FilterByScopeWithoutRun(_items, tenantId, workspaceId, projectId)
+                .Select(CoverageAssignmentRepositoryCore.Clone)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<CoverageAssignment>>(list);
         }
     }
 
-    private static CoverageAssignment Clone(CoverageAssignment source) => new()
-    {
-        CoverageAssignmentId = source.CoverageAssignmentId,
-        TenantId = source.TenantId,
-        WorkspaceId = source.WorkspaceId,
-        ProjectId = source.ProjectId,
-        RunId = source.RunId,
-        PolicyPackId = source.PolicyPackId,
-        PolicyPackVersion = source.PolicyPackVersion,
-        CoverageType = source.CoverageType,
-        SelectionState = source.SelectionState,
-        RecommendationConfidence = source.RecommendationConfidence,
-        RecommendationTrigger = source.RecommendationTrigger,
-        RecommendationRationale = source.RecommendationRationale,
-        TriggeringEvidenceRef = source.TriggeringEvidenceRef,
-        ExclusionReason = source.ExclusionReason,
-        ActorUserId = source.ActorUserId,
-        CreatedUtc = source.CreatedUtc,
-        EvaluationVersion = source.EvaluationVersion,
-    };
 }

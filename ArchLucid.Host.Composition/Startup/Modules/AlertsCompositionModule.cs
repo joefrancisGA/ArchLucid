@@ -92,5 +92,6 @@ public static class AlertsCompositionModule
         services.AddScoped<PolicyPackWorkspaceSelectionService>();
         services.AddScoped<IPolicyPackMarkdownExplainService, PolicyPackMarkdownExplainService>();
         services.AddScoped<IPolicyPackWorkflowFacade, PolicyPackWorkflowFacade>();
+        services.AddScoped<IPolicyPackHttpFacade, PolicyPackHttpFacade>();
     }
 }

@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useId, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
@@ -9,13 +11,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_REVIEW_GUIDE_STEP_COUNT } from "@/lib/first-review-guide-steps";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { FirstReviewGuideStepPresentation } from "@/lib/first-review-guide-state";
+import type {
+  FirstReviewGuideProgressPhase,
+  FirstReviewGuideStepPresentation,
+} from "@/lib/first-review-guide-state";
+import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
 
 type FirstReviewGuideWalkthroughProps = {
   readonly steps: readonly FirstReviewGuideStepPresentation[];
   readonly isPending: boolean;
   readonly isError: boolean;
   readonly announceProgress: boolean;
+  readonly progressPhase: FirstReviewGuideProgressPhase;
 };
 
 function stepStatusTagKind(
@@ -53,12 +60,66 @@ function FirstReviewGuideWalkthroughLoadingSkeleton() {
   );
 }
 
+function FirstReviewGuideStepCard({
+  step,
+  totalSteps,
+}: {
+  readonly step: FirstReviewGuideStepPresentation;
+  readonly totalSteps: number;
+}) {
+  return (
+    <li
+      className={cn(
+        OPERATOR_SURFACE_CARD_CLASS,
+        "border border-neutral-200 p-4 dark:border-neutral-800",
+        step.isNextStep ? "border-l-4 border-l-neutral-700 dark:border-l-neutral-400" : null,
+      )}
+      data-testid={step.isNextStep ? "first-review-guide-next-step" : `first-review-guide-step-${step.index + 1}`}
+      aria-current={step.isNextStep ? "step" : undefined}
+    >
+      <div className="min-w-0 space-y-1">
+        <span className="sr-only">
+          Step {step.index + 1} of {totalSteps}
+        </span>
+        <div className="flex flex-wrap items-baseline gap-2">
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+            <span className="font-semibold text-neutral-500 tabular-nums dark:text-neutral-400" aria-hidden="true">
+              {step.index + 1}.{" "}
+            </span>
+            {step.title}
+          </h3>
+          {step.isNextStep && step.status === "not-started" ? null : (
+            <StatusTag kind={stepStatusTagKind(step.status)} label={step.statusLabel} />
+          )}
+          {step.isNextStep ? (
+            <span className={cn("font-medium text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
+              {FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL}
+            </span>
+          ) : null}
+        </div>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-700 dark:text-neutral-300")}>
+          {step.explanation}
+        </p>
+        {step.actionLabel !== null && step.actionHref !== null ? (
+          <Link href={step.actionHref} className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)}>
+            {step.actionLabel}
+          </Link>
+        ) : null}
+      </div>
+    </li>
+  );
+}
+
 export function FirstReviewGuideWalkthrough({
   steps,
   isPending,
   isError,
   announceProgress,
+  progressPhase,
 }: FirstReviewGuideWalkthroughProps) {
+  const ledgerPanelId = useId().replaceAll(":", "");
+  const [ledgerExpanded, setLedgerExpanded] = useState(false);
+
   if (isPending) {
     return <FirstReviewGuideWalkthroughLoadingSkeleton />;
   }
@@ -72,6 +133,72 @@ export function FirstReviewGuideWalkthrough({
   }
 
   const totalSteps = steps.length > 0 ? steps.length : FIRST_REVIEW_GUIDE_STEP_COUNT;
+  const completedStepCount = steps.filter((step) => step.status === "complete").length;
+  const completionLabel = formatStepProgressCompleteLabel(completedStepCount, totalSteps);
+  const isCompletedState = progressPhase === "complete";
+
+  if (isCompletedState) {
+    return (
+      <div className="space-y-3" data-testid="first-review-guide-walkthrough-completed-summary">
+        <div
+          className={cn(OPERATOR_SURFACE_CARD_CLASS, "border border-neutral-200 p-4 dark:border-neutral-800")}
+          data-testid="first-review-guide-walkthrough-summary"
+        >
+          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            {completionLabel}
+          </p>
+          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Every step in your first review is complete.
+          </p>
+        </div>
+
+        <div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-expanded={ledgerExpanded}
+            aria-controls={ledgerPanelId}
+            data-testid="first-review-guide-walkthrough-ledger-toggle"
+            onClick={() => {
+              setLedgerExpanded((expanded) => !expanded);
+            }}
+          >
+            {ledgerExpanded ? (
+              <>
+                <ChevronUp className="mr-1.5 h-4 w-4" aria-hidden />
+                Hide step ledger
+              </>
+            ) : (
+              <>
+                <ChevronDown className="mr-1.5 h-4 w-4" aria-hidden />
+                View step ledger
+              </>
+            )}
+          </Button>
+
+          {ledgerExpanded ? (
+            <ol
+              id={ledgerPanelId}
+              className="m-0 mt-3 list-none space-y-3 p-0"
+              data-testid="first-review-guide-walkthrough"
+              aria-label="First review walkthrough"
+            >
+              {steps.map((step) => (
+                <FirstReviewGuideStepCard key={step.title} step={step} totalSteps={totalSteps} />
+              ))}
+            </ol>
+          ) : null}
+        </div>
+
+        {announceProgress ? (
+          <span className="sr-only" aria-live="polite" data-testid="first-review-guide-walkthrough-live">
+            {completionLabel}
+          </span>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <ol
@@ -80,53 +207,11 @@ export function FirstReviewGuideWalkthrough({
       aria-label="First review walkthrough"
     >
       {steps.map((step) => (
-        <li
-          key={step.title}
-          className={cn(
-            OPERATOR_SURFACE_CARD_CLASS,
-            "border border-neutral-200 p-4 dark:border-neutral-800",
-            step.isNextStep ? "border-l-4 border-l-neutral-700 dark:border-l-neutral-400" : null,
-          )}
-          data-testid={step.isNextStep ? "first-review-guide-next-step" : `first-review-guide-step-${step.index + 1}`}
-          aria-current={step.isNextStep ? "step" : undefined}
-        >
-          <div className="min-w-0 space-y-1">
-            <span className="sr-only">
-              Step {step.index + 1} of {totalSteps}
-            </span>
-            <div className="flex flex-wrap items-baseline gap-2">
-              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                <span
-                  className="font-semibold text-neutral-500 tabular-nums dark:text-neutral-400"
-                  aria-hidden="true"
-                >
-                  {step.index + 1}.{" "}
-                </span>
-                {step.title}
-              </h3>
-              {step.isNextStep && step.status === "not-started" ? null : (
-                <StatusTag kind={stepStatusTagKind(step.status)} label={step.statusLabel} />
-              )}
-              {step.isNextStep ? (
-                <span className={cn("font-medium text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
-                  {FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL}
-                </span>
-              ) : null}
-            </div>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-700 dark:text-neutral-300")}>
-              {step.explanation}
-            </p>
-            {step.actionLabel !== null && step.actionHref !== null ? (
-              <Link href={step.actionHref} className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)}>
-                {step.actionLabel}
-              </Link>
-            ) : null}
-          </div>
-        </li>
+        <FirstReviewGuideStepCard key={step.title} step={step} totalSteps={totalSteps} />
       ))}
       {announceProgress ? (
         <span className="sr-only" aria-live="polite" data-testid="first-review-guide-walkthrough-live">
-          {steps.filter((step) => step.status === "complete").length} of {totalSteps} steps complete
+          {completionLabel}
         </span>
       ) : null}
     </ol>
@@ -148,7 +233,7 @@ export function FirstReviewGuideNextActionCard({
 }: FirstReviewGuideNextActionCardProps) {
   const finalizeAction =
     readyToFinalize && finalizeHref !== null && canExecute
-      ? { label: "Finalize review", href: finalizeHref }
+      ? { label: "Seal review", href: finalizeHref }
       : null;
   const action =
     finalizeAction ??
@@ -169,9 +254,7 @@ export function FirstReviewGuideNextActionCard({
       <h2 id="first-review-guide-next-action-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL}
       </h2>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-        {step?.title ?? "Finalize the review"}
-      </p>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{step?.title ?? "Seal the review record"}</p>
       <div className="mt-3">
         <Button asChild size="sm" variant="default">
           <Link href={action.href}>{action.label}</Link>

@@ -4963,6 +4963,9 @@
           "agentTaskLoopComplete": {
             "type": "boolean"
           },
+          "authorityLifecyclePhase": {
+            "$ref": "#/components/schemas/AuthorityRunLifecyclePhase"
+          },
           "authorityPipelineComplete": {
             "type": "boolean"
           },
@@ -5631,6 +5634,15 @@
         },
         "type": "object"
       },
+      "AuthorityRunLifecyclePhase": {
+        "enum": [
+          "NotStarted",
+          "InProgress",
+          "Complete",
+          "Failed"
+        ],
+        "type": "string"
+      },
       "AwsTier2ConnectionConfigureBody": {
         "properties": {
           "accountId": {
@@ -6039,75 +6051,9 @@
         },
         "type": "object"
       },
-      "BillingCheckoutResponseDto": {
-        "properties": {
-          "checkoutUrl": {
-            "type": "string"
-          },
-          "expiresUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "providerSessionId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "checkoutUrl",
-          "providerSessionId"
-        ],
-        "type": "object"
-      },
       "BillingPortalPostRequest": {
         "properties": {
           "returnUrl": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "BillingPortalResponseDto": {
-        "properties": {
-          "portalUrl": {
-            "type": "string"
-          },
-          "providerSessionId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "portalUrl",
-          "providerSessionId"
-        ],
-        "type": "object"
-      },
-      "BillingSubscriptionStatusResponseDto": {
-        "properties": {
-          "hasSubscription": {
-            "type": "boolean"
-          },
-          "isPaymentPastDue": {
-            "type": "boolean"
-          },
-          "provider": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "status": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "tierCode": {
             "type": [
               "null",
               "string"
@@ -10671,6 +10617,13 @@
           "document": {
             "$ref": "#/components/schemas/DraftRequestDocument"
           },
+          "documentContentHashSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "draftId": {
             "format": "uuid",
             "type": "string"
@@ -10687,6 +10640,13 @@
           },
           "spawnedArchitectureVersionId": {
             "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "spawnedDocumentContentHashSha256": {
+            "format": "byte",
             "type": [
               "null",
               "string"
@@ -12738,14 +12698,7 @@
           null
         ]
       },
-      "FindingConfidenceLevel": {
-        "enum": [
-          "High",
-          "Medium",
-          "Low",
-          null
-        ]
-      },
+      "FindingConfidenceLevel": {},
       "FindingCorrelationMethod": {
         "enum": [
           "None",
@@ -17375,6 +17328,13 @@
       },
       "ManifestDocument": {
         "properties": {
+          "architectureVersionId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "assumptions": {
             "items": {
               "type": "string"
@@ -17393,6 +17353,18 @@
           },
           "cost": {
             "$ref": "#/components/schemas/CostSection"
+          },
+          "createTimeEvidencePackagePins": {
+            "items": {
+              "$ref": "#/components/schemas/PinnedEvidencePackageRow"
+            },
+            "type": "array"
+          },
+          "createTimePolicyPackPins": {
+            "items": {
+              "$ref": "#/components/schemas/PinnedPolicyPackRow"
+            },
+            "type": "array"
           },
           "createdUtc": {
             "format": "date-time",
@@ -20134,6 +20106,45 @@
         },
         "type": "object"
       },
+      "PinnedEvidencePackageRow": {
+        "properties": {
+          "collectionUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "packageId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "collectionUtc",
+          "packageId",
+          "provider"
+        ],
+        "type": "object"
+      },
+      "PinnedPolicyPackRow": {
+        "properties": {
+          "policyPackId": {
+            "type": "string"
+          },
+          "policyPackVersion": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "policyPackId",
+          "policyPackVersion"
+        ],
+        "type": "object"
+      },
       "PlanningMaterializeCitation": {
         "properties": {
           "commentSnippet": {
@@ -20584,6 +20595,12 @@
               "type": "string"
             },
             "type": "object"
+          },
+          "requiredEngineTypes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -25770,6 +25787,9 @@
           "agentTaskLoopComplete": {
             "type": "boolean"
           },
+          "authorityLifecyclePhase": {
+            "$ref": "#/components/schemas/AuthorityRunLifecyclePhase"
+          },
           "authorityPipelineComplete": {
             "type": "boolean"
           },
@@ -26335,6 +26355,9 @@
       },
       "RunListItemResponse": {
         "properties": {
+          "authorityLifecyclePhase": {
+            "$ref": "#/components/schemas/AuthorityRunLifecyclePhase"
+          },
           "completedUtc": {
             "format": "date-time",
             "type": [
@@ -26782,6 +26805,45 @@
               "string"
             ]
           },
+          "pinnedEvidencePackagePinsHashSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pinnedEvidencePackagePinsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pinnedFocusedPilotCloudProvider": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "pinnedFocusedPilotModeEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "pinnedPolicyPackIdsHashSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pinnedPolicyPackIdsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "projectId": {
             "type": "string"
           },
@@ -27104,6 +27166,9 @@
       },
       "RunSummaryResponse": {
         "properties": {
+          "authorityLifecyclePhase": {
+            "$ref": "#/components/schemas/AuthorityRunLifecyclePhase"
+          },
           "createdByUserId": {
             "type": [
               "null",
@@ -160991,23 +161056,6 @@
         },
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingCheckoutResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingCheckoutResponseDto"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingCheckoutResponseDto"
-                }
-              }
-            },
             "description": "OK"
           },
           "400": {
@@ -161131,23 +161179,6 @@
       "post": {
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
-                }
-              }
-            },
             "description": "OK"
           },
           "400": {
@@ -161311,23 +161342,6 @@
         },
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingPortalResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingPortalResponseDto"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingPortalResponseDto"
-                }
-              }
-            },
             "description": "OK"
           },
           "400": {
@@ -161451,23 +161465,6 @@
       "get": {
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingSubscriptionStatusResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingSubscriptionStatusResponseDto"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingSubscriptionStatusResponseDto"
-                }
-              }
-            },
             "description": "OK"
           },
           "400": {

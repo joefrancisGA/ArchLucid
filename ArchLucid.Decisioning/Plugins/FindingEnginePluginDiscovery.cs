@@ -13,9 +13,9 @@ public static class FindingEnginePluginDiscovery
 {
     /// <summary>
     ///     Built-in engine <c>EngineType</c> values (graph-pure and effectful) — plugins with the same id are skipped.
-    ///     Delegates to <see cref="BuiltInFindingEngineTypeCatalog.EngineTypeIds"/>.
+    ///     Delegates to <see cref="RegisteredFindingEngineTypeRegistry.RegisteredEngineTypeIds"/>.
     /// </summary>
-    public static IReadOnlySet<string> BuiltInEngineTypeIds => BuiltInFindingEngineTypeCatalog.EngineTypeIds;
+    public static IReadOnlySet<string> BuiltInEngineTypeIds => RegisteredFindingEngineTypeRegistry.RegisteredEngineTypeIds;
 
     /// <summary>
     ///     Returns concrete <see cref="IFindingEngine" /> types that can be registered as scoped services.
@@ -122,7 +122,7 @@ public static class FindingEnginePluginDiscovery
                 if (BuiltInEngineTypeIds.Contains(engineTypeId))
                 {
                     throw new InvalidOperationException(
-                        $"Finding engine plugin '{candidate.FullName}' uses EngineType '{engineTypeId}' which collides with a built-in product engine.");
+                        $"Finding engine plugin '{candidate.FullName}' uses EngineType '{engineTypeId}' which collides with a registered product engine.");
                 }
 
                 if (!seenEngineTypes.Add(engineTypeId))

@@ -15,6 +15,7 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { CommandPalette } from "@/components/CommandPaletteLazy";
+import { CommandPaletteTopBarTrigger } from "@/components/CommandPaletteTopBarTrigger";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { SimulatorModeTopBarChip } from "@/components/usability/SimulatorModeTopBarChip";
 import { useCommandPaletteChunkPreload } from "@/hooks/use-command-palette-chunk-preload";
@@ -83,8 +84,11 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
           )}
         >
-          <div className="min-w-0 flex-1 sm:max-w-sm lg:max-w-md xl:max-w-xl">
-            <GlobalSearchBarDeferred />
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:max-w-sm lg:max-w-md xl:max-w-xl">
+            <div className="min-w-0 flex-1">
+              <GlobalSearchBarDeferred />
+            </div>
+            <CommandPaletteTopBarTrigger />
           </div>
 
           <div

@@ -42,6 +42,7 @@ export type RunsDashboardPanelTableProps = {
   readonly archivedFieldSupported: boolean;
   readonly restoreBusyRequestId: string | null;
   readonly onRestoreArchivedRequest: (requestId: string) => void;
+  readonly onClearGovernanceWarningsFilter: () => void;
 };
 
 export function RunsDashboardPanelTable({
@@ -72,6 +73,7 @@ export function RunsDashboardPanelTable({
   archivedFieldSupported,
   restoreBusyRequestId,
   onRestoreArchivedRequest,
+  onClearGovernanceWarningsFilter,
 }: RunsDashboardPanelTableProps) {
   return (
     <>
@@ -99,6 +101,8 @@ export function RunsDashboardPanelTable({
           archivedFieldSupported={archivedFieldSupported}
           restoreBusyRequestId={restoreBusyRequestId}
           contentTestId="runs-dashboard-tab-all"
+          governanceWarningsOnly={governanceWarningsOnly}
+          onClearGovernanceWarningsFilter={onClearGovernanceWarningsFilter}
           onRestoreArchivedRequest={onRestoreArchivedRequest}
           pagePrimaryOwnedElsewhere={hideHeading}
         />

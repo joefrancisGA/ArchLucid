@@ -33,6 +33,7 @@ public sealed class ArchitectureSynthesisKernel(
     TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
     IArchitectureIdentityService? architectureIdentityService,
     IArchitectureVersionService? architectureVersionService,
+    IRunCreatePinOrchestrator runCreatePinOrchestrator,
     ILogger<ArchitectureSynthesisKernel> logger,
     TimeProvider timeProvider) : IArchitectureSynthesisKernel
 {
@@ -69,6 +70,9 @@ public sealed class ArchitectureSynthesisKernel(
     private readonly IArchitectureIdentityService? _architectureIdentityService = architectureIdentityService;
 
     private readonly IArchitectureVersionService? _architectureVersionService = architectureVersionService;
+
+    private readonly IRunCreatePinOrchestrator _runCreatePinOrchestrator =
+        runCreatePinOrchestrator ?? throw new ArgumentNullException(nameof(runCreatePinOrchestrator));
 
     private readonly ILogger<ArchitectureSynthesisKernel> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -141,6 +145,11 @@ public sealed class ArchitectureSynthesisKernel(
         };
 
         await _runRepository.SaveAsync(header, cancellationToken);
+
+        StructuralExecutionModeAdmittanceGuard.EnsureAdmittableOrThrow(header.StructuralExecutionMode);
+        await _runCreatePinOrchestrator.ApplyCreateTimePinsAsync(header, scope, request, cancellationToken)
+            .ConfigureAwait(false);
+        await _runRepository.UpdateAsync(header, cancellationToken).ConfigureAwait(false);
 
         string runId = runGuid.ToString("N");
         ArchitectureKnowledgeModel knowledgeModel = _knowledgeModelIntakeBuilder.Build(scope, request, runId);
