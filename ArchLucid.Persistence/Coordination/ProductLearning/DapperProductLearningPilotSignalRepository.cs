@@ -15,26 +15,11 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
     : IProductLearningPilotSignalRepository
 {
 
-    private const int MaxTake = 500;
-
     public async Task InsertAsync(ProductLearningPilotSignalRecord record, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(record);
-
-        if (string.IsNullOrWhiteSpace(record.SubjectType))
-            throw new ArgumentException("SubjectType is required.", nameof(record));
-
-
-        if (string.IsNullOrWhiteSpace(record.Disposition))
-            throw new ArgumentException("Disposition is required.", nameof(record));
-
-
-        Guid signalId = record.SignalId == Guid.Empty ? Guid.NewGuid() : record.SignalId;
-        DateTime recordedUtc = record.RecordedUtc == default ? TimeProvider.System.UtcNowDateTime() : record.RecordedUtc;
-        string triage = string.IsNullOrWhiteSpace(record.TriageStatus)
-            ? ProductLearningTriageStatusValues.Open
-            : record.TriageStatus;
-
+        ProductLearningPilotSignalRecord normalized = ProductLearningPilotSignalRepositoryCore.NormalizeInsert(
+            record,
+            static () => TimeProvider.System.UtcNowDateTime());
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
@@ -42,23 +27,23 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
                 ProductLearningPilotSignalSql.Insert,
                 new
                 {
-                    SignalId = signalId,
-                    record.TenantId,
-                    record.WorkspaceId,
-                    record.ProjectId,
-                    record.ArchitectureRunId,
-                    record.AuthorityRunId,
-                    record.ManifestVersion,
-                    record.SubjectType,
-                    record.Disposition,
-                    record.PatternKey,
-                    record.ArtifactHint,
-                    record.CommentShort,
-                    record.DetailJson,
-                    record.RecordedByUserId,
-                    record.RecordedByDisplayName,
-                    RecordedUtc = recordedUtc,
-                    TriageStatus = triage
+                    SignalId = normalized.SignalId,
+                    normalized.TenantId,
+                    normalized.WorkspaceId,
+                    normalized.ProjectId,
+                    normalized.ArchitectureRunId,
+                    normalized.AuthorityRunId,
+                    normalized.ManifestVersion,
+                    normalized.SubjectType,
+                    normalized.Disposition,
+                    normalized.PatternKey,
+                    normalized.ArtifactHint,
+                    normalized.CommentShort,
+                    normalized.DetailJson,
+                    normalized.RecordedByUserId,
+                    normalized.RecordedByDisplayName,
+                    RecordedUtc = normalized.RecordedUtc,
+                    TriageStatus = normalized.TriageStatus
                 },
                 cancellationToken: cancellationToken));
     }
@@ -70,7 +55,7 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         int take,
         CancellationToken cancellationToken)
     {
-        int capped = take < 1 ? 1 : Math.Min(take, MaxTake);
+        int capped = ProductLearningPilotSignalRepositoryCore.ClampListTake(take);
 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -98,7 +83,7 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         int maxAggregates,
         CancellationToken cancellationToken)
     {
-        int cap = maxAggregates < 1 ? 1 : Math.Min(maxAggregates, 500);
+        int cap = ProductLearningPilotSignalRepositoryCore.ClampAggregateCap(maxAggregates);
 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -115,7 +100,7 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
                 },
                 cancellationToken: cancellationToken));
 
-        return rows.Select(ToFeedbackAggregate).ToList();
+        return rows.Select(ProductLearningPilotSignalRepositoryCore.ToFeedbackAggregate).ToList();
     }
 
     public async Task<IReadOnlyList<ArtifactOutcomeTrend>> ListArtifactOutcomeTrendsAsync(
@@ -127,7 +112,7 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         int maxTrends,
         CancellationToken cancellationToken)
     {
-        int cap = maxTrends < 1 ? 1 : Math.Min(maxTrends, 500);
+        int cap = ProductLearningPilotSignalRepositoryCore.ClampAggregateCap(maxTrends);
 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -145,7 +130,7 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
                 cancellationToken: cancellationToken));
 
         return rows
-            .Select(r => ToArtifactOutcomeTrend(r, windowLabel))
+            .Select(r => ProductLearningPilotSignalRepositoryCore.ToArtifactOutcomeTrend(r, windowLabel))
             .ToList();
     }
 
@@ -165,7 +150,7 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
             500,
             cancellationToken);
 
-        int cap = take < 1 ? 1 : Math.Min(take, 200);
+        int cap = ProductLearningPilotSignalRepositoryCore.ClampThemeTake(take);
 
         return all
             .OrderByDescending(static a => a.RejectedCount + a.RevisedCount)
@@ -184,8 +169,8 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         int take,
         CancellationToken cancellationToken)
     {
-        int min = minOccurrences < 1 ? 1 : minOccurrences;
-        int cap = take < 1 ? 1 : Math.Min(take, 200);
+        int min = ProductLearningPilotSignalRepositoryCore.ClampMinOccurrences(minOccurrences);
+        int cap = ProductLearningPilotSignalRepositoryCore.ClampThemeTake(take);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         IEnumerable<RepeatedCommentThemeSqlRow> rows = await connection.QueryAsync<RepeatedCommentThemeSqlRow>(
@@ -202,7 +187,7 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
                 },
                 cancellationToken: cancellationToken));
 
-        return rows.Select(ToRepeatedCommentTheme).ToList();
+        return rows.Select(ProductLearningPilotSignalRepositoryCore.ToRepeatedCommentTheme).ToList();
     }
 
     public async Task<IReadOnlyList<ImprovementOpportunity>> ListImprovementOpportunityCandidatesAsync(
@@ -215,9 +200,9 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         int take,
         CancellationToken cancellationToken)
     {
-        int minPoor = minPoorOutcomeSignals < 1 ? 1 : minPoorOutcomeSignals;
-        int minRev = minRevisedSignals < 1 ? 1 : minRevisedSignals;
-        int cap = take < 1 ? 1 : Math.Min(take, 100);
+        int minPoor = ProductLearningPilotSignalRepositoryCore.ClampMinOccurrences(minPoorOutcomeSignals);
+        int minRev = ProductLearningPilotSignalRepositoryCore.ClampMinOccurrences(minRevisedSignals);
+        int cap = ProductLearningPilotSignalRepositoryCore.ClampImprovementTake(take);
 
         IReadOnlyList<FeedbackAggregate> aggregates = await ListRunFeedbackAggregatesAsync(
             tenantId,
@@ -289,70 +274,4 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         return n;
     }
 
-    private static FeedbackAggregate ToFeedbackAggregate(FeedbackAggregateSqlRow row)
-    {
-        string? pk = string.IsNullOrWhiteSpace(row.PatternKeyRaw) ? null : row.PatternKeyRaw.Trim();
-
-        return new FeedbackAggregate
-        {
-            AggregateKey = row.AggregateKey,
-            PatternKey = pk,
-            SubjectTypeOrWorkflowArea = row.SubjectTypeOrWorkflowArea,
-            DistinctRunCount = row.DistinctRunCount,
-            TotalSignalCount = row.TotalSignalCount,
-            TrustedCount = row.TrustedCount,
-            RejectedCount = row.RejectedCount,
-            RevisedCount = row.RevisedCount,
-            NeedsFollowUpCount = row.NeedsFollowUpCount,
-            AverageTrustScore = null,
-            AverageUsefulnessScore = null,
-            DominantThemeHint = string.IsNullOrWhiteSpace(row.DominantThemeHint)
-                ? null
-                : TruncateForDisplay(row.DominantThemeHint, 240),
-            FirstSignalRecordedUtc = row.FirstSignalRecordedUtc,
-            LastSignalRecordedUtc = row.LastSignalRecordedUtc
-        };
-    }
-
-    private static ArtifactOutcomeTrend ToArtifactOutcomeTrend(ArtifactOutcomeTrendSqlRow row, string? windowLabel)
-    {
-        return new ArtifactOutcomeTrend
-        {
-            TrendKey = row.TrendKey,
-            ArtifactTypeOrHint = row.ArtifactTypeOrHint,
-            WindowLabel = windowLabel,
-            AcceptedOrTrustedCount = row.AcceptedOrTrustedCount,
-            RevisionCount = row.RevisionCount,
-            RejectionCount = row.RejectionCount,
-            NeedsFollowUpCount = row.NeedsFollowUpCount,
-            DistinctRunCount = row.DistinctRunCount,
-            AverageTrustScore = null,
-            AverageUsefulnessScore = null,
-            RepeatedThemeIndicator = string.IsNullOrWhiteSpace(row.RepeatedThemeIndicator)
-                ? null
-                : TruncateForDisplay(row.RepeatedThemeIndicator, 200),
-            FirstSeenUtc = row.FirstSeenUtc,
-            LastSeenUtc = row.LastSeenUtc
-        };
-    }
-
-    private static RepeatedCommentTheme ToRepeatedCommentTheme(RepeatedCommentThemeSqlRow row)
-    {
-        long n = row.OccurrenceCount;
-        int count = n > int.MaxValue ? int.MaxValue : (int)n;
-
-        return new RepeatedCommentTheme
-        {
-            ThemeKey = row.ThemeKey,
-            OccurrenceCount = count,
-            FirstSeenUtc = row.FirstSeenUtc,
-            LastSeenUtc = row.LastSeenUtc,
-            SampleCommentShort = row.SampleCommentShort
-        };
-    }
-
-    private static string TruncateForDisplay(string value, int maxChars)
-    {
-        return value.Length <= maxChars ? value : value[..maxChars];
-    }
 }

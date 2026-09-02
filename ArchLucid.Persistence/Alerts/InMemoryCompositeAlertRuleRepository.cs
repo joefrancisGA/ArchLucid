@@ -12,7 +12,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         ArgumentNullException.ThrowIfNull(rule);
         _ = ct;
         lock (_gate)
-            _items.Add(CloneRule(rule));
+            _items.Add(CompositeAlertRuleRepositoryCore.CloneRule(rule));
         return Task.CompletedTask;
     }
 
@@ -24,7 +24,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         {
             int i = _items.FindIndex(x => x.CompositeRuleId == rule.CompositeRuleId);
             if (i >= 0)
-                _items[i] = CloneRule(rule);
+                _items[i] = CompositeAlertRuleRepositoryCore.CloneRule(rule);
         }
 
         return Task.CompletedTask;
@@ -36,7 +36,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         lock (_gate)
         {
             CompositeAlertRule? found = _items.FirstOrDefault(x => x.CompositeRuleId == compositeRuleId);
-            return Task.FromResult(found is null ? null : CloneRule(found));
+            return Task.FromResult(found is null ? null : CompositeAlertRuleRepositoryCore.CloneRule(found));
         }
     }
 
@@ -49,10 +49,9 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         _ = ct;
         lock (_gate)
         {
-            List<CompositeAlertRule> result = _items
-                .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId)
-                .OrderByDescending(x => x.CreatedUtc)
-                .Select(CloneRule)
+            List<CompositeAlertRule> result = CompositeAlertRuleRepositoryCore
+                .FilterByScope(_items, tenantId, workspaceId, projectId)
+                .Select(CompositeAlertRuleRepositoryCore.CloneRule)
                 .ToList();
             return Task.FromResult<IReadOnlyList<CompositeAlertRule>>(result);
         }
@@ -67,47 +66,12 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         _ = ct;
         lock (_gate)
         {
-            List<CompositeAlertRule> result = _items
-                .Where(x =>
-                    x.TenantId == tenantId &&
-                    x.WorkspaceId == workspaceId &&
-                    x.ProjectId == projectId &&
-                    x.IsEnabled)
-                .OrderByDescending(x => x.CreatedUtc)
-                .Select(CloneRule)
+            List<CompositeAlertRule> result = CompositeAlertRuleRepositoryCore
+                .FilterEnabledByScope(_items, tenantId, workspaceId, projectId)
+                .Select(CompositeAlertRuleRepositoryCore.CloneRule)
                 .ToList();
             return Task.FromResult<IReadOnlyList<CompositeAlertRule>>(result);
         }
     }
 
-    private static CompositeAlertRule CloneRule(CompositeAlertRule r)
-    {
-        CompositeAlertRule copy = new()
-        {
-            CompositeRuleId = r.CompositeRuleId,
-            TenantId = r.TenantId,
-            WorkspaceId = r.WorkspaceId,
-            ProjectId = r.ProjectId,
-            Name = r.Name,
-            Severity = r.Severity,
-            Operator = r.Operator,
-            IsEnabled = r.IsEnabled,
-            SuppressionWindowMinutes = r.SuppressionWindowMinutes,
-            CooldownMinutes = r.CooldownMinutes,
-            ReopenDeltaThreshold = r.ReopenDeltaThreshold,
-            DedupeScope = r.DedupeScope,
-            TargetChannelType = r.TargetChannelType,
-            CreatedUtc = r.CreatedUtc,
-            Conditions = r.Conditions
-                .Select(c => new AlertRuleCondition
-                {
-                    ConditionId = c.ConditionId,
-                    MetricType = c.MetricType,
-                    Operator = c.Operator,
-                    ThresholdValue = c.ThresholdValue,
-                })
-                .ToList(),
-        };
-        return copy;
-    }
 }

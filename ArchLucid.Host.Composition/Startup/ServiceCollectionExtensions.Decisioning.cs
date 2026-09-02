@@ -106,6 +106,14 @@ public static partial class ServiceCollectionExtensions
 
         RegisterPluginFindingEngines(services, configuration);
 
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsPolicyStampStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsPolicyStampStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsEngineInvokeStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsEngineInvokeStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsMergeAndGateStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsMergeAndGateStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsSnapshotEmitStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsSnapshotEmitStage>();
         services.AddScoped<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator, Ds.FindingsOrchestrator>();
         services.AddScoped<Di.IFindingsOrchestrator>(static sp =>
             (Di.IFindingsOrchestrator)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator>());

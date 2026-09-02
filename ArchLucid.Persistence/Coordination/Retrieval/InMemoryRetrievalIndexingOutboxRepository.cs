@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Persistence.Coordination;
 using ArchLucid.Persistence.Orchestration;
 
 namespace ArchLucid.Persistence.Coordination.Retrieval;
@@ -131,16 +132,23 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        int take = Math.Clamp(maxBatch, 1, 100);
-        int lease = Math.Clamp(leaseDurationSeconds, 60, 7200);
+        int take = CoordinationOutboxRepositoryCore.ClampDequeueBatch(maxBatch);
+        int lease = CoordinationOutboxRepositoryCore.ClampLeaseDurationSeconds(leaseDurationSeconds);
         DateTime now = _utcNow();
         TimeSpan leaseSpan = TimeSpan.FromSeconds(lease);
 
         lock (_sync)
         {
-            List<Stored> batch = EligibleRows(now)
-                .OrderBy(x => x.CreatedUtc)
-                .ThenBy(x => x.OutboxId)
+            List<Stored> batch = CoordinationOutboxRepositoryCore
+                .OrderEligibleForDequeue(
+                    _rows,
+                    static row => row.ProcessedUtc,
+                    static row => row.DeadLetteredUtc,
+                    static row => row.NextAttemptUtc,
+                    static row => row.LockedUntilUtc,
+                    static row => row.CreatedUtc,
+                    static row => row.OutboxId,
+                    now)
                 .Take(take)
                 .ToList();
 
@@ -160,7 +168,7 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
         {
             Stored? row = _rows.Find(x => x.OutboxId == outboxId);
 
-            if (row is null || row.ProcessedUtc is not null)
+            if (row is null || !CoordinationOutboxRepositoryCore.CanMarkProcessed(row.ProcessedUtc))
                 return Task.CompletedTask;
 
             row.ProcessedUtc = _utcNow();
@@ -184,12 +192,13 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
         {
             Stored? row = _rows.Find(x => x.OutboxId == outboxId);
 
-            if (row is null || row.ProcessedUtc is not null || row.DeadLetteredUtc is not null)
+            if (row is null
+                || !CoordinationOutboxRepositoryCore.CanRecordBackoff(row.ProcessedUtc, row.DeadLetteredUtc))
                 return Task.CompletedTask;
 
             row.LockedUntilUtc = null;
             row.AttemptCount++;
-            row.NextAttemptUtc = NormalizeUtc(nextAttemptUtc);
+            row.NextAttemptUtc = CoordinationOutboxRepositoryCore.NormalizeUtc(nextAttemptUtc);
             row.LastAttemptError = err;
         }
 
@@ -209,7 +218,8 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
         {
             Stored? row = _rows.Find(x => x.OutboxId == outboxId);
 
-            if (row is null || row.ProcessedUtc is not null || row.DeadLetteredUtc is not null)
+            if (row is null
+                || !CoordinationOutboxRepositoryCore.CanRecordDeadLetter(row.ProcessedUtc, row.DeadLetteredUtc))
                 return Task.CompletedTask;
 
             row.LockedUntilUtc = null;
@@ -229,7 +239,8 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
 
         lock (_sync)
 
-            return Task.FromResult((long)_rows.Count(r => r.ProcessedUtc is null && r.DeadLetteredUtc is null));
+            return Task.FromResult((long)_rows.Count(r =>
+                CoordinationOutboxRepositoryCore.IsPendingCount(r.ProcessedUtc, r.DeadLetteredUtc)));
     }
 
     /// <inheritdoc />
@@ -239,18 +250,8 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
 
         lock (_sync)
 
-            return Task.FromResult((long)_rows.Count(r => r.DeadLetteredUtc is not null && r.ProcessedUtc is null));
-    }
-
-    private IEnumerable<Stored> EligibleRows(DateTime nowUtc)
-    {
-        foreach (Stored row in _rows)
-
-            if (row.ProcessedUtc is null
-                && row.DeadLetteredUtc is null
-                && (row.NextAttemptUtc is null || row.NextAttemptUtc <= nowUtc)
-                && (row.LockedUntilUtc is null || row.LockedUntilUtc <= nowUtc))
-                yield return row;
+            return Task.FromResult((long)_rows.Count(r =>
+                CoordinationOutboxRepositoryCore.IsDeadLetteredCount(r.ProcessedUtc, r.DeadLetteredUtc)));
     }
 
     private static RetrievalIndexingOutboxEntry ToEntry(Stored row)
@@ -293,12 +294,5 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
             _rows.Add(entry);
 
         return Task.CompletedTask;
-    }
-
-    private static DateTime NormalizeUtc(DateTime value)
-    {
-        return value.Kind is DateTimeKind.Unspecified
-            ? DateTime.SpecifyKind(value, DateTimeKind.Utc)
-            : value.ToUniversalTime();
     }
 }
