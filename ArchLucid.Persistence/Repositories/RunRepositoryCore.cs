@@ -400,6 +400,41 @@ internal static class RunRepositoryCore
         return null;
     }
 
+    public static Guid? SelectLatestCommittedRunIdByArchitectureVersionId(
+        IEnumerable<RunRecord> candidates,
+        ScopeContext scope,
+        Guid architectureVersionId)
+    {
+        ArgumentNullException.ThrowIfNull(candidates);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (architectureVersionId == Guid.Empty)
+            return null;
+
+        RunRecord? best = null;
+
+        foreach (RunRecord candidate in candidates)
+        {
+            if (!IsActiveInScope(candidate, scope))
+                continue;
+
+            if (candidate.ArchitectureVersionId != architectureVersionId)
+                continue;
+
+            if (!IsCommittedRun(candidate))
+                continue;
+
+            if (best is null
+                || candidate.CreatedUtc > best.CreatedUtc
+                || (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId.CompareTo(best.RunId) > 0))
+            {
+                best = candidate;
+            }
+        }
+
+        return best?.RunId;
+    }
+
     private static bool IsActiveCommittedRunInProject(RunRecord candidate, ScopeContext scope, string projectId) =>
         IsActiveInScope(candidate, scope)
         && AuthorityProjectSlugMatches(candidate.ProjectId, projectId)

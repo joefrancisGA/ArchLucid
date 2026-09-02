@@ -229,6 +229,24 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         return Task.FromResult(PagedResponseBuilder.FromDatabasePage(pageItems, matches.Count, safePage, safePageSize));
     }
 
+    /// <inheritdoc />
+    public Task<DraftRequestResponse?> GetBySpawnedRunIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string spawnedRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(spawnedRunId);
+
+        StoredDraft? match = _drafts.Values.FirstOrDefault(stored =>
+            stored.TenantId == tenantId
+            && stored.WorkspaceId == workspaceId
+            && stored.ProjectId == projectId
+            && string.Equals(stored.SpawnedRunId, spawnedRunId, StringComparison.OrdinalIgnoreCase));
+
+        return Task.FromResult(match is null ? null : Map(match));
+    }
 
     private static DraftRequestResponse Map(StoredDraft stored) =>
         new()

@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
@@ -89,6 +90,15 @@ public sealed class RunDetailsResponse
     ///     Independent of <see cref="AuthorityPipelineComplete" />.
     /// </summary>
     public bool AgentTaskLoopComplete
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Authority pipeline lifecycle phase (wave-4 suggestion 38). Independent of agent-task status.
+    /// </summary>
+    public AuthorityRunLifecyclePhase AuthorityLifecyclePhase
     {
         get;
         set;

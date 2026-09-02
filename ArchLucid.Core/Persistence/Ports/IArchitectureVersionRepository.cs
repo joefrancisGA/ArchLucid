@@ -21,8 +21,14 @@ public interface IArchitectureVersionRepository
         ArchitectureVersionRecord record,
         CancellationToken cancellationToken = default);
 
-    Task<ArchitectureVersionRecord?> GetByIdAsync(
+    public Task<ArchitectureVersionRecord?> GetByIdAsync(
         ScopeContext scope,
         Guid architectureVersionId,
+        CancellationToken cancellationToken = default);
+
+    Task<ArchitectureVersionRecord?> GetByArchitectureIdAndVersionNumberAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        int versionNumber,
         CancellationToken cancellationToken = default);
 }

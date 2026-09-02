@@ -63,6 +63,30 @@ public static class PolicyPackCategoryCoverageValidator
         return violations;
     }
 
+    public static IReadOnlyList<string> GetMissingEngineTypeViolations(
+        FindingAnalysisContext context,
+        IReadOnlySet<string> successfulEngineTypes)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(successfulEngineTypes);
+
+        if (context.RequiredEngineTypes.Count == 0)
+            return [];
+
+        List<string> violations = [];
+
+        foreach (string requiredEngineType in context.RequiredEngineTypes.OrderBy(static type => type, StringComparer.OrdinalIgnoreCase))
+        {
+            if (!successfulEngineTypes.Contains(requiredEngineType))
+            {
+                violations.Add(
+                    $"Policy theory-in-force requires engine '{requiredEngineType}' to succeed but it did not.");
+            }
+        }
+
+        return violations;
+    }
+
     private static HashSet<string> ResolveRequiredCategories(FindingAnalysisContext context)
     {
         HashSet<string> categories = new(StringComparer.OrdinalIgnoreCase);

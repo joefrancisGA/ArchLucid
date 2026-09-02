@@ -1,6 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+  expectFollowUpLink,
+} from "@/lib/claim-discipline-test-helpers";
 
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
 import {
@@ -11,12 +15,20 @@ import {
 } from "@/lib/caiq-sig-response-help-evidence-copy";
 
 describe("CaiqSigResponseHelpEvidenceOrientationStrip", () => {
-  it("renders lead strip, claim discipline heading, and all diligence links with when clauses", () => {
+  it("renders lead strip, diligence links with when clauses, and no duplicate claim discipline", () => {
     render(<CaiqSigResponseHelpEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("caiq-sig-response-help-lead")).toHaveTextContent(CAIQ_SIG_RESPONSE_HELP_LEAD);
-    expect(screen.getByRole("heading", { name: CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING })).toBeInTheDocument();
-    expect(screen.getByTestId("caiq-sig-response-help-claim-discipline")).toHaveTextContent(
+    expectClaimDisciplineHeading(
+      screen,
+      "help-caiq-sig-response",
+      CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING,
+      "caiq-sig-response-help-claim-heading",
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-caiq-sig-response",
+      "caiq-sig-response-help-claim-discipline",
       CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE,
     );
 

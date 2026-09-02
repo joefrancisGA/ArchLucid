@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import {
+  expectWhereToGoNextFollowUpLinks,
+} from "@/lib/claim-discipline-test-helpers";
 
 import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectGcpSecurelyHelpEvidenceOrientationStrip";
 import {
@@ -10,7 +12,7 @@ import {
 } from "@/lib/connect-gcp-securely-help-evidence-copy";
 
 describe("ConnectGcpSecurelyHelpEvidenceOrientationStrip", () => {
-  it("renders claim discipline as an info callout with accessible name and diligence links", () => {
+  it("renders claim discipline as an info callout with filtered diligence links", () => {
     render(<ConnectGcpSecurelyHelpEvidenceOrientationStrip />);
 
     expect(
@@ -23,8 +25,6 @@ describe("ConnectGcpSecurelyHelpEvidenceOrientationStrip", () => {
     expect(claimDiscipline).toHaveAttribute("aria-labelledby", "connect-gcp-securely-help-claim-discipline-heading");
     expect(claimDiscipline).toHaveTextContent(CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE);
 
-    for (const link of CONNECT_GCP_SECURELY_SOURCES) {
-      expectFollowUpLink(screen, link);
-    }
+    expectWhereToGoNextFollowUpLinks(screen, CONNECT_GCP_SECURELY_SOURCES);
   });
 });

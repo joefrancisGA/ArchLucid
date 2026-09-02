@@ -5,7 +5,7 @@ import { HelpDrawerTopicRow } from "@/components/help/HelpDrawerTopicRow";
 import type { HelpSearchPanelTopic } from "@/lib/help/help-search-panel-catalog";
 
 describe("HelpDrawerTopicRow (TB-734)", () => {
-  it("shows a Documentation browse label for technical help slugs", () => {
+  it("shows no Documentation browse label when the slug is product-help (TB-1610)", () => {
     const topic: HelpSearchPanelTopic = {
       id: "admin-diagnostics",
       title: "Admin diagnostics",
@@ -24,7 +24,7 @@ describe("HelpDrawerTopicRow (TB-734)", () => {
       />,
     );
 
-    expect(screen.getByTestId("help-drawer-browse-label")).toHaveTextContent("Documentation");
+    expect(screen.queryByTestId("help-drawer-browse-label")).toBeNull();
   });
 
   it("omits the Guide eyebrow for product-help slugs but keeps it in the accessible name", () => {

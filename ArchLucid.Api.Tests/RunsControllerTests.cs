@@ -157,6 +157,8 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task ExplainStructuredBriefSuggestion_returns_bad_request_when_suggestion_text_exceeds_chat_intake_max_length()
     {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
         RunsController controller = CreateController();
 
         ExplainStructuredBriefSuggestionInput input = new()
@@ -165,8 +167,6 @@ public sealed class RunsControllerTests
             SuggestionKind = StructuredBriefSuggestionKind.Constraint,
             SuggestionText = OverLimitIntakeText.Value,
         };
-
-        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
 
         IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, intakeFacade.Object, CancellationToken.None);
 

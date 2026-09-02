@@ -24,8 +24,14 @@ public sealed partial class ReplayRunService
         List<AgentTask> tasks = sourceDetail.Tasks;
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (tasks.Count == 0)
-            throw new NoScheduledAgentTasksException(originalRunId);
+        if (tasks.Count == 0 && !sourceDetail.AuthorityPipelineComplete)
+        {
+            bool authorityProgress = await SourceRunHasAuthorityStageProgressAsync(originalRunId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!authorityProgress)
+                throw new NoScheduledAgentTasksException(originalRunId);
+        }
 
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
@@ -44,6 +50,9 @@ public sealed partial class ReplayRunService
         RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(replayGuid, scope, sourceAuthorityRun, request);
         await _authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
+
+        if (tasks.Count == 0)
+            return replayRunId;
 
         List<AgentTask> replayTasks = tasks.Select(t => new AgentTask
         {

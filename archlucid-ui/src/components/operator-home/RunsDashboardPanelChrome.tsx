@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { RunsDashboardPanelFilters } from "@/components/operator-home/RunsDashboardPanelFilters";
+import { RunsDashboardGovernanceWarningsActiveFilter } from "@/components/operator-home/RunsDashboardGovernanceWarningsActiveFilter";
 import { RunsDashboardPanelTable } from "@/components/operator-home/RunsDashboardPanelTable";
 import { BUYER_RUNS_DASHBOARD_SECTION_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import {
@@ -42,6 +43,12 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
           {model.recentReviewsOutcomeLine}
         </p>
       ) : null}
+      {model.governanceWarningsOnly ? (
+        <RunsDashboardGovernanceWarningsActiveFilter
+          visible={model.governanceWarningsOnly}
+          onClear={model.clearGovernanceWarningsFilter}
+        />
+      ) : null}
       <Tabs
         value={model.tab}
         onValueChange={(next) => {
@@ -70,7 +77,7 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
               archivedFilterDisabled={model.archivedFilterDisabled}
               showArchived={model.showArchived}
               onSelectDashboardTab={model.selectDashboardTab}
-              onToggleShowArchived={() => model.setShowArchived((value) => !value)}
+              onToggleShowArchived={() => model.setShowArchived(!model.showArchived)}
               openAllReviewsHref={model.openAllReviewsHref}
             />
           ) : null}
@@ -108,6 +115,7 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
               buyerSafeHighlight={model.buyerSafeHighlight}
               archivedFieldSupported={model.archivedFieldSupported}
               restoreBusyRequestId={model.restoreBusyRequestId}
+              onClearGovernanceWarningsFilter={model.clearGovernanceWarningsFilter}
               onRestoreArchivedRequest={(requestId) => {
                 void model.restoreArchivedRequest(requestId);
               }}

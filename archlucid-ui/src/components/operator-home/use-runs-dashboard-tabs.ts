@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
@@ -18,10 +18,15 @@ import {
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase, RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 import {
+  homeGovernanceWarningsClearHrefFromSearch,
+  homeGovernanceWarningsHrefFromSearch,
   homeGovernanceWarningsQueryEnabled,
+  parseRunsDashboardShowArchivedFromSearch,
+  parseRunsDashboardTabFromSearch,
   resolveRunsDashboardOpenAllReviewsHref,
   resolveRunsDashboardRecentListTab,
   resolveRunsDashboardStatusTabIds,
+  runsDashboardHomeHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 import {
   getBuyerSafeReviewsTableLink,
@@ -61,11 +66,14 @@ export function useRunsDashboardTabs({
   restoreArchivedRequest,
 }: UseRunsDashboardTabsOptions) {
   const searchParams = useSearchParams();
-  const [tab, setTab] = useState<RunsDashboardTabId>("all");
+  const router = useRouter();
+  const [tab, setTab] = useState<RunsDashboardTabId>(() => parseRunsDashboardTabFromSearch(searchParams.get("tab")));
   const [governanceWarningsOnly, setGovernanceWarningsOnly] = useState(() =>
     homeGovernanceWarningsQueryEnabled(searchParams),
   );
-  const [showArchived, setShowArchived] = useState(false);
+  const [showArchived, setShowArchived] = useState(() =>
+    parseRunsDashboardShowArchivedFromSearch(searchParams.get("archived")),
+  );
   const { reportWorkspaceReviews, homeAttentionPreviewExcludedRunIds } = useOperatorHomeWorkspaceActivity();
   const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
 
@@ -74,6 +82,9 @@ export function useRunsDashboardTabs({
       setGovernanceWarningsOnly(true);
       setTab("all");
     }
+
+    setTab(parseRunsDashboardTabFromSearch(searchParams.get("tab")));
+    setShowArchived(parseRunsDashboardShowArchivedFromSearch(searchParams.get("archived")));
   }, [searchParams]);
 
   const displayItems = useMemo(() => {
@@ -198,7 +209,39 @@ export function useRunsDashboardTabs({
   const selectDashboardTab = useCallback((next: RunsDashboardTabId) => {
     setTab(next);
     setShowArchived(false);
-  }, []);
+    router.replace(
+      runsDashboardHomeHrefFromSearch(searchParams.toString(), { tab: next, showArchived: false }),
+      { scroll: false },
+    );
+  }, [router, searchParams]);
+
+  const setShowArchivedWithUrl = useCallback(
+    (value: boolean) => {
+      setShowArchived(value);
+      router.replace(
+        runsDashboardHomeHrefFromSearch(searchParams.toString(), { showArchived: value }),
+        { scroll: false },
+      );
+    },
+    [router, searchParams],
+  );
+
+  const setGovernanceWarningsOnlyWithUrl = useCallback(
+    (value: boolean) => {
+      setGovernanceWarningsOnly(value);
+
+      const nextHref = value
+        ? homeGovernanceWarningsHrefFromSearch(searchParams.toString())
+        : homeGovernanceWarningsClearHrefFromSearch(searchParams.toString());
+
+      router.replace(nextHref, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const clearGovernanceWarningsFilter = useCallback(() => {
+    setGovernanceWarningsOnlyWithUrl(false);
+  }, [setGovernanceWarningsOnlyWithUrl]);
 
   const handleRestoreArchivedRequest = useCallback(
     async (requestId: string) => {
@@ -213,9 +256,9 @@ export function useRunsDashboardTabs({
   return {
     tab,
     governanceWarningsOnly,
-    setGovernanceWarningsOnly,
+    setGovernanceWarningsOnly: setGovernanceWarningsOnlyWithUrl,
     showArchived,
-    setShowArchived,
+    setShowArchived: setShowArchivedWithUrl,
     displayItems,
     filteredItems,
     approvedTabItems,
@@ -243,5 +286,6 @@ export function useRunsDashboardTabs({
     archivedFilterDisabled,
     selectDashboardTab,
     restoreArchivedRequest: handleRestoreArchivedRequest,
+    clearGovernanceWarningsFilter,
   };
 }

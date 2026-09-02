@@ -189,6 +189,7 @@ export async function RunDetailPageView(props: {
       unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
       aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
       governanceGateLabel={m.governanceGateLabel}
+      authorityLifecyclePhase={m.resolvedDetail.authorityLifecyclePhase ?? null}
       showcasePolicyPackStrip={showcasePolicyPackStrip}
       degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
       failedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}

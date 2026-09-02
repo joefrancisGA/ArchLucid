@@ -17,6 +17,7 @@ export type GovernanceFindingsQueueActiveFilterChipsProps = {
   readonly jobView: FindingJobView;
   readonly nlFacets: FindingsNaturalLanguageFacets;
   readonly jobViewFilterActive: boolean;
+  readonly findingsSearchQuery: string;
   readonly onClearAll: () => void;
 };
 
@@ -28,6 +29,7 @@ function GovernanceFindingsQueueActiveFilterChipsComponent(
     jobView: props.jobView,
     nlFacets: props.nlFacets,
     jobViewFilterActive: props.jobViewFilterActive,
+    searchQuery: props.findingsSearchQuery,
   });
 
   if (chips.length === 0) {

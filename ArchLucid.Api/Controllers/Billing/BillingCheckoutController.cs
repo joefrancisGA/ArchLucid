@@ -24,6 +24,7 @@ public sealed class BillingCheckoutController(IBillingCheckoutFacade billingChec
     private readonly IBillingCheckoutFacade _billingCheckoutFacade =
         billingCheckoutFacade ?? throw new ArgumentNullException(nameof(billingCheckoutFacade));
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("checkout")]
     [SkipTrialWriteLimit]
     [MutatingAuditExcluded("Audit: IBillingCheckoutFacade.CreateCheckoutSessionAsync logs BillingCheckoutInitiated and BillingCheckoutCompleted.")]
@@ -63,6 +64,7 @@ public sealed class BillingCheckoutController(IBillingCheckoutFacade billingChec
         };
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("portal")]
     [SkipTrialWriteLimit]
     [MutatingAuditExcluded("Audit: IBillingCheckoutFacade.CreatePortalSessionAsync logs BillingPortalInitiated and BillingPortalCompleted.")]

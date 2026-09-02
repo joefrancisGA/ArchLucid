@@ -13,6 +13,7 @@ import {
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase } from "@/components/operator-home/runs-dashboard-load-phase";
 import { Button } from "@/components/ui/button";
+import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import {
   getCanonicalReviewWorkspaceHref,
   getShowcaseManifestHref,
@@ -26,7 +27,6 @@ import {
   OPERATOR_TYPOGRAPHY,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
-import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { OPERATOR_HOME_RECENT_FEATURED_LIMIT } from "@/lib/operator/operator-home-recent-reviews-outcome";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
@@ -51,6 +51,8 @@ export type RunsDashboardRecentTabProps = {
   readonly restoreBusyRequestId: string | null;
   readonly contentTestId?: string;
   readonly statusFilterEmptyMessage?: string | null;
+  readonly governanceWarningsOnly?: boolean;
+  readonly onClearGovernanceWarningsFilter?: () => void;
   readonly onRestoreArchivedRequest: (requestId: string) => void;
   /** When the Overview command center already renders the filled page primary (TB-2232). */
   readonly pagePrimaryOwnedElsewhere?: boolean;
@@ -79,6 +81,14 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
     props.statusFilterEmptyMessage !== undefined &&
     props.statusFilterEmptyMessage !== null &&
     props.statusFilterEmptyMessage.length > 0 &&
+    !props.runListError &&
+    (props.phase === "ready" || props.phase === "error");
+
+  const showGovernanceWarningsEmptyState =
+    !props.showArchived &&
+    props.governanceWarningsOnly === true &&
+    props.filteredItems.length === 0 &&
+    props.effectiveItems.length > 0 &&
     !props.runListError &&
     (props.phase === "ready" || props.phase === "error");
 
@@ -201,6 +211,30 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
         <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {props.statusFilterEmptyMessage}
         </p>
+      ) : null}
+
+      {showGovernanceWarningsEmptyState ? (
+        <div
+          className="flex flex-wrap items-center gap-2"
+          data-testid="runs-dashboard-governance-warnings-empty"
+          role="status"
+        >
+          <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            No reviews with {RUNS_DASHBOARD_LABELS.governanceWarningsOnly.toLowerCase()}
+          </p>
+          {props.onClearGovernanceWarningsFilter !== undefined ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-auto px-2 py-1 text-al-text-primary"
+              onClick={props.onClearGovernanceWarningsFilter}
+              data-testid="runs-dashboard-governance-warnings-empty-clear"
+            >
+              Clear
+            </Button>
+          ) : null}
+        </div>
       ) : null}
 
       {showBuyerProofSummary && props.showcaseDemoRun !== undefined ? (

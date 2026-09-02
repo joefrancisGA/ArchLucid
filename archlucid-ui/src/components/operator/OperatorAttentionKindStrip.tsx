@@ -7,12 +7,14 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   OPERATOR_ATTENTION_KIND_DESTINATIONS,
 } from "@/lib/operator/operator-attention-kind-destinations";
+import { isOperatorAttentionKindDestinationActive } from "@/lib/operator/operator-attention-kind-chip-selected";
 import {
   OPERATOR_ATTENTION_KIND_IDS,
   OPERATOR_ATTENTION_KIND_LABELS,
   type OperatorAttentionKindId,
 } from "@/lib/operator/operator-attention-taxonomy";
 import { cn } from "@/lib/utils";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export type OperatorAttentionKindStripProps = {
   readonly variant?: "default" | "compact";
@@ -22,14 +24,13 @@ export type OperatorAttentionKindStripProps = {
 export const OPERATOR_ATTENTION_KIND_STRIP_HELPER =
   "Needs-you queues — open a kind to see what needs action:" as const;
 
-export const OPERATOR_ATTENTION_KIND_STRIP_COMPACT_HELPER =
-  "Four attention kinds with live counts — tap to open the matching queue." as const;
-
 /** TB-2353 / TB-2369 — actionable four-kind attention taxonomy for hub pages. */
 export function OperatorAttentionKindStrip(
   props: OperatorAttentionKindStripProps,
 ): React.JSX.Element {
   const variant = props.variant ?? "default";
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
   const { summaries } = useOperatorAttentionSummary();
   const summaryByPartition = new Map(summaries.map((summary) => [summary.partition, summary]));
 
@@ -39,11 +40,11 @@ export function OperatorAttentionKindStrip(
       data-testid="operator-attention-kind-strip"
       data-variant={variant}
     >
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {variant === "compact"
-          ? OPERATOR_ATTENTION_KIND_STRIP_COMPACT_HELPER
-          : OPERATOR_ATTENTION_KIND_STRIP_HELPER}
-      </p>
+      {variant === "default" ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {OPERATOR_ATTENTION_KIND_STRIP_HELPER}
+        </p>
+      ) : null}
       <ul
         className="m-0 flex list-none flex-wrap gap-1.5 p-0"
         data-testid="operator-attention-kind-chips"
@@ -52,12 +53,18 @@ export function OperatorAttentionKindStrip(
           const destination = OPERATOR_ATTENTION_KIND_DESTINATIONS[kind];
           const count = summaryByPartition.get(kind)?.totalCount ?? 0;
           const label = OPERATOR_ATTENTION_KIND_LABELS[kind];
+          const selected = isOperatorAttentionKindDestinationActive(
+            pathname,
+            searchParams,
+            destination.href,
+          );
 
           return (
             <li key={kind}>
               <FilterChip
                 href={destination.href}
-                className={cn("gap-1", buyerFilterChipClass(false, false, count === 0))}
+                className={cn("gap-1", buyerFilterChipClass(selected, false, count === 0))}
+                aria-current={selected ? "page" : undefined}
                 aria-label={`${label}: ${count} items`}
                 data-testid={`operator-attention-kind-chip-${kind}`}
               >

@@ -34,7 +34,22 @@ internal static class AuthorityRunMapper
             HasGovernanceWarnings = run.HasGovernanceWarnings,
             PackageOrigin = run.PackageOrigin,
             StructuralExecutionMode = run.StructuralExecutionMode,
+            AuthorityLifecyclePhase = ResolveListLifecyclePhase(run),
         };
+    }
+
+    private static AuthorityRunLifecyclePhase ResolveListLifecyclePhase(RunRecord run)
+    {
+        if (run.GoldenManifestId is Guid goldenManifestId && goldenManifestId != Guid.Empty)
+            return AuthorityRunLifecyclePhase.Complete;
+
+        if (run.IsDeadLettered)
+            return AuthorityRunLifecyclePhase.Failed;
+
+        if (run.ContextSnapshotId is Guid contextSnapshotId && contextSnapshotId != Guid.Empty)
+            return AuthorityRunLifecyclePhase.InProgress;
+
+        return AuthorityRunLifecyclePhase.NotStarted;
     }
 
     /// <summary>Projects a <see cref="ManifestDocument" /> to a <see cref="ManifestSummaryDto" />.</summary>

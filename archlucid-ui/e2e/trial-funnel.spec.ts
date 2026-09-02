@@ -174,8 +174,8 @@ test.describe("trial funnel — mocked end-to-end", () => {
     await expect(page).toHaveURL((url) => new URL(url).pathname === "/");
     await expect(page).not.toHaveURL(/\/reviews\//);
 
-    // Workspace metrics summary is visible; detailed delta panel expands from View details.
-    await page.getByRole("button", { name: /View details/i }).click();
+    // Workspace metrics summary is visible; detailed delta panel expands from the title-row disclosure arrow.
+    await page.getByRole("button", { name: /Expand Workspace metrics and status/i }).click();
 
     await expect(page.getByTestId("before-after-delta-panel")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("before-after-delta-baseline-hours")).toHaveText("16.00 h");

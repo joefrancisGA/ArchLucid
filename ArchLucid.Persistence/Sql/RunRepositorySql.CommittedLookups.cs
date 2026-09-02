@@ -108,4 +108,20 @@ internal static partial class RunRepositorySql
                                                                AND r.ArchivedUtc IS NULL
                                                              ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                              """;
+
+    public const string SelectLatestCommittedRunIdByArchitectureVersionId = """
+                                                                            SELECT TOP (1) r.RunId
+                                                                            FROM dbo.Runs r WITH (NOLOCK)
+                                                                            WHERE r.TenantId = @TenantId
+                                                                              AND r.WorkspaceId = @WorkspaceId
+                                                                              AND r.ScopeProjectId = @ScopeProjectId
+                                                                              AND r.ArchitectureVersionId = @ArchitectureVersionId
+                                                                              AND r.ArchivedUtc IS NULL
+                                                                              AND (
+                                                                                   r.LegacyRunStatus = @CommittedStatus
+                                                                                   OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
+                                                                                   OR r.GoldenManifestId IS NOT NULL
+                                                                              )
+                                                                            ORDER BY r.CreatedUtc DESC, r.RunId DESC;
+                                                                            """;
 }

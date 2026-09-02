@@ -469,6 +469,93 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("");
     expect(screen.queryByText("Finding from workspace A")).not.toBeInTheDocument();
   });
+
+  it("reloads hydrated intake when operator scope switches on a deep-linked review", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+
+    const runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let activeTenant = "tenant-a";
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return runId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/source-context")) {
+          const content =
+            activeTenant === "tenant-a"
+              ? "Architecture intake for tenant A."
+              : "Architecture intake for tenant B.";
+
+          return {
+            ok: true,
+            json: async () => ({
+              runId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content,
+                },
+              ],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture intake for tenant A.",
+      );
+    });
+
+    activeTenant = "tenant-b";
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture intake for tenant B.",
+      );
+    });
+
+    expect(screen.queryByDisplayValue("Architecture intake for tenant A.")).not.toBeInTheDocument();
+  });
 });
 
 describe("ArchitectureIntelligenceProductRoundTrip", () => {

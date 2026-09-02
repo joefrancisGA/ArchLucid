@@ -12,7 +12,7 @@ public sealed partial class FindingJsonConverter
         if (!TryGetPropertyCaseInsensitive(root, propertyName, out JsonElement severityElement))
             return FindingSeverity.Info;
 
-        if (severityElement.ValueKind == JsonValueKind.Number && severityElement.TryGetInt32(out int numeric))
+        if (severityElement.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(severityElement, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingSeverity), numeric))
                 throw new JsonException($"Unknown finding severity value '{numeric}'.");
@@ -45,7 +45,8 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding enforcement tier value is required.");
 
-        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numeric))
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numeric)
+            || TryParseWholeNumberString(raw, out numeric))
         {
             if (!Enum.IsDefined(typeof(FindingEnforcementTier), numeric))
                 throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
@@ -64,7 +65,7 @@ public sealed partial class FindingJsonConverter
         if (element.ValueKind == JsonValueKind.Null)
             return null;
 
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(element, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingConfidenceLevel), numeric))
                 throw new JsonException($"Unknown finding confidence level value '{numeric}'.");
@@ -80,7 +81,8 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding confidence level value is required.");
 
-        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString))
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
+            || TryParseWholeNumberString(raw, out numericFromString))
         {
             if (!Enum.IsDefined(typeof(FindingConfidenceLevel), numericFromString))
                 throw new JsonException($"Unknown finding confidence level value '{raw}'.");
@@ -96,7 +98,7 @@ public sealed partial class FindingJsonConverter
 
     private static FindingEnforcementTier ReadEnforcementTier(JsonElement element)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(element, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingEnforcementTier), numeric))
                 throw new JsonException($"Unknown finding enforcement tier value '{numeric}'.");
@@ -117,7 +119,7 @@ public sealed partial class FindingJsonConverter
 
     private static FindingTreatment? ReadTreatment(JsonElement element)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(element, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingTreatment), numeric))
                 throw new JsonException($"Unknown finding treatment value '{numeric}'.");
@@ -133,7 +135,8 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding treatment value is required.");
 
-        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString))
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
+            || TryParseWholeNumberString(raw, out numericFromString))
         {
             if (!Enum.IsDefined(typeof(FindingTreatment), numericFromString))
                 throw new JsonException($"Unknown finding treatment value '{raw}'.");
@@ -149,7 +152,7 @@ public sealed partial class FindingJsonConverter
 
     private static FindingClassification? ReadClassification(JsonElement element)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(element, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingClassification), numeric))
                 throw new JsonException($"Unknown finding classification value '{numeric}'.");
@@ -165,7 +168,8 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding classification value is required.");
 
-        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString))
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
+            || TryParseWholeNumberString(raw, out numericFromString))
         {
             if (!Enum.IsDefined(typeof(FindingClassification), numericFromString))
                 throw new JsonException($"Unknown finding classification value '{raw}'.");
@@ -181,7 +185,7 @@ public sealed partial class FindingJsonConverter
 
     private static FindingHumanReviewStatus ReadHumanReviewStatus(JsonElement element)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(element, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), numeric))
                 throw new JsonException($"Unknown finding human review status value '{numeric}'.");
@@ -197,7 +201,8 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding human review status value is required.");
 
-        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString))
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
+            || TryParseWholeNumberString(raw, out numericFromString))
         {
             if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), numericFromString))
                 throw new JsonException($"Unknown finding human review status value '{raw}'.");

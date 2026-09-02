@@ -170,6 +170,22 @@ public sealed partial class InMemoryRunRepository
     }
 
     /// <inheritdoc />
+    public Task<Guid?> GetLatestCommittedRunIdByArchitectureVersionIdAsync(
+        ScopeContext scope,
+        Guid architectureVersionId,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return Task.FromResult(
+            RunRepositoryCore.SelectLatestCommittedRunIdByArchitectureVersionId(
+                _store.Values,
+                scope,
+                architectureVersionId));
+    }
+
+    /// <inheritdoc />
     public Task<int> CountActiveRunsForArchitectureRequestAsync(
         ScopeContext scope,
         string architectureRequestId,

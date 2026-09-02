@@ -23,8 +23,17 @@ export function governanceFindingsQueueActiveFilterChips(args: {
   readonly jobView: FindingJobView;
   readonly nlFacets: FindingsNaturalLanguageFacets;
   readonly jobViewFilterActive: boolean;
+  readonly searchQuery?: string;
 }): GovernanceFindingsQueueActiveFilterChip[] {
   const chips: GovernanceFindingsQueueActiveFilterChip[] = [];
+  const trimmedSearch = args.searchQuery?.trim() ?? "";
+
+  if (trimmedSearch.length > 0) {
+    chips.push({
+      id: "search-query",
+      label: `Search "${trimmedSearch}"`,
+    });
+  }
 
   if (args.registerFilter !== "all") {
     chips.push({

@@ -40,6 +40,7 @@ public sealed class AuthorityPipelineFindingsStage(
     IFindingAnalysisContextBuilder? findingAnalysisContextBuilder = null,
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
     IArchitectureRequestRepository? architectureRequestRepository = null,
+    IEvidenceGraphMaterializer? evidenceGraphMaterializer = null,
     TimeProvider? timeProvider = null) : IAuthorityPipelineFindingsStage
 {
     private readonly IFindingsOrchestrator _findingsOrchestrator =
@@ -82,6 +83,8 @@ public sealed class AuthorityPipelineFindingsStage(
 
     private readonly IArchitectureRequestRepository? _architectureRequestRepository = architectureRequestRepository;
 
+    private readonly IEvidenceGraphMaterializer? _evidenceGraphMaterializer = evidenceGraphMaterializer;
+
     private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
     /// <inheritdoc />
@@ -94,6 +97,8 @@ public sealed class AuthorityPipelineFindingsStage(
 
         FindingAnalysisContext? analysisContext = await TryBuildFindingAnalysisContextAsync(context, cancellationToken)
             .ConfigureAwait(false);
+
+        _evidenceGraphMaterializer?.Materialize(context.GraphSnapshot!, analysisContext);
 
         FindingsSnapshot findingsSnapshot = await _findingsOrchestrator.GenerateFindingsSnapshotAsync(
             run.RunId,
