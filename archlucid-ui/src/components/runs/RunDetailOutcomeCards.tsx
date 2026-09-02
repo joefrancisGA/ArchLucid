@@ -48,6 +48,7 @@ type RunDetailOutcomeCardsProps = {
   readonly governanceGateLabel?: string | null;
   /** Aggregate posture from explanation summary (buyer strip severity signal). */
   readonly aggregateRiskPosture?: string | null;
+  readonly authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"] | null;
   /** When true, one or more finding engines failed but the review may still be committable. */
   readonly degradedFindingCoverage?: boolean;
   /** Sanitized engine labels from finding coverage summary (engine/category). */
@@ -77,6 +78,7 @@ export function RunDetailOutcomeCards({
   unresolvedIssueCountDisplay,
   governanceGateLabel,
   aggregateRiskPosture,
+  authorityLifecyclePhase,
   showcasePolicyPackStrip,
   degradedFindingCoverage = false,
   failedEngineLabels = [],
@@ -197,6 +199,7 @@ export function RunDetailOutcomeCards({
         artifactCount={artifactCount}
         governanceGateLabel={governanceGateLabel}
         showcasePolicyPackStrip={showcasePolicyPackStrip ?? null}
+        authorityLifecyclePhase={authorityLifecyclePhase ?? null}
         pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
       />
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30">

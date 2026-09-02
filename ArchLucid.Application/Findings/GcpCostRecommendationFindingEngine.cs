@@ -52,7 +52,8 @@ public sealed class GcpCostRecommendationFindingEngine(
                 "gcp-cost-entry",
                 "GCP Recommender cost recommendation grounded in extractor inventory evidence.",
                 "extractor-gcp-cost-json",
-                "Emitted a typed finding for each GCP cost recommendation row in the inventory ZIP."),
+                "Emitted a typed finding for each GCP cost recommendation row in the inventory ZIP.",
+                analysisContext),
             ct);
     }
 }

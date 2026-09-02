@@ -3,7 +3,8 @@ using System.Data;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
-using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
@@ -118,6 +119,8 @@ public sealed class ReplayRunServiceTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
+            Mock.Of<IAuthorityRunOrchestrator>(),
+            Mock.Of<IArchitectureRunCommandService>(),
             NullLogger<ReplayRunService>.Instance);
     }
 

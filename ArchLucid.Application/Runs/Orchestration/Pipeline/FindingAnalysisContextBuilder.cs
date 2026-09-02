@@ -101,16 +101,28 @@ public sealed class FindingAnalysisContextBuilder(
     {
         if (!string.IsNullOrWhiteSpace(header?.PinnedPolicyPackIdsJson))
         {
-            string[]? pinned = JsonSerializer.Deserialize<string[]>(
+            if (TryDeserializePinnedRows(header.PinnedPolicyPackIdsJson, out PinnedPolicyPackRow[] pinnedRows))
+            {
+                IReadOnlyList<PolicyPackContentDocument> pinnedContents =
+                    await LoadPackContentsForPinnedRowsAsync(scope, pinnedRows, cancellationToken).ConfigureAwait(false);
+
+                string[] pinnedPackIds = pinnedRows
+                    .Select(static row => row.PolicyPackId)
+                    .ToArray();
+
+                return (pinnedPackIds, pinnedContents);
+            }
+
+            string[]? legacyPinned = JsonSerializer.Deserialize<string[]>(
                 header.PinnedPolicyPackIdsJson,
                 ContractJson.CamelCaseIgnoreNullCompact);
 
-            if (pinned is { Length: > 0 })
+            if (legacyPinned is { Length: > 0 })
             {
                 IReadOnlyList<PolicyPackContentDocument> pinnedContents =
-                    await LoadPackContentsForIdsAsync(scope, pinned, cancellationToken).ConfigureAwait(false);
+                    await LoadPackContentsForIdsAsync(scope, legacyPinned, cancellationToken).ConfigureAwait(false);
 
-                return (pinned, pinnedContents);
+                return (legacyPinned, pinnedContents);
             }
         }
 
@@ -142,6 +154,54 @@ public sealed class FindingAnalysisContextBuilder(
         }
 
         return (packIds, contents);
+    }
+
+    private static bool TryDeserializePinnedRows(string json, out PinnedPolicyPackRow[] rows)
+    {
+        rows = [];
+
+        try
+        {
+            PinnedPolicyPackRow[]? parsed = JsonSerializer.Deserialize<PinnedPolicyPackRow[]>(
+                json,
+                ContractJson.CamelCaseIgnoreNullCompact);
+
+            if (parsed is { Length: > 0 })
+            {
+                rows = parsed;
+                return true;
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return false;
+    }
+
+    private async Task<IReadOnlyList<PolicyPackContentDocument>> LoadPackContentsForPinnedRowsAsync(
+        ScopeContext scope,
+        IReadOnlyList<PinnedPolicyPackRow> pinnedRows,
+        CancellationToken cancellationToken)
+    {
+        List<PolicyPackContentDocument> contents = [];
+
+        foreach (PinnedPolicyPackRow row in pinnedRows)
+        {
+            if (!Guid.TryParse(row.PolicyPackId, out Guid packId))
+                continue;
+
+            PolicyPackVersion? version = await _policyPackVersionRepository
+                .GetByPackAndVersionAsync(packId, row.PolicyPackVersion, cancellationToken)
+                .ConfigureAwait(false);
+
+            PolicyPackContentDocument? document = PolicyPackContentDocumentJson.TryDeserialize(version?.ContentJson);
+
+            if (document is not null)
+                contents.Add(document);
+        }
+
+        return contents;
     }
 
     private async Task<IReadOnlyList<PolicyPackContentDocument>> LoadPackContentsForIdsAsync(

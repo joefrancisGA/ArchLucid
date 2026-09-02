@@ -66,6 +66,9 @@ public sealed class ArchitectureSynthesisKernelPriorRunCollisionTests
                 It.IsAny<System.Data.IDbConnection?>(),
                 It.IsAny<System.Data.IDbTransaction?>()))
             .Returns(Task.CompletedTask);
+        runs
+            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         Mock<IWorkspaceSystemNameCollisionGuard> collisionGuard = new();
         collisionGuard
@@ -94,6 +97,7 @@ public sealed class ArchitectureSynthesisKernelPriorRunCollisionTests
                 scopeProvider.Object),
             CreateIdentityService(),
             CreateVersionService(runs),
+            Mock.Of<IRunPolicyPackPinService>(),
             NullLogger<ArchitectureSynthesisKernel>.Instance,
             TimeProvider.System);
 

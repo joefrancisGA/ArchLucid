@@ -11,13 +11,15 @@ using ArchLucid.Persistence.Models;
 namespace ArchLucid.Application.Runs;
 
 /// <summary>
-///     Wave-4 suggestion 34: pins enabled policy pack ids on the run at create time.
+///     Wave-4 suggestion 34 / wave-5 suggestion 42: pins enabled policy pack ids and versions on the run at create time.
 /// </summary>
 public interface IRunPolicyPackPinService
 {
     Task<(string Json, byte[] HashSha256)> BuildPinAsync(ScopeContext scope, CancellationToken cancellationToken);
 
     Task ApplyToRunHeaderAsync(RunRecord header, ScopeContext scope, CancellationToken cancellationToken);
+
+    Task VerifyPinIntegrityOrThrowAsync(RunRecord header, ScopeContext scope, CancellationToken cancellationToken);
 }
 
 public sealed class RunPolicyPackPinService(IPolicyPackAssignmentRepository policyPackAssignmentRepository) : IRunPolicyPackPinService
@@ -35,14 +37,16 @@ public sealed class RunPolicyPackPinService(IPolicyPackAssignmentRepository poli
             .ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
             .ConfigureAwait(false);
 
-        string[] enabledPackIds = assignments
+        PinnedPolicyPackRow[] enabledRows = assignments
             .Where(static assignment => assignment.IsEnabled)
-            .Select(static assignment => assignment.PolicyPackId.ToString("D"))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(static id => id, StringComparer.OrdinalIgnoreCase)
+            .Select(static assignment => new PinnedPolicyPackRow(
+                assignment.PolicyPackId.ToString("D"),
+                assignment.PolicyPackVersion))
+            .DistinctBy(static row => row.PolicyPackId, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(static row => row.PolicyPackId, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        string json = JsonSerializer.Serialize(enabledPackIds, ContractJson.CamelCaseIgnoreNullCompact);
+        string json = JsonSerializer.Serialize(enabledRows, ContractJson.CamelCaseIgnoreNullCompact);
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(json));
 
         return (json, hash);
@@ -59,5 +63,25 @@ public sealed class RunPolicyPackPinService(IPolicyPackAssignmentRepository poli
         (string json, byte[] hash) = await BuildPinAsync(scope, cancellationToken).ConfigureAwait(false);
         header.PinnedPolicyPackIdsJson = json;
         header.PinnedPolicyPackIdsHashSha256 = hash;
+    }
+
+    public async Task VerifyPinIntegrityOrThrowAsync(
+        RunRecord header,
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(header);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (header.PinnedPolicyPackIdsHashSha256 is null || header.PinnedPolicyPackIdsHashSha256.Length == 0)
+            return;
+
+        (_, byte[] rebuiltHash) = await BuildPinAsync(scope, cancellationToken).ConfigureAwait(false);
+
+        if (!rebuiltHash.AsSpan().SequenceEqual(header.PinnedPolicyPackIdsHashSha256))
+        {
+            throw new ConflictException(
+                "Commit blocked: policy pack pin drifted since run create (theory-in-force changed).");
+        }
     }
 }

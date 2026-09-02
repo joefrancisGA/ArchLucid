@@ -139,6 +139,7 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
         DecisionTrace trace = DecisionTraceRecordMapper.ToDomain(traceDto);
         ApplyRuleAuditScope(trace, scope);
         ApplyAuthorityManifestScope(manifestModel, scope);
+        manifestModel.ArchitectureVersionId = runRecord.ArchitectureVersionId;
         Cm.GoldenManifest contract = await _projectionBuilder.BuildAsync(
             manifestModel,
             new AuthorityCommitProjectionInput { SystemName = request.SystemName },

@@ -2,7 +2,7 @@
 
 # Manifest hash field inclusion (wave-2 suggestion 18)
 
-`ManifestHashService.HasherSchemaVersion` is **`v1`**. The hash is a **content commitment** for structural manifest sections and committed governance — not the full findings envelope.
+`ManifestHashService.HasherSchemaVersion` is **`v2`** (wave-5 binds `ArchitectureVersionId`). The hash is a **content commitment** for structural manifest sections and committed governance — not the full findings envelope.
 
 ## Included in `h(M)`
 

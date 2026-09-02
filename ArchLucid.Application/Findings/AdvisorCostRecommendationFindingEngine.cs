@@ -57,7 +57,11 @@ public sealed class AdvisorCostRecommendationFindingEngine(
         }
 
         AzureExtractorPackageDownloadRecord? download =
-            await _packageRepository.TryGetLatestDownloadInScopeAsync(scope, ct).ConfigureAwait(false);
+            await EffectfulFindingEngineEvidenceLoader.TryResolveAzureDownloadAsync(
+                _packageRepository,
+                scope,
+                analysisContext,
+                ct).ConfigureAwait(false);
 
         if (download is null || download.PackageBytes.Length == 0)
             return [];
