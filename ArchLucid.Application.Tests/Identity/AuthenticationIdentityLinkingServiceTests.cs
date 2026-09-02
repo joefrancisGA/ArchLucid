@@ -45,7 +45,7 @@ public sealed class AuthenticationIdentityLinkingServiceTests
             audit.Object,
             clock ?? new FakeTimeProvider(DateTimeOffset.UtcNow));
 
-        AuthSignInRoutingService routing = new(
+        AuthSignInRoutingService routing = AuthSignInRoutingServiceTestSupport.Create(
             new InMemoryTenantSignInEmailDomainRepository(),
             new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
             new InMemoryTenantIdentityProviderConfigurationRepository(),

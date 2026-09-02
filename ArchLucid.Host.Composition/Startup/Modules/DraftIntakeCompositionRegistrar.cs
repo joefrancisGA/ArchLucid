@@ -1,6 +1,8 @@
 // Draft-intake composition registrations (extracted from PipelineCompositionModule).
 
 using ArchLucid.Application.Drafts;
+using ArchLucid.Application.Drafts.Stages;
+using ArchLucid.Application.Planning.Stages;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Governance;
@@ -25,6 +27,9 @@ internal static class DraftIntakeCompositionRegistrar
         services.AddScoped<IQuestionSelectionEngine, QuestionSelectionEngine>();
         services.AddScoped<IDraftRequestProjector, DraftRequestProjector>();
         services.AddScoped<IPriorPackageSemanticMergeService, PriorPackageSemanticMergeService>();
+        services.AddScoped<IDraftRequestCreateStage, DraftRequestCreateStage>();
+        services.AddScoped<IDraftRequestMutateStage, DraftRequestMutateStage>();
+        services.AddScoped<IDraftRequestDeleteStage, DraftRequestDeleteStage>();
         services.AddScoped<IDraftRequestCrudService, DraftRequestCrudService>();
         services.AddScoped<IDraftAdmissionService, DraftAdmissionService>();
         services.AddScoped<IDraftBranchingService, DraftBranchingService>();
@@ -35,6 +40,8 @@ internal static class DraftIntakeCompositionRegistrar
         services.AddScoped<IDecisionIntakeTrailProvider, ArchitectureRequestIntakeTrailProvider>();
         services.AddScoped<IArchitectureRequestDraftSemanticUniquePass, ArchitectureRequestDraftSemanticUniquePass>();
         services.AddScoped<IBriefAssumptionEvidenceContradictionPass, BriefAssumptionEvidenceContradictionPass>();
+        services.AddScoped<IArchitectureRequestDraftExtractStage, ArchitectureRequestDraftExtractStage>();
+        services.AddScoped<IArchitectureRequestDraftNormalizeStage, ArchitectureRequestDraftNormalizeStage>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
         services.AddSingleton<IAdvisoryDraftOperationStore, InMemoryAdvisoryDraftOperationStore>();
         services.AddSingleton<AdvisoryDraftOperationQueue>();

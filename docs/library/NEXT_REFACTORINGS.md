@@ -9,7 +9,7 @@
 
 **Tracking:** Deferred engineering IDs live in **[`TECH_BACKLOG.md`](TECH_BACKLOG.md)**. This doc lists **cross-cutting structural refactors** that span multiple areas.
 
-**Note:** The 2026-09-01 items in the completed table shipped in PR #1098. The **2026-09-02** batch (items 1–30) shipped on **master** (2026-09-02). The **2026-09-02 pass-3** batch (items 1–10) shipped in PR **#1173**. The **2026-09-02 pass-4** batch (items 1–10) shipped in PR **#1178**. The **2026-09-02 pass-5** batch (items 1–10) shipped in PR **#1182**. The **2026-09-02 pass-6** batch (items 1–10) shipped in PR **#1186**.
+**Note:** The 2026-09-01 items in the completed table shipped in PR #1098. The **2026-09-02** batch (items 1–30) shipped on **master** (2026-09-02). The **2026-09-02 pass-3** batch (items 1–10) shipped in PR **#1173**. The **2026-09-02 pass-4** batch (items 1–10) shipped in PR **#1178**. The **2026-09-02 pass-5** batch (items 1–10) shipped in PR **#1182**. The **2026-09-02 pass-6** batch (items 1–10) shipped in PR **#1186**. The **2026-09-02 pass-7** batch (items 1–10) ships in this PR.
 
 ## Completed (removed from active list)
 
@@ -111,6 +111,16 @@
 | Split contextual-help and settings master catalogs | Done (2026-09-02 pass-6) — `help-topic-rows-{governance,integrations,operator}.ts`; `settings-master-catalog-{workspace,integrations,security}.ts` |
 | Alias remaining hand-authored UI types to OpenAPI (wave 7) | Done (2026-09-02 pass-6) — `agent-forensics`, `explanation`, `governance-dashboard`, `draft-intake`, `authority`; `openapi-type-aliases.test.ts` ~235 keys |
 | Extend persistence cores for draft + usage-event twins | Done (2026-09-02 pass-6) — extended `DraftRequestRepositoryCore`; new `UsageEventRepositoryCore` for aggregation keys and cap rules |
+| Split leftover `GovernanceStickinessController.ExceptionsAndSchedules` | Done (2026-09-02 pass-7) — `Exceptions`, `Schedules`, `Attestation` partials; routes unchanged |
+| Split `TenantTrialFacade` into conversion / abuse / identity-handoff stages | Done (2026-09-02 pass-7) — `Tenancy/Trial/*` stages; facade is thin sequencer |
+| Decompose `DraftRequestCrudService` and `ArchitectureRequestDraftService` into stages | Done (2026-09-02 pass-7) — `Drafts/Stages/*` and `Planning/Stages/*`; services are thin sequencers |
+| Extract leftover persistence twin cores (billing, saved views, recommendation-learning) | Done (2026-09-02 pass-7) — `BillingLedgerCore`, `OperatorSavedViewRepositoryCore`, `RecommendationLearningProfileRepositoryCore` |
+| Split `AuthSignInRoutingService` into evaluation / bypass / customer-message stages | Done (2026-09-02 pass-7) — `SignInRouting/*` evaluator, bypass resolver, message builder |
+| Finish leftover CLI proof-pack / draft-new / smoke-probe gods | Done (2026-09-02 pass-7) — arg parsers, `RealModeSmoke/*` probe files, `CliCommandHandlers.Proof` / `Support` partials |
+| Continue UI mega-client split (alerts, cloud connections, extract-upload) | Done (2026-09-02 pass-7) — table/form shells and state hooks for alerts, cloud connections, extract-upload |
+| Split leftover page-help catalogs and structured-brief helper | Done (2026-09-02 pass-7) — `page-help-topic-rows-{operator,admin}-*.ts`; `architecture-draft-structured-brief-{state,apply}.ts` |
+| Alias remaining hand-authored UI types to OpenAPI (wave 8) | Done (2026-09-02 pass-7) — `RunExplanation`, `FindingConfidenceLevel`, `PilotScorecard*`; `openapi-type-aliases.test.ts` ~239 keys |
+| Decompose `ExplanationService` and split `RunExplanationConfidenceCalloutBuilder` | Done (2026-09-02 pass-7) — `Explanation/Stages/*`; risk/cost/compliance callout builders + orchestrator |
 
 ## Active items (remaining)
 

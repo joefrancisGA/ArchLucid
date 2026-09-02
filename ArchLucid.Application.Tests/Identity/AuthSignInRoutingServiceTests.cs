@@ -20,7 +20,7 @@ public sealed class AuthSignInRoutingServiceTests
         idpConfigs = new InMemoryTenantIdentityProviderConfigurationRepository();
         invitations = new InMemoryUserInvitationRepository();
 
-        return new AuthSignInRoutingService(
+        return AuthSignInRoutingServiceTestSupport.Create(
             domains,
             recoveryAdmins,
             idpConfigs,

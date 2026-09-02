@@ -1,14 +1,7 @@
-﻿import type { components } from "@/lib/api-types.generated";
+﻿import type { components } from "@/lib/openapi-schemas";
 
-/** AI-generated explanation of a single run's decisions, risks, costs, and compliance. */
-export type RunExplanation = {
-  summary: string;
-  keyDrivers: string[];
-  riskImplications: string[];
-  costImplications: string[];
-  complianceImplications: string[];
-  detailedNarrative: string;
-};
+/** `GET /v1/explain/runs/{runId}/explain` — legacy alias for OpenAPI `ExplanationResult`. */
+export type RunExplanation = components["schemas"]["ExplanationResult"];
 
 /** Provenance for a run explanation (agent, model, optional prompt catalog fields). */
 export type ExplanationProvenance = components["schemas"]["ExplanationProvenance"];
@@ -16,8 +9,8 @@ export type ExplanationProvenance = components["schemas"]["ExplanationProvenance
 /** Structured LLM envelope nested under `ExplanationResult` on the API. */
 export type StructuredExplanation = components["schemas"]["StructuredExplanation"];
 
-/** OpenAPI string enum for coarse evaluation-backed confidence (JSON via JsonStringEnumConverter). */
-export type FindingConfidenceLevel = "High" | "Medium" | "Low";
+/** OpenAPI coarse evaluation-backed confidence bucket (`FindingConfidenceLevel` string enum). */
+export type FindingConfidenceLevel = NonNullable<components["schemas"]["FindingConfidenceLevel"]>;
 
 /** OpenAPI wire enum for the same coarse buckets (string JSON; legacy numeric wire still normalized at runtime). */
 export type FindingConfidenceLevelWire = components["schemas"]["FindingConfidenceLevel"];
