@@ -9,6 +9,11 @@ export const REVIEW_PIPELINE_STOP_ANALYSIS_IN_FLIGHT_CTA = "Stopping analysis…
 export const REVIEW_PIPELINE_STOP_ANALYSIS_HELP =
   "Requests cooperative cancel on the server. Analysis may take a moment to wind down — it is not an instant abort.";
 
+export const REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_HEADLINE = "Stop analysis requested";
+
+export const REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_DETAIL =
+  "The server is winding down this analysis cooperatively. This page updates when the attempt reaches a terminal state.";
+
 /** Same cancel path as the shell in-flight popover (TB-2076 / TB-2077). */
 export async function requestReviewPipelineStopAnalysis(runId: string): Promise<void> {
   const trimmed = runId.trim();
