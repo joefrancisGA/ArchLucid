@@ -138,7 +138,7 @@ function FirstReviewGuideSealedRecordProvenance(props: {
         <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>Record ID: {sealedReviewRecord.runId}</p>
         {sealedReviewRecord.finalizedByUserId !== null ? (
           <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-            Finalized by: {sealedReviewRecord.finalizedByUserId}
+            Created by: {sealedReviewRecord.finalizedByUserId}
           </p>
         ) : null}
       </details>
