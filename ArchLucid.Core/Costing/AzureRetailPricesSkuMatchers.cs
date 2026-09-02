@@ -129,6 +129,7 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return trimmed.Contains("Month", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("/Month", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("/mo", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains(" mo", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase);
     }
