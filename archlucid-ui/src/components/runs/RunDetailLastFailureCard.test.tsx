@@ -49,6 +49,6 @@ describe("RunDetailLastFailureCard (TB-965)", () => {
       "data-failure-axis",
       "execution",
     );
-    expect(screen.getByText("Agent execution failed")).toBeInTheDocument();
+    expect(screen.getByText("Failure details")).toBeInTheDocument();
   });
 });

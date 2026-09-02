@@ -446,6 +446,7 @@ describe("RunProgressTracker", () => {
           runId: "failed-1",
         }}
         diagnosticContext={{ legacyRunStatus: "Failed", lastFailureReason: "authority_pipeline_dead_letter" }}
+        deferFailureRecoveryToDoThisNext
       />,
     );
 
@@ -458,11 +459,11 @@ describe("RunProgressTracker", () => {
       screen.getByText(
         (_, element) =>
           element?.textContent ===
-          "Assessment did not finish — recovery steps are shown in Do this next above.",
+          "Assessment did not finish — see Do this next above for what happened and how to recover.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Execution failed before the first pipeline stage/i)).toBeInTheDocument();
-    expect(screen.getByText(/authority_pipeline_dead_letter/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Execution failed before the first pipeline stage/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/authority_pipeline_dead_letter/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Re-run review" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Re-run review" })).toBeNull();
 
