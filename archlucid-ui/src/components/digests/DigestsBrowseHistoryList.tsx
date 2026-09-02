@@ -56,7 +56,10 @@ export function DigestsBrowseHistoryList({
         </EnterpriseTableHead>
         <EnterpriseTableBody>
           {digests.map((digest) => {
-            const digestId = digest.digestId ?? "";
+            const digestId = digest.digestId;
+            if (!digestId) {
+              return null;
+            }
             const attempts = rowAttempts[digestId] ?? [];
             const status = resolveDigestDeliveryStatus(attempts);
             const coverage: DigestPeriodCoverage = resolveDigestPeriodCoverage(digest);
