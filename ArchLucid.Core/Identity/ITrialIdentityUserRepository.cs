@@ -21,7 +21,14 @@ public interface ITrialIdentityUserRepository
         DateTimeOffset nowUtc,
         CancellationToken cancellationToken);
 
-    Task RecordAccessFailedAsync(string normalizedEmail, int newCount, DateTimeOffset? lockoutEnd,
+    /// <summary>
+    ///     Atomically increments <c>AccessFailedCount</c> and sets <c>LockoutEnd</c> when the new count reaches
+    ///     <paramref name="maxAttemptsBeforeLockout" />.
+    /// </summary>
+    Task RecordAccessFailedAsync(
+        string normalizedEmail,
+        int maxAttemptsBeforeLockout,
+        DateTimeOffset lockoutEndUtcIfThresholdReached,
         CancellationToken cancellationToken);
 
     Task ResetAccessFailedAsync(string normalizedEmail, CancellationToken cancellationToken);

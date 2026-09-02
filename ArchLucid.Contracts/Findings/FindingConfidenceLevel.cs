@@ -5,7 +5,7 @@ namespace ArchLucid.Contracts.Findings;
 /// <summary>
 ///     Operator-facing coarse bucket derived from gate + reference-case + trace completeness scoring.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter<FindingConfidenceLevel>))]
+[JsonConverter(typeof(FindingConfidenceLevelJsonConverter))]
 public enum FindingConfidenceLevel
 {
     High = 0,

@@ -2,6 +2,7 @@
 using System.Data;
 
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Sql;
 
 using Dapper;
@@ -106,8 +107,8 @@ public sealed partial class ComparisonRecordRepository
 
         List<string> conditions = [];
         DynamicParameters parameters = new();
-        int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
-        int safeSkip = skip < 0 ? 0 : skip;
+        int safeLimit = ComparisonRecordRepositoryCore.ClampLimit(limit);
+        int safeSkip = ComparisonRecordRepositoryCore.ClampSkip(skip);
         parameters.Add("@Limit", safeLimit);
         parameters.Add("@Skip", safeSkip);
 
@@ -130,8 +131,8 @@ public sealed partial class ComparisonRecordRepository
         if (conditions.Count > 0)
             sql += " AND " + string.Join(" AND ", conditions);
 
-        string orderColumn = ResolveOrderColumn(sortBy);
-        bool sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
+        string orderColumn = ComparisonRecordRepositoryCore.ResolveOrderColumn(sortBy);
+        bool sortDescending = ComparisonRecordRepositoryCore.IsSortDescending(sortDir);
         // Ensure stable paging by always appending ComparisonRecordId as a tiebreaker.
         // Without this, records with identical CreatedUtc could reorder between pages.
         sql += sortDescending
@@ -173,7 +174,7 @@ public sealed partial class ComparisonRecordRepository
 
         List<string> conditions = [];
         DynamicParameters parameters = new();
-        int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
+        int safeLimit = ComparisonRecordRepositoryCore.ClampLimit(limit);
         parameters.Add("@Limit", safeLimit);
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -190,13 +191,12 @@ public sealed partial class ComparisonRecordRepository
             label,
             tags);
 
-        string orderColumn = ResolveOrderColumn(sortBy);
-        bool sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
+        string orderColumn = ComparisonRecordRepositoryCore.ResolveOrderColumn(sortBy);
+        bool sortDescending = ComparisonRecordRepositoryCore.IsSortDescending(sortDir);
 
         // Cursor paging: only supported for CreatedUtc ordering (plus ComparisonRecordId tiebreaker).
 
-        if (!string.Equals(orderColumn, "CreatedUtc", StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Cursor paging currently supports sortBy=createdUtc only.");
+        ComparisonRecordRepositoryCore.EnsureCursorPagingSupportsOrderColumn(orderColumn);
 
         if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
         {
@@ -236,19 +236,4 @@ public sealed partial class ComparisonRecordRepository
         return record;
     }
 
-    private static string ResolveOrderColumn(string? sortBy)
-    {
-        string v = (sortBy ?? "createdUtc").Trim().ToLowerInvariant();
-        return v switch
-        {
-            "createdutc" => "CreatedUtc",
-            "created" => "CreatedUtc",
-            "type" => "ComparisonType",
-            "comparisontype" => "ComparisonType",
-            "label" => "Label",
-            "leftrunid" => "LeftRunId",
-            "rightrunid" => "RightRunId",
-            _ => "CreatedUtc"
-        };
-    }
 }

@@ -97,6 +97,47 @@ describe("WorkspaceAiAvailabilityPanel", () => {
     expect(screen.getByTestId("review-package-workspace-ai-model")).toHaveTextContent("gpt-4o");
   });
 
+  it("shows a simple OK message and collapses probe details when availability succeeds", async () => {
+    fetchWorkspaceAiAvailabilityMock.mockResolvedValue({
+      isAvailable: true,
+      validated: true,
+      aiSource: "managed-platform",
+      summary: "ArchLucid-managed Azure OpenAI live probe succeeded for deployment 'gpt-4o'.",
+      asOfUtc: "2026-08-31T18:00:00.000Z",
+      checks: [{ name: "azure_openai_live_completion_probe", status: "ok", detail: "Live completion probe succeeded." }],
+      debug: { probeDeploymentName: "gpt-4o", probeModelId: "gpt-4o-2024-08-06" },
+    });
+
+    render(
+      <WorkspaceAiAvailabilityPanel
+        workspaceAiSignal={{
+          label: "Workspace AI availability",
+          detail: "Pending validation.",
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("review-package-workspace-ai-detail")).toHaveTextContent(
+        "We checked AI availability and it is OK.",
+      );
+    });
+
+    expect(screen.getByText("AI checked — OK")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Probe details" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("Probe checks")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Probe details" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("review-package-workspace-ai-debug")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("review-package-workspace-ai-model")).toHaveTextContent("gpt-4o");
+  });
+
   it("re-checks availability when the button is clicked again", async () => {
     fetchWorkspaceAiAvailabilityMock.mockResolvedValue({
       isAvailable: true,

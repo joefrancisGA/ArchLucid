@@ -403,6 +403,7 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
                     runId={m.routeRunId}
                     initialSummary={m.progressForPipelineUi}
                     diagnosticContext={m.pipelineDiagnosticContext}
+                    deferFailureRecoveryToDoThisNext
                   />
                 </div>
               ) : null}

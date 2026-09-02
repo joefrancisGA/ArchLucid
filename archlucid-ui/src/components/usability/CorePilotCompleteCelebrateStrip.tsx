@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 
+import { useCompareFinalizedRunAvailability } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFinalizedRunAvailability";
 import { Button } from "@/components/ui/button";
-import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
@@ -16,22 +16,24 @@ const CORE_PILOT_COMPLETE_COMPARE_AVAILABLE_BODY =
 const CORE_PILOT_COMPLETE_COMPARE_UNAVAILABLE_BODY =
   "Share outcomes with your sponsor. Finalize one more review to compare changes over time." as const;
 
+const CORE_PILOT_COMPLETE_LOADING_BODY =
+  "Share outcomes with your sponsor." as const;
+
 /** Shown after Core Pilot completes — suggests analysis and sponsor handoff next steps. */
 export function CorePilotCompleteCelebrateStrip(): React.JSX.Element | null {
   const { progress, isPending: pilotPending } = useCorePilotDerivedStepStatus();
-  const commitContextQuery = useCorePilotCommitContextQuery();
+  const { loading: compareLoading, insufficientForCompare } = useCompareFinalizedRunAvailability();
 
   if (pilotPending || !progress.allDone) {
     return null;
   }
 
-  const committedReviewCount = commitContextQuery.data?.committedReviewCount ?? 0;
-  const compareAvailabilityPending = commitContextQuery.isPending;
-  const hasEnoughReviewsToCompare = committedReviewCount >= 2;
-  const showCompareAction = !compareAvailabilityPending && hasEnoughReviewsToCompare;
-  const bodyCopy = compareAvailabilityPending || showCompareAction
-    ? CORE_PILOT_COMPLETE_COMPARE_AVAILABLE_BODY
-    : CORE_PILOT_COMPLETE_COMPARE_UNAVAILABLE_BODY;
+  const showCompareAction = !compareLoading && !insufficientForCompare;
+  const bodyCopy = compareLoading
+    ? CORE_PILOT_COMPLETE_LOADING_BODY
+    : showCompareAction
+      ? CORE_PILOT_COMPLETE_COMPARE_AVAILABLE_BODY
+      : CORE_PILOT_COMPLETE_COMPARE_UNAVAILABLE_BODY;
 
   return (
     <section

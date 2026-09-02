@@ -21,7 +21,7 @@ public sealed partial class InMemoryTenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t) || t.EnterpriseSeatsLimit is { } lim && t.EnterpriseSeatsUsed >= lim)
                 return Task.FromResult(false);
 
-            _byId[tenantId] = CopyTenant(t, enterpriseSeatsUsedOverride: t.EnterpriseSeatsUsed + 1);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(t, enterpriseSeatsUsedOverride: t.EnterpriseSeatsUsed + 1);
         }
 
         return Task.FromResult(true);
@@ -39,7 +39,7 @@ public sealed partial class InMemoryTenantRepository
                 return Task.CompletedTask;
 
             int next = t.EnterpriseSeatsUsed > 0 ? t.EnterpriseSeatsUsed - 1 : 0;
-            _byId[tenantId] = CopyTenant(t, enterpriseSeatsUsedOverride: next);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(t, enterpriseSeatsUsedOverride: next);
         }
 
         return Task.CompletedTask;

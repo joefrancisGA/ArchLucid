@@ -32,14 +32,12 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 
         foreach (string line in lines)
 
-            if (line.StartsWith("REQ:", StringComparison.OrdinalIgnoreCase))
+            if (TryGetPrefixedBody(line, "REQ", out string requirementText))
             {
-                string text = line[4..].Trim();
-
-                if (string.IsNullOrWhiteSpace(text))
+                if (string.IsNullOrWhiteSpace(requirementText))
                     continue;
 
-                string canonicalText = CanonicalizeLineText(text, "Requirement");
+                string canonicalText = CanonicalizeLineText(requirementText, "Requirement");
 
                 results.Add(new CanonicalObject
                 {
@@ -51,14 +49,12 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                     Properties = new Dictionary<string, string> { ["text"] = canonicalText }
                 });
             }
-            else if (line.StartsWith("POL:", StringComparison.OrdinalIgnoreCase))
+            else if (TryGetPrefixedBody(line, "POL", out string policyText))
             {
-                string text = line[4..].Trim();
-
-                if (string.IsNullOrWhiteSpace(text))
+                if (string.IsNullOrWhiteSpace(policyText))
                     continue;
 
-                string canonicalText = CanonicalizeLineText(text, "PolicyControl");
+                string canonicalText = CanonicalizeLineText(policyText, "PolicyControl");
 
                 results.Add(new CanonicalObject
                 {
@@ -70,25 +66,21 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                     Properties = new Dictionary<string, string> { ["text"] = canonicalText }
                 });
             }
-            else if (line.StartsWith("TOP:", StringComparison.OrdinalIgnoreCase))
+            else if (TryGetPrefixedBody(line, "TOP", out string topologyText))
             {
-                string text = line[4..].Trim();
-
-                if (string.IsNullOrWhiteSpace(text))
+                if (string.IsNullOrWhiteSpace(topologyText))
                     continue;
 
-                string canonicalText = CanonicalizeLineText(text, "TopologyResource");
+                string canonicalText = CanonicalizeLineText(topologyText, "TopologyResource");
 
                 results.Add(PlainTextDocumentTopologyResourceBuilder.Create(document.DocumentId, canonicalText));
             }
-            else if (line.StartsWith("SEC:", StringComparison.OrdinalIgnoreCase))
+            else if (TryGetPrefixedBody(line, "SEC", out string securityText))
             {
-                string text = line[4..].Trim();
-
-                if (string.IsNullOrWhiteSpace(text))
+                if (string.IsNullOrWhiteSpace(securityText))
                     continue;
 
-                string canonicalText = CanonicalizeLineText(text, "SecurityBaseline");
+                string canonicalText = CanonicalizeLineText(securityText, "SecurityBaseline");
 
                 results.Add(new CanonicalObject
                 {
@@ -105,11 +97,32 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
     }
 
+    private static bool TryGetPrefixedBody(string line, string prefix, out string body)
+    {
+        body = string.Empty;
+
+        if (line.Length < prefix.Length)
+            return false;
+
+        if (!line.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        int index = prefix.Length;
+
+        while (index < line.Length && char.IsWhiteSpace(line[index]))
+            index++;
+
+        if (index >= line.Length || line[index] != ':')
+            return false;
+
+        index++;
+        body = line[index..].Trim();
+
+        return true;
+    }
+
     private static string CanonicalizeLineText(string text, string objectType)
     {
-        if (string.Equals(objectType, "TopologyResource", StringComparison.Ordinal))
-            return TopologyHintStableObjectIds.CanonicalizeHintName(text).ToLowerInvariant();
-
-        return text.ToLowerInvariant();
+        return TopologyHintStableObjectIds.CanonicalizeHintName(text).ToLowerInvariant();
     }
 }

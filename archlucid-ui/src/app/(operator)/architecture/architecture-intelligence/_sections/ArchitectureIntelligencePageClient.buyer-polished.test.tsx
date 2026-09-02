@@ -159,4 +159,77 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell", () => {
       expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2);
     });
   });
+
+  it("clears stale error alert after successful product context retry", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    let sourceContextAttempt = 0;
+
+    const fetchMock = vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+
+      if (url.includes("/product-runs/") && url.includes("/source-context")) {
+        sourceContextAttempt += 1;
+
+        if (sourceContextAttempt === 1) {
+          return {
+            ok: false,
+            status: 503,
+            text: async () => "Unable to load product context",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({
+            runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Hydrated after retry.",
+              },
+            ],
+          }),
+          text: async () => "",
+        };
+      }
+
+      return {
+        ok: true,
+        json: async () => ({}),
+        text: async () => "",
+      };
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-product-context-load-failure")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-product-context-load-retry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("Hydrated after retry.");
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-product-context-load-failure")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-error")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+      "Loaded product intake from this review",
+    );
+  });
 });

@@ -28,7 +28,14 @@ import {
   writeImpactPreviewLastBaselinePair,
   type ImpactPreviewLastBaselinePair,
 } from "@/lib/impact-preview/impact-preview-last-baseline-pair-storage";
+import type { components } from "@/lib/openapi-schemas";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
+
+function asEvolutionCandidateRows(
+  rows: components["schemas"]["EvolutionCandidateChangeSetResponse"][],
+): EvolutionCandidateChangeSetResponse[] {
+  return rows as EvolutionCandidateChangeSetResponse[];
+}
 
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 import type { EvolutionReviewPageServerLoad } from "./load-evolution-review-page-data";
@@ -165,7 +172,7 @@ export function useEvolutionReviewPage(
 
     try {
       const body = await fetchEvolutionCandidates(100);
-      const rows = body.candidates ?? [];
+      const rows = asEvolutionCandidateRows(body.candidates ?? []);
 
       setCandidates(rows);
       setSelectedId((prev) => {
@@ -173,7 +180,7 @@ export function useEvolutionReviewPage(
           return prev;
         }
 
-        return rows.length > 0 ? rows[0].candidateChangeSetId : null;
+        return rows.length > 0 ? (rows[0]?.candidateChangeSetId ?? null) : null;
       });
       setLastRefreshedAt(new Date());
     } catch (e) {

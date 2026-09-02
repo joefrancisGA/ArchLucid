@@ -33,7 +33,7 @@ public sealed class TopologyCoverageFindingEngineTests
         TopologyCoverageFindingEngine sut = new(analyzer.Object);
         GraphSnapshot graph = new();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         Finding finding = findings[0];
@@ -61,7 +61,7 @@ public sealed class TopologyCoverageFindingEngineTests
 
         TopologyCoverageFindingEngine sut = new(analyzer.Object);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         TopologyCoverageFindingPayload? payload = findings[0].Payload as TopologyCoverageFindingPayload;
@@ -91,7 +91,7 @@ public sealed class TopologyCoverageFindingEngineTests
 
         TopologyCoverageFindingEngine sut = new(analyzer.Object);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }

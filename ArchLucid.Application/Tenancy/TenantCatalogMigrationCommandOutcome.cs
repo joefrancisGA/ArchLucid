@@ -10,4 +10,5 @@ public enum TenantCatalogMigrationCommandOutcome
     VerificationFailed = 5,
     AlreadyInDesiredState = 6,
     WrongStage = 7,
+    InErasureQuarantine = 8,
 }

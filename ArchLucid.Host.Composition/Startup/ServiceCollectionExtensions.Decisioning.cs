@@ -1,3 +1,4 @@
+using ArchLucid.Application.Findings.PortfolioRecurrence;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
@@ -6,6 +7,7 @@ using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Hosting;
 using ArchLucid.Decisioning.Plugins;
 using ArchLucid.Host.Composition.Compliance;
 using ArchLucid.Persistence.Coordination.Compliance;
@@ -83,6 +85,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.AwsInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GcpInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.OpenCommitmentFindingEngine>();
+        services.AddPortfolioRecurrenceFindingEngine();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PortfolioRecurrenceFindingEngine>();
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
@@ -131,6 +134,7 @@ public static partial class ServiceCollectionExtensions
             (Di.IDecisionEngine)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IDecisionEngine>());
         services.AddSingleton<IProvenanceBuilder, ProvenanceBuilder>();
         services.AddScoped<IAuthorityCommitProjectionBuilder, Decisioning.Manifest.AuthorityCommitProjectionBuilder>();
+        services.AddHostedService<FindingEngineRegistrationDistinctnessHostedService>();
     }
 
     private static void RegisterPluginFindingEngines(IServiceCollection services, IConfiguration configuration)

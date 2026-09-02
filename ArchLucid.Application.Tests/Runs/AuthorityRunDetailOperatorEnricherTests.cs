@@ -1,5 +1,6 @@
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Enrichment;
 using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -127,7 +128,7 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
 
         Mock<IAgentResultRepository> agentResults = new();
 
-        AuthorityRunDetailOperatorEnricher sut = new(
+        AuthorityRunDetailOperatorEnricher sut = CreateSut(
             runDetailQuery.Object,
             traces.Object,
             agentResults.Object,
@@ -204,7 +205,7 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
 
         Mock<IAgentResultRepository> agentResults = new();
 
-        AuthorityRunDetailOperatorEnricher sut = new(
+        AuthorityRunDetailOperatorEnricher sut = CreateSut(
             runDetailQuery.Object,
             traces.Object,
             agentResults.Object,
@@ -280,7 +281,7 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
 
         Mock<IAgentResultRepository> agentResults = new();
 
-        AuthorityRunDetailOperatorEnricher sut = new(
+        AuthorityRunDetailOperatorEnricher sut = CreateSut(
             runDetailQuery.Object,
             traces.Object,
             agentResults.Object,
@@ -374,7 +375,7 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
             .Setup(r => r.GetByRunIdAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        AuthorityRunDetailOperatorEnricher sut = new(
+        AuthorityRunDetailOperatorEnricher sut = CreateSut(
             runDetailQuery.Object,
             traces.Object,
             agentResults.Object,
@@ -468,7 +469,7 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
             .Setup(r => r.GetByRunIdAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        AuthorityRunDetailOperatorEnricher sut = new(
+        AuthorityRunDetailOperatorEnricher sut = CreateSut(
             runDetailQuery.Object,
             traces.Object,
             agentResults.Object,
@@ -546,7 +547,7 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
             .Setup(r => r.GetByRunIdAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        AuthorityRunDetailOperatorEnricher sut = new(
+        AuthorityRunDetailOperatorEnricher sut = CreateSut(
             runDetailQuery.Object,
             traces.Object,
             agentResults.Object,
@@ -565,4 +566,25 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
         detail.TrustEvidenceCard.Should().BeNull();
         detail.Results.Should().BeEmpty();
     }
+
+    private static AuthorityRunDetailOperatorEnricher CreateSut(
+        IRunDetailQueryService runDetailQuery,
+        IAgentExecutionTraceRepository traces,
+        IAgentResultRepository agentResults,
+        ILlmCostEstimator estimator,
+        IRunTrustEvidenceCardBuilder trustBuilder,
+        IRetrievalGroundingTraceReader groundingReader,
+        ITenantEstimatedUsdSavingsResolver savingsResolver,
+        ITenantCostSettingsRepository tenantCostSettings,
+        IDecisionNodeRepository decisionNodes,
+        IConfiguration configuration) =>
+        new(new AuthorityRunDetailEnrichmentComposer(
+            new RunDetailHeaderEnrichmentSlice(),
+            new RunDetailLlmCostEnrichmentSlice(traces, estimator),
+            new RunDetailEstimatedUsdSavingsEnrichmentSlice(savingsResolver, tenantCostSettings),
+            new RunDetailArchitectureResultsEnrichmentSlice(runDetailQuery),
+            new RunDetailBuyerResultsEnrichmentSlice(agentResults),
+            new RunDetailRetrievalGroundingEnrichmentSlice(groundingReader, configuration),
+            new RunDetailDecisionExplainabilityEnrichmentSlice(decisionNodes),
+            new RunDetailTrustEvidenceEnrichmentSlice(trustBuilder)));
 }

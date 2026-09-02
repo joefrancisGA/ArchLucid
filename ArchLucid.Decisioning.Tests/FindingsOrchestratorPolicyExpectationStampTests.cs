@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Governance.PolicyPacks;
@@ -141,7 +142,7 @@ public sealed class FindingsOrchestratorPolicyExpectationStampTests
         Mock<IFindingEngine> engine = new();
         engine.Setup(e => e.EngineType).Returns("noop");
         engine.Setup(e => e.Category).Returns("Topology");
-        engine.Setup(e => e.AnalyzeAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()))
+        engine.Setup(e => e.AnalyzeAsync(It.IsAny<GraphSnapshot>(), It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         return engine;
     }

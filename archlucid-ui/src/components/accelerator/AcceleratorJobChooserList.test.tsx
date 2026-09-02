@@ -61,8 +61,8 @@ describe("AcceleratorJobChooserList", () => {
       />,
     );
 
-    const startLink = screen.getByTestId("reviews-new-job-chooser-start-azure-cost-governance");
-    expect(startLink).toHaveAttribute("href", "/architecture/reviews/new?baseline=1&accelerator=azure-cost-governance");
+    expect(screen.getByTestId("reviews-new-job-chooser-start-cost-governance")).toBeDisabled();
+    expect(screen.queryByTestId("reviews-new-job-chooser-start-azure-cost-governance")).toBeNull();
 
     fireEvent.click(screen.getByTestId("accelerator-cost-governance-cloud-aws-cost-governance"));
 

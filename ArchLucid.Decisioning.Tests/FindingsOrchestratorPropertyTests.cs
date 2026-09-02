@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -40,7 +41,7 @@ public sealed class FindingsOrchestratorPropertyTests
             string label = $"e{i}";
             engine.Setup(x => x.EngineType).Returns(label);
             engine.Setup(x => x.Category).Returns("Security");
-            engine.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+            engine.Setup(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
             engines.Add(engine);
         }
 
@@ -64,7 +65,7 @@ public sealed class FindingsOrchestratorPropertyTests
 
         foreach (Mock<IFindingEngine> engine in engines)
         {
-            engine.Verify(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()), Times.Once);
+            engine.Verify(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 

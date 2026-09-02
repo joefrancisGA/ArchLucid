@@ -18,6 +18,7 @@ using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Architecture.Execute;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
@@ -244,6 +245,10 @@ public static class AgentExecutionCompositionModule
                 services.AddSingleton<IQuickScanTelemetry, QuickScanTelemetry>();
                 services.AddSingleton<IQuickScanUsageRecorder, QuickScanUsageRecorder>();
                 services.AddSingleton<IQuickScanBudgetMonitoringService, QuickScanBudgetMonitoringService>();
+                services.AddScoped<IQuickScanExecutionPreExecuteStage, QuickScanExecutionPreExecuteStage>();
+                services.AddScoped<IQuickScanExecutionBudgetAndConcurrencyStage, QuickScanExecutionBudgetAndConcurrencyStage>();
+                services.AddScoped<IQuickScanExecutionScanInvokeStage, QuickScanExecutionScanInvokeStage>();
+                services.AddScoped<IQuickScanExecutionUsageAndAuditStage, QuickScanExecutionUsageAndAuditStage>();
                 services.AddScoped<IQuickScanExecutionOrchestrator, QuickScanExecutionOrchestrator>();
                 services.AddScoped<IQuickScanService, QuickScanService>();
                 services.AddScoped<IRegisteredAgentHandlersInspector, RegisteredAgentHandlersInspector>();

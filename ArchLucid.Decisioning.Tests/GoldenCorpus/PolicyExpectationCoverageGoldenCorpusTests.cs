@@ -34,8 +34,8 @@ public sealed class PolicyExpectationCoverageGoldenCorpusTests
         GraphCoverageAnalyzer analyzer = new();
         TopologyCoverageFindingEngine engine = new(analyzer);
 
-        IReadOnlyList<Finding> baselineFindings = await engine.AnalyzeAsync(baselineGraph, CancellationToken.None);
-        IReadOnlyList<Finding> stampedFindings = await engine.AnalyzeAsync(stampedGraph, CancellationToken.None);
+        IReadOnlyList<Finding> baselineFindings = await engine.AnalyzeAsync(baselineGraph, null, CancellationToken.None);
+        IReadOnlyList<Finding> stampedFindings = await engine.AnalyzeAsync(stampedGraph, null, CancellationToken.None);
 
         TopologyCoverageFindingPayload baselinePayload = ExtractTopologyPayload(baselineFindings);
         TopologyCoverageFindingPayload stampedPayload = ExtractTopologyPayload(stampedFindings);

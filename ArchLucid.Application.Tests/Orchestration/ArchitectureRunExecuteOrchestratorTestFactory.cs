@@ -115,7 +115,7 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             postExecuteHooks,
             NullLogger<ArchitectureRunExecutePreExecuteStage>.Instance);
 
-        IArchitectureRunExecuteAgentLoopStage agentLoopStage = new ArchitectureRunExecuteAgentLoopStage(
+        IAgentLoopPrepareStage prepareStage = new AgentLoopPrepareStage(
             requestRepository,
             args.RequestContentSafetyPrecheck ?? Mock.Of<IRequestContentSafetyPrecheck>(),
             scopeContextProvider,
@@ -123,20 +123,36 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             args.EvidenceBuilder ?? new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
             args.EvidencePackageInjectionMitigator ?? new NoOpEvidencePackageInjectionMitigator(),
             args.AgentEvidenceUntrustedInputSanitizer ?? new NoOpAgentEvidenceUntrustedInputSanitizer(),
+            NullLogger<AgentLoopPrepareStage>.Instance);
+
+        IAgentLoopInvokeStage invokeStage = new AgentLoopInvokeStage(
+            scopeContextProvider,
             agentExecutor,
             args.AgentEvaluationService ?? Mock.Of<IAgentEvaluationService>(),
-            args.AgentResultPostExecutionEnricher ?? new NoOpAgentResultPostExecutionEnricher(),
-            args.AgentOutputQualityGateOptions ?? Options.Create(new AgentOutputQualityGateOptions()),
             preExecuteStage,
             persistenceStage,
-            qualityGateStage,
             failureRecorder,
             args.RunScopedLlmBudgetReservationService ?? CreatePassThroughRunScopedLlmBudgetReservationService(),
+            args.AgentOutputQualityGateOptions ?? Options.Create(new AgentOutputQualityGateOptions()),
+            args.BaselineMutationAuditService ?? Mock.Of<IBaselineMutationAuditService>(),
+            NullLogger<AgentLoopInvokeStage>.Instance);
+
+        IAgentLoopPersistStage persistStage = new AgentLoopPersistStage(
+            args.AgentResultPostExecutionEnricher ?? new NoOpAgentResultPostExecutionEnricher(),
+            args.AgentEvaluationService ?? Mock.Of<IAgentEvaluationService>(),
+            persistenceStage,
+            qualityGateStage,
             args.RunEngineProvenanceCaptureService ?? Mock.Of<IRunEngineProvenanceCaptureService>(),
             args.ExecuteTimeGovernanceScopeCaptureService ?? Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
+            preExecuteStage,
             args.TopologyProposalSeeder ?? CreateDefaultTopologyProposalSeeder(scopeContextProvider),
             args.BaselineMutationAuditService ?? Mock.Of<IBaselineMutationAuditService>(),
-            NullLogger<ArchitectureRunExecuteAgentLoopStage>.Instance);
+            NullLogger<AgentLoopPersistStage>.Instance);
+
+        IArchitectureRunExecuteAgentLoopStage agentLoopStage = new ArchitectureRunExecuteAgentLoopStage(
+            prepareStage,
+            invokeStage,
+            persistStage);
 
         return new ArchitectureRunExecuteOrchestrator(
             runRepository,

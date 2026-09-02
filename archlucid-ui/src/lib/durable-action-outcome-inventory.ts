@@ -144,6 +144,21 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
     requiredDurableMarkers: ["re-run-review-outcome", 'role="status"'],
   },
   {
+    id: "run-governance-disposition",
+    sourceRoots: ["components/runs/RunDetailRunGovernanceDispositionActions.tsx"],
+    requiredDurableMarkers: ["OperatorSuccessCallout", "run-governance-disposition-success"],
+  },
+  {
+    id: "root-cause-cluster-disposition",
+    sourceRoots: ["components/findings/RootCauseClusterDispositionStrip.tsx"],
+    requiredDurableMarkers: ["OperatorSuccessCallout", "root-cause-cluster-disposition-success"],
+  },
+  {
+    id: "review-pipeline-stop-analysis",
+    sourceRoots: ["components/runs/ReviewPipelineStopAnalysisButton.tsx"],
+    requiredDurableMarkers: ["review-pipeline-stop-analysis-outcome", 'role="status"'],
+  },
+  {
     id: "review-start-first-pilot",
     sourceRoots: ["app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx"],
     requiredDurableMarkers: ["ReviewStartInlineError"],

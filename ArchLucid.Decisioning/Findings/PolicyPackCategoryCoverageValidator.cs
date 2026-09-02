@@ -21,7 +21,9 @@ public static class PolicyPackCategoryCoverageValidator
         if (context.EnabledPolicyPackIds.Count == 0)
             return [];
 
-        HashSet<string> requiredCategories = ResolveRequiredCategories(context);
+        HashSet<string> requiredCategories = context.RequiredFindingCategories.Count > 0
+            ? context.RequiredFindingCategories.ToHashSet(StringComparer.OrdinalIgnoreCase)
+            : ResolveRequiredCategories(context);
 
         if (requiredCategories.Count == 0)
             return [];

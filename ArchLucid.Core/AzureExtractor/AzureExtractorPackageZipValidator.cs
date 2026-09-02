@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO.Compression;
 using System.Text.Json;
 
@@ -145,11 +146,10 @@ public static class AzureExtractorPackageZipValidator
 
             using JsonDocument document = JsonDocument.Parse(manifestStream);
 
-            if (!document.RootElement.TryGetProperty("schemaVersion", out JsonElement schemaVersionElement))
+            if (!TryGetPropertyCaseInsensitive(document.RootElement, "schemaVersion", out JsonElement schemaVersionElement))
                 return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
 
-            if (schemaVersionElement.ValueKind is not JsonValueKind.Number
-                || !schemaVersionElement.TryGetInt32(out int schemaVersion))
+            if (!TryReadSchemaVersion(schemaVersionElement, out int schemaVersion))
             {
                 return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
             }
@@ -176,5 +176,89 @@ public static class AzureExtractorPackageZipValidator
         }
 
         return $"Unsupported manifest schemaVersion: {schemaVersion}. Required schemaVersion: {SupportedSchemaVersion}.";
+    }
+
+    private static bool TryReadSchemaVersion(JsonElement element, out int schemaVersion)
+    {
+        if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberSchemaVersion(element, out schemaVersion))
+            return true;
+
+        if (element.ValueKind == JsonValueKind.String
+            && TryParseWholeNumberString(element.GetString(), out schemaVersion))
+            return true;
+
+        schemaVersion = default;
+
+        return false;
+    }
+
+    private static bool TryReadWholeNumberSchemaVersion(JsonElement element, out int schemaVersion)
+    {
+        if (element.TryGetInt32(out schemaVersion))
+        {
+            return true;
+        }
+
+        if (element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            schemaVersion = (int)numeric;
+
+            return true;
+        }
+
+        schemaVersion = default;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberString(string? raw, out int value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }

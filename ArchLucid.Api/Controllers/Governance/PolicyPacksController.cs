@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
@@ -72,17 +73,8 @@ public sealed partial class PolicyPacksController(
         return problem;
     }
 
-    private IActionResult? BadRequestWhenRouteIdEmpty(Guid id, string parameterName)
-    {
-        if (id == Guid.Empty)
-        {
-            return this.BadRequestProblem(
-                $"{parameterName} is required.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        return null;
-    }
+    private IActionResult? BadRequestWhenRouteIdEmpty(Guid id, string parameterName) =>
+        PolicyPacksHttpMapper.ValidateRouteId(id, parameterName).ToBadRequestProblemOrNull(this);
 
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     // idempotency-posture: operator-documented-safe-retry

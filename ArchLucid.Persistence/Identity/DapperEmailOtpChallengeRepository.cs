@@ -88,4 +88,61 @@ public sealed partial class DapperEmailOtpChallengeRepository(ISqlConnectionFact
                 new { NormalizedEmail = normalizedEmail, InvalidatedUtc = invalidatedUtc.UtcDateTime },
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<EmailOtpChallengeRecord> ReplaceActiveChallengeForEmailAsync(
+        EmailOtpChallengeInsert insert,
+        DateTimeOffset invalidatedUtc,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(insert);
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using System.Data.Common.DbTransaction transaction =
+            await connection.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, cancellationToken);
+        const string invalidateSql = """
+                                     UPDATE dbo.EmailOtpChallenges
+                                     SET InvalidatedUtc = @InvalidatedUtc
+                                     WHERE NormalizedEmail = @NormalizedEmail
+                                       AND CompletedUtc IS NULL
+                                       AND InvalidatedUtc IS NULL;
+                                     """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                invalidateSql,
+                new { insert.NormalizedEmail, InvalidatedUtc = invalidatedUtc.UtcDateTime },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+
+        const string insertSql = """
+                                 INSERT INTO dbo.EmailOtpChallenges
+                                     (Id, NormalizedEmail, CodeHash, ExpiresUtc, ClientIpHash, UserAgentHash, InvitationId)
+                                 OUTPUT INSERTED.Id, INSERTED.NormalizedEmail, INSERTED.CodeHash, INSERTED.CreatedUtc,
+                                        INSERTED.ExpiresUtc, INSERTED.FailedAttemptCount, INSERTED.CompletedUtc,
+                                        INSERTED.InvalidatedUtc, INSERTED.ClientIpHash, INSERTED.UserAgentHash,
+                                        INSERTED.InvitationId, INSERTED.RowVersion
+                                 VALUES
+                                     (@Id, @NormalizedEmail, @CodeHash, @ExpiresUtc, @ClientIpHash, @UserAgentHash, @InvitationId);
+                                 """;
+
+        ChallengeRow row = await connection.QuerySingleAsync<ChallengeRow>(
+            new CommandDefinition(
+                insertSql,
+                new
+                {
+                    insert.Id,
+                    insert.NormalizedEmail,
+                    insert.CodeHash,
+                    ExpiresUtc = insert.ExpiresUtc.UtcDateTime,
+                    insert.ClientIpHash,
+                    insert.UserAgentHash,
+                    insert.InvitationId
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+
+        await transaction.CommitAsync(cancellationToken);
+
+        return row.ToRecord();
+    }
 }

@@ -73,32 +73,25 @@ public sealed partial class DapperDraftRequestRepository
 
     private static DraftRequestResponse MapRow(DraftRequestRow row)
     {
-        DraftRequestDocument? document =
-            JsonSerializer.Deserialize<DraftRequestDocument>(row.DocumentJson, JsonOptions);
-
-        if (document is null)
-            throw new InvalidOperationException($"Draft '{row.DraftId}' has invalid DocumentJson.");
-
-        if (!Enum.TryParse(row.Status, ignoreCase: true, out DraftRequestStatus status))
-            throw new InvalidOperationException($"Draft '{row.DraftId}' has unknown status '{row.Status}'.");
-
-        return new DraftRequestResponse
-        {
-            DraftId = row.DraftId,
-            TenantId = row.TenantId,
-            WorkspaceId = row.WorkspaceId,
-            ProjectId = row.ProjectId,
-            Status = status,
-            Document = document,
-            RedirectReason = row.RedirectReason,
-            SpawnedRunId = row.SpawnedRunId,
-            SpawnedArchitectureVersionId = row.SpawnedArchitectureVersionId,
-            CreatedByUserId = row.CreatedByUserId,
-            // SQL datetime2 has no Kind; leave Unspecified and System.Text.Json omits Z, so browsers
-            // treat UTC wall-clock as local and relative labels jump into the future by the offset.
-            CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
-            UpdatedUtc = DateTime.SpecifyKind(row.UpdatedUtc, DateTimeKind.Utc),
-        };
+        DraftRequestDocument document =
+            DraftRequestRepositoryCore.DeserializeDocument(row.DocumentJson, row.DraftId, JsonOptions);
+        DraftRequestStatus status = DraftRequestRepositoryCore.ParseStatus(row.Status, row.DraftId);
+        DraftRequestResponse response = DraftRequestRepositoryCore.MapToResponse(
+            row.DraftId,
+            row.TenantId,
+            row.WorkspaceId,
+            row.ProjectId,
+            status,
+            document,
+            row.RedirectReason,
+            row.SpawnedRunId,
+            row.CreatedByUserId,
+            DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
+            DateTime.SpecifyKind(row.UpdatedUtc, DateTimeKind.Utc));
+        response.SpawnedArchitectureVersionId = row.SpawnedArchitectureVersionId;
+        response.DocumentContentHashSha256 = row.DocumentContentHashSha256;
+        response.SpawnedDocumentContentHashSha256 = row.SpawnedDocumentContentHashSha256;
+        return response;
     }
 
     private sealed class DraftRequestRow
@@ -170,6 +163,18 @@ public sealed partial class DapperDraftRequestRepository
         }
 
         public Guid? SpawnedArchitectureVersionId
+        {
+            get;
+            set;
+        }
+
+        public byte[]? DocumentContentHashSha256
+        {
+            get;
+            set;
+        }
+
+        public byte[]? SpawnedDocumentContentHashSha256
         {
             get;
             set;

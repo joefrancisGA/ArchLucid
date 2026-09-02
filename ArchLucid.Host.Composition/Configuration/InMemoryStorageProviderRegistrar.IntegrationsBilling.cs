@@ -175,6 +175,11 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<ITenantFirstValueReportBrandingRepository, InMemoryTenantFirstValueReportBrandingRepository>();
         services.AddScoped<ItsmInboundDispositionSync>();
         services.AddScoped<ItsmInboundWebhookSyncSupport>();
+        services.AddSingleton<ItsmInboundJiraPayloadReader>();
+        services.AddSingleton<ItsmInboundServiceNowPayloadReader>();
+        services.AddSingleton<ItsmInboundJiraStatusMapper>();
+        services.AddSingleton<ItsmInboundServiceNowStatusMapper>();
+        services.AddScoped<ItsmInboundWebhookProcessPipeline>();
         services.AddScoped<ItsmInboundJiraWebhookProcessor>();
         services.AddScoped<ItsmInboundServiceNowWebhookProcessor>();
         services.AddScoped<ItsmInboundWebhookSyncService>();

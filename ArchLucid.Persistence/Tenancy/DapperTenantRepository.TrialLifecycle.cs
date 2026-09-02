@@ -30,6 +30,21 @@ public sealed partial class DapperTenantRepository
         string? industryVerticalOther,
         CancellationToken ct)
     {
+        TenantTrialLifecycleCore.CommitSelfServiceTrialMutation mutation =
+            TenantTrialLifecycleCore.CreateCommitSelfServiceTrialMutation(
+                trialStartUtc,
+                trialExpiresUtc,
+                runsLimit,
+                seatsLimit,
+                sampleRunId,
+                baselineReviewCycleHours,
+                baselineReviewCycleSource,
+                baselineReviewCycleCapturedUtc,
+                companySize,
+                architectureTeamSize,
+                industryVertical,
+                industryVerticalOther);
+
         await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
         const string sql = """
@@ -55,23 +70,7 @@ public sealed partial class DapperTenantRepository
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    Id = tenantId,
-                    TrialStartUtc = trialStartUtc,
-                    TrialExpiresUtc = trialExpiresUtc,
-                    TrialRunsLimit = runsLimit,
-                    TrialSeatsLimit = seatsLimit,
-                    TrialStatus = TrialLifecycleStatus.Active,
-                    TrialSampleRunId = sampleRunId,
-                    BaselineReviewCycleHours = baselineReviewCycleHours,
-                    BaselineReviewCycleSource = baselineReviewCycleSource,
-                    BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
-                    CompanySize = companySize,
-                    ArchitectureTeamSize = architectureTeamSize,
-                    IndustryVertical = industryVertical,
-                    IndustryVerticalOther = industryVerticalOther
-                },
+                TenantTrialLifecycleCore.CreateCommitSelfServiceTrialSqlParameters(tenantId, mutation),
                 cancellationToken: ct)).ConfigureAwait(false);
     }
 
@@ -288,16 +287,15 @@ public sealed partial class DapperTenantRepository
         if (row is null)
             return null;
 
-        DateTimeOffset anchor = row.TrialStartUtc ?? row.CreatedUtc;
-        double seconds = (committedUtc - anchor).TotalSeconds;
-
-        double ratio = 0;
-
-        if (row.TrialRunsLimit is { } lim and > 0)
-
-            ratio = (double)row.TrialRunsUsed / lim;
-
-        return new TrialFirstManifestCommitOutcome { SignupToCommitSeconds = seconds, TrialRunUsageRatio = ratio };
+        return TenantTrialLifecycleCore.ComputeFirstManifestCommitOutcome(
+            new TenantTrialLifecycleCore.TrialFirstManifestSourceRow
+            {
+                TrialRunsUsed = row.TrialRunsUsed,
+                TrialRunsLimit = row.TrialRunsLimit,
+                CreatedUtc = row.CreatedUtc,
+                TrialStartUtc = row.TrialStartUtc,
+            },
+            committedUtc);
     }
 
 

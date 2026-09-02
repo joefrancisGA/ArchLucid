@@ -55,4 +55,12 @@ public sealed class ArchitectureDraftStructuredBriefTests
         ArchitectureDraftStructuredBrief.QualityAttributeMeetsMinimum(variant)
             .Should().BeFalse();
     }
+
+    [Fact]
+    public void QualityAttributeMeetsMinimum_rejects_comma_delimited_unknown_sentinel_chip()
+    {
+        ArchitectureDraftStructuredBrief.QualityAttributeMeetsMinimum(
+                "defense in depth, Unknown - confirm before review")
+            .Should().BeFalse("comma-delimited unknown sentinel chips must not satisfy the minimum");
+    }
 }

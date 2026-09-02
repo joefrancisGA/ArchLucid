@@ -44,7 +44,7 @@ public sealed partial class InMemoryTenantRepository : ITenantRepository, IWorks
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 throw new InvalidOperationException($"Tenant '{tenantId:D}' is missing from the in-memory registry.");
 
-            _byId[tenantId] = CopyTenant(existing, commercialTier: tier);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(existing, commercialTier: tier);
         }
 
         return Task.CompletedTask;
@@ -113,97 +113,6 @@ public sealed partial class InMemoryTenantRepository : ITenantRepository, IWorks
         _ = _slugToId.TryAdd(slug, ScopeIds.DefaultTenant);
     }
 
-    private static TenantRecord CopyTenant(
-        TenantRecord source,
-        TenantTier? commercialTier = null,
-        int? trialRunsUsed = null,
-        int? trialSeatsUsed = null,
-        string? trialStatus = null,
-        DateTimeOffset? trialExpiresUtc = null,
-        DateTimeOffset? trialArchitecturePreseedEnqueuedUtc = null,
-        int? trialArchitecturePreseedAttemptCount = null,
-        DateTimeOffset? trialArchitecturePreseedFailedUtc = null,
-        string? trialArchitecturePreseedLastError = null,
-        Guid? trialWelcomeRunId = null,
-        DateTimeOffset? trialFirstManifestCommittedUtc = null,
-        int? enterpriseSeatsUsedOverride = null,
-        DateTimeOffset? suspendedUtcOverride = null,
-        bool clearSuspendedUtc = false,
-        DateTimeOffset? offboardedUtc = null,
-        DateTimeOffset? erasureEligibleUtc = null,
-        bool clearErasureQuarantine = false,
-        DateTimeOffset? legalHoldUntilUtc = null,
-        string? legalHoldReason = null,
-        string? legalHoldSetByUserId = null,
-        DateTimeOffset? legalHoldSetUtc = null,
-        bool clearLegalHold = false)
-    {
-        return new TenantRecord
-        {
-            Id = source.Id,
-            Name = source.Name,
-            Slug = source.Slug,
-            Tier = commercialTier ?? source.Tier,
-            EntraTenantId = source.EntraTenantId,
-            DataRegion = source.DataRegion,
-            CreatedUtc = source.CreatedUtc,
-            SuspendedUtc = clearErasureQuarantine || clearSuspendedUtc
-                ? null
-                : suspendedUtcOverride ?? source.SuspendedUtc,
-            OffboardedUtc = clearErasureQuarantine ? null : offboardedUtc ?? source.OffboardedUtc,
-            ErasureEligibleUtc = clearErasureQuarantine ? null : erasureEligibleUtc ?? source.ErasureEligibleUtc,
-            LegalHoldUntilUtc = clearLegalHold ? null : legalHoldUntilUtc ?? source.LegalHoldUntilUtc,
-            LegalHoldReason = clearLegalHold ? null : legalHoldReason ?? source.LegalHoldReason,
-            LegalHoldSetByUserId = clearLegalHold ? null : legalHoldSetByUserId ?? source.LegalHoldSetByUserId,
-            LegalHoldSetUtc = clearLegalHold ? null : legalHoldSetUtc ?? source.LegalHoldSetUtc,
-            TrialStartUtc = source.TrialStartUtc,
-            TrialExpiresUtc = trialExpiresUtc ?? source.TrialExpiresUtc,
-            TrialRunsLimit = source.TrialRunsLimit,
-            TrialRunsUsed = trialRunsUsed ?? source.TrialRunsUsed,
-            TrialSeatsLimit = source.TrialSeatsLimit,
-            TrialSeatsUsed = trialSeatsUsed ?? source.TrialSeatsUsed,
-            TrialStatus = trialStatus ?? source.TrialStatus,
-            TrialSampleRunId = source.TrialSampleRunId,
-            TrialArchitecturePreseedEnqueuedUtc =
-                trialArchitecturePreseedEnqueuedUtc ?? source.TrialArchitecturePreseedEnqueuedUtc,
-            TrialArchitecturePreseedAttemptCount =
-                trialArchitecturePreseedAttemptCount ?? source.TrialArchitecturePreseedAttemptCount,
-            TrialArchitecturePreseedFailedUtc =
-                trialArchitecturePreseedFailedUtc ?? source.TrialArchitecturePreseedFailedUtc,
-            TrialArchitecturePreseedLastError =
-                trialArchitecturePreseedLastError ?? source.TrialArchitecturePreseedLastError,
-            TrialWelcomeRunId = trialWelcomeRunId ?? source.TrialWelcomeRunId,
-            TrialFirstManifestCommittedUtc = trialFirstManifestCommittedUtc ?? source.TrialFirstManifestCommittedUtc,
-            BaselineReviewCycleHours = source.BaselineReviewCycleHours,
-            BaselineReviewCycleSource = source.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = source.BaselineReviewCycleCapturedUtc,
-            BaselineManualPrepHoursPerReview = source.BaselineManualPrepHoursPerReview,
-            BaselinePeoplePerReview = source.BaselinePeoplePerReview,
-            BaselineManualPrepCapturedUtc = source.BaselineManualPrepCapturedUtc,
-            CompanySize = source.CompanySize,
-            ArchitectureTeamSize = source.ArchitectureTeamSize,
-            IndustryVertical = source.IndustryVertical,
-            IndustryVerticalOther = source.IndustryVerticalOther,
-            EnterpriseSeatsLimit = source.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = enterpriseSeatsUsedOverride ?? source.EnterpriseSeatsUsed,
-            TenantErasureRequestedUtc = clearErasureQuarantine
-                ? null
-                : offboardedUtc ?? source.TenantErasureRequestedUtc,
-            TenantErasureApprovedUtc = clearErasureQuarantine ? null : source.TenantErasureApprovedUtc,
-            TenantErasureApprovedByUserId = clearErasureQuarantine ? null : source.TenantErasureApprovedByUserId
-        };
-    }
-
-    private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
-    {
-        if (trialExpiresUtc is null)
-            return 0;
-
-        double totalDays = (trialExpiresUtc.Value - TimeProvider.System.GetUtcNow()).TotalDays;
-        int days = (int)Math.Floor(totalDays);
-
-        return days < 0 ? 0 : days;
-    }
 
     private sealed record TenantWorkspaceRow
     {

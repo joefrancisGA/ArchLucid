@@ -16,16 +16,20 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { isApiNotFoundFailure } from "@/lib/api-load-failure";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 import {
   REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE,
   REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT,
   REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT,
+  REVIEWS_HUB_MEDIAN_DELTA_SUMMARY,
+  REVIEWS_HUB_MEDIAN_DELTA_TITLE,
   REVIEWS_HUB_MORE_WAYS_SUMMARY,
   REVIEWS_HUB_MORE_WAYS_TITLE,
   REVIEWS_HUB_PAGE_SUBTITLE,
   REVIEWS_HUB_PAGE_TITLE,
+  REVIEWS_HUB_REVIEW_CYCLE_DELTA_SUMMARY,
+  REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE,
 } from "./reviews-hub-copy";
 import { ReviewsHubHeaderActions } from "./ReviewsHubHeaderActions";
 import {
@@ -48,6 +52,18 @@ import { deriveReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 type Props = {
   readonly model: RunsPageModel;
 };
+
+const REVIEWS_HUB_BODY_STACK_CLASS = OPERATOR_LAYOUT.majorSectionGap;
+const REVIEWS_HUB_GUIDANCE_STACK_CLASS = cn(
+  OPERATOR_LAYOUT.sectionStack,
+  "border-t border-neutral-200 pt-6 dark:border-neutral-800",
+);
+const REVIEWS_HUB_ANALYTICS_STACK_CLASS = cn(
+  OPERATOR_LAYOUT.sectionStack,
+  "border-t border-neutral-200 pt-6 dark:border-neutral-800",
+  "[&_[data-testid=before-after-delta-panel]]:mb-0 [&_[data-testid=before-after-delta-panel-top]]:mb-0",
+  "[&_[data-testid=before-after-delta-panel]]:max-w-none [&_[data-testid=before-after-delta-panel-top]]:max-w-none",
+);
 
 /** Server component: reviews index body (list fetch happens in `loadRunsPageModel`). */
 export function RunsPageView(props: Props) {
@@ -85,93 +101,123 @@ export function RunsPageView(props: Props) {
         }
         actions={<ReviewsHubHeaderActions />}
       />
-      {hubLoadOk ? (
-        <>
-          <ReviewsHubReviewInventoryDeferred runs={m.runs} summary={workspaceSummary} />
-          {continueReviewCandidate !== null ? (
-            <ReviewsHubContinueReviewStrip candidate={continueReviewCandidate} />
-          ) : null}
-          <ReviewsHubResumeDrafts />
-          {hasReviews ? <OperatorAttentionKindStrip variant="compact" /> : null}
-          <ArchitectureObjectMapStrip focus="review" />
-          {hasReviews ? (
-            <CollapsibleSection
-              title={REVIEWS_HUB_MORE_WAYS_TITLE}
-              summaryLine={REVIEWS_HUB_MORE_WAYS_SUMMARY}
-              defaultOpen={false}
-              sectionTestId="reviews-hub-more-ways"
-              className="mt-4"
-            >
-              <ReviewsHubExploreSamplesDeferred />
-              <ReviewsHubPackageIncludesDeferred />
-            </CollapsibleSection>
-          ) : null}
-        </>
-      ) : null}
-
-      {m.usedStaticRunsFallback && isOperatorExperienceFullShellEnv() ? (
-        <div className="mt-4 max-w-5xl">
-          <OperatorDemoStaticBanner />
-        </div>
-      ) : null}
-
-      {hubLoadOk && hasReviews ? <ReviewsHubBeforeAfterDeltaPanelDeferred /> : null}
-
-      {hubLoadOk && hasReviews && m.firstCommittedRunId !== null ? (
-        <RunsIndexBeforeAfterPanelDeferred committedRunId={m.firstCommittedRunId} />
-      ) : null}
-
-      {loadFailure ? (
-        <>
-          <OperatorApiProblem failure={loadFailure} />
-          <OperatorTryNext>
-            {isApiNotFoundFailure(loadFailure)
-              ? REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT
-              : REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT}
-          </OperatorTryNext>
-        </>
-      ) : null}
-
-      {!loadFailure && malformedMessage ? (
-        <>
-          <OperatorMalformedCallout>
-            <strong>{BUYER_RUNS_LIST_MALFORMED_HEADING}</strong>
-            <p className="mt-2">{isDev ? malformedMessage : BUYER_RUNS_LIST_MALFORMED_BODY}</p>
-            {isDev ? (
-              <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
-                The HTTP call may have succeeded, but the JSON did not match the expected paged review summary shape. This is distinct from
-                an empty project (zero reviews).
-              </p>
+      <div className={REVIEWS_HUB_BODY_STACK_CLASS} data-testid="reviews-hub-body">
+        {hubLoadOk ? (
+          <>
+            <ReviewsHubReviewInventoryDeferred runs={m.runs} summary={workspaceSummary} />
+            {continueReviewCandidate !== null ? (
+              <ReviewsHubContinueReviewStrip candidate={continueReviewCandidate} />
             ) : null}
-          </OperatorMalformedCallout>
-          <FatalPageReportProblemSupportRow
-            surfaceId="reviews-hub-unexpected-response"
-            errorTitle={BUYER_RUNS_LIST_MALFORMED_HEADING}
-            errorCode="malformed-response"
-          />
-          {isDev ? (
-            <OperatorTryNext>The server response was unexpected. If this persists, contact support.</OperatorTryNext>
-          ) : null}
-        </>
-      ) : null}
+            <ReviewsHubResumeDrafts />
+            {hasReviews ? (
+              <section
+                aria-label="Reviews hub guidance"
+                className={REVIEWS_HUB_GUIDANCE_STACK_CLASS}
+                data-testid="reviews-hub-guidance"
+              >
+                <OperatorAttentionKindStrip variant="compact" />
+                <ArchitectureObjectMapStrip focus="review" />
+                <CollapsibleSection
+                  title={REVIEWS_HUB_MORE_WAYS_TITLE}
+                  summaryLine={REVIEWS_HUB_MORE_WAYS_SUMMARY}
+                  defaultOpen={false}
+                  sectionTestId="reviews-hub-more-ways"
+                  className="mb-0 p-4"
+                >
+                  <ReviewsHubExploreSamplesDeferred />
+                  <ReviewsHubPackageIncludesDeferred />
+                </CollapsibleSection>
+              </section>
+            ) : null}
+          </>
+        ) : null}
 
-      {showAdvancedList ? (
-        <section className="mt-8" data-testid="reviews-hub-paginated-inventory">
-          <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE}
-          </h2>
-          <div className="mt-4">
-            <RunsListAggregateErrorBoundaryDeferred
-              runs={m.runs}
-              projectId={m.projectId}
-              page={m.page}
-              pageSize={m.pageSize}
-              totalCount={m.totalCount}
-              nextCursor={m.nextCursorForClient}
-            />
+        {m.usedStaticRunsFallback && isOperatorExperienceFullShellEnv() ? (
+          <div className="max-w-5xl">
+            <OperatorDemoStaticBanner />
           </div>
-        </section>
-      ) : null}
+        ) : null}
+
+        {hubLoadOk && hasReviews ? (
+          <div className={REVIEWS_HUB_ANALYTICS_STACK_CLASS} data-testid="reviews-hub-analytics">
+            <CollapsibleSection
+              title={REVIEWS_HUB_MEDIAN_DELTA_TITLE}
+              summaryLine={REVIEWS_HUB_MEDIAN_DELTA_SUMMARY}
+              defaultOpen={false}
+              sectionTestId="reviews-hub-median-delta"
+              className="mb-0"
+            >
+              <ReviewsHubBeforeAfterDeltaPanelDeferred embeddedInCollapsible />
+            </CollapsibleSection>
+            {m.firstCommittedRunId !== null ? (
+              <CollapsibleSection
+                title={REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE}
+                summaryLine={REVIEWS_HUB_REVIEW_CYCLE_DELTA_SUMMARY}
+                defaultOpen={false}
+                sectionTestId="reviews-hub-review-cycle-delta"
+                className="mb-0"
+              >
+                <RunsIndexBeforeAfterPanelDeferred
+                  committedRunId={m.firstCommittedRunId}
+                  embeddedInCollapsible
+                />
+              </CollapsibleSection>
+            ) : null}
+          </div>
+        ) : null}
+
+        {loadFailure ? (
+          <>
+            <OperatorApiProblem failure={loadFailure} />
+            <OperatorTryNext>
+              {isApiNotFoundFailure(loadFailure)
+                ? REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT
+                : REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT}
+            </OperatorTryNext>
+          </>
+        ) : null}
+
+        {!loadFailure && malformedMessage ? (
+          <>
+            <OperatorMalformedCallout>
+              <strong>{BUYER_RUNS_LIST_MALFORMED_HEADING}</strong>
+              <p className="mt-2">{isDev ? malformedMessage : BUYER_RUNS_LIST_MALFORMED_BODY}</p>
+              {isDev ? (
+                <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                  The HTTP call may have succeeded, but the JSON did not match the expected paged review summary shape. This is distinct from
+                  an empty project (zero reviews).
+                </p>
+              ) : null}
+            </OperatorMalformedCallout>
+            <FatalPageReportProblemSupportRow
+              surfaceId="reviews-hub-unexpected-response"
+              errorTitle={BUYER_RUNS_LIST_MALFORMED_HEADING}
+              errorCode="malformed-response"
+            />
+            {isDev ? (
+              <OperatorTryNext>The server response was unexpected. If this persists, contact support.</OperatorTryNext>
+            ) : null}
+          </>
+        ) : null}
+
+        {showAdvancedList ? (
+          <section data-testid="reviews-hub-paginated-inventory">
+            <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE}
+            </h2>
+            <div className="mt-4">
+              <RunsListAggregateErrorBoundaryDeferred
+                runs={m.runs}
+                projectId={m.projectId}
+                page={m.page}
+                pageSize={m.pageSize}
+                totalCount={m.totalCount}
+                nextCursor={m.nextCursorForClient}
+              />
+            </div>
+          </section>
+        ) : null}
+      </div>
     </OperatorPageContainer>
   );
 }

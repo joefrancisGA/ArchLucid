@@ -1,0 +1,206 @@
+"use client";
+
+import { useCallback, useEffect, useRef } from "react";
+
+import {
+  buildArchitectureDraftRegistryEntry,
+  upsertArchitectureDraftRegistryEntry,
+} from "@/lib/architecture/architecture-draft-registry";
+import { invalidateArchitectureDraftListQueries } from "@/lib/architecture/architecture-draft-list-client";
+import {
+  buildArchitectureDraftPatchPayload,
+  hasArchitectureDraftSaveableContent,
+  validateArchitectureDraftIntegrity,
+} from "@/lib/architecture/architecture-draft-readiness";
+import { actorSetFromDraftDocument } from "@/lib/architecture/architecture-creation-init";
+import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
+import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
+import type { ActorSet } from "@/types/draft-intake";
+
+import {
+  ARCHITECTURE_DRAFT_AUTOSAVE_DEBOUNCE_MS,
+  createIntentForDeferredDraft,
+  fieldsFromDraftDocument,
+  isNonRetryableDraftPatchError,
+  type ArchitectureDraftSaveState,
+  type UseArchitectureDraftAutosaveArgs,
+} from "@/hooks/architecture-draft-autosave-shared";
+
+type UseArchitectureDraftAutosavePersistArgs = Pick<
+  UseArchitectureDraftAutosaveArgs,
+  | "architectureId"
+  | "enabled"
+  | "deferCreateUntilFirstSave"
+  | "scopeGateOpen"
+  | "scopeBullets"
+  | "onDraftCreated"
+  | "onImmutableDraftDetected"
+> & {
+  readonly fields: ArchitectureDraftFieldState;
+  readonly actorSet: ActorSet;
+  readonly hasUnsavedChanges: boolean;
+  readonly writePersistedBaseline: (fields: ArchitectureDraftFieldState, actorSet: ActorSet) => void;
+  readonly setSaveState: (state: ArchitectureDraftSaveState) => void;
+  readonly setLastSavedUtc: (value: string | null) => void;
+  readonly setConflictMessage: (value: string | null) => void;
+  readonly setHasPersistedDraft: (value: boolean) => void;
+  readonly serverUpdatedUtcRef: React.MutableRefObject<string | null>;
+  readonly fieldsRef: React.MutableRefObject<ArchitectureDraftFieldState>;
+  readonly actorSetRef: React.MutableRefObject<ActorSet>;
+  readonly scopeGateOpenRef: React.MutableRefObject<boolean>;
+  readonly scopeBulletsRef: React.MutableRefObject<readonly import("@/lib/architecture/architecture-scope-understanding-check").ScopeUnderstandingBullet[]>;
+  readonly resolvedArchitectureIdRef: React.MutableRefObject<string | null>;
+  readonly autosaveBlockedRef: React.MutableRefObject<boolean>;
+  readonly markDirty: () => void;
+};
+
+export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAutosavePersistArgs) {
+  const enabled = args.enabled !== false;
+  const deferCreateUntilFirstSave = args.deferCreateUntilFirstSave === true;
+  const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
+
+  const saveSequenceRef = useRef(0);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inFlightSaveRef = useRef<Promise<boolean> | null>(null);
+  const trailingSaveNeededRef = useRef(false);
+  const persistDraftRef = useRef<() => Promise<boolean>>(async () => false);
+
+  const persistDraft = useCallback(async (): Promise<boolean> => {
+    if (!enabled) return true;
+    if (!isOnline) {
+      args.setSaveState("offline");
+      return false;
+    }
+
+    const latestFields = args.fieldsRef.current;
+    if (!hasArchitectureDraftSaveableContent(latestFields)) {
+      args.setSaveState("idle");
+      return false;
+    }
+
+    if (!validateArchitectureDraftIntegrity(latestFields).isValid) {
+      args.setSaveState("unsaved");
+      return false;
+    }
+
+    if (inFlightSaveRef.current !== null) {
+      trailingSaveNeededRef.current = true;
+      return inFlightSaveRef.current;
+    }
+
+    const sequence = saveSequenceRef.current + 1;
+    saveSequenceRef.current = sequence;
+    args.setSaveState("saving");
+    args.setConflictMessage(null);
+
+    const savePromise = (async (): Promise<boolean> => {
+      let patchFailedNonRetryable = false;
+      try {
+        let architectureId = args.resolvedArchitectureIdRef.current ?? args.architectureId;
+
+        if (deferCreateUntilFirstSave && args.resolvedArchitectureIdRef.current === null) {
+          const confirmedScopeBullets = args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined;
+          const created = await createDraftRequest(
+            createIntentForDeferredDraft(args.fieldsRef.current, confirmedScopeBullets),
+            CREATE_ARCHITECTURE_INTENT,
+          );
+          args.resolvedArchitectureIdRef.current = created.draftId;
+          architectureId = created.draftId;
+          args.setHasPersistedDraft(true);
+          args.onDraftCreated?.(created.draftId);
+          void invalidateArchitectureDraftListQueries();
+        }
+
+        const latestServer = await getDraftRequest(architectureId);
+        if (latestServer.status !== "Drafting") {
+          args.onImmutableDraftDetected?.(latestServer);
+          args.setConflictMessage(null);
+          args.setSaveState("idle");
+          patchFailedNonRetryable = true;
+          return false;
+        }
+
+        if (
+          args.serverUpdatedUtcRef.current !== null &&
+          latestServer.updatedUtc !== args.serverUpdatedUtcRef.current
+        ) {
+          args.setConflictMessage(
+            "This architecture was updated in another session. Refresh to load the latest version before saving again.",
+          );
+          args.setSaveState("error");
+          patchFailedNonRetryable = true;
+          return false;
+        }
+
+        const patched = await patchDraftRequest(
+          architectureId,
+          buildArchitectureDraftPatchPayload(
+            args.fieldsRef.current,
+            args.actorSetRef.current,
+            args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined,
+          ),
+        );
+
+        if (sequence !== saveSequenceRef.current) return false;
+
+        args.writePersistedBaseline(fieldsFromDraftDocument(patched), actorSetFromDraftDocument(patched));
+        args.serverUpdatedUtcRef.current = patched.updatedUtc;
+        args.setLastSavedUtc(patched.updatedUtc);
+        upsertArchitectureDraftRegistryEntry(buildArchitectureDraftRegistryEntry(patched));
+        void invalidateArchitectureDraftListQueries();
+        args.setSaveState("saved");
+        return true;
+      } catch (error) {
+        if (sequence === saveSequenceRef.current) args.setSaveState("error");
+        patchFailedNonRetryable = isNonRetryableDraftPatchError(error);
+        if (patchFailedNonRetryable) args.autosaveBlockedRef.current = true;
+        return false;
+      } finally {
+        inFlightSaveRef.current = null;
+        const shouldRunTrailingSave = !patchFailedNonRetryable && trailingSaveNeededRef.current;
+        trailingSaveNeededRef.current = false;
+        if (shouldRunTrailingSave && hasArchitectureDraftSaveableContent(args.fieldsRef.current)) {
+          void persistDraftRef.current();
+        }
+      }
+    })();
+
+    inFlightSaveRef.current = savePromise;
+    return savePromise;
+  }, [args, deferCreateUntilFirstSave, enabled, isOnline]);
+
+  persistDraftRef.current = persistDraft;
+
+  useEffect(() => {
+    args.autosaveBlockedRef.current = false;
+  }, [args, args.fields]);
+
+  useEffect(() => {
+    if (!enabled || !args.hasUnsavedChanges || args.autosaveBlockedRef.current) return;
+    if (!hasArchitectureDraftSaveableContent(args.fields)) return;
+    args.markDirty();
+    if (debounceTimerRef.current !== null) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => void persistDraft(), ARCHITECTURE_DRAFT_AUTOSAVE_DEBOUNCE_MS);
+    return () => {
+      if (debounceTimerRef.current !== null) clearTimeout(debounceTimerRef.current);
+    };
+  }, [args, args.fields, args.actorSet, args.hasUnsavedChanges, enabled, persistDraft]);
+
+  useEffect(() => {
+    function handleOnline() {
+      if (args.hasUnsavedChanges && hasArchitectureDraftSaveableContent(args.fields)) void persistDraft();
+    }
+    function handleOffline() {
+      args.setSaveState("offline");
+    }
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [args, args.fields, args.actorSet, args.hasUnsavedChanges, persistDraft]);
+
+  return persistDraft;
+}

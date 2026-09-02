@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import { defineConfig, devices, type PlaywrightTestConfig } from "@playwright/test";
 
 import {
@@ -5,6 +6,8 @@ import {
   resolveAcceptanceBaseUrl,
   resolveAcceptanceStorageState,
 } from "./e2e/helpers/acceptance-base-url";
+
+const require = createRequire(import.meta.url);
 
 /**
  * Founder acceptance lane (GTM M-96–M-98): small tagged suite against an owner-chosen UI origin.

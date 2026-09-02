@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Alerts;
@@ -128,15 +129,58 @@ public static class AlertRoutingCriteriaMetadata
     {
         if (item.ValueKind == JsonValueKind.String)
         {
-            return item.GetString();
+            string? raw = item.GetString();
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && int.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString))
+            {
+                return MapFindingSeverityOrdinalToAlertLabel(numericFromString);
+            }
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && double.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double numericFromDecimalString)
+                && double.IsFinite(numericFromDecimalString)
+                && numericFromDecimalString == Math.Floor(numericFromDecimalString))
+            {
+                return MapFindingSeverityOrdinalToAlertLabel((int)numericFromDecimalString);
+            }
+
+            return raw;
         }
 
-        if (item.ValueKind == JsonValueKind.Number && item.TryGetInt32(out int numeric))
+        if (item.ValueKind == JsonValueKind.Number && TryReadWholeNumberSeverityOrdinal(item, out int numeric))
         {
             return MapFindingSeverityOrdinalToAlertLabel(numeric);
         }
 
+        if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            return item.GetRawText();
+        }
+
         return null;
+    }
+
+    private static bool TryReadWholeNumberSeverityOrdinal(JsonElement element, out int value)
+    {
+        if (element.TryGetInt32(out value))
+        {
+            return true;
+        }
+
+        if (element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static string? MapFindingSeverityOrdinalToAlertLabel(int ordinal)
@@ -168,18 +212,41 @@ public static class AlertRoutingCriteriaMetadata
 
         foreach (JsonElement item in arrayElement.EnumerateArray())
         {
-            if (item.ValueKind == JsonValueKind.String)
+            if (TryReadStringArrayItem(item, out string? value) && !string.IsNullOrWhiteSpace(value))
             {
-                string value = item.GetString()?.Trim() ?? string.Empty;
-
-                if (value.Length > 0)
-                {
-                    values.Add(value);
-                }
+                values.Add(value.Trim());
             }
         }
 
         return values;
+    }
+
+    private static bool TryReadStringArrayItem(JsonElement item, out string? value)
+    {
+        if (item.ValueKind == JsonValueKind.String)
+        {
+            value = item.GetString();
+
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.Number)
+        {
+            value = item.GetRawText();
+
+            return true;
+        }
+
+        if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = item.GetRawText();
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
     }
 
     private static IReadOnlyList<string> NormalizeList(IReadOnlyList<string> values)

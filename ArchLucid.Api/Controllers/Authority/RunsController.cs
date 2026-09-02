@@ -51,12 +51,6 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed partial class RunsController(
     IRunLifecycleCommandService runLifecycleCommandService,
     IArchitectureApplicationService architectureApplicationService,
-    IArchitectureRequestDraftService architectureRequestDraftService,
-    IArchitectureOverviewRewriteService architectureOverviewRewriteService,
-    IClarificationAnswerRephraseService clarificationAnswerRephraseService,
-    IStructuredBriefSuggestionExplainService structuredBriefSuggestionExplainService,
-    IChatIntakeParserService chatIntakeParserService,
-    IConnectorIntakeParserService connectorIntakeParserService,
     IValidator<ArchitectureRequest> architectureRequestValidator,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,

@@ -12,7 +12,7 @@ import { ACCELERATOR_COST_GOVERNANCE_CLOUD_PICKER_LABEL } from "@/lib/accelerato
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type AcceleratorCostGovernanceCloudPickerProps = {
-  readonly selectedPackId: AcceleratorCostGovernancePackId;
+  readonly selectedPackId: AcceleratorCostGovernancePackId | null;
   readonly onSelectedPackIdChange: (packId: AcceleratorCostGovernancePackId) => void;
   readonly pickerTestId?: string;
   readonly optionTestIdPrefix?: string;
@@ -76,12 +76,12 @@ export function AcceleratorCostGovernanceCloudPicker(
 }
 
 export function useAcceleratorCostGovernancePackSelection(
-  initialPackId: AcceleratorCostGovernancePackId = "azure-cost-governance",
+  initialPackId: AcceleratorCostGovernancePackId | null = null,
 ): {
-  readonly selectedPackId: AcceleratorCostGovernancePackId;
+  readonly selectedPackId: AcceleratorCostGovernancePackId | null;
   readonly setSelectedPackId: (packId: AcceleratorCostGovernancePackId) => void;
 } {
-  const [selectedPackId, setSelectedPackId] = useState<AcceleratorCostGovernancePackId>(initialPackId);
+  const [selectedPackId, setSelectedPackId] = useState<AcceleratorCostGovernancePackId | null>(initialPackId);
 
   return { selectedPackId, setSelectedPackId };
 }

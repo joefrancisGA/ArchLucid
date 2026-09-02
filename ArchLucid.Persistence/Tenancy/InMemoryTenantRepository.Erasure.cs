@@ -15,7 +15,7 @@ public sealed partial class InMemoryTenantRepository
     {
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t) || t.OffboardedUtc is null || t.TenantErasureApprovedUtc is not null)
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t) || !TenantRepositoryCore.CanApproveTenantErasure(t))
                 return Task.FromResult(false);
 
             _byId[tenantId] = new TenantRecord
@@ -78,10 +78,10 @@ public sealed partial class InMemoryTenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.OffboardedUtc is not null)
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || !TenantRepositoryCore.CanStartTenantErasureOffboard(existing))
                 return Task.FromResult(false);
 
-            _byId[tenantId] = CopyTenant(existing, offboardedUtc: offboardedUtc, erasureEligibleUtc: erasureEligibleUtc);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(existing, offboardedUtc: offboardedUtc, erasureEligibleUtc: erasureEligibleUtc);
         }
 
         return Task.FromResult(true);
@@ -95,10 +95,10 @@ public sealed partial class InMemoryTenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.OffboardedUtc is null)
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || !TenantRepositoryCore.CanRestoreTenantErasureQuarantine(existing))
                 return Task.FromResult(false);
 
-            _byId[tenantId] = CopyTenant(existing, clearErasureQuarantine: true);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(existing, clearErasureQuarantine: true);
         }
 
         return Task.FromResult(true);
@@ -116,7 +116,7 @@ public sealed partial class InMemoryTenantRepository
     {
         _ = ct;
 
-        if (legalHoldUntilUtc <= utcNow)
+        if (!TenantRepositoryCore.CanSetTenantErasureLegalHold(legalHoldUntilUtc, utcNow))
             return Task.FromResult(false);
 
         lock (_trialGate)
@@ -125,7 +125,7 @@ public sealed partial class InMemoryTenantRepository
                 return Task.FromResult(false);
 
             DateTimeOffset setUtc = TimeProvider.System.GetUtcNow();
-            _byId[tenantId] = CopyTenant(
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(
                 existing,
                 legalHoldUntilUtc: legalHoldUntilUtc,
                 legalHoldReason: reason,
@@ -144,10 +144,10 @@ public sealed partial class InMemoryTenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.LegalHoldUntilUtc is null)
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || !TenantRepositoryCore.CanClearTenantErasureLegalHold(existing))
                 return Task.FromResult(false);
 
-            _byId[tenantId] = CopyTenant(existing, clearLegalHold: true);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(existing, clearLegalHold: true);
         }
 
         return Task.FromResult(true);
@@ -164,7 +164,7 @@ public sealed partial class InMemoryTenantRepository
 
         lock (_trialGate)
         {
-            int clamped = Math.Clamp(take, 1, 100);
+            int clamped = TenantRepositoryCore.ClampErasureListTake(take);
 
             List<Guid> ids = _byId.Values
                 .Where(t => TenantErasureEligibility.IsEligibleForScheduledHardPurge(t, utcNow))
@@ -189,14 +189,10 @@ public sealed partial class InMemoryTenantRepository
 
         lock (_trialGate)
         {
-            int clamped = Math.Clamp(take, 1, 100);
+            int clamped = TenantRepositoryCore.ClampErasureListTake(take);
 
             List<Guid> ids = _byId.Values
-                .Where(t =>
-                    t.TenantErasureRequestedUtc is not null &&
-                    t.TenantErasureRequestedUtc <= erasureRequestedOnOrBefore &&
-                    t.TenantErasureApprovedUtc is not null &&
-                    (t.LegalHoldUntilUtc is null || t.LegalHoldUntilUtc <= utcNow))
+                .Where(t => TenantRepositoryCore.IsEligibleForOrphanedCatalogCleanup(t, utcNow, erasureRequestedOnOrBefore))
                 .OrderBy(static t => t.TenantErasureRequestedUtc)
                 .Take(clamped)
                 .Select(static t => t.Id)

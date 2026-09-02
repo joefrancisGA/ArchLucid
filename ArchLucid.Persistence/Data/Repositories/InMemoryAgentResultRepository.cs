@@ -1,11 +1,10 @@
 using System.Data;
-using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
-using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Repositories;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -41,7 +40,7 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
                 throw new AgentResultDuplicateConflictException(result.RunId, result.TaskId);
             }
 
-            _results.Add(Clone(result));
+            _results.Add(AgentResultRepositoryCore.Clone(result));
         }
 
         return Task.CompletedTask;
@@ -57,6 +56,8 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
         cancellationToken.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
+
+        AgentResultRepositoryCore.RequireSingleRun(results);
 
         foreach (AgentResult result in results)
             await CreateAsync(result, cancellationToken).ConfigureAwait(false);
@@ -79,7 +80,7 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
                 string.Equals(r.RunId, replacement.RunId, StringComparison.Ordinal) &&
                 string.Equals(r.TaskId, replacement.TaskId, StringComparison.Ordinal));
 
-            _results.Add(Clone(replacement));
+            _results.Add(AgentResultRepositoryCore.Clone(replacement));
         }
 
         return Task.CompletedTask;
@@ -127,7 +128,7 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
             list = _results
                 .Where(r => string.Equals(r.RunId, runId, StringComparison.Ordinal))
                 .OrderBy(r => r.CreatedUtc)
-                .Select(Clone)
+                .Select(AgentResultRepositoryCore.Clone)
                 .ToList();
         }
 
@@ -153,15 +154,7 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
             List<AgentResult> markers = _results
                 .Where(r => string.Equals(r.RunId, runId, StringComparison.Ordinal))
                 .OrderBy(r => r.CreatedUtc)
-                .Select(static r => new AgentResult
-                {
-                    ResultId = r.ResultId,
-                    TaskId = r.TaskId,
-                    RunId = r.RunId,
-                    AgentType = r.AgentType,
-                    Confidence = r.Confidence,
-                    CreatedUtc = r.CreatedUtc,
-                })
+                .Select(AgentResultRepositoryCore.ProjectMarker)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<AgentResult>>(markers);
@@ -183,48 +176,15 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
             projected = _results
                 .Where(r => string.Equals(r.RunId, runId, StringComparison.Ordinal))
                 .OrderBy(r => r.CreatedUtc)
-                .Select(static r => AgentResultRollupProjection.StripHeavyFields(Clone(r)))
+                .Select(static r => AgentResultRollupProjection.StripHeavyFields(AgentResultRepositoryCore.Clone(r)))
                 .ToList();
         }
 
-        IReadOnlyDictionary<string, AgentResultEnrichmentRecord> enrichments =
+        return AgentResultEnrichmentMerger.ApplyRollup(
+            projected,
             await _agentResultEnrichmentRepository.GetByResultIdsAsync(
                 projected.Select(static r => r.ResultId).ToList(),
-                cancellationToken).ConfigureAwait(false);
-
-        if (enrichments.Count == 0)
-            return projected;
-
-        List<AgentResult> merged = [];
-
-        foreach (AgentResult baseResult in projected)
-        {
-            if (!enrichments.TryGetValue(baseResult.ResultId, out AgentResultEnrichmentRecord? enrichment))
-            {
-                merged.Add(baseResult);
-                continue;
-            }
-
-            if (!string.IsNullOrWhiteSpace(enrichment.EnrichedResultJson))
-            {
-                AgentResult? enriched = JsonSerializer.Deserialize<AgentResult>(
-                    enrichment.EnrichedResultJson,
-                    ContractJson.Default);
-
-                if (enriched is not null)
-                {
-                    merged.Add(AgentResultRollupProjection.StripHeavyFields(enriched));
-                    continue;
-                }
-            }
-
-            if (enrichment.CalibratedConfidence.HasValue)
-                baseResult.CalibratedConfidence = enrichment.CalibratedConfidence;
-
-            merged.Add(baseResult);
-        }
-
-        return merged;
+                cancellationToken).ConfigureAwait(false));
     }
 
     public async Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
@@ -241,7 +201,7 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
         {
             snapshot = _results
                 .Where(r => !string.IsNullOrWhiteSpace(r.ProposedEvidenceJson))
-                .Select(Clone)
+                .Select(AgentResultRepositoryCore.Clone)
                 .ToList();
         }
 
@@ -257,7 +217,7 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
                 AgentType = row.AgentType.ToString(),
                 ProposedEvidenceJson = row.ProposedEvidenceJson!,
                 CreatedUtc = row.CreatedUtc,
-                IsPromoted = false
+                IsPromoted = false,
             });
         }
 
@@ -290,7 +250,7 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
             AgentType = row.AgentType.ToString(),
             ProposedEvidenceJson = row.ProposedEvidenceJson!,
             CreatedUtc = row.CreatedUtc,
-            IsPromoted = isPromoted
+            IsPromoted = isPromoted,
         };
     }
 
@@ -299,18 +259,7 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
         IReadOnlyDictionary<string, AgentResultEnrichmentRecord> enrichments =
             await _agentResultEnrichmentRepository.GetByResultIdsAsync([resultId], cancellationToken).ConfigureAwait(false);
 
-        if (enrichments.TryGetValue(resultId, out AgentResultEnrichmentRecord? enrichment)
-            && enrichment.EvidenceProposalPromotedUtc.HasValue)
-            return true;
-
-        return false;
-    }
-
-    private static AgentResult Clone(AgentResult source)
-    {
-        string json = JsonSerializer.Serialize(source, ContractJson.Default);
-        AgentResult? copy = JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
-
-        return copy ?? throw new InvalidOperationException("Clone produced null AgentResult.");
+        return enrichments.TryGetValue(resultId, out AgentResultEnrichmentRecord? enrichment)
+               && AgentResultRepositoryCore.IsEvidencePromoted(enrichment);
     }
 }

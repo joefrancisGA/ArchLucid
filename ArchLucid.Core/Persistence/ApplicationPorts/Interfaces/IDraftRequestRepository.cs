@@ -31,7 +31,8 @@ public interface IDraftRequestRepository
         string? redirectReason,
         string? spawnedRunId,
         CancellationToken cancellationToken,
-        Guid? spawnedArchitectureVersionId = null);
+        Guid? spawnedArchitectureVersionId = null,
+        byte[]? spawnedDocumentContentHashSha256 = null);
 
     /// <summary>
     ///     Hard-deletes up to <paramref name="batchSize" /> terminal drafts

@@ -32,6 +32,25 @@ export const GOVERNANCE_WORKFLOW_REQUEST_APPROVED_SUCCESS = "Request approved.";
 
 export const GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS = "Request rejected.";
 
+export type RunOperatorGovernanceDispositionDecision = "Approved" | "Rejected" | "RequestRemediation";
+
+export function runOperatorGovernanceDispositionSuccessMessage(
+  decision: RunOperatorGovernanceDispositionDecision,
+): string {
+  switch (decision) {
+    case "Approved":
+      return "Review disposition recorded as Approved.";
+    case "Rejected":
+      return "Review disposition recorded as Rejected.";
+    case "RequestRemediation":
+      return "Review disposition recorded as Request remediation.";
+    default: {
+      const exhaustive: never = decision;
+      return exhaustive;
+    }
+  }
+}
+
 export const GOVERNANCE_WORKFLOW_ACTIVATE_AUDIT_NAME_REQUIRED =
   "Enter your name for the audit trail before activating.";
 

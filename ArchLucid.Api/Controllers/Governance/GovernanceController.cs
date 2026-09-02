@@ -1,5 +1,6 @@
 ﻿using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
@@ -85,16 +86,5 @@ public sealed partial class GovernanceController(
             cancellationToken).ConfigureAwait(false);
 
         return problem;
-    }
-
-    private static string NormalizeApprovalRequestId(string approvalRequestId) =>
-        approvalRequestId.Trim();
-
-    private IActionResult? BadRequestWhenApprovalRequestIdEmpty(string approvalRequestId)
-    {
-        if (string.IsNullOrWhiteSpace(approvalRequestId))
-            return this.BadRequestProblem("approvalRequestId is required.", ProblemTypes.ValidationFailed);
-
-        return null;
     }
 }

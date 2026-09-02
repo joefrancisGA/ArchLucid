@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 340_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 341_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -9109,4 +9109,24 @@ BEGIN
     CREATE INDEX IX_DraftRequests_SpawnedArchitectureVersionId
         ON dbo.DraftRequests (TenantId, WorkspaceId, ProjectId, SpawnedArchitectureVersionId)
         WHERE SpawnedArchitectureVersionId IS NOT NULL;
+END;
+
+GO
+
+/* 341: Draft document content hash pin at spawn. */
+
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'DocumentContentHashSha256') IS NULL
+BEGIN
+    ALTER TABLE dbo.DraftRequests
+        ADD DocumentContentHashSha256 VARBINARY(32) NULL;
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'SpawnedDocumentContentHashSha256') IS NULL
+BEGIN
+    ALTER TABLE dbo.DraftRequests
+        ADD SpawnedDocumentContentHashSha256 VARBINARY(32) NULL;
 END;

@@ -141,6 +141,55 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         return Task.CompletedTask;
     }
 
+    public Task<EmailOtpChallengeRecord> ReplaceActiveChallengeForEmailAsync(
+        EmailOtpChallengeInsert insert,
+        DateTimeOffset invalidatedUtc,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+        ArgumentNullException.ThrowIfNull(insert);
+
+        lock (_completionLock)
+        {
+            List<Guid> activeIds = [];
+            foreach (KeyValuePair<Guid, EmailOtpChallengeRecord> entry in _byId)
+            {
+                EmailOtpChallengeRecord row = entry.Value;
+
+                if (row.NormalizedEmail == insert.NormalizedEmail
+                    && row.CompletedUtc is null
+                    && row.InvalidatedUtc is null)
+                {
+                    activeIds.Add(entry.Key);
+                }
+            }
+
+            foreach (Guid id in activeIds)
+            {
+                EmailOtpChallengeRecord row = _byId[id];
+                _byId[id] = Clone(row, invalidatedUtc: invalidatedUtc);
+            }
+
+            DateTimeOffset now = TimeProvider.System.GetUtcNow();
+            EmailOtpChallengeRecord created = new()
+            {
+                Id = insert.Id != Guid.Empty ? insert.Id : Guid.NewGuid(),
+                NormalizedEmail = insert.NormalizedEmail,
+                CodeHash = insert.CodeHash,
+                CreatedUtc = now,
+                ExpiresUtc = insert.ExpiresUtc,
+                FailedAttemptCount = 0,
+                ClientIpHash = insert.ClientIpHash,
+                UserAgentHash = insert.UserAgentHash,
+                InvitationId = insert.InvitationId
+            };
+
+            _byId[created.Id] = created;
+
+            return Task.FromResult(created);
+        }
+    }
+
     public Task<EmailOtpChallengeCompletionOutcome> TryCompleteAsync(
         Guid challengeId,
         string codeHash,

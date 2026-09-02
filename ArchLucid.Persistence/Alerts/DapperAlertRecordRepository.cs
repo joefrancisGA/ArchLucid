@@ -176,7 +176,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
                     WorkspaceId = workspaceId,
                     ProjectId = projectId,
                     Status = status,
-                    Take = Math.Clamp(take, 1, 500),
+                    Take = AlertRecordRepositoryCore.ClampListTake(take),
                     IncludeArchived = includeArchived ? 1 : 0,
                 },
                 cancellationToken: ct));
@@ -194,8 +194,8 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         bool includeArchived = false,
         CancellationToken ct = default)
     {
-        take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
-        skip = Math.Max(skip, 0);
+        take = AlertRecordRepositoryCore.ClampPagedTake(take);
+        skip = AlertRecordRepositoryCore.ClampPagedSkip(skip);
 
         const string pageSql = $"""
             SELECT {SelectColumns}
@@ -255,9 +255,9 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         bool includeArchived = false,
         CancellationToken ct = default)
     {
-        ValidateAlertKeysetCursor(cursorCreatedUtc, cursorAlertId);
+        AlertRecordRepositoryCore.ValidateAlertKeysetCursor(cursorCreatedUtc, cursorAlertId);
 
-        int safeTake = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
+        int safeTake = AlertRecordRepositoryCore.ClampKeysetTake(take);
         int fetch = safeTake + 1;
 
         const string sql = $"""
@@ -308,11 +308,6 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         return (rows, hasMore);
     }
 
-    private static void ValidateAlertKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorAlertId)
-    {
-        if (cursorCreatedUtc.HasValue != cursorAlertId.HasValue)
-            throw new ArgumentException("cursorCreatedUtc and cursorAlertId must both be null or both be set.");
-    }
 
     /// <inheritdoc />
     public async Task<AlertsInboxSummaryDto> GetInboxSummaryByScopeAsync(

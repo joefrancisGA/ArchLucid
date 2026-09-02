@@ -217,11 +217,13 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-workflow": {
     layerBadge: "Governance",
-    headline: "Submit finalized architecture outputs for governance review and promotion.",
-    useWhen: "Pick one review and move from submission through approval, promotion, and activation.",
+    headline: "Record and inspect governance approval decisions for finalized reviews.",
+    useWhen:
+      "Pick a review to see approval status and decision history, or work pending requests from the workspace queue.",
     firstPilotNote:
-      "After Pilot proof when your team promotes finalized architecture snapshots through governed stages.",
-    enterpriseFootnote: "Approvals follow the configured approval path for packages in this workspace.",
+      "After Pilot proof when your team records formal governance decisions on finalized packages.",
+    enterpriseFootnote:
+      "Authorized roles submit, approve, and reject requests; every decision is recorded in the audit trail.",
   },
   "recurrence-schedules": {
     layerBadge: "Governance",
@@ -336,12 +338,13 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     firstPilotNote: null,
   },
   "governance-workflow": {
-    headline: "Governance overview and review-scoped approval workflow.",
+    headline: "Record and inspect governance approval decisions for finalized reviews.",
     useWhen:
-      "Start here for workspace governance status, then load a review to inspect or advance its approval path.",
+      "Browse pending approvals for your workspace, or load a review to see its submission and decision trail.",
     firstPilotNote: null,
     enterpriseFootnote:
-      "Approvals follow the configured approval path for packages in this workspace.",
+      "Authorized roles submit, approve, and reject requests; every decision is recorded in the audit trail.",
+    omitReviewPackageScopeHelp: true,
   },
 };
 

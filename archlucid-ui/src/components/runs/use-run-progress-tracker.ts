@@ -46,6 +46,7 @@ export type UseRunProgressTrackerOptions = {
   readonly preFinalizeReadyToFinalize?: boolean;
   readonly buyerAssessmentCopy?: boolean;
   readonly diagnosticContext?: ReviewPipelineDiagnosticContext | null;
+  readonly deferFailureRecoveryToDoThisNext?: boolean;
 };
 
 export function useRunProgressTracker({
@@ -54,6 +55,7 @@ export function useRunProgressTracker({
   preFinalizeReadyToFinalize,
   buyerAssessmentCopy = false,
   diagnosticContext = null,
+  deferFailureRecoveryToDoThisNext = false,
 }: UseRunProgressTrackerOptions) {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const pipelineDebugEnabled = isReviewPipelineDebugEnabled();
@@ -230,7 +232,9 @@ export function useRunProgressTracker({
     }
 
     if (pipelineTerminalFailure) {
-      return "Assessment did not finish — recovery steps are shown in Do this next above.";
+      return deferFailureRecoveryToDoThisNext
+        ? "Assessment did not finish — see Do this next above for what happened and how to recover."
+        : "Assessment did not finish — recovery steps are shown in Do this next above.";
     }
 
     if (buyerAssessmentCopy) {
@@ -270,6 +274,7 @@ export function useRunProgressTracker({
     durationEstimate?.p90Seconds,
     pipelineTerminalFailure,
     preFinalizeTerminal,
+    deferFailureRecoveryToDoThisNext,
     runId,
     sseConnected,
   ]);

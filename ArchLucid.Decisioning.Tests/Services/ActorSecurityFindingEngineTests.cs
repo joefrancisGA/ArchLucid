@@ -33,7 +33,7 @@ public sealed class ActorSecurityFindingEngineTests
 
         ExternalExposureFindingEngine sut = new();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("external-exposure");
@@ -73,7 +73,7 @@ public sealed class ActorSecurityFindingEngineTests
 
         TrustBoundaryFindingEngine sut = new();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("trust-boundary");
@@ -102,7 +102,7 @@ public sealed class ActorSecurityFindingEngineTests
 
         PrivilegedAccessFindingEngine sut = new();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("privileged-access");

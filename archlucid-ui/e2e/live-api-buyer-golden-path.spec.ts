@@ -1,5 +1,5 @@
 /**
- * Live API buyer golden path (TB-289): five-step diligence spine against Sql + seeded Workspace A Product Tour run.
+ * Live API buyer golden path (TB-289): four-step diligence spine against Sql + seeded Workspace A Product Tour run.
  * Showcase slug hrefs in `helpers/buyer-golden-path.ts` target mock/static operator builds; live CI uses pinned demo workspace IDs.
  */
 import { expect, test } from "@playwright/test";
@@ -30,7 +30,6 @@ import {
   comparePageMainHeading,
   expectGraphPageReadySurface,
   expectLiveManifestDetailPageReady,
-  governancePageMainHeading,
 } from "./helpers/operator-journey";
 
 const productTourRunId = DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID;
@@ -40,7 +39,6 @@ const liveBuyerGoldenPathHrefs = {
   sponsor: `/architecture/reviews/${productTourRunEnc}`,
   reviewPackage: `/architecture/reviews/${productTourRunEnc}`,
   evidenceGraph: `/insights/evidence-graph?runId=${productTourRunEnc}`,
-  governanceApproval: `/governance/approval-queue?runId=${productTourRunEnc}`,
   auditTrail: `/governance/audit?runId=${productTourRunEnc}`,
   compare: `/insights/compare-two-reviews?leftRunId=${productTourRunEnc}&rightRunId=${productTourRunEnc}`,
   ask: `/insights/ask-review-questions?runId=${productTourRunEnc}`,
@@ -70,7 +68,7 @@ test.describe(
     );
   });
 
-  test("walks five-step diligence spine against live API without generic error @smoke @smoke-golden-path", async ({
+  test("walks four-step diligence spine against live API without generic error @smoke @smoke-golden-path", async ({
     page,
   }) => {
     test.setTimeout(300_000);
@@ -104,11 +102,6 @@ test.describe(
 
     await page.goto(liveBuyerGoldenPathHrefs.evidenceGraph);
     await expectGraphPageReadySurface(page, { timeout: 60_000 });
-    await expectBuyerGoldenJourneyStepper(page);
-    await expectNoGenericErrorBoundary(page);
-
-    await page.goto(liveBuyerGoldenPathHrefs.governanceApproval);
-    await expect(governancePageMainHeading(page)).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
