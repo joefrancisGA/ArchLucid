@@ -10685,6 +10685,13 @@
               "string"
             ]
           },
+          "spawnedArchitectureVersionId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "spawnedRunId": {
             "type": [
               "null",
@@ -26585,6 +26592,13 @@
             ]
           },
           "architectureRequestId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "architectureVersionId": {
+            "format": "uuid",
             "type": [
               "null",
               "string"

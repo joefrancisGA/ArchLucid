@@ -1136,6 +1136,10 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_live_api_private_beta_access_ci_wiring.py
 
+      - name: Push-corset OpenAPI snapshot wiring guard
+        continue-on-error: true
+        run: python scripts/ci/check_push_corset_openapi_snapshot.py
+
       - name: Insight-density advisory surfaces guard (ID-11 / WK-15)
         continue-on-error: true
         run: python scripts/ci/check_insight_density_advisory_surfaces.py
@@ -2669,6 +2673,11 @@ jobs:
           ArchLucidAuth__AllowTestActorHeaders: "true"
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
+          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
           # Readiness includes data_consistency, which requires at least one reconciliation pass. Env wins over
           # appsettings when using an older Release output snapshot; single-process CI: skip SQL leader leases.
           DataConsistency__InitialDelaySeconds: "0"
@@ -4305,6 +4314,11 @@ jobs:
           # Trial live specs expect Noop checkout (env wins over optional appsettings.SaaS.json).
           Billing__Provider: Noop
           AgentExecution__Mode: Simulator
+          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
@@ -4490,6 +4504,11 @@ jobs:
           # Trial live specs expect Noop checkout (env wins over optional appsettings.SaaS.json).
           Billing__Provider: Noop
           AgentExecution__Mode: Simulator
+          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
@@ -4682,6 +4701,11 @@ jobs:
           # Tenant-bound only so live specs can select demo / isolated workspace+project via headers.
           Authentication__ApiKey__TenantId: "11111111-1111-1111-1111-111111111111"
           AgentExecution__Mode: Simulator
+          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
@@ -4846,6 +4870,11 @@ jobs:
           ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
+          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
@@ -5028,6 +5057,11 @@ jobs:
           Auth__Trial__LocalIdentity__JwtAudience: "api://archlucid-live-e2e-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
+          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Governance.PolicyPacks;
@@ -50,10 +51,14 @@ public partial class FindingsOrchestrator(
         Guid runId,
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
-        CancellationToken ct)
+        CancellationToken ct,
+        FindingAnalysisContext? analysisContext = null)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
         ArgumentNullException.ThrowIfNull(engines);
+
+        if (analysisContext is not null)
+            FindingAnalysisContextGraphStamp.Stamp(graphSnapshot, analysisContext);
 
         await TryStampPolicyExpectationsAsync(graphSnapshot, runId, ct);
 
@@ -61,6 +66,7 @@ public partial class FindingsOrchestrator(
         List<FindingEngineFailure> engineFailures = [];
         List<Exception> engineExceptions = [];
         int successfulEngineInvocations = 0;
+        HashSet<string> successfulEngineTypes = new(StringComparer.OrdinalIgnoreCase);
 
         IReadOnlyList<EngineAdapter> allAdapters = EngineAdapter.FromEngines(engines, effectfulEngines);
         bool deferPortfolioRecurrence = _portfolioRecurrenceCurrentReviewIdentitySource is not null;
@@ -75,7 +81,7 @@ public partial class FindingsOrchestrator(
             : null;
 
         Task<EngineInvocationOutcome>[] invocationTasks = primaryAdapters
-            .Select(adapter => InvokeEngineAsync(adapter, graphSnapshot, ct))
+            .Select(adapter => InvokeEngineAsync(adapter, graphSnapshot, analysisContext, ct))
             .ToArray();
 
         EngineInvocationOutcome[] outcomes = await AwaitEngineInvocationsAsync(invocationTasks);
@@ -91,6 +97,7 @@ public partial class FindingsOrchestrator(
                 allFindings,
                 engineFailures,
                 engineExceptions,
+                successfulEngineTypes,
                 ref successfulEngineInvocations);
         }
 
@@ -100,7 +107,7 @@ public partial class FindingsOrchestrator(
                 CollectPortfolioRecurrenceIdentities(allFindings));
 
             EngineInvocationOutcome portfolioOutcome =
-                await InvokeEngineAsync(portfolioRecurrenceAdapter, graphSnapshot, ct);
+                await InvokeEngineAsync(portfolioRecurrenceAdapter, graphSnapshot, analysisContext, ct);
 
             AppendEngineOutcome(
                 runId,
@@ -108,6 +115,7 @@ public partial class FindingsOrchestrator(
                 allFindings,
                 engineFailures,
                 engineExceptions,
+                successfulEngineTypes,
                 ref successfulEngineInvocations);
         }
 
@@ -124,6 +132,27 @@ public partial class FindingsOrchestrator(
 
         List<Finding> dedupedFindings = [.. mergeResult.Findings];
         dedupedFindings.AddRange(FindingMergeConflictPresenter.PresentAsFindings(mergeResult.Conflicts, _clock));
+
+        if (analysisContext is not null)
+        {
+            IReadOnlyList<string> policyViolations = PolicyPackCategoryCoverageValidator.GetMissingCategoryViolations(
+                analysisContext,
+                dedupedFindings,
+                successfulEngineTypes);
+
+            foreach (string violation in policyViolations)
+            {
+                engineFailures.Add(
+                    new FindingEngineFailure
+                    {
+                        EngineType = "policy-pack-coverage",
+                        Category = "Policy",
+                        ErrorMessage = violation,
+                        ExceptionType = nameof(PolicyPackCategoryCoverageValidator),
+                        OccurredUtc = _clock.UtcNowDateTime(),
+                    });
+            }
+        }
 
         FindingsSnapshot snapshot = new()
         {
@@ -172,6 +201,7 @@ public partial class FindingsOrchestrator(
         List<Finding> allFindings,
         List<FindingEngineFailure> engineFailures,
         List<Exception> engineExceptions,
+        ISet<string> successfulEngineTypes,
         ref int successfulEngineInvocations)
     {
         EngineAdapter engine = outcome.Engine;
@@ -199,6 +229,7 @@ public partial class FindingsOrchestrator(
         IReadOnlyList<Finding> findings = outcome.Findings ?? [];
 
         successfulEngineInvocations++;
+        successfulEngineTypes.Add(engine.EngineType);
         LogEngineCompleted(runId, engine.EngineType, engine.Category, outcome.DurationMs, findings.Count);
 
         foreach (Finding finding in findings)
@@ -303,13 +334,14 @@ public partial class FindingsOrchestrator(
     private async Task<EngineInvocationOutcome> InvokeEngineAsync(
         EngineAdapter engine,
         GraphSnapshot graphSnapshot,
+        FindingAnalysisContext? analysisContext,
         CancellationToken ct)
     {
         Stopwatch sw = Stopwatch.StartNew();
 
         try
         {
-            IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, ct);
+            IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, analysisContext, ct);
             sw.Stop();
 
             return new EngineInvocationOutcome(engine, findings, null, sw.ElapsedMilliseconds);

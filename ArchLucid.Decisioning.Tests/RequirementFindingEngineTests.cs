@@ -47,7 +47,7 @@ public sealed class RequirementFindingEngineTests
         };
 
         RequirementFindingEngine sut = new();
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Trace.RulesApplied.Should().Contain("requirement-surface");
@@ -75,7 +75,7 @@ public sealed class RequirementFindingEngineTests
         };
 
         RequirementFindingEngine sut = new();
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(2);

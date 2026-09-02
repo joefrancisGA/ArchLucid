@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.Graph;
 
@@ -10,5 +11,6 @@ public interface IFindingsOrchestrator
         Guid runId,
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
-        CancellationToken ct);
+        CancellationToken ct,
+        FindingAnalysisContext? analysisContext = null);
 }

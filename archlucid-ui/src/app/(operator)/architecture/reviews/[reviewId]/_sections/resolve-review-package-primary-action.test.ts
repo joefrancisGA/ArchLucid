@@ -60,7 +60,7 @@ describe("resolveReviewPackagePrimaryAction", () => {
     });
 
     expect(action.kind).toBe("send-to-sponsor");
-    expect(action.label).toBe("Send to sponsor");
+    expect(action.label).toBe("Send sponsor briefing export");
     expect(action.href).toBe(
       "/architecture/reviews/run-abc?reviewTab=review-package#sponsor-handoff",
     );

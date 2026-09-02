@@ -7,8 +7,10 @@ import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/ope
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
+import { REVIEWS_HUB_UNFINISHED_WORK_HREF } from "@/lib/reviews-hub-unfinished-work-href";
 import {
   OPERATOR_TYPOGRAPHY,
+  OPERATOR_LINK,
   type EnterpriseStatusKind,
 } from "@/lib/design-tokens";
 import {
@@ -19,8 +21,8 @@ import {
   OPERATOR_HOME_YOUR_WORK_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
 import {
-  buildUnfinishedWorkRailItems,
   listIncompleteWizardSignals,
+  summarizeUnfinishedWorkRailItems,
   UNFINISHED_WORK_RAIL_TITLE,
   type UnfinishedWorkRailItem,
   type UnfinishedWorkRailItemKind,
@@ -37,6 +39,8 @@ export type UnfinishedWorkRailProps = {
 
 const UNFINISHED_WORK_RAIL_GRID_COLS =
   "sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_auto]" as const;
+
+const UNFINISHED_WORK_RAIL_VIEW_ALL_LABEL = "View all unfinished work";
 
 function subscribeWizardSessions(onStoreChange: () => void): () => void {
   if (typeof window === "undefined") {
@@ -107,56 +111,62 @@ function UnfinishedWorkRailColumnHeaders(): React.JSX.Element {
   );
 }
 
-function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem }): React.JSX.Element {
+function UnfinishedWorkRailRow(props: {
+  readonly item: UnfinishedWorkRailItem;
+  readonly emphasized?: boolean;
+}): React.JSX.Element {
   const { item } = props;
 
   return (
     <li
       className={cn(
-        "grid gap-x-4 gap-y-1 border-b border-neutral-200 py-2 last:border-b-0 dark:border-neutral-800",
-        "sm:col-span-full sm:grid-cols-subgrid sm:items-center sm:gap-y-0",
+        "border-b border-neutral-200 py-2 last:border-b-0 dark:border-neutral-800",
+        "sm:col-span-full sm:grid sm:grid-cols-subgrid sm:items-center",
+        props.emphasized === true
+          ? "rounded-lg border border-neutral-200 bg-al-surface-raised px-3 dark:border-neutral-800"
+          : undefined,
       )}
       data-testid={`unfinished-work-rail-item-${item.kind}`}
     >
       <Link
         href={item.href}
-        className={cn("min-w-0 break-words font-medium text-al-text-primary no-underline hover:underline", OPERATOR_TYPOGRAPHY.body)}
+        className="contents no-underline"
         data-testid={`unfinished-work-rail-link-${item.id}`}
       >
-        {item.title}
+        <span className={cn("min-w-0 break-words font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          {item.title}
+        </span>
+        <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {item.workTypeLabel}
+        </span>
+        <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {item.activityLabel ?? "—"}
+        </span>
+        <div className="flex shrink-0 items-center gap-2 sm:justify-end">
+          <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
+          <span className={cn("font-medium text-al-link", OPERATOR_TYPOGRAPHY.helper)}>
+            {item.actionLabel} →
+          </span>
+        </div>
       </Link>
-      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {item.workTypeLabel}
-      </span>
-      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {item.activityLabel ?? "—"}
-      </span>
-      <div className="flex shrink-0 items-center gap-2 sm:justify-end">
-        <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
-        <Link
-          href={item.href}
-          className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper, "text-al-link no-underline hover:underline")}
-          data-testid={`unfinished-work-rail-action-${item.id}`}
-        >
-          {item.actionLabel} →
-        </Link>
-      </div>
     </li>
   );
 }
 
-function UnfinishedWorkRailList(props: { readonly items: readonly UnfinishedWorkRailItem[] }): React.JSX.Element {
+function UnfinishedWorkRailList(props: {
+  readonly items: readonly UnfinishedWorkRailItem[];
+}): React.JSX.Element {
   return (
     <ul
       className={cn(
-        "m-0 mt-2 list-none space-y-0 p-0 sm:grid sm:gap-x-4",
+        "m-0 mt-2 list-none space-y-2 p-0 sm:grid sm:gap-x-4",
         UNFINISHED_WORK_RAIL_GRID_COLS,
       )}
       data-testid="unfinished-work-rail-list"
     >
       <UnfinishedWorkRailColumnHeaders />
-      {props.items.map((item) => (
-        <UnfinishedWorkRailRow key={item.id} item={item} />
+      {props.items.map((item, index) => (
+        <UnfinishedWorkRailRow key={item.id} item={item} emphasized={index === 0} />
       ))}
     </ul>
   );
@@ -187,14 +197,19 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
   const excludeKinds: readonly UnfinishedWorkRailItemKind[] =
     workspacePhase === "eval-with-drafts" ? ["architecture-draft"] : [];
 
-  const items = useMemo(
+  const railSummary = useMemo(
     () =>
-      buildUnfinishedWorkRailItems({
+      summarizeUnfinishedWorkRailItems({
         drafts,
         runs,
         incompleteWizards,
-      }).filter((item) => !excludeKinds.includes(item.kind)),
-    [drafts, excludeKinds, incompleteWizards, runs],
+      }),
+    [drafts, incompleteWizards, runs],
+  );
+
+  const items = useMemo(
+    () => railSummary.items.filter((item) => !excludeKinds.includes(item.kind)),
+    [excludeKinds, railSummary.items],
   );
 
   const homeAttentionPreviewExcludedRunIds = useMemo(
@@ -221,6 +236,17 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
         {OPERATOR_HOME_YOUR_WORK_HEADING}
       </h2>
       <UnfinishedWorkRailList items={items} />
+      {railSummary.truncated ? (
+        <p className="m-0">
+          <Link
+            href={REVIEWS_HUB_UNFINISHED_WORK_HREF}
+            className={cn("font-medium", OPERATOR_LINK.nav)}
+            data-testid="unfinished-work-rail-view-all"
+          >
+            {UNFINISHED_WORK_RAIL_VIEW_ALL_LABEL} ({railSummary.totalCount})
+          </Link>
+        </p>
+      ) : null}
     </section>
   );
 }

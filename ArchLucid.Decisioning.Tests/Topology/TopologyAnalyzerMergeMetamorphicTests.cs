@@ -101,7 +101,7 @@ public sealed class TopologyAnalyzerMergeMetamorphicTests
     private IReadOnlyList<string> AntiPatternGapCodes(GraphSnapshot graph)
     {
         IReadOnlyList<Finding> findings =
-            _antiPatternEngine.AnalyzeAsync(graph, CancellationToken.None).GetAwaiter().GetResult();
+            _antiPatternEngine.AnalyzeAsync(graph, null, CancellationToken.None).GetAwaiter().GetResult();
 
         return findings
             .Select(ExtractGapCode)

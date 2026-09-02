@@ -195,6 +195,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
       <ReviewPackageDoThisNextStrip
         next={next}
         runId={props.runId}
+        retryCount={props.pipelineDiagnosticContext?.retryCount ?? props.pipelineSummary?.retryCount ?? null}
         hasGoldenManifest={props.hasGoldenManifest}
         commitBlockedReason={assumptionAwareCommitBlockedReason}
         sessionAiReadiness={sessionAiReadiness}
