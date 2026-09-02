@@ -101,23 +101,7 @@ public sealed partial class EndToEndReplayComparisonService(
             report.Warnings.Add("One or both manifests were unavailable for manifest comparison.");
         IReadOnlyList<RunExportRecord> leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
         IReadOnlyList<RunExportRecord> rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
-        // Match by ExportType so that ordering differences between runs don't produce nonsensical diffs.
-        Dictionary<string, RunExportRecord> leftByType = leftExports.GroupBy(e => e.ExportType, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, RunExportRecord> rightByType = rightExports.GroupBy(e => e.ExportType, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
-        foreach (string exportType in leftByType.Keys.Union(rightByType.Keys, StringComparer.OrdinalIgnoreCase)
-                     .OrderBy(t => t, StringComparer.OrdinalIgnoreCase))
-        {
-            bool hasLeft = leftByType.TryGetValue(exportType, out RunExportRecord? leftRecord);
-            bool hasRight = rightByType.TryGetValue(exportType, out RunExportRecord? rightRecord);
-            if (hasLeft && hasRight)
-                report.ExportDiffs.Add(await exportRecordDiffService.CompareAsync(leftRecord!, rightRecord!, cancellationToken));
-            else if (!hasLeft)
-                report.Warnings.Add($"Export type '{exportType}' exists on the right run but not the left.");
-            else
-                report.Warnings.Add($"Export type '{exportType}' exists on the left run but not the right.");
-        }
+        await AddExportDiffsAsync(report, leftExports, rightExports, cancellationToken);
 
         AddInterpretationNotes(report, leftEngineProvenance, rightEngineProvenance);
         List<ArchitectureFinding> leftFindings = CollectFindings(leftDetail);
