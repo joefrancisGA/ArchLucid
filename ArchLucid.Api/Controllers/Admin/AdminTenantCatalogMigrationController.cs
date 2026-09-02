@@ -183,6 +183,9 @@ public sealed class AdminTenantCatalogMigrationController(
                 ProblemTypes.Conflict),
             TenantCatalogMigrationCommandOutcome.WrongStage => Conflict(new { message = "Catalog migration is not in the expected fan-out stage for this operation." }),
             TenantCatalogMigrationCommandOutcome.AlreadyInDesiredState => NoContent(),
+            TenantCatalogMigrationCommandOutcome.InErasureQuarantine => this.ConflictProblem(
+                "Tenant is in erasure quarantine and cannot start catalog migration.",
+                ProblemTypes.Conflict),
             _ => throw new InvalidOperationException($"Unhandled migration outcome: {outcome}"),
         };
     }
