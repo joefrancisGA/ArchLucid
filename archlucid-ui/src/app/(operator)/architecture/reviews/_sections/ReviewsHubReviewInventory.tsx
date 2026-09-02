@@ -6,14 +6,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
-import { Input } from "@/components/ui/input";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-client-cache";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS, OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
@@ -28,10 +27,10 @@ import {
 import type { RunSummary } from "@/types/authority";
 
 import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
+import { ReviewsHubActiveFiltersStrip } from "./ReviewsHubActiveFiltersStrip";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import {
   REVIEWS_HUB_PAGE_TITLE,
-  REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
@@ -46,9 +45,10 @@ import {
   mergeRunsWithArchivedCache,
   parseReviewsHubInventoryFilter,
   parseReviewsHubInventorySearchQuery,
+  reviewsHubInventoryClearFiltersHrefFromSearch,
   reviewsHubInventoryHrefFromSearch,
-  reviewsHubInventorySearchHrefFromSearch,
   countRunsMatchingInventoryFilter,
+  resolveInventoryFilterCountRuns,
   INVENTORY_FILTER_OPTIONS,
   sortRunsForInventory,
   type ReviewFilterId,
@@ -106,34 +106,13 @@ function ReviewFilterChip(props: {
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState(() =>
-    parseReviewsHubInventorySearchQuery(searchParams.get("q")),
-  );
+  const searchQuery = parseReviewsHubInventorySearchQuery(searchParams.get("q"));
   const urlFilter = parseReviewsHubInventoryFilter(searchParams.get("filter"));
-  const urlSearchQuery = parseReviewsHubInventorySearchQuery(searchParams.get("q"));
   const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(urlFilter);
 
   useEffect(() => {
     setActiveFilter(urlFilter);
   }, [urlFilter]);
-
-  useEffect(() => {
-    setSearchQuery(urlSearchQuery);
-  }, [urlSearchQuery]);
-
-  useEffect(() => {
-    const handle = window.setTimeout(() => {
-      const nextHref = reviewsHubInventorySearchHrefFromSearch(searchParams.toString(), searchQuery);
-
-      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-        router.replace(nextHref, { scroll: false });
-      }
-    }, 250);
-
-    return () => {
-      window.clearTimeout(handle);
-    };
-  }, [router, searchParams, searchQuery]);
 
   const selectInventoryFilter = useCallback(
     (filter: ReviewFilterId) => {
@@ -177,14 +156,15 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     const counts = new Map<ReviewFilterId, number>();
 
     for (const option of INVENTORY_FILTER_OPTIONS) {
+      const countRuns = resolveInventoryFilterCountRuns(option.id, mergedRuns, visibilityFilteredRuns);
       counts.set(
         option.id,
-        countRunsMatchingInventoryFilter(visibilityFilteredRuns, option.id, ownerContext, mergedRuns),
+        countRunsMatchingInventoryFilter(countRuns, option.id, ownerContext, mergedRuns),
       );
     }
 
     return counts;
-  }, [mergedRuns, ownerContext, visibilityFilteredRuns]);
+  }, [mergedRuns, ownerContext]);
 
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(
@@ -198,6 +178,13 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     () => sortRunsForInventory(filteredRuns, isFavorite),
     [filteredRuns, isFavorite],
   );
+
+  const clearInventoryFilters = useCallback(() => {
+    setActiveFilter("all");
+    router.replace(reviewsHubInventoryClearFiltersHrefFromSearch(searchParams.toString()), { scroll: false });
+  }, [router, searchParams]);
+
+  const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 
   const sampleHref = showcaseSampleReviewPackageHref();
   const scopeRecord = useSyncExternalStore(
@@ -252,16 +239,6 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             className="flex flex-wrap items-center gap-2"
             data-testid="reviews-hub-toolbar"
           >
-            <div className="min-w-0 flex-1 basis-[14rem] sm:max-w-xs lg:max-w-sm">
-              <Input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder={REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER}
-                aria-label={REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER}
-                className={OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS}
-                data-testid="reviews-hub-search"
-              />
-            </div>
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2" data-testid="reviews-hub-filters">
               <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter reviews">
                 {INVENTORY_FILTER_OPTIONS.map((option) => (
@@ -277,6 +254,12 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             </div>
           </div>
 
+          <ReviewsHubActiveFiltersStrip
+            activeFilter={activeFilter}
+            searchQuery={searchQuery}
+            onClear={clearInventoryFilters}
+          />
+
           <ReviewsHubSummaryRow summary={props.summary} />
 
           <ReviewsHubInventoryTable
@@ -286,6 +269,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             ariaLabel={REVIEWS_HUB_PAGE_TITLE}
             tableTestId="reviews-hub-packages-table"
             virtualizedTestId="reviews-hub-packages-virtualized"
+            onClearFilters={inventoryFiltersActive ? clearInventoryFilters : undefined}
           />
         </div>
       )}

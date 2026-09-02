@@ -13,7 +13,10 @@ internal static partial class RunRepositorySql
                                      ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                      IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                      StructuralExecutionMode,
-                                     RetryCount, LastFailureReason, PackageOrigin, CreatedByUserId
+                                     RetryCount, LastFailureReason, PackageOrigin, CreatedByUserId,
+                                     PinnedPolicyPackIdsJson, PinnedPolicyPackIdsHashSha256,
+                                     PinnedEvidencePackagePinsJson, PinnedEvidencePackagePinsHashSha256,
+                                     PinnedFocusedPilotModeEnabled, PinnedFocusedPilotCloudProvider
                                  )
                                  OUTPUT inserted.RowVersionStamp INTO @RunInsertOutput
                                  VALUES
@@ -24,7 +27,10 @@ internal static partial class RunRepositorySql
                                      @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
                                      @IsDemoWelcomeRun, @IsPublicShowcase, @IsSample, @IsPinned, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
                                      @StructuralExecutionMode,
-                                     @RetryCount, @LastFailureReason, @PackageOrigin, @CreatedByUserId
+                                     @RetryCount, @LastFailureReason, @PackageOrigin, @CreatedByUserId,
+                                     @PinnedPolicyPackIdsJson, @PinnedPolicyPackIdsHashSha256,
+                                     @PinnedEvidencePackagePinsJson, @PinnedEvidencePackagePinsHashSha256,
+                                     @PinnedFocusedPilotModeEnabled, @PinnedFocusedPilotCloudProvider
                                  );
 
                                  SELECT RowVersionStamp FROM @RunInsertOutput;
@@ -117,7 +123,13 @@ internal static partial class RunRepositorySql
                                      GovernanceScopeJson = @GovernanceScopeJson,
                                      ImproveLoopEvidenceJson = @ImproveLoopEvidenceJson,
                                      KnowledgeModelId = @KnowledgeModelId,
-                                     PackageOrigin = @PackageOrigin
+                                     PackageOrigin = @PackageOrigin,
+                                     PinnedPolicyPackIdsJson = @PinnedPolicyPackIdsJson,
+                                     PinnedPolicyPackIdsHashSha256 = @PinnedPolicyPackIdsHashSha256,
+                                     PinnedEvidencePackagePinsJson = @PinnedEvidencePackagePinsJson,
+                                     PinnedEvidencePackagePinsHashSha256 = @PinnedEvidencePackagePinsHashSha256,
+                                     PinnedFocusedPilotModeEnabled = @PinnedFocusedPilotModeEnabled,
+                                     PinnedFocusedPilotCloudProvider = @PinnedFocusedPilotCloudProvider
                                  OUTPUT inserted.RowVersionStamp INTO @RunUpdateOutput
                                  WHERE RunId = @RunId
                                    AND TenantId = @TenantId

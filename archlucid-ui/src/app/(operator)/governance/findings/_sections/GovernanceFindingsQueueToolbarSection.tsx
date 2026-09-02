@@ -3,6 +3,7 @@
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
 import { GovernanceFindingsRegisterFilterCompact } from "@/components/governance/findings/GovernanceFindingsRegisterFilterCompact";
+import { GovernanceFindingsQueueSearchField } from "@/components/governance/findings/GovernanceFindingsQueueSearchField";
 import { GovernanceFindingsSavedViewsBar } from "@/components/governance/findings/GovernanceFindingsSavedViewsBar";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -33,6 +34,7 @@ function GovernanceFindingsAdvancedFiltersPanel(
         jobView={props.jobView}
         nlFacets={props.nlFacets}
         jobViewFilterActive={props.jobViewFilterActive}
+        findingsSearchQuery={props.findingsSearchQuery}
         onClearAll={props.onClearAllFilters}
       />
       <GovernanceFindingsSavedViewsBar
@@ -50,7 +52,12 @@ function GovernanceFindingsAdvancedFiltersPanel(
 export function GovernanceFindingsQueueToolbarSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element | null {
-  if (!props.compactRegisterFilterVisible && !props.filterBarVisible && !props.advancedFiltersDisclosureVisible) {
+  if (
+    props.rows.length === 0 &&
+    !props.compactRegisterFilterVisible &&
+    !props.filterBarVisible &&
+    !props.advancedFiltersDisclosureVisible
+  ) {
     return null;
   }
 
@@ -58,11 +65,19 @@ export function GovernanceFindingsQueueToolbarSection(
 
   return (
     <>
+      {props.rows.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-2" data-testid="governance-findings-queue-toolbar-search-row">
+          <GovernanceFindingsQueueSearchField />
+        </div>
+      ) : null}
+
       {props.compactRegisterFilterVisible ? (
         <GovernanceFindingsRegisterFilterCompact
           registerFilter={props.registerFilter}
           onRegisterFilterChange={props.onRegisterFilterChange}
           onClearAllFilters={props.onClearAllFilters}
+          allCount={props.scopedRows.length}
+          openCount={props.registerSummary?.openRisks}
         />
       ) : null}
 

@@ -169,4 +169,11 @@ public class RunSummaryResponse
         get;
         set;
     }
+
+    /// <summary>Authority pipeline lifecycle phase (wave-6 suggestion 58).</summary>
+    public AuthorityRunLifecyclePhase AuthorityLifecyclePhase
+    {
+        get;
+        set;
+    }
 }

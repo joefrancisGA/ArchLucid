@@ -67,6 +67,13 @@ public class ManifestDocument
         set;
     }
 
+    /// <summary>Wave-5 suggestion 45: architecture version bound into manifest hash projection.</summary>
+    public Guid? ArchitectureVersionId
+    {
+        get;
+        set;
+    }
+
     public DateTime CreatedUtc
     {
         get;
@@ -206,4 +213,18 @@ public class ManifestDocument
         get;
         set;
     }
+
+    /// <summary>Wave-6 suggestion 57: policy pack id+version rows pinned at run create, bound into h(M).</summary>
+    public List<Contracts.Governance.PolicyPacks.PinnedPolicyPackRow> CreateTimePolicyPackPins
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Wave-6 suggestion 57: evidence package ids pinned at run create, bound into h(M).</summary>
+    public List<Contracts.Governance.PolicyPacks.PinnedEvidencePackageRow> CreateTimeEvidencePackagePins
+    {
+        get;
+        set;
+    } = [];
 }

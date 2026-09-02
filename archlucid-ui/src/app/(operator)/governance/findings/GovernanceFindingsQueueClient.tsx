@@ -67,6 +67,7 @@ import {
   resolveGovernanceFindingsSponsorHandoffHref,
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
+import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -125,11 +126,6 @@ export default function GovernanceFindingsQueueClient({
     [scopedRunContextQuery.data?.priorCommittedRunId, scopedRunId],
   );
 
-  const clearAllFilters = useCallback((): void => {
-    setRegisterFilter("all");
-    clearFacetFilters();
-  }, [clearFacetFilters, setRegisterFilter]);
-
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -156,6 +152,7 @@ export default function GovernanceFindingsQueueClient({
     () => filterGovernanceFindingsScopedRows(rows, scopedRunId),
     [rows, scopedRunId],
   );
+  const findingsSearchQuery = parseGovernanceFindingsSearchQuery(searchParams.get("q"));
   const displayedRows = useMemo(
     () =>
       filterGovernanceFindingsDisplayedRows(
@@ -163,8 +160,9 @@ export default function GovernanceFindingsQueueClient({
         registerFilter,
         nlFacets,
         effectiveJobView,
+        findingsSearchQuery,
       ),
-    [scopedRows, registerFilter, effectiveJobView, nlFacets],
+    [scopedRows, registerFilter, effectiveJobView, nlFacets, findingsSearchQuery],
   );
   const registerSummary = useMemo(
     () => computeGovernanceFindingsRegisterSummary(scopedRows),
@@ -175,6 +173,12 @@ export default function GovernanceFindingsQueueClient({
   const pageTitle = resolveGovernanceFindingsPageTitle(isAssignedToMe, buyerPolishedShell);
   const pageSubtitle = resolveGovernanceFindingsPageSubtitle(isAssignedToMe, buyerPolishedShell);
   const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe);
+
+  const clearAllFilters = useCallback((): void => {
+    setRegisterFilter("all");
+    clearFacetFilters();
+    router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
+  }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
 
   const onPickReviewForTriage = useCallback(
     (reviewId: string) => {
@@ -272,8 +276,9 @@ export default function GovernanceFindingsQueueClient({
         jobView,
         nlFacets,
         jobViewFilterActive,
+        findingsSearchQuery,
       ),
-    [registerFilter, jobView, nlFacets, jobViewFilterActive],
+    [registerFilter, jobView, nlFacets, jobViewFilterActive, findingsSearchQuery],
   );
 
   const onLoadFindingsSavedView = useCallback(
@@ -369,6 +374,8 @@ export default function GovernanceFindingsQueueClient({
         onToggleGroupByResource={toggleGroupByResource}
         displayedRows={displayedRows}
         scopedRows={scopedRows}
+        registerSummary={registerSummary}
+        findingsSearchQuery={findingsSearchQuery}
         onNaturalLanguageFilterApply={setNlFacets}
         nlFacets={nlFacets}
         onClearAllFilters={clearAllFilters}

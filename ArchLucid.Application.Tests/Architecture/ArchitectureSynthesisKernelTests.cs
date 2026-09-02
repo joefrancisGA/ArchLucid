@@ -83,6 +83,21 @@ public sealed class ArchitectureSynthesisKernelTests
             .Callback((RunRecord record, CancellationToken _, System.Data.IDbConnection? _, System.Data.IDbTransaction? _) =>
                 saved = record)
             .Returns(Task.CompletedTask);
+        runs
+            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        runs
+            .Setup(r => r.GetByIdAsync(scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid id, CancellationToken _) => saved is null ? null : new RunRecord { RunId = id });
+
+        Mock<IRunCreatePinOrchestrator> createPins = new();
+        createPins
+            .Setup(s => s.ApplyCreateTimePinsAsync(
+                It.IsAny<RunRecord>(),
+                scope,
+                request,
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         FakeTimeProvider time = new(new DateTimeOffset(2026, 8, 18, 12, 0, 0, TimeSpan.Zero));
         ArchitectureSynthesisKernel sut = CreateSut(
@@ -90,6 +105,7 @@ public sealed class ArchitectureSynthesisKernelTests
             runRepository: runs.Object,
             scopeProvider: scopeProvider.Object,
             contentSafety: safety.Object,
+            runCreatePinOrchestrator: createPins.Object,
             timeProvider: time,
             architectureVersionService: CreateDefaultVersionService(runs.Object));
 
@@ -115,6 +131,13 @@ public sealed class ArchitectureSynthesisKernelTests
                 It.IsAny<CancellationToken>(),
                 It.IsAny<System.Data.IDbConnection?>(),
                 It.IsAny<System.Data.IDbTransaction?>()),
+            Times.Once);
+        createPins.Verify(
+            s => s.ApplyCreateTimePinsAsync(
+                It.IsAny<RunRecord>(),
+                scope,
+                request,
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -296,6 +319,7 @@ public sealed class ArchitectureSynthesisKernelTests
         IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null,
         IArchitectureIdentityService? architectureIdentityService = null,
         IArchitectureVersionService? architectureVersionService = null,
+        IRunCreatePinOrchestrator? runCreatePinOrchestrator = null,
         TechnologyLedgerRequestSeeder? technologyLedgerRequestSeeder = null,
         TechnologyLedgerEvidenceSeeder? technologyLedgerEvidenceSeeder = null,
         TimeProvider? timeProvider = null)
@@ -326,6 +350,7 @@ public sealed class ArchitectureSynthesisKernelTests
                 scopeProvider ?? defaultScope.Object),
             architectureIdentityService ?? CreateDefaultIdentityService(),
             architectureVersionService ?? CreateDefaultVersionService(runRepository),
+            runCreatePinOrchestrator ?? Mock.Of<IRunCreatePinOrchestrator>(),
             NullLogger<ArchitectureSynthesisKernel>.Instance,
             timeProvider ?? TimeProvider.System);
     }

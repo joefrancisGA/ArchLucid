@@ -290,7 +290,7 @@ describe("HelpSearchPanel", () => {
 
     expect(screen.getByTestId("operator-shell-support-quick-links")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contact support" })).toHaveAttribute("href", "/help/contact-support");
-    expect(screen.getByRole("link", { name: "Report a problem" })).toHaveAttribute("href", "/help/report-a-problem");
+    expect(screen.getByRole("link", { name: "Report problem" })).toHaveAttribute("href", "/help/report-a-problem");
     expect(screen.getByRole("link", { name: "Email support" })).toHaveAttribute(
       "href",
       "mailto:support@archlucid.net",

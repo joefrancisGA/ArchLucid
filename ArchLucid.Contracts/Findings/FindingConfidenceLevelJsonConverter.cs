@@ -12,7 +12,8 @@ public sealed class FindingConfidenceLevelJsonConverter : JsonConverter<FindingC
     {
         if (reader.TokenType == JsonTokenType.Number)
         {
-            int ordinal = reader.GetInt32();
+            if (!reader.TryGetInt32(out int ordinal))
+                throw new JsonException("Expected integer for finding confidence level.");
 
             if (!Enum.IsDefined(typeof(FindingConfidenceLevel), ordinal))
                 throw new JsonException($"Unknown finding confidence level value '{ordinal}'.");

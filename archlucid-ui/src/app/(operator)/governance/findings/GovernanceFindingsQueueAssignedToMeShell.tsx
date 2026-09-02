@@ -12,6 +12,7 @@ import type { IntegrationConnectChecklistStep } from "@/components/integrations/
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { CanonicalObjectSecondaryViewPresentation } from "@/lib/canonical-object-home-registry";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
+import type { ArchitectureRiskRegisterSummary } from "@/lib/architecture/architecture-risk-register-page";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
 import type { FindingJobView } from "@/lib/findings/finding-job-view";
 import { GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID } from "@/lib/governance-findings-page-copy";
@@ -54,6 +55,8 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly onToggleGroupByResource: () => void;
   readonly displayedRows: readonly GovernanceFindingQueueRow[];
   readonly scopedRows: readonly GovernanceFindingQueueRow[];
+  readonly registerSummary: ArchitectureRiskRegisterSummary;
+  readonly findingsSearchQuery: string;
   readonly onNaturalLanguageFilterApply: (next: FindingsNaturalLanguageFacets) => void;
   readonly nlFacets: FindingsNaturalLanguageFacets;
   readonly onClearAllFilters: () => void;

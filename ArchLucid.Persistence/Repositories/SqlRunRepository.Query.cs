@@ -259,6 +259,27 @@ public sealed partial class SqlRunRepository
     }
 
     /// <inheritdoc />
+    public async Task<Guid?> GetLatestCommittedRunIdByArchitectureVersionIdAsync(
+        ScopeContext scope,
+        Guid architectureVersionId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (architectureVersionId == Guid.Empty)
+            return null;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await connection.QuerySingleOrDefaultAsync<Guid?>(
+            new CommandDefinition(
+                RunRepositorySql.SelectLatestCommittedRunIdByArchitectureVersionId,
+                RunListQueryParameters.ForLatestCommittedRunIdByArchitectureVersionId(scope, architectureVersionId),
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
     public async Task<int> CountActiveRunsForArchitectureRequestAsync(
         ScopeContext scope,
         string architectureRequestId,

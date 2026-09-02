@@ -15,6 +15,9 @@ internal static class RunDetailReadSql
                                             StructuralExecutionMode,
                                             RetryCount, LastFailureReason, EngineProvenanceJson, GovernanceScopeJson,
                                             KnowledgeModelId, CreatedByUserId,
+                                            PinnedPolicyPackIdsJson, PinnedPolicyPackIdsHashSha256,
+                                            PinnedEvidencePackagePinsJson, PinnedEvidencePackagePinsHashSha256,
+                                            PinnedFocusedPilotModeEnabled, PinnedFocusedPilotCloudProvider,
                                             RowVersionStamp AS RowVersion
                                             """;
 

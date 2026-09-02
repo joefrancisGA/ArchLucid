@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Host.Composition.Advisory;
 using ArchLucid.Host.Composition.Alerts;
 
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -27,6 +28,10 @@ public static partial class ServiceCollectionExtensions
         services.TryAddScoped<ArchLucid.Decisioning.Advisory.Services.IImprovementAdvisorService>(static sp =>
             (ArchLucid.Decisioning.Advisory.Services.IImprovementAdvisorService)sp.GetRequiredService<
                 ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService>());
+
+        services.TryAddScoped<ArchLucid.Decisioning.Advisory.Workflow.IRecommendationWorkflowService>(static sp =>
+            new RecommendationWorkflowServiceDecisioningPortAdapter(
+                sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IRecommendationWorkflowService>()));
 
         services.TryAddScoped<ArchLucid.Decisioning.Alerts.Simulation.IRuleSimulationService>(static sp =>
             new RuleSimulationServiceDecisioningPortAdapter(

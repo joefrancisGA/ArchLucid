@@ -1,21 +1,25 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
-using ArchLucid.Application.Common;
-using ArchLucid.Contracts.Abstractions.Agents;
+using ArchLucid.Application.Runs;
+using ArchLucid.ContextIngestion.Mapping;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Persistence.DecisionTraces;
-using ArchLucid.Decisioning.DecisionTraces;
-using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Decisioning.DecisionTraces;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application;
 
@@ -39,15 +43,47 @@ public sealed partial class ReplayRunService
         ArchitectureRun originalRun = sourceDetail.Run;
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
-        AgentEvidencePackage evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken) ??
-                                        throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
         ArchitectureRunDetail replayDetail = await _runDetailQueryService.GetRunDetailAsync(preparedReplayRunId, cancellationToken) ??
                                              throw new RunNotFoundException(preparedReplayRunId);
         IReadOnlyList<AgentTask> replayTasks = replayDetail.Tasks;
+        bool sourceAuthorityProgress = await SourceRunHasAuthorityStageProgressAsync(originalRunId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (replayTasks.Count == 0
+            && (sourceDetail.AuthorityPipelineComplete || sourceAuthorityProgress))
+            return await ExecuteAuthorityPreparedReplayAsync(
+                preparedReplayRunId,
+                originalRunId,
+                executionMode,
+                commitReplay,
+                manifestVersionOverride,
+                request,
+                sourceDetail,
+                cancellationToken);
+
+        if (sourceAuthorityProgress)
+        {
+            throw new InvalidOperationException(
+                $"Replay blocked for run '{originalRunId}': authority stage outcomes exist; four-agent / DecisionEngineV2 replay is not permitted.");
+        }
+
+        if (replayTasks.Count == 0 && sourceDetail.AuthorityPipelineComplete)
+            return await ExecuteAuthorityPreparedReplayAsync(
+                preparedReplayRunId,
+                originalRunId,
+                executionMode,
+                commitReplay,
+                manifestVersionOverride,
+                request,
+                sourceDetail,
+                cancellationToken);
 
         if (replayTasks.Count == 0)
             throw new InvalidOperationException($"No tasks found for replay run '{preparedReplayRunId}'.");
+
+        AgentEvidencePackage evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken) ??
+                                        throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
         AgentEvidencePackage replayEvidence = CloneEvidenceForReplay(evidence, preparedReplayRunId);
         IAgentExecutor executor = _agentExecutorResolver.Resolve(executionMode);
@@ -164,6 +200,57 @@ public sealed partial class ReplayRunService
             Manifest = manifest,
             DecisionTraces = decisionTraces,
             Warnings = warnings
+        };
+    }
+
+    private async Task<ReplayRunResult> ExecuteAuthorityPreparedReplayAsync(
+        string preparedReplayRunId,
+        string originalRunId,
+        string executionMode,
+        bool commitReplay,
+        string? manifestVersionOverride,
+        ArchitectureRequest request,
+        ArchitectureRunDetail sourceDetail,
+        CancellationToken cancellationToken)
+    {
+        _ = manifestVersionOverride;
+        _ = sourceDetail;
+
+        ContextIngestionRequest ingestionRequest = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        ingestionRequest.RunId = Guid.Parse(preparedReplayRunId);
+
+        await _authorityRunOrchestrator
+            .CompleteQueuedAuthorityPipelineAsync(ingestionRequest, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!commitReplay)
+        {
+            return new ReplayRunResult
+            {
+                OriginalRunId = originalRunId,
+                ReplayRunId = preparedReplayRunId,
+                ExecutionMode = executionMode,
+                Results = [],
+                Manifest = null,
+                DecisionTraces = [],
+                Warnings = []
+            };
+        }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        CommitRunIdempotencyOutcome commitOutcome = await _architectureRunCommandService
+            .CommitRunAsync(scope, preparedReplayRunId, request: null, idempotencyKey: null, cancellationToken)
+            .ConfigureAwait(false);
+
+        return new ReplayRunResult
+        {
+            OriginalRunId = originalRunId,
+            ReplayRunId = preparedReplayRunId,
+            ExecutionMode = executionMode,
+            Results = [],
+            Manifest = commitOutcome.Result.Manifest,
+            DecisionTraces = commitOutcome.Result.DecisionTraces,
+            Warnings = commitOutcome.Result.Warnings
         };
     }
 }

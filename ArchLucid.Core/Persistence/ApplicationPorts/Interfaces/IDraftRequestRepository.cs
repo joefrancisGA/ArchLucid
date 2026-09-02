@@ -88,4 +88,12 @@ public interface IDraftRequestRepository
         int page,
         int pageSize,
         CancellationToken cancellationToken);
+
+    /// <summary>Wave-5 suggestion 44: lookup draft that spawned a run for commit-time hash verification.</summary>
+    Task<DraftRequestResponse?> GetBySpawnedRunIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string spawnedRunId,
+        CancellationToken cancellationToken);
 }

@@ -26,6 +26,10 @@ vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (opts: RequestInit) => opts,
 }));
 
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => false,
+}));
+
 describe("GlobalSearchBar", () => {
   beforeEach(() => {
     vi.stubGlobal(

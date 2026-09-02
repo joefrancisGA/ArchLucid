@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
+import { scheduleScrollToReviewDetailSection, scheduleScrollToReviewDetailHashFromLocation } from "@/lib/review-detail-section-scroll";
 import {
   REVIEW_DETAIL_TAB_PARAM,
   buildReviewDetailTabHref,
@@ -111,6 +111,20 @@ export function RunDetailSectionNav({ runId, sections }: RunDetailSectionNavProp
 
     return () => {
       observer.disconnect();
+    };
+  }, [visible]);
+
+  useEffect(() => {
+    scheduleScrollToReviewDetailHashFromLocation();
+
+    function onHashChange(): void {
+      scheduleScrollToReviewDetailHashFromLocation();
+    }
+
+    window.addEventListener("hashchange", onHashChange);
+
+    return () => {
+      window.removeEventListener("hashchange", onHashChange);
     };
   }, [visible]);
 
