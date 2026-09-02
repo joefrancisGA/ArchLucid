@@ -1776,7 +1776,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 72
+- **hunts:** 73
 - **bugs-found:** 185
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
@@ -2008,6 +2008,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MarketplaceWebhookPayloadParser.TryNormalizeBooleanString` — `on` planId synonym ignored — **hit 2026-09-02 (#484):** `"planId":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryGetPlanId_reads_string_encoded_on_planId`).
 
 - [x] (proven) `AzureExtractorResourceInventoryReader.TryNormalizeBooleanString` — `on` inventory name synonym ignored — **hit 2026-09-02 (#484):** `"name":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryReadFromZip_string_encoded_on_name_coerces_to_lowercase_string`).
+
+2026-09-02 seed hunt #485: reseeded from ArchLucid.Core after boolean-synonym sweep closure; cheap-disproof found whitespace-padded enum labels and DecisionConfidenceSource boolean parity already correct (valid-no-repro); added breach-severity off synonym regression coverage.
 
 2026-09-02 seed hunt #484: reseeded from ArchLucid.Core; proved final TryNormalizeBooleanString on/off gaps in marketplace webhook planId and Azure inventory name readers.
 

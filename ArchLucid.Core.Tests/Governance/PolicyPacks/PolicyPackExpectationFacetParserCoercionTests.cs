@@ -118,4 +118,15 @@ public sealed class PolicyPackExpectationFacetParserCoercionTests
 
         PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be(nameof(FindingSeverity.Warning));
     }
+
+    [Fact]
+    public void Parse_breach_severity_off_synonym_maps_info_label()
+    {
+        PolicyPackContentDocument document = new()
+        {
+            AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "off" },
+        };
+
+        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be(nameof(FindingSeverity.Info));
+    }
 }
