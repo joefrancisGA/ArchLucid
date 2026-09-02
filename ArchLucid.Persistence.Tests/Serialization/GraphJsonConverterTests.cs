@@ -56,26 +56,27 @@ public sealed class GraphJsonConverterTests
     }
 
     [SkippableFact]
-    public void GraphNodeJsonConverter_Read_invalid_properties_object_yields_empty_dictionary_after_deserialize_failure()
+    public void GraphNodeJsonConverter_Read_invalid_properties_object_preserves_numeric_entries_after_deserialize_failure()
     {
         const string json = """{"nodeId":"n1","nodeType":"t","label":"l","properties":{"bad":123}}""";
 
         GraphNode node = JsonSerializer.Deserialize<GraphNode>(json, NodeOptions())!;
 
-        node.Properties.Should().BeEmpty();
+        node.Properties.Should().ContainKey("bad").WhoseValue.Should().Be("123");
     }
 
     [SkippableFact]
-    public void GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries()
+    public void GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_and_numeric_entries()
     {
         const string json =
             """{"nodeId":"n1","nodeType":"t","label":"l","properties":{"resourceId":"/subscriptions/sub","bad":123,"region":"eastus"}}""";
 
         GraphNode node = JsonSerializer.Deserialize<GraphNode>(json, NodeOptions())!;
 
-        node.Properties.Should().HaveCount(2);
+        node.Properties.Should().HaveCount(3);
         node.Properties.Should().ContainKey("resourceId").WhoseValue.Should().Be("/subscriptions/sub");
         node.Properties.Should().ContainKey("region").WhoseValue.Should().Be("eastus");
+        node.Properties.Should().ContainKey("bad").WhoseValue.Should().Be("123");
     }
 
     [SkippableFact]

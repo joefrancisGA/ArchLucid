@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace ArchLucid.ContextIngestion.Infrastructure;
@@ -10,6 +11,12 @@ internal static class BicepResourceBodyParser
     private static readonly Regex NestedBlockStartRegex = new(
         """
         ^\s*(?<block>[A-Za-z0-9_-]+)\s*:\s*\{
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ArrayAssignmentRegex = new(
+        """
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*\[
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -48,6 +55,26 @@ internal static class BicepResourceBodyParser
             if (line.Length == 0 || line.StartsWith("//", StringComparison.Ordinal))
             {
                 lineIndex++;
+                continue;
+            }
+
+            Match arrayMatch = ArrayAssignmentRegex.Match(line);
+
+            if (arrayMatch.Success)
+            {
+                string arrayKey = arrayMatch.Groups["key"].Value;
+                string fromHere = string.Join('\n', lines[lineIndex..]);
+                int bracketIndex = fromHere.IndexOf('[', StringComparison.Ordinal);
+                string arrayBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBracketBody(fromHere, bracketIndex);
+
+                if (!string.IsNullOrWhiteSpace(arrayBody)
+                    && BicepArrayLiteralConverter.TryParseToJsonElement(arrayBody, out JsonElement arrayElement))
+                {
+                    BicepArrayLiteralConverter.TryAddParsedArrayProperty(properties, arrayKey, arrayElement);
+                }
+
+                int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
+                lineIndex += consumedArrayLines;
                 continue;
             }
 

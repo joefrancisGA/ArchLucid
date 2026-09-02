@@ -1,4 +1,5 @@
 import type { ArchitectureIntelligenceReviewTier } from "@/lib/architecture/architecture-intelligence-review-tier";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 export type ClosedLoopReasoningSourceText = {
   fileName: string;
@@ -207,11 +208,14 @@ export function buildArchitectureIntelligenceSourcesFromDraftFields(fields: {
 }
 
 async function postJson<T>(path: string, body: unknown): Promise<T> {
-  const response = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  const response = await fetch(
+    path,
+    mergeRegistrationScopeForProxy({
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  );
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
@@ -223,7 +227,7 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
 }
 
 async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(path, { method: "GET" });
+  const response = await fetch(path, mergeRegistrationScopeForProxy({ method: "GET" }));
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");

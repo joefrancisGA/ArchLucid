@@ -92,6 +92,18 @@ public sealed class ComparisonDriftAnalyzerTests
     }
 
     [SkippableFact]
+    public void Analyze_ReorderedPrimitiveArray_DoesNotReportDrift()
+    {
+        object stored = new { Tags = new[] { "a", "b" } };
+        object regenerated = new { Tags = new[] { "b", "a" } };
+
+        DriftAnalysisResult result = _sut.Analyze(stored, regenerated);
+
+        result.DriftDetected.Should().BeFalse();
+        result.Items.Should().BeEmpty();
+    }
+
+    [SkippableFact]
     public void Analyze_TypeChange_DetectsTypeChange()
     {
         // Force JSON type difference: string vs number at same path.

@@ -2,6 +2,7 @@ using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Application.Diffs;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -37,13 +38,9 @@ public sealed partial class EndToEndReplayComparisonService
 
         if (report.AgentResultDiff is not null && report.ManifestDiff is not null)
         {
-            bool agentChanged = report.AgentResultDiff.AgentDeltas.Any(d =>
-                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
-                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
-            bool manifestChanged = report.ManifestDiff.AddedServices.Count > 0 || report.ManifestDiff.RemovedServices.Count > 0 ||
-                                   report.ManifestDiff.AddedDatastores.Count > 0 || report.ManifestDiff.RemovedDatastores.Count > 0 ||
-                                   report.ManifestDiff.AddedRequiredControls.Count > 0 || report.ManifestDiff.RemovedRequiredControls.Count > 0 ||
-                                   report.ManifestDiff.AddedRelationships.Count > 0 || report.ManifestDiff.RemovedRelationships.Count > 0;
+            bool agentChanged = AgentOutputsChangedMaterially(report.AgentResultDiff);
+            bool manifestChanged = ManifestChangedMaterially(report.ManifestDiff);
+
             if (agentChanged && manifestChanged)
                 report.InterpretationNotes.Add(
                     "Both agent outputs and resolved manifest changed, suggesting upstream proposal drift propagated into architecture state.");
@@ -55,6 +52,16 @@ public sealed partial class EndToEndReplayComparisonService
                     "Agent outputs changed, but the resolved manifest remained stable, suggesting merge logic absorbed or normalized the drift.");
             else
                 report.InterpretationNotes.Add("Neither agent outputs nor manifest changed materially.");
+        }
+        else if (report.AgentResultDiff is not null && AgentOutputsChangedMaterially(report.AgentResultDiff))
+        {
+            report.InterpretationNotes.Add(
+                "Agent outputs changed, but the resolved manifest was not compared — confirm completion state and manifest availability on both runs.");
+        }
+        else if (report.ManifestDiff is not null && ManifestChangedMaterially(report.ManifestDiff))
+        {
+            report.InterpretationNotes.Add(
+                "The resolved manifest changed, but agent outputs were not compared — confirm agent result availability on both runs.");
         }
 
         else if (report.RunDiff.ManifestVersionsDiffer)
@@ -99,6 +106,21 @@ public sealed partial class EndToEndReplayComparisonService
         }
 
         return string.Join(' ', parts);
+    }
+
+    private static bool AgentOutputsChangedMaterially(AgentResultDiffResult agentResultDiff)
+    {
+        return agentResultDiff.AgentDeltas.Any(delta =>
+            delta.AddedClaims.Count > 0 || delta.RemovedClaims.Count > 0 || delta.AddedFindings.Count > 0 || delta.RemovedFindings.Count > 0 ||
+            delta.AddedRequiredControls.Count > 0 || delta.RemovedRequiredControls.Count > 0 || delta.AddedWarnings.Count > 0 || delta.RemovedWarnings.Count > 0);
+    }
+
+    private static bool ManifestChangedMaterially(ManifestDiffResult manifestDiff)
+    {
+        return manifestDiff.AddedServices.Count > 0 || manifestDiff.RemovedServices.Count > 0 ||
+               manifestDiff.AddedDatastores.Count > 0 || manifestDiff.RemovedDatastores.Count > 0 ||
+               manifestDiff.AddedRequiredControls.Count > 0 || manifestDiff.RemovedRequiredControls.Count > 0 ||
+               manifestDiff.AddedRelationships.Count > 0 || manifestDiff.RemovedRelationships.Count > 0;
     }
 
     private static bool HasNotEvaluatedSnapshot(ReviewRunEngineProvenance? provenance)
