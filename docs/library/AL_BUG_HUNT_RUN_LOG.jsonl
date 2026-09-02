@@ -526,11 +526,9 @@
 {"at":"2026-08-31T23:08:45.2398946Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T23:12:45Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T23:14:24.929865Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-09-01T20:17:13.668263Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
-{"at":"2026-08-31T23:14:24.9298650Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-01T00:09:08.3947417Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-01T00:14:45.5463699Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-09-01T20:17:13.6682630Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
+{"at":"2026-09-01T20:17:13.668263Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-01T20:22:05.8495361Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-01T20:30:50.618223Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-01T20:43:44.5986794Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -545,3 +543,4 @@
 {"at":"2026-09-02T05:11:37.9423129Z","zoneId":"archlucid-contracts","outcome":"hit"}
 {"at":"2026-09-02T05:17:11.6176006Z","zoneId":"host-composition","outcome":"dry"}
 {"at":"2026-09-02T05:27:28.9519125Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-02T05:35:40.4987327Z","zoneId":"ui-marketing-surfaces","outcome":"hit"}

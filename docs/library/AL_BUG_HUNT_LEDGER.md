@@ -2957,11 +2957,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 7
-- **bugs-found:** 13
+- **hunts:** 8
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — sponsor digest signInUrl trailing-slash legacy path 404
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — Quick Scan captcha challenge without Turnstile mount
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2980,9 +2980,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `QuickScanClient` capacity banner hardcodes `/auth/signin` without `returnUrl` — **hit 2026-08-27:** anonymous limit CTA did not return to `/quick-scan` after sign-in; fixed with `buildAuthSignInHref({ returnPath: "/quick-scan" })` (`quick-scan.test.tsx`).
 - [x] (proven) `ShowcaseQuickNav` + thin API payload missing `manifest.manifestId` — **hit 2026-08-27:** `fetchShowcasePayload` accepted manifests without `manifestId`, risking `signedRecordDetailPath` trim crash when deep links enabled; reject as `invalid` (`showcase-page.test.tsx`).
 - [x] (proven) `normalizeSignInUrl` in `exec-digest-sponsor-deep-link-server.ts` — API `signInUrl` with trailing-slash legacy `/auth/sign-in/` left hyphenated path unchanged (regex lookahead required end/query/hash immediately after `sign-in`) — **hit 2026-08-28:** optional trailing slash in replace pattern; regression in `exec-digest-sponsor-deep-link-server.test.ts`.
-- [ ] (candidate) `useQuickScanClient` status `useEffect` — TanStack status refetch moves `capacityState` from `AnonymousLimit`/`Busy`/`SampleOnly` back to `Available` — stale amber capacity banner stays visible while Analyze is re-enabled; effect only calls `setCapacityMessage` when `resolveQuickScanCapacityMessage(status)` is non-null and never clears prior state on recovery.
-- [ ] (candidate) `QuickScanClient` / `useQuickScanClient` POST handler — backend returns 403 `QUICK_SCAN_CAPTCHA_REQUIRED` — user sees “Complete the security check…” with no Turnstile challenge mounted on marketing Quick Scan (contrast `SignInFlowClient` OTP path).
+- [x] (proven) `useQuickScanClient` status `useEffect` — TanStack status refetch moves `capacityState` back to `Available` but stale amber capacity banner stayed visible — **hit 2026-09-02:** effect only set `capacityMessage` when non-null; fixed by always syncing from `resolveQuickScanCapacityMessage(status)` (`use-quick-scan-client.test.ts`).
+- [x] (proven) `QuickScanClient` / `useQuickScanClient` POST handler — backend `403 QUICK_SCAN_CAPTCHA_REQUIRED` showed error with no Turnstile challenge — **hit 2026-09-02:** mount `TurnstileBotChallenge`, track `captchaChallengeRequired`, and send `botChallengeToken` on retry (`use-quick-scan-client.test.ts`, `quick-scan.test.tsx`).
 - [x] (proven) Quick Scan `SampleOnly` auto-sample `useEffect` overwrites a real analysis when capacity status loads after submit — **hit 2026-08-27:** effect lacked `result === null` guard; aligned with optimistic `isQuickScanAiSubmitAllowed(null)` race (`use-quick-scan-client.test.ts`).
+
+2026-09-02 thorough hunt #429: proved quick-scan capacity-banner recovery and progressive CAPTCHA Turnstile mount gaps.
 
 2026-08-28 thorough hunt #7: proved sponsor digest signInUrl trailing-slash normalization; reseeded quick-scan capacity-banner and captcha candidates.
 - [x] (proven) Static-first showcase slugs skip API but pass `renderMode="api"` and `banner={null}` when API base is configured — **hit 2026-08-27:** conflated API configured with served-from-API; static-first branch now always uses `renderMode="static"` and static banner (`showcase-page.test.tsx`).
