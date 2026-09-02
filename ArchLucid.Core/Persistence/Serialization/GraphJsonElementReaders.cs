@@ -130,10 +130,18 @@ internal static class GraphJsonElementReaders
 
                     if (!string.IsNullOrWhiteSpace(raw))
                     {
-                        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase))
+                        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
+                            || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
+                            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
+                            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
+                            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
                             return 1.0;
 
-                        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase))
+                        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
+                            || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
+                            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
+                            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
+                            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
                             return 0.0;
 
                         if (double.TryParse(raw, out double parsed))
@@ -235,14 +243,22 @@ internal static class GraphJsonElementReaders
             return false;
         }
 
-        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase))
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
         {
             value = "true";
 
             return true;
         }
 
-        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase))
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
         {
             value = "false";
 

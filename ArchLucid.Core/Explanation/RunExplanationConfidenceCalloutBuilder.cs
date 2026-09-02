@@ -182,12 +182,20 @@ public static class RunExplanationConfidenceCalloutBuilder
             return null;
         }
 
-        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase))
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
         {
             return 1.0;
         }
 
-        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase))
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
         {
             return 0.0;
         }

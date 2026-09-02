@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 70
-- **bugs-found:** 177
+- **hunts:** 71
+- **bugs-found:** 183
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — boolean on/off synonym coercion in citation reader, finding JSON, and cloud-inventory extractor
+- **last-bug:** 2026-09-02 — boolean on/off synonym coercion in routing metadata, graph readers, integration bus, and faithfulness ratio
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1992,6 +1992,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.TryParseBooleanString` — `on` finding-field synonym ignored — **hit 2026-09-02 (#482):** `severity:"on"` threw and `properties.enabled:"on"` stayed raw while `"True"` already coerced; fixed with boolean synonym coercion (`Deserialize_string_encoded_on_severity_maps_warning`, `Deserialize_properties_string_encoded_on_boolean_values_coerce_to_lowercase_strings`).
 
 - [x] (proven) `CloudInventoryExtractorPackageZipValidator.TryParseBooleanString` — `on` schemaVersion synonym ignored — **hit 2026-09-02 (#482):** parity gap after #481 Azure fix; `"schemaVersion":"on"` failed manifest validation; fixed with boolean synonym coercion (`Validate_on_synonym_schemaVersion_succeeds`).
+
+- [x] (proven) `AlertRoutingCriteriaMetadata.TryNormalizeBooleanString` — `on` routing severity synonym ignored — **hit 2026-09-02 (#483):** `severities:["on"]` stayed raw while `"True"` coerced to `"true"`; fixed with boolean synonym coercion (`AlertRoutingCriteriaMetadata_Parse_string_encoded_on_severities_coerce_to_lowercase_strings`).
+
+- [x] (proven) `GraphJsonElementReaders.TryNormalizeBooleanString` — `on` graph property synonym ignored — **hit 2026-09-02 (#483):** `properties.enabled:"on"` stayed raw while `"True"` coerced; fixed with boolean synonym coercion (`ReadProperties_string_encoded_on_boolean_values_coerce_to_lowercase_strings`).
+
+- [x] (proven) `GraphJsonElementReaders.ReadFirstDouble` — `on` numeric field synonym ignored — **hit 2026-09-02 (#483):** `weight:"on"` returned null while `"true"` coerced to `1.0`; fixed with boolean synonym coercion (`ReadFirstDouble_string_encoded_on_coerces_to_one`).
+
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryNormalizeBooleanString` — `on` correlation-id synonym ignored — **hit 2026-09-02 (#483):** `"correlationId":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryResolveForPublish_reads_string_encoded_on_correlationId_from_payload_when_activity_unset`).
+
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryNormalizeBooleanString` — `on` deduplication-key synonym ignored — **hit 2026-09-02 (#483):** `"deduplicationKey":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryResolveForPublish_alert_resolved_maps_string_encoded_on_deduplication_key`).
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadDouble` — `on` faithfulness-ratio synonym ignored — **hit 2026-09-02 (#483):** `"faithfulnessSupportRatio":"on"` returned null while `"false"` coerced to `0.0`; fixed with boolean synonym coercion (`FromAggregateJson_maps_string_encoded_on_faithfulness_support_ratio`).
+
+2026-09-02 seed hunt #483: reseeded from ArchLucid.Core; proved routing metadata, graph readers, Service Bus property normalization, and faithfulness-ratio on/off boolean synonym gaps.
 
 2026-09-02 seed hunt #482: reseeded from ArchLucid.Core; proved citation-count, finding JSON, and cloud-inventory extractor on/off boolean synonym gaps.
 
