@@ -6,7 +6,10 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Application.Http;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
@@ -83,29 +86,27 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
-        string policyPackContentJson =
-            JsonSerializer.Serialize(request.Content, ContractJson.CamelCaseIgnoreNullCompact);
-
-        PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
-            policyPackContentJson,
-            request.RunId.Trim(),
-            targetManifestId: null,
+        PolicyPackHttpResult<PolicyPackGovernanceDryRunResult> result = await _policyPackHttpFacade.SimulateAsync(
+            request.Content,
+            request.RunId,
             request.BlockCommitOnCritical,
             request.BlockCommitMinimumSeverity,
             request.ProposedPolicyPackId,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
-        if (result is null)
-            return this.NotFoundProblem(
-                "The target run was not found in the current tenant/workspace/project scope.",
-                ProblemTypes.ResourceNotFound);
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        return Ok(result);
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                "The target run was not found in the current tenant/workspace/project scope.");
+        }
+
+        return Ok(result.Value!);
     }
 
     /// <summary>

@@ -291,7 +291,7 @@ public sealed class SqlFindingsSnapshotRepository(
         IDbTransaction? transaction,
         CancellationToken ct)
     {
-        FindingsSnapshotMigrator.Apply(snapshot);
+        FindingsSnapshotRepositoryCore.PrepareSnapshotForSave(snapshot);
 
         FindingRelationalScope scope =
             FindingRelationalScope.FromScopeContext(_scopeContextProvider.GetCurrentScope());

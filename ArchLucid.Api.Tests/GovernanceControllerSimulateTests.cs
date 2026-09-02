@@ -2,7 +2,9 @@ using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Models;
@@ -67,10 +69,19 @@ public sealed class GovernanceControllerSimulateTests
     [Fact]
     public async Task Simulate_returns_not_found_when_tenant_missing()
     {
-        Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.SimulateAsync(
+                It.IsAny<PolicyPackContentDocument>(),
+                It.IsAny<string>(),
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPackGovernanceDryRunResult>.ScopeNotFound());
 
         GovernanceController sut = CreateController(
-            governanceDryRunService: dryRun.Object,
+            policyPackHttpFacade: httpFacade.Object,
             tenantRepository: TenantMissingRepository());
 
         IActionResult action = await sut.Simulate(
@@ -83,7 +94,7 @@ public sealed class GovernanceControllerSimulateTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        dryRun.VerifyNoOtherCalls();
+        httpFacade.VerifyAll();
     }
 
     [Fact]
@@ -424,6 +435,7 @@ public sealed class GovernanceControllerSimulateTests
 
     private static GovernanceController CreateController(
         IPolicyPackGovernanceDryRunService? governanceDryRunService = null,
+        IPolicyPackHttpFacade? policyPackHttpFacade = null,
         IPolicyPackDryRunService? dryRunService = null,
         IPolicyPackDraftService? draftService = null,
         IPolicyPackGeneratorService? generatorService = null,
@@ -436,6 +448,7 @@ public sealed class GovernanceControllerSimulateTests
             scopeContextProvider: scope.Object,
             policyPackDryRunService: dryRunService ?? Mock.Of<IPolicyPackDryRunService>(),
             policyPackGovernanceDryRunService: governanceDryRunService ?? Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            policyPackHttpFacade: policyPackHttpFacade ?? Mock.Of<IPolicyPackHttpFacade>(),
             policyPackDraftService: draftService ?? Mock.Of<IPolicyPackDraftService>(),
             policyPackGeneratorService: generatorService ?? Mock.Of<IPolicyPackGeneratorService>(),
             tenantRepository: tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
