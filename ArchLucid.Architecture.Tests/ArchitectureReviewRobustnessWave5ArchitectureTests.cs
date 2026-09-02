@@ -166,7 +166,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
             Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSynthesisKernel.cs"));
 
         kernel.Should().Contain("StructuralExecutionModeAdmittanceGuard.EnsureAdmittableOrThrow");
-        kernel.Should().Contain("_runPolicyPackPinService.ApplyToRunHeaderAsync");
+        kernel.Should().Contain("_runCreatePinOrchestrator.ApplyCreateTimePinsAsync");
     }
 
     [Fact]

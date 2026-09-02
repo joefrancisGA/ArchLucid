@@ -135,6 +135,8 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
           className={cn(sharedChipLayoutClassName, chipClassName, chipTypographyClassName)}
           role="status"
           aria-live="polite"
+          aria-label={`${label} — ${detail}`}
+          title={detail}
           data-testid="simulator-mode-top-bar-chip-label"
         >
           {chipBody}

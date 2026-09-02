@@ -9,6 +9,7 @@ describe("StatusTag", () => {
     const badge = screen.getByText("Ready");
     expect(badge).toBeInTheDocument();
     expect(badge.tagName).toBe("SPAN");
+    expect(badge).toHaveAttribute("aria-label", "Status: Ready");
   });
 
   it("allows label override", () => {

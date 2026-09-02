@@ -23,12 +23,13 @@ export function StatusTag({
   ...rest
 }: StatusTagProps): React.ReactElement {
   const display = (label ?? ENTERPRISE_STATUS_LABELS[kind]).trim();
+  const accessibleName = rest["aria-label"] ?? `Status: ${display}`;
 
   return (
     <MetadataStatusLabel
-      className={cn(enterpriseStatusTagClass(kind), className)}
-      aria-label={`Status: ${display}`}
       {...rest}
+      aria-label={accessibleName}
+      className={cn(enterpriseStatusTagClass(kind), className)}
     >
       {display}
     </MetadataStatusLabel>

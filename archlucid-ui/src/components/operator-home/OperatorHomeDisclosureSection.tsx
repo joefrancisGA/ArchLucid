@@ -165,8 +165,8 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
       data-disclosure-expanded={hydrated ? String(expanded) : undefined}
       {...sectionDataAttributes}
     >
-      <div className={cn(OPERATOR_CARD.header, "flex flex-row items-start justify-between gap-3 pb-0")}>
-        <div className="min-w-0 flex-1">
+      <div className={cn(OPERATOR_CARD.header, "pb-0")}>
+        <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <OperatorHomeCardSectionTitle id={titleId}>
               {hasTitleHref ? (
@@ -177,6 +177,23 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
                 title
               )}
             </OperatorHomeCardSectionTitle>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className={cn(
+                "shrink-0 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200",
+                slim ? "h-7 w-7" : "h-8 w-8",
+              )}
+              aria-expanded={expanded}
+              aria-controls={`${titleId}-panel`}
+              aria-label={toggleLabel}
+              onClick={toggleExpanded}
+            >
+              {expanded ? <ChevronUp className="h-4 w-4" aria-hidden /> : <ChevronDown className="h-4 w-4" aria-hidden />}
+            </Button>
+
             {headerAside}
           </div>
 
@@ -202,22 +219,6 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
             </p>
           ) : null}
         </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className={cn(
-            "shrink-0 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200",
-            slim ? "h-7 w-7" : "h-8 w-8",
-          )}
-          aria-expanded={expanded}
-          aria-controls={`${titleId}-panel`}
-          aria-label={toggleLabel}
-          onClick={toggleExpanded}
-        >
-          {expanded ? <ChevronUp className="h-4 w-4" aria-hidden /> : <ChevronDown className="h-4 w-4" aria-hidden />}
-        </Button>
       </div>
 
       {showExpandedContent ? (

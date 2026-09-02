@@ -48,6 +48,7 @@ const emptyCommitContext = {
   firstCommittedRunId: null,
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 function mockCommitQuery(
