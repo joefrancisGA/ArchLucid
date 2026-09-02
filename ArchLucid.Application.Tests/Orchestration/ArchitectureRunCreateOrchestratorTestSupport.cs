@@ -3,6 +3,7 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Runs.Coordination;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
@@ -97,6 +98,7 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             runRepository,
             scopeContextProvider,
             runStateTransitionService,
+            new RunPolicyPackPinService(new InMemoryPolicyPackAssignmentRepository()),
             NullLogger<ArchitectureRunCreatePersistenceHelper>.Instance);
 
         ArchitectureRunCreatePostCreateHooks postCreateHooks = new(

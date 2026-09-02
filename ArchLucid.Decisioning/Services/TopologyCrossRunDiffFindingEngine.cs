@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -17,6 +18,8 @@ public sealed class TopologyCrossRunDiffFindingEngine : IFindingEngine
     public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
         CancellationToken ct)
     {
+        CrossRunDiffFindingPriorGuard.EnsurePriorPresentOrThrow(analysisContext, EngineType);
+
         TopologyCategoryDiffResult diff = GraphSnapshotTopologyDiffAnalyzer.AnalyzeCategoryDelta(graphSnapshot);
         List<Finding> findings = [];
         List<string> scopeNodeIds = CrossRunDiffFindingGraphScope.CollectTopologyNodeIds(graphSnapshot);

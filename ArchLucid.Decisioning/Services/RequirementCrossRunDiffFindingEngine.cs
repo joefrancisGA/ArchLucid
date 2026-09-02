@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -17,6 +18,8 @@ public sealed class RequirementCrossRunDiffFindingEngine : IFindingEngine
     public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
         CancellationToken ct)
     {
+        CrossRunDiffFindingPriorGuard.EnsurePriorPresentOrThrow(analysisContext, EngineType);
+
         RequirementNameDiffResult diff = GraphSnapshotRequirementDiffAnalyzer.AnalyzeNameDelta(graphSnapshot);
         List<Finding> findings = [];
         List<string> scopeNodeIds = CrossRunDiffFindingGraphScope.CollectRequirementNodeIds(graphSnapshot);

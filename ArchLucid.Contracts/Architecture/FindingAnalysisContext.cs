@@ -53,4 +53,18 @@ public sealed class FindingAnalysisContext
         get;
         init;
     } = [];
+
+    /// <summary>Engine types that enabled policy packs require to succeed (wave-4 suggestion 33).</summary>
+    public IReadOnlyList<string> RequiredEngineTypes
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>Pinned extractor evidence for effectful engines (wave-4 suggestion 32).</summary>
+    public EvidencePackagePin? EvidencePin
+    {
+        get;
+        init;
+    }
 }

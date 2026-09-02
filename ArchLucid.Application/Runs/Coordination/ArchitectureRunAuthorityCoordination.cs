@@ -42,6 +42,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
     IReviewModelAliasResolver reviewModelAliasResolver,
     IAgentModelAliasRegistry agentModelAliasRegistry,
     IAuditService auditService,
+    IRunPolicyPackPinService runPolicyPackPinService,
     ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
     private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator =
@@ -81,6 +82,9 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IRunPolicyPackPinService _runPolicyPackPinService =
+        runPolicyPackPinService ?? throw new ArgumentNullException(nameof(runPolicyPackPinService));
 
     /// <inheritdoc/>
     public Task<CoordinationResult> CreateRunAsync(
@@ -129,6 +133,9 @@ public sealed class ArchitectureRunAuthorityCoordination(
             cancellationToken,
             evidenceBundle.EvidenceBundleId,
             enlistUnitOfWork);
+
+        StructuralExecutionModeAdmittanceGuard.EnsureAdmittableOrThrow(authorityRun.StructuralExecutionMode);
+
         ScopeContext scopeForExtractor = _scopeContextProvider.GetCurrentScope();
         await RunStarterInventoryEvidenceBundleMerger.MergeLinkedInventoryPackagesAsync(
             evidenceBundle,
@@ -233,6 +240,10 @@ public sealed class ArchitectureRunAuthorityCoordination(
             header.LegacyRunStatus = targetLegacyRunStatus;
 
         header.PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request);
+
+        await _runPolicyPackPinService
+            .ApplyToRunHeaderAsync(header, scope, cancellationToken)
+            .ConfigureAwait(false);
 
         if (!deferred
             && header.GoldenManifestId is null

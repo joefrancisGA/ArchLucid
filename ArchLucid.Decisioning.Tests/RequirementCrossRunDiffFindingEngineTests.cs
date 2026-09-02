@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
@@ -11,6 +12,29 @@ namespace ArchLucid.Decisioning.Tests;
 [Trait("Category", "Unit")]
 public sealed class RequirementCrossRunDiffFindingEngineTests
 {
+    private static FindingAnalysisContext AnalysisContextWithPrior() =>
+        new()
+        {
+            RunId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            Prior = new PriorReviewSnapshots
+            {
+                PriorRunId = Guid.NewGuid(),
+                PriorArchitectureVersionId = Guid.NewGuid(),
+            },
+        };
+
+    [Fact]
+    public async Task AnalyzeAsync_without_prior_throws()
+    {
+        RequirementCrossRunDiffFindingEngine engine = new();
+
+        Func<Task> act = () => engine.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*requires FindingAnalysisContext.Prior*");
+    }
+
     [Fact]
     public async Task AnalyzeAsync_WhenRequirementsRegressed_EmitsWarningGapFinding()
     {
@@ -39,7 +63,10 @@ public sealed class RequirementCrossRunDiffFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(
+            graph,
+            AnalysisContextWithPrior(),
+            CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Warning);
@@ -83,7 +110,10 @@ public sealed class RequirementCrossRunDiffFindingEngineTests
             ]
         };
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(
+            graph,
+            AnalysisContextWithPrior(),
+            CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Info);

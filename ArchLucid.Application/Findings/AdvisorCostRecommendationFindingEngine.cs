@@ -43,9 +43,10 @@ public sealed class AdvisorCostRecommendationFindingEngine(
         _ = graphSnapshot;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        DateTime? collectionUtc = await _packageRepository
-            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, ct)
-            .ConfigureAwait(false);
+        DateTime? collectionUtc = analysisContext?.EvidencePin?.CollectionUtc
+            ?? await _packageRepository
+                .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, ct)
+                .ConfigureAwait(false);
 
         if (InventoryCollectionFreshnessGate.ShouldSuppressInventoryFindings(
                 collectionUtc,
