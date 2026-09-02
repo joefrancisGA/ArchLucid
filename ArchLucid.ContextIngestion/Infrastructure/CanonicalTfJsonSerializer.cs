@@ -79,7 +79,8 @@ internal static class CanonicalTfJsonSerializer
             case JsonValueKind.Array:
                 writer.WriteStartArray();
 
-                foreach (JsonElement item in value.EnumerateArray())
+                foreach (JsonElement item in value.EnumerateArray()
+                             .OrderBy(Serialize, StringComparer.Ordinal))
                     WriteValue(writer, item);
 
                 writer.WriteEndArray();

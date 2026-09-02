@@ -525,6 +525,8 @@
 {"at":"2026-08-31T23:07:30Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T23:08:45.2398946Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T23:12:45Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T23:14:24.929865Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-09-01T20:17:13.668263Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-08-31T23:14:24.9298650Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-01T00:09:08.3947417Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-01T00:14:45.5463699Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -541,3 +543,5 @@
 {"at":"2026-09-02T04:54:02.3915211Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-09-02T05:03:34.6583691Z","zoneId":"notifications-pipeline","outcome":"hit"}
 {"at":"2026-09-02T05:11:37.9423129Z","zoneId":"archlucid-contracts","outcome":"hit"}
+{"at":"2026-09-02T05:17:11.6176006Z","zoneId":"host-composition","outcome":"dry"}
+{"at":"2026-09-02T05:27:28.9519125Z","zoneId":"context-ingestion","outcome":"hit"}

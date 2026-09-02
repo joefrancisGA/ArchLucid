@@ -203,7 +203,7 @@ public sealed class CompositionModulesRegistrationDisciplineTests
         IConfiguration configuration = CreateModuleTestConfiguration();
         ServiceCollection services = [];
 
-        TrialLifecycleCompositionModule.Register(services, configuration, ArchLucidHostingRole.Api);
+        TrialLifecycleCompositionModule.Register(services, configuration, ArchLucidHostingRole.Worker);
 
         services.Should().Contain(static d =>
             d.ServiceType == typeof(IAuditService) &&
