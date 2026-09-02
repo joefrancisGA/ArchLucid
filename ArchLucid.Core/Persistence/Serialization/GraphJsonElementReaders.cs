@@ -128,6 +128,13 @@ internal static class GraphJsonElementReaders
             return true;
         }
 
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.GetRawText();
+
+            return true;
+        }
+
         value = null;
 
         return false;

@@ -130,4 +130,20 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals!.CitationCount.Should().Be(2);
         RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
     }
+
+    [Fact]
+    public void FromAggregateJson_maps_string_encoded_whole_number_citation_count()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": "2.0"
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(2);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
 }

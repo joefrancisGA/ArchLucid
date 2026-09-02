@@ -26,4 +26,19 @@ public sealed class GraphNodeJsonConverterTests
         node!.NodeId.Should().Be("12345");
         node.SourceId.Should().Be("9876543210");
     }
+
+    [Fact]
+    public void Read_boolean_nodeId_coerces_to_string()
+    {
+        const string json =
+            """{"nodeId":true,"nodeType":"TopologyResource","label":"api"}""";
+
+        JsonSerializerOptions options = new();
+        options.Converters.Add(new GraphNodeJsonConverter());
+
+        GraphNode? node = JsonSerializer.Deserialize<GraphNode>(json, options);
+
+        node.Should().NotBeNull();
+        node!.NodeId.Should().Be("true");
+    }
 }
