@@ -121,11 +121,17 @@ public sealed partial class AzureRetailPricesCatalogClient
     }
 
     internal static bool IsMonthlyMeter(string uom)
-        =>
-            uom.Contains("Month",
-                StringComparison.OrdinalIgnoreCase)
-            ||
-            uom.Contains("/Month", StringComparison.OrdinalIgnoreCase);
+    {
+        if (string.IsNullOrWhiteSpace(uom))
+            return false;
+
+        string trimmed = uom.Trim();
+
+        return trimmed.Contains("Month", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("/Month", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains(" mo", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase);
+    }
 
     internal static string OdataEscape(string literal)
         =>
