@@ -25,7 +25,7 @@ export type RunsDashboardFiltersProps = {
 export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
-  const archivedDisabledReasonId = "runs-dashboard-archived-disabled-reason";
+  const archivedDisabledReasonId = "runs-dashboard-inline-archived-disabled-reason";
 
   if (props.buyerPolishedShell) {
     return null;
