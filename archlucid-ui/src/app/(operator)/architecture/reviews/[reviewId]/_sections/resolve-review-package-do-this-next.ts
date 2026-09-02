@@ -5,6 +5,7 @@ import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invit
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { secondReviewFromPriorHref } from "@/lib/second-review-prior-package";
+import { SPONSOR_BRIEFING_EXPORT_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   reviewLifecycleNextActionInstance,
   reviewLifecycleNextActionLabel,
@@ -168,7 +169,7 @@ function buildPostFinalizeQuickLinks(
     { label: INVITE_REVIEWER_PAGE_TITLE, href: buildInviteReviewerHref(runId) },
     { label: "Compare reviews", href: compareHref },
     {
-      label: "Open sponsor report",
+      label: `Open ${SPONSOR_BRIEFING_EXPORT_LABEL.toLowerCase()}`,
       href: `${SPONSOR_REPORT_PATH}?runId=${encodeURIComponent(runId)}`,
     },
   ];

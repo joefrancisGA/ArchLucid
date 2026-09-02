@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -46,15 +48,10 @@ public static partial class CostRetailGroundingBuilder
 
         if (!string.IsNullOrWhiteSpace(evidence.CloudProvider))
         {
-            if (evidence.CloudProvider.Contains("aws", StringComparison.OrdinalIgnoreCase))
-                return CloudProvider.Aws;
+            CloudProvider? mentionedFirst = ResolveFirstCloudProviderMention(evidence.CloudProvider);
 
-            if (evidence.CloudProvider.Contains("gcp", StringComparison.OrdinalIgnoreCase)
-                || evidence.CloudProvider.Contains("google", StringComparison.OrdinalIgnoreCase))
-                return CloudProvider.Gcp;
-
-            if (evidence.CloudProvider.Contains("azure", StringComparison.OrdinalIgnoreCase))
-                return CloudProvider.Azure;
+            if (mentionedFirst is not null)
+                return mentionedFirst;
         }
 
         return request.CloudProvider switch
@@ -64,6 +61,37 @@ public static partial class CostRetailGroundingBuilder
             CloudProvider.Gcp => CloudProvider.Gcp,
             _ => null,
         };
+    }
+
+    private static CloudProvider? ResolveFirstCloudProviderMention(string evidenceCloudProvider)
+    {
+        (int Index, CloudProvider Provider)? earliest = null;
+
+        (int index, CloudProvider provider)[] mentions =
+        [
+            (IndexOfCloudToken(evidenceCloudProvider, "azure"), CloudProvider.Azure),
+            (IndexOfCloudToken(evidenceCloudProvider, "aws"), CloudProvider.Aws),
+            (IndexOfCloudToken(evidenceCloudProvider, "gcp"), CloudProvider.Gcp),
+            (IndexOfCloudToken(evidenceCloudProvider, "google"), CloudProvider.Gcp),
+        ];
+
+        foreach ((int index, CloudProvider provider) in mentions)
+        {
+            if (index < 0)
+                continue;
+
+            if (earliest is null || index < earliest.Value.Index)
+                earliest = (index, provider);
+        }
+
+        return earliest?.Provider;
+    }
+
+    private static int IndexOfCloudToken(string text, string token)
+    {
+        Match match = Regex.Match(text, $@"\b{Regex.Escape(token)}\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+        return match.Success ? match.Index : -1;
     }
 
     internal static bool IsAzureProvider(CloudProvider requestProvider, string evidenceCloudProvider)

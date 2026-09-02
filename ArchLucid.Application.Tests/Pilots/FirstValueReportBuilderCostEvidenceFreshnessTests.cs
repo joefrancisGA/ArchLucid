@@ -1,8 +1,3 @@
-using System.IO.Compression;
-using System.Text;
-using System.Text.Json;
-
-using ArchLucid.Application.Exports;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Value;
@@ -10,7 +5,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Contracts.Pilots;
+using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -30,7 +25,8 @@ using Moq;
 namespace ArchLucid.Application.Tests.Pilots;
 
 [Trait("Suite", "Core")]
-public sealed class BuyerProofPackBuilderRoiFreshnessTests
+[Trait("Category", "Unit")]
+public sealed class FirstValueReportBuilderCostEvidenceFreshnessTests
 {
     private static readonly Guid RunId = Guid.Parse("33333333-4444-5555-6666-777777777777");
 
@@ -41,81 +37,86 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
         ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
     };
 
-    [SkippableFact]
-    public async Task TryBuildZipAsync_when_extractor_is_stale_emits_hold_freshness_in_deltas_json()
+    [Fact]
+    public async Task BuildMarkdownAsync_when_run_linked_extractor_is_fresh_emits_fresh_badge_without_roi_label_wording()
     {
-        DateTime staleCollectionUtc = DateTime.UtcNow.AddDays(-45);
+        DateTime freshCollectionUtc = DateTime.UtcNow.AddDays(-2);
         ArchitectureRunDetail detail = BuildCommittedDetail(RunId);
 
         Mock<IRunDetailQueryService> query = new();
         query.Setup(q => q.GetRunDetailAsync(RunId.ToString(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
-        PilotRunDeltas computed = CreateSendablePilotRunDeltas(detail) with { EstimatedUsdSavings = 5000m };
+        PilotRunDeltas computed = CreateSendablePilotRunDeltas(detail);
 
         Mock<IPilotRunDeltaComputer> deltas = new();
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
 
-        Mock<ISponsorReviewPacketBuilder> sponsorPacket = new();
-        sponsorPacket
-            .Setup(b => b.BuildMarkdownAsync(RunId.ToString(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync("# Sponsor review packet");
-
-        FirstValueReportBuilder markdownBuilder = CreateMarkdownBuilder(query.Object, deltas.Object);
-        FirstValueReportPdfBuilder pdfBuilder = new(markdownBuilder);
-
-        (ValueReportBuilder valueReport, Mock<IScopeContextProvider> scopeProvider) =
-            CreateValueReportBuilderWithScope();
-
-        Mock<IPilotBaselineRepository> pilotBaselines = new();
-        pilotBaselines
-            .Setup(b => b.GetAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new PilotBaselineRecord
-                {
-                    TenantId = Scope.TenantId,
-                    BaselineHoursPerReview = 40m,
-                    BaselineReviewsPerQuarter = 12,
-                    BaselineArchitectHourlyCost = 175m,
-                    UpdatedUtc = DateTimeOffset.UtcNow,
-                });
-
         RoiCostEvidenceCollectionResolver collectionResolver =
-            CreateResolverWithStaleRunLinkedTimestamp(RunId, staleCollectionUtc);
+            CreateResolverWithRunLinkedTimestamp(RunId, freshCollectionUtc);
 
-        BuyerProofPackBuilder sut = new(
-            markdownBuilder,
-            pdfBuilder,
-            sponsorPacket.Object,
-            query.Object,
-            deltas.Object,
-            valueReport,
-            scopeProvider.Object,
-            pilotBaselines.Object,
-            collectionResolver);
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object, collectionResolver);
+        string? markdown = await sut.BuildMarkdownAsync(RunId.ToString(), "http://localhost:5000");
 
-        BuyerProofPackBuildResult? result =
-            await sut.TryBuildZipAsync(RunId.ToString(), "http://localhost:5000");
-
-        result.Should().NotBeNull();
-
-        string deltasJson = await ReadZipEntryTextAsync(result!.ZipBytes, "pilot-run-deltas.json");
-
-        using JsonDocument doc = JsonDocument.Parse(deltasJson);
-        JsonElement root = doc.RootElement;
-
-        root.GetProperty("roiSourceFreshnessDisposition").GetString().Should().Be("HOLD");
-        root.GetProperty("extractorCollectionTimestampUtc").GetDateTime().Should().Be(staleCollectionUtc);
+        markdown.Should().NotBeNullOrWhiteSpace();
+        markdown.Should().Contain("**Evidence freshness:** **Fresh** (`fresh`)");
+        markdown.Should().Contain("**Evidence source:** **Uploaded actual/amortized** (`uploaded-actual-amortized`)");
     }
 
-    private static RoiCostEvidenceCollectionResolver CreateResolverWithStaleRunLinkedTimestamp(
+    [Fact]
+    public async Task BuildMarkdownAsync_when_run_linked_extractor_is_stale_emits_stale_badge()
+    {
+        DateTime staleCollectionUtc = DateTime.UtcNow.AddDays(-120);
+        ArchitectureRunDetail detail = BuildCommittedDetail(RunId);
+
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync(RunId.ToString(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = CreateSendablePilotRunDeltas(detail);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        RoiCostEvidenceCollectionResolver collectionResolver =
+            CreateResolverWithRunLinkedTimestamp(RunId, staleCollectionUtc);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object, collectionResolver);
+        string? markdown = await sut.BuildMarkdownAsync(RunId.ToString(), "http://localhost:5000");
+
+        markdown.Should().NotBeNullOrWhiteSpace();
+        markdown.Should().Contain("**Evidence freshness:** **Stale** (`stale`)");
+        markdown.Should().Contain("**HOLD posture:**");
+    }
+
+    [Fact]
+    public void PilotCostEvidenceFreshnessBadgeResolver_maps_stale_and_fresh_from_extractor_timestamp()
+    {
+        DateTime evaluationUtc = new(2026, 5, 30, 12, 0, 0, DateTimeKind.Utc);
+
+        PilotCostEvidenceFreshnessBadgeResolver.Resolve(
+                evaluationUtc.AddDays(-10),
+                isDemoTenant: false,
+                evaluationUtc,
+                staleAfterDays: 90)
+            .Should().Be(Contracts.Roi.RoiCostEvidenceFreshness.Fresh);
+
+        PilotCostEvidenceFreshnessBadgeResolver.Resolve(
+                evaluationUtc.AddDays(-120),
+                isDemoTenant: false,
+                evaluationUtc,
+                staleAfterDays: 90)
+            .Should().Be(Contracts.Roi.RoiCostEvidenceFreshness.Stale);
+    }
+
+    private static RoiCostEvidenceCollectionResolver CreateResolverWithRunLinkedTimestamp(
         Guid runId,
-        DateTime staleCollectionUtc)
+        DateTime collectionUtc)
     {
         Mock<IAzureExtractorPackageRepository> azureRepository = new();
         azureRepository
             .Setup(repo => repo.TryGetLatestProvenanceByRunIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AzureExtractorPackageProvenance { CollectionTimestampUtc = staleCollectionUtc });
+            .ReturnsAsync(new AzureExtractorPackageProvenance { CollectionTimestampUtc = collectionUtc });
         azureRepository
             .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(Scope, It.IsAny<CancellationToken>()))
             .ReturnsAsync((DateTime?)null);
@@ -131,7 +132,10 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
         return new RoiCostEvidenceCollectionResolver(azureRepository.Object, cloudRepository.Object);
     }
 
-    private static (ValueReportBuilder Builder, Mock<IScopeContextProvider> ScopeProvider) CreateValueReportBuilderWithScope()
+    private static FirstValueReportBuilder CreateSut(
+        IRunDetailQueryService query,
+        IPilotRunDeltaComputer deltas,
+        RoiCostEvidenceCollectionResolver collectionResolver)
     {
         Mock<IValueReportMetricsReader> metrics = new();
         metrics
@@ -163,50 +167,10 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
         Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
         opt.Setup(o => o.CurrentValue).Returns(new ValueReportComputationOptions());
 
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
-
-        return (new ValueReportBuilder(metrics.Object, opt.Object), scopeProvider);
-    }
-
-    private static FirstValueReportBuilder CreateMarkdownBuilder(
-        IRunDetailQueryService query,
-        IPilotRunDeltaComputer deltas)
-    {
-        Mock<IValueReportMetricsReader> metrics = new();
-        metrics
-            .Setup(m => m.ReadAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ValueReportRawMetrics(
-                    [],
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    40m,
-                    "signup",
-                    DateTimeOffset.Parse("2026-03-01T00:00:00Z"),
-                    12m,
-                    3,
-                    6m,
-                    null,
-                    null));
-
-        Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
-        opt.Setup(o => o.CurrentValue).Returns(new ValueReportComputationOptions());
-
         ValueReportBuilder valueReport = new(metrics.Object, opt.Object);
 
-        Mock<IScopeContextProvider> scope = new();
-        scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
         IConfigurationRoot configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
@@ -238,13 +202,13 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             query,
             deltas,
             valueReport,
-            scope.Object,
+            scopeProvider.Object,
             new ExecutionProvenanceFooterRenderer(),
             configuration,
             siteOpts.Object,
             branding.Object,
             pilotBaselines.Object,
-            FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
+            collectionResolver,
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
@@ -296,16 +260,5 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             Results = [],
             DecisionTraces = [],
         };
-    }
-
-    private static async Task<string> ReadZipEntryTextAsync(byte[] zipBytes, string entryPath)
-    {
-        await using MemoryStream zipStream = new(zipBytes);
-        using ZipArchive zip = new(zipStream, ZipArchiveMode.Read);
-        ZipArchiveEntry entry = zip.GetEntry(entryPath)!;
-        await using Stream entryStream = entry.Open();
-        using StreamReader reader = new(entryStream, Encoding.UTF8);
-
-        return await reader.ReadToEndAsync();
     }
 }

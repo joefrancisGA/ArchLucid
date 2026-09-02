@@ -494,7 +494,7 @@
 {"at":"2026-08-31T16:17:40.6306563Z","zoneId":"persistence-identity","outcome":"hit"}
 {"at":"2026-08-31T16:26:57.3744552Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T16:35:52.6631481Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-31T16:46:01.8178610Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T16:46:01.817861Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T16:53:35.5904819Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-08-31T17:07:36.7855392Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T17:15:45.029233Z","zoneId":"ui-operator-lib","outcome":"hit"}
@@ -502,7 +502,7 @@
 {"at":"2026-08-31T17:29:00Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","note":"seed hunt #331 posture/coverage ghost-workspace and product-feedback score omission"}
 {"at":"2026-08-31T17:35:32.6501836Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T17:42:37.2094468Z","zoneId":"archlucid-contracts","outcome":"hit"}
-{"at":"2026-08-31T17:49:27.4942440Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-31T17:49:27.494244Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T17:58:00.745Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T18:04:02.7791778Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T18:08:31.0904599Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -525,7 +525,11 @@
 {"at":"2026-08-31T23:08:45.2398946Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T23:12:45Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-31T23:14:24.929865Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-09-01T20:17:13.6682630Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
+{"at":"2026-09-01T20:17:13.668263Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-01T20:22:05.8495361Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-01T20:30:50.618223Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-01T20:43:44.5986794Z","zoneId":"archlucid-core","outcome":"hit"}
+{"at":"2026-09-02T03:56:40.5676805Z","zoneId":"archlucid-core","outcome":"hit"}
+{"at":"2026-09-02T04:03:33.2871588Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
+{"at":"2026-09-02T04:09:32.3922023Z","zoneId":"application-pilots","outcome":"hit"}
+{"at":"2026-09-02T04:19:03.5785315Z","zoneId":"retrieval","outcome":"hit"}
