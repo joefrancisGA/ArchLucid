@@ -28,7 +28,7 @@ public static class AwsEc2OfferIndexParser
         {
             JsonElement product = productEntry.Value;
 
-            if (!product.TryGetProperty("attributes", out JsonElement attributes))
+            if (!TryGetPropertyCaseInsensitive(product, "attributes", out JsonElement attributes))
                 continue;
 
             if (!TryReadAttribute(attributes, "instanceType", out string? foundType)

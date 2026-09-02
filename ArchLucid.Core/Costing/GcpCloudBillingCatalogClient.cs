@@ -121,7 +121,7 @@ public sealed class GcpCloudBillingCatalogClient
                 await http.GetStreamAsync(requestUri, ct).ConfigureAwait(false),
                 cancellationToken: ct).ConfigureAwait(false);
 
-            if (!document.RootElement.TryGetProperty("skus", out JsonElement skus))
+            if (!TryGetPropertyCaseInsensitive(document.RootElement, "skus", out JsonElement skus))
                 return null;
 
             string needle = machineType.Trim();
