@@ -15,6 +15,7 @@ import {
   tryReadProblemDetail,
 } from "@/app/(marketing)/quick-scan/quick-scan-session";
 import { useQuickScanStatusQuery } from "@/hooks/use-quick-scan-status-query";
+import { isTurnstileBotChallengeConfigured } from "@/lib/auth/turnstile-config";
 import {
   isQuickScanAiSubmitAllowed,
   resolveQuickScanCapacityMessage,
@@ -49,9 +50,12 @@ export function useQuickScanClient() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [capacityMessage, setCapacityMessage] = useState<string | null>(null);
+  const [captchaChallengeRequired, setCaptchaChallengeRequired] = useState(false);
+  const [botChallengeToken, setBotChallengeToken] = useState<string | null>(null);
   const [result, setResult] = useState<QuickScanResponse | null>(null);
   const { data: statusQueryData } = useQuickScanStatusQuery();
   const status = statusQueryData ?? null;
+  const turnstileConfigured = useMemo(() => isTurnstileBotChallengeConfigured(), []);
 
   const fieldErrors = useMemo(() => validateQuickScanForm(formValues), [formValues]);
   const visibleFieldErrors = useMemo(
@@ -59,7 +63,15 @@ export function useQuickScanClient() {
     [fieldErrors, touchedFields, attemptedSubmit],
   );
   const incompleteReason = useMemo(() => quickScanIncompleteReason(fieldErrors), [fieldErrors]);
-  const canSubmit = incompleteReason === null && !submitting && isQuickScanAiSubmitAllowed(status);
+  const captchaBlockingSubmit =
+    captchaChallengeRequired &&
+    turnstileConfigured &&
+    (botChallengeToken === null || botChallengeToken.length === 0);
+  const canSubmit =
+    incompleteReason === null &&
+    !submitting &&
+    isQuickScanAiSubmitAllowed(status) &&
+    !captchaBlockingSubmit;
   const aiSubmitBlocked = incompleteReason === null && !submitting && !isQuickScanAiSubmitAllowed(status);
   const capacityState = status?.capacityState ?? "unknown";
   const submitBlockedMessage =
@@ -127,16 +139,16 @@ export function useQuickScanClient() {
       return;
     }
 
-    const message = resolveQuickScanCapacityMessage(status);
-
-    if (message !== null) {
-      setCapacityMessage(message);
-    }
+    setCapacityMessage(resolveQuickScanCapacityMessage(status));
 
     if (result === null && status.capacityState === "SampleOnly" && status.sampleResultAvailable) {
       showSampleResult("SampleOnly");
     }
   }, [result, showSampleResult, status]);
+
+  const handleBotChallengeTokenChange = useCallback((token: string | null) => {
+    setBotChallengeToken(token);
+  }, []);
 
   const markFieldTouched = useCallback((fieldName: QuickScanFormFieldName) => {
     setTouchedFields((previous) => {
@@ -202,7 +214,7 @@ export function useQuickScanClient() {
           "X-Quick-Scan-Browser": browserId,
         },
         cache: "no-store",
-        body: JSON.stringify(buildQuickScanRequestBody(formValues)),
+        body: JSON.stringify(buildQuickScanRequestBody(formValues, botChallengeToken)),
       });
 
       const text = await response.text();
@@ -218,6 +230,8 @@ export function useQuickScanClient() {
 
       if (response.status === 403) {
         if (errorCode === "QUICK_SCAN_CAPTCHA_REQUIRED") {
+          setCaptchaChallengeRequired(true);
+          setBotChallengeToken(null);
           throw new Error(problemDetail ?? "Complete the security check to continue with Quick Scan.");
         }
 
@@ -231,6 +245,8 @@ export function useQuickScanClient() {
       const data = JSON.parse(text) as QuickScanResponse;
       setResult(data);
       setStatusMessage("Analysis complete.");
+      setCaptchaChallengeRequired(false);
+      setBotChallengeToken(null);
     } catch (submitError: unknown) {
       if (submitError instanceof Error && submitError.name === "AbortError") {
         return;
@@ -247,7 +263,7 @@ export function useQuickScanClient() {
       abortControllerRef.current = null;
       setSubmitting(false);
     }
-  }, [formValues, status]);
+  }, [botChallengeToken, formValues, status]);
 
   const handleFormSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
@@ -274,6 +290,9 @@ export function useQuickScanClient() {
     statusMessage,
     error,
     capacityMessage,
+    captchaChallengeRequired,
+    botChallengeToken,
+    turnstileConfigured,
     result,
     status,
     incompleteReason,
@@ -287,6 +306,7 @@ export function useQuickScanClient() {
     handleFormSubmit,
     showSampleResult,
     onConversionClick,
+    handleBotChallengeTokenChange,
   };
 }
 
