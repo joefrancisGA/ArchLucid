@@ -3,14 +3,13 @@
 import { memo, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DismissibleActiveFilterChip } from "@/components/ui/dismissible-active-filter-chip";
 import {
   governanceFindingsQueueActiveFilterChips,
 } from "@/lib/governance/governance-findings-queue-active-filters";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 import type { FindingJobView } from "@/lib/findings/finding-job-view";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
-import { cn } from "@/lib/utils";
 
 export type GovernanceFindingsQueueActiveFilterChipsProps = {
   readonly registerFilter: RiskRegisterFilter;
@@ -18,6 +17,7 @@ export type GovernanceFindingsQueueActiveFilterChipsProps = {
   readonly nlFacets: FindingsNaturalLanguageFacets;
   readonly jobViewFilterActive: boolean;
   readonly findingsSearchQuery: string;
+  readonly onDismissChip: (chipId: string) => void;
   readonly onClearAll: () => void;
 };
 
@@ -43,16 +43,13 @@ function GovernanceFindingsQueueActiveFilterChipsComponent(
       aria-label="Active filters"
     >
       {chips.map((chip) => (
-        <span
+        <DismissibleActiveFilterChip
           key={chip.id}
-          className={cn(
-            "inline-flex items-center rounded border border-neutral-200 bg-white px-2 py-0.5 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900",
-            OPERATOR_TYPOGRAPHY.helper,
-          )}
-          data-testid={`governance-findings-active-filter-chip-${chip.id}`}
-        >
-          {chip.label}
-        </span>
+          label={chip.label}
+          onDismiss={() => props.onDismissChip(chip.id)}
+          testId={`governance-findings-active-filter-chip-${chip.id}`}
+          dismissLabel={`Remove ${chip.label}`}
+        />
       ))}
       <Button type="button" size="sm" variant="outline" onClick={props.onClearAll}>
         Clear all filters

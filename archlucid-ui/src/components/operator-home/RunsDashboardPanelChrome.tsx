@@ -14,8 +14,6 @@ import {
 } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs } from "@/components/ui/tabs";
-import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 
 import type { RunsDashboardPanelViewModel } from "./use-runs-dashboard-panel";
 
@@ -49,80 +47,72 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
           onClear={model.clearGovernanceWarningsFilter}
         />
       ) : null}
-      <Tabs
-        value={model.tab}
-        onValueChange={(next) => {
-          model.selectDashboardTab(next as RunsDashboardTabId);
-        }}
-        variant="line"
+      <Card
+        className={cn(
+          model.showReviewFilters
+            ? "border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+            : "border-0 bg-transparent shadow-none",
+        )}
+        data-testid="runs-dashboard-panel"
       >
-        <Card
+        {model.showReviewFilters ? (
+          <RunsDashboardPanelFilters
+            buyerPolishedShell={model.buyerPolishedShell}
+            hideHeading={model.hideHeading}
+            tab={model.tab}
+            isRecentListTab={model.isRecentListTab}
+            statusTabIds={model.statusTabIds}
+            statusTabCounts={model.statusTabCounts}
+            archivedFieldSupported={model.archivedFieldSupported}
+            archivedCount={model.archivedCount}
+            archivedFilterDisabled={model.archivedFilterDisabled}
+            showArchived={model.showArchived}
+            openAllReviewsHref={model.openAllReviewsHref}
+          />
+        ) : null}
+        <CardContent
           className={cn(
-            model.showReviewFilters
-              ? "border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
-              : "border-0 bg-transparent shadow-none",
+            model.showReviewFilters ? OPERATOR_CARD.content : "p-0",
+            OPERATOR_LAYOUT.sectionStack,
+            OPERATOR_TYPE_SCALE.body,
           )}
-          data-testid="runs-dashboard-panel"
         >
-          {model.showReviewFilters ? (
-            <RunsDashboardPanelFilters
-              buyerPolishedShell={model.buyerPolishedShell}
-              hideHeading={model.hideHeading}
-              tab={model.tab}
-              isRecentListTab={model.isRecentListTab}
-              statusTabIds={model.statusTabIds}
-              statusTabCounts={model.statusTabCounts}
-              archivedFieldSupported={model.archivedFieldSupported}
-              archivedCount={model.archivedCount}
-              archivedFilterDisabled={model.archivedFilterDisabled}
-              showArchived={model.showArchived}
-              onSelectDashboardTab={model.selectDashboardTab}
-              onToggleShowArchived={() => model.setShowArchived(!model.showArchived)}
-              openAllReviewsHref={model.openAllReviewsHref}
-            />
-          ) : null}
-          <CardContent
-            className={cn(
-              model.showReviewFilters ? OPERATOR_CARD.content : "p-0",
-              OPERATOR_LAYOUT.sectionStack,
-              OPERATOR_TYPE_SCALE.body,
-            )}
-          >
-            <RunsDashboardPanelTable
-              buyerPolishedShell={model.buyerPolishedShell}
-              hideHeading={model.hideHeading}
-              phase={model.phase}
-              showInitialLoadingSkeleton={model.showInitialLoadingSkeleton}
-              failure={model.failure}
-              runListError={model.runListError}
-              filteredItems={model.filteredItems}
-              displayItems={model.displayItems}
-              approvedTabItems={model.approvedTabItems}
-              attentionTabItems={model.attentionTabItems}
-              monitoringTabItems={model.monitoringTabItems}
-              homeAttentionPreviewItems={model.homeAttentionPreviewItems}
-              homeAttentionPartitionLabel={model.homeAttentionPartitionLabel}
-              governanceWarningsOnly={model.governanceWarningsOnly}
-              showArchived={model.showArchived}
-              onGovernanceWarningsOnlyChange={model.setGovernanceWarningsOnly}
-              onShowArchivedChange={model.setShowArchived}
-              allTabShowcase={model.allTabShowcase}
-              approvedTabShowcase={model.approvedTabShowcase}
-              attentionTabShowcase={model.attentionTabShowcase}
-              monitoringTabShowcase={model.monitoringTabShowcase}
-              showcaseDemoRun={model.showcaseDemoRun}
-              showcasePrimaryCta={model.showcasePrimaryCta}
-              buyerSafeHighlight={model.buyerSafeHighlight}
-              archivedFieldSupported={model.archivedFieldSupported}
-              restoreBusyRequestId={model.restoreBusyRequestId}
-              onClearGovernanceWarningsFilter={model.clearGovernanceWarningsFilter}
-              onRestoreArchivedRequest={(requestId) => {
-                void model.restoreArchivedRequest(requestId);
-              }}
-            />
-          </CardContent>
-        </Card>
-      </Tabs>
+          <RunsDashboardPanelTable
+            tab={model.tab}
+            buyerPolishedShell={model.buyerPolishedShell}
+            hideHeading={model.hideHeading}
+            phase={model.phase}
+            showInitialLoadingSkeleton={model.showInitialLoadingSkeleton}
+            failure={model.failure}
+            runListError={model.runListError}
+            filteredItems={model.filteredItems}
+            displayItems={model.displayItems}
+            approvedTabItems={model.approvedTabItems}
+            attentionTabItems={model.attentionTabItems}
+            monitoringTabItems={model.monitoringTabItems}
+            homeAttentionPreviewItems={model.homeAttentionPreviewItems}
+            homeAttentionPartitionLabel={model.homeAttentionPartitionLabel}
+            governanceWarningsOnly={model.governanceWarningsOnly}
+            showArchived={model.showArchived}
+            allTabShowcase={model.allTabShowcase}
+            approvedTabShowcase={model.approvedTabShowcase}
+            attentionTabShowcase={model.attentionTabShowcase}
+            monitoringTabShowcase={model.monitoringTabShowcase}
+            showcaseDemoRun={model.showcaseDemoRun}
+            showcasePrimaryCta={model.showcasePrimaryCta}
+            buyerSafeHighlight={model.buyerSafeHighlight}
+            archivedFieldSupported={model.archivedFieldSupported}
+            archivedCount={model.archivedCount}
+            archivedFilterDisabled={model.archivedFilterDisabled}
+            restoreBusyRequestId={model.restoreBusyRequestId}
+            onClearGovernanceWarningsFilter={model.clearGovernanceWarningsFilter}
+            onClearStatusFilter={model.clearStatusFilter}
+            onRestoreArchivedRequest={(requestId) => {
+              void model.restoreArchivedRequest(requestId);
+            }}
+          />
+        </CardContent>
+      </Card>
     </section>
   );
 }

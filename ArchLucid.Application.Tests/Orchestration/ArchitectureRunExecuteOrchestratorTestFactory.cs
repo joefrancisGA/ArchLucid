@@ -173,6 +173,24 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             invokeStage,
             persistStage);
 
+        IArchitectureRunExecuteScopeResolveStage scopeResolveStage = new ArchitectureRunExecuteScopeResolveStage(
+            scopeContextProvider,
+            resultRepository,
+            runStateTransitionService,
+            args.RunStageOutcomesRepository ?? Mock.Of<IRunStageOutcomesRepository>());
+
+        IArchitectureRunExecuteTelemetryStage telemetryStage = new ArchitectureRunExecuteTelemetryStage(
+            agentExecutionOptions,
+            effectiveModeAccessor,
+            NullLogger<ArchitectureRunExecuteTelemetryStage>.Instance);
+
+        IArchitectureRunExecuteTailHooksStage tailHooksStage = new ArchitectureRunExecuteTailHooksStage(
+            scopeContextProvider,
+            args.BaselineMutationAuditService ?? Mock.Of<IBaselineMutationAuditService>(),
+            postExecuteHooks,
+            args.DemoExpensiveActionGate ?? CreatePermissiveDemoExpensiveActionGate(),
+            args.AgentExecutionReadinessGuard ?? new PermissiveAgentExecutionReadinessGuard());
+
         return new ArchitectureRunExecuteOrchestrator(
             runRepository,
             scopeContextProvider,
@@ -183,15 +201,12 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             args.BaselineMutationAuditService ?? Mock.Of<IBaselineMutationAuditService>(),
             postExecuteHooks,
             agentExecutionOptions,
-            effectiveModeAccessor,
-            runStateTransitionService,
-            args.DemoExpensiveActionGate ?? CreatePermissiveDemoExpensiveActionGate(),
             args.RunExecuteOwnershipLeaseService ?? new DisabledRunExecuteOwnershipLeaseService(),
-            args.RunStageOutcomesRepository ?? Mock.Of<IRunStageOutcomesRepository>(),
-            args.AgentExecutionReadinessGuard ?? new PermissiveAgentExecutionReadinessGuard(),
             preExecuteStage,
             agentLoopStage,
-            args.Logger ?? NullLogger<ArchitectureRunExecuteOrchestrator>.Instance,
+            scopeResolveStage,
+            telemetryStage,
+            tailHooksStage,
             args.IncompleteAuthorityPipelineExecuteHandler ?? CreateNoOpIncompleteAuthorityPipelineExecuteHandler());
     }
 

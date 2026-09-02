@@ -1,12 +1,17 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import {
   DEFAULT_FINDING_JOB_VIEW,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
 import { writeFindingJobViewToUrl } from "@/lib/findings/review-findings-job-view-url";
+import {
+  resolveReviewFindingsToolbarFilterFromSearchParam,
+  writeReviewFindingsToolbarFilterToUrl,
+} from "@/lib/findings/review-findings-toolbar-filter-url";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
 import type {
   RunDetailFindingsFilterKind,
@@ -15,6 +20,7 @@ import type {
 
 export function useRunDetailFindingsToolbarState(options?: {
   readonly initialJobView?: FindingJobView;
+  readonly initialFilter?: RunDetailFindingsFilterKind;
 }): {
   readonly filter: RunDetailFindingsFilterKind;
   readonly setFilter: (filter: RunDetailFindingsFilterKind) => void;
@@ -33,7 +39,15 @@ export function useRunDetailFindingsToolbarState(options?: {
   readonly groundingFilter: FindingGroundingFilter;
   readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
 } {
-  const [filter, setFilter] = useState<RunDetailFindingsFilterKind>("all");
+  const searchParams = useSearchParams();
+  const initialFilter =
+    options?.initialFilter ??
+    resolveReviewFindingsToolbarFilterFromSearchParam(searchParams?.get("findingsFilter"));
+  const [filter, setFilterState] = useState<RunDetailFindingsFilterKind>(initialFilter);
+  const setFilter = useCallback((next: RunDetailFindingsFilterKind): void => {
+    setFilterState(next);
+    writeReviewFindingsToolbarFilterToUrl(next);
+  }, []);
   const [jobView, setJobViewState] = useState<FindingJobView>(
     options?.initialJobView ?? DEFAULT_FINDING_JOB_VIEW,
   );

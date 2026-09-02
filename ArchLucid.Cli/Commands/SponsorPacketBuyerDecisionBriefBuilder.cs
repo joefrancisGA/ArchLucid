@@ -20,12 +20,12 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         ArgumentNullException.ThrowIfNull(inputs);
         ArgumentException.ThrowIfNullOrWhiteSpace(inputs.RunId);
 
-        PackManifestSummary manifest = ParseManifest(inputs.PackManifestJson);
-        SponsorReport sponsor = ParseSponsorReport(inputs.SponsorReportJson);
-        LimitationsSummary limitations = ParseLimitations(inputs.LimitationsMd);
+        SponsorPacketBuyerDecisionBriefSections.PackManifestSummary manifest = ParseManifest(inputs.PackManifestJson);
+        SponsorPacketBuyerDecisionBriefSections.SponsorReport sponsor = ParseSponsorReport(inputs.SponsorReportJson);
+        SponsorPacketBuyerDecisionBriefSections.LimitationsSummary limitations = ParseLimitations(inputs.LimitationsMd);
         string? valueParagraph = ExtractFirstValueParagraph(inputs.FirstValueReportMd);
         string? executionProvenance = ExtractExecutionProvenanceLine(inputs.FirstValueReportMd);
-        string disposition = DeriveDisposition(manifest, limitations);
+        string disposition = SponsorPacketBuyerDecisionBriefSections.DeriveDisposition(manifest, limitations);
 
         return RenderBrief(inputs.RunId, disposition, manifest, sponsor, limitations, valueParagraph, executionProvenance);
     }
@@ -47,10 +47,10 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         return Build(new BriefInputs(runId, manifestJson, SponsorReportJson, limitationsMd, firstValueReportMd));
     }
 
-    private static PackManifestSummary ParseManifest(string? json)
+    private static SponsorPacketBuyerDecisionBriefSections.PackManifestSummary ParseManifest(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))
-            return new PackManifestSummary(null, false);
+            return new SponsorPacketBuyerDecisionBriefSections.PackManifestSummary(null, false);
 
         try
         {
@@ -59,18 +59,18 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
             bool demo = root.TryGetProperty("demoDataWarning", out JsonElement demoEl) && demoEl.ValueKind == JsonValueKind.True;
             string? generatedUtc = root.TryGetProperty("generatedUtc", out JsonElement genEl) ? genEl.GetString() : null;
 
-            return new PackManifestSummary(generatedUtc, demo);
+            return new SponsorPacketBuyerDecisionBriefSections.PackManifestSummary(generatedUtc, demo);
         }
         catch (JsonException)
         {
-            return new PackManifestSummary(null, false);
+            return new SponsorPacketBuyerDecisionBriefSections.PackManifestSummary(null, false);
         }
     }
 
-    private static SponsorReport ParseSponsorReport(string? json)
+    private static SponsorPacketBuyerDecisionBriefSections.SponsorReport ParseSponsorReport(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))
-            return new SponsorReport(null, null, null, null);
+            return new SponsorPacketBuyerDecisionBriefSections.SponsorReport(null, null, null, null);
 
         try
         {
@@ -85,18 +85,18 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
             int? systemCount = root.TryGetProperty("systemCount", out JsonElement sysEl)
                 && sysEl.TryGetInt32(out int sc) ? sc : null;
 
-            return new SponsorReport(savings, scopeDescription, systemRowScopeDescription, systemCount);
+            return new SponsorPacketBuyerDecisionBriefSections.SponsorReport(savings, scopeDescription, systemRowScopeDescription, systemCount);
         }
         catch (JsonException)
         {
-            return new SponsorReport(null, null, null, null);
+            return new SponsorPacketBuyerDecisionBriefSections.SponsorReport(null, null, null, null);
         }
     }
 
-    private static LimitationsSummary ParseLimitations(string? markdown)
+    private static SponsorPacketBuyerDecisionBriefSections.LimitationsSummary ParseLimitations(string? markdown)
     {
         if (string.IsNullOrWhiteSpace(markdown))
-            return new LimitationsSummary([], []);
+            return new SponsorPacketBuyerDecisionBriefSections.LimitationsSummary([], []);
 
         List<string> holdReasons = [];
         List<string> warnReasons = [];
@@ -130,7 +130,7 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
             warnReasons.AddRange(ExtractBulletItems(markdown, "Warn"));
         }
 
-        return new LimitationsSummary(holdReasons, warnReasons);
+        return new SponsorPacketBuyerDecisionBriefSections.LimitationsSummary(holdReasons, warnReasons);
     }
 
     private static List<string> ExtractBulletItems(string markdown, string sectionKeyword)
@@ -217,17 +217,6 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         return paragraph.Length > 0 ? paragraph.ToString().Trim() : null;
     }
 
-    private static string DeriveDisposition(PackManifestSummary manifest, LimitationsSummary limitations)
-    {
-        if (limitations.HoldReasons.Count > 0)
-            return "HOLD";
-
-        if (manifest.DemoDataWarning || limitations.WarnReasons.Count > 0)
-            return "WARN";
-
-        return "PASS";
-    }
-
     private static string? ExtractExecutionProvenanceLine(string? firstValueReportMd)
     {
         if (string.IsNullOrWhiteSpace(firstValueReportMd))
@@ -252,9 +241,9 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
     private static string RenderBrief(
         string runId,
         string disposition,
-        PackManifestSummary manifest,
-        SponsorReport sponsor,
-        LimitationsSummary limitations,
+        SponsorPacketBuyerDecisionBriefSections.PackManifestSummary manifest,
+        SponsorPacketBuyerDecisionBriefSections.SponsorReport sponsor,
+        SponsorPacketBuyerDecisionBriefSections.LimitationsSummary limitations,
         string? valueParagraph,
         string? executionProvenance)
     {
@@ -278,141 +267,25 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         sb.AppendLine();
         sb.AppendLine("## Outcome");
         sb.AppendLine();
-        AppendOutcomeSection(sb, disposition, sponsor, manifest);
+        SponsorPacketBuyerDecisionBriefSections.AppendOutcomeSection(sb, disposition, sponsor, manifest);
         sb.AppendLine();
         sb.AppendLine("## Quantified value");
         sb.AppendLine();
-        AppendValueSection(sb, sponsor, valueParagraph);
+        SponsorPacketBuyerDecisionBriefSections.AppendValueSection(sb, sponsor, valueParagraph);
         sb.AppendLine();
         sb.AppendLine("## Top caveats");
         sb.AppendLine();
-        AppendCaveatsSection(sb, limitations, manifest);
+        SponsorPacketBuyerDecisionBriefSections.AppendCaveatsSection(sb, limitations, manifest);
         sb.AppendLine();
         sb.AppendLine("## Evidence links");
         sb.AppendLine();
-        AppendEvidenceLinks(sb);
+        SponsorPacketBuyerDecisionBriefSections.AppendEvidenceLinks(sb);
         sb.AppendLine();
         sb.AppendLine("## Recommended next step");
         sb.AppendLine();
-        AppendNextStep(sb, disposition);
+        SponsorPacketBuyerDecisionBriefSections.AppendNextStep(sb, disposition);
 
         return sb.ToString();
-    }
-
-    private static void AppendOutcomeSection(StringBuilder sb, string disposition, SponsorReport sponsor, PackManifestSummary manifest)
-    {
-        string headline = disposition switch
-        {
-            "PASS" => "Architecture review completed. Findings are committed and sponsor-send ready.",
-            "WARN" => "Architecture review completed with caveats. Review `limitations.md` before external circulation.",
-            "HOLD" => "Architecture review completed. Sponsor send is on hold pending resolution of `limitations.md` items.",
-            _ => "Architecture review completed.",
-        };
-
-        sb.AppendLine(headline);
-
-        if (sponsor.SystemCount.HasValue)
-        {
-            sb.AppendLine();
-            sb.AppendLine(CultureInfo.InvariantCulture,
-                $"{sponsor.SystemCount.Value} system{(sponsor.SystemCount.Value == 1 ? string.Empty : "s")} evaluated in this committed run.");
-        }
-
-        if (manifest.DemoDataWarning)
-        {
-            sb.AppendLine();
-            sb.AppendLine("**Demo data:** This packet was generated from a demo or synthetic tenant. Do not present as evidence of a live architecture review.");
-        }
-    }
-
-    private static void AppendValueSection(StringBuilder sb, SponsorReport sponsor, string? valueParagraph)
-    {
-        if (sponsor.TotalEstimatedUsdSavings.HasValue)
-        {
-            string formatted = sponsor.TotalEstimatedUsdSavings.Value.ToString("C0", CultureInfo.InvariantCulture);
-            string scope = string.IsNullOrWhiteSpace(sponsor.HeadlineSavingsScopeDescription)
-                ? RoiSponsorFacingScopeDescriptions.HeadlineDispositionAware
-                : sponsor.HeadlineSavingsScopeDescription;
-            string systemRowScope = string.IsNullOrWhiteSpace(sponsor.SystemRowSavingsScopeDescription)
-                ? RoiSponsorFacingScopeDescriptions.SystemRowSnapshotPotential
-                : sponsor.SystemRowSavingsScopeDescription;
-
-            sb.AppendLine(CultureInfo.InvariantCulture,
-                $"**Estimated savings:** {formatted} ({scope})");
-            sb.AppendLine();
-            sb.AppendLine(CultureInfo.InvariantCulture, $"**Per-system scope:** {systemRowScope}");
-            sb.AppendLine();
-            sb.AppendLine(RoiSponsorFacingScopeDescriptions.NonAdditivityCaveat);
-            sb.AppendLine();
-            sb.AppendLine("This is a projected estimate based on architecture findings. It is not a guarantee and depends on the buyer's implementation choices and environment.");
-        }
-        else
-        {
-            sb.AppendLine("Savings estimate not available in this packet. See `sponsor-report.json` when present.");
-        }
-
-        if (!string.IsNullOrWhiteSpace(valueParagraph))
-        {
-            sb.AppendLine();
-
-            // Truncate to ~600 chars to stay within one page
-            string truncated = valueParagraph.Length > 600
-                ? string.Concat(valueParagraph.AsSpan(0, 597), "...")
-                : valueParagraph;
-
-            sb.AppendLine(truncated);
-        }
-    }
-
-    private static void AppendCaveatsSection(StringBuilder sb, LimitationsSummary limitations, PackManifestSummary manifest)
-    {
-        bool anyCaveats = false;
-
-        if (manifest.DemoDataWarning)
-        {
-            sb.AppendLine("- **Demo data:** findings reflect synthetic or seeded data, not a live production corpus.");
-            anyCaveats = true;
-        }
-
-        foreach (string reason in limitations.HoldReasons.Take(5))
-        {
-            sb.AppendLine(CultureInfo.InvariantCulture, $"- **HOLD:** {reason}");
-            anyCaveats = true;
-        }
-
-        foreach (string reason in limitations.WarnReasons.Take(3))
-        {
-            sb.AppendLine(CultureInfo.InvariantCulture, $"- **WARN:** {reason}");
-            anyCaveats = true;
-        }
-
-        if (!anyCaveats)
-            sb.AppendLine("No hold or warn caveats at time of packet generation. See `limitations.md` for the full list.");
-
-        sb.AppendLine();
-        sb.AppendLine("This brief does not claim live Azure OpenAI validation, SOC certification, marketplace listing, or customer references unless explicitly stated in source artifacts.");
-    }
-
-    private static void AppendEvidenceLinks(StringBuilder sb)
-    {
-        sb.AppendLine("| Artifact | Purpose |");
-        sb.AppendLine("| --- | --- |");
-
-        foreach (SponsorPacketArtifactEntry entry in SponsorPacketArtifactCatalog.IndexEntries)
-            sb.AppendLine(CultureInfo.InvariantCulture, $"| `{entry.FileName}` | {entry.Purpose.Replace("|", "/", StringComparison.Ordinal)} |");
-    }
-
-    private static void AppendNextStep(StringBuilder sb, string disposition)
-    {
-        string step = disposition switch
-        {
-            "PASS" => "Share this packet with the sponsor reviewer. Confirm the recipient has signed an NDA or equivalent before attaching `provenance-references.json`.",
-            "WARN" => "Review `limitations.md` caveats with the account team. Proceed with sponsor circulation if caveats are acknowledged in writing.",
-            "HOLD" => "Do not circulate externally. Resolve hold items listed in `limitations.md`, regenerate the packet, and confirm disposition is PASS or WARN before sharing.",
-            _ => "Consult `limitations.md` to determine whether this packet is ready for external circulation.",
-        };
-
-        sb.AppendLine(step);
     }
 
     private static string? ExtractRunIdFromManifest(string? json)
@@ -441,14 +314,4 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         string? SponsorReportJson,
         string? LimitationsMd,
         string? FirstValueReportMd);
-
-    private sealed record PackManifestSummary(string? GeneratedUtc, bool DemoDataWarning);
-
-    private sealed record SponsorReport(
-        decimal? TotalEstimatedUsdSavings,
-        string? HeadlineSavingsScopeDescription,
-        string? SystemRowSavingsScopeDescription,
-        int? SystemCount);
-
-    private sealed record LimitationsSummary(List<string> HoldReasons, List<string> WarnReasons);
 }

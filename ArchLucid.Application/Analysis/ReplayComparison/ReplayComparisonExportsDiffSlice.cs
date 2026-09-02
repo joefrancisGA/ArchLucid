@@ -1,19 +1,20 @@
+using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Metadata;
 
-namespace ArchLucid.Application.Analysis;
+namespace ArchLucid.Application.Analysis.ReplayComparison;
 
-public sealed partial class EndToEndReplayComparisonService
+/// <inheritdoc cref="IReplayComparisonDiffSlice" />
+public sealed class ReplayComparisonExportsDiffSlice(IExportRecordDiffService exportRecordDiffService) : IReplayComparisonDiffSlice
 {
-    private async Task AddExportDiffsAsync(
-        EndToEndReplayComparisonReport report,
-        IReadOnlyList<RunExportRecord> leftExports,
-        IReadOnlyList<RunExportRecord> rightExports,
-        CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(report);
+    private readonly IExportRecordDiffService _exportRecordDiffService =
+        exportRecordDiffService ?? throw new ArgumentNullException(nameof(exportRecordDiffService));
 
-        Dictionary<string, List<RunExportRecord>> leftByKey = GroupExportsByPairingKey(leftExports);
-        Dictionary<string, List<RunExportRecord>> rightByKey = GroupExportsByPairingKey(rightExports);
+    public async Task ApplyAsync(ReplayComparisonBuildContext context, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        Dictionary<string, List<RunExportRecord>> leftByKey = GroupExportsByPairingKey(context.LeftExports);
+        Dictionary<string, List<RunExportRecord>> rightByKey = GroupExportsByPairingKey(context.RightExports);
 
         foreach (string pairingKey in leftByKey.Keys.Union(rightByKey.Keys, StringComparer.OrdinalIgnoreCase)
                      .OrderBy(key => key, StringComparer.OrdinalIgnoreCase))
@@ -32,7 +33,7 @@ public sealed partial class EndToEndReplayComparisonService
 
                 if (hasLeft && hasRight)
                 {
-                    report.ExportDiffs.Add(
+                    context.Report.ExportDiffs.Add(
                         await _exportRecordDiffService.CompareAsync(
                             leftRecords[index],
                             rightRecords[index],
@@ -42,11 +43,11 @@ public sealed partial class EndToEndReplayComparisonService
 
                 if (!hasLeft)
                 {
-                    report.Warnings.Add($"Export {exportLabel} exists on the right run but not the left.");
+                    context.Report.Warnings.Add($"Export {exportLabel} exists on the right run but not the left.");
                     continue;
                 }
 
-                report.Warnings.Add($"Export {exportLabel} exists on the left run but not the right.");
+                context.Report.Warnings.Add($"Export {exportLabel} exists on the left run but not the right.");
             }
         }
     }

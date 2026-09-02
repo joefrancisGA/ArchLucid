@@ -112,8 +112,22 @@ updates:
     directory: "/ArchLucid.Api"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      docker-api:
+        patterns:
+          - "*"
 
   - package-ecosystem: docker
     directory: "/archlucid-ui"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      docker-ui:
+        patterns:
+          - "*"

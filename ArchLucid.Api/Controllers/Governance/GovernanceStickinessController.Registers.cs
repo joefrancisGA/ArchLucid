@@ -1,4 +1,5 @@
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
@@ -21,15 +22,12 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] bool assignedToMe = false,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? maxRowsProblem = ValidateRegisterMaxRows(maxRows);
+        IActionResult? queryProblem =
+            GovernanceStickinessControllerCore.ValidateRegisterListQuery(projectId, maxRows)
+                .ToBadRequestProblemOrNull(this);
 
-        if (maxRowsProblem is not null)
-            return maxRowsProblem;
-
-        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
-
-        if (projectIdProblem is not null)
-            return projectIdProblem;
+        if (queryProblem is not null)
+            return queryProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -53,7 +51,9 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+        IActionResult? projectIdProblem =
+            GovernanceStickinessControllerCore.ValidateProjectScopedQuery(projectId)
+                .ToBadRequestProblemOrNull(this);
 
         if (projectIdProblem is not null)
             return projectIdProblem;
@@ -98,7 +98,9 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
+        IActionResult? projectIdProblem =
+            GovernanceStickinessControllerCore.ValidateProjectScopedQuery(projectId)
+                .ToBadRequestProblemOrNull(this);
 
         if (projectIdProblem is not null)
             return projectIdProblem;
@@ -130,15 +132,12 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] int maxRows = 200,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? maxRowsProblem = ValidateRegisterMaxRows(maxRows);
+        IActionResult? queryProblem =
+            GovernanceStickinessControllerCore.ValidateRegisterListQuery(projectId, maxRows)
+                .ToBadRequestProblemOrNull(this);
 
-        if (maxRowsProblem is not null)
-            return maxRowsProblem;
-
-        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
-
-        if (projectIdProblem is not null)
-            return projectIdProblem;
+        if (queryProblem is not null)
+            return queryProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -166,26 +165,19 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] string? buyerConfidenceSource = null,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? maxRowsProblem = ValidateRegisterMaxRows(maxRows);
+        IActionResult? queryProblem = GovernanceStickinessControllerCore.ValidateDecisionRegisterListQuery(
+                projectId,
+                maxRows,
+                category,
+                recordedAfterUtc,
+                recordedBeforeUtc,
+                minConfidence,
+                maxConfidence,
+                buyerConfidenceSource)
+            .ToBadRequestProblemOrNull(this);
 
-        if (maxRowsProblem is not null)
-            return maxRowsProblem;
-
-        IActionResult? filterProblem = ValidateDecisionRegisterFilters(
-            category,
-            recordedAfterUtc,
-            recordedBeforeUtc,
-            minConfidence,
-            maxConfidence,
-            buyerConfidenceSource);
-
-        if (filterProblem is not null)
-            return filterProblem;
-
-        IActionResult? projectIdProblem = BadRequestWhenProjectQueryIdEmpty(projectId);
-
-        if (projectIdProblem is not null)
-            return projectIdProblem;
+        if (queryProblem is not null)
+            return queryProblem;
 
         category = category?.Trim();
 

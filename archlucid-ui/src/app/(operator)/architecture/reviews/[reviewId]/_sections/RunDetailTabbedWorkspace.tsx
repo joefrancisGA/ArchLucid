@@ -1,60 +1,47 @@
 import { Suspense } from "react";
 
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
 import { deriveReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import { resolveReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
-import { RunDetailActivityTabSectionNav } from "@/components/runs/RunDetailActivityTabSectionNav";
-import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 
 import {
   RecurrenceSchedulePostCommitCardDeferred,
   ReviewDetailWorkspaceDeferred,
   RunDetailArchitectureGraphIsland,
   RunDetailBelowFoldDeferredSkeleton,
-  RunDetailBelowFoldSectionsDeferred,
-  RunDetailColdOpenOrientationDeferred,
   RunDetailExplanationConfidenceBannerDeferred,
   RunDetailExplanationDeferred,
   RunDetailExplanationSkeleton,
   RunDetailGenerateAdrFromRunModal,
   RunDetailHolisticCriticPanelDeferred,
-  RunDetailLastFailureCardDeferred,
   RunDetailManifestSummaryAlertsDeferred,
   RunDetailManifestSummarySectionDeferred,
-  RunDetailMidDeferredSections,
-  RunDetailMidDeferredSkeleton,
-  RunDetailOperatorTechnicalForensicsPanelDeferred,
-  RunDetailOutcomeCardsDeferred,
-  RunDetailOverviewPanelClientDeferred,
   RunDetailPackageChangesSinceFinalizeSection,
   RunDetailPackageChangesSinceFinalizeSkeleton,
   RunDetailPolicyPackImpactCalloutDeferred,
   RunDetailPostCommitHabitIsland,
-  RunDetailProgressTrackerDeferred,
   RunDetailReviewPackageSectionDeferred,
   RunDetailReviewPackageShareRowDeferred,
   RunDetailReviewPackageSponsorHandoffGateDeferred,
   RunDetailRunActionsSectionDeferred,
   RunDetailSampleReviewPackageSummaryDeferred,
   RunDetailSubmittedArchitectureSectionDeferred,
-  RunDetailSponsorBottomLineDeferred,
-  RunDetailSponsorReportCtaCardDeferred,
   RunDetailTabbedSectionNavDeferred,
   RunDetailTechnologyBaselineSection,
-  RunDetailWorkspaceBlockingBannerDeferred,
-  RunDetailWorkspaceSummaryStripDeferred,
   resolveRunDetailSponsorBriefingSection,
 } from "./RunDetailTabbedWorkspaceDeferredImports";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
-import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { ReviewInPipelineBanner } from "@/components/reviews/ReviewInPipelineBanner";
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import { composeRunDetailEvidenceTab } from "./RunDetailEvidenceTabComposition";
 import { composeRunDetailGovernanceTab } from "./RunDetailGovernanceTabComposition";
+import {
+  buildRunDetailOutcomeCards,
+  composeRunDetailOverviewTab,
+} from "./RunDetailOverviewTabComposition";
+import { composeRunDetailActivityTab } from "./RunDetailActivityTabComposition";
+import { cn } from "@/lib/utils";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
 export type RunDetailTabbedWorkspaceProps = {
   readonly model: RunDetailPageModel;
@@ -67,54 +54,27 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
   const p = props.presentation;
   const {
     architectureEditHref,
-    architectureSummaryTitle,
     blockingApprovalCount,
-    buyerFinalizedPackage,
     deferredContext,
-    evidenceCoverageSummary,
     evidenceInventoryCount,
-    executiveBottomLineContent,
     findingCoverageSummary,
-    findingsSummaryLine,
-    governanceOutcomeLine,
-    hasSubmittedArchitecture,
-    materialSeverityLine,
     pendingDecisionCount,
     quickDecisionFindings,
-    recommendedActions,
-    reviewDisplayTitle,
-    reviewOwnerLabel,
     reviewPolicyPackCallout,
     reviewStatusSummary,
-    severityCounts,
     showArchitectureCreatedHome,
     showDemoMarketingChrome,
-    showcasePolicyPackStrip,
     submittedArchitectureText,
-    workspaceStatus,
     requestAssumptionTexts,
     lowExtractionConfidenceCount,
   } = p;
 
-  const outcomeCardsEl = (
-    <RunDetailOutcomeCardsDeferred
-      runId={m.resolvedDetail.run.runId}
-      manifestId={m.manifestId}
-      artifactCount={m.artifacts.length}
-      findingCountDisplay={m.findingCountDisplay}
-      warningCountDisplay={m.warningCountDisplay}
-      hasGoldenManifest={Boolean(m.manifestId)}
-      unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
-      aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
-      governanceGateLabel={m.governanceGateLabel}
-      authorityLifecyclePhase={m.resolvedDetail.authorityLifecyclePhase ?? null}
-      showcasePolicyPackStrip={showcasePolicyPackStrip}
-      degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
-      failedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
-      findingCoverageSummary={findingCoverageSummary}
-      pagePrimaryOwnedElsewhere
-    />
-  );
+  const outcomeCardsEl = buildRunDetailOutcomeCards(m, p);
+  const overviewTabPanelEl = composeRunDetailOverviewTab({
+    model: m,
+    presentation: p,
+    outcomeCardsEl,
+  });
 
   const sampleReviewPackageSummaryEl =
     m.usedStaticDemoRun ? (
@@ -128,11 +88,11 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
 
   const evidenceTabPanelEl = composeRunDetailEvidenceTab({ model: m, presentation: p });
   const governanceTabPanelEl = composeRunDetailGovernanceTab({ model: m, presentation: p });
+  const activityTabPanelEl = composeRunDetailActivityTab({
+    model: m,
+    deferredContext,
+  });
 
-  const executiveBottomLineEl =
-    blockingApprovalCount === 0 ? (
-      <RunDetailSponsorBottomLineDeferred content={executiveBottomLineContent} />
-    ) : null;
   const explanationDeferredEl = (
     <RunDetailExplanationDeferred
       runId={m.routeRunId}
@@ -218,58 +178,7 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
           decisionsRemediation: pendingDecisionCount > 0 ? pendingDecisionCount : null,
         }}
         panels={{
-          overview: (
-            <div key="review-detail-overview-panel" className="space-y-4">
-              <RunDetailColdOpenOrientationDeferred
-                runId={m.resolvedDetail.run.runId}
-                packageTitle={reviewDisplayTitle}
-                packageOwnerLabel={reviewOwnerLabel}
-                workspaceStatus={workspaceStatus}
-              />
-              {blockingApprovalCount > 0 ? (
-                <RunDetailWorkspaceBlockingBannerDeferred blockingCount={blockingApprovalCount} />
-              ) : null}
-              <RunDetailWorkspaceSummaryStripDeferred
-                outcomeHeading={m.manifestId ? "Governance decision" : "Review posture"}
-                reviewOutcome={m.manifestId ? governanceOutcomeLine : reviewStatusSummary.reviewOutcome}
-                highestUnresolvedSeverity={reviewStatusSummary.highestUnresolvedSeverity}
-                findingsSummaryLine={findingsSummaryLine}
-                evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
-                primaryConcern={reviewStatusSummary.primaryConcern}
-                materialSeverityLine={materialSeverityLine}
-              />
-              {executiveBottomLineEl}
-              <RunDetailOverviewPanelClientDeferred
-                runId={m.resolvedDetail.run.runId}
-                architectureTitle={architectureSummaryTitle}
-                architectureText={submittedArchitectureText}
-                evidenceCount={evidenceInventoryCount}
-                hasSubmittedArchitecture={hasSubmittedArchitecture}
-                userAssertions={null}
-                recommendedActions={recommendedActions}
-                criticalCount={severityCounts.critical}
-                highCount={severityCounts.high}
-                proofStatusSlot={
-                  <RunDetailFirstScreenProofStatusClient
-                    key="run-detail-overview-proof-status"
-                    runId={m.resolvedDetail.run.runId}
-                    legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
-                    isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
-                  />
-                }
-              />
-              <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-                <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
-                <div className="mt-3">{outcomeCardsEl}</div>
-              </details>
-              <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
-                <RunDetailMidDeferredSections context={deferredContext} />
-              </Suspense>
-              {buyerFinalizedPackage ? null : (
-                <RunDetailSponsorReportCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
-              )}
-            </div>
-          ),
+          overview: overviewTabPanelEl,
           findings: (
             <>
               {m.explanationSummary !== null ? (
@@ -389,60 +298,7 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
             </div>
           ),
           architecture: architectureTabPanelEl,
-          activity: (
-            <div className="space-y-4">
-              <RunDetailActivityTabSectionNav hasManifestId={Boolean(m.manifestId)} />
-              {!m.manifestId && m.showProgressTracker ? (
-                <div id="pipeline-timeline" className="scroll-mt-24">
-                  <RunDetailProgressTrackerDeferred
-                    runId={m.routeRunId}
-                    initialSummary={m.progressForPipelineUi}
-                    diagnosticContext={m.pipelineDiagnosticContext}
-                    deferFailureRecoveryToDoThisNext
-                  />
-                </div>
-              ) : null}
-              {m.showProgressTracker && m.manifestId ? (
-                <RunDetailProgressTrackerDeferred
-                  runId={m.routeRunId}
-                  initialSummary={m.progressForPipelineUi}
-                  diagnosticContext={m.pipelineDiagnosticContext}
-                />
-              ) : null}
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                <Link
-                  className={OPERATOR_LINK.nav}
-                  href={`/architecture/reviews/${encodeURIComponent(m.resolvedDetail.run.runId)}/provenance`}
-                  data-testid="run-detail-provenance-link"
-                >
-                  Full provenance view
-                </Link>
-              </p>
-              <RunDetailLastFailureCardDeferred
-                summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
-                legacyRunStatus={
-                  (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
-                }
-              />
-              {!m.buyerPolishedArtifactTable ? (
-                <RunDetailOperatorTechnicalForensicsPanelDeferred
-                  agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
-                  results={m.resolvedDetail.results}
-                  agentExecutionOutcomes={m.resolvedDetail.agentExecutionOutcomes}
-                  retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
-                  run={m.resolvedDetail.run}
-                  runDetailTraceId={m.runDetailTraceId}
-                />
-              ) : null}
-              <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
-                <RunDetailBelowFoldSectionsDeferred
-                  model={m}
-                  context={deferredContext}
-                  renderedInsideTabbedWorkspace
-                />
-              </Suspense>
-            </div>
-          ),
+          activity: activityTabPanelEl,
         }}
       />
     </Suspense>

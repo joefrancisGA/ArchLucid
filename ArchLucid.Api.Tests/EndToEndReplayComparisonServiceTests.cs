@@ -1,5 +1,6 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Analysis.ReplayComparison;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -53,17 +54,23 @@ public sealed class EndToEndReplayComparisonServiceTests
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureKnowledgeModel?)null);
+        EndToEndReplayComparisonReportComposer composer = new([
+            new ReplayComparisonAgentResultsDiffSlice(_agentDiff.Object),
+            new ReplayComparisonManifestsDiffSlice(_manifestDiff.Object),
+            new ReplayComparisonExportsDiffSlice(_exportDiff.Object),
+            new ReplayComparisonFindingLifecycleDiffSlice(
+                new ArchLucid.Application.Findings.CrossReviewFindingCorrelationService(),
+                new ArchLucid.Application.Findings.CrossReviewFindingLifecycleService(_reviewTrailRepository.Object),
+                _architectureKnowledgeModelAccess.Object,
+                _scopeContextProvider.Object),
+            new ReplayComparisonInterpretationDiffSlice(),
+        ]);
         _sut = new EndToEndReplayComparisonService(
             _runDetailQueryService.Object,
             _runRepository.Object,
             _exportRepo.Object,
-            _agentDiff.Object,
-            _manifestDiff.Object,
-            _exportDiff.Object,
-            new ArchLucid.Application.Findings.CrossReviewFindingCorrelationService(),
-            new ArchLucid.Application.Findings.CrossReviewFindingLifecycleService(_reviewTrailRepository.Object),
-            _architectureKnowledgeModelAccess.Object,
-            _scopeContextProvider.Object);
+            _scopeContextProvider.Object,
+            composer);
     }
 
     private static ArchitectureRun Run(string id, string? manifestVersion = null, StructuralExecutionMode mode = StructuralExecutionMode.Simulator)

@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Contracts.Governance;
@@ -30,21 +31,29 @@ public sealed partial class GovernanceStickinessController
         if (idempotencyError is not null)
             return idempotencyError;
 
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        IActionResult? bodyProblem =
+            GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
 
-        findingId = NormalizeFindingId(findingId);
+        if (bodyProblem is not null)
+            return bodyProblem;
 
-        if (string.IsNullOrWhiteSpace(findingId))
-            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+        IActionResult? findingIdProblem =
+            GovernanceStickinessControllerCore.ValidateFindingId(findingId, out findingId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (findingIdProblem is not null)
+            return findingIdProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
 
-        if (request.RunId == Guid.Empty)
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+        IActionResult? runIdProblem =
+            GovernanceStickinessControllerCore.ValidateRunId(request!.RunId).ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
 
         RecordFindingDispositionRequest normalized = new()
         {
@@ -92,52 +101,18 @@ public sealed partial class GovernanceStickinessController
         if (idempotencyError is not null)
             return idempotencyError;
 
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        IActionResult? bodyProblem =
+            GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
 
-        // Snapshot so later Count/foreach use a stable non-null local (property getters do not flow).
-        IReadOnlyList<string>? findingIds = request.FindingIds;
+        if (bodyProblem is not null)
+            return bodyProblem;
 
-        if (findingIds is null || findingIds.Count == 0)
-            return this.BadRequestProblem("At least one FindingId must be provided.", ProblemTypes.ValidationFailed);
+        IActionResult? findingIdsProblem =
+            GovernanceStickinessControllerCore.ValidateBulkDispositionFindingIds(request!.FindingIds)
+                .ToBadRequestProblemOrNull(this);
 
-        if (!findingIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
-        {
-            return this.BadRequestProblem(
-                "At least one non-empty FindingId must be provided.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        if (findingIds.Any(static id => string.IsNullOrWhiteSpace(id)))
-        {
-            return this.BadRequestProblem(
-                "Each FindingId must be a non-empty string.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        if (findingIds.Count > 50)
-        {
-            return this.BadRequestProblem(
-                "At most 50 finding ids are allowed per request.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (string findingId in findingIds)
-        {
-            if (string.IsNullOrWhiteSpace(findingId))
-                continue;
-
-            string normalizedFindingId = findingId.Trim();
-
-            if (!seenFindingIds.Add(normalizedFindingId))
-            {
-                return this.BadRequestProblem(
-                    "Duplicate findingId in batch.",
-                    ProblemTypes.ValidationFailed);
-            }
-        }
+        if (findingIdsProblem is not null)
+            return findingIdsProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -167,10 +142,12 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ListDispositions(string findingId, CancellationToken cancellationToken = default)
     {
-        findingId = NormalizeFindingId(findingId);
+        IActionResult? findingIdProblem =
+            GovernanceStickinessControllerCore.ValidateFindingId(findingId, out findingId)
+                .ToBadRequestProblemOrNull(this);
 
-        if (string.IsNullOrWhiteSpace(findingId))
-            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+        if (findingIdProblem is not null)
+            return findingIdProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -196,28 +173,36 @@ public sealed partial class GovernanceStickinessController
         [FromBody] ArchLucid.Contracts.Findings.ResolveFindingMergeConflictRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        IActionResult? bodyProblem =
+            GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
 
-        findingId = NormalizeFindingId(findingId);
+        if (bodyProblem is not null)
+            return bodyProblem;
 
-        if (string.IsNullOrWhiteSpace(findingId))
-            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+        IActionResult? findingIdProblem =
+            GovernanceStickinessControllerCore.ValidateFindingId(findingId, out findingId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (findingIdProblem is not null)
+            return findingIdProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
 
-        if (runId == Guid.Empty)
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+        IActionResult? runIdProblem =
+            GovernanceStickinessControllerCore.ValidateRunId(runId).ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
 
         try
         {
             bool resolved = await _facade.TryResolveFindingMergeConflictAsync(
                 runId,
                 findingId,
-                request,
+                request!,
                 cancellationToken).ConfigureAwait(false);
 
             if (!resolved)
@@ -230,6 +215,4 @@ public sealed partial class GovernanceStickinessController
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
     }
-
-    private static string NormalizeFindingId(string findingId) => findingId.Trim();
 }

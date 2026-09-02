@@ -17328,6 +17328,13 @@
       },
       "ManifestDocument": {
         "properties": {
+          "architectureVersionId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "assumptions": {
             "items": {
               "type": "string"
@@ -17346,6 +17353,18 @@
           },
           "cost": {
             "$ref": "#/components/schemas/CostSection"
+          },
+          "createTimeEvidencePackagePins": {
+            "items": {
+              "$ref": "#/components/schemas/PinnedEvidencePackageRow"
+            },
+            "type": "array"
+          },
+          "createTimePolicyPackPins": {
+            "items": {
+              "$ref": "#/components/schemas/PinnedPolicyPackRow"
+            },
+            "type": "array"
           },
           "createdUtc": {
             "format": "date-time",
@@ -20085,6 +20104,45 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "PinnedEvidencePackageRow": {
+        "properties": {
+          "collectionUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "packageId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "collectionUtc",
+          "packageId",
+          "provider"
+        ],
+        "type": "object"
+      },
+      "PinnedPolicyPackRow": {
+        "properties": {
+          "policyPackId": {
+            "type": "string"
+          },
+          "policyPackVersion": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "policyPackId",
+          "policyPackVersion"
+        ],
         "type": "object"
       },
       "PlanningMaterializeCitation": {
@@ -26297,6 +26355,9 @@
       },
       "RunListItemResponse": {
         "properties": {
+          "authorityLifecyclePhase": {
+            "$ref": "#/components/schemas/AuthorityRunLifecyclePhase"
+          },
           "completedUtc": {
             "format": "date-time",
             "type": [
@@ -26742,6 +26803,32 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "pinnedEvidencePackagePinsHashSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pinnedEvidencePackagePinsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pinnedFocusedPilotCloudProvider": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "pinnedFocusedPilotModeEnabled": {
+            "type": [
+              "null",
+              "boolean"
             ]
           },
           "pinnedPolicyPackIdsHashSha256": {
