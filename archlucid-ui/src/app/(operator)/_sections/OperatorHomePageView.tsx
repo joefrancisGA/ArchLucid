@@ -7,6 +7,7 @@ import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRai
 import { OperatorHomeRecommendedNextCard } from "@/components/operator-home/OperatorHomeRecommendedNextCard";
 import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
+import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
@@ -119,10 +120,19 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
         </div>
       );
 
+    case "attention-taxonomy":
+      return (
+        <div key={input.section.id} data-testid={input.section.testId}>
+          <OperatorAttentionKindStrip variant="compact" />
+        </div>
+      );
+
     case "start-something":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>
-          <OperatorHomeCompactStartingActionsSection />
+          <OperatorHomeCompactStartingActionsSection
+            hasCommittedManifest={input.workspaceMetrics.reviewPackagesCommitted > 0}
+          />
         </div>
       );
 

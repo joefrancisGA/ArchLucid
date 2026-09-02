@@ -5,7 +5,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
+import {
+  ACCELERATOR_JOB_CHOOSER_HEADING,
+  ACCELERATOR_JOB_CHOOSER_LEAD,
+} from "@/lib/accelerator-chooser-start-copy";
 import {
   REVIEWS_NEW_BACK_TO_QUICK_START_CTA,
   REVIEWS_NEW_PATH_HINTS,
@@ -129,8 +134,19 @@ export function ReviewsNewPathSwitcher() {
           {specimenPreviewPresentation.showProminentSection ? <SpecimenDeliverablePreviewCallout /> : null}
           {showJobChooserStartOptions ? (
             <>
-              {!isReturningTenant ? <ReviewsNewOwnEvidenceStart /> : null}
-              <ReviewsNewJobChooserSection />
+              <ReviewsNewOwnEvidenceStart />
+              {isReturningTenant ? (
+                <CollapsibleSection
+                  title={ACCELERATOR_JOB_CHOOSER_HEADING}
+                  summaryLine={ACCELERATOR_JOB_CHOOSER_LEAD}
+                  defaultOpen={false}
+                  sectionTestId="reviews-new-returning-job-chooser"
+                >
+                  <ReviewsNewJobChooserSection hideHeading />
+                </CollapsibleSection>
+              ) : (
+                <ReviewsNewJobChooserSection />
+              )}
               <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
             </>
           ) : (

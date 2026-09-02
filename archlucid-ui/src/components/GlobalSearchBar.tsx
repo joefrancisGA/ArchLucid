@@ -14,7 +14,9 @@ import {
   GLOBAL_SEARCH_PLACEHOLDER,
   globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
+import { palettePressUsesPaletteModifier } from "@/components/CommandPalette";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
+import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
@@ -177,6 +179,19 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
+        onKeyDown={(event) => {
+          if (event.key?.toLowerCase() !== "k") {
+            return;
+          }
+
+          if (!palettePressUsesPaletteModifier(event, event.target)) {
+            return;
+          }
+
+          event.preventDefault();
+          setOpen(false);
+          dispatchOpenCommandPalette(query);
+        }}
         role="combobox"
         aria-autocomplete="list"
         aria-haspopup="listbox"
