@@ -96,6 +96,9 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureRunExecutePreExecuteStage, ArchitectureRunExecutePreExecuteStage>();
         services.AddScoped<IArchitectureRunExecutePersistenceStage, ArchitectureRunExecutePersistenceStage>();
         services.AddScoped<IArchitectureRunExecuteQualityGateStage, ArchitectureRunExecuteQualityGateStage>();
+        services.AddScoped<IAgentLoopPrepareStage, AgentLoopPrepareStage>();
+        services.AddScoped<IAgentLoopInvokeStage, AgentLoopInvokeStage>();
+        services.AddScoped<IAgentLoopPersistStage, AgentLoopPersistStage>();
         services.AddScoped<IArchitectureRunExecuteAgentLoopStage, ArchitectureRunExecuteAgentLoopStage>();
         services.AddScoped<IArchitectureRunExecuteFailureRecorder, ArchitectureRunExecuteFailureRecorder>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
@@ -185,6 +188,8 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IPilotsApplicationService, PilotsApplicationService>();
         services.AddScoped<IComparisonsApplicationService, ComparisonsApplicationService>();
         services.AddScoped<ICompareRunsApplicationFacade, CompareRunsApplicationFacade>();
+        services.AddScoped<IRunExportQueryFacade, RunExportQueryFacade>();
+        services.AddScoped<IAdvisoryWorkflowFacade, AdvisoryWorkflowFacade>();
         services.AddScoped<ITraceabilityBundleExportApplicationService, TraceabilityBundleExportApplicationService>();
         services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();
         services.AddScoped<IDemoReadModelClient, DemoReadModelClient>();

@@ -131,7 +131,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
   const showResultsSkeleton =
     pageReady &&
     m.detailLoading &&
-    (hasSimulationResults || (m.detail?.simulationRuns.length ?? 0) > 0);
+    (hasSimulationResults || (m.detail?.simulationRuns?.length ?? 0) > 0);
   const showBaselinePickerStrip =
     props.scopedRunFilterActive &&
     (pageState === "no_candidates" || pageReady) &&
@@ -304,7 +304,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
             />
           ) : null}
 
-          {m.detail !== null && m.detailLoading && m.detail.simulationRuns.length === 0 ? (
+          {m.detail !== null && m.detailLoading && (m.detail.simulationRuns?.length ?? 0) === 0 ? (
             <OperatorLoadingNotice>
               <strong>Loading simulation results.</strong>
             </OperatorLoadingNotice>

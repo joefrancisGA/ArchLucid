@@ -31,9 +31,9 @@ export async function loadPlanningPageData(): Promise<PlanningPageServerLoadResu
     return {
       kind: "data",
       summary: bundle.summary,
-      themes: bundle.themes.themes,
-      plans: bundle.plans.plans,
-      generatedUtc: bundle.summary.generatedUtc,
+      themes: bundle.themes.themes as LearningThemeResponse[],
+      plans: bundle.plans.plans as LearningPlanListItemResponse[],
+      generatedUtc: bundle.summary.generatedUtc ?? null,
       usedPlanningDemoFallback: false,
       failure: null,
     };

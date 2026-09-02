@@ -7,6 +7,8 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -17,9 +19,6 @@ using Moq;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>
-///     Durable audit for <c>POST .../run/exports/compare/summary</c> when <c>persist: true</c>.
-/// </summary>
 [Trait("Category", "Unit")]
 public sealed class ExportsControllerCompareSummaryAuditTests
 {
@@ -44,8 +43,9 @@ public sealed class ExportsControllerCompareSummaryAuditTests
             .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = ScopedRunId } });
 
         Mock<IExportRecordDiffService> diffService = new();
-        diffService.Setup(d => d.Compare(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>()))
-            .Returns(new ExportRecordDiffResult());
+        diffService
+            .Setup(d => d.CompareAsync(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExportRecordDiffResult());
 
         Mock<IExportRecordDiffSummaryFormatter> formatter = new();
         formatter.Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>()))
@@ -59,11 +59,10 @@ public sealed class ExportsControllerCompareSummaryAuditTests
 
         Mock<IAuditService> audit = new();
 
-        ExportsController sut = new(
+        ExportsController sut = CreateController(
             runDetails.Object,
             runExports.Object,
             comparisonAudit.Object,
-            Mock.Of<IExportReplayService>(),
             diffService.Object,
             formatter.Object,
             audit.Object);
@@ -110,8 +109,9 @@ public sealed class ExportsControllerCompareSummaryAuditTests
             .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = ScopedRunId } });
 
         Mock<IExportRecordDiffService> diffService = new();
-        diffService.Setup(d => d.Compare(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>()))
-            .Returns(new ExportRecordDiffResult());
+        diffService
+            .Setup(d => d.CompareAsync(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExportRecordDiffResult());
 
         Mock<IExportRecordDiffSummaryFormatter> formatter = new();
         formatter.Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>()))
@@ -119,11 +119,10 @@ public sealed class ExportsControllerCompareSummaryAuditTests
 
         Mock<IAuditService> audit = new();
 
-        ExportsController sut = new(
+        ExportsController sut = CreateController(
             runDetails.Object,
             runExports.Object,
             Mock.Of<IComparisonAuditService>(),
-            Mock.Of<IExportReplayService>(),
             diffService.Object,
             formatter.Object,
             audit.Object);
@@ -145,4 +144,20 @@ public sealed class ExportsControllerCompareSummaryAuditTests
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    private static ExportsController CreateController(
+        IRunDetailQueryService runDetails,
+        IRunExportRecordRepository runExports,
+        IComparisonAuditService comparisonAudit,
+        IExportRecordDiffService diffService,
+        IExportRecordDiffSummaryFormatter formatter,
+        IAuditService audit) =>
+        new(new RunExportQueryFacade(
+            runDetails,
+            runExports,
+            comparisonAudit,
+            Mock.Of<IExportReplayService>(),
+            diffService,
+            formatter,
+            audit));
 }
