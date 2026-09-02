@@ -147,7 +147,17 @@ public static class IntegrationEventServiceBusApplicationProperties
     {
         if (element.ValueKind == JsonValueKind.String)
         {
-            value = element.GetString();
+            string? raw = element.GetString();
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryParseWholeNumberString(raw.Trim(), out long numericFromString))
+            {
+                value = numericFromString.ToString(CultureInfo.InvariantCulture);
+
+                return true;
+            }
+
+            value = raw;
 
             return true;
         }
@@ -178,6 +188,28 @@ public static class IntegrationEventServiceBusApplicationProperties
         }
 
         value = null;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberString(string raw, out long value)
+    {
+        if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (long)numeric;
+
+            return true;
+        }
+
+        value = default;
 
         return false;
     }
