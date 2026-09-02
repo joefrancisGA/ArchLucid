@@ -19,9 +19,16 @@ import { OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-t
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { REVIEWS_NEW_DETAILED_HREF } from "@/lib/reviews-new-path-copy";
 
-export function FirstReviewGuideSupportPanel() {
+type FirstReviewGuideSupportPanelProps = {
+  readonly className?: string;
+};
+
+export function FirstReviewGuideSupportPanel({ className }: FirstReviewGuideSupportPanelProps) {
   return (
-    <aside className="space-y-4" data-testid="first-review-guide-support-panel">
+    <aside
+      className={cn("space-y-4", className)}
+      data-testid="first-review-guide-support-panel"
+    >
       <section
         aria-labelledby="first-review-guide-outcomes-heading"
         className={cn(OPERATOR_SURFACE_CARD_CLASS, "border border-neutral-200 p-4 dark:border-neutral-800")}
