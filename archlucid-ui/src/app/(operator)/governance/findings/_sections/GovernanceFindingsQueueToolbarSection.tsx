@@ -34,7 +34,7 @@ function GovernanceFindingsAdvancedFiltersPanel(
         jobView={props.jobView}
         nlFacets={props.nlFacets}
         jobViewFilterActive={props.jobViewFilterActive}
-        searchQuery={props.findingsSearchQuery}
+        findingsSearchQuery={props.findingsSearchQuery}
         onDismissChip={props.onDismissActiveFilterChip}
         onClearAll={props.onClearAllFilters}
       />

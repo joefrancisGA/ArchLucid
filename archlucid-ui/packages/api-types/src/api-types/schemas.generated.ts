@@ -1425,6 +1425,7 @@ export interface components {
         ArchitectureRunDetail: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
             agentTaskLoopComplete?: boolean;
+            authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             authorityPipelineComplete?: boolean;
             decisionTraces?: unknown[];
             hasBrokenManifestReference?: boolean;
@@ -1633,6 +1634,8 @@ export interface components {
             providerType?: string;
             requiresExplicitConfirmation?: boolean;
         };
+        /** @enum {string} */
+        AuthorityRunLifecyclePhase: "NotStarted" | "InProgress" | "Complete" | "Failed";
         AwsTier2ConnectionConfigureBody: {
             accountId: string;
             region: string;
@@ -3074,6 +3077,8 @@ export interface components {
             /** Format: date-time */
             createdUtc?: string;
             document?: components["schemas"]["DraftRequestDocument"];
+            /** Format: byte */
+            documentContentHashSha256?: null | string;
             /** Format: uuid */
             draftId?: string;
             /** Format: uuid */
@@ -3081,6 +3086,8 @@ export interface components {
             redirectReason?: null | string;
             /** Format: uuid */
             spawnedArchitectureVersionId?: null | string;
+            /** Format: byte */
+            spawnedDocumentContentHashSha256?: null | string;
             spawnedRunId?: null | string;
             status?: components["schemas"]["DraftRequestStatus"];
             /** Format: uuid */
@@ -5990,6 +5997,7 @@ export interface components {
             metadata?: {
                 [key: string]: string;
             };
+            requiredEngineTypes?: string[];
         };
         PolicyPackContentDocumentJsonSchemaResponse: {
             schema: components["schemas"]["JsonElement"];
@@ -7484,6 +7492,7 @@ export interface components {
         RunDetailsResponse: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateResponse"];
             agentTaskLoopComplete?: boolean;
+            authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             authorityPipelineComplete?: boolean;
             decisionTraces?: unknown[];
             executionFlavorBuyerSummary?: null | string;
@@ -7768,6 +7777,9 @@ export interface components {
             otelTraceId?: null | string;
             packageOrigin?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
+            /** Format: byte */
+            pinnedPolicyPackIdsHashSha256?: null | string;
+            pinnedPolicyPackIdsJson?: null | string;
             projectId: string;
             realModeFellBackToSimulator?: boolean;
             /** Format: int32 */

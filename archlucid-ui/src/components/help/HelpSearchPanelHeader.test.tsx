@@ -13,7 +13,7 @@ describe("HelpSearchPanelHeader", () => {
       </Dialog>,
     );
 
-    expect(screen.getByTestId("contextual-help-drawer-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("contextual-help-drawer-breadcrumb")).toBeNull();
     expect(screen.getByTestId("help-search-panel-title")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-search-panel-subtitle")).toHaveTextContent(HELP_SEARCH_PANEL_SUBTITLE);
   });

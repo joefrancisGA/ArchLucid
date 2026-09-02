@@ -192,5 +192,6 @@ public sealed class AuthorityRunReadHandlers(
             DegradedExecutionAgents = x.DegradedExecutionAgents,
             PackageOrigin = x.PackageOrigin,
             StructuralExecutionMode = x.StructuralExecutionMode,
+            AuthorityLifecyclePhase = x.AuthorityLifecyclePhase,
         };
 }

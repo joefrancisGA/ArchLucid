@@ -55,7 +55,11 @@ internal static class RunRecordParameters
             run.PackageOrigin,
             run.CreatedByUserId,
             run.PinnedPolicyPackIdsJson,
-            run.PinnedPolicyPackIdsHashSha256
+            run.PinnedPolicyPackIdsHashSha256,
+            run.PinnedEvidencePackagePinsJson,
+            run.PinnedEvidencePackagePinsHashSha256,
+            run.PinnedFocusedPilotModeEnabled,
+            run.PinnedFocusedPilotCloudProvider
         };
     }
 
@@ -101,6 +105,12 @@ internal static class RunRecordParameters
             run.GovernanceScopeJson,
             run.ImproveLoopEvidenceJson,
             run.PackageOrigin,
+            run.PinnedPolicyPackIdsJson,
+            run.PinnedPolicyPackIdsHashSha256,
+            run.PinnedEvidencePackagePinsJson,
+            run.PinnedEvidencePackagePinsHashSha256,
+            run.PinnedFocusedPilotModeEnabled,
+            run.PinnedFocusedPilotCloudProvider,
             run.RowVersion
         };
     }

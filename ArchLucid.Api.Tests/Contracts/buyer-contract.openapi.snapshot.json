@@ -6051,75 +6051,9 @@
         },
         "type": "object"
       },
-      "BillingCheckoutResponseDto": {
-        "properties": {
-          "checkoutUrl": {
-            "type": "string"
-          },
-          "expiresUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "providerSessionId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "checkoutUrl",
-          "providerSessionId"
-        ],
-        "type": "object"
-      },
       "BillingPortalPostRequest": {
         "properties": {
           "returnUrl": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "BillingPortalResponseDto": {
-        "properties": {
-          "portalUrl": {
-            "type": "string"
-          },
-          "providerSessionId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "portalUrl",
-          "providerSessionId"
-        ],
-        "type": "object"
-      },
-      "BillingSubscriptionStatusResponseDto": {
-        "properties": {
-          "hasSubscription": {
-            "type": "boolean"
-          },
-          "isPaymentPastDue": {
-            "type": "boolean"
-          },
-          "provider": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "status": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "tierCode": {
             "type": [
               "null",
               "string"
@@ -12764,14 +12698,7 @@
           null
         ]
       },
-      "FindingConfidenceLevel": {
-        "enum": [
-          "High",
-          "Medium",
-          "Low",
-          null
-        ]
-      },
+      "FindingConfidenceLevel": {},
       "FindingCorrelationMethod": {
         "enum": [
           "None",

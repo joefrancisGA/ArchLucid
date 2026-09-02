@@ -5,9 +5,9 @@ import { useSearchParams } from "next/navigation";
 
 import {
   homeGovernanceWarningsClearHrefFromSearch,
+  homeGovernanceWarningsHrefFromSearch,
   homeGovernanceWarningsQueryEnabled,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
-import { OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF } from "@/lib/operator/operator-home-metric-hrefs";
 import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +24,7 @@ export function OperatorHomeGovernanceWarningsMetricLink(
   const warningsFilterActive = homeGovernanceWarningsQueryEnabled(searchParams);
   const href = warningsFilterActive
     ? homeGovernanceWarningsClearHrefFromSearch(searchParams.toString())
-    : OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF;
+    : homeGovernanceWarningsHrefFromSearch(searchParams.toString());
 
   return (
     <Link
