@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -10,6 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  signedRecordsListSearchHrefFromSearch,
+} from "@/lib/signed-records/signed-records-list-search";
 import { cn } from "@/lib/utils";
 
 import {
@@ -32,6 +37,8 @@ export type SignedRecordsListToolbarProps = {
 
 /** Client-side register controls — filters the loaded page; server cursor paging stays unchanged. */
 export function SignedRecordsListToolbar(props: SignedRecordsListToolbarProps): React.JSX.Element {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const controlsDisabled = props.disabled === true;
 
   return (
@@ -52,6 +59,14 @@ export function SignedRecordsListToolbar(props: SignedRecordsListToolbarProps): 
           placeholder={SIGNED_RECORDS_LIST_SEARCH_PLACEHOLDER}
           data-testid="signed-records-list-search-input"
           onChange={(event) => props.onSearchQueryChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && props.searchQuery.trim().length > 0) {
+              event.preventDefault();
+              const clearedHref = signedRecordsListSearchHrefFromSearch(searchParams.toString(), "");
+              router.replace(clearedHref, { scroll: false });
+              props.onSearchQueryChange("");
+            }
+          }}
         />
       </div>
       <div className="min-w-[200px] space-y-1">

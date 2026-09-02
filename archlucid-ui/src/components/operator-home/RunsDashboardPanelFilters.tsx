@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
-import { runsDashboardHomeHrefFromSearch } from "@/components/operator-home/runs-dashboard-panel-presentation";
+import { runsDashboardArchivedDisabledReason, runsDashboardHomeHrefFromSearch } from "@/components/operator-home/runs-dashboard-panel-presentation";
 import { RunsDashboardStatusTabLinks } from "@/components/operator-home/RunsDashboardStatusTabLinks";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { FilterChip } from "@/components/ui/filter-chip";
@@ -48,6 +48,7 @@ export function RunsDashboardPanelFilters({
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const archivedHref = runsDashboardHomeHrefFromSearch(currentSearch, { tab: "all", showArchived: true });
+  const archivedDisabledReasonId = "runs-dashboard-archived-disabled-reason";
 
   return (
     <CardHeader className={OPERATOR_CARD.header}>
@@ -100,16 +101,24 @@ export function RunsDashboardPanelFilters({
               Archived {archivedCount}
             </FilterChip>
           ) : (
-            <FilterChip
-              href={archivedFilterDisabled ? undefined : archivedHref}
-              scroll={false}
-              className={buyerFilterChipClass(false, archivedFilterDisabled)}
-              aria-label={`Filter reviews: Archived ${archivedCount}`}
-              disabled={archivedFilterDisabled}
-              data-testid="runs-dashboard-show-archived"
-            >
-              Archived {archivedCount}
-            </FilterChip>
+            <span className="inline-flex">
+              <FilterChip
+                href={archivedFilterDisabled ? undefined : archivedHref}
+                scroll={false}
+                className={buyerFilterChipClass(false, archivedFilterDisabled)}
+                aria-label={`Filter reviews: Archived ${archivedCount}`}
+                aria-describedby={archivedFilterDisabled ? archivedDisabledReasonId : undefined}
+                disabled={archivedFilterDisabled}
+                data-testid="runs-dashboard-show-archived"
+              >
+                Archived {archivedCount}
+              </FilterChip>
+              {archivedFilterDisabled ? (
+                <span id={archivedDisabledReasonId} className="sr-only">
+                  {runsDashboardArchivedDisabledReason(archivedFieldSupported, archivedCount)}
+                </span>
+              ) : null}
+            </span>
           )
         ) : null}
         {buyerPolishedShell && !hideHeading ? (

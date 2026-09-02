@@ -151,6 +151,21 @@ export function runsDashboardDisabledTabReason(
   return "This filter is unavailable because there are no matching reviews.";
 }
 
+export function runsDashboardArchivedDisabledReason(
+  archivedFieldSupported: boolean,
+  archivedCount: number,
+): string {
+  if (!archivedFieldSupported) {
+    return "Archived reviews are not available in this workspace.";
+  }
+
+  if (archivedCount === 0) {
+    return "No archived reviews in this workspace.";
+  }
+
+  return "This filter is unavailable.";
+}
+
 const BUYER_STATUS_TAB_IDS: readonly RunsDashboardTabId[] = ["all", "approved", "attention", "outcomes"];
 const OPERATOR_STATUS_TAB_IDS: readonly RunsDashboardTabId[] = ["all", "attention", "outcomes"];
 
