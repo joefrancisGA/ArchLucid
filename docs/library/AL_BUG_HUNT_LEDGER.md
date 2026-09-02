@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 31
-- **bugs-found:** 65
+- **hunts:** 33
+- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — graph node boolean id coercion; explanation aggregate string-encoded whole-number citation count
+- **last-bug:** 2026-09-02 — alert routing boolean severity coercion; Service Bus boolean deduplication key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1860,6 +1860,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — whole-number `citations` JSON ignored when not int32-coercible — **hit 2026-09-02 (#441):** `"citations":2.0` left `CitationCount` null; fixed with `TryReadWholeNumber` double fallback (`FromAggregateJson_maps_whole_number_citation_count`).
 - [x] (proven) `GraphJsonElementReaders.TryReadStringToken` — boolean graph node id tokens return null — **hit 2026-09-02 (#442):** `"nodeId":true` hydrated as empty string; fixed by coercing true/false tokens to strings (`Read_boolean_nodeId_coerces_to_string`).
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — string-encoded whole-number `citations` count ignored — **hit 2026-09-02 (#442):** `"citations":"2.0"` left `CitationCount` null; fixed with `TryParseWholeNumberString` (`FromAggregateJson_maps_string_encoded_whole_number_citation_count`).
+- [x] (proven) `RealLlmOutputStructuralValidator` — boolean finding `severity` rejected (string/number JSON only) — **hit 2026-09-02 (#443):** `"severity":true` failed structural validation for external LLM envelopes; fixed by extending `TryReadNonEmptyTextToken` (`ValidateAgentResultStructure_accepts_boolean_finding_severity`).
+- [x] (proven) `AlertRoutingCriteriaMetadata.TryReadStringArrayItem` — boolean `tags` array entries silently dropped — **hit 2026-09-02 (#443):** `"tags":[true,"ops"]` omitted boolean token and broke matcher filters; fixed by coercing true/false tokens to strings (`AlertRoutingCriteriaMetadata_Parse_boolean_tags_coerce_to_strings`).
+- [x] (proven) `AlertRoutingCriteriaMetadata.ReadSeverityArrayItem` — boolean `severities` array entries silently dropped — **hit 2026-09-02 (#444):** `"severities":[true,"High"]` omitted boolean token and broke matcher filters; fixed by coercing true/false tokens to strings (`AlertRoutingCriteriaMetadata_Parse_boolean_severities_coerce_to_strings`).
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryReadStringOrNumberToken` — boolean `deduplicationKey` ignored (string/number JSON only) — **hit 2026-09-02 (#444):** `"deduplicationKey":true` returned null and dropped Service Bus subscription filter properties; fixed by coercing boolean tokens (`TryResolveForPublish_alert_resolved_maps_boolean_deduplication_key`).
+
+2026-09-02 seed hunt #444: reseeded from ArchLucid.Core; proved alert routing boolean severity coercion and Service Bus boolean deduplication key gaps.
+
+2026-09-02 seed hunt #443: reseeded from ArchLucid.Core; proved golden-corpus boolean finding severity and alert routing boolean tag coercion gaps.
 
 2026-09-02 seed hunt #442: reseeded from ArchLucid.Core; proved graph node boolean id coercion and explanation aggregate string-encoded whole-number citation count gaps.
 

@@ -145,6 +145,11 @@ public static class AlertRoutingCriteriaMetadata
             return MapFindingSeverityOrdinalToAlertLabel(numeric);
         }
 
+        if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            return item.GetRawText();
+        }
+
         return null;
     }
 
