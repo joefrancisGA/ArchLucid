@@ -95,9 +95,11 @@ export function appendIntakeAttachedFileNames(
   }
 
   const fileLines = trimmedNames.map((name) => `- ${name}`).join("\n");
+  const trimmedBase = base.trimEnd();
 
-  return `${base.trimEnd()}\n\nAttached files:\n${fileLines}`;
-}
+  return trimmedBase.length === 0
+    ? `Attached files:\n${fileLines}`
+    : `${trimmedBase}\n\nAttached files:\n${fileLines}`;
 
 function sliceAttachedFilesSection(text: string): string | null {
   for (const marker of ATTACHED_FILES_MARKERS) {
