@@ -44,6 +44,7 @@ public static class GraphSnapshotCommittedReuseResolver
         }
 
         // When the run header FK is cleared (e.g. sibling κ mutation), do not resurrect a stale orphan graph.
+
         if (runGraphSnapshotId is null)
             return null;
 
