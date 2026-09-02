@@ -8301,10 +8301,7 @@
       "CorePilotChecklistPutRequest": {
         "properties": {
           "isCompleted": {
-            "type": [
-              "null",
-              "boolean"
-            ]
+            "type": "boolean"
           },
           "stepIndex": {
             "format": "int32",
@@ -32681,6 +32678,13 @@
           }
         },
         "type": "object"
+      },
+      "WorkspaceSystemNameOccupancyKind": {
+        "enum": [
+          "Review",
+          "Architecture"
+        ],
+        "type": "string"
       }
     }
   },

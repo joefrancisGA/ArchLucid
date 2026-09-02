@@ -34,24 +34,61 @@ public sealed class InMemoryAuthenticationIdentityLinkProposalRepositoryCoverage
         (await sut.GetByIdAsync(id, CancellationToken.None)).Should().NotBeNull();
         (await sut.GetByIdAsync(Guid.NewGuid(), CancellationToken.None)).Should().BeNull();
 
-        await sut.UpdateStatusAsync(
+        bool firstUpdate = await sut.TryUpdateStatusAsync(
             id,
             AuthenticationIdentityLinkProposalStatus.Confirmed,
             now.AddMinutes(1),
             CancellationToken.None);
         (await sut.GetByIdAsync(id, CancellationToken.None))!.ConfirmedUtc.Should().Be(now.AddMinutes(1));
 
-        await sut.UpdateStatusAsync(
+        bool secondUpdate = await sut.TryUpdateStatusAsync(
             id,
             AuthenticationIdentityLinkProposalStatus.Cancelled,
             now.AddMinutes(2),
             CancellationToken.None);
-        (await sut.GetByIdAsync(id, CancellationToken.None))!.CancelledUtc.Should().Be(now.AddMinutes(2));
+        AuthenticationIdentityLinkProposalRecord? afterCancelAttempt = await sut.GetByIdAsync(id, CancellationToken.None);
+        firstUpdate.Should().BeTrue();
+        secondUpdate.Should().BeFalse();
+        afterCancelAttempt!.Status.Should().Be(AuthenticationIdentityLinkProposalStatus.Confirmed);
+        afterCancelAttempt.CancelledUtc.Should().BeNull();
 
-        await sut.UpdateStatusAsync(
+        bool missingUpdate = await sut.TryUpdateStatusAsync(
             Guid.NewGuid(),
             AuthenticationIdentityLinkProposalStatus.Confirmed,
             now,
             CancellationToken.None);
+        missingUpdate.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task TryUpdateStatusAsync_allows_pending_to_expired_transition()
+    {
+        InMemoryAuthenticationIdentityLinkProposalRepository sut = new();
+        Guid id = Guid.NewGuid();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        await sut.InsertAsync(
+            new AuthenticationIdentityLinkProposalRecord
+            {
+                Id = id,
+                UserId = Guid.NewGuid(),
+                ProviderType = AuthenticationProviderType.TenantOidc,
+                NormalizedIssuer = "https://login.example",
+                Subject = "sub-expire",
+                Status = AuthenticationIdentityLinkProposalStatus.PendingConfirmation,
+                CreatedUtc = now,
+                ExpiresUtc = now.AddHours(1),
+            },
+            CancellationToken.None);
+
+        bool expiredUpdate = await sut.TryUpdateStatusAsync(
+            id,
+            AuthenticationIdentityLinkProposalStatus.Expired,
+            now.AddMinutes(5),
+            CancellationToken.None);
+
+        AuthenticationIdentityLinkProposalRecord? expired = await sut.GetByIdAsync(id, CancellationToken.None);
+        expiredUpdate.Should().BeTrue();
+        expired!.Status.Should().Be(AuthenticationIdentityLinkProposalStatus.Expired);
     }
 }
