@@ -92834,7 +92834,7 @@
             "name": "occupancyKind",
             "schema": {
               "$ref": "#/components/schemas/WorkspaceSystemNameOccupancyKind",
-              "default": 0
+              "default": "Review"
             }
           }
         ],
