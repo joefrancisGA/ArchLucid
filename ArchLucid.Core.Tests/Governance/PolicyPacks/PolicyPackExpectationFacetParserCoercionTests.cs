@@ -22,6 +22,39 @@ public sealed class PolicyPackExpectationFacetParserCoercionTests
     }
 
     [Fact]
+    public void Parse_require_budget_cap_string_encoded_whole_number_maps_false()
+    {
+        PolicyPackContentDocument document = new()
+        {
+            AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostRequireBudgetCap] = "0.0" },
+        };
+
+        PolicyPackExpectationFacetParser.Parse(document).RequireBudgetCap.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Parse_require_budget_cap_string_encoded_boolean_maps_true()
+    {
+        PolicyPackContentDocument document = new()
+        {
+            AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostRequireBudgetCap] = "True" },
+        };
+
+        PolicyPackExpectationFacetParser.Parse(document).RequireBudgetCap.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Parse_require_budget_cap_string_encoded_boolean_maps_false()
+    {
+        PolicyPackContentDocument document = new()
+        {
+            AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostRequireBudgetCap] = "False" },
+        };
+
+        PolicyPackExpectationFacetParser.Parse(document).RequireBudgetCap.Should().BeFalse();
+    }
+
+    [Fact]
     public void Parse_breach_severity_string_encoded_whole_number_ordinal_maps_label()
     {
         PolicyPackContentDocument document = new()

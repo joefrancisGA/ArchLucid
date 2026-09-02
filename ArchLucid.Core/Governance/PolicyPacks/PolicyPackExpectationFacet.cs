@@ -38,6 +38,6 @@ public sealed class PolicyPackExpectationFacet
       ExtraTopologyCategories.Count == 0
       && ExtraSecurityControlFamilies.Count == 0
       && ExtraRequirementThemes.Count == 0
-      && RequireBudgetCap is not true
+      && !RequireBudgetCap.HasValue
       && string.IsNullOrWhiteSpace(BreachSeverity);
 }
