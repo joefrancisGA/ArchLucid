@@ -27079,6 +27079,9 @@
       },
       "RunSummaryResponse": {
         "properties": {
+          "authorityLifecyclePhase": {
+            "$ref": "#/components/schemas/AuthorityRunLifecyclePhase"
+          },
           "createdByUserId": {
             "type": [
               "null",

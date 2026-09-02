@@ -1750,25 +1750,8 @@ export interface components {
             /** Format: int32 */
             workspaces?: number;
         };
-        BillingCheckoutResponseDto: {
-            checkoutUrl: string;
-            /** Format: date-time */
-            expiresUtc?: null | string;
-            providerSessionId: string;
-        };
         BillingPortalPostRequest: {
             returnUrl?: null | string;
-        };
-        BillingPortalResponseDto: {
-            portalUrl: string;
-            providerSessionId: string;
-        };
-        BillingSubscriptionStatusResponseDto: {
-            hasSubscription?: boolean;
-            isPaymentPastDue?: boolean;
-            provider?: null | string;
-            status?: null | string;
-            tierCode?: null | string;
         };
         BoardPackPdfPostRequest: {
             /** Format: date-time */
@@ -3639,7 +3622,6 @@ export interface components {
         };
         /** @enum {unknown} */
         FindingClassification: "DecisionGradeFinding" | "ChecklistCoverage" | null;
-        /** @enum {unknown} */
         FindingConfidenceLevel: "High" | "Medium" | "Low" | null;
         /** @enum {string} */
         FindingCorrelationMethod: "None" | "PolicyRuleAndFingerprint" | "MessageCategoryFuzzy";
@@ -7880,6 +7862,7 @@ export interface components {
             runId: string;
         };
         RunSummaryResponse: {
+            authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             createdByUserId?: null | string;
             /** Format: date-time */
             createdUtc: string;
