@@ -78,4 +78,62 @@ public sealed class EmailOtpChallengeRepositoryConcurrencyTests
         Assert.NotNull(final);
         Assert.Equal(parallelAttempts, final!.FailedAttemptCount);
     }
+
+    [Fact]
+    public async Task ReplaceActiveChallengeForEmailAsync_parallel_calls_leave_single_active_challenge()
+    {
+        InMemoryEmailOtpChallengeRepository repository = new();
+        string normalizedEmail = "replace-active@example.com";
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        await repository.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = Guid.NewGuid(),
+                NormalizedEmail = normalizedEmail,
+                CodeHash = "seed-hash",
+                ExpiresUtc = now.AddMinutes(10)
+            },
+            CancellationToken.None);
+
+        Task<EmailOtpChallengeRecord>[] replacements =
+        [
+            repository.ReplaceActiveChallengeForEmailAsync(
+                new EmailOtpChallengeInsert
+                {
+                    Id = Guid.NewGuid(),
+                    NormalizedEmail = normalizedEmail,
+                    CodeHash = "hash-a",
+                    ExpiresUtc = now.AddMinutes(10)
+                },
+                now,
+                CancellationToken.None),
+            repository.ReplaceActiveChallengeForEmailAsync(
+                new EmailOtpChallengeInsert
+                {
+                    Id = Guid.NewGuid(),
+                    NormalizedEmail = normalizedEmail,
+                    CodeHash = "hash-b",
+                    ExpiresUtc = now.AddMinutes(10)
+                },
+                now,
+                CancellationToken.None)
+        ];
+
+        EmailOtpChallengeRecord[] created = await Task.WhenAll(replacements);
+
+        int activeCount = 0;
+
+        foreach (EmailOtpChallengeRecord row in created)
+        {
+            EmailOtpChallengeRecord? current = await repository.GetByIdAsync(row.Id, CancellationToken.None);
+
+            if (current is { CompletedUtc: null, InvalidatedUtc: null })
+            {
+                activeCount++;
+            }
+        }
+
+        Assert.Equal(1, activeCount);
+    }
 }

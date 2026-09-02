@@ -56,6 +56,27 @@ describe("isOperatorHomeRunsDashboardServerSnapshotFresh", () => {
     ).toBe(true);
   });
 
+  it("rejects SSR snapshot when scopeQueryKeySnapshot is missing", () => {
+    const model = buildModel({
+      items: [
+        {
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          projectId: "default",
+          createdUtc: "2026-01-01T00:00:00Z",
+          hasGoldenManifest: true,
+        },
+      ],
+      totalCount: 1,
+    });
+
+    expect(
+      isOperatorHomeRunsDashboardServerSnapshotFresh(model, "default", "tenant-a:workspace-a:default"),
+    ).toBe(false);
+    expect(
+      shouldSkipRunsDashboardClientFetchOnMount(model, "default", "tenant-a:workspace-a:default"),
+    ).toBe(false);
+  });
+
   it("rejects missing, mismatched, or failed snapshots", () => {
     expect(isOperatorHomeRunsDashboardServerSnapshotFresh(null, "default", "tenant-a:workspace-a:default")).toBe(
       false,
