@@ -1309,11 +1309,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 9
-- **bugs-found:** 15
+- **hunts:** 10
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — sponsor packet top decisions leaked other runs in project
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — sponsor packet omitted top-level demo notice
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1336,6 +1336,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SponsorReviewPacketBuilder.BuildTopDecisionsAsync` — `GetRegisterAsync` is project-scoped with no `runId` filter; per-run executive packet listed decisions from other runs — **hit 2026-08-27:** filter register rows by `entry.RunId` before composing top decisions (`SponsorReviewPacketBuilderTests.BuildMarkdownAsync_includes_only_decisions_for_the_requested_run`).
 - [x] (proven) `DecisionReceiptService.BuildForRunAsync` — used `GetRunSummaryAsync` + manifest summary only; omitted `HasBrokenManifestReference` / `IsCommitted` guards used by sibling export services — **hit 2026-08-27:** in-progress or broken-manifest runs with a golden-manifest pointer could export decision receipts; aligned with `SponsorReviewPacketBuilder` via `IRunDetailQueryService` (`DecisionReceiptServiceTests.BuildForRunAsync_UncommittedRunWithManifestPointer_ReturnsNull`, `BuildForRunAsync_BrokenManifestReference_ReturnsNull`).
 - [x] (proven) `TenantReviewBoardCoverLogoStore.TryGetBytesAsync` — returned raw blob bytes without `ArchitectureReviewBoardCoverLogoValidator` re-check at export embed time — **hit 2026-08-27:** validate on read and return null for tampered payloads (`TenantReviewBoardCoverLogoStoreTests`).
+
+- [x] (proven) `SponsorReviewPacketComposer.ComposeMarkdown` — hardcoded `isDemoTenant: false` in `ExportSafetyNoticeMarkdown.Append` — **hit 2026-09-02 (#497):** demo runs showed evidence-badge demo labeling only inside nested review summary while board PDF/DOCX/HTML place demo notice at document start; fixed by resolving demo tenant from `ContosoRetailDemoIdentifiers` before header append (`ComposeMarkdown_includes_top_level_demo_notice_for_demo_run`).
+
+2026-09-02 seed hunt #497: reseeded from tenant export surfaces; proved sponsor packet top-level demo notice gap after master merge.
 
 ---
 
