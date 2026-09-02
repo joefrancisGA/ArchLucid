@@ -42,7 +42,7 @@ export function GovernanceFindingsRegisterFilterCompact(
         type="button"
         size="sm"
         variant={props.registerFilter === "all" ? "default" : "outline"}
-        aria-pressed={props.registerFilter === "all"}
+        aria-current={props.registerFilter === "all" ? true : undefined}
         onClick={() => props.onRegisterFilterChange("all")}
       >
         {renderFilterLabel("all", RISK_REGISTER_FILTER_LABELS.all, props.allCount)}
@@ -53,7 +53,7 @@ export function GovernanceFindingsRegisterFilterCompact(
           type="button"
           size="sm"
           variant={props.registerFilter === filter ? "default" : "outline"}
-          aria-current={props.registerFilter === filter ? "true" : undefined}
+          aria-current={props.registerFilter === filter ? true : undefined}
           onClick={() => props.onRegisterFilterChange(filter)}
         >
           {renderFilterLabel(
