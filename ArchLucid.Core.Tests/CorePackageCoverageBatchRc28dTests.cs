@@ -64,6 +64,48 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_string_encoded_severity_ordinals_map_alert_labels()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "severities": ["2", "3"]
+              }
+            }
+            """);
+
+        parsed.Severities.Should().Equal("High", "Critical");
+    }
+
+    [Fact]
+    public void AlertRoutingMatcher_string_encoded_severity_metadata_filters_non_matching_signals()
+    {
+        AlertRoutingSubscription subscription = new()
+        {
+            MinimumSeverity = AlertSeverity.Info,
+            MetadataJson = """{"routingCriteria":{"severities":["3"]}}""",
+        };
+
+        AlertRoutingSignal infoSignal = new()
+        {
+            Severity = AlertSeverity.Info,
+            FindingType = "Security",
+            Tags = ["ops"],
+        };
+
+        AlertRoutingSignal criticalSignal = new()
+        {
+            Severity = AlertSeverity.Critical,
+            FindingType = "Security",
+            Tags = ["ops"],
+        };
+
+        AlertRoutingMatcher.Matches(subscription, infoSignal).Should().BeFalse();
+        AlertRoutingMatcher.Matches(subscription, criticalSignal).Should().BeTrue();
+    }
+
+    [Fact]
     public void AlertRoutingMatcher_numeric_severity_metadata_filters_non_matching_signals()
     {
         AlertRoutingSubscription subscription = new()

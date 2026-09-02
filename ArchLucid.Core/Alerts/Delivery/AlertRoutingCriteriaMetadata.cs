@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Alerts;
@@ -128,7 +129,15 @@ public static class AlertRoutingCriteriaMetadata
     {
         if (item.ValueKind == JsonValueKind.String)
         {
-            return item.GetString();
+            string? raw = item.GetString();
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && int.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString))
+            {
+                return MapFindingSeverityOrdinalToAlertLabel(numericFromString);
+            }
+
+            return raw;
         }
 
         if (item.ValueKind == JsonValueKind.Number && item.TryGetInt32(out int numeric))

@@ -85,11 +85,8 @@ public static class AzureExtractorResourceInventoryReader
         if (!obj.TryGetProperty(property, out JsonElement p))
             return null;
 
-        if (p.ValueKind is not JsonValueKind.String)
-
+        if (!TryReadStringToken(p, out string? raw))
             return null;
-
-        string? raw = p.GetString();
 
         return string.IsNullOrWhiteSpace(raw) ? null : raw.Trim();
     }
@@ -101,18 +98,33 @@ public static class AzureExtractorResourceInventoryReader
         if (!obj.TryGetProperty(property, out JsonElement p))
             return false;
 
-        if (p.ValueKind is not JsonValueKind.String)
-
-            return false;
-
-        string? raw = p.GetString();
-
-        if (string.IsNullOrWhiteSpace(raw))
+        if (!TryReadStringToken(p, out string? raw) || string.IsNullOrWhiteSpace(raw))
             return false;
 
         value = raw;
 
         return true;
+    }
+
+    private static bool TryReadStringToken(JsonElement element, out string? value)
+    {
+        if (element.ValueKind is JsonValueKind.String)
+        {
+            value = element.GetString();
+
+            return true;
+        }
+
+        if (element.ValueKind is JsonValueKind.Number)
+        {
+            value = element.GetRawText();
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
     }
 
     private static string? ExtractSku(JsonElement row)

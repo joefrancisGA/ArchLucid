@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 21
-- **bugs-found:** 42
+- **hunts:** 22
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — finding JSON string-encoded findingSchemaVersion; extractor manifest string schemaVersion
+- **last-bug:** 2026-09-02 — alert routing string-encoded severity ordinals; Azure extractor numeric resource name coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1838,6 +1838,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureExtractorPackageZipValidator.TryReadManifestSchemaError` — case-sensitive `schemaVersion` lookup — **hit 2026-09-02 (#431):** PascalCase `"SchemaVersion":1` rejected valid customer ZIP manifests; fixed with case-insensitive property lookup (`AzureExtractorPackageZipValidatorTests.Validate_pascal_case_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
 - [x] (proven) `FindingJsonConverter.Read` — string-encoded `findingSchemaVersion` ignored (number JSON tokens only) — **hit 2026-09-02 (#432):** `"findingSchemaVersion":"2"` defaulted schema version to `0` while sibling numeric fields already coerced string tokens; fixed with `TryReadInt32` (`FindingJsonConverterTests.Deserialize_string_encoded_findingSchemaVersion_maps_version`).
 - [x] (proven) `AzureExtractorPackageZipValidator.TryReadManifestSchemaError` — string-encoded `schemaVersion` rejected — **hit 2026-09-02 (#432):** `"schemaVersion":"1"` failed manifest validation; fixed with `TryReadSchemaVersion` string coercion (`AzureExtractorPackageZipValidatorTests.Validate_string_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
+- [x] (proven) `AlertRoutingCriteriaMetadata.ReadSeverityArrayItem` — string-encoded `FindingSeverity` ordinals in `severities` array pass through literally instead of mapping to alert labels — **hit 2026-09-02 (#433):** `"severities":["2"]` stored `"2"` instead of `High` and broke matcher filters; fixed with numeric-string ordinal coercion (`AlertRoutingCriteriaMetadata_Parse_string_encoded_severity_ordinals_map_alert_labels`, `AlertRoutingMatcher_string_encoded_severity_metadata_filters_non_matching_signals`).
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryReadString` — numeric `name` / `resourceType` JSON tokens skipped so inventory rows dropped — **hit 2026-09-02 (#433):** `"name":12345` omitted row from costing inventory; fixed with `TryReadStringToken` number coercion (`AzureExtractorResourceInventoryReaderTests.TryReadFromZip_numeric_name_and_resourceType_coerce_to_strings`).
+
+2026-09-02 seed hunt #433: reseeded from ArchLucid.Core; proved alert routing string-encoded severity ordinals and Azure extractor numeric resource name coercion gaps.
 
 2026-09-02 seed hunt #432: reseeded from ArchLucid.Core; proved finding string-encoded findingSchemaVersion and extractor manifest string schemaVersion gaps.
 
