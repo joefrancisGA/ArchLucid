@@ -189,14 +189,16 @@ public sealed class GcpCloudBillingCatalogClient
         if (!TryGetPropertyCaseInsensitive(firstTier, "unitPrice", out JsonElement unitPrice))
             return false;
 
-        if (!TryGetPropertyCaseInsensitive(unitPrice, "units", out JsonElement unitsElement))
-            return false;
+        long units = 0;
+
+        if (TryGetPropertyCaseInsensitive(unitPrice, "units", out JsonElement unitsElement)
+            && !TryReadInt64Token(unitsElement, out units))
+        {
+            units = 0;
+        }
 
         if (!TryGetPropertyCaseInsensitive(unitPrice, "nanos", out JsonElement nanosElement))
             return false;
-
-        if (!TryReadInt64Token(unitsElement, out long units))
-            units = 0;
 
         if (!TryReadInt32Token(nanosElement, out int nanos))
             nanos = 0;
