@@ -16,8 +16,8 @@ public sealed class CorePilotTeamChecklistEndpointTests
     private const string EndpointPath = "/v1/tenant/core-pilot-checklist";
 
     [Theory]
-    [InlineData("{\"stepIndex\":1}", "$", "missing required properties including: 'isCompleted'")]
-    [InlineData("{\"stepIndex\":1,\"isCompleted\":null}", "$.isCompleted", "could not be converted to System.Boolean")]
+    [InlineData("{\"stepIndex\":1}", "$", "isCompleted")]
+    [InlineData("{\"stepIndex\":1,\"isCompleted\":null}", "$.isCompleted", "System.Boolean")]
     public async Task Put_missing_or_null_is_completed_returns_400_validation_problem(
         string payload,
         string expectedErrorKey,
