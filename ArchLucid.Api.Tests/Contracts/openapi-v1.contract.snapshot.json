@@ -76749,6 +76749,15 @@
     },
     "/v1/architecture/request/idempotency": {
       "get": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -92825,7 +92834,7 @@
             "name": "occupancyKind",
             "schema": {
               "$ref": "#/components/schemas/WorkspaceSystemNameOccupancyKind",
-              "default": 0
+              "default": "Review"
             }
           }
         ],

@@ -3,7 +3,7 @@
 .SYNOPSIS
   Creates or updates the GitHub ruleset that requires cohort-real-llm-gate and the
   master/main push corset (gitleaks, dotnet push corset, UI typecheck, beta-readiness
-  wiring guards) on master/main.
+  wiring guards) plus PR corset name `.NET: fast core (corset)` on master/main.
 
 .DESCRIPTION
   TB-138 operator helper. Requires authenticated `gh` with admin on the repository.

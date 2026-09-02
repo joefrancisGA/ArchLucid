@@ -1,4 +1,5 @@
 using ArchLucid.Application.Authority;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -24,7 +25,7 @@ public sealed partial class ReplayRunService
         cancellationToken.ThrowIfCancellationRequested();
 
         if (tasks.Count == 0)
-            throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
+            throw new NoScheduledAgentTasksException(originalRunId);
 
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");

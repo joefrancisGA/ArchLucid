@@ -18,7 +18,7 @@ The pipeline **agent output → typed findings → manifest decisions → audit*
 
 ## Corpus contract
 
-Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **34** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`**, **`case-32`**, **`case-33`**, and **`case-34`** are **hand-authored** scenarios (see each folder’s `README.md`).
+Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **35** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`**, **`case-32`**, **`case-33`**, **`case-34`**, and **`case-35`** are **hand-authored** scenarios (see each folder’s `README.md`).
 
 | File | Purpose |
 |------|---------|
@@ -32,7 +32,7 @@ On assertion failure, `GoldenCorpusRegressionTests` writes sibling files with an
 
 ---
 
-## Coverage map (`case-01` … `case-34`)
+## Coverage map (`case-01` … `case-35`)
 
 Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`index % 6`) with a stable suffix per block of six (`index / 6`).
 
@@ -42,6 +42,7 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 | **`case-32`** (hand-authored) | **Merge input gate** rejects an `AgentResult` whose `runId` stamp does not match the bundle `mergeRunId`. See `tests/golden-corpus/decisioning/case-32/README.md`. |
 | **`case-33`** (hand-authored) | **`DeclarationSecurityBaselineFindingEngine`** — public network access + HTTPS disabled on one `TopologyResource`. See `tests/golden-corpus/decisioning/case-33/README.md`. |
 | **`case-34`** (hand-authored) | **`DeclarationPremiseConflictFindingEngine`** — `SecurityBaseline` intent conflicts with linked declaration public-access property. See `tests/golden-corpus/decisioning/case-34/README.md`. |
+| **`case-35`** (hand-authored) | **WK-06 actor slice** — WK-08 declaration-seeded machine actors (k8s `ServiceAccount` + anonymous `aws_iam_role`) plus one guided-intake internal human. Exercises **trust-boundary**, **privileged-access**, and **external-exposure**. See `tests/golden-corpus/decisioning/case-35/README.md`. |
 
 ### Archetypes (`case-01` … `case-30` only)
 
@@ -71,17 +72,17 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 
 `ArchLucid.TestSupport` intentionally does **not** reference `ArchLucid.Decisioning`, so the heavy wiring stays in the Decisioning test project and the solution graph stays clean.
 
-**Policy-filter contract (sibling tests):** `GoldenCorpusHarness.CreateEngines()` constructs `FileComplianceRulePackProvider` directly (**fourteen** graph-only engines: requirement slice, topology slice, security slice, compliance, cost, and declaration engines — unfiltered pack). `PolicyFilteredGoldenCorpusTests` runs `ComplianceFindingEngine` twice on a fixed graph with two different `PolicyPackContentDocument.ComplianceRuleKeys` postures and asserts the compliance finding rule ids differ. `PolicyFilteredDeclarationGoldenCorpusTests` runs `DeclarationSecurityBaselineFindingEngine` with two filtered packs (`soc2-004` vs `cis-az-006`) and asserts declaration findings differ. `PolicyExpectationCoverageGoldenCorpusTests` runs `TopologyCoverageFindingEngine` on one graph with and without a stamped `identity` topology extra and asserts missing categories differ. Summary artifact: `docs/quality/policy-filter-golden-delta.md`. These do **not** exercise `PolicyFilteredComplianceRulePackProvider` or tenant curated-rule merger — only filtered pack injection or graph stamping in tests.
+**Policy-filter contract (sibling tests):** `GoldenCorpusHarness.CreateEngines()` constructs `FileComplianceRulePackProvider` directly (**sixteen** graph-only engines: requirement slice, topology slice, security slice including trust-boundary / privileged-access / external-exposure, compliance, cost, and declaration engines — unfiltered pack). `PolicyFilteredGoldenCorpusTests` runs `ComplianceFindingEngine` twice on a fixed graph with two different `PolicyPackContentDocument.ComplianceRuleKeys` postures and asserts the compliance finding rule ids differ. `PolicyFilteredDeclarationGoldenCorpusTests` runs `DeclarationSecurityBaselineFindingEngine` with two filtered packs (`soc2-004` vs `cis-az-006`) and asserts declaration findings differ. `PolicyPackP1ToggleGoldenCorpusTests` runs the same declaration engine on bundled **SOC 2** vs **CIS Azure** packs at **`P1`** (buyer-visible demo arm). `PolicyExpectationCoverageGoldenCorpusTests` runs `TopologyCoverageFindingEngine` on one graph with and without a stamped `identity` topology extra and asserts missing categories differ. Summary artifact: `docs/quality/policy-filter-golden-delta.md`. These do **not** inject `PolicyFilteredComplianceRulePackProvider` or `IEffectiveGovernanceLoader` into the merge-blocking harness.
 
 ### Non-goal: production governance loader in the harness (WK-22)
 
-`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-34` depend on tenant pack seeds and break bit-stability. Policy filter and expectation stamps stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`).
+`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-35` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, and expectation stamps stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`).
 
 ---
 
 ## How to refresh or add cases
 
-1. **Add or edit definitions** in `GoldenCorpusGraphFactory` (and related DTOs) so new scenarios are generated with stable semantics, **or** add a new hand-authored `case-NN` directory (next index only; see **`case-31` … `case-34`**) with `input.json`, `expected-*.json`, and `README.md`. For hand-authored cases, run `ARCHLUCID_RECORD_DECISIONING_GOLDEN=1` with `Record_hand_authored_cases_33_34_when_env_flag_set` (extend the recorder for new indices as needed).
+1. **Add or edit definitions** in `GoldenCorpusGraphFactory` (and related DTOs) so new scenarios are generated with stable semantics, **or** add a new hand-authored `case-NN` directory (next index only; see **`case-31` … `case-35`**) with `input.json`, `expected-*.json`, and `README.md`. For hand-authored cases, run `ARCHLUCID_RECORD_DECISIONING_GOLDEN=1` with `Record_hand_authored_cases_33_34_when_env_flag_set` or `Record_hand_authored_case_35_when_env_flag_set` (extend the recorder for new indices as needed).
 2. **Record** (local only): set `ARCHLUCID_RECORD_DECISIONING_GOLDEN=1` and run:
    - `dotnet test ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj --filter "FullyQualifiedName~GoldenCorpusMaterializerTests"`
 3. **Commit** the updated `tests/golden-corpus/decisioning/**` tree and case `README.md` files.

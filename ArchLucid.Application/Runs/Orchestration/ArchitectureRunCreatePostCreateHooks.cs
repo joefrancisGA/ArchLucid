@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Runs.Coordination;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
@@ -16,7 +17,8 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-///     Best-effort post-create side effects after a run row is persisted (audit, metering, policy baseline, identity link).
+///     Post-create side effects after a run row is persisted (audit, metering, policy baseline, identity link).
+///     Identity and version pinning are fail-closed for review runs.
 /// </summary>
 public sealed class ArchitectureRunCreatePostCreateHooks(
     IAuditService auditService,
@@ -25,6 +27,7 @@ public sealed class ArchitectureRunCreatePostCreateHooks(
     TimeProvider timeProvider,
     DefaultPolicyPackCloudBaselineApplicator defaultPolicyPackCloudBaselineApplicator,
     IArchitectureIdentityService architectureIdentityService,
+    IArchitectureVersionService architectureVersionService,
     ILogger<ArchitectureRunCreatePostCreateHooks> logger)
 {
     private readonly IAuditService _auditService =
@@ -35,6 +38,9 @@ public sealed class ArchitectureRunCreatePostCreateHooks(
 
     private readonly IArchitectureIdentityService _architectureIdentityService =
         architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
+
+    private readonly IArchitectureVersionService _architectureVersionService =
+        architectureVersionService ?? throw new ArgumentNullException(nameof(architectureVersionService));
 
     private readonly ILogger<ArchitectureRunCreatePostCreateHooks> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -124,24 +130,26 @@ public sealed class ArchitectureRunCreatePostCreateHooks(
         CancellationToken cancellationToken)
     {
         if (!TryParseCoordinationRunGuid(runId, out Guid reviewRunGuid))
-            return;
+        {
+            throw new ArchitecturePinningFailedException(
+                $"Review run architecture link failed: invalid RunId '{LogSanitizer.Sanitize(runId)}'.");
+        }
 
-        try
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        ArchitectureIdentityRecord? identity = await _architectureIdentityService
+            .TryEnsureReviewRunLinkedAsync(scope, reviewRunGuid, request, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        if (identity?.ArchitectureId is not Guid architectureId || architectureId == Guid.Empty)
         {
-            await _architectureIdentityService
-                .TryEnsureReviewRunLinkedAsync(_scopeContextProvider.GetCurrentScope(), reviewRunGuid, request, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            throw new ArchitecturePinningFailedException(
+                $"Review run architecture identity link failed for RunId={LogSanitizer.Sanitize(runId)}.");
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    ex,
-                    "Review run architecture identity link failed for RunId={RunId}.",
-                    LogSanitizer.Sanitize(runId));
-            }
-        }
+
+        await _architectureVersionService
+            .EnsureRunVersionPinnedAsync(scope, reviewRunGuid, architectureId, request, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private async Task TryApplyCloudPolicyPackBaselineAsync(

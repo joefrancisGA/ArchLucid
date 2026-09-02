@@ -109,6 +109,10 @@ jobs:
           Demo__SeedOnStartup: "true"
           Demo__AnonymousViewer__Enabled: "true"
           Observability__ConsoleExporter__Enabled: "false"
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-nightly-bypass.log" 2>&1 &
@@ -285,6 +289,10 @@ jobs:
           DataConsistency__InitialDelaySeconds: "0"
           HostLeaderElection__Enabled: "false"
           Observability__ConsoleExporter__Enabled: "false"
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-nightly-apikey.log" 2>&1 &
@@ -474,6 +482,10 @@ jobs:
           DataConsistency__InitialDelaySeconds: "0"
           HostLeaderElection__Enabled: "false"
           Observability__ConsoleExporter__Enabled: "false"
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-nightly-jwt.log" 2>&1 &

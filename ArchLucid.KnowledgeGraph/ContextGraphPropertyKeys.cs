@@ -18,6 +18,24 @@ public static class ContextGraphPropertyKeys
     /// <summary>Pipe-separated requirement names from the prior committed context snapshot.</summary>
     public const string PriorRequirementNames = "priorRequirementNames";
 
+    /// <summary>Canonical context fingerprint at graph write time (wave-2 reuse guard).</summary>
+    public const string ContextCanonicalFingerprint = "contextCanonicalFingerprint";
+
+    /// <summary>κ content fingerprint at graph write time.</summary>
+    public const string KnowledgeModelFingerprint = "knowledgeModelFingerprint";
+
+    /// <summary>Pinned architecture version evaluated by this review.</summary>
+    public const string ArchitectureVersionId = "architectureVersionId";
+
+    /// <summary>Prior pinned architecture version for cross-run diff engines.</summary>
+    public const string PriorArchitectureVersionId = "priorArchitectureVersionId";
+
+    /// <summary>Prior committed graph snapshot id for typed cross-run prior.</summary>
+    public const string PriorGraphSnapshotId = "priorGraphSnapshotId";
+
+    /// <summary>Pipe-separated enabled policy pack ids in force for this findings pass.</summary>
+    public const string EnabledPolicyPackIds = "enabledPolicyPackIds";
+
     /// <summary>Pipe-separated topology categories added by tenant policy packs (additive floor).</summary>
     public const string PolicyExpectedTopologyCategories = "policyExpectedTopologyCategories";
 

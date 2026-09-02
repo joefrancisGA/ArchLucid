@@ -51,6 +51,7 @@ Prevent accidental HTTP surface changes: the generated OpenAPI document for **v1
 | `scripts/ci/assert_api_types_in_sync.ps1` | PowerShell equivalent of `assert_api_types_in_sync.sh` for local Windows development |
 | `scripts/git-hooks/pre-push` (+ `Install-GitHooks.ps1` / `install-git-hooks.sh`) | Optional **pre-push** gate: same check before refs leave your clone when outgoing commits touch API-contract paths (see Operational considerations) |
 | `.github/workflows/ci.yml` job **openapi-contract-snapshot** | Runs **before** **dotnet-fast-core** (`needs`); surfaces drift **without** waiting for SBOM/Python guards/full-solution corset guards; includes TypeScript drift step (`assert_api_types_in_sync.sh`) |
+| `.github/workflows/ui-typecheck-on-push.yml` job **openapi-contract-snapshot** | Same `.NET: OpenAPI v1 contract snapshot (fail-fast)` display name on **master/main push**. Runs `check_openapi_contract_snapshot.sh` only (v1 + buyer tests). Client/TS sync remains on the PR job. |
 | `.github/workflows/ci.yml` job **guards-pre-corset** | Text/Python policy guards (no solution build); gates **dotnet-fast-core** |
 | `.github/workflows/ci.yml` job **dotnet-fast-core** | Runs `DOTNET_FAST_CORE_TEST_FILTER` (fast core subset; **excludes** `OpenApiContractSnapshotTests` — covered by **openapi-contract-snapshot**) |
 | `.github/workflows/ci.yml` job **dotnet-fast-core-artifacts** | Full CI only: CycloneDX SBOM + ReportGenerator HTML from corset Cobertura |

@@ -71,7 +71,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         DraftRequestDocument document,
         string? redirectReason,
         string? spawnedRunId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? spawnedArchitectureVersionId = null)
     {
         ArgumentNullException.ThrowIfNull(document);
 
@@ -85,6 +86,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         stored.Document = CloneDocument(document);
         stored.RedirectReason = redirectReason;
         stored.SpawnedRunId = spawnedRunId;
+        stored.SpawnedArchitectureVersionId = spawnedArchitectureVersionId;
         stored.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         return Task.FromResult<DraftRequestResponse?>(Map(stored));
@@ -233,6 +235,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             Document = CloneDocument(stored.Document),
             RedirectReason = stored.RedirectReason,
             SpawnedRunId = stored.SpawnedRunId,
+            SpawnedArchitectureVersionId = stored.SpawnedArchitectureVersionId,
             CreatedByUserId = stored.CreatedByUserId,
             CreatedUtc = stored.CreatedUtc,
             UpdatedUtc = stored.UpdatedUtc,
@@ -297,6 +300,12 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         }
 
         public string? SpawnedRunId
+        {
+            get;
+            set;
+        }
+
+        public Guid? SpawnedArchitectureVersionId
         {
             get;
             set;

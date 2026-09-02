@@ -1,5 +1,8 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.CustomerSuccess;
@@ -163,12 +166,26 @@ public sealed class CorePilotTeamChecklistControllerTests
         body[0].UpdatedByUserId.Should().Be("actor-a");
     }
 
-    [Fact]
-    public void CorePilotChecklistPutRequest_rejects_json_without_is_completed()
+    [Theory]
+    [InlineData("{\"stepIndex\":1}", "missing isCompleted is rejected during JSON deserialization")]
+    [InlineData("{\"stepIndex\":1,\"isCompleted\":null}", "null isCompleted is rejected during JSON deserialization")]
+    public void PutRequest_deserialization_rejects_missing_or_null_is_completed(string payload, string because)
     {
-        Action act = () => System.Text.Json.JsonSerializer.Deserialize<CorePilotChecklistPutRequest>("""{"stepIndex":1}""");
+        Action act = () => JsonSerializer.Deserialize<CorePilotChecklistPutRequest>(payload, ArchLucidApiJsonSerializerOptions.Web);
 
-        act.Should().Throw<System.Text.Json.JsonException>();
+        act.Should().Throw<JsonException>(because);
+    }
+
+    [Fact]
+    public void PutRequest_deserialization_accepts_is_completed()
+    {
+        CorePilotChecklistPutRequest request =
+            JsonSerializer.Deserialize<CorePilotChecklistPutRequest>(
+                "{\"stepIndex\":2,\"isCompleted\":false}",
+                ArchLucidApiJsonSerializerOptions.Web)!;
+
+        request.StepIndex.Should().Be(2);
+        request.IsCompleted.Should().BeFalse();
     }
 
     [Fact]

@@ -38,6 +38,7 @@ export function RunDetailLastFailureCard(props: {
     legacyRunStatus: props.legacyRunStatus,
     triageScenarioId: summary.triageScenarioId,
     rejectReasonCategory: summary.rejectReasonCategory,
+    reasonCode: summary.reasonCode,
   });
 
   const borderClass =
