@@ -1769,11 +1769,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 17
-- **bugs-found:** 36
+- **hunts:** 18
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — `AlertRoutingCriteriaMetadata` numeric severity ordinals dropped, routing filter fail-open
+- **last-bug:** 2026-09-02 — `RunExplanationConfidenceCalloutBuilder` string-encoded faithfulness ratio/fallback dropped → PASS instead of WARN/HOLD
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1823,6 +1823,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IntegrationWebhookPayloadSamples.ResolveEventType` — legacy `com.archiforge.*` vendor aliases threw before `IntegrationEventTypes.MapToCanonical` — **hit 2026-09-01 (#417):** map legacy alias before known-set lookup; regression in `CorePackageCoverageBatchRc27Tests.ResolveEventType_maps_legacy_vendor_alias_before_known_set_lookup`.
 - [x] (proven) `MarketplaceWebhookPayloadParser.TryGetPlanId` — numeric `planId` threw via `GetString()` instead of coercing like `ReadQuantity` — **hit 2026-09-01 (#417):** accept string or number tokens in `TryGetStringPropertyCaseInsensitive`; regression in `MarketplaceWebhookPayloadParserTests.TryGetPlanId_reads_numeric_planId`.
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` — numeric severity ordinals in `severities` array silently dropped; only string entries survived routing filter parse — **hit 2026-09-02 (#418):** `ReadSeverityArray` maps `FindingSeverity` ordinals to `AlertSeverity` labels (`Error` → `High`); regression in `AlertRoutingCriteriaMetadata_Parse_numeric_severity_ordinals_map_alert_labels` and `AlertRoutingMatcher_numeric_severity_metadata_filters_non_matching_signals`.
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — string-encoded `faithfulnessSupportRatio` and `deterministicFallbackUsed` ignored (number/boolean JSON tokens only) so `ResolveDisposition` returned PASS instead of WARN/HOLD — **hit 2026-09-02 (#419):** `TryReadFiniteDouble` / `TryReadBoolean` coerce string tokens; regression in `RunExplanationConfidenceCalloutBuilderTests.FromAggregateJson_maps_string_encoded_faithfulness_support_ratio` and `FromAggregateJson_maps_string_encoded_deterministic_fallback_flag`.
+- [x] (invalid) `DecisionConfidenceSourceMapper.ToBuyerLabel` undefined enum numeric-string maps to wrong buyer label — undefined ordinals fall through switch default to `Unknown`; no mislabel risk.
+
+2026-09-02 seed hunt #419 (hit): reseeded from ArchLucid.Core; proved string-encoded faithfulness aggregate fields; cheap-disproved decision-confidence undefined ordinal mislabel.
 
 2026-09-02 thorough hunt #418 (hit): proved numeric severity ordinals in routing metadata dropped and fail-opened matcher filters.
 
