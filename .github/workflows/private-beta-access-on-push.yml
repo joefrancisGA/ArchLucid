@@ -1,0 +1,186 @@
+# Invite-wave private-beta Playwright: runs on master/main push without waiting for
+# ci.yml full regression. ci.yml's ui-e2e-live-beta-access is pull_request-skipped and
+# ci.yml itself has no push trigger, so that job never fires on trunk merge.
+#
+# Not a golden-cohort required check (owner apply later). Same job display name as ci.yml.
+name: Private-beta access on push
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: private-beta-access-push-${{ github.sha }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  ui-e2e-live-beta-access:
+    name: "Operator UI: private-beta access-path (JwtBearer)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Install UI deps & build Next (standalone, jwt-bearer client)
+        working-directory: archlucid-ui
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          NEXT_PUBLIC_ARCHLUCID_AUTH_MODE: jwt-bearer
+        run: |
+          npm ci
+          npm run build
+
+      - name: Generate RSA keys & PyJWT (CI JWT mint)
+        run: |
+          set -e
+          pip install --quiet PyJWT cryptography
+          openssl genrsa -out "${RUNNER_TEMP}/ci-jwt-priv.pem" 2048
+          openssl rsa -in "${RUNNER_TEMP}/ci-jwt-priv.pem" -pubout -out "${RUNNER_TEMP}/ci-jwt-pub.pem"
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
+
+      - name: Create SQL catalog for private-beta access-path e2e (JwtBearer)
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eBetaAccess') CREATE DATABASE ArchLucidLiveE2eBetaAccess;"
+
+      - name: Start ArchLucid.Api (background, JwtBearer + local PEM)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eBetaAccess"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: JwtBearer
+          ArchLucidAuth__Authority: ""
+          ArchLucidAuth__Audience: ""
+          ArchLucidAuth__JwtSigningPublicKeyPemPath: ${{ runner.temp }}/ci-jwt-pub.pem
+          ArchLucidAuth__JwtLocalIssuer: "https://ci.archlucid.local"
+          ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-jwt"
+          Auth__Trial__LocalIdentity__JwtPrivateKeyPemPath: ${{ runner.temp }}/ci-jwt-priv.pem
+          Auth__Trial__LocalIdentity__JwtIssuer: "https://ci.archlucid.local"
+          Auth__Trial__LocalIdentity__JwtAudience: "api://archlucid-live-e2e-jwt"
+          Authentication__ApiKey__DevelopmentBypassAll: "false"
+          AgentExecution__Mode: Simulator
+          RateLimiting__Registration__PermitLimit: "500"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
+          Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
+          Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
+          Observability__ConsoleExporter__Enabled: "false"
+        run: |
+          set -e
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-beta-access.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/live-api-beta-access.pid"
+
+      - name: Wait for API readiness
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-beta-access.log"
+
+      - name: Install Playwright browsers & run private-beta access-path smoke
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          set -e
+          TENANT_ID="11111111-1111-1111-1111-111111111111"
+          WORKSPACE_ID="22222222-2222-2222-2222-222222222222"
+          PROJECT_ID="33333333-3333-3333-3333-333333333333"
+          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
+            --private-key "${RUNNER_TEMP}/ci-jwt-priv.pem" \
+            --issuer "https://ci.archlucid.local" \
+            --audience "api://archlucid-live-e2e-jwt" \
+            --tenant-id "${TENANT_ID}" \
+            --workspace-id "${WORKSPACE_ID}" \
+            --project-id "${PROJECT_ID}" \
+            --out-token "${RUNNER_TEMP}/ci-jwt-token.txt"
+          TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/ci-jwt-token.txt")"
+          echo "::add-mask::${TOKEN}"
+          export LIVE_JWT_TOKEN="${TOKEN}"
+          export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
+          npx playwright install --with-deps chromium
+          curl -fsS http://127.0.0.1:5128/health/ready
+          npx playwright test --workers=1 live-api-private-beta-access.spec.ts
+
+      - name: Upload live API log (private-beta access-path)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-beta-access-on-push-api-log
+          path: ${{ runner.temp }}/live-api-beta-access.log
+          if-no-files-found: warn
+
+      - name: Upload Playwright report (private-beta access-path)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-beta-access-on-push-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+      - name: Upload Playwright test-results (private-beta access-path)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-beta-access-on-push-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - name: Upload Playwright blob report (private-beta access-path)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-beta-access-on-push-blob-report
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn

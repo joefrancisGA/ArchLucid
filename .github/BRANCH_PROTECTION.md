@@ -53,6 +53,11 @@ GitHub cannot apply rulesets from files in the repo. As of 2026-08-31, the **int
 - `Operator UI: typecheck (blocking)`
 - `CI: beta-readiness wiring guards` — **add in GitHub** (JSON already lists it; live ruleset may lag)
 
+**Not in the five-check JSON** (do not pretend the live ruleset requires them):
+
+- `.NET: OpenAPI v1 contract snapshot (fail-fast)` — now a job on `.github/workflows/ui-typecheck-on-push.yml`. Owner may add the check after one green trunk run.
+- `Operator UI: private-beta access-path (JwtBearer)` — now also produced by `.github/workflows/private-beta-access-on-push.yml` on trunk push (invite-wave; does not wait on full `ci.yml` regression). **Do not** add as a sixth golden-cohort required check until the owner applies it after a green run.
+
 Owner apply: `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` after one green `ui-typecheck-on-push.yml` run that includes the beta-readiness job.
 
 [`.github/rulesets/push-corset-codeql-required-check.json`](rulesets/push-corset-codeql-required-check.json) would also require `CodeQL (csharp)` and `CodeQL (javascript)`. **Do not apply that CodeQL-inclusive JSON** while CodeQL is off the PR hot path, or PRs will sit pending those checks forever.
