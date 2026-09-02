@@ -233,7 +233,9 @@ public sealed class GcpCloudBillingCatalogClient
         string? trimmed = raw?.Trim();
 
         return string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, "Hrs", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(trimmed, "Hrs", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hour", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hours", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryReadInt64Token(JsonElement element, out long value)

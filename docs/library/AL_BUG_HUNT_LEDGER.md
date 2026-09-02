@@ -1783,11 +1783,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 94
-- **bugs-found:** 206
+- **hunts:** 95
+- **bugs-found:** 207
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AWS offer index hour hourly unit synonym
+- **last-bug:** 2026-09-02 — GCP billing catalog hour hourly usage unit synonym
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2092,6 +2092,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AwsEc2OfferIndexParser.TryReadHourlyUnit` — `hour` / `hours` hourly unit synonyms rejected — **hit 2026-09-02 (#508):** `"unit": "hour"` returned null while `"h"` / `"Hrs"` / `"on"` synonyms already parsed; fixed by accepting `hour` and `hours` (`TryGetLinuxOnDemandHourlyUsd_parses_hour_synonym_hourly_unit`).
 
 2026-09-02 seed hunt #508: reseeded from ArchLucid.Core costing parsers; proved AWS hour/hours hourly unit synonym gap after #506 GCP tieredRates iteration fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.IsHourlyUsageUnit` — `hour` / `hours` hourly usage-unit synonyms rejected — **hit 2026-09-02 (#509):** `"usageUnit": "hour"` returned null while `"h"` / `"Hrs"` synonyms already parsed after #503; fixed by accepting `hour` and `hours` (`TryGetComputeEngineMonthlyUsdAsync_parses_hour_synonym_hourly_usage_unit`).
+
+2026-09-02 seed hunt #509: reseeded from ArchLucid.Core costing parsers; proved GCP hour/hours usage-unit synonym gap (symmetric to #508 AWS hour fix).
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
