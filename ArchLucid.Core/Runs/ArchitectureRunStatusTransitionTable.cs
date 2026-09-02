@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Identity;
 
@@ -139,15 +141,49 @@ public static class ArchitectureRunStatusTransitionTable
             return true;
         }
 
-        if (!Enum.TryParse(legacyRunStatus, ignoreCase: true, out ArchitectureRunStatus parsed)
-            || !Enum.IsDefined(parsed))
+        string trimmed = legacyRunStatus.Trim();
+
+        if (Enum.TryParse(trimmed, ignoreCase: true, out ArchitectureRunStatus parsed)
+            && Enum.IsDefined(parsed))
         {
-            status = default;
-            return false;
+            status = parsed;
+
+            return true;
         }
 
-        status = parsed;
-        return true;
+        if (TryParseWholeNumberString(trimmed, out int ordinal)
+            && Enum.IsDefined(typeof(ArchitectureRunStatus), ordinal))
+        {
+            status = (ArchitectureRunStatus)ordinal;
+
+            return true;
+        }
+
+        status = default;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberString(string raw, out int value)
+    {
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static ArchitectureRunStatusTransitionRule Rule(
