@@ -137,7 +137,7 @@ public sealed class IterativeRetrievalLoop(
 
         foreach (RetrievalHit hit in additional)
         {
-            if (!byChunk.ContainsKey(hit.ChunkId))
+            if (!byChunk.TryGetValue(hit.ChunkId, out RetrievalHit? prior) || hit.Score > prior.Score)
                 byChunk[hit.ChunkId] = hit;
         }
 

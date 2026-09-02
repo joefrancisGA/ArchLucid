@@ -43,10 +43,17 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
             href={inviteHref}
             className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full justify-start gap-1.5")}
             data-testid="review-invite-collaborator-link"
+            aria-disabled={props.canInviteReviewer === false}
+            tabIndex={props.canInviteReviewer === false ? -1 : undefined}
             title={
               props.canInviteReviewer === false ? "Workspace admin access required to send invitations" : undefined
             }
-            onClick={() => {
+            onClick={(event) => {
+              if (props.canInviteReviewer === false) {
+                event.preventDefault();
+                return;
+              }
+
               setOpen(false);
             }}
           >

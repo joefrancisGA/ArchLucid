@@ -1,14 +1,14 @@
 ---
-description: Hunt a real code defect with a failing repro, fix it with tests, and push to master
+description: Hunt a real code defect with a failing repro, fix it with tests, and push to bugsmash
 ---
 
 # Bug hunt, fix, ship (`/al-bug`)
 
-End-to-end **proactive defect** loop: find a **real** bug (prove it with a failing test or repro), implement a **minimal** fix, run **scoped** verification, and **push to `master`**.
+End-to-end **proactive defect** loop: find a **real** bug (prove it with a failing test or repro), implement a **minimal** fix, run **scoped** verification, and **push to `bugsmash`**.
 
 Distinct from **`/al-defect`** (production defect intake + `PD-###` log) and **`/ship-next-improvement`** (backlog-driven feature work).
 
-**Default git target:** **`master`** (user may override by naming another branch in the same message).
+**Default git target:** **`bugsmash`** (user may override by naming another branch in the same message).
 
 **Every invocation is one of two kinds.** After the picker preview, announce the kind in chat **before** reading files or writing tests, then finish that kind. Do not silently skim and move on.
 
@@ -23,6 +23,7 @@ One invocation runs these phases **without stopping for approval between them** 
 
 | Phase | Goal |
 |-------|------|
+| **−1 — Sync** | Pull latest `bugsmash` from origin (skip for `--status`) |
 | **0 — Target** | Score the hunt ledger; hunt **only** the picked zone |
 | **1 — Find** | Prove a genuine defect in that zone with a failing test |
 | **2 — Fix** | Minimal correct fix + permanent regression test |
@@ -34,16 +35,16 @@ One invocation runs these phases **without stopping for approval between them** 
 
 ```text
 /al-bug
-/al-bug master
+/al-bug bugsmash
 /al-bug "<optional hunt hint>"
-/al-bug master "<optional hunt hint>"
+/al-bug bugsmash "<optional hunt hint>"
 /al-bug --find-only
-/al-bug master --find-only
+/al-bug bugsmash --find-only
 /al-bug --status
 /al-bug --refresh
 ```
 
-- **`master`** (optional) — explicit branch target; default is **`master`** when omitted (satisfies `.cursor/rules/Git-Commit-Requires-Branch.mdc`).
+- **`bugsmash`** (optional) — explicit branch target; default is **`bugsmash`** when omitted (satisfies `.cursor/rules/Git-Commit-Requires-Branch.mdc`).
 - **`"<optional hunt hint>"`** — pin a ledger zone by id or alias (e.g. `topology merge gate`, `ARM resource ids`).
 - **`--find-only`** — stop after Phase 1 with the bug report and failing repro; no fix, commit, or push.
 - **`--status`** — run the picker preview and **stop** (no hunt, no ledger write).
@@ -53,9 +54,9 @@ Examples:
 
 ```text
 /al-bug
-/al-bug master
+/al-bug bugsmash
 /al-bug "topology proposal graph merge"
-/al-bug master --find-only
+/al-bug bugsmash --find-only
 /al-bug --status
 /al-bug --refresh
 ```
@@ -73,6 +74,20 @@ Examples:
 - **Do not** run `/fix-ci` or full CI unless the user explicitly asks — scoped tests + one compile check are enough for this command.
 - **Do not** log `PD-###` / `TB-###` unless the user also asked for defect/backlog intake.
 - **Do not** shorten this run because another `/al-bug` is queued. Each message is an independent full kind (seed hunt or thorough hunt). Forbidden when anything is queued: skipping scoped tests, stopping after the picker without hunting (except `--status`), recording `seed-only` without reading zone `paths` and existing tests, recording `dry` without a failing-repro attempt on remaining hunt-ready rows, inventing another zone to reach the next queued command.
+
+---
+
+## Phase −1 — Sync `bugsmash` (required except `--status`)
+
+Before hunting, editing production code, or claiming a bug, sync the integration branch:
+
+```powershell
+.\scripts\agent\al-bug-sync-branch.ps1
+```
+
+Add `-TargetBranch <name>` only when the user overrode the branch in the same message.
+
+The script fetches `origin/bugsmash`, checks out `bugsmash`, and `git pull --rebase origin bugsmash`. If the remote branch does not exist yet, it creates local `bugsmash` from `origin/master`.
 
 ---
 
@@ -186,7 +201,7 @@ If the listed claim is false, spend a few minutes on the dual before declaring d
 ### 1.2 Prove it
 
 1. Read the implicated code and existing tests.
-2. Add a **focused unit test** (preferred) or a temporary repro test class that **fails on current `master`**.
+2. Add a **focused unit test** (preferred) or a temporary repro test class that **fails on current `bugsmash`**.
 3. Run scoped tests:
 
 ```powershell
@@ -233,9 +248,9 @@ Exit code **2** → stop; tell the user which paths are blocked.
 
 ---
 
-## Phase 3 — Ship to `master`
+## Phase 3 — Ship to `bugsmash`
 
-Target branch is **`master`** unless the user named another branch in the same message.
+Target branch is **`bugsmash`** unless the user named another branch in the same message.
 
 ### 3.1 Prefer the push helper (dirty main tree)
 
@@ -253,7 +268,7 @@ One-sentence why focused on the defect.
 '@
 ```
 
-`-TargetBranch master` is the default. Use `-TargetBranch <name>` when the user overrode the branch.
+`-TargetBranch bugsmash` is the default. Use `-TargetBranch <name>` when the user overrode the branch.
 
 Add `-DryRun` to preview without push.
 
@@ -264,14 +279,14 @@ When the main tree is clean except for your bugfix files:
 ```powershell
 git add <scoped-paths>
 git commit -m "Fix <concise defect description>."
-git push origin master
+git push -u origin bugsmash
 ```
 
 ### 3.3 Verify
 
 ```powershell
-git fetch origin master
-git log origin/master -1 --oneline
+git fetch origin bugsmash
+git log origin/bugsmash -1 --oneline
 ```
 
 ---
@@ -305,7 +320,7 @@ Replacement hypotheses after a miss must cite a **different mechanism**, not the
 | --- | --- |
 | Kind | seed hunt / thorough hunt |
 | Outcome | hit / dry / seed-only |
-| Branch | `master` (or override) |
+| Branch | `bugsmash` (or override) |
 | Zone | `<zoneId>` |
 | Hunt-ready left | N |
 | Candidates left | N |
@@ -314,7 +329,7 @@ Replacement hypotheses after a miss must cite a **different mechanism**, not the
 | Root cause | <short mechanism, or n/a if dry> |
 | Fix | <what changed, or ledger-only if dry/seed-only> |
 | Tests | <test names> — N passed |
-| Commit | `<sha>` on `origin/master` |
+| Commit | `<sha>` on `origin/bugsmash` |
 | Left unstaged | <paths or none> |
 | Bugs found (24h) | N |
 | Dry runs (24h) | N |
@@ -334,11 +349,12 @@ Copy the **Bugs found (24h)** and **Dry runs (24h)** values from the `-Rolling24
 - `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` — append-only hunt outcome log (UTC timestamps)
 - `scripts/agent/al-bug-pick-zone.ps1` — deterministic next-zone picker
 - `scripts/agent/al-bug-rolling-stats.ps1` — rolling 24h hunt yield log + preview
-- `scripts/agent/al-bug-push-master.ps1` — worktree commit/push helper
+- `scripts/agent/al-bug-sync-branch.ps1` — fetch, checkout, and pull `bugsmash`
+- `scripts/agent/al-bug-push-master.ps1` — worktree commit/push helper (default `bugsmash`)
 
 ## Related commands
 
 - `/al-defect` — production defect intake (`PD-###`) from operator reports
-- `/al-bug-api` — same hunt workflow via Cloud Agent API on `master`
+- `/al-bug-api` — same hunt workflow via Cloud Agent API (default `bugsmash`)
 - `/ship-next-improvement` — ship the next backlog / assessment item
 - `/check-compiler-errors` — optional deeper compile verification

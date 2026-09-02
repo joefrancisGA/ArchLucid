@@ -66,7 +66,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
       metrics: { ...emptyMetrics, hasReviews: true, reviewPackagesCommitted: 1 },
     });
 
-    const aboveFoldIds = sections.slice(0, 5).map((section) => section.id);
+    const aboveFoldIds = sections.slice(0, 6).map((section) => section.id);
 
     expect(aboveFoldIds).toEqual([
       "metrics-strip",

@@ -139,7 +139,7 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("Not recorded — rule set version missing")).toBeInTheDocument();
   });
 
-  it("labels sparse metadata as finalization metadata when execution failed pre-stage", () => {
+  it("hides finalization metadata when execution failed before review completes", () => {
     render(
       <RunDetailWorkspaceHeader
         runId="run-1"
@@ -156,20 +156,20 @@ describe("RunDetailWorkspaceHeader", () => {
       />,
     );
 
-    expect(screen.getByTestId("run-detail-record-metadata-disclosure")).toBeInTheDocument();
-    expect(screen.getByText("Finalization metadata (available after review completes)")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-detail-record-metadata-disclosure")).not.toBeInTheDocument();
+    expect(screen.queryByText("Finalization metadata (available after review completes)")).toBeNull();
     expect(screen.queryByText(/fields not recorded/i)).toBeNull();
     expect(
-      screen.getByText("Not applicable — review template is recorded when the review finalizes"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Not applicable — review has not been finalized")).toBeInTheDocument();
+      screen.queryByText("Not applicable — review template is recorded when the review finalizes"),
+    ).toBeNull();
+    expect(screen.queryByText("Not applicable — review has not been finalized")).toBeNull();
     expect(
-      screen.getByText("Not applicable — package version is recorded when the review finalizes"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Not applicable — no finalized review record yet")).toBeInTheDocument();
+      screen.queryByText("Not applicable — package version is recorded when the review finalizes"),
+    ).toBeNull();
+    expect(screen.queryByText("Not applicable — no finalized review record yet")).toBeNull();
     expect(
-      screen.getByText("Not applicable — no approval decision until the review is finalized"),
-    ).toBeInTheDocument();
+      screen.queryByText("Not applicable — no approval decision until the review is finalized"),
+    ).toBeNull();
   });
 
   it("clamps an oversized h1 title to one line without markdown", () => {
