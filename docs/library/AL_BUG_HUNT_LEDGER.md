@@ -2313,10 +2313,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 101
+- **hunts:** 102
 - **bugs-found:** 253
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-01
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-02
 - **last-bug:** 2026-08-31 — combined PRs #981–#991 plus #992 catalog/projectId/checklist validation; combined al-bug hunts #313–#334: ghost-workspace posture/coverage reads, environment-catalog ghost tenant, empty projectId query, governance scope gates, OTP RowVersion retry, link-proposal status guard, AgentResultJsonConverter evidenceRefs merge, product-feedback score and checklist isCompleted omission/validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2646,9 +2646,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — whitespace-only body `findingRef` bypassed inspect gate and persisted padded blank `FindingRef` — **hit 2026-08-31 (#324):** normalize to null before gate/persist; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_omits_finding_ref_when_value_is_whitespace`.
 - [x] (proven) `GovernanceCoverageController.PreviewCoverage` — null JSON body threw `ArgumentNullException` (HTTP 500 risk) instead of HTTP 400 — **hit 2026-08-31 (#324):** nullable body guard; regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_body_is_null`.
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` — sibling architecture projects in the same workspace appear in list responses while delete/restore require `scope.ProjectId` (may be intentional workspace picker disclosure).
-- [ ] (candidate) `GovernanceEnvironmentCatalogController.Get` / `Replace` — missing workspace preflight when scope workspace id is invalid for tenant.
-- [ ] (candidate) `GovernanceStickinessController.UpdateRecurrenceSchedule` — empty PUT body recomputes `NextRunUtc` without any user-supplied field change.
+- [x] (invalid) `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` — sibling architecture projects in the same workspace appear in list responses while delete/restore require `scope.ProjectId` — **cheap-disproof 2026-09-02 (#419):** `ListAsync_returns_only_current_workspace` filters to `scope.WorkspaceId` and lists all active projects in that workspace for the picker UI; project-scoped mutation guards are intentional.
+- [x] (valid-no-repro) `GovernanceEnvironmentCatalogController.Get` / `Replace` — missing workspace preflight when scope workspace id is invalid for tenant — **cheap-disproof 2026-09-02 (#419):** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` on GET/PUT; regression in `GovernanceEnvironmentCatalogControllerTests.Get_returns_not_found_when_workspace_missing`.
+- [x] (valid-no-repro) `GovernanceStickinessController.UpdateRecurrenceSchedule` — empty PUT body recomputes `NextRunUtc` without any user-supplied field change — **cheap-disproof 2026-09-02 (#419):** fixed in facade; regression in `GovernanceStickinessFacadeTests.UpdateRecurrenceScheduleAsync_preserves_next_run_when_request_has_no_schedule_changes`.
+
+2026-09-02 thorough hunt #419 (dry): cheap-disproved three stale candidates; scoped regression tests passed; no failing repro.
 
 2026-08-31 seed hunt #324: proved product-feedback whitespace findingRef normalization and coverage preview null-body 400 parity; seeded workspace project list disclosure, environment-catalog workspace preflight, and recurrence empty-PUT drift candidates.
 
