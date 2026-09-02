@@ -1073,6 +1073,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Error state is omitted so a failed load looks like an empty architecture â€” (valid-no-repro): `ArchitectureIntelligenceProductContextLoadFailure` renders on HTTP failure; covered by `shows intake load failure with retry when deep-linked product context fails` in `ArchitectureIntelligencePageClient.buyer-polished.test.tsx`
 - [x] (proven) Deep-linked run with empty `sourceTexts` and no `from` param shows "Scoped to run" without empty-intake notice — **hit 2026-08-24:** `inboundContextLine` branches on `productContextStatus === "empty"` / `"error"` before scoped fallback
 - [x] (proven) `loadGoldenFixture` left `productContextStatus` at `idle` on deep-linked reviews — **hit 2026-08-25:** inbound context fell back to "Scoped to run" and Analyze stayed hidden after fixture hydration (`shows loaded intake context after golden fixture on deep-linked review`)
+- [x] (proven) Deep-linked product source-context query key omitted operator scope — **hit 2026-09-02:** React Query reused prior workspace intake after scope switch; fixed scoped query key plus intake reset on scope change (`reloads hydrated intake when operator scope switches on a deep-linked review`)
+- [x] (invalid) Successful product-context retry leaves stale inline error alert — `productContextReloadNonce` bump clears `error` before refetch; regression in `clears stale error alert after successful product context retry`
+
+2026-09-02 seed hunt #420 (hit): scoped architecture-intelligence source-context query to operator scope; cleared deep-linked intake on workspace switch; cheap-disproved stale retry error row.
 
 ---
 
@@ -2091,11 +2095,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — provenance graph influence edge omitted when finding RelatedNodeIds differed only by case from graph NodeId
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2109,6 +2113,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Explicit parent-child containment edges omitted when `parentNodeId` uses PascalCase on a case-sensitive property bag — **hit 2026-08-20:** `DefaultGraphEdgeInferer` used case-sensitive `Properties.TryGetValue` for `parentNodeId`, `connectedToNodeIds`, and targeted topology id keys
 - [x] (proven) WAF alignment flag omitted when associated-findings property keys use PascalCase — **hit 2026-08-21:** `GraphMaterializationStages` read `associatedFindings` / `findings` from raw `CanonicalObject.Properties` with case-sensitive `TryGetValue` instead of the normalized node bag via `GraphNodePropertyReader`
 - [x] (proven) Topology sensitivity misclassified when property keys use PascalCase on a case-sensitive bag — **hit 2026-08-23:** `TopologySensitivityClassifier` used case-sensitive `TryGetValue` for `topologySensitivity`, `category`, `publicNetworkAccess`, and `resourceType` instead of `GraphNodePropertyReader`
+- [x] (proven) Graph→finding provenance edge omitted when `RelatedNodeIds` casing differs from graph `NodeId` — **hit 2026-09-02:** `ProvenanceBuilder` used ordinal `graphNodeIds` and `nodeMap` keys, so `InfluencedByGraphNode` was skipped when findings referenced the same node with different casing; fixed with `StringComparer.OrdinalIgnoreCase` (`Build_links_graph_influence_when_related_node_id_differs_only_by_case`)
+
+2026-09-02 seed hunt #421 (hit): promoted graph→finding case-mismatch from `ProvenanceBuilder` vs `DefaultGraphEdgeInferer`/`GraphValidator` ordinal-ignore-case parity; proved with failing repro.
 
 ---
 
