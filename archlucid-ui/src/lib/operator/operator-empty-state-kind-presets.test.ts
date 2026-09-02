@@ -35,7 +35,7 @@ describe("operator-empty-state-kind-presets (TB-1555)", () => {
       }),
     );
     expect(ADVISORY_SCHEDULES_EMPTY_COMPACT.title).toBe("No advisory-scan schedules yet");
-    expect(GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT.title).toBe("No risks match this filter");
+    expect(GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT.title).toBe("No findings match this filter");
   });
 
   it("maps exported compact presets to operator empty kinds for TB-1556", () => {

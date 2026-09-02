@@ -536,3 +536,6 @@
 {"at":"2026-09-02T04:03:33.2871588Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-02T04:09:32.3922023Z","zoneId":"application-pilots","outcome":"hit"}
 {"at":"2026-09-02T04:19:03.5785315Z","zoneId":"retrieval","outcome":"hit"}
+{"at":"2026-09-02T04:31:21.6546941Z","zoneId":"persistence-identity","outcome":"hit"}
+{"at":"2026-09-02T04:42:14.1161438Z","zoneId":"ui-operator-lib","outcome":"hit"}
+{"at":"2026-09-02T04:54:02.3915211Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}

@@ -44,10 +44,15 @@ public sealed class InMemoryNoTrialIdentityUserRepository : ITrialIdentityUserRe
     /// <inheritdoc />
     public Task RecordAccessFailedAsync(
         string normalizedEmail,
-        int newCount,
-        DateTimeOffset? lockoutEnd,
+        int maxAttemptsBeforeLockout,
+        DateTimeOffset lockoutEndUtcIfThresholdReached,
         CancellationToken cancellationToken)
     {
+        _ = normalizedEmail;
+        _ = maxAttemptsBeforeLockout;
+        _ = lockoutEndUtcIfThresholdReached;
+        _ = cancellationToken;
+
         return Task.CompletedTask;
     }
 

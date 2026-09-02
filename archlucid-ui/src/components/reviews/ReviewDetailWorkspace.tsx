@@ -66,6 +66,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly inPipelineBanner?: ReactNode | null;
   /** When omitted, all tabs stay primary (legacy / tests). */
   readonly tabLifecycle?: ResolveReviewDetailVisibleTabsInput;
+  /** Tab-scoped "On this page" anchor nav rendered below the tab strip. */
+  readonly tabSectionNav?: ReactNode | null;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {
@@ -259,6 +261,8 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
           isTabNewSinceLastVisit={isTabNewSinceLastVisit}
           onTabChange={navigateTab}
         />
+
+        {props.tabSectionNav ?? null}
 
         <div
           className="min-w-0 overflow-visible"

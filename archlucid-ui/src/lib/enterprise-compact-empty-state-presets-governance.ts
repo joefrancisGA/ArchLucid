@@ -130,17 +130,17 @@ export const STANDARDS_RULES_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
 export const GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT: EnterpriseCompactEmptyStateProps =
   buildOperatorFilteredEmptyCompact({
     testId: "governance-findings-filter-no-match-empty-state",
-    nounPhrase: "risks",
-    description: "Try All or choose a different operational filter to see findings in the register.",
+    nounPhrase: "findings",
+    description: "Try All or choose a different filter to see findings in this workspace.",
     actions: [],
   });
 
 /** Governance findings queue when the register fetch failed — distinct from a genuinely empty register. */
 export const GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "governance-findings-load-failed",
-  title: "Could not load architecture risk register",
+  title: "Could not load findings queue",
   description:
-    "The risk register did not load for this workspace. Your existing findings are unchanged — retry the load or check connectivity before navigating away.",
+    "The findings queue did not load for this workspace. Your existing findings are unchanged — retry the load or check connectivity before navigating away.",
   actions: [],
 };
 

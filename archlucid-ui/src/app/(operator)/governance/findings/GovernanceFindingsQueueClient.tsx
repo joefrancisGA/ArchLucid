@@ -170,6 +170,7 @@ export default function GovernanceFindingsQueueClient({
         })
       : null;
   const filterBarVisible = !buyerPolishedShell && !loading && rows.length > 0;
+  const compactRegisterFilterVisible = buyerPolishedShell && !loading && !isAssignedToMe;
   const effectiveJobView = resolveEffectiveFindingJobView(jobView, filterBarVisible);
   const jobViewFilterActive = filterBarVisible && jobView !== DEFAULT_FINDING_JOB_VIEW;
   const scopedRows = useMemo(
@@ -377,6 +378,7 @@ export default function GovernanceFindingsQueueClient({
         assignedToMeLoadedFindingCount={assignedToMeLoadedFindingCount}
         scopeRecordProjectId={scopeRecord?.projectId}
         filterBarVisible={filterBarVisible}
+        compactRegisterFilterVisible={compactRegisterFilterVisible}
         registerFilter={registerFilter}
         onRegisterFilterChange={setRegisterFilter}
         onJobViewChange={setJobView}

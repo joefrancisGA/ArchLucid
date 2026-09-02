@@ -86,4 +86,41 @@ public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerP
         (await sut.TryLinkLocalIdentityToEntraAsync("MISSING@EXAMPLE.COM", "oid", CancellationToken.None)).Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public async Task RecordAccessFailedAsync_parallel_increments_preserve_all_attempts()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlTrialIdentityUserRepository sut = new(factory);
+        string email = "lockout+" + Guid.NewGuid().ToString("N")[..8] + "@example.com";
+        string normalized = TrialEmailNormalizer.Normalize(email);
+        const int parallelAttempts = 8;
+
+        await sut.CreatePendingUserAsync(
+            normalized,
+            email,
+            "HASH",
+            "s",
+            "c",
+            "th",
+            TimeProvider.System.GetUtcNow().AddDays(1),
+            CancellationToken.None);
+
+        Task[] attempts = Enumerable.Range(0, parallelAttempts)
+            .Select(_ => sut.RecordAccessFailedAsync(
+                normalized,
+                maxAttemptsBeforeLockout: 100,
+                lockoutEndUtcIfThresholdReached: TimeProvider.System.GetUtcNow().AddMinutes(15),
+                CancellationToken.None))
+            .ToArray();
+
+        await Task.WhenAll(attempts);
+
+        TrialIdentityUserRecord? final = await sut.GetByNormalizedEmailAsync(normalized, CancellationToken.None);
+
+        final.Should().NotBeNull();
+        final!.AccessFailedCount.Should().Be(parallelAttempts);
+    }
 }

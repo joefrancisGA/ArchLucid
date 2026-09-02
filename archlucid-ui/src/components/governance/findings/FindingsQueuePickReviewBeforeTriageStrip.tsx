@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
-import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -12,61 +9,51 @@ export type FindingsQueuePickReviewBeforeTriageStripProps = {
   readonly onSelectReview: (reviewId: string) => void;
 };
 
-/** Review picker shown before triaging findings without a scoped review. */
+/** Optional review picker to scope the workspace findings queue to one review. */
 export function FindingsQueuePickReviewBeforeTriageStrip(
   props: FindingsQueuePickReviewBeforeTriageStripProps,
 ): React.JSX.Element {
-  const workspaceRun = useWorkspaceActiveRun();
-  const workspaceRunId = (workspaceRun?.activeRunId ?? "").trim();
-  const pickerValue =
-    props.selectedReviewId.trim().length > 0
-      ? props.selectedReviewId
-      : workspaceRunId.length > 0
-        ? workspaceRunId
-        : "";
-
-  useEffect(() => {
-    if (props.selectedReviewId.trim().length > 0) {
-      return;
-    }
-
-    if (workspaceRunId.length > 0) {
-      props.onSelectReview(workspaceRunId);
-    }
-  }, [props.onSelectReview, props.selectedReviewId, workspaceRunId]);
-
   return (
-    <section
-      aria-labelledby="findings-queue-pick-review-before-triage-heading"
+    <div className="mt-3 min-w-[16rem] max-w-xl">
+      <AskRunIdPicker
+        value={props.selectedReviewId}
+        onChange={(value) => {
+          if (value.trim().length > 0) {
+            props.onSelectReview(value.trim());
+          }
+        }}
+        selectedThreadId=""
+        committedOnly
+        preferAutoPick={false}
+        autoSelectSyntheticSample={false}
+        label="Review"
+        fieldId="findings-queue-pick-review-before-triage"
+        hideFieldHelper
+      />
+    </div>
+  );
+}
+
+export type FindingsQueueScopeDisclosureProps = FindingsQueuePickReviewBeforeTriageStripProps;
+
+/** Collapsed optional scope control — workspace-wide is the default. */
+export function FindingsQueueScopeDisclosure(
+  props: FindingsQueueScopeDisclosureProps,
+): React.JSX.Element {
+  return (
+    <details
       className="rounded-lg border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800"
-      data-testid="findings-queue-pick-review-before-triage-strip"
+      data-testid="findings-queue-scope-disclosure"
     >
-      <h2
-        id="findings-queue-pick-review-before-triage-heading"
-        className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+      <summary
+        className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
       >
-        Pick a review before triage
-      </h2>
-      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Scope the findings queue to one architecture package so triage actions stay aligned with governance context.
+        Filter to one review
+      </summary>
+      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        Optional — narrow the findings queue to a single review when you need review-specific triage.
       </p>
-      <div className="mt-3 min-w-[16rem] max-w-xl">
-        <AskRunIdPicker
-          value={pickerValue}
-          onChange={(value) => {
-            if (value.trim().length > 0) {
-              props.onSelectReview(value.trim());
-            }
-          }}
-          selectedThreadId=""
-          committedOnly
-          preferAutoPick={false}
-          autoSelectSyntheticSample={false}
-          label="Architecture package"
-          fieldId="findings-queue-pick-review-before-triage"
-          hideFieldHelper
-        />
-      </div>
-    </section>
+      <FindingsQueuePickReviewBeforeTriageStrip {...props} />
+    </details>
   );
 }

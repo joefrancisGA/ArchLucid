@@ -37,6 +37,15 @@ public interface IEmailOtpChallengeRepository
         DateTimeOffset invalidatedUtc,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    ///     Atomically invalidates active challenges for <paramref name="insert.NormalizedEmail" /> and inserts
+    ///     <paramref name="insert" /> so concurrent resends cannot leave multiple active rows.
+    /// </summary>
+    Task<EmailOtpChallengeRecord> ReplaceActiveChallengeForEmailAsync(
+        EmailOtpChallengeInsert insert,
+        DateTimeOffset invalidatedUtc,
+        CancellationToken cancellationToken);
+
     Task<EmailOtpChallengeCompletionOutcome> TryCompleteAsync(
         Guid challengeId,
         string codeHash,
