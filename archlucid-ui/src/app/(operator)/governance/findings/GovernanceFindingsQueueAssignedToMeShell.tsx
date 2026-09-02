@@ -56,6 +56,7 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly displayedRows: readonly GovernanceFindingQueueRow[];
   readonly scopedRows: readonly GovernanceFindingQueueRow[];
   readonly registerSummary: ArchitectureRiskRegisterSummary;
+  readonly findingsSearchQuery: string;
   readonly onNaturalLanguageFilterApply: (next: FindingsNaturalLanguageFacets) => void;
   readonly nlFacets: FindingsNaturalLanguageFacets;
   readonly onClearAllFilters: () => void;

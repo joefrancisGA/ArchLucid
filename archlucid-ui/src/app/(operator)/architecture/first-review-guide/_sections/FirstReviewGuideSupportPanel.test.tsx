@@ -14,6 +14,7 @@ describe("FirstReviewGuideSupportPanel", () => {
     ).not.toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-template-card")).not.toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-help")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Need help?" })).not.toBeInTheDocument();
 
     const getMore = screen.getByTestId("first-review-guide-get-more");
     expect(within(getMore).getByRole("link", { name: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE })).toHaveAttribute(

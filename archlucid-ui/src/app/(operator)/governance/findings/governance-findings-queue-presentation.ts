@@ -180,6 +180,7 @@ export function deriveGovernanceFindingsActiveFiltersSummary(
   jobView: FindingJobView,
   nlFacets: FindingsNaturalLanguageFacets,
   jobViewFilterActive: boolean,
+  searchQuery: string = "",
 ): string | null {
   return governanceFindingsQueueActiveFiltersSummary(
     governanceFindingsQueueActiveFilterChips({
@@ -187,6 +188,7 @@ export function deriveGovernanceFindingsActiveFiltersSummary(
       jobView,
       nlFacets,
       jobViewFilterActive,
+      searchQuery,
     }),
   );
 }

@@ -8,11 +8,35 @@
 export const ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY =
   "Identity, administrator access, platform health, and ROI baseline — optional before your first review.";
 
+/** Explains which steps the home Setup readiness link counts (excludes ROI baseline). */
+export const FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_PROGRESS_LEAD =
+  "The Setup link on Home tracks identity (SSO), administrator access, and platform health on self-hosted stacks. ROI baseline is separate and does not affect that count.";
+
+/** Collapsed summary when workspace setup steps remain incomplete. */
+export function formatOptionalWorkspaceSetupCollapsedSummary(
+  readyCount: number,
+  totalCount: number,
+): string {
+  if (totalCount <= 0 || readyCount >= totalCount) {
+    return ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY;
+  }
+
+  const stepNames =
+    totalCount >= 3
+      ? "identity (SSO), administrator access, and platform health"
+      : "identity (SSO) and administrator access";
+
+  return `${readyCount} of ${totalCount} workspace setup steps ready — ${stepNames}.`;
+}
+
 /** Post-registration trial handoff on `/architecture/first-review-guide` (TB-679). */
 export const GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD =
   "Confirm trial limits below, then use the checklist on this page or start a review with the sample highlighted on step one.";
 
 export const BUYER_ONBOARDING_PAGE_TITLE = "First review guide";
+
+/** Visible label on the page header contextual help trigger (distinct from shortened "Help"). */
+export const FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL = "First Review Guide";
 
 export const BUYER_ONBOARDING_PAGE_LEAD =
   "Create, evaluate, and finalize your first evidence-backed architecture review.";
@@ -53,8 +77,6 @@ export const FIRST_REVIEW_GUIDE_GET_MORE_TITLE = "Get more from ArchLucid";
 
 export const FIRST_REVIEW_GUIDE_GET_MORE_ROI_COPY =
   "Add an ROI baseline to estimate savings and support sponsor reporting.";
-
-export const FIRST_REVIEW_GUIDE_HELP_TITLE = "Need help?";
 
 export const FIRST_REVIEW_GUIDE_TEMPLATE_LABEL = "Templates";
 

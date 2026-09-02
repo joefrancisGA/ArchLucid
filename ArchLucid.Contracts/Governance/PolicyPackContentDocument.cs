@@ -74,4 +74,12 @@ public class PolicyPackContentDocument
         get;
         set;
     } = [];
+
+    /// <summary>Engine types that must succeed when this pack is enabled (wave-4 suggestion 33).</summary>
+    [JsonPropertyName("requiredEngineTypes")]
+    public List<string> RequiredEngineTypes
+    {
+        get;
+        set;
+    } = [];
 }

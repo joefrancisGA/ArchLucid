@@ -192,6 +192,22 @@ public sealed class CachingDraftRequestRepository(
             cancellationToken);
     }
 
+    /// <inheritdoc />
+    public Task<DraftRequestResponse?> GetBySpawnedRunIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string spawnedRunId,
+        CancellationToken cancellationToken)
+    {
+        return _inner.GetBySpawnedRunIdAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            spawnedRunId,
+            cancellationToken);
+    }
+
     private Task InvalidateDraftAsync(
         Guid tenantId,
         Guid workspaceId,

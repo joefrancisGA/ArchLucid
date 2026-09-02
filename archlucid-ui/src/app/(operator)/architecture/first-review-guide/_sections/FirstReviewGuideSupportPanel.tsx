@@ -24,16 +24,17 @@ const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_ST
 
 type FirstReviewGuideSupportPanelProps = {
   readonly sealedRunId: string | null;
+  readonly className?: string;
 };
 
-export function FirstReviewGuideSupportPanel({ sealedRunId }: FirstReviewGuideSupportPanelProps) {
+export function FirstReviewGuideSupportPanel({ sealedRunId, className }: FirstReviewGuideSupportPanelProps) {
   const outcomeLinks = sealedRunId !== null ? resolveFirstReviewGuideOutcomeLinks(sealedRunId) : null;
   const hasSealedRecord = sealedRunId !== null;
 
   return (
     <aside
       aria-labelledby="first-review-guide-resources-heading"
-      className="space-y-4"
+      className={cn("space-y-4", className)}
       data-testid="first-review-guide-support-panel"
     >
       <h2 id="first-review-guide-resources-heading" className="sr-only">

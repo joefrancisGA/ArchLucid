@@ -41,4 +41,18 @@ describe("scrollToReviewDetailSection", () => {
     expect(document.activeElement).toBe(section);
     expect(section?.getAttribute("tabindex")).toBe("-1");
   });
+
+  it("writes the section hash after scrolling", () => {
+    document.body.innerHTML = `
+      <section id="artifacts-exports">
+        <h2>Deliverables</h2>
+      </section>
+    `;
+
+    window.history.replaceState({}, "", "/architecture/reviews/run-1");
+
+    scrollToReviewDetailSection("artifacts-exports");
+
+    expect(window.location.hash).toBe("#artifacts-exports");
+  });
 });
