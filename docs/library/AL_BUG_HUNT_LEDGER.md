@@ -1775,11 +1775,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 16
-- **bugs-found:** 35
+- **hunts:** 17
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-01
-- **last-bug:** 2026-09-01 — FindingJsonConverter PascalCase severity/scalars, numeric relatedNodeIds, legacy webhook alias MapToCanonical, numeric marketplace planId
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — `AlertRoutingCriteriaMetadata` numeric severity ordinals dropped, routing filter fail-open
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1828,7 +1828,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadStringList` — numeric `relatedNodeIds` array entries threw and aborted full finding deserialize — **hit 2026-09-01 (#417):** coerce number tokens via `ReadStringDictValue`; regression in `FindingJsonConverterTests.Deserialize_relatedNodeIds_numeric_entries_coerce_to_strings`.
 - [x] (proven) `IntegrationWebhookPayloadSamples.ResolveEventType` — legacy `com.archiforge.*` vendor aliases threw before `IntegrationEventTypes.MapToCanonical` — **hit 2026-09-01 (#417):** map legacy alias before known-set lookup; regression in `CorePackageCoverageBatchRc27Tests.ResolveEventType_maps_legacy_vendor_alias_before_known_set_lookup`.
 - [x] (proven) `MarketplaceWebhookPayloadParser.TryGetPlanId` — numeric `planId` threw via `GetString()` instead of coercing like `ReadQuantity` — **hit 2026-09-01 (#417):** accept string or number tokens in `TryGetStringPropertyCaseInsensitive`; regression in `MarketplaceWebhookPayloadParserTests.TryGetPlanId_reads_numeric_planId`.
-- [ ] (candidate) `AlertRoutingCriteriaMetadata.ReadStringArray` — numeric severity ordinals in `severities` array silently dropped; only string entries survive routing filter parse.
+- [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` — numeric severity ordinals in `severities` array silently dropped; only string entries survived routing filter parse — **hit 2026-09-02 (#418):** `ReadSeverityArray` maps `FindingSeverity` ordinals to `AlertSeverity` labels (`Error` → `High`); regression in `AlertRoutingCriteriaMetadata_Parse_numeric_severity_ordinals_map_alert_labels` and `AlertRoutingMatcher_numeric_severity_metadata_filters_non_matching_signals`.
+
+2026-09-02 thorough hunt #418 (hit): proved numeric severity ordinals in routing metadata dropped and fail-opened matcher filters.
 
 2026-09-01 seed hunt #417 (hit): reseeded from ArchLucid.Core; proved PascalCase severity/scalar gaps, numeric relatedNodeIds coercion, legacy webhook alias MapToCanonical wiring, and numeric marketplace planId; seeded alert-routing numeric severity ordinal candidate.
 
