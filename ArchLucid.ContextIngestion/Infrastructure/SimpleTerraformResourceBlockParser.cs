@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -114,13 +113,27 @@ internal static class SimpleTerraformResourceBlockParser
             if (nestedBlockMatch.Success)
             {
                 string blockName = nestedBlockMatch.Groups["block"].Value;
-                string remainder = line[(nestedBlockMatch.Index + nestedBlockMatch.Length)..];
-                string blockBody = ExtractNestedBlockBody(remainder, lines, lineIndex, out int endLineIndex);
+                string fromHere = string.Join('\n', lines[lineIndex..]);
+                int braceIndex = fromHere.IndexOf('{', StringComparison.Ordinal);
+                string blockBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody(fromHere, braceIndex);
 
                 if (!string.IsNullOrWhiteSpace(blockBody))
-                    CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(properties, blockName, blockBody);
+                {
+                    if (IsFlattenableBlockName(blockName))
+                        ParseBodyIntoProperties(blockBody, properties);
+                    else
+                    {
+                        string innerBody = blockBody.Trim();
 
-                lineIndex = endLineIndex;
+                        if (innerBody.StartsWith("{", StringComparison.Ordinal) && innerBody.EndsWith("}", StringComparison.Ordinal))
+                            innerBody = innerBody[1..^1].Trim();
+
+                        CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(properties, blockName, innerBody);
+                    }
+                }
+
+                int consumedLines = CountConsumedLines(fromHere, blockBody);
+                lineIndex += consumedLines;
                 continue;
             }
 
@@ -142,77 +155,10 @@ internal static class SimpleTerraformResourceBlockParser
         }
     }
 
-    private static string ExtractNestedBlockBody(
-        string remainderOnLine,
-        string[] lines,
-        int lineIndex,
-        out int endLineIndex)
-    {
-        endLineIndex = lineIndex;
-        StringBuilder builder = new();
-        int depth = 0;
-        bool started = false;
-
-        void AppendSegment(string segment)
-        {
-            if (string.IsNullOrEmpty(segment))
-                return;
-
-            if (builder.Length > 0)
-                builder.Append('\n');
-
-            builder.Append(segment.Trim());
-        }
-
-        AppendSegment(remainderOnLine);
-
-        foreach (char character in remainderOnLine)
-        {
-            if (character == '{')
-            {
-                depth++;
-                started = true;
-            }
-            else if (character == '}')
-            {
-                depth--;
-
-                if (started && depth <= 0)
-                {
-                    endLineIndex = lineIndex;
-                    return builder.ToString();
-                }
-            }
-        }
-
-        for (int nextLineIndex = lineIndex + 1; nextLineIndex < lines.Length; nextLineIndex++)
-        {
-            string nextLine = lines[nextLineIndex];
-            AppendSegment(nextLine);
-
-            foreach (char character in nextLine)
-            {
-                if (character == '{')
-                {
-                    depth++;
-                    started = true;
-                }
-                else if (character == '}')
-                {
-                    depth--;
-
-                    if (started && depth <= 0)
-                    {
-                        endLineIndex = nextLineIndex;
-                        return builder.ToString();
-                    }
-                }
-            }
-        }
-
-        endLineIndex = lines.Length - 1;
-        return builder.ToString();
-    }
+    private static bool IsFlattenableBlockName(string blockName) =>
+        string.Equals(blockName, "properties", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(blockName, "siteConfig", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(blockName, "site_config", StringComparison.OrdinalIgnoreCase);
 
     private static bool TryConsumeBlockComment(ref string line, ref bool inBlockComment)
     {

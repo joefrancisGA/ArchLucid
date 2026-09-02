@@ -2338,11 +2338,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 59
-- **bugs-found:** 120
+- **hunts:** 60
+- **bugs-found:** 121
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — simple-terraform HCL array literals leaked inner scalars
+- **last-bug:** 2026-09-02 — simple-terraform nested site_config dropped ip_security_restrictions arrays
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
