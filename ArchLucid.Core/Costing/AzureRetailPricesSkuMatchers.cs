@@ -65,6 +65,12 @@ public sealed partial class AzureRetailPricesCatalogClient
 
             if (next is >= '0' and <= '9' or '-')
                 return false;
+
+            // Reject letter-variant suffixes such as Standard_D4 matching Standard_D4s_v5.
+            if (endIndex > 0
+                && haystack[endIndex - 1] is >= '0' and <= '9'
+                && char.IsLetter(next))
+                return false;
         }
 
         if (index > 0)

@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 110
-- **bugs-found:** 222
+- **hunts:** 111
+- **bugs-found:** 223
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AWS offer-index numeric instanceType attribute ignored
+- **last-bug:** 2026-09-02 — Azure retail SKU letter-suffix prefix collision (D4 vs D4s)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2161,6 +2161,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AwsEc2OfferIndexParser.TryReadAttribute` — numeric product attribute JSON tokens ignored — **hit 2026-09-02 (#528):** `"instanceType":12345` returned null for lookup `"12345"` while string attributes already parsed after #491 trim fix; fixed with whole-number coercion (`TryGetLinuxOnDemandHourlyUsd_parses_numeric_instance_type_attribute`).
 
 2026-09-02 seed hunt #528: reseeded from ArchLucid.Core AWS offer-index parser; proved numeric attribute token coercion gap beyond #491 whitespace trim fix.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.HasCollapsedSkuBoundary` — letter-variant SKU suffix prefix collision — **hit 2026-09-02 (#529):** `Standard_D4` matched retail row `Standard_D4s_v5` after #525 digit-boundary fix because `s` suffix after size digit `4` was still accepted (`StandardD4` prefix of `StandardD4sv5`); fixed by rejecting letter suffixes immediately following a digit (`RowMatchesSku_rejects_letter_suffix_series_collision`).
+
+2026-09-02 seed hunt #529: reseeded from ArchLucid.Core Azure retail SKU matchers; proved letter-suffix prefix collision beyond #525 digit-boundary fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

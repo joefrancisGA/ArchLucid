@@ -138,4 +138,14 @@ public sealed class AzureRetailPricesSkuMatchersTests
             .Should()
             .BeTrue();
     }
+
+    [Theory]
+    [InlineData("Standard_D4", "Standard_D4s_v5")]
+    [InlineData("Standard_E2", "Standard_E2s_v5")]
+    public void RowMatchesSku_rejects_letter_suffix_series_collision(string armSku, string retailSku)
+    {
+        AzureRetailPricesCatalogClient.RowMatchesSku(armSku, retailSku)
+            .Should()
+            .BeFalse();
+    }
 }
