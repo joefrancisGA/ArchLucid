@@ -33,6 +33,7 @@ public sealed class EvolutionController(
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("candidates/from-plan/{planId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EvolutionCandidateChangeSetResponse), StatusCodes.Status200OK)]
@@ -61,6 +62,7 @@ public sealed class EvolutionController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("candidates/{candidateId:guid}/shadow-evaluate")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EvolutionShadowEvaluateResponse), StatusCodes.Status200OK)]
@@ -93,6 +95,7 @@ public sealed class EvolutionController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("simulate/{candidateId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EvolutionSimulateResponse), StatusCodes.Status200OK)]

@@ -82,6 +82,7 @@ public sealed class AdvisoryController(
         });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("recommendations/{recommendationId:guid}/action")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationActionResponse), StatusCodes.Status200OK)]
