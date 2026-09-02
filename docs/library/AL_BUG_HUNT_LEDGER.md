@@ -1780,11 +1780,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 89
-- **bugs-found:** 201
+- **hunts:** 90
+- **bugs-found:** 202
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AWS offer index OnDemand product key casing
+- **last-bug:** 2026-09-02 — GCP billing catalog Hrs hourly usage unit synonym
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2069,6 +2069,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AwsEc2OfferIndexParser` — case-sensitive OnDemand product SKU key lookup — **hit 2026-09-02 (#502):** `products` key `"ABC"` with `OnDemand` key `"abc"` returned null while matching casing parsed; fixed with case-insensitive OnDemand product key lookup (`TryGetLinuxOnDemandHourlyUsd_parses_mismatched_on_demand_product_key_casing`).
 
 2026-09-02 seed hunt #502: reseeded from ArchLucid.Core costing parsers; proved AWS OnDemand product-key casing gap after #501 GCP omitted-zero-nanos fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.IsHourlyUsageUnit` — `Hrs` hourly usage-unit synonym rejected — **hit 2026-09-02 (#503):** `"usageUnit": "Hrs"` returned null while `"h"` and boolean/`"on"` synonyms already parsed; fixed by accepting `Hrs` alongside `h` (`TryGetComputeEngineMonthlyUsdAsync_parses_hrs_synonym_hourly_usage_unit`).
+
+2026-09-02 seed hunt #503: reseeded from ArchLucid.Core costing parsers; proved GCP Hrs hourly usage-unit synonym gap after #502 AWS OnDemand key casing fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

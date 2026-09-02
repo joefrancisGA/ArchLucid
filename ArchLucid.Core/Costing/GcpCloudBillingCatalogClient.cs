@@ -223,7 +223,10 @@ public sealed class GcpCloudBillingCatalogClient
         if (TryParseBooleanString(raw, out bool boolean))
             return boolean;
 
-        return string.Equals(raw?.Trim(), "h", StringComparison.OrdinalIgnoreCase);
+        string? trimmed = raw?.Trim();
+
+        return string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "Hrs", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryReadInt64Token(JsonElement element, out long value)
