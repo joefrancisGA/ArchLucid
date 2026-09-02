@@ -212,7 +212,7 @@ export function SocraticIntakeWizardStepClarifications(
             </p>
           ) : null}
 
-          {props.pendingQuestions.length > 1 ? (
+          {props.activePendingQuestions.length > 1 ? (
             <Button
               type="button"
               variant="outline"
