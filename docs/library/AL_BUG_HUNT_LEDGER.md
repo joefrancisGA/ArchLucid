@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 39
-- **bugs-found:** 89
+- **hunts:** 84
+- **bugs-found:** 196
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — marketplace quantity whole-number coercion; finding boolean runIdRef; extractor string schemaVersion 1.0; enum string ordinals
+- **last-bug:** 2026-09-02 — AwsEc2/GCP case-sensitive priceDimensions/pricingInfo lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1884,6 +1884,239 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadOptionalString` — boolean scalar refs return null — **hit 2026-09-02 (#450):** `"runIdRef":true` left null on snapshot reload; fixed by coercing boolean tokens (`Deserialize_boolean_runIdRef_coerces_to_string`).
 - [x] (proven) `AzureExtractorPackageZipValidator.TryReadSchemaVersion` — string-encoded whole-number `schemaVersion` rejected — **hit 2026-09-02 (#450):** `"schemaVersion":"1.0"` failed valid ZIP manifest validation; fixed with `TryParseWholeNumberString` (`Validate_string_whole_number_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
 - [x] (proven) `FindingJsonConverter` enum string readers — string-encoded whole-number ordinals throw on reload — **hit 2026-09-02 (#450):** `"humanReviewStatus":"1.0"` threw `JsonException`; fixed by routing string numeric paths through `TryParseWholeNumberString` (`Deserialize_string_encoded_whole_number_humanReviewStatus_maps_pending`).
+- [x] (proven) `FindingJsonConverter.ReadSeverity` — string-encoded whole-number severity ordinals throw on reload — **hit 2026-09-02 (#452):** `"severity":"2.0"` threw `JsonException` while sibling enum readers already accepted decimal strings; fixed with `TryParseWholeNumberString` (`Deserialize_string_encoded_whole_number_severity_maps_error`).
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — boolean `name` / `resourceType` JSON tokens skipped so inventory rows dropped — **hit 2026-09-02 (#452):** `"name":true` omitted row from costing inventory; fixed by coercing boolean tokens to strings (`TryReadFromZip_boolean_name_and_resourceType_coerce_to_strings`).
+- [x] (proven) `FindingJsonConverter.TryReadFiniteDouble` / `TryReadInt32` / `TryReadDecimal` — boolean confidence and impact score JSON tokens ignored — **hit 2026-09-02 (#453):** `"confidenceScore":true` left nullable scores null on snapshot reload while explanation aggregate reader already coerced booleans; fixed with `1.0`/`1`/`1m` coercion (`Deserialize_boolean_confidenceScore_maps_one`, `Deserialize_boolean_evaluationConfidenceScore_maps_one`).
+- [x] (proven) `AzureExtractorResourceInventoryReader.ExtractSku` — boolean top-level `sku` JSON token ignored — **hit 2026-09-02 (#453):** `"sku":true` left `SkuName` null; fixed by coercing boolean tokens (`TryReadFromZip_boolean_sku_coerces_to_string`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.ReadQuantity` — boolean `quantity` JSON token ignored and falls back to caller default — **hit 2026-09-02 (#454):** `"quantity":true` with `fallback:10` returned `10` instead of coercing to `1`; fixed by mapping booleans before fallback (`ReadQuantity_reads_boolean_quantity_instead_of_fallback`).
+- [x] (proven) `GraphJsonElementReaders.ReadFirstDouble` — boolean `weight` JSON token ignored so graph edges default to `1.0` — **hit 2026-09-02 (#454):** `"weight":false` hydrated as `1.0`; fixed by coercing boolean tokens (`Read_boolean_weight_coerces_to_zero_or_one`).
+- [x] (proven) `AzureExtractorPackageZipValidator.TryReadSchemaVersion` / `CloudInventoryExtractorPackageZipValidator` — boolean `schemaVersion` rejected — **hit 2026-09-02 (#454):** `"schemaVersion":true` failed valid ZIP manifest validation; fixed by coercing boolean tokens (`Validate_boolean_schemaVersion_succeeds`).
+- [x] (proven) `FindingJsonConverter.TryReadFiniteDouble` / `TryReadInt32` / `TryReadDecimal` — string-encoded boolean score JSON tokens ignored — **hit 2026-09-02 (#455):** `"confidenceScore":"true"` left nullable scores null after #453 boolean JSON fix; fixed with string boolean coercion (`Deserialize_string_encoded_boolean_confidenceScore_maps_one`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.ReadQuantity` — string-encoded boolean `quantity` falls back to caller default — **hit 2026-09-02 (#455):** `"quantity":"true"` with `fallback:10` returned `10` instead of `1`; fixed with string boolean coercion (`ReadQuantity_reads_string_encoded_boolean_quantity_instead_of_fallback`).
+- [x] (proven) `GraphJsonElementReaders.ReadFirstDouble` — string-encoded boolean `weight` ignored so graph edges default to `1.0` — **hit 2026-09-02 (#455):** `"weight":"false"` hydrated as `1.0` after #454 boolean JSON fix; fixed with string boolean coercion (`Read_string_encoded_boolean_weight_coerces_to_zero`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadFiniteDouble` — string-encoded boolean `faithfulnessSupportRatio` ignored — **hit 2026-09-02 (#456):** `"faithfulnessSupportRatio":"false"` left ratio null so PASS was returned instead of HOLD; fixed with string boolean coercion (`FromAggregateJson_maps_string_encoded_boolean_faithfulness_support_ratio_as_hold`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — boolean / string-encoded boolean `citations` count ignored — **hit 2026-09-02 (#456):** `"citations":true` and `"citations":"true"` left `CitationCount` null; fixed with boolean token coercion (`FromAggregateJson_maps_boolean_citation_count`, `FromAggregateJson_maps_string_encoded_boolean_citation_count`).
+- [x] (proven) `AzureExtractorPackageZipValidator.TryReadSchemaVersion` / `CloudInventoryExtractorPackageZipValidator` — string-encoded boolean `schemaVersion` rejected — **hit 2026-09-02 (#456):** `"schemaVersion":"true"` failed valid ZIP manifest validation after #454 boolean JSON fix; fixed with string boolean coercion (`Validate_string_boolean_schemaVersion_succeeds`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadBoolean` — string-encoded whole-number `deterministicFallbackUsed` ignored — **hit 2026-09-02 (#457):** `"deterministicFallbackUsed":"1.0"` left fallback false so HOLD disposition was skipped after #449 whole-number JSON fix; fixed with `TryParseWholeNumberString` (`FromAggregateJson_maps_string_encoded_whole_number_deterministic_fallback_flag`).
+- [x] (proven) `RealLlmOutputStructuralValidator.EnumTryParseLenient` — string-encoded whole-number `agentType` rejected — **hit 2026-09-02 (#457):** `"agentType":"1.0"` failed structural validation while numeric `1.0` already accepted in #448; fixed with `TryParseWholeNumberString` (`ValidateAgentResultStructure_accepts_string_encoded_whole_number_double_agentType`).
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryReadCorrelationIdToken` — string-encoded whole-number `correlationId` not normalized — **hit 2026-09-02 (#458):** `"correlationId":"42424242.0"` stayed decimal while numeric `42424242.0` normalized to `"42424242"` in #447; fixed with `TryParseWholeNumberString` (`TryResolveForPublish_reads_string_encoded_whole_number_double_correlationId_from_payload_when_activity_unset`).
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryReadStringOrNumberToken` — string-encoded whole-number `deduplicationKey` / `severity` not normalized — **hit 2026-09-02 (#458):** `"deduplicationKey":"42424242.0"` and `"severity":"2.0"` kept decimal strings while numeric whole-number doubles normalized in #447; fixed with shared string whole-number coercion (`TryResolveForPublish_alert_resolved_maps_string_encoded_whole_number_double_deduplication_key`, `TryResolveForPublish_alert_fired_maps_string_encoded_whole_number_double_severity`).
+- [x] (proven) `FindingJsonConverter` enum readers — boolean / string-encoded boolean `severity` rejected — **hit 2026-09-02 (#459):** `"severity":true` and `"severity":"true"` threw while sibling numeric/score readers already coerced booleans to ordinals; fixed with `TryReadBooleanOrdinal` / `TryParseBooleanOrdinalString` (`Deserialize_boolean_severity_maps_warning`, `Deserialize_string_encoded_boolean_severity_maps_warning`).
+- [x] (proven) `FindingJsonConverter.ReadHumanReviewStatus` — boolean / string-encoded boolean review status rejected — **hit 2026-09-02 (#459):** `"humanReviewStatus":true` and `"humanReviewStatus":"true"` threw on snapshot reload; fixed with shared boolean ordinal coercion (`Deserialize_boolean_humanReviewStatus_maps_pending`, `Deserialize_string_encoded_boolean_humanReviewStatus_maps_pending`).
+- [x] (proven) `RealLlmOutputStructuralValidator.TryResolveAgentType` — string-encoded whole-number parameter rejected — **hit 2026-09-02 (#459):** `ValidateAgentResultStructure("1.0", …)` failed while JSON `"agentType":"1.0"` already accepted in #457; fixed with `TryParseWholeNumberString` (`ValidateAgentResultStructure_accepts_string_encoded_whole_number_double_agentType_parameter`).
+- [x] (proven) `FindingJsonConverter.ReadOptionalString` — string-encoded whole-number `runIdRef` not normalized — **hit 2026-09-02 (#460):** `"runIdRef":"42.0"` stayed decimal while numeric `42.0` normalized to `"42"` in #448; fixed with `TryParseWholeNumberLongString` (`Deserialize_string_encoded_whole_number_double_runIdRef_coerces_to_string`).
+- [x] (proven) `FindingJsonConverter.ReadStringDictValue` — string-encoded whole-number `relatedNodeIds` / `properties` entries not normalized — **hit 2026-09-02 (#460):** `"relatedNodeIds":["42.0"]` and `"properties":{"resourceId":"42.0"}` kept decimal strings while numeric whole-number doubles normalized in #447; fixed with shared long whole-number string coercion (`Deserialize_relatedNodeIds_string_encoded_whole_number_double_entries_coerce_to_strings`, `Deserialize_properties_string_encoded_whole_number_double_values_coerce_to_strings`).
+- [x] (proven) `FindingJsonConverter.ReadOptionalString` — string-encoded boolean `runIdRef` case not normalized — **hit 2026-09-02 (#461):** `"runIdRef":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryCoerceStringTokenToRawText` (`Deserialize_string_encoded_boolean_runIdRef_coerces_to_lowercase_string`).
+- [x] (proven) `FindingJsonConverter.ReadStringDictValue` — string-encoded boolean `properties` / `recommendedActions` case not normalized — **hit 2026-09-02 (#461):** `"enabled":"True"` and `"recommendedActions":["True"]` kept PascalCase while boolean JSON tokens used lowercase `GetRawText()`; fixed with shared string boolean coercion (`Deserialize_properties_string_encoded_boolean_values_coerce_to_lowercase_strings`, `Deserialize_recommendedActions_string_encoded_boolean_entries_coerce_to_lowercase_strings`).
+
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — string-encoded boolean `name` / `resourceType` case not normalized — **hit 2026-09-02 (#462):** `"name":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryReadFromZip_string_encoded_boolean_name_and_resourceType_coerce_to_lowercase_strings`).
+- [x] (proven) `GraphJsonElementReaders.TryReadStringToken` / `ReadProperties` — string-encoded boolean graph tokens case not normalized — **hit 2026-09-02 (#462):** `"nodeId":"True"` and `"properties":{"enabled":"True"}` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with shared boolean normalization (`Read_string_encoded_boolean_nodeId_coerces_to_lowercase_string`, `ReadProperties_string_encoded_boolean_values_coerce_to_lowercase_strings`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryGetStringPropertyCaseInsensitive` — string-encoded boolean `planId` case not normalized — **hit 2026-09-02 (#462):** `"planId":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryGetPlanId_reads_string_encoded_boolean_planId`).
+
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryReadCorrelationIdToken` — string-encoded boolean `correlationId` case not normalized — **hit 2026-09-02 (#463):** `"correlationId":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryResolveForPublish_reads_string_encoded_boolean_correlationId_from_payload_when_activity_unset`).
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryReadStringOrNumberToken` — string-encoded boolean `deduplicationKey` case not normalized — **hit 2026-09-02 (#463):** `"deduplicationKey":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryResolveForPublish_alert_resolved_maps_string_encoded_boolean_deduplication_key`).
+- [x] (proven) `AlertRoutingCriteriaMetadata.TryReadStringArrayItem` / `ReadSeverityArrayItem` — string-encoded boolean `tags` / `severities` case not normalized — **hit 2026-09-02 (#463):** `"tags":["True"]` and `"severities":["True"]` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with shared boolean normalization (`AlertRoutingCriteriaMetadata_Parse_string_encoded_boolean_tags_coerce_to_lowercase_strings`, `AlertRoutingCriteriaMetadata_Parse_string_encoded_boolean_severities_coerce_to_lowercase_strings`).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryGetStringPropertyCaseInsensitive` — string-encoded whole-number `planId` not normalized — **hit 2026-09-02 (#464):** `"planId":"42424242.0"` kept decimal while numeric whole-number doubles normalized in Service Bus #458; fixed with `TryParseWholeNumberLongString` (`TryGetPlanId_reads_string_encoded_whole_number_double_planId`).
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — string-encoded whole-number `name` / `resourceType` not normalized — **hit 2026-09-02 (#464):** `"name":"42.0"` kept decimal while numeric whole-number doubles normalized in finding readers #448; fixed with shared long whole-number string coercion (`TryReadFromZip_string_encoded_whole_number_double_name_coerces_to_string`).
+- [x] (proven) `GraphJsonElementReaders.TryReadStringToken` / `ReadProperties` — string-encoded whole-number graph tokens not normalized — **hit 2026-09-02 (#464):** `"nodeId":"42.0"` and `"properties":{"resourceId":"42.0"}` kept decimal strings; fixed with shared long whole-number string coercion (`Read_string_encoded_whole_number_double_nodeId_coerces_to_string`, `ReadProperties_string_encoded_whole_number_double_values_coerce_to_strings`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadNonEmptyTextToken` — string-encoded boolean `faithfulnessWarning` case not normalized — **hit 2026-09-02 (#464):** `"faithfulnessWarning":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryParseBooleanString` coercion (`FromAggregateJson_maps_string_encoded_boolean_faithfulness_warning`).
+
+- [x] (proven) `AlertRoutingCriteriaMetadata.TryReadStringArrayItem` — whole-number double / string-encoded `findingTypes` not normalized — **hit 2026-09-02 (#465):** `[42.0]` and `["42.0"]` kept decimal while integer JSON normalized to `"42"`; fixed with `TryReadWholeNumberLongToken` / `TryParseWholeNumberLongString` (`AlertRoutingCriteriaMetadata_Parse_whole_number_double_findingTypes_coerce_to_strings`, `AlertRoutingCriteriaMetadata_Parse_string_encoded_whole_number_double_findingTypes_coerce_to_strings`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryGetStringPropertyCaseInsensitive` — whole-number double `planId` JSON token not normalized — **hit 2026-09-02 (#465):** `42424242.0` kept decimal while string-encoded whole-number path normalized in #464; fixed with `TryReadWholeNumberLongToken` (`TryGetPlanId_reads_whole_number_double_planId`).
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — whole-number double `name` JSON token not normalized — **hit 2026-09-02 (#465):** `42.0` kept decimal while string-encoded whole-number path normalized in #464; fixed with `TryReadWholeNumberLongToken` (`TryReadFromZip_whole_number_double_name_coerces_to_string`).
+- [x] (proven) `GraphJsonElementReaders.TryReadStringToken` / `ReadProperties` — whole-number double graph token JSON not normalized — **hit 2026-09-02 (#465):** `nodeId:42.0` and `properties.resourceId:42.0` kept decimal; fixed with shared whole-number token coercion (`Read_whole_number_double_nodeId_coerces_to_string`, `ReadProperties_whole_number_double_values_coerce_to_strings`).
+
+- [x] (proven) `RealLlmOutputStructuralValidator.JsonAgentTypeMatchesExpected` — boolean `agentType` JSON rejected — **hit 2026-09-02 (#466):** `"agentType":true` failed structural validation while sibling finding fields already accepted boolean tokens; fixed with `TryReadBooleanOrdinalAgentType` (`ValidateAgentResultStructure_accepts_boolean_agentType`).
+- [x] (proven) `RealLlmOutputStructuralValidator.EnumTryParseLenient` — string-encoded boolean `agentType` rejected — **hit 2026-09-02 (#466):** `"agentType":"True"` failed validation while numeric/string whole-number ordinals already accepted; fixed with `TryParseBooleanOrdinalString` (`ValidateAgentResultStructure_accepts_string_encoded_boolean_agentType`).
+- [x] (proven) `RealLlmOutputStructuralValidator.TryResolveAgentType` — string-encoded boolean parameter rejected — **hit 2026-09-02 (#466):** `ValidateAgentResultStructure("True", …)` failed while JSON `"agentType":"True"` parity was missing; fixed with shared boolean ordinal coercion (`ValidateAgentResultStructure_accepts_string_encoded_boolean_agentType_parameter`).
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadNonEmptyTextToken` — whole-number double `faithfulnessWarning` JSON token not normalized — **hit 2026-09-02 (#467):** `"faithfulnessWarning":42.0` kept decimal while integer JSON normalized to `"42"` in #439; fixed with whole-number token coercion (`FromAggregateJson_maps_whole_number_double_faithfulness_warning`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadNonEmptyTextToken` — string-encoded whole-number `faithfulnessWarning` not normalized — **hit 2026-09-02 (#467):** `"faithfulnessWarning":"42.0"` kept decimal while numeric whole-number doubles normalized in sibling readers #465; fixed with `TryParseWholeNumberString` (`FromAggregateJson_maps_string_encoded_whole_number_double_faithfulness_warning`).
+
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseRequireBudgetCap` — string-encoded whole-number advisory flag ignored — **hit 2026-09-02 (#468):** `policyCostRequireBudgetCap="1.0"` returned null instead of `true` while `"1"` already mapped; fixed with `TryParseWholeNumberString` (`Parse_require_budget_cap_string_encoded_whole_number_maps_true`).
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` — string-encoded whole-number severity ordinal ignored — **hit 2026-09-02 (#468):** `policyCostBreachSeverity="2.0"` returned null while `"2"` already mapped; fixed with whole-number ordinal coercion (`Parse_breach_severity_string_encoded_whole_number_ordinal_maps_label`).
+
+- [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` — string-encoded whole-number review status ignored — **hit 2026-09-02 (#469):** inbound `"1.0"` defaulted to `NotRequired` while `"1"` mapped to `Pending`; fixed with `TryParseWholeNumberString` (`ParseOrDefault_string_encoded_whole_number_maps_pending`).
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — string-encoded whole-number quality-gate mode ignored — **hit 2026-09-02 (#469):** config `"0.0"` skipped WarnOnly advisory while `"0"` emitted; fixed with whole-number coercion (`ShouldEmitFinding_production_real_string_encoded_whole_number_warn_only_emits_rule`).
+
+- [x] (proven) `FindingEnforcementTierClassifier.TryReadTierFromProperties` — string-encoded whole-number `properties.enforcementTier` ignored — **hit 2026-09-02 (#470):** `"1.0"` fell through to policy-violation classification while `"1"` honored advisory tier; fixed with `TryParseWholeNumberString` (`ClassifyFinding_honors_string_encoded_whole_number_enforcement_tier_property`).
+- [x] (proven) `DecisionConfidenceSourceMapper.ToBuyerLabel` — string-encoded whole-number confidence source ignored — **hit 2026-09-02 (#470):** `"5.0"` mapped to `Unknown` while `"5"` mapped to model-assisted; fixed with ordinal coercion and `Enum.IsDefined` guard on name parse (`ToBuyerLabel_parses_string_encoded_whole_number_ordinal`).
+- [x] (proven) `AgentModelExecutionProfileParser.TryParse` — string-encoded whole-number profile ordinal rejected — **hit 2026-09-02 (#470):** `"2.0"` failed parse while `"2"` accepted HighAssurance; fixed with whole-number ordinal coercion (`TryParse_accepts_string_encoded_whole_number_high_assurance_ordinal`).
+- [x] (proven) `WebhookSecrets.TimestampWithinSkew` — string-encoded whole-number unix timestamp rejected — **hit 2026-09-02 (#470):** `"1735689600.0"` failed skew validation while integer strings accepted; fixed with `TryParseWholeNumberLong` (`TimestampWithinSkew_accepts_string_encoded_whole_number_epoch`).
+
+- [x] (proven) `ArchitectureRunStatusTransitionTable.TryParseStatus` — string-encoded whole-number legacy status ignored — **hit 2026-09-02 (#471):** `"4.0"` failed parse while `"4"` mapped to `ReadyForCommit`; fixed with `TryParseWholeNumberString` (`TryParseStatus_parses_string_encoded_whole_number_ordinal`).
+- [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` — string-encoded boolean review status ignored — **hit 2026-09-02 (#471):** `"True"` defaulted to `NotRequired` while sibling finding enum readers already coerced boolean ordinals; fixed with `TryParseBooleanOrdinalString` (`ParseOrDefault_string_encoded_boolean_maps_pending`).
+
+- [x] (proven) `FindingEnforcementTierClassifier.TryReadTierFromProperties` — string-encoded boolean `properties.enforcementTier` ignored — **hit 2026-09-02 (#472):** `"True"` fell through to policy-violation classification while `"1"` honored advisory tier; fixed with boolean ordinal coercion (`ClassifyFinding_honors_string_encoded_boolean_enforcement_tier_property`).
+- [x] (proven) `AgentModelExecutionProfileParser.TryParse` — string-encoded boolean profile ordinal rejected — **hit 2026-09-02 (#472):** `"True"` failed parse while numeric `"1"` accepted Balanced; fixed with `TryParseBooleanOrdinalString` (`TryParse_accepts_string_encoded_boolean_balanced_ordinal`).
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` — string-encoded boolean severity ordinal ignored — **hit 2026-09-02 (#472):** `policyCostBreachSeverity="True"` returned null while `"Warning"` accepted; fixed with boolean ordinal coercion (`Parse_breach_severity_string_encoded_boolean_maps_label`).
+- [x] (proven) `ArchitectureRunStatusTransitionTable.TryParseStatus` — string-encoded boolean legacy status ignored — **hit 2026-09-02 (#472):** `"True"` failed parse while `"1"` mapped to `Created`; fixed with boolean ordinal coercion (`TryParseStatus_parses_string_encoded_boolean_ordinal`).
+
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — string-encoded boolean quality-gate mode ignored — **hit 2026-09-02 (#473):** config `"False"` skipped WarnOnly advisory while `"0"` / `"0.0"` emitted; fixed with `TryParseBooleanOrdinalString` (`ShouldEmitFinding_production_real_string_encoded_boolean_warn_only_emits_rule`).
+
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` — coerced severity labels not normalized for downstream enum parse — **hit 2026-09-02 (#474):** `"2.0"` / `"True"` stored raw while `PolicyExpectationCostGraphReader.ResolveBreachSeverityOverride` only accepts enum names; fixed by returning `FindingSeverity.ToString()` for ordinal/boolean coercion paths (`Parse_breach_severity_string_encoded_whole_number_ordinal_maps_label`, `Parse_breach_severity_string_encoded_boolean_maps_label`).
+
+- [x] (proven) `PolicyPackPriorityFloor.NormalizeTier` — string-encoded whole-number priority floor ignored — **hit 2026-09-02 (#475):** advisory `priorityFloor="2.0"` / `"0.0"` defaulted to `P1` while `"2"` / `"0"` honored `P2` / `P0`; fixed with whole-number and boolean ordinal coercion (`ResolveFloor_string_encoded_whole_number_p2_maps_p2`, `ResolveFloor_string_encoded_whole_number_p0_maps_p0`).
+
+- [x] (proven) `PolicyPackExpectationFacet.IsEmpty` — explicit `RequireBudgetCap=false` treated as empty — **hit 2026-09-02 (#476):** parsed opt-out `"0"` / `"False"` returned `IsEmpty=true` while `RequireBudgetCap` was set, conflating explicit false with unset; fixed by requiring `RequireBudgetCap.HasValue` (`Parse_explicit_false_require_budget_cap_facet_is_not_empty`).
+
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseRequireBudgetCap` — `on` / `off` advisory synonyms ignored — **hit 2026-09-02 (#477):** `cost.requireBudgetCap="on"` / `"off"` returned null while `"yes"` / `"no"` already mapped; fixed by accepting on/off alongside yes/no (`Parse_require_budget_cap_on_off_synonyms_map_true_and_false`).
+
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseRequireBudgetCap` — `enabled` / `disabled` advisory synonyms ignored — **hit 2026-09-02 (#478):** `cost.requireBudgetCap="enabled"` / `"disabled"` returned null while yes/no/on/off already mapped; fixed by accepting enabled/disabled (`Parse_require_budget_cap_enabled_disabled_synonyms_map_true_and_false`).
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadBoolean` — string-encoded `on` / `off` / `enabled` / `disabled` fallback flags ignored — **hit 2026-09-02 (#478):** `"deterministicFallbackUsed":"on"` left fallback false so PASS was returned instead of HOLD while yes/no already mapped; fixed by accepting on/off/enabled/disabled (`FromAggregateJson_maps_string_encoded_on_deterministic_fallback_flag`).
+
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.TryParseBooleanString` — `off` / `on` / `yes` / `no` / `enabled` / `disabled` quality-gate mode synonyms ignored — **hit 2026-09-02 (#479):** config `"off"` skipped WarnOnly advisory while `"False"` / `"0"` emitted; fixed by accepting boolean synonyms before ordinal coercion (`ShouldEmitFinding_production_real_off_synonym_warn_only_emits_rule`).
+
+- [x] (proven) `FindingEnforcementTierClassifier.TryParseBooleanString` — `on` / `off` property-tier synonyms ignored — **hit 2026-09-02 (#480):** `properties.enforcementTier="on"` fell through to policy-violation while `"True"` honored advisory; fixed with shared boolean synonym coercion (`ClassifyFinding_honors_on_synonym_enforcement_tier_property`).
+
+- [x] (proven) `PolicyPackPriorityFloor.TryParseBooleanString` — `off` priority-floor synonym ignored — **hit 2026-09-02 (#480):** advisory `priorityFloor="off"` defaulted to `P1` while `"False"` / `"0"` mapped `P0`; fixed with boolean synonym coercion (`ResolveFloor_off_synonym_maps_p0`).
+
+- [x] (proven) `ArchitectureRunStatusTransitionTable.TryParseBooleanString` — `on` legacy status synonym ignored — **hit 2026-09-02 (#480):** `"on"` failed parse while `"True"` mapped to `Created`; fixed with boolean synonym coercion (`TryParseStatus_parses_on_synonym_boolean_ordinal`).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryParseBooleanString` — `on` quantity synonym ignored — **hit 2026-09-02 (#480):** `"quantity":"on"` fell back to caller default while `"true"` coerced to `1`; fixed with boolean synonym coercion (`ReadQuantity_reads_on_synonym_quantity_instead_of_fallback`).
+
+- [x] (proven) `AgentModelExecutionProfileParser.TryParseBooleanString` — `on` profile ordinal synonym ignored — **hit 2026-09-02 (#481):** `"on"` failed parse while `"True"` mapped to Balanced; fixed with boolean synonym coercion (`TryParse_accepts_on_synonym_balanced_ordinal`).
+
+- [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.TryParseBooleanString` — `on` review-status synonym ignored — **hit 2026-09-02 (#481):** `"on"` defaulted to `NotRequired` while `"True"` mapped to `Pending`; fixed with boolean synonym coercion (`ParseOrDefault_on_synonym_maps_pending`).
+
+- [x] (proven) `PolicyPackExpectationFacetParser.TryParseBooleanString` — `on` breach-severity synonym ignored — **hit 2026-09-02 (#481):** advisory `breachSeverity="on"` returned null while `"True"` mapped to Warning; fixed with boolean synonym coercion (`Parse_breach_severity_on_synonym_maps_label`).
+
+- [x] (proven) `RealLlmOutputStructuralValidator.TryParseBooleanString` — `on` agentType synonym ignored — **hit 2026-09-02 (#481):** `"agentType":"on"` failed structural validation while `"True"` accepted; fixed with boolean synonym coercion (`ValidateAgentResultStructure_accepts_on_synonym_agentType`).
+
+- [x] (proven) `AzureExtractorPackageZipValidator.TryParseBooleanString` — `on` schemaVersion synonym ignored — **hit 2026-09-02 (#481):** `"schemaVersion":"on"` failed manifest validation while `"True"` accepted; fixed with boolean synonym coercion (`Validate_on_synonym_schemaVersion_succeeds`).
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryParseBooleanString` — `on` citation-count synonym ignored — **hit 2026-09-02 (#482):** `"citations":"on"` left `CitationCount` null while `"true"` coerced to `1`; fixed with boolean synonym coercion (`FromAggregateJson_maps_string_encoded_on_citation_count`).
+
+- [x] (proven) `FindingJsonConverter.TryParseBooleanString` — `on` finding-field synonym ignored — **hit 2026-09-02 (#482):** `severity:"on"` threw and `properties.enabled:"on"` stayed raw while `"True"` already coerced; fixed with boolean synonym coercion (`Deserialize_string_encoded_on_severity_maps_warning`, `Deserialize_properties_string_encoded_on_boolean_values_coerce_to_lowercase_strings`).
+
+- [x] (proven) `CloudInventoryExtractorPackageZipValidator.TryParseBooleanString` — `on` schemaVersion synonym ignored — **hit 2026-09-02 (#482):** parity gap after #481 Azure fix; `"schemaVersion":"on"` failed manifest validation; fixed with boolean synonym coercion (`Validate_on_synonym_schemaVersion_succeeds`).
+
+- [x] (proven) `AlertRoutingCriteriaMetadata.TryNormalizeBooleanString` — `on` routing severity synonym ignored — **hit 2026-09-02 (#483):** `severities:["on"]` stayed raw while `"True"` coerced to `"true"`; fixed with boolean synonym coercion (`AlertRoutingCriteriaMetadata_Parse_string_encoded_on_severities_coerce_to_lowercase_strings`).
+
+- [x] (proven) `GraphJsonElementReaders.TryNormalizeBooleanString` — `on` graph property synonym ignored — **hit 2026-09-02 (#483):** `properties.enabled:"on"` stayed raw while `"True"` coerced; fixed with boolean synonym coercion (`ReadProperties_string_encoded_on_boolean_values_coerce_to_lowercase_strings`).
+
+- [x] (proven) `GraphJsonElementReaders.ReadFirstDouble` — `on` numeric field synonym ignored — **hit 2026-09-02 (#483):** `weight:"on"` returned null while `"true"` coerced to `1.0`; fixed with boolean synonym coercion (`ReadFirstDouble_string_encoded_on_coerces_to_one`).
+
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryNormalizeBooleanString` — `on` correlation-id synonym ignored — **hit 2026-09-02 (#483):** `"correlationId":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryResolveForPublish_reads_string_encoded_on_correlationId_from_payload_when_activity_unset`).
+
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryNormalizeBooleanString` — `on` deduplication-key synonym ignored — **hit 2026-09-02 (#483):** `"deduplicationKey":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryResolveForPublish_alert_resolved_maps_string_encoded_on_deduplication_key`).
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadDouble` — `on` faithfulness-ratio synonym ignored — **hit 2026-09-02 (#483):** `"faithfulnessSupportRatio":"on"` returned null while `"false"` coerced to `0.0`; fixed with boolean synonym coercion (`FromAggregateJson_maps_string_encoded_on_faithfulness_support_ratio`).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryNormalizeBooleanString` — `on` planId synonym ignored — **hit 2026-09-02 (#484):** `"planId":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryGetPlanId_reads_string_encoded_on_planId`).
+
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryNormalizeBooleanString` — `on` inventory name synonym ignored — **hit 2026-09-02 (#484):** `"name":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryReadFromZip_string_encoded_on_name_coerces_to_lowercase_string`).
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd` — numeric `pricePerUnit.USD` JSON tokens ignored (string round-trip only) — **hit 2026-09-02 (#486):** `"USD":0.0104` returned null while `"0.0104"` parsed; fixed with `TryReadUsdPrice` number coercion (`TryGetLinuxOnDemandHourlyUsd_parses_numeric_usd_price`).
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — numeric `unitPrice.units` / `unitPrice.nanos` JSON tokens ignored (string round-trip only) — **hit 2026-09-02 (#487):** `"nanos":10400000` returned null while `"10400000"` parsed; fixed with `TryReadInt64Token` / `TryReadInt32Token` (`TryGetComputeEngineMonthlyUsdAsync_parses_numeric_unit_price_tokens`).
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryReadInt32Token` / `TryReadInt64Token` — whole-number double `unitPrice.units` / `unitPrice.nanos` JSON tokens ignored — **hit 2026-09-02 (#488):** `"nanos":10400000.0` returned null while integer `10400000` parsed in #487; fixed with whole-number double coercion (`TryGetComputeEngineMonthlyUsdAsync_parses_whole_number_double_unit_price_tokens`).
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadUsdPrice` — boolean / string-encoded boolean `pricePerUnit.USD` JSON tokens ignored — **hit 2026-09-02 (#489):** `"USD":true` and `"USD":"true"` returned null while numeric/string price tokens already parsed in #486; fixed with boolean coercion and `TryGetDouble` fallback (`TryGetLinuxOnDemandHourlyUsd_parses_boolean_usd_price`, `TryGetLinuxOnDemandHourlyUsd_parses_string_encoded_boolean_usd_price`).
+
+- [x] (proven) `AwsEc2OfferIndexParser` / `GcpCloudBillingCatalogClient` — whitespace-padded hourly `unit` / `usageUnit` strings rejected — **hit 2026-09-02 (#490):** `"unit":" Hrs "` and `"usageUnit":" h "` skipped hourly SKUs while unpadded tokens matched; fixed with trim-aware unit checks (`TryGetLinuxOnDemandHourlyUsd_parses_whitespace_padded_unit`, `TryGetComputeEngineMonthlyUsdAsync_parses_whitespace_padded_usage_unit`).
+- [x] (proven) `GcpCloudBillingCatalogClient.TryReadInt32Token` / `TryReadInt64Token` — boolean `unitPrice.units` / `unitPrice.nanos` JSON tokens ignored — **hit 2026-09-02 (#490):** `"nanos":true` returned null after #487–#488 numeric fixes; fixed with boolean coercion on units/nanos readers (`TryGetComputeEngineMonthlyUsdAsync_parses_boolean_unit_price_tokens`).
+
+2026-09-02 seed hunt #490: reseeded from ArchLucid.Core costing parsers; proved whitespace-padded unit matching and GCP boolean units/nanos coercion gaps after #489 AWS USD boolean fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadAttribute` — whitespace-padded product attribute strings rejected — **hit 2026-09-02 (#491):** `"instanceType":" t3.micro "` failed to match `t3.micro` while unpadded attributes worked; fixed by trimming attribute values and USD price strings (`TryGetLinuxOnDemandHourlyUsd_parses_whitespace_padded_instance_type_attribute`, `TryGetLinuxOnDemandHourlyUsd_parses_whitespace_padded_usd_price_string`).
+
+2026-09-02 seed hunt #491: reseeded from ArchLucid.Core costing parsers; proved AWS offer-index attribute trim gap after #490 unit/usageUnit trim fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadHourlyUnit` / `GcpCloudBillingCatalogClient.IsHourlyUsageUnit` — boolean / string-encoded boolean hourly `unit` / `usageUnit` tokens rejected — **hit 2026-09-02 (#492):** `"unit":true` / `"usageUnit":true` and `"on"` synonyms skipped hourly SKUs while `"Hrs"` / `"h"` strings matched; fixed with boolean coercion and `TryParseBooleanString` fallback (`TryGetLinuxOnDemandHourlyUsd_parses_boolean_hourly_unit_token`, `TryGetLinuxOnDemandHourlyUsd_parses_string_encoded_on_synonym_hourly_unit`, `TryGetComputeEngineMonthlyUsdAsync_parses_boolean_hourly_usage_unit_token`, `TryGetComputeEngineMonthlyUsdAsync_parses_string_encoded_on_synonym_hourly_usage_unit`).
+
+2026-09-02 seed hunt #492: reseeded from ArchLucid.Core costing parsers; proved AWS/GCP hourly unit boolean coercion gap after #491 attribute trim fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser` / `GcpCloudBillingCatalogClient` — case-sensitive `USD` / `usageUnit` JSON property lookup — **hit 2026-09-02 (#493):** PascalCase `"Usd"` and `"UsageUnit"` skipped hourly SKUs while canonical casing matched; fixed with case-insensitive property lookup (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_usd_price_property`, `TryGetComputeEngineMonthlyUsdAsync_parses_pascal_case_usage_unit_property`).
+
+2026-09-02 seed hunt #493: reseeded from ArchLucid.Core costing parsers; proved case-sensitive price-unit property lookup after #492 boolean hourly unit fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadAttribute` / `GcpCloudBillingCatalogClient` SKU description lookup — case-sensitive attribute and `description` JSON property names — **hit 2026-09-02 (#494):** PascalCase `"InstanceType"` and `"Description"` skipped matching SKUs while canonical casing worked; fixed with case-insensitive property lookup in `TryReadAttribute` and SKU description resolution (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_instance_type_attribute`, `TryGetComputeEngineMonthlyUsdAsync_parses_pascal_case_description_property`).
+
+2026-09-02 seed hunt #494: reseeded from ArchLucid.Core costing parsers; proved case-sensitive attribute/description property lookup after #493 USD/usageUnit casing fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser` / `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — case-sensitive nested price JSON property names — **hit 2026-09-02 (#495):** PascalCase `"PricePerUnit"`, `"TieredRates"`, `"UnitPrice"`, `"Units"`, and `"Nanos"` skipped hourly SKUs while canonical casing matched; fixed with case-insensitive property lookup on nested price paths (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_price_per_unit_property`, `TryGetComputeEngineMonthlyUsdAsync_parses_pascal_case_tiered_rate_properties`).
+
+2026-09-02 seed hunt #495: reseeded from ArchLucid.Core costing parsers; proved case-sensitive nested price property lookup after #494 attribute/description casing fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser` / `GcpCloudBillingCatalogClient` — case-sensitive `priceDimensions` / `pricingInfo` / `pricingExpression` JSON property names — **hit 2026-09-02 (#496):** PascalCase `"PriceDimensions"`, `"PricingInfo"`, and `"PricingExpression"` skipped hourly SKUs while canonical casing matched; fixed with case-insensitive property lookup (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_price_dimensions_property`, `TryGetComputeEngineMonthlyUsdAsync_parses_pascal_case_pricing_info_property`).
+
+2026-09-02 seed hunt #496: reseeded from ArchLucid.Core costing parsers; proved case-sensitive priceDimensions/pricingInfo property lookup after #495 nested price casing fix.
+
+2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
+
+2026-09-02 seed hunt #486: reseeded from ArchLucid.Core costing parsers after boolean-synonym sweep; proved AwsEc2 offer-index numeric USD price coercion gap.
+
+2026-09-02 seed hunt #485: reseeded from ArchLucid.Core after boolean-synonym sweep closure; cheap-disproof found whitespace-padded enum labels and DecisionConfidenceSource boolean parity already correct (valid-no-repro); added breach-severity off synonym regression coverage.
+
+2026-09-02 seed hunt #484: reseeded from ArchLucid.Core; proved final TryNormalizeBooleanString on/off gaps in marketplace webhook planId and Azure inventory name readers.
+
+2026-09-02 seed hunt #483: reseeded from ArchLucid.Core; proved routing metadata, graph readers, Service Bus property normalization, and faithfulness-ratio on/off boolean synonym gaps.
+
+2026-09-02 seed hunt #482: reseeded from ArchLucid.Core; proved citation-count, finding JSON, and cloud-inventory extractor on/off boolean synonym gaps.
+
+2026-09-02 seed hunt #481: reseeded from ArchLucid.Core; proved execution-profile, risk-register, breach-severity, golden-corpus agentType, and extractor schemaVersion on/off boolean synonym gaps.
+
+2026-09-02 seed hunt #480: reseeded from ArchLucid.Core; proved enforcement-tier, priority-floor, run-status, and marketplace quantity on/off boolean synonym gaps.
+
+2026-09-02 seed hunt #479: reseeded from ArchLucid.Core; proved production-like quality-gate off/no/on boolean synonym coercion gap.
+
+2026-09-02 seed hunt #478: reseeded from ArchLucid.Core; proved require-budget-cap enabled/disabled and explanation fallback on/off boolean synonym gaps.
+
+2026-09-02 seed hunt #477: reseeded from ArchLucid.Core; proved policy-pack require-budget-cap on/off synonym gap; added FilterRules whole-number rule-priority regression coverage.
+
+2026-09-02 seed hunt #476: reseeded from ArchLucid.Core; proved policy-pack expectation facet explicit false opt-out reported empty.
+
+2026-09-02 seed hunt #475: reseeded from ArchLucid.Core; proved policy-pack priority floor string whole-number coercion gap.
+
+2026-09-02 seed hunt #474: reseeded from ArchLucid.Core; proved policy-pack breach severity stores non-parseable coerced labels for downstream cost override reader.
+
+2026-09-02 seed hunt #473: reseeded from ArchLucid.Core; proved production-like quality-gate string boolean ordinal coercion gap; added regression coverage for enforcement-tier false override and execution-profile economy boolean ordinal.
+
+2026-09-02 seed hunt #472: reseeded from ArchLucid.Core; proved enforcement-tier, execution-profile, policy-pack breach severity, and run-status string boolean ordinal coercion gaps.
+
+2026-09-02 seed hunt #471: reseeded from ArchLucid.Core; proved run-status legacy string whole-number and risk-register boolean review-status coercion gaps.
+
+2026-09-02 seed hunt #470: reseeded from ArchLucid.Core; proved enforcement-tier, confidence-source, execution-profile, and webhook timestamp string whole-number coercion gaps.
+
+2026-09-02 seed hunt #469: reseeded from ArchLucid.Core; proved risk-register human-review and production-like quality-gate string whole-number coercion gaps.
+
+2026-09-02 seed hunt #468: reseeded from ArchLucid.Core; proved policy-pack advisory string whole-number coercion gaps.
+
+2026-09-02 seed hunt #467: reseeded from ArchLucid.Core; proved explanation faithfulnessWarning whole-number double coercion gaps.
+
+2026-09-02 seed hunt #466: reseeded from ArchLucid.Core; proved golden-corpus boolean agentType coercion gaps.
+
+2026-09-02 seed hunt #465: reseeded from ArchLucid.Core; proved graph/azure/marketplace/alert-routing whole-number double JSON token coercion gaps.
+
+2026-09-02 seed hunt #464: reseeded from ArchLucid.Core; proved graph/azure/marketplace/explanation string whole-number and boolean case coercion gaps.
+
+2026-09-02 seed hunt #463: reseeded from ArchLucid.Core; proved integration/alert-routing string-encoded boolean case normalization gaps.
+
+2026-09-02 seed hunt #462: reseeded from ArchLucid.Core; proved graph/azure/marketplace string-encoded boolean case normalization gaps.
+
+2026-09-02 seed hunt #461: reseeded from ArchLucid.Core; proved finding string-encoded boolean scalar/list/properties normalization gaps.
+
+2026-09-02 seed hunt #460: reseeded from ArchLucid.Core; proved finding string whole-number scalar and properties-bag coercion gaps.
+
+2026-09-02 seed hunt #459: reseeded from ArchLucid.Core; proved finding enum boolean coercion gaps and golden-corpus string whole-number agentType parameter parity.
+
+2026-09-02 seed hunt #458: reseeded from ArchLucid.Core; proved Service Bus publish string-encoded whole-number correlation, deduplication, and severity normalization gaps.
+
+2026-09-02 seed hunt #457: reseeded from ArchLucid.Core; proved explanation string whole-number deterministic fallback and golden-corpus string-encoded agentType ordinal gaps.
+
+2026-09-02 seed hunt #456: reseeded from ArchLucid.Core; proved explanation aggregate string/boolean citation coercion and extractor string boolean schemaVersion gaps.
+
+2026-09-02 seed hunt #455: reseeded from ArchLucid.Core; proved string-encoded boolean quantity, graph edge weight, and finding confidence score coercion gaps.
+
+2026-09-02 seed hunt #454: reseeded from ArchLucid.Core; proved marketplace boolean quantity fallback leak, graph edge boolean weight, and extractor boolean schemaVersion gaps.
+
+2026-09-02 seed hunt #453: reseeded from ArchLucid.Core; proved finding boolean confidence score coercion and Azure extractor boolean sku gaps.
+
+2026-09-02 seed hunt #452: reseeded from ArchLucid.Core; proved finding string-encoded whole-number severity and Azure extractor boolean resource field coercion gaps.
 
 2026-09-02 seed hunt #450: reseeded from ArchLucid.Core; proved marketplace quantity whole-number coercion, finding boolean runIdRef, extractor string schemaVersion, and enum string-encoded ordinal gaps.
 

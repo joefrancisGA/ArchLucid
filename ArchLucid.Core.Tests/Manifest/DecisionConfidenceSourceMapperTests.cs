@@ -23,4 +23,10 @@ public sealed class DecisionConfidenceSourceMapperTests
     {
         DecisionConfidenceSourceMapper.ToBuyerLabel("LlmAgent").Should().Be(BuyerDecisionConfidenceSource.ModelAssisted);
     }
+
+    [Fact]
+    public void ToBuyerLabel_parses_string_encoded_whole_number_ordinal()
+    {
+        DecisionConfidenceSourceMapper.ToBuyerLabel("5.0").Should().Be(BuyerDecisionConfidenceSource.ModelAssisted);
+    }
 }

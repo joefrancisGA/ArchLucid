@@ -60,24 +60,24 @@ public static class AwsEc2OfferIndexParser
 
             foreach (JsonProperty skuTerm in skuTerms.EnumerateObject())
             {
-                if (!skuTerm.Value.TryGetProperty("priceDimensions", out JsonElement dimensions))
+                if (!TryGetPropertyCaseInsensitive(skuTerm.Value, "priceDimensions", out JsonElement dimensions))
                     continue;
 
                 foreach (JsonProperty dimension in dimensions.EnumerateObject())
                 {
-                    if (!dimension.Value.TryGetProperty("unit", out JsonElement unitElement))
+                    if (!TryGetPropertyCaseInsensitive(dimension.Value, "unit", out JsonElement unitElement))
                         continue;
 
-                    if (!string.Equals(unitElement.GetString(), "Hrs", StringComparison.OrdinalIgnoreCase))
+                    if (!TryReadHourlyUnit(unitElement))
                         continue;
 
-                    if (!dimension.Value.TryGetProperty("pricePerUnit", out JsonElement pricePerUnit))
+                    if (!TryGetPropertyCaseInsensitive(dimension.Value, "pricePerUnit", out JsonElement pricePerUnit))
                         continue;
 
-                    if (!pricePerUnit.TryGetProperty("USD", out JsonElement usdElement))
+                    if (!TryGetPropertyCaseInsensitive(pricePerUnit, "USD", out JsonElement usdElement))
                         continue;
 
-                    if (decimal.TryParse(usdElement.GetString(), NumberStyles.Float, CultureInfo.InvariantCulture, out decimal hourly))
+                    if (TryReadUsdPrice(usdElement, out decimal hourly))
                         return hourly;
                 }
             }
@@ -86,18 +86,136 @@ public static class AwsEc2OfferIndexParser
         return null;
     }
 
+    private static bool TryReadUsdPrice(JsonElement element, out decimal hourlyUsd)
+    {
+        hourlyUsd = 0m;
+
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            if (element.TryGetDecimal(out hourlyUsd))
+                return hourlyUsd > 0m;
+
+            if (element.TryGetDouble(out double numeric)
+                && double.IsFinite(numeric)
+                && numeric > 0)
+            {
+                hourlyUsd = (decimal)numeric;
+
+                return hourlyUsd > 0m;
+            }
+
+            return false;
+        }
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            hourlyUsd = element.ValueKind == JsonValueKind.True ? 1m : 0m;
+
+            return hourlyUsd > 0m;
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+            return false;
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return false;
+
+        if (TryParseBooleanString(raw, out bool boolean))
+        {
+            hourlyUsd = boolean ? 1m : 0m;
+
+            return hourlyUsd > 0m;
+        }
+
+        return decimal.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out hourlyUsd)
+            && hourlyUsd > 0m;
+    }
+
+    private static bool TryReadHourlyUnit(JsonElement element)
+    {
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return element.ValueKind == JsonValueKind.True;
+
+        if (element.ValueKind != JsonValueKind.String)
+            return false;
+
+        string? raw = element.GetString();
+
+        if (TryParseBooleanString(raw, out bool boolean))
+            return boolean;
+
+        return string.Equals(raw?.Trim(), "Hrs", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("enabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("disabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
     private static bool TryReadAttribute(JsonElement attributes, string name, out string? value)
     {
         value = null;
 
-        if (!attributes.TryGetProperty(name, out JsonElement element))
+        if (!TryGetPropertyCaseInsensitive(attributes, name, out JsonElement element))
             return false;
 
         if (element.ValueKind is not JsonValueKind.String)
             return false;
 
-        value = element.GetString();
+        value = element.GetString()?.Trim();
 
         return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
