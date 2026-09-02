@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 59
-- **bugs-found:** 153
+- **hunts:** 60
+- **bugs-found:** 157
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — run status and risk-register boolean/string coercion
+- **last-bug:** 2026-09-02 — boolean ordinal coercion across Core string parsers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1947,6 +1947,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureRunStatusTransitionTable.TryParseStatus` — string-encoded whole-number legacy status ignored — **hit 2026-09-02 (#471):** `"4.0"` failed parse while `"4"` mapped to `ReadyForCommit`; fixed with `TryParseWholeNumberString` (`TryParseStatus_parses_string_encoded_whole_number_ordinal`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` — string-encoded boolean review status ignored — **hit 2026-09-02 (#471):** `"True"` defaulted to `NotRequired` while sibling finding enum readers already coerced boolean ordinals; fixed with `TryParseBooleanOrdinalString` (`ParseOrDefault_string_encoded_boolean_maps_pending`).
+
+- [x] (proven) `FindingEnforcementTierClassifier.TryReadTierFromProperties` — string-encoded boolean `properties.enforcementTier` ignored — **hit 2026-09-02 (#472):** `"True"` fell through to policy-violation classification while `"1"` honored advisory tier; fixed with boolean ordinal coercion (`ClassifyFinding_honors_string_encoded_boolean_enforcement_tier_property`).
+- [x] (proven) `AgentModelExecutionProfileParser.TryParse` — string-encoded boolean profile ordinal rejected — **hit 2026-09-02 (#472):** `"True"` failed parse while numeric `"1"` accepted Balanced; fixed with `TryParseBooleanOrdinalString` (`TryParse_accepts_string_encoded_boolean_balanced_ordinal`).
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` — string-encoded boolean severity ordinal ignored — **hit 2026-09-02 (#472):** `policyCostBreachSeverity="True"` returned null while `"Warning"` accepted; fixed with boolean ordinal coercion (`Parse_breach_severity_string_encoded_boolean_maps_label`).
+- [x] (proven) `ArchitectureRunStatusTransitionTable.TryParseStatus` — string-encoded boolean legacy status ignored — **hit 2026-09-02 (#472):** `"True"` failed parse while `"1"` mapped to `Created`; fixed with boolean ordinal coercion (`TryParseStatus_parses_string_encoded_boolean_ordinal`).
+
+2026-09-02 seed hunt #472: reseeded from ArchLucid.Core; proved enforcement-tier, execution-profile, policy-pack breach severity, and run-status string boolean ordinal coercion gaps.
 
 2026-09-02 seed hunt #471: reseeded from ArchLucid.Core; proved run-status legacy string whole-number and risk-register boolean review-status coercion gaps.
 
