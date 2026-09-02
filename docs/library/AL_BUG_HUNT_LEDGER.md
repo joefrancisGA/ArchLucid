@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 38
-- **bugs-found:** 85
+- **hunts:** 39
+- **bugs-found:** 89
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — explanation aggregate boolean/whole-number coercion; extractor schemaVersion 1.0; finding string-encoded whole-number schema
+- **last-bug:** 2026-09-02 — marketplace quantity whole-number coercion; finding boolean runIdRef; extractor string schemaVersion 1.0; enum string ordinals
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1880,6 +1880,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadFiniteDouble` — boolean `faithfulnessSupportRatio` ignored — **hit 2026-09-02 (#449):** `"faithfulnessSupportRatio":false` left ratio null so PASS was returned instead of HOLD; fixed by coercing boolean tokens to `0.0`/`1.0` (`FromAggregateJson_maps_boolean_false_faithfulness_support_ratio_as_hold`).
 - [x] (proven) `AzureExtractorPackageZipValidator.TryReadSchemaVersion` — whole-number double `schemaVersion` rejected — **hit 2026-09-02 (#449):** `"schemaVersion":1.0` failed valid ZIP manifest validation; fixed with `TryReadWholeNumberSchemaVersion` (`Validate_whole_number_double_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
 - [x] (proven) `FindingJsonConverter.TryReadInt32` — string-encoded whole-number schema fields ignored — **hit 2026-09-02 (#449):** `"findingSchemaVersion":"2.0"` defaulted to `0`; fixed with `TryParseWholeNumberString` (`Deserialize_string_encoded_whole_number_findingSchemaVersion_maps_version`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.ReadQuantity` — whole-number double and string-encoded quantity tokens fall back to default seat count — **hit 2026-09-02 (#450):** `"quantity":5.0` and `"quantity":"5.0"` returned `1` instead of `5`; fixed with whole-number coercion (`ReadQuantity_reads_whole_number_double_quantity`, `ReadQuantity_reads_string_encoded_whole_number_quantity`).
+- [x] (proven) `FindingJsonConverter.ReadOptionalString` — boolean scalar refs return null — **hit 2026-09-02 (#450):** `"runIdRef":true` left null on snapshot reload; fixed by coercing boolean tokens (`Deserialize_boolean_runIdRef_coerces_to_string`).
+- [x] (proven) `AzureExtractorPackageZipValidator.TryReadSchemaVersion` — string-encoded whole-number `schemaVersion` rejected — **hit 2026-09-02 (#450):** `"schemaVersion":"1.0"` failed valid ZIP manifest validation; fixed with `TryParseWholeNumberString` (`Validate_string_whole_number_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
+- [x] (proven) `FindingJsonConverter` enum string readers — string-encoded whole-number ordinals throw on reload — **hit 2026-09-02 (#450):** `"humanReviewStatus":"1.0"` threw `JsonException`; fixed by routing string numeric paths through `TryParseWholeNumberString` (`Deserialize_string_encoded_whole_number_humanReviewStatus_maps_pending`).
+
+2026-09-02 seed hunt #450: reseeded from ArchLucid.Core; proved marketplace quantity whole-number coercion, finding boolean runIdRef, extractor string schemaVersion, and enum string-encoded ordinal gaps.
 
 2026-09-02 seed hunt #449: reseeded from ArchLucid.Core; proved explanation aggregate boolean/whole-number coercion, extractor schemaVersion whole-number doubles, and finding string-encoded whole-number schema gaps.
 
