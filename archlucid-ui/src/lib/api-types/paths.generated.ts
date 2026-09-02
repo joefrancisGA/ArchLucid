@@ -46780,6 +46780,7 @@ export interface paths {
                     systemName?: string;
                     excludeDraftId?: string;
                     excludeRunId?: string;
+                    occupancyKind?: components["schemas"]["WorkspaceSystemNameOccupancyKind"];
                 };
                 header?: never;
                 path?: never;
