@@ -111,13 +111,12 @@ public sealed class MicrosoftOpenApiStringEnumParameterDefaultOperationTransform
     {
         if (parameterSchema is not OpenApiSchemaReference reference
             || reference.Reference?.Id is not { Length: > 0 } schemaId)
-            return true;
+            return false;
 
         if (context.Document?.Components?.Schemas is not { Count: > 0 } components
             || !components.TryGetValue(schemaId, out IOpenApiSchema? component)
             || component is null)
-            return true;
-
+            return false;
         return component.Enum?.Any(node =>
                 node is JsonValue value
                 && value.TryGetValue(out string? name)
