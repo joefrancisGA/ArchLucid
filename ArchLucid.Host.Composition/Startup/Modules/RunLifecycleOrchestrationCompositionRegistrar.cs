@@ -92,6 +92,7 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<ArchitectureRunCreatePersistenceHelper>();
         services.AddScoped<ArchitectureRunCreatePostCreateHooks>();
         services.AddScoped<ArchitectureRunExecutePostExecuteHooks>();
+        services.AddScoped<IIncompleteAuthorityPipelineExecuteHandler, IncompleteAuthorityPipelineExecuteHandler>();
         services.AddScoped<IArchitectureRunExecutePreExecuteStage, ArchitectureRunExecutePreExecuteStage>();
         services.AddScoped<IArchitectureRunExecutePersistenceStage, ArchitectureRunExecutePersistenceStage>();
         services.AddScoped<IArchitectureRunExecuteQualityGateStage, ArchitectureRunExecuteQualityGateStage>();

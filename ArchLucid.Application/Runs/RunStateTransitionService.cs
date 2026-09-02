@@ -167,9 +167,29 @@ public sealed class RunStateTransitionService : IRunStateTransitionService
             return true;
 
         return string.Equals(
-            currentLegacyRunStatus,
-            nameof(ArchitectureRunStatus.Created),
-            StringComparison.OrdinalIgnoreCase);
+                   currentLegacyRunStatus,
+                   nameof(ArchitectureRunStatus.Created),
+                   StringComparison.OrdinalIgnoreCase)
+               || string.Equals(
+                   currentLegacyRunStatus,
+                   nameof(ArchitectureRunStatus.Retrying),
+                   StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <inheritdoc/>
+    public bool ShouldResumeDeferredAuthorityPipelineOnExecute(
+        ArchitectureRunStatus status,
+        string? contextSnapshotId,
+        int scheduledTaskCount)
+    {
+        if (scheduledTaskCount > 0)
+            return false;
+
+        if (!string.IsNullOrWhiteSpace(contextSnapshotId))
+            return false;
+
+        return status is not ArchitectureRunStatus.Committed
+            and not ArchitectureRunStatus.ReadyForCommit;
     }
 
     /// <inheritdoc/>

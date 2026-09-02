@@ -41,8 +41,18 @@ public interface IRunStateTransitionService
     /// <summary>
     ///     Deferred outbox may set <see cref="ArchitectureRunStatus.TasksGenerated"/> after task materialize,
     ///     but must not demote a run that already advanced (e.g. seed/execute → ReadyForCommit).
+    ///     <see cref="ArchitectureRunStatus.Retrying"/> is allowed so Re-run of a Failed deferred review can continue.
     /// </summary>
     bool ShouldSetTasksGeneratedAfterDeferredMaterialize(string? currentLegacyRunStatus);
+
+    /// <summary>
+    ///     True when execute should resume the deferred authority pipeline instead of the agent-task loop:
+    ///     no AgentTasks were materialized because create queued authority work (<c>ContextSnapshotId</c> still null).
+    /// </summary>
+    bool ShouldResumeDeferredAuthorityPipelineOnExecute(
+        ArchitectureRunStatus status,
+        string? contextSnapshotId,
+        int scheduledTaskCount);
 
     string GetCoordinationLegacyStatusAfterCreate(bool deferredAuthorityPipeline);
 

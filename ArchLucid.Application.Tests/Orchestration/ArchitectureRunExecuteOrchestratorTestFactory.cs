@@ -155,7 +155,8 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             args.AgentExecutionReadinessGuard ?? new PermissiveAgentExecutionReadinessGuard(),
             preExecuteStage,
             agentLoopStage,
-            args.Logger ?? NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+            args.Logger ?? NullLogger<ArchitectureRunExecuteOrchestrator>.Instance,
+            args.IncompleteAuthorityPipelineExecuteHandler);
     }
 
     internal static ArchitectureRunExecuteOrchestratorTailDependencies CreateStandardTailDependencies(

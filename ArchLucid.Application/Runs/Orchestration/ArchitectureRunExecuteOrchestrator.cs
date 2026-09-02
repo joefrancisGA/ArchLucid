@@ -63,7 +63,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IAgentExecutionReadinessGuard agentExecutionReadinessGuard,
     IArchitectureRunExecutePreExecuteStage preExecuteStage,
     IArchitectureRunExecuteAgentLoopStage agentLoopStage,
-    ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
+    ILogger<ArchitectureRunExecuteOrchestrator> logger,
+    IIncompleteAuthorityPipelineExecuteHandler? incompleteAuthorityPipelineExecuteHandler = null)
+    : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -294,6 +296,15 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         await ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
 
         await _postExecuteHooks.LogFailedRunRetryRequestedAsync(run, runId, actor, cancellationToken);
+
+        if (incompleteAuthorityPipelineExecuteHandler is not null)
+        {
+            ExecuteRunResult? resumed =
+                await incompleteAuthorityPipelineExecuteHandler.TryResumeAsync(run, runId, cancellationToken);
+
+            if (resumed is not null)
+                return resumed;
+        }
 
         ExecuteRunResult? idempotent = await _preExecuteStage.TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 

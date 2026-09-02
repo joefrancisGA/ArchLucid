@@ -91,4 +91,6 @@ public sealed class ArchitectureRunExecuteOrchestratorCreateArgs
     public IAgentExecutionReadinessGuard? AgentExecutionReadinessGuard { get; init; }
 
     public ILogger<ArchitectureRunExecuteOrchestrator>? Logger { get; init; }
+
+    public IIncompleteAuthorityPipelineExecuteHandler? IncompleteAuthorityPipelineExecuteHandler { get; init; }
 }
