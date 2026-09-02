@@ -32,6 +32,12 @@ import {
   isReviewsHubInventoryHeaderSearchPath,
 } from "@/lib/shell-header-route-local-search";
 import {
+  findReviewDetailSectionSearchMatches,
+  isReviewDetailHeaderSearchPath,
+  type ReviewDetailSectionSearchMatch,
+} from "@/lib/review-detail-header-section-search";
+import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
+import {
   parseReviewsHubInventorySearchQuery,
   reviewsHubInventorySearchHrefFromSearch,
 } from "@/app/(operator)/architecture/reviews/_sections/reviews-hub-inventory-filters";
@@ -81,6 +87,10 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
       return "findings-queue" as const;
     }
 
+    if (isReviewDetailHeaderSearchPath(path)) {
+      return "review-detail" as const;
+    }
+
     return null;
   }, [pathname]);
   const routeLocalSearchQuery = useMemo(() => {
@@ -112,12 +122,24 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState(false);
   const [results, setResults] = useState<GlobalSearchResponse | null>(null);
+  const [reviewDetailSectionMatches, setReviewDetailSectionMatches] = useState<
+    readonly ReviewDetailSectionSearchMatch[]
+  >([]);
 
   useEffect(() => {
-    if (routeLocalSearchMode !== null) {
+    if (routeLocalSearchMode === "reviews-hub" || routeLocalSearchMode === "findings-queue") {
       setQuery(routeLocalSearchQuery);
     }
   }, [routeLocalSearchMode, routeLocalSearchQuery]);
+
+  useEffect(() => {
+    if (routeLocalSearchMode !== "review-detail") {
+      setReviewDetailSectionMatches([]);
+      return;
+    }
+
+    setReviewDetailSectionMatches(findReviewDetailSectionSearchMatches(query));
+  }, [query, routeLocalSearchMode]);
 
   const replaceRouteLocalSearchQuery = useCallback(
     (nextQuery: string) => {
@@ -185,7 +207,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   }, [fetchResults, query, routeLocalSearchMode]);
 
   useEffect(() => {
-    if (routeLocalSearchMode === null) {
+    if (routeLocalSearchMode === null || routeLocalSearchMode === "review-detail") {
       return;
     }
 
@@ -255,7 +277,10 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
       (results?.policyPacks?.length ?? 0) > 0 ||
       helpHits.length > 0);
 
-  const resultsPanelOpen = open && trimmedQuery.length >= 2 && routeLocalSearchMode === null;
+  const reviewDetailPanelOpen =
+    open && routeLocalSearchMode === "review-detail" && trimmedQuery.length > 0;
+  const globalResultsPanelOpen = open && trimmedQuery.length >= 2 && routeLocalSearchMode === null;
+  const resultsPanelOpen = globalResultsPanelOpen || reviewDetailPanelOpen;
   const quickActionsPanelOpen = showQuickActions;
 
   return (
@@ -281,9 +306,9 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);
-          setOpen(routeLocalSearchMode === null);
+          setOpen(routeLocalSearchMode === null || routeLocalSearchMode === "review-detail");
         }}
-        onFocus={() => setOpen(routeLocalSearchMode === null ? true : open)}
+        onFocus={() => setOpen(routeLocalSearchMode === null ? true : open || routeLocalSearchMode === "review-detail")}
         onKeyDown={(event) => {
           if (event.key?.toLowerCase() !== "k") {
             return;
@@ -366,7 +391,44 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         </div>
       ) : null}
 
-      {resultsPanelOpen ? (
+      {reviewDetailPanelOpen ? (
+        <div
+          id={`${inputId}-results`}
+          role="listbox"
+          className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-md border border-neutral-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-950"
+          data-testid="global-search-review-detail-sections"
+        >
+          {reviewDetailSectionMatches.length === 0 ? (
+            <p className={cn("m-0 px-3 py-2 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>
+              No sections on this page matched.
+            </p>
+          ) : (
+            <section className="px-3 py-2">
+              <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                Sections on this page
+              </h3>
+              <ul className="m-0 list-none p-0">
+                {reviewDetailSectionMatches.map((match) => (
+                  <li key={match.sectionId}>
+                    <button
+                      type="button"
+                      className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
+                      onClick={() => {
+                        scheduleScrollToReviewDetailSection(match.sectionId);
+                        setOpen(false);
+                      }}
+                    >
+                      {match.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+      ) : null}
+
+      {globalResultsPanelOpen ? (
         <div
           id={`${inputId}-results`}
           role="listbox"

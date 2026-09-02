@@ -104,6 +104,31 @@ export function reviewsHubInventorySearchHrefFromSearch(
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
 
+/** Clears inventory filter and search while preserving unrelated query params. */
+export function reviewsHubInventoryClearFiltersHrefFromSearch(
+  currentSearch: string,
+  pathname: string = "/architecture/reviews",
+): string {
+  const params = new URLSearchParams(currentSearch);
+  params.delete("filter");
+  params.delete(REVIEWS_HUB_INVENTORY_SEARCH_PARAM);
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function resolveInventoryFilterCountRuns(
+  filter: ReviewFilterId,
+  mergedRuns: readonly RunSummary[],
+  visibilityFilteredRuns: readonly RunSummary[],
+): readonly RunSummary[] {
+  if (filter === "Archived") {
+    return mergedRuns;
+  }
+
+  return visibilityFilteredRuns;
+}
+
 export function countRunsMatchingInventoryFilter(
   runs: readonly RunSummary[],
   filter: ReviewFilterId,
