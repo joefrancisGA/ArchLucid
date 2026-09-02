@@ -1893,11 +1893,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 56
-- **bugs-found:** 111
+- **hunts:** 57
+- **bugs-found:** 117
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — kubernetes-json top-level resource array
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — Bicep duplicate symbolic-name occurrence disambiguation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2027,12 +2027,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CanonicalInfrastructurePropertyBag.MaxTfPropertyCount` dropped `ipSecurityRestrictions` before network expander — **hit 2026-08-26:** 24-property cap filled by scalar props before security JSON was copied; fixed by copying security-priority properties first and raising JSON length limit for those keys (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ManyScalarProperties_StillPreservesIpSecurityRestrictions`).
 - [x] (proven) `BicepResourceBodyParser` preserved inline `//` comments in scalar values — **hit 2026-08-27:** `publicNetworkAccess: 'Enabled' // primary region` vs un-commented value false-modified infrastructure declaration deltas; fixed with `StripTrailingSlashSlashComment` before unquoting (HCL `#` parity); regression in `BicepInfrastructureDeclarationParserTests.ParseAsync_InlineSlashSlashComment_DoesNotChangeTfPublicNetworkAccess` and `InfrastructureDeclarationConnectorTests.DeltaAsync_BicepInlineSlashSlashCommentChange_ReportsUnchanged`.
 
-- [ ] (candidate) `BicepInfrastructureDeclarationParser` duplicate symbolic resource names share `ObjectId` / delta key — two `resource storage` blocks with different API versions collapse in `InfrastructureDeclarationStableObjectIds` (terraform `terraformOccurrence` / K8s `k8sOccurrence` parity gap).
-- [ ] (candidate) `PlainTextContextDocumentParser.CanonicalizeLineText` does not collapse internal whitespace on `REQ:`/`POL:`/`SEC:` lines — `REQ: Must  Encrypt` vs `REQ: Must Encrypt` churns document connector stable ids (`TOP:` path already uses `TopologyHintStableObjectIds.CanonicalizeHintName`).
+- [x] (proven) `BicepInfrastructureDeclarationParser` duplicate symbolic resource names shared `ObjectId` / delta key — **hit 2026-09-02:** two `resource storage` blocks with different API versions collapsed in `InfrastructureDeclarationStableObjectIds` (terraform `terraformOccurrence` / K8s `k8sOccurrence` parity gap); fixed with per-declaration `bicepOccurrence` suffix (`BicepInfrastructureDeclarationParserTests.ParseAsync_DuplicateSymbolicNamesDifferentApiVersions_EmitDistinctObjectIds`).
+- [x] (proven) `PlainTextContextDocumentParser.CanonicalizeLineText` did not collapse internal whitespace on `REQ:`/`POL:`/`SEC:` lines — **hit 2026-09-02:** `REQ: Must  Encrypt` vs `REQ: Must Encrypt` churned document connector stable ids (`TOP:` path already used `TopologyHintStableObjectIds.CanonicalizeHintName`); fixed by canonicalizing all prefixed line types (`PlainTextContextDocumentParserTests.ParseAsync_RequirementInternalWhitespace_Reparse_ProducesStableObjectId`).
 
 2026-08-27 seed hunt #121: reseeded Bicep duplicate-name and plain-text internal-whitespace candidates; proved Bicep inline `//` comment scalar normalization.
 
 2026-08-26 seed hunt #55: proved ARM tf JSON canonicalization, nested sensitive ARM blobs, HCL block comments, duplicate K8s occurrence, security-priority tf cap.
+
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` — non-deployment parent `resources[]` (e.g. VNet nested subnets) silently dropped — **hit 2026-09-02:** only deployment-wrapper children were recursed; fixed by recursing nested `resources[]` after adding each parent resource (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_VnetNestedSubnets_MapsChildResources`).
+- [x] (proven) `BicepResourceBodyParser.ParseBodyIntoProperties` — `/* */` block comments parsed as scalar assignments — **hit 2026-09-02:** HCL parity already existed in `SimpleTerraformResourceBlockParser`; fixed with `TryConsumeBlockComment` in Bicep body scanner (`BicepInfrastructureDeclarationParserTests.ParseAsync_BlockCommentBeforeAssignment_StillParsesPublicNetworkAccess`).
+- [x] (proven) `BicepResourceBodyParser.UnquoteScalar` — inline `/* */` after scalar values polluted `tf.*` canonical values — **hit 2026-09-02:** `publicNetworkAccess: 'Enabled' /* primary region */` false-modified infra declaration deltas; fixed with `StripTrailingBlockComment` (`BicepInfrastructureDeclarationParserTests.ParseAsync_InlineBlockCommentAfterValue_ParsesCleanPublicNetworkAccess`).
+- [x] (proven) `CanonicalTfJsonSerializer.WriteValue` — array element order preserved verbatim — **hit 2026-09-02:** semantically identical `tf.*` array reorderings false-modified infrastructure declaration deltas; fixed by sorting array elements by canonical serialized form (`InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonArrayPropertyOrderChange_ReportsUnchanged`).
+
+2026-09-02 thorough hunt #428: proved all six open candidates (Bicep occurrence, plain-text whitespace, ARM nested children, Bicep block/inline block comments, tf-array order).
+
+2026-08-27 seed hunt #56: proved kubernetes-json top-level resource array; seeded ARM nested-child, Bicep block-comment, Bicep inline-block-comment, and tf-array-order candidates.
 
 - [x] (proven) `SimpleTerraformResourceBlockParser.ResourceHeaderRegex` accepted only double-quoted resource headers — **hit 2026-08-26:** `resource 'azurerm_virtual_network' 'core'` returned zero resources; fixed with single-quoted header alternation (`SimpleTerraformDeclarationParserTests.ParseAsync_SingleQuotedResourceHeader_MapsResource`).
 - [x] (proven) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` re-parsed nested block inner lines as top-level scalars — **hit 2026-08-26:** `site_config { public_network_access = "Disabled" }` also emitted spurious `tf.public_network_access`; fixed by advancing `lineIndex` past consumed nested block lines (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlock_DoesNotEmitDuplicateTopLevelScalars`).
@@ -2040,13 +2049,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `JsonInfrastructureDeclarationParser` accepted only `{ "resources": [...] }` shape — **hit 2026-08-26:** top-level resource array `[{ "type": "vnet", ... }]` returned zero resources; fixed by parsing root arrays (`JsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsVnet`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` early-return on `Microsoft.Resources/deployments` dropped child `resources[]` — **hit 2026-08-26:** nested VNet inside deployment wrapper returned zero resources; fixed by recursing into deployment children before return (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DeploymentWrapperChildren_MapsNestedVnet`).
 - [x] (proven) `KubernetesJsonInfrastructureDeclarationParser.ParseAsync` accepted only single-object root documents — **hit 2026-08-27:** top-level manifest array `[{ "kind": "Deployment", ... }, { "kind": "Service", ... }]` returned zero resources (unlike `kind: List` wrapper and unlike proven `json` top-level array fix); fixed by expanding root arrays before `KubernetesManifestCanonicalObjectMapper.MapDocuments` (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsMultipleKinds`).
-
-- [ ] (candidate) `ArmJsonInfrastructureDeclarationParser.TryAddResource` — non-deployment parent `resources[]` (e.g. VNet nested subnets) silently dropped; only deployment-wrapper children are recursed today.
-- [ ] (candidate) `BicepResourceBodyParser.ParseBodyIntoProperties` — `/* */` block comments parsed as scalar assignments, emitting phantom `tf.*` properties from comment text.
-- [ ] (candidate) `BicepResourceBodyParser.UnquoteScalar` — inline `/* */` after scalar values pollutes `tf.*` canonical values (HCL `#` comment parity missing for Bicep).
-- [ ] (candidate) `CanonicalTfJsonSerializer.WriteValue` — array element order preserved verbatim, so semantically identical `tf.*` array reorderings false-modify infrastructure declaration deltas.
-
-2026-08-27 seed hunt #56: proved kubernetes-json top-level resource array; seeded ARM nested-child, Bicep block-comment, Bicep inline-block-comment, and tf-array-order candidates.
 
 2026-08-26 seed hunt #55: reseeded simple-terraform headers/nested blocks/comments / JSON top-level array / ARM deployment children; proved all five hunt-ready rows.
 

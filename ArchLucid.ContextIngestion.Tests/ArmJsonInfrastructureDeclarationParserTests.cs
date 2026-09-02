@@ -472,4 +472,38 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
             && o.Properties.TryGetValue("ruleKind", out string? kind)
             && kind == "OpenPublicEndpoint").Should().BeTrue();
     }
+
+    [Fact]
+    public async Task ParseAsync_VnetNestedSubnets_MapsChildResources()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-vnet-children",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Network/virtualNetworks",
+                            "name": "hub-vnet",
+                            "properties": {},
+                            "resources": [
+                              {
+                                "type": "Microsoft.Network/virtualNetworks/subnets",
+                                "name": "subnet-a",
+                                "properties": { "addressPrefix": "10.0.1.0/24" }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(o => o.Name).Should().BeEquivalentTo(["hub-vnet", "subnet-a"]);
+    }
 }

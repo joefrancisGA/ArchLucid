@@ -107,9 +107,6 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 
     private static string CanonicalizeLineText(string text, string objectType)
     {
-        if (string.Equals(objectType, "TopologyResource", StringComparison.Ordinal))
-            return TopologyHintStableObjectIds.CanonicalizeHintName(text).ToLowerInvariant();
-
-        return text.ToLowerInvariant();
+        return TopologyHintStableObjectIds.CanonicalizeHintName(text).ToLowerInvariant();
     }
 }
