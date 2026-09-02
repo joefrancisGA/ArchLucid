@@ -156,7 +156,7 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByTestId("scorecard-scoring-setup-progress")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-estimated-review-time-savings")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-reviews-finalized")).toBeInTheDocument();
-    expect(screen.getByTestId("scorecard-summary-resolve-outcomes")).toBeInTheDocument();
+    expect(screen.getByTestId("scorecard-summary-governance-approval")).toBeInTheDocument();
     expect(screen.queryByTestId("scorecard-summary-findings-affirmed")).not.toBeInTheDocument();
     expect(screen.getByText("Operational metrics")).toBeInTheDocument();
     expect(screen.getByTestId("review-scorecard-roi-assumptions")).toHaveClass("grid");
