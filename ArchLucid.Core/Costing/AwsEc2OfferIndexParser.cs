@@ -77,13 +77,32 @@ public static class AwsEc2OfferIndexParser
                     if (!pricePerUnit.TryGetProperty("USD", out JsonElement usdElement))
                         continue;
 
-                    if (decimal.TryParse(usdElement.GetString(), NumberStyles.Float, CultureInfo.InvariantCulture, out decimal hourly))
+                    if (TryReadUsdPrice(usdElement, out decimal hourly))
                         return hourly;
                 }
             }
         }
 
         return null;
+    }
+
+    private static bool TryReadUsdPrice(JsonElement element, out decimal hourlyUsd)
+    {
+        hourlyUsd = 0m;
+
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetDecimal(out hourlyUsd))
+            return hourlyUsd > 0m;
+
+        if (element.ValueKind != JsonValueKind.String)
+            return false;
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return false;
+
+        return decimal.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out hourlyUsd)
+            && hourlyUsd > 0m;
     }
 
     private static bool TryReadAttribute(JsonElement attributes, string name, out string? value)
