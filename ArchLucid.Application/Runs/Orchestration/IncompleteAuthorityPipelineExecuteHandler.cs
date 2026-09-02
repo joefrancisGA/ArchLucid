@@ -62,9 +62,6 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return null;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        await PrepareFailedRunForRetryAsync(scope, runGuid, cancellationToken);
-
         if (string.IsNullOrWhiteSpace(run.RequestId))
         {
             throw new InvalidOperationException(
@@ -78,6 +75,9 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
 
         ContextIngestionRequest ingestionRequest = ContextIngestionRequestMapper.FromArchitectureRequest(request);
         ingestionRequest.RunId = runGuid;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        await PrepareFailedRunForRetryAsync(scope, runGuid, cancellationToken);
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
