@@ -60,11 +60,6 @@ public sealed class ClosedLoopRecommendationStage(
             return;
 
         context.ModelBeforeRecommendationApply = ArchitectureKnowledgeModelCloner.Clone(context.Model);
-        context.AllFindingsCountBeforeIntegrate = context.AllFindings.Count;
-        context.ValidationFindingIdsBeforeIntegrate = context.ValidationResults
-            .Select(result => result.FindingId)
-            .Where(id => !string.IsNullOrWhiteSpace(id))
-            .ToHashSet(StringComparer.Ordinal);
 
         ClosedLoopRecommendationBatchApplyResult applied =
             new ClosedLoopRecommendationBatchApplier(_modelDiffApplier, _changeImpactAnalyzer)

@@ -386,7 +386,7 @@ public sealed class MultiAgentFailureModeChaosSuiteTests
                 RunStageOutcomesRepository = tail.RunStageOutcomesRepository,
                 AgentExecutionReadinessGuard = new PermissiveAgentExecutionReadinessGuard(),
                 Logger = tail.Logger
-            });;
+            });
     }
 
     private static AgentTask MakeAgentTask(string runId, string taskId, AgentType agentType) =>

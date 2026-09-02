@@ -21,6 +21,7 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
     expect(prefill?.systemName).toBe("ArchLucid");
     expect(prefill?.freeTextIntent).toContain('Architecture review intake for "ArchLucid".');
     expect(prefill?.freeTextIntent).not.toContain("Attached files:");
+    expect(prefill?.priorAttachedFileNames).toEqual(["ARCHITECTURE_HANDBOOK.2026.08.06b.docx"]);
     expect(prefill?.businessOutcome).toContain("Evaluate the attached materials");
     expect(prefill?.actorSet.actors.length).toBeGreaterThan(0);
     expect(prefill?.scopeGateOpen).toBe(true);

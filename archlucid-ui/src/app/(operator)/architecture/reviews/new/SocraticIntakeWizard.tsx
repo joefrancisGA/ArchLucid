@@ -72,6 +72,8 @@ export function SocraticIntakeWizard() {
     confirmedScopeLines,
     scopeUnderstandingInput,
     guidedIntakeEvidencePresence,
+    priorAttachedFileNames,
+    setEvidenceFiles,
     // Draft workflow
     busy,
     submitError,
@@ -290,6 +292,8 @@ export function SocraticIntakeWizard() {
           advanceHint={advanceHint}
           submitError={submitError}
           systemNameAvailability={systemNameAvailability}
+          priorAttachedFileNames={priorAttachedFileNames}
+          onEvidenceFilesChange={setEvidenceFiles}
           onCreateArchitectureContinuation={runCreateArchitectureContinuation}
           onAdmission={runAdmission}
         />

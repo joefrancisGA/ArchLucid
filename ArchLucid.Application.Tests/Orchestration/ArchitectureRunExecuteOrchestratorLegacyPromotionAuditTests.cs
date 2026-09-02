@@ -203,7 +203,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
                 RunStageOutcomesRepository = Mock.Of<IRunStageOutcomesRepository>(),
                 AgentExecutionReadinessGuard = new PermissiveAgentExecutionReadinessGuard(),
                 Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance
-            });;
+            });
 
         await sut.ExecuteRunAsync(runId);
 

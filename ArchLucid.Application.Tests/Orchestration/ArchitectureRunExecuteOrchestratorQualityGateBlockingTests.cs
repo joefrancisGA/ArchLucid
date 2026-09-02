@@ -215,7 +215,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
                 RunStageOutcomesRepository = Mock.Of<IRunStageOutcomesRepository>(),
                 AgentExecutionReadinessGuard = new PermissiveAgentExecutionReadinessGuard(),
                 Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance
-            });;
+            });
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);
 

@@ -6,6 +6,7 @@ import {
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { buildDefaultActorSet } from "@/lib/api/draft-intake-api";
+import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
 import {
   extractGeneratedIntakeBriefTitle,
   isGeneratedIntakeBrief,
@@ -26,6 +27,8 @@ export type PriorPackageGuidedIntakePrefill = {
   readonly actorSet: ActorSet;
   readonly scopeBullets: readonly ScopeUnderstandingBullet[];
   readonly scopeGateOpen: boolean;
+  /** File names recorded on the prior package intake — blobs stay on the prior run until re-uploaded. */
+  readonly priorAttachedFileNames: readonly string[];
 };
 
 export type PriorPackageArchitectureRequestLike = {
@@ -209,5 +212,6 @@ export function derivePriorPackageGuidedIntakePrefill(
     actorSet,
     scopeBullets,
     scopeGateOpen: scopeBullets.length > 0,
+    priorAttachedFileNames: extractAttachedIntakeFileNames(description),
   };
 }
