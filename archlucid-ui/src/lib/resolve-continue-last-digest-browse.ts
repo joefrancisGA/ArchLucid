@@ -38,13 +38,13 @@ export function writeDigestBrowseLastViewedId(digestId: string): void {
 
 function toTarget(digest: ArchitectureDigest): DigestsBrowseContinueLastTarget {
   return {
-    digestId: digest.digestId,
-    title: digest.title.trim().length > 0 ? digest.title : "Architecture digest",
+    digestId: digest.digestId ?? "",
+    title: (digest.title ?? "").trim().length > 0 ? (digest.title ?? "") : "Architecture digest",
   };
 }
 
 function compareNewestGenerated(left: ArchitectureDigest, right: ArchitectureDigest): number {
-  return right.generatedUtc.localeCompare(left.generatedUtc);
+  return (right.generatedUtc ?? "").localeCompare(left.generatedUtc ?? "");
 }
 
 /** Resolves the digest history row to pin as Continue last viewed. */

@@ -4,11 +4,13 @@ import type { WebhookTestResponse } from "@/types/alert-routing";
 
 /** Presents success/failure toasts for a saved webhook subscription test delivery. */
 export function presentWebhookConnectionTestToasts(result: WebhookTestResponse): void {
-  if (result.transportSucceeded && result.statusCode >= 200 && result.statusCode < 300) {
-    showSuccess(`${WEBHOOKS_TEST_SUCCESS} HTTP ${result.statusCode}`.trimEnd());
+  const statusCode = result.statusCode ?? 0;
+
+  if (result.transportSucceeded && statusCode >= 200 && statusCode < 300) {
+    showSuccess(`${WEBHOOKS_TEST_SUCCESS} HTTP ${statusCode}`.trimEnd());
   } else if (result.transportSucceeded) {
     showError(
-      `Test event returned HTTP ${result.statusCode}`,
+      `Test event returned HTTP ${statusCode}`,
       result.reasonPhrase ?? result.responseBodyPreview ?? undefined,
     );
   } else {

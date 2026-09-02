@@ -174,7 +174,7 @@ export function useAdvisorySchedulesPage(initialRunId?: string | null) {
       schedules.map((schedule) =>
         withLatestExecutionOutcome(
           buildAdvisoryScheduleListItemView(schedule, displayTimeZoneId, projectLabel),
-          executionsBySchedule[schedule.scheduleId],
+          executionsBySchedule[schedule.scheduleId ?? ""],
         ),
       ),
     [displayTimeZoneId, executionsBySchedule, projectLabel, schedules],
@@ -261,7 +261,7 @@ export function useAdvisorySchedulesPage(initialRunId?: string | null) {
         ) as HTMLElement | null;
         node?.focus();
         newestScheduleRef.current = node as HTMLTableRowElement | null;
-        rememberSchedule(created.scheduleId);
+        rememberSchedule(created.scheduleId ?? "");
       }, 0);
 
       if (successTimerRef.current !== null) {
