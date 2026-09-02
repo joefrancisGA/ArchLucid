@@ -49,6 +49,9 @@ public sealed partial class FindingJsonConverter
             && wholeNumber == Math.Floor(wholeNumber))
             return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
 
+        if (el.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return el.GetRawText();
+
         return null;
     }
 

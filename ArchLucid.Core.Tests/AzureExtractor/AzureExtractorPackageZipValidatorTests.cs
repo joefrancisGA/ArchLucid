@@ -118,6 +118,22 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_string_whole_number_schemaVersion_succeeds()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 1,
+            includeResources: true,
+            rawSchemaVersion: "\"1.0\"");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public void Validate_malformed_manifest_json_is_schema_rejection()
     {
         byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 1, includeResources: true, malformedManifest: true);

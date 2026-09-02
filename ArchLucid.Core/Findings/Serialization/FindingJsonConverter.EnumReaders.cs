@@ -45,7 +45,8 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding enforcement tier value is required.");
 
-        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numeric))
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numeric)
+            || TryParseWholeNumberString(raw, out numeric))
         {
             if (!Enum.IsDefined(typeof(FindingEnforcementTier), numeric))
                 throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
@@ -80,7 +81,8 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding confidence level value is required.");
 
-        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString))
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
+            || TryParseWholeNumberString(raw, out numericFromString))
         {
             if (!Enum.IsDefined(typeof(FindingConfidenceLevel), numericFromString))
                 throw new JsonException($"Unknown finding confidence level value '{raw}'.");
@@ -133,7 +135,8 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding treatment value is required.");
 
-        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString))
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
+            || TryParseWholeNumberString(raw, out numericFromString))
         {
             if (!Enum.IsDefined(typeof(FindingTreatment), numericFromString))
                 throw new JsonException($"Unknown finding treatment value '{raw}'.");
@@ -165,7 +168,8 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding classification value is required.");
 
-        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString))
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
+            || TryParseWholeNumberString(raw, out numericFromString))
         {
             if (!Enum.IsDefined(typeof(FindingClassification), numericFromString))
                 throw new JsonException($"Unknown finding classification value '{raw}'.");
@@ -197,7 +201,8 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding human review status value is required.");
 
-        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString))
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
+            || TryParseWholeNumberString(raw, out numericFromString))
         {
             if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), numericFromString))
                 throw new JsonException($"Unknown finding human review status value '{raw}'.");

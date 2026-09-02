@@ -38,4 +38,24 @@ public sealed class MarketplaceWebhookPayloadParserTests
 
         quantity.Should().Be(3);
     }
+
+    [Fact]
+    public void ReadQuantity_reads_whole_number_double_quantity()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":5.0}""");
+
+        int quantity = MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement);
+
+        quantity.Should().Be(5);
+    }
+
+    [Fact]
+    public void ReadQuantity_reads_string_encoded_whole_number_quantity()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":"5.0"}""");
+
+        int quantity = MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement);
+
+        quantity.Should().Be(5);
+    }
 }
