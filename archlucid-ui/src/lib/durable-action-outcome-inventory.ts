@@ -136,6 +136,14 @@ export const DURABLE_ACTION_OUTCOME_GLOBAL_ALLOWED_TOAST_LINE_PATTERNS: readonly
 
 export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutcomeGuardedSurface[] = [
   {
+    id: "re-run-review",
+    sourceRoots: [
+      "components/runs/ReRunReviewButton.tsx",
+      "components/runs/ReRunReviewOutcomeNotice.tsx",
+    ],
+    requiredDurableMarkers: ["re-run-review-outcome", 'role="status"'],
+  },
+  {
     id: "review-start-first-pilot",
     sourceRoots: ["app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx"],
     requiredDurableMarkers: ["ReviewStartInlineError"],

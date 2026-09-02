@@ -62,14 +62,14 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
     };
   }, [operations.length]);
 
-  if (operations.length === 0) {
+  const inFlightCount = operations.filter((row) => !isTerminalOperationState(row.state)).length;
+
+  if (operations.length === 0 || inFlightCount === 0) {
     return null;
   }
 
-  const inFlightCount = operations.filter((row) => !isTerminalOperationState(row.state)).length;
-  const labelCount = inFlightCount > 0 ? inFlightCount : operations.length;
   const pillLabel =
-    labelCount === 1 ? "1 in progress" : `${labelCount} in progress`;
+    inFlightCount === 1 ? "1 in progress" : `${inFlightCount} in progress`;
 
   async function handleCancel(operationId: string): Promise<void> {
     const trimmed = operationId.trim();
