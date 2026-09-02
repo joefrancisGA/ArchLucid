@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 24
-- **bugs-found:** 49
+- **hunts:** 25
+- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — graph properties numeric coercion; finding JSON unix reviewedAtUtc
+- **last-bug:** 2026-09-02 — finding numeric category/payloadType; string-encoded unix reviewedAtUtc
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1845,6 +1845,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureExtractorResourceInventoryReader.ExtractSku` — numeric `sku.name` JSON tokens ignored — **hit 2026-09-02 (#434):** `"sku":{"name":12345}` left `SkuName` null; fixed with `TryReadStringToken` on sku object fields (`AzureExtractorResourceInventoryReaderTests.TryReadFromZip_numeric_sku_name_coerces_to_string`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` — numeric-only `properties` bag entries dropped on dictionary deserialize fallback — **hit 2026-09-02 (#435):** `"properties":{"resourceId":12345}` hydrated as empty bag; fixed by coercing number tokens to strings in fallback (`GraphJsonElementReadersPropertiesTests.ReadProperties_numeric_only_values_coerce_to_strings`).
 - [x] (proven) `FindingJsonConverter.Read` — numeric `reviewedAtUtc` JSON tokens ignored (string round-trip only) — **hit 2026-09-02 (#435):** unix-millisecond `reviewedAtUtc` left null on snapshot reload; fixed with `TryReadReviewedAtUtc` (`FindingJsonConverterTests.Deserialize_unix_millisecond_reviewedAtUtc_maps_value`).
+- [x] (proven) `FindingJsonConverter.Read` — numeric `category` / `payloadType` JSON tokens throw or default via bare `GetString()` — **hit 2026-09-02 (#436):** `"category":42` threw `JsonException` and `"payloadType":7` aborted deserialize; fixed by routing through `ReadOptionalString` coercion (`Deserialize_numeric_category_coerces_to_string`, `Deserialize_numeric_payloadType_coerces_to_string`).
+- [x] (proven) `FindingJsonConverter.TryReadReviewedAtUtc` — string-encoded unix-millisecond `reviewedAtUtc` ignored — **hit 2026-09-02 (#436):** `"reviewedAtUtc":"1735689600000"` left null after #435 number-token fix; fixed with numeric-string unix coercion (`Deserialize_string_encoded_unix_millisecond_reviewedAtUtc_maps_value`).
+
+2026-09-02 seed hunt #436: reseeded from ArchLucid.Core; proved finding numeric category/payloadType coercion and string-encoded unix reviewedAtUtc gaps.
 
 2026-09-02 seed hunt #435: reseeded from ArchLucid.Core; proved graph properties numeric coercion and finding unix reviewedAtUtc gaps.
 

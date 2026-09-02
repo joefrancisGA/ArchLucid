@@ -168,19 +168,36 @@ public sealed partial class FindingJsonConverter
 
     private static bool TryReadReviewedAtUtc(JsonElement element, out DateTimeOffset value)
     {
-        if (element.ValueKind == JsonValueKind.String
-            && DateTimeOffset.TryParse(
-                element.GetString(),
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.RoundtripKind,
-                out value))
+        if (element.ValueKind == JsonValueKind.String)
         {
-            return true;
+            string? raw = element.GetString();
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && DateTimeOffset.TryParse(
+                    raw,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.RoundtripKind,
+                    out value))
+            {
+                return true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && long.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out long unixMilliseconds))
+            {
+                value = DateTimeOffset.FromUnixTimeMilliseconds(unixMilliseconds);
+
+                return true;
+            }
+
+            value = default;
+
+            return false;
         }
 
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long unixMilliseconds))
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numericUnixMilliseconds))
         {
-            value = DateTimeOffset.FromUnixTimeMilliseconds(unixMilliseconds);
+            value = DateTimeOffset.FromUnixTimeMilliseconds(numericUnixMilliseconds);
 
             return true;
         }

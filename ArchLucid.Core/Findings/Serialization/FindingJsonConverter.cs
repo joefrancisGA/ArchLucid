@@ -27,7 +27,7 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
                 ? findingId
                 : Guid.NewGuid().ToString("N"),
             FindingType = ReadRequiredString(root, "findingType"),
-            Category = TryGetPropertyCaseInsensitive(root, "category", out JsonElement cat) ? cat.GetString() ?? "" : "",
+            Category = ReadOptionalString(root, "category") ?? "",
             EngineType = ReadRequiredString(root, "engineType"),
             Severity = ReadSeverity(root, "severity"),
             Title = ReadRequiredString(root, "title"),
@@ -35,9 +35,7 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
             RelatedNodeIds = ReadStringList(root, "relatedNodeIds"),
             RecommendedActions = ReadStringList(root, "recommendedActions"),
             Properties = ReadStringDict(root, "properties"),
-            PayloadType = TryGetPropertyCaseInsensitive(root, "payloadType", out JsonElement pt)
-                ? pt.GetString()
-                : null
+            PayloadType = ReadOptionalString(root, "payloadType"),
         };
 
         finding.Trace = ReadTrace(root, options, finding);
