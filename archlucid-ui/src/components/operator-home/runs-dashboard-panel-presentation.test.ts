@@ -6,7 +6,9 @@ import {
   homeGovernanceWarningsQueryEnabled,
   parseRunsDashboardShowArchivedFromSearch,
   parseRunsDashboardTabFromSearch,
+  resolveRunsDashboardOpenAllReviewsHref,
   runsDashboardHomeHrefFromSearch,
+  runsDashboardTabHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 
 describe("home governance warnings URL helpers", () => {

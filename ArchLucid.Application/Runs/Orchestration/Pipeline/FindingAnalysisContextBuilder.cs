@@ -93,6 +93,7 @@ public sealed class FindingAnalysisContextBuilder(
                 knowledgeModel),
             EvidencePin = primaryEvidencePin,
             EvidencePins = evidencePins,
+            HasCreateTimeEvidencePinCommitment = _runEvidencePackagePinService.HasCreateTimePinCommitment(header),
         };
     }
 

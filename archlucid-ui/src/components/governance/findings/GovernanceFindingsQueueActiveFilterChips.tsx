@@ -18,6 +18,7 @@ export type GovernanceFindingsQueueActiveFilterChipsProps = {
   readonly nlFacets: FindingsNaturalLanguageFacets;
   readonly jobViewFilterActive: boolean;
   readonly findingsSearchQuery: string;
+  readonly onDismissChip: (chipId: string) => void;
   readonly onClearAll: () => void;
 };
 
@@ -46,12 +47,21 @@ function GovernanceFindingsQueueActiveFilterChipsComponent(
         <span
           key={chip.id}
           className={cn(
-            "inline-flex items-center rounded border border-neutral-200 bg-white px-2 py-0.5 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900",
+            "inline-flex items-center gap-1 rounded border border-neutral-200 bg-white px-2 py-0.5 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900",
             OPERATOR_TYPOGRAPHY.helper,
           )}
           data-testid={`governance-findings-active-filter-chip-${chip.id}`}
         >
-          {chip.label}
+          <span>{chip.label}</span>
+          <button
+            type="button"
+            className="rounded px-1 text-al-text-primary hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            aria-label={`Remove ${chip.label}`}
+            onClick={() => props.onDismissChip(chip.id)}
+            data-testid={`governance-findings-active-filter-chip-${chip.id}-dismiss`}
+          >
+            ×
+          </button>
         </span>
       ))}
       <Button type="button" size="sm" variant="outline" onClick={props.onClearAll}>

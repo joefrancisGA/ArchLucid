@@ -76,8 +76,6 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
               archivedCount={model.archivedCount}
               archivedFilterDisabled={model.archivedFilterDisabled}
               showArchived={model.showArchived}
-              onSelectDashboardTab={model.selectDashboardTab}
-              onToggleShowArchived={() => model.setShowArchived(!model.showArchived)}
               openAllReviewsHref={model.openAllReviewsHref}
             />
           ) : null}
@@ -116,6 +114,7 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
               archivedFieldSupported={model.archivedFieldSupported}
               restoreBusyRequestId={model.restoreBusyRequestId}
               onClearGovernanceWarningsFilter={model.clearGovernanceWarningsFilter}
+              onClearStatusFilter={model.clearStatusFilter}
               onRestoreArchivedRequest={(requestId) => {
                 void model.restoreArchivedRequest(requestId);
               }}

@@ -10,6 +10,8 @@ import {
 } from "@/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeChrome";
 import { GovernanceFindingsQueueAssignedToMeShell } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 import { GovernanceFindingsQueueHeader } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueHeader";
+import { useGovernanceFindingsQueueMode } from "@/app/(operator)/governance/findings/use-governance-findings-queue-mode";
+import { useGovernanceFindingsSponsorSynopsis } from "@/app/(operator)/governance/findings/use-governance-findings-sponsor-synopsis";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   applyFindingsSavedViewFilters,
@@ -17,15 +19,11 @@ import {
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { FindingsSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
-import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
-import { useAssignedToMeFindingsQuery } from "@/components/governance/findings/use-assigned-to-me-findings-query";
-import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
 import { useRunDetailWorkspaceContextBundleQuery } from "@/hooks/use-run-detail-workspace-context-bundle-query";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { hasGovernanceApprovalProvenance } from "@/lib/governance/governance-approval-provenance";
 import { resolveGovernanceAssignedToMeWorkspaceLabel } from "@/lib/governance/governance-assigned-to-me-empty-state";
 import {
@@ -34,11 +32,6 @@ import {
 } from "@/lib/findings-queue-triage-checklist";
 import { useGovernanceFindingsQueueFacets } from "@/app/(operator)/governance/findings/use-governance-findings-queue-facets";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
-import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
-import {
-  patchGovernanceFindingsQueueFacets,
-  readGovernanceFindingsQueueFacets,
-} from "@/lib/governance/governance-findings-queue-facets-storage";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
@@ -47,24 +40,18 @@ import {
   resolveEffectiveFindingJobView,
 } from "@/lib/findings/finding-job-view";
 import {
+  EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+} from "@/lib/findings/findings-natural-language-filter";
+import {
   computeGovernanceFindingsRegisterSummary,
-  countAssignedToMeLoadedFindings,
   deriveGovernanceFindingsActiveFiltersSummary,
-  deriveSponsorSynopsisCounts,
-  deriveSponsorSynopsisPackageTitle,
   extractGovernanceFindingIds,
   filterGovernanceFindingsDisplayedRows,
   filterGovernanceFindingsScopedRows,
-  hasAssignedToMeCountMismatch,
   resolveAssignedToMeOldestFindingTarget,
   resolveContinueLastFindingTarget,
   resolveFirstFindingTriageTarget,
   resolveGovernanceFindingsFilterNoMatchPreset,
-  resolveGovernanceFindingsLoadFailedPreset,
-  resolveGovernanceFindingsNavHref,
-  resolveGovernanceFindingsPageSubtitle,
-  resolveGovernanceFindingsPageTitle,
-  resolveGovernanceFindingsSponsorHandoffHref,
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
@@ -84,24 +71,35 @@ export default function GovernanceFindingsQueueClient({
   mode = "tenant",
 }: GovernanceFindingsQueueClientProps) {
   const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(new Set());
+  const queueMode = useGovernanceFindingsQueueMode({ mode });
+  const {
+    isAssignedToMe,
+    buyerPolishedShell,
+    assignedToMeQuery,
+    assignedToMeCountQuery,
+    rows,
+    loading,
+    loadFailed,
+    refresh,
+    assignedToMeFetchBasis,
+    assignedToMeCheckedAt,
+    loadFailure,
+    pageTitle,
+    pageSubtitle,
+    navHref,
+    currentJobId,
+    loadFailedPreset,
+    assignedToMeCount,
+    assignedToMeLoadedFindingCount,
+    assignedToMeCountMismatch,
+  } = queueMode;
+
   const { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters } =
     useGovernanceFindingsQueueFacets(mode);
-  const isAssignedToMe = mode === "assigned-to-me";
   const { currentPrincipal } = useOperatorNavAuthority();
   const scopeKey = useOperatorScopeQueryKey();
   const scopeRecord = useOperatorScopeRecord();
   const assignedToMeWorkspaceLabel = useMemo(() => resolveGovernanceAssignedToMeWorkspaceLabel(), [scopeKey.workspaceId]);
-  const tenantQuery = useGovernanceFindingsQuery(!isAssignedToMe);
-  const assignedToMeQuery = useAssignedToMeFindingsQuery(isAssignedToMe);
-  const assignedToMeCountQuery = useAssignedToMeFindingsCountQuery({ enabled: isAssignedToMe });
-  const activeQuery = isAssignedToMe ? assignedToMeQuery : tenantQuery;
-  const { rows, loading, loadFailed, refresh } = activeQuery;
-  const assignedToMeFetchBasis = isAssignedToMe ? assignedToMeQuery.fetchBasis : null;
-  const assignedToMeCheckedAt =
-    isAssignedToMe && assignedToMeQuery.dataUpdatedAt > 0
-      ? new Date(assignedToMeQuery.dataUpdatedAt)
-      : null;
-  const loadFailure = isAssignedToMe ? assignedToMeQuery.loadFailure : tenantQuery.loadFailure;
   const {
     registerFilter,
     setRegisterFilter,
@@ -126,7 +124,6 @@ export default function GovernanceFindingsQueueClient({
     [scopedRunContextQuery.data?.priorCommittedRunId, scopedRunId],
   );
 
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const searchParams = useSearchParams();
   const scopedRunFilterActive = scopedRunId !== null && scopedRunId.trim().length > 0;
@@ -170,15 +167,41 @@ export default function GovernanceFindingsQueueClient({
   );
   const findingIds = useMemo(() => extractGovernanceFindingIds(displayedRows), [displayedRows]);
   usePrefetchItsmFindingCorrelations(findingIds);
-  const pageTitle = resolveGovernanceFindingsPageTitle(isAssignedToMe, buyerPolishedShell);
-  const pageSubtitle = resolveGovernanceFindingsPageSubtitle(isAssignedToMe, buyerPolishedShell);
-  const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe);
+
+  const sponsorSynopsis = useGovernanceFindingsSponsorSynopsis({
+    displayedRows,
+    scopedRunId,
+  });
 
   const clearAllFilters = useCallback((): void => {
     setRegisterFilter("all");
     clearFacetFilters();
     router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
   }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
+
+  const dismissActiveFilterChip = useCallback(
+    (chipId: string): void => {
+      if (chipId === "search-query") {
+        router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
+        return;
+      }
+
+      if (chipId.startsWith("register-")) {
+        setRegisterFilter("all");
+        return;
+      }
+
+      if (chipId.startsWith("job-view-")) {
+        setJobView(DEFAULT_FINDING_JOB_VIEW);
+        return;
+      }
+
+      if (chipId === "nl-facets") {
+        setNlFacets(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
+      }
+    },
+    [mode, navHref, router, searchParams, setJobView, setNlFacets, setRegisterFilter],
+  );
 
   const onPickReviewForTriage = useCallback(
     (reviewId: string) => {
@@ -195,8 +218,6 @@ export default function GovernanceFindingsQueueClient({
     [navHref, router, searchParams],
   );
 
-  const currentJobId: GovernanceJobId = isAssignedToMe ? "assigned-to-me-findings" : "triage-findings";
-  const loadFailedPreset = resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe);
   const filterNoMatchPreset = resolveGovernanceFindingsFilterNoMatchPreset(isAssignedToMe);
   const secondaryViewPresentation =
     displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
@@ -245,30 +266,12 @@ export default function GovernanceFindingsQueueClient({
     () => resolveAssignedToMeOldestFindingTarget(rows, isAssignedToMe),
     [isAssignedToMe, rows],
   );
-  const sponsorSynopsisPackageTitle = deriveSponsorSynopsisPackageTitle(displayedRows, scopedRunId);
-  const sponsorSynopsisCounts = useMemo(
-    () => deriveSponsorSynopsisCounts(displayedRows),
-    [displayedRows],
-  );
-  const sponsorHandoffHref = resolveGovernanceFindingsSponsorHandoffHref(scopedRunId);
   const governanceApprovalProvenance = null;
   const showGovernanceApprovalBanner =
     buyerPolishedShell &&
     !loadFailed &&
     !isAssignedToMe &&
     hasGovernanceApprovalProvenance(governanceApprovalProvenance);
-  const assignedToMeCount = assignedToMeCountQuery.data ?? rows.length;
-  const assignedToMeLoadedFindingCount = useMemo(
-    () => countAssignedToMeLoadedFindings(rows),
-    [rows],
-  );
-  const assignedToMeCountMismatch = hasAssignedToMeCountMismatch({
-    isAssignedToMe,
-    loading,
-    loadFailed,
-    assignedToMeCountData: assignedToMeCountQuery.data,
-    assignedToMeLoadedFindingCount,
-  });
   const activeFiltersSummary = useMemo(
     () =>
       deriveGovernanceFindingsActiveFiltersSummary(
@@ -379,14 +382,15 @@ export default function GovernanceFindingsQueueClient({
         onNaturalLanguageFilterApply={setNlFacets}
         nlFacets={nlFacets}
         onClearAllFilters={clearAllFilters}
+        onDismissActiveFilterChip={dismissActiveFilterChip}
         onLoadFindingsSavedView={onLoadFindingsSavedView}
         loading={loading}
         rows={rows}
         filterNoMatchPreset={filterNoMatchPreset}
         activeFiltersSummary={activeFiltersSummary}
-        sponsorSynopsisPackageTitle={sponsorSynopsisPackageTitle}
-        sponsorSynopsisCounts={sponsorSynopsisCounts}
-        sponsorHandoffHref={sponsorHandoffHref}
+        sponsorSynopsisPackageTitle={sponsorSynopsis.sponsorSynopsisPackageTitle}
+        sponsorSynopsisCounts={sponsorSynopsis.sponsorSynopsisCounts}
+        sponsorHandoffHref={sponsorSynopsis.sponsorHandoffHref}
         scopedRunContextTitle={
           scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.displayName ??
           scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.runId ??

@@ -106,26 +106,40 @@ public sealed class ReplayRunServiceTests
 
         // ADR 0030 PR A3 (2026-04-24): ICoordinatorDecisionTraceRepository was removed from
         // ReplayRunService — decision traces are persisted via IAuthorityCommittedManifestChainWriter only.
-        _sut = new ReplayRunService(
-            _executorResolver.Object,
+        IReplayRunCloneStage cloneStage = new ReplayRunCloneStage();
+        IReplayRunPrepareStage prepareStage = new ReplayRunPrepareStage(
+            _runDetailQueryService.Object,
+            _requestRepository.Object,
+            _evidenceRepository.Object,
+            _authorityRunRepository.Object,
+            _scopeContextProvider.Object,
+            _taskRepository.Object,
+            EmptyStageOutcomesRepository(),
+            cloneStage);
+        IReplayRunCommitStage commitStage = new ReplayRunCommitStage(
             _decisionEngine.Object,
             EmptyAgentEvaluationService(),
             EmptyDecisionEngineV2(),
-            _requestRepository.Object,
-            _runDetailQueryService.Object,
-            _authorityRunRepository.Object,
             _scopeContextProvider.Object,
             CreateAuthorityChainWriterMock().Object,
-            _evidenceRepository.Object,
-            _taskRepository.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
             Mock.Of<IAuthorityRunOrchestrator>(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             Mock.Of<ICommitRunIdempotencyCoordinator>(),
-            EmptyStageOutcomesRepository(),
-            NullLogger<ReplayRunService>.Instance);
+            cloneStage,
+            NullLogger<ReplayRunCommitStage>.Instance);
+        IReplayRunExecutePreparedStage executePreparedStage = new ReplayRunExecutePreparedStage(
+            _runDetailQueryService.Object,
+            _requestRepository.Object,
+            _evidenceRepository.Object,
+            _executorResolver.Object,
+            Mock.Of<IAuthorityRunOrchestrator>(),
+            prepareStage,
+            cloneStage,
+            commitStage);
+        _sut = new ReplayRunService(prepareStage, executePreparedStage);
     }
 
     private static IRunStageOutcomesRepository EmptyStageOutcomesRepository()

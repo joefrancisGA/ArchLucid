@@ -74,4 +74,11 @@ public sealed class FindingAnalysisContext
         get;
         init;
     } = [];
+
+    /// <summary>Wave-7 suggestion 67: run header carries a create-time evidence pin hash commitment.</summary>
+    public bool HasCreateTimeEvidencePinCommitment
+    {
+        get;
+        init;
+    }
 }

@@ -5,6 +5,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -40,6 +41,7 @@ public sealed partial class GovernanceController(
     IScopeContextProvider scopeContextProvider,
     IPolicyPackDryRunService policyPackDryRunService,
     IPolicyPackGovernanceDryRunService policyPackGovernanceDryRunService,
+    IPolicyPackHttpFacade policyPackHttpFacade,
     IPolicyPackSchemaKeysService policyPackSchemaKeysService,
     IAuditService auditService,
     IPolicyPackDraftService policyPackDraftService,
@@ -67,6 +69,9 @@ public sealed partial class GovernanceController(
 
     private readonly IPolicyPackGovernanceDryRunService _policyPackGovernanceDryRunService =
         policyPackGovernanceDryRunService ?? throw new ArgumentNullException(nameof(policyPackGovernanceDryRunService));
+
+    private readonly IPolicyPackHttpFacade _policyPackHttpFacade =
+        policyPackHttpFacade ?? throw new ArgumentNullException(nameof(policyPackHttpFacade));
 
     private readonly IPolicyPackSchemaKeysService _policyPackSchemaKeysService =
         policyPackSchemaKeysService ?? throw new ArgumentNullException(nameof(policyPackSchemaKeysService));

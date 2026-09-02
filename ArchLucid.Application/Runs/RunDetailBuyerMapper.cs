@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Runs;
+using ArchLucid.Core.Runs;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 

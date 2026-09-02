@@ -215,21 +215,19 @@ public sealed partial class DapperAuthenticationIdentityRepository
         }
 
         public AuthenticationIdentityRecord ToRecord() =>
-            new()
-            {
-                Id = Id,
-                UserId = UserId,
-                ProviderType = AuthenticationProviderTypeMapper.Parse(ProviderType),
-                NormalizedIssuer = NormalizedIssuer,
-                Subject = Subject,
-                NormalizedEmail = NormalizedEmail,
-                DisplayEmail = DisplayEmail,
-                EmailVerified = EmailVerified,
-                TenantId = TenantId,
-                TenantIdentityProviderId = TenantIdentityProviderId,
-                CreatedUtc = CreatedUtc,
-                LastAuthenticatedUtc = LastAuthenticatedUtc,
-                DisabledUtc = DisabledUtc
-            };
+            AuthenticationIdentityRepositoryCore.MapFromStorage(
+                Id,
+                UserId,
+                ProviderType,
+                NormalizedIssuer,
+                Subject,
+                NormalizedEmail,
+                DisplayEmail,
+                EmailVerified,
+                TenantId,
+                TenantIdentityProviderId,
+                CreatedUtc,
+                LastAuthenticatedUtc,
+                DisabledUtc);
     }
 }

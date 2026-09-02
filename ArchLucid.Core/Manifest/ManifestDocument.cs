@@ -227,4 +227,11 @@ public class ManifestDocument
         get;
         set;
     } = [];
+
+    /// <summary>Wave-7 suggestion 69: SHA-256 hex over canonical evidence pin JSON at create time.</summary>
+    public string? CreateTimeEvidencePackagePinsHashSha256
+    {
+        get;
+        set;
+    }
 }

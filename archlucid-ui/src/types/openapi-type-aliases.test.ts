@@ -143,6 +143,64 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
   GovernanceEnvironmentTransition: "GovernanceEnvironmentTransition",
   GovernanceEnvironmentCatalog: "GovernanceEnvironmentCatalog",
   ReplaceGovernanceEnvironmentCatalogRequest: "ReplaceGovernanceEnvironmentCatalogRequest",
+  DraftRequestStatus: "DraftRequestStatus",
+  ActorKind: "ActorKind",
+  TrustOrigin: "TrustOrigin",
+  InteractionContract: "InteractionContract",
+  ActorOrigin: "ActorOrigin",
+  DraftBranchOverrideKind: "DraftBranchOverrideKind",
+  BranchDraftRequest: "BranchDraftRequest",
+  DraftBranchQuotaResponse: "DraftBranchQuotaResponse",
+  CreateDraftRequest: "CreateDraftRequest",
+  PatchDraftRequest: "PatchDraftRequest",
+  DraftIntakeReasonRequest: "DraftIntakeReasonRequest",
+  StageTimelineSummary: "StageTimelineSummary",
+  RecommendationLearningProfileState: "RecommendationLearningProfileState",
+  RecommendationLearningOutcomeEligibility: "RecommendationLearningOutcomeEligibilityBreakdown",
+  RecommendationLearningProfileMetadata: "RecommendationLearningProfileMetadataResponse",
+  RecommendationLearningOperationalStatus: "RecommendationLearningOperationalStatusResponse",
+  RecommendationLearningValidationCheck: "RecommendationLearningValidationCheck",
+  RecommendationLearningWeightDelta: "RecommendationLearningWeightDelta",
+  LearningProfile: "RecommendationLearningProfile",
+  RecommendationLearningPreview: "RecommendationLearningPreviewResponse",
+  RecommendationLearningProfileHistoryItem: "RecommendationLearningProfileHistoryItem",
+  RecommendationLearningRollbackRequest: "RecommendationLearningRollbackRequest",
+  RecommendationLearningOpsPageResponse: "RecommendationLearningOpsPageResponse",
+  GlobalSearchResponse: "GlobalSearchResponse",
+  GlobalSearchFinding: "GlobalSearchFindingResponse",
+  GlobalSearchRun: "GlobalSearchRunResponse",
+  GlobalSearchPolicyPack: "GlobalSearchPolicyPackResponse",
+  AdvisoryScanSchedule: "AdvisoryScanSchedule",
+  AdvisoryScanExecution: "AdvisoryScanExecution",
+  ArchitectureDigest: "ArchitectureDigest",
+  AlertRoutingSubscription: "AlertRoutingSubscription",
+  WebhookTestResponse: "OutboundWebhookDryRunResponse",
+  AlertRoutingDeliveryAttempt: "AlertDeliveryAttempt",
+  SimulatedAlertOutcome: "SimulatedAlertOutcome",
+  RuleSimulationResult: "RuleSimulationResult",
+  RuleCandidateComparisonResult: "RuleCandidateComparisonResult",
+  ArchitectureLinkageNode: "ArchitectureLinkageNode",
+  ArchitectureLinkageEdge: "ArchitectureLinkageEdge",
+  ArchitectureTraceTimelineEntry: "ArchitectureTraceTimelineEntry",
+  ArchitectureRunProvenanceGraph: "ArchitectureRunProvenanceGraph",
+  DemoPreviewRun: "DemoPreviewRun",
+  DemoPreviewAuthorityChain: "DemoPreviewAuthorityChain",
+  DemoPreviewManifestSummary: "DemoPreviewManifestSummary",
+  DemoPreviewArtifact: "DemoPreviewArtifact",
+  DemoPreviewTimelineItem: "DemoPreviewTimelineItem",
+  DemoCommitPagePreviewResponse: "DemoCommitPagePreviewResponse",
+  DemoExplainResponse: "DemoExplainResponse",
+  DemoProvenanceGraph: "GraphViewModel",
+  DemoProvenanceGraphNode: "GraphNodeVm",
+  DemoProvenanceGraphEdge: "GraphEdgeVm",
+  ExecDigestPreferencesResponse: "ExecDigestPreferencesResponse",
+  ExecDigestPreferencesUpsertRequest: "ExecDigestPreferencesUpsertRequest",
+  OutcomeStats: "RecommendationOutcomeStats",
+  TeamsIncomingWebhookConnectionResponse: "TeamsIncomingWebhookConnectionResponse",
+  TeamsIncomingWebhookConnectionUpsertRequest: "TeamsIncomingWebhookConnectionUpsertRequest",
+  TeamsIncomingWebhookSecretValidationResponse: "TeamsIncomingWebhookSecretValidationResponse",
+  TeamsIncomingWebhookSecretValidationOutcome: "TeamsIncomingWebhookSecretValidationOutcome",
+  TeamsIncomingWebhookConnectionTestResponse: "TeamsIncomingWebhookConnectionTestResponse",
 } as const satisfies Record<string, keyof components["schemas"]>;
 
 type AssertExtends<Base, Derived extends Base> = Derived;
@@ -402,6 +460,206 @@ type _CompositeAlertRuleAliases = [
   AssertExtends<components["schemas"]["CompositeAlertRule"], import("@/types/composite-alert-rules").CompositeAlertRule>,
 ];
 
+type _DraftIntakeAliases = [
+  AssertExtends<components["schemas"]["DraftRequestStatus"], import("@/types/draft-intake").DraftRequestStatus>,
+  AssertExtends<components["schemas"]["ActorKind"], import("@/types/draft-intake").ActorKind>,
+  AssertExtends<components["schemas"]["TrustOrigin"], import("@/types/draft-intake").TrustOrigin>,
+  AssertExtends<components["schemas"]["InteractionContract"], import("@/types/draft-intake").InteractionContract>,
+  AssertExtends<components["schemas"]["ActorOrigin"], import("@/types/draft-intake").ActorOrigin>,
+  AssertExtends<
+    components["schemas"]["DraftBranchOverrideKind"],
+    import("@/types/draft-intake").DraftBranchOverrideKind
+  >,
+  AssertExtends<components["schemas"]["BranchDraftRequest"], import("@/types/draft-intake").BranchDraftRequest>,
+  AssertExtends<
+    components["schemas"]["DraftBranchQuotaResponse"],
+    import("@/types/draft-intake").DraftBranchQuotaResponse
+  >,
+  AssertExtends<components["schemas"]["CreateDraftRequest"], import("@/types/draft-intake").CreateDraftRequest>,
+  AssertExtends<components["schemas"]["PatchDraftRequest"], import("@/types/draft-intake").PatchDraftRequest>,
+  AssertExtends<
+    components["schemas"]["DraftIntakeReasonRequest"],
+    import("@/types/draft-intake").DraftIntakeReasonRequest
+  >,
+];
+
+type _StageTimelineAliases = [
+  AssertExtends<components["schemas"]["StageTimelineSummary"], import("@/types/stage-timeline").StageTimelineSummary>,
+];
+
+type _RecommendationLearningOperationalAliases = [
+  AssertExtends<
+    components["schemas"]["RecommendationLearningProfileState"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningProfileState
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningOutcomeEligibilityBreakdown"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningOutcomeEligibility
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningProfileMetadataResponse"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningProfileMetadata
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningOperationalStatusResponse"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningOperationalStatus
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningValidationCheck"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningValidationCheck
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningWeightDelta"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningWeightDelta
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningProfile"],
+    import("@/types/recommendation-learning-operational").LearningProfile
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningPreviewResponse"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningPreview
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningProfileHistoryItem"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningProfileHistoryItem
+  >,
+  AssertExtends<
+    components["schemas"]["RecommendationLearningRollbackRequest"],
+    import("@/types/recommendation-learning-operational").RecommendationLearningRollbackRequest
+  >,
+];
+
+type _GlobalSearchAliases = [
+  AssertExtends<components["schemas"]["GlobalSearchResponse"], import("@/types/global-search").GlobalSearchResponse>,
+  AssertExtends<components["schemas"]["GlobalSearchFindingResponse"], import("@/types/global-search").GlobalSearchFinding>,
+  AssertExtends<components["schemas"]["GlobalSearchRunResponse"], import("@/types/global-search").GlobalSearchRun>,
+  AssertExtends<
+    components["schemas"]["GlobalSearchPolicyPackResponse"],
+    import("@/types/global-search").GlobalSearchPolicyPack
+  >,
+];
+
+type _AdvisorySchedulingAliases = [
+  AssertExtends<
+    components["schemas"]["AdvisoryScanSchedule"],
+    import("@/types/advisory-scheduling").AdvisoryScanSchedule
+  >,
+  AssertExtends<
+    components["schemas"]["AdvisoryScanExecution"],
+    import("@/types/advisory-scheduling").AdvisoryScanExecution
+  >,
+  AssertExtends<
+    components["schemas"]["ArchitectureDigest"],
+    import("@/types/advisory-scheduling").ArchitectureDigest
+  >,
+];
+
+type _AlertRoutingAliases = [
+  AssertExtends<
+    components["schemas"]["AlertRoutingSubscription"],
+    import("@/types/alert-routing").AlertRoutingSubscription
+  >,
+  AssertExtends<
+    components["schemas"]["OutboundWebhookDryRunResponse"],
+    import("@/types/alert-routing").WebhookTestResponse
+  >,
+];
+
+type _AlertSimulationAliases = [
+  AssertExtends<
+    components["schemas"]["SimulatedAlertOutcome"],
+    import("@/types/alert-simulation").SimulatedAlertOutcome
+  >,
+  AssertExtends<
+    components["schemas"]["RuleSimulationResult"],
+    import("@/types/alert-simulation").RuleSimulationResult
+  >,
+  AssertExtends<
+    components["schemas"]["RuleCandidateComparisonResult"],
+    import("@/types/alert-simulation").RuleCandidateComparisonResult
+  >,
+];
+
+type _ArchitectureProvenanceAliases = [
+  AssertExtends<
+    components["schemas"]["ArchitectureLinkageNode"],
+    import("@/types/architecture-provenance").ArchitectureLinkageNode
+  >,
+  AssertExtends<
+    components["schemas"]["ArchitectureLinkageEdge"],
+    import("@/types/architecture-provenance").ArchitectureLinkageEdge
+  >,
+  AssertExtends<
+    components["schemas"]["ArchitectureTraceTimelineEntry"],
+    import("@/types/architecture-provenance").ArchitectureTraceTimelineEntry
+  >,
+  AssertExtends<
+    components["schemas"]["ArchitectureRunProvenanceGraph"],
+    import("@/types/architecture-provenance").ArchitectureRunProvenanceGraph
+  >,
+];
+
+type _DemoPreviewAliases = [
+  AssertExtends<components["schemas"]["DemoPreviewRun"], import("@/types/demo-preview").DemoPreviewRun>,
+  AssertExtends<
+    components["schemas"]["DemoPreviewAuthorityChain"],
+    import("@/types/demo-preview").DemoPreviewAuthorityChain
+  >,
+  AssertExtends<
+    components["schemas"]["DemoPreviewManifestSummary"],
+    import("@/types/demo-preview").DemoPreviewManifestSummary
+  >,
+  AssertExtends<components["schemas"]["DemoPreviewArtifact"], import("@/types/demo-preview").DemoPreviewArtifact>,
+  AssertExtends<
+    components["schemas"]["DemoPreviewTimelineItem"],
+    import("@/types/demo-preview").DemoPreviewTimelineItem
+  >,
+];
+
+type _DemoExplainAliases = [
+  AssertExtends<components["schemas"]["GraphNodeVm"], import("@/types/demo-explain").DemoProvenanceGraphNode>,
+  AssertExtends<components["schemas"]["GraphEdgeVm"], import("@/types/demo-explain").DemoProvenanceGraphEdge>,
+  AssertExtends<components["schemas"]["GraphViewModel"], import("@/types/demo-explain").DemoProvenanceGraph>,
+];
+
+type _ExecDigestPreferencesAliases = [
+  AssertExtends<
+    components["schemas"]["ExecDigestPreferencesResponse"],
+    import("@/types/exec-digest-preferences").ExecDigestPreferencesResponse
+  >,
+  AssertExtends<
+    components["schemas"]["ExecDigestPreferencesUpsertRequest"],
+    import("@/types/exec-digest-preferences").ExecDigestPreferencesUpsertRequest
+  >,
+];
+
+type _RecommendationLearningAliases = [
+  AssertExtends<
+    components["schemas"]["RecommendationOutcomeStats"],
+    import("@/types/recommendation-learning").OutcomeStats
+  >,
+];
+
+type _TeamsIncomingWebhookAliases = [
+  AssertExtends<
+    components["schemas"]["TeamsIncomingWebhookConnectionResponse"],
+    import("@/types/teams-incoming-webhook-connection").TeamsIncomingWebhookConnectionResponse
+  >,
+  AssertExtends<
+    components["schemas"]["TeamsIncomingWebhookConnectionUpsertRequest"],
+    import("@/types/teams-incoming-webhook-connection").TeamsIncomingWebhookConnectionUpsertRequest
+  >,
+  AssertExtends<
+    components["schemas"]["TeamsIncomingWebhookSecretValidationOutcome"],
+    import("@/types/teams-incoming-webhook-connection").TeamsIncomingWebhookSecretValidationOutcome
+  >,
+  AssertExtends<
+    components["schemas"]["TeamsIncomingWebhookConnectionTestResponse"],
+    import("@/types/teams-incoming-webhook-connection").TeamsIncomingWebhookConnectionTestResponse
+  >,
+];
+
 const _compileTimeAliasGuards: [
   _AuthorityAliases,
   _OperateRhythmAliases,
@@ -419,6 +677,19 @@ const _compileTimeAliasGuards: [
   _EvolutionAliases,
   _AlertTuningAliases,
   _CompositeAlertRuleAliases,
+  _DraftIntakeAliases,
+  _StageTimelineAliases,
+  _RecommendationLearningOperationalAliases,
+  _GlobalSearchAliases,
+  _AdvisorySchedulingAliases,
+  _AlertRoutingAliases,
+  _AlertSimulationAliases,
+  _ArchitectureProvenanceAliases,
+  _DemoPreviewAliases,
+  _DemoExplainAliases,
+  _ExecDigestPreferencesAliases,
+  _RecommendationLearningAliases,
+  _TeamsIncomingWebhookAliases,
 ] = [
   [] as unknown as _AuthorityAliases,
   [] as unknown as _OperateRhythmAliases,
@@ -436,6 +707,19 @@ const _compileTimeAliasGuards: [
   [] as unknown as _EvolutionAliases,
   [] as unknown as _AlertTuningAliases,
   [] as unknown as _CompositeAlertRuleAliases,
+  [] as unknown as _DraftIntakeAliases,
+  [] as unknown as _StageTimelineAliases,
+  [] as unknown as _RecommendationLearningOperationalAliases,
+  [] as unknown as _GlobalSearchAliases,
+  [] as unknown as _AdvisorySchedulingAliases,
+  [] as unknown as _AlertRoutingAliases,
+  [] as unknown as _AlertSimulationAliases,
+  [] as unknown as _ArchitectureProvenanceAliases,
+  [] as unknown as _DemoPreviewAliases,
+  [] as unknown as _DemoExplainAliases,
+  [] as unknown as _ExecDigestPreferencesAliases,
+  [] as unknown as _RecommendationLearningAliases,
+  [] as unknown as _TeamsIncomingWebhookAliases,
 ];
 void _compileTimeAliasGuards;
 
@@ -449,6 +733,6 @@ describe("openapi type alias schema keys", () => {
   });
 
   it("keeps the mapping table in sync with the number of guarded aliases", () => {
-    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(135);
+    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(193);
   });
 });

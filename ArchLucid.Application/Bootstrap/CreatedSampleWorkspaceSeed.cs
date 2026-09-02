@@ -10,6 +10,8 @@ internal static partial class CreatedSampleWorkspaceSeed
 
     private const string SystemName = "Enterprise.Copilot.RagPlatform";
 
+    internal static string SystemNameLiteral => SystemName;
+
     private static readonly DateTime SeedUtc = new(2026, 4, 2, 10, 30, 0, DateTimeKind.Utc);
 
     internal static DateTime SnapshotUtc => SeedUtc;

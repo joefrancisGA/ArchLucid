@@ -35,6 +35,7 @@ function GovernanceFindingsAdvancedFiltersPanel(
         nlFacets={props.nlFacets}
         jobViewFilterActive={props.jobViewFilterActive}
         findingsSearchQuery={props.findingsSearchQuery}
+        onDismissChip={props.onDismissActiveFilterChip}
         onClearAll={props.onClearAllFilters}
       />
       <GovernanceFindingsSavedViewsBar

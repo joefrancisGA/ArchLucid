@@ -99,4 +99,17 @@ describe("metadata status labels", () => {
     expect(chip.className).toContain("hover:bg-[var(--al-layer-hover)]");
     expect(chip.className).not.toContain("pointer-events-none");
   });
+
+  it("renders a disabled FilterChip as a button even when href is set", () => {
+    render(
+      <FilterChip href="/?archived=1" disabled>
+        Archived 0
+      </FilterChip>,
+    );
+
+    const chip = screen.getByRole("button", { name: "Archived 0" });
+
+    expect(chip).toBeDisabled();
+    expect(screen.queryByRole("link", { name: "Archived 0" })).not.toBeInTheDocument();
+  });
 });

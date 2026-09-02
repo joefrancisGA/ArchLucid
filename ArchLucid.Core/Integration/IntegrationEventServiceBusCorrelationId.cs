@@ -80,7 +80,24 @@ public static class IntegrationEventServiceBusCorrelationId
     {
         if (element.ValueKind == JsonValueKind.String)
         {
-            value = element.GetString();
+            string? raw = element.GetString();
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryParseWholeNumberString(raw.Trim(), out long numericFromString))
+            {
+                value = numericFromString.ToString(CultureInfo.InvariantCulture);
+
+                return true;
+            }
+
+            if (TryNormalizeBooleanString(raw, out string? normalized))
+            {
+                value = normalized;
+
+                return true;
+            }
+
+            value = raw;
 
             return true;
         }
@@ -106,6 +123,64 @@ public static class IntegrationEventServiceBusCorrelationId
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
             value = element.GetRawText();
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberString(string raw, out long value)
+    {
+        if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (long)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryNormalizeBooleanString(string? raw, out string? value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = null;
+
+            return false;
+        }
+
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "true";
+
+            return true;
+        }
+
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "false";
 
             return true;
         }

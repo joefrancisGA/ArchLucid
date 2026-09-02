@@ -58,10 +58,22 @@ public static class RunExplanationConfidenceCalloutBuilder
             {
                 citationCount = wholeNumberCount;
             }
-            else if (citationsEl.ValueKind == JsonValueKind.String
-                     && TryParseWholeNumberString(citationsEl.GetString(), out int stringEncodedCount))
+            else if (citationsEl.ValueKind is JsonValueKind.True or JsonValueKind.False)
             {
-                citationCount = stringEncodedCount;
+                citationCount = citationsEl.ValueKind == JsonValueKind.True ? 1 : 0;
+            }
+            else if (citationsEl.ValueKind == JsonValueKind.String)
+            {
+                string? raw = citationsEl.GetString();
+
+                if (TryParseBooleanString(raw, out bool booleanCount))
+                {
+                    citationCount = booleanCount ? 1 : 0;
+                }
+                else if (TryParseWholeNumberString(raw, out int stringEncodedCount))
+                {
+                    citationCount = stringEncodedCount;
+                }
             }
         }
 
@@ -170,6 +182,24 @@ public static class RunExplanationConfidenceCalloutBuilder
             return null;
         }
 
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
+        {
+            return 1.0;
+        }
+
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
+        {
+            return 0.0;
+        }
+
         if (double.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
             && double.IsFinite(parsed))
         {
@@ -222,16 +252,25 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
             || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase))
+            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
         if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
             || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("no", StringComparison.OrdinalIgnoreCase))
+            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
         {
             return false;
+        }
+
+        if (TryParseWholeNumberString(raw, out int numericFromString))
+        {
+            return numericFromString != 0;
         }
 
         return false;
@@ -294,13 +333,48 @@ public static class RunExplanationConfidenceCalloutBuilder
     {
         if (element.ValueKind == JsonValueKind.String)
         {
-            value = element.GetString();
+            string? raw = element.GetString();
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryParseBooleanString(raw, out bool boolean))
+            {
+                value = boolean ? "true" : "false";
+
+                return !string.IsNullOrWhiteSpace(value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryParseWholeNumberString(raw.Trim(), out int numericFromString))
+            {
+                value = numericFromString.ToString(CultureInfo.InvariantCulture);
+
+                return !string.IsNullOrWhiteSpace(value);
+            }
+
+            value = raw;
 
             return !string.IsNullOrWhiteSpace(value);
         }
 
         if (element.ValueKind == JsonValueKind.Number)
         {
+            if (element.TryGetInt64(out long numeric))
+            {
+                value = numeric.ToString(CultureInfo.InvariantCulture);
+
+                return !string.IsNullOrWhiteSpace(value);
+            }
+
+            if (element.TryGetDouble(out double wholeNumber)
+                && double.IsFinite(wholeNumber)
+                && wholeNumber >= 0
+                && wholeNumber == Math.Floor(wholeNumber))
+            {
+                value = ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
+
+                return !string.IsNullOrWhiteSpace(value);
+            }
+
             value = element.GetRawText();
 
             return !string.IsNullOrWhiteSpace(value);
@@ -314,6 +388,44 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         value = null;
+
+        return false;
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("enabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("disabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
+
+            return true;
+        }
+
+        value = default;
 
         return false;
     }
