@@ -1,3 +1,4 @@
+using ArchLucid.Application.Decisions;
 using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Common;
@@ -9,6 +10,7 @@ using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Serialization;
 using Microsoft.Extensions.Logging;
@@ -63,12 +65,13 @@ public sealed class AgentLoopInvokeStage(
     {
         var admit = await runScopedLlmBudgetReservationService.AdmitBeforeAgentBatchAsync(tenantId, runId, count, ct);
         if (admit.Allowed) return admit;
+        if (admit.RejectionReason == RunScopedLlmBudgetAdmitRejectionReason.Disabled) return admit;
         throw admit.RejectionReason switch
         {
             RunScopedLlmBudgetAdmitRejectionReason.RunCostBudgetExceeded => new CostLimitExceededException($"Run '{runId}' estimated agent-batch cost exceeds MaxCostPerRun / MaxTokensPerRun before execution."),
             RunScopedLlmBudgetAdmitRejectionReason.MonthlyQuotaExceeded => new LlmTokenQuotaExceededException($"Run '{runId}' cannot start: tenant monthly LLM dollar budget lacks headroom for the estimated agent batch."),
             RunScopedLlmBudgetAdmitRejectionReason.StoreUnavailable => new InvalidOperationException($"Run '{runId}' cannot start: run-scoped LLM budget reservation store is unavailable."),
-            RunScopedLlmBudgetAdmitRejectionReason.Disabled => admit,
+            
             _ => new InvalidOperationException($"Run '{runId}' cannot start: run-scoped LLM budget admission was rejected ({admit.RejectionReason})."),
         };
     }
