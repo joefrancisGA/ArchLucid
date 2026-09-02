@@ -42,6 +42,12 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
                 $"When CloudProvider is None, supply documents, IaC, inline requirements, topology/policy/security hints, "
                 + $"or a description of at least {ArchitectureRequestEvidenceSufficiency.MinDescriptionLengthForNoneOnly} characters.");
 
+        RuleFor(x => x)
+            .Must(request => PolicyPackCloudTargetMismatchEvaluator.Evaluate(request.CloudProvider, request.PolicyReferences) is null)
+            .WithMessage(request =>
+                PolicyPackCloudTargetMismatchEvaluator.Evaluate(request.CloudProvider, request.PolicyReferences)
+                ?? PolicyPackCloudTargetMismatchEvaluator.GenericMismatchMessage);
+
         RuleFor(x => x.Constraints)
             .NotNull().WithMessage("Constraints must not be null.")
             .Must(c => c.Count <= 50).WithMessage("Constraints must not exceed 50 items.");

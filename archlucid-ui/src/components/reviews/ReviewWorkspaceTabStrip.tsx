@@ -1,6 +1,5 @@
 "use client";
 
-import { ReviewWorkspaceMoreTabsMenu } from "@/components/reviews/ReviewWorkspaceMoreTabsMenu";
 import {
   REVIEW_WORKSPACE_TAB_STRIP_TEST_ID,
 } from "@/components/reviews/ReviewWorkspaceShell";
@@ -100,17 +99,81 @@ function tabOptionLabel(
   return `${baseLabel} (${count})`;
 }
 
+function renderTabTrigger(
+  props: ReviewWorkspaceTabStripProps,
+  tabId: ReviewDetailTabId,
+  counts: ReviewWorkspaceTabCounts,
+): React.JSX.Element {
+  const count = countForTab(tabId, counts);
+
+  return (
+    <TabsTrigger
+      key={tabId}
+      value={tabId}
+      data-testid={`review-detail-workspace-tab-${tabId}`}
+      className="whitespace-nowrap"
+    >
+      <span className="inline-flex items-center gap-2">
+        {resolveReviewWorkspaceTabLabel(props.lifecycle, tabId)}
+        {props.isTabNewSinceLastVisit?.(tabId) === true ? (
+          <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
+        ) : null}
+      </span>
+      {count !== null ? (
+        <span
+          className={cn(
+            "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+          aria-label={
+            tabId === "decisions-remediation"
+              ? clarificationsTabAriaLabel(count)
+              : tabId === "findings"
+                ? findingsTabAriaLabel(count)
+                : undefined
+          }
+          data-testid={
+            tabId === "decisions-remediation"
+              ? "architecture-workspace-clarifications-count"
+              : tabId === "architecture"
+                ? "architecture-workspace-diagram-count"
+                : tabId === "findings"
+                  ? "architecture-workspace-findings-count"
+                  : undefined
+          }
+        >
+          {count}
+        </span>
+      ) : null}
+    </TabsTrigger>
+  );
+}
+
 /** TB-2367 — single tab list for create-home and committed review workspace lifecycles. */
+function ReviewWorkspaceTabDivider(): React.JSX.Element {
+  return (
+    <span
+      role="separator"
+      aria-orientation="vertical"
+      aria-hidden
+      className="mx-1 hidden h-6 w-px shrink-0 self-center bg-neutral-300 md:inline-block dark:bg-neutral-700"
+      data-testid="review-detail-workspace-tab-divider"
+    />
+  );
+}
+
 export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): React.JSX.Element {
   const counts = props.tabCounts ?? {};
   const tabsVariant = props.lifecycle === "create-home" ? "pill" : "line";
-  const allTabIds = [...props.resolvedTabs.visibleTabIds, ...props.resolvedTabs.moreTabIds];
+  const primaryTabIds = props.resolvedTabs.visibleTabIds;
+  const secondaryTabIds = props.resolvedTabs.moreTabIds;
+  const allTabIds = [...primaryTabIds, ...secondaryTabIds];
 
   return (
     <div className="space-y-2" data-testid={REVIEW_WORKSPACE_TAB_STRIP_TEST_ID}>
       <div className="md:hidden">
         <Label htmlFor="review-detail-workspace-sections-select" className={OPERATOR_TYPOGRAPHY.helper}>
-          More sections
+          Review section
         </Label>
         <select
           id="review-detail-workspace-sections-select"
@@ -124,15 +187,32 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
             props.onTabChange(resolveReviewDetailTab(event.target.value));
           }}
         >
-          {allTabIds.map((tabId) => {
-            const count = countForTab(tabId, counts);
+          {primaryTabIds.length > 0 ? (
+            <optgroup label="Primary sections">
+              {primaryTabIds.map((tabId) => {
+                const count = countForTab(tabId, counts);
 
-            return (
-              <option key={tabId} value={tabId}>
-                {tabOptionLabel(props.lifecycle, tabId, count)}
-              </option>
-            );
-          })}
+                return (
+                  <option key={tabId} value={tabId}>
+                    {tabOptionLabel(props.lifecycle, tabId, count)}
+                  </option>
+                );
+              })}
+            </optgroup>
+          ) : null}
+          {secondaryTabIds.length > 0 ? (
+            <optgroup label="Additional sections">
+              {secondaryTabIds.map((tabId) => {
+                const count = countForTab(tabId, counts);
+
+                return (
+                  <option key={tabId} value={tabId}>
+                    {tabOptionLabel(props.lifecycle, tabId, count)}
+                  </option>
+                );
+              })}
+            </optgroup>
+          ) : null}
         </select>
       </div>
 
@@ -143,70 +223,18 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
           value={props.activeTab}
           onValueChange={(value) => props.onTabChange(resolveReviewDetailTab(value))}
         >
-          {/* ARIA: tablist may only contain role="tab" children, so the More sections
-              menu sits in a sibling row visually aligned next to the tab strip. */}
-          <div className="flex w-max min-w-full items-center gap-1">
-            <TabsList
-              aria-label="Review workspace sections"
-              data-testid={REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID}
-              className={cn(
-                tabsVariant === "line" ? "overflow-y-hidden" : undefined,
-                "-mx-1 flex w-max min-w-0 items-center gap-1 overflow-x-auto px-1",
-              )}
-            >
-              {props.resolvedTabs.visibleTabIds.map((tabId) => {
-                const count = countForTab(tabId, counts);
-
-                return (
-                  <TabsTrigger
-                    key={tabId}
-                    value={tabId}
-                    data-testid={`review-detail-workspace-tab-${tabId}`}
-                    className="whitespace-nowrap"
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      {resolveReviewWorkspaceTabLabel(props.lifecycle, tabId)}
-                      {props.isTabNewSinceLastVisit?.(tabId) === true ? (
-                        <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
-                      ) : null}
-                    </span>
-                    {count !== null ? (
-                      <span
-                        className={cn(
-                          "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
-                          OPERATOR_TYPOGRAPHY.helper,
-                        )}
-                        aria-label={
-                          tabId === "decisions-remediation"
-                            ? clarificationsTabAriaLabel(count)
-                            : tabId === "findings"
-                              ? findingsTabAriaLabel(count)
-                              : undefined
-                        }
-                        data-testid={
-                          tabId === "decisions-remediation"
-                            ? "architecture-workspace-clarifications-count"
-                            : tabId === "architecture"
-                              ? "architecture-workspace-diagram-count"
-                              : tabId === "findings"
-                                ? "architecture-workspace-findings-count"
-                                : undefined
-                        }
-                      >
-                        {count}
-                      </span>
-                    ) : null}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-            <ReviewWorkspaceMoreTabsMenu
-              lifecycle={props.lifecycle}
-              moreTabIds={props.resolvedTabs.moreTabIds}
-              activeTab={props.activeTab}
-              onTabChange={props.onTabChange}
-            />
-          </div>
+          <TabsList
+            aria-label="Review workspace sections"
+            data-testid={REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID}
+            className={cn(
+              tabsVariant === "line" ? "overflow-y-hidden" : undefined,
+              "-mx-1 overflow-x-auto px-1",
+            )}
+          >
+            {primaryTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
+            {secondaryTabIds.length > 0 ? <ReviewWorkspaceTabDivider /> : null}
+            {secondaryTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
+          </TabsList>
         </Tabs>
       </div>
     </div>

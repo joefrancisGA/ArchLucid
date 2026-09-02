@@ -39,6 +39,17 @@ describe("execution-vs-quality-outcome-copy (TB-965)", () => {
     expect(execution.remediation.toLowerCase()).toContain("retry");
   });
 
+  it("explains deferred-pipeline invalidOperation via reason code", () => {
+    const copy = resolveLastFailureCardCopy({
+      failureClass: "invalidOperation",
+      reasonCode: "NoScheduledAgentTasks",
+    });
+
+    expect(copy.axis).toBe("execution");
+    expect(copy.remediation.toLowerCase()).toContain("deferred pipeline");
+    expect(copy.remediation.toLowerCase()).not.toContain("intake fields");
+  });
+
   it("maps reject categories to plain language without model jargon overload", () => {
     expect(plainLanguageRejectCategoryLabel("structural")).toMatch(/Structure/i);
     expect(plainLanguageRejectCategoryLabel("semantic")).toMatch(/Substance/i);

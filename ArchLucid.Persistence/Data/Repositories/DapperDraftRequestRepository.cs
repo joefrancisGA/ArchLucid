@@ -116,7 +116,8 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
         DraftRequestDocument document,
         string? redirectReason,
         string? spawnedRunId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? spawnedArchitectureVersionId = null)
     {
         ArgumentNullException.ThrowIfNull(document);
         PersistenceTenantScope.RequireEntityTenant(tenantId);
@@ -133,6 +134,7 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
                                ReadModelSchemaVersion = 0,
                                RedirectReason = @RedirectReason,
                                SpawnedRunId = @SpawnedRunId,
+                               SpawnedArchitectureVersionId = @SpawnedArchitectureVersionId,
                                UpdatedUtc = @UpdatedUtc
                            WHERE DraftId = @DraftId
                              AND TenantId = @TenantId
@@ -156,6 +158,7 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
                     DocumentJson = documentJson,
                     RedirectReason = redirectReason,
                     SpawnedRunId = spawnedRunId,
+                    SpawnedArchitectureVersionId = spawnedArchitectureVersionId,
                     UpdatedUtc = now,
                 },
                 cancellationToken: cancellationToken,

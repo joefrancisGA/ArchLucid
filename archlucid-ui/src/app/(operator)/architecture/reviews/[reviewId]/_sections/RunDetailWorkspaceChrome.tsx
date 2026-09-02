@@ -11,13 +11,8 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { ReviewAskDock } from "@/components/reviews/ReviewAskDock";
-import { ReviewMeetingPacketButton } from "@/components/reviews/ReviewMeetingPacketButton";
-import { ReviewShareCollaboratorStrip } from "@/components/reviews/ReviewShareCollaboratorStrip";
+import { ReviewHeaderShareMenu } from "@/components/reviews/ReviewHeaderShareMenu";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
-import {
-  PageContextualHelpButton,
-  PAGE_HELP_SHORT_TRIGGER_TEXT,
-} from "@/components/usability/PageContextualHelpButton";
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { formatActionActorName } from "@/lib/action-actor-display";
@@ -113,17 +108,32 @@ function renderMetadataField(field: ReviewMetadataField): React.JSX.Element {
 function resolveMetadataDisclosureSummary(
   unrecordedFieldCount: number,
   metadataContext: ReturnType<typeof deriveReviewRecordMetadataContext>,
-  workspaceStatus: RunDetailWorkspaceStatus,
 ): string {
   if (metadataContext === "not-finalized") {
-    if (workspaceStatus.kind === "execution-failed") {
-      return "Finalization metadata (available after review completes)";
-    }
-
     return "Record metadata (pending finalization)";
   }
 
   return `Record metadata (${unrecordedFieldCount} fields not recorded)`;
+}
+
+function isReviewPipelineIncomplete(workspaceStatus: RunDetailWorkspaceStatus): boolean {
+  return (
+    workspaceStatus.kind === "draft"
+    || workspaceStatus.kind === "analysis-in-progress"
+    || workspaceStatus.kind === "execution-failed"
+    || workspaceStatus.kind === "quality-gate-rejected"
+  );
+}
+
+function shouldShowReviewRecordMetadata(
+  metadataContext: ReturnType<typeof deriveReviewRecordMetadataContext>,
+  workspaceStatus: RunDetailWorkspaceStatus,
+): boolean {
+  if (metadataContext !== "not-finalized") {
+    return true;
+  }
+
+  return !isReviewPipelineIncomplete(workspaceStatus);
 }
 
 /** Customer-facing review header — title and review identity without repeating sponsor metrics. */
@@ -136,10 +146,10 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   const collapseMetadataFieldSet = buildCollapseMetadataFields(props, absentReasons);
   const unrecordedFieldCount = collapseMetadataFieldSet.filter((field) => field.value === null).length;
   const collapseMetadataFields = unrecordedFieldCount >= 3;
+  const showReviewRecordMetadata = shouldShowReviewRecordMetadata(metadataContext, props.workspaceStatus);
   const metadataDisclosureSummary = resolveMetadataDisclosureSummary(
     unrecordedFieldCount,
     metadataContext,
-    props.workspaceStatus,
   );
 
   return (
@@ -151,34 +161,38 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         headingLevel="h1"
         subtitle={props.eyebrowLabel}
         metadata={
-          <span className="inline-flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="inline-flex min-w-0 items-center gap-1">
-              <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
-              <code className="max-w-[14rem] truncate font-mono select-all">{props.reviewIdentifierLabel}</code>
-              <CopyIdButton value={props.runId} aria-label="Copy review ID" />
-            </span>
-            {props.signedReviewRecordId !== null && props.signedReviewRecordIdLabel !== null ? (
+          <details
+            className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+            data-testid="run-detail-copy-identifiers-disclosure"
+          >
+            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+              Copy identifiers
+            </summary>
+            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
               <span className="inline-flex min-w-0 items-center gap-1">
-                <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
-                <code className="max-w-[14rem] truncate font-mono select-all">{props.signedReviewRecordIdLabel}</code>
-                <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
+                <code className="max-w-[14rem] truncate font-mono select-all">{props.reviewIdentifierLabel}</code>
+                <CopyIdButton value={props.runId} aria-label="Copy review ID" />
               </span>
-            ) : null}
-          </span>
+              {props.signedReviewRecordId !== null && props.signedReviewRecordIdLabel !== null ? (
+                <span className="inline-flex min-w-0 items-center gap-1">
+                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
+                  <code className="max-w-[14rem] truncate font-mono select-all">{props.signedReviewRecordIdLabel}</code>
+                  <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
+                </span>
+              ) : null}
+            </div>
+          </details>
         }
         actions={
           <>
-            <ReviewShareCollaboratorStrip
+            <ReviewHeaderShareMenu
               runId={props.runId}
               isCommitted={props.signedReviewRecordId !== null}
-            />
-            <ReviewMeetingPacketButton
-              runId={props.runId}
               findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
             />
             <ReviewAskDock runId={props.runId} reviewTitle={h1Title} />
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
-            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           </>
         }
       >
@@ -195,23 +209,25 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               <StatusTag kind={props.workspaceStatus.statusTagKind} label={props.workspaceStatus.label} />
             </dd>
           </div>
-          {collapseMetadataFields ? (
-            <div className="sm:col-span-2 lg:col-span-2">
-              <details
-                className="rounded-lg border border-neutral-200 dark:border-neutral-800"
-                data-testid="run-detail-record-metadata-disclosure"
-              >
-                <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  {metadataDisclosureSummary}
-                </summary>
-                <div className="grid gap-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800 sm:grid-cols-2">
-                  {collapseMetadataFieldSet.map(renderMetadataField)}
-                </div>
-              </details>
-            </div>
-          ) : (
-            metadataFields.map(renderMetadataField)
-          )}
+          {showReviewRecordMetadata ? (
+            collapseMetadataFields ? (
+              <div className="sm:col-span-2 lg:col-span-2">
+                <details
+                  className="rounded-lg border border-neutral-200 dark:border-neutral-800"
+                  data-testid="run-detail-record-metadata-disclosure"
+                >
+                  <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                    {metadataDisclosureSummary}
+                  </summary>
+                  <div className="grid gap-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800 sm:grid-cols-2">
+                    {collapseMetadataFieldSet.map(renderMetadataField)}
+                  </div>
+                </details>
+              </div>
+            ) : (
+              metadataFields.map(renderMetadataField)
+            )
+          ) : null}
         </dl>
       </OperatorPageHeader>
     </div>

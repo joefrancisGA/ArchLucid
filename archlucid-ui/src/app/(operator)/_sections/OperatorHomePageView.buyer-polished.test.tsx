@@ -117,7 +117,7 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
     expect(orderedLandmarks).toEqual(["operator-home-hero-section"]);
   });
 
-  it("renders returning-home hierarchy with recommended next before recent reviews", () => {
+  it("renders returning-home hierarchy with metrics and unfinished work before recent reviews", () => {
     render(
       <OperatorHomePageView
         model={mockHomeModel({
@@ -136,7 +136,6 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
 
     const primaryContent = screen.getByTestId("operator-home-primary-content");
     const orderedLandmarks = [
-      "operator-home-recommended-next-card",
       "operator-home-workspace-metrics-strip",
       "operator-home-start-something",
       "home-block-runs-dashboard",
@@ -146,11 +145,11 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
       .map((node) => node.getAttribute("data-testid"));
 
     expect(orderedLandmarks).toEqual([
-      "operator-home-recommended-next-card",
       "operator-home-workspace-metrics-strip",
       "operator-home-start-something",
       "home-block-runs-dashboard",
     ]);
     expect(screen.queryByTestId("operator-home-hero-section")).toBeNull();
+    expect(screen.queryByTestId("operator-home-recommended-next-card")).toBeNull();
   });
 });
