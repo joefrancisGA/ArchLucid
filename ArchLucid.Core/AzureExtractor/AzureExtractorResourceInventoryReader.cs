@@ -149,6 +149,11 @@ public static class AzureExtractorResourceInventoryReader
             return sku.GetRawText();
         }
 
+        if (sku.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            return sku.GetRawText();
+        }
+
         if (sku.ValueKind is JsonValueKind.Object && sku.TryGetProperty("name", out JsonElement skuNameProp)
             && TryReadStringToken(skuNameProp, out string? skuName))
         {

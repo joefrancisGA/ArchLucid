@@ -182,6 +182,13 @@ public sealed partial class FindingJsonConverter
             return true;
         }
 
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.ValueKind == JsonValueKind.True ? 1.0 : 0.0;
+
+            return true;
+        }
+
         value = default;
 
         return false;
@@ -195,6 +202,13 @@ public sealed partial class FindingJsonConverter
         if (element.ValueKind == JsonValueKind.String
             && TryParseWholeNumberString(element.GetString(), out value))
             return true;
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.ValueKind == JsonValueKind.True ? 1 : 0;
+
+            return true;
+        }
 
         value = default;
 
@@ -240,6 +254,13 @@ public sealed partial class FindingJsonConverter
         if (element.ValueKind == JsonValueKind.String
             && decimal.TryParse(element.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out value))
             return true;
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.ValueKind == JsonValueKind.True ? 1m : 0m;
+
+            return true;
+        }
 
         value = default;
 

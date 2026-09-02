@@ -89,6 +89,32 @@ public sealed class AzureExtractorResourceInventoryReaderTests
         lines[0].SkuName.Should().Be("12345");
     }
 
+    [Fact]
+    public void TryReadFromZip_boolean_sku_coerces_to_string()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "name": "storage1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "location": "eastus",
+                "sku": true
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        error.Should().BeNull();
+        lines.Should().NotBeNull();
+        lines!.Should().ContainSingle();
+        lines[0].SkuName.Should().Be("true");
+    }
+
     private static byte[] BuildZip(string resourcesJson)
     {
         using MemoryStream ms = new();
