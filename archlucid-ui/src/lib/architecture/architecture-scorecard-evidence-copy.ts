@@ -5,7 +5,7 @@ import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/
 
 import { ARCHITECTURE_SCORECARD_PATH } from "./architecture-scorecard-route";
 
-export const ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE_HEADING = "What this scorecard is not";
+export const ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE_HEADING = "Scope of this scorecard";
 
 export const ARCHITECTURE_SCORECARD_FOLLOW_UPS_TITLE = "Where to go next";
 

@@ -28,6 +28,9 @@ export function TimeZonePreferencePanel({
   return (
     <section className="space-y-3" data-testid="time-zone-preference-panel" aria-labelledby={labelledById}>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{PREFERENCES_TIME_ZONE_USAGE}</p>
+      <span id={`${controlId}-label`} className="sr-only">
+        Time zone
+      </span>
       <IanaTimeZoneCombobox
         ianaTimeZoneId={ianaTimeZoneId}
         onIanaTimeZoneIdChange={onIanaTimeZoneIdChange}
