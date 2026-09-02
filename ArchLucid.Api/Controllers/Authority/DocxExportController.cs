@@ -103,16 +103,18 @@ public sealed class DocxExportController(
         ArchitectureRunDetail? architectureDetail =
             await _runDetailQueryService.GetRunDetailAsync(runId.ToString("N"), ct).ConfigureAwait(false);
 
-        if (architectureDetail is not null)
+        if (architectureDetail is null)
+            return this.ConflictProblem(
+                $"Export blocked: run '{runId:N}' lifecycle detail was not found.",
+                ProblemTypes.Conflict);
+
+        try
         {
-            try
-            {
-                AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(architectureDetail, runId.ToString("N"));
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(architectureDetail, runId.ToString("N"));
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
 
         ManifestDocument? manifest = runDetail.GoldenManifest;
