@@ -71,14 +71,14 @@ describe("MermaidDiagram", () => {
     expect(renderMock).toHaveBeenCalledWith(expect.stringMatching(/^help-mermaid-/), "flowchart LR\n  A --> B");
   });
 
-  it("keeps raw source behind a collapsed disclosure", async () => {
+  it("shows diagram source without a collapsible disclosure", async () => {
     render(<MermaidDiagram source={"flowchart LR\n  A --> B"} accessibleName="Sample help diagram" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("rendered-mermaid")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("View diagram source")).toBeInTheDocument();
+    expect(screen.getByText("Diagram source")).toBeInTheDocument();
   });
 
   it("scales the SVG host to the full frame width", async () => {
