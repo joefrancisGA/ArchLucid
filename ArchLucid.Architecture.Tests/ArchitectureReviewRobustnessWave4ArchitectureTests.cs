@@ -108,7 +108,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     public void Suggestion36_replay_skips_agent_tasks_when_authority_complete()
     {
         string replayPrepare = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "ReplayRunService.Prepare.cs"));
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunPrepareStage.cs"));
 
         replayPrepare.Should().Contain("AuthorityPipelineComplete");
         replayPrepare.Should().Contain("NoScheduledAgentTasksException");

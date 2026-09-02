@@ -113,33 +113,33 @@ internal static class PilotProofPacketCommand
 
         string normalized = apiBaseUrl.Trim().TrimEnd('/');
         using CliHttpProbeSession session = CliHttpProbeSession.ForApi(normalized, config, TimeSpan.FromMinutes(3));
-        HttpClient http = session.Http;
+        IBuyerProofArtifactCollector collector = new BuyerProofArtifactCollector();
+        BuyerProofArtifactCollectionResult collection = await collector.CollectAsync(runId, session, includePdf: false, cancellationToken);
 
-        CliPilotRunDeltasFetchResult deltasFetch = await session.FetchPilotRunDeltasAsync(runId, cancellationToken);
-
-        if (deltasFetch.NotFound)
+        if (collection.Status == BuyerProofArtifactCollectionStatus.NotFound)
         {
-            await errorWriter.WriteLineAsync($"Run '{runId}' was not found (or is out of scope).");
+            await errorWriter.WriteLineAsync($"Run '{collection.RunId}' was not found (or is out of scope).");
 
             return new PilotProofPacketWriteOutcome(CliExitCode.UsageError, outputDirectory);
         }
 
-        if (!deltasFetch.Success)
+        if (collection.Status == BuyerProofArtifactCollectionStatus.GateFailed)
         {
-            await errorWriter.WriteLineAsync(
-                $"Error fetching pilot-run-deltas: {deltasFetch.StatusCode}: {deltasFetch.Body}");
+            await errorWriter.WriteLineAsync(collection.ErrorMessage);
+
+            return new PilotProofPacketWriteOutcome(CliExitCode.UsageError, outputDirectory);
+        }
+
+        if (collection.Status != BuyerProofArtifactCollectionStatus.Success || collection.Artifacts is null)
+        {
+            await errorWriter.WriteLineAsync(collection.ErrorMessage);
 
             return new PilotProofPacketWriteOutcome(CliExitCode.OperationFailed, outputDirectory);
         }
 
-        string deltasJson = deltasFetch.Body;
-
-        if (!BuyerProofPackCommitGuard.TryValidate(deltasJson, out bool demoWarning, out string? gateError))
-        {
-            await errorWriter.WriteLineAsync(gateError);
-
-            return new PilotProofPacketWriteOutcome(CliExitCode.UsageError, outputDirectory);
-        }
+        string deltasJson = collection.Artifacts.DeltasJson;
+        bool demoWarning = collection.Artifacts.DemoWarning;
+        string? firstValueMarkdown = collection.Artifacts.FirstValueMarkdown;
 
         string dir = BuyerPacketFolderWriter.EnsureDirectory(outputDirectory);
 
@@ -157,6 +157,8 @@ internal static class PilotProofPacketCommand
 
         session.SetAcceptJson();
 
+        HttpClient http = session.Http;
+
         using HttpResponseMessage aggregateResponse =
             await http.GetAsync($"v1/explain/runs/{Uri.EscapeDataString(runId)}/aggregate", cancellationToken);
 
@@ -165,13 +167,6 @@ internal static class PilotProofPacketCommand
             : null;
 
         session.SetAcceptMarkdown();
-
-        using HttpResponseMessage mdResponse =
-            await http.GetAsync($"v1/pilots/runs/{Uri.EscapeDataString(runId)}/first-value-report", cancellationToken);
-
-        string? firstValueMarkdown = mdResponse.IsSuccessStatusCode
-            ? await mdResponse.Content.ReadAsStringAsync(cancellationToken)
-            : null;
 
         if (firstValueMarkdown is not null)
         {

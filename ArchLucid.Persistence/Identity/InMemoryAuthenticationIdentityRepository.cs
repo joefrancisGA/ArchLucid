@@ -17,17 +17,13 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
         _ = cancellationToken;
         ArgumentNullException.ThrowIfNull(key);
 
-        string storageKey = BuildStorageKey(key);
+        string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(key);
 
         if (!_activeExternalKeys.TryGetValue(storageKey, out Guid identityId))
-        {
             return Task.FromResult<AuthenticationIdentityRecord?>(null);
-        }
 
         if (!_byId.TryGetValue(identityId, out AuthenticationIdentityRecord? record) || record.DisabledUtc is not null)
-        {
             return Task.FromResult<AuthenticationIdentityRecord?>(null);
-        }
 
         return Task.FromResult<AuthenticationIdentityRecord?>(record);
     }
@@ -39,17 +35,13 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
         _ = cancellationToken;
         ArgumentNullException.ThrowIfNull(key);
 
-        string storageKey = BuildStorageKey(key);
+        string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(key);
 
         AuthenticationIdentityRecord? active = _byId.Values
-            .Where(row => string.Equals(BuildStorageKey(new ExternalIdentityKey
-            {
-                ProviderType = row.ProviderType,
-                NormalizedIssuer = row.NormalizedIssuer,
-                Subject = row.Subject,
-                TenantId = row.TenantId,
-                TenantIdentityProviderId = row.TenantIdentityProviderId
-            }), storageKey, StringComparison.Ordinal))
+            .Where(row => string.Equals(
+                AuthenticationIdentityRepositoryCore.BuildStorageKey(AuthenticationIdentityRepositoryCore.ToExternalKey(row)),
+                storageKey,
+                StringComparison.Ordinal))
             .OrderBy(row => row.DisabledUtc is null ? 0 : 1)
             .ThenByDescending(row => row.CreatedUtc)
             .FirstOrDefault();
@@ -91,30 +83,17 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
             NormalizedIssuer = insert.NormalizedIssuer,
             Subject = insert.Subject,
             TenantId = insert.TenantId,
-            TenantIdentityProviderId = insert.TenantIdentityProviderId
+            TenantIdentityProviderId = insert.TenantIdentityProviderId,
         };
 
-        string storageKey = BuildStorageKey(key);
+        string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(key);
 
         if (_activeExternalKeys.ContainsKey(storageKey))
-        {
             throw new DuplicateAuthenticationIdentityException(key);
-        }
 
-        AuthenticationIdentityRecord row = new()
-        {
-            Id = insert.Id != Guid.Empty ? insert.Id : Guid.NewGuid(),
-            UserId = insert.UserId,
-            ProviderType = insert.ProviderType,
-            NormalizedIssuer = insert.NormalizedIssuer,
-            Subject = insert.Subject,
-            NormalizedEmail = insert.NormalizedEmail,
-            DisplayEmail = insert.DisplayEmail,
-            EmailVerified = insert.EmailVerified,
-            TenantId = insert.TenantId,
-            TenantIdentityProviderId = insert.TenantIdentityProviderId,
-            CreatedUtc = TimeProvider.System.GetUtcNow()
-        };
+        AuthenticationIdentityRecord row = AuthenticationIdentityRepositoryCore.CreateFromInsert(
+            insert,
+            TimeProvider.System.GetUtcNow());
 
         _byId[row.Id] = row;
         _activeExternalKeys[storageKey] = row.Id;
@@ -127,37 +106,14 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
         _ = cancellationToken;
 
         if (!_byId.TryGetValue(identityId, out AuthenticationIdentityRecord? existing))
-        {
             return Task.CompletedTask;
-        }
 
-        AuthenticationIdentityRecord updated = new()
-        {
-            Id = existing.Id,
-            UserId = existing.UserId,
-            ProviderType = existing.ProviderType,
-            NormalizedIssuer = existing.NormalizedIssuer,
-            Subject = existing.Subject,
-            NormalizedEmail = existing.NormalizedEmail,
-            DisplayEmail = existing.DisplayEmail,
-            EmailVerified = existing.EmailVerified,
-            TenantId = existing.TenantId,
-            TenantIdentityProviderId = existing.TenantIdentityProviderId,
-            CreatedUtc = existing.CreatedUtc,
-            LastAuthenticatedUtc = existing.LastAuthenticatedUtc,
-            DisabledUtc = disabledUtc
-        };
+        AuthenticationIdentityRecord updated = AuthenticationIdentityRepositoryCore.WithDisabled(existing, disabledUtc);
 
         _byId[identityId] = updated;
 
-        string storageKey = BuildStorageKey(new ExternalIdentityKey
-        {
-            ProviderType = existing.ProviderType,
-            NormalizedIssuer = existing.NormalizedIssuer,
-            Subject = existing.Subject,
-            TenantId = existing.TenantId,
-            TenantIdentityProviderId = existing.TenantIdentityProviderId
-        });
+        string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(
+            AuthenticationIdentityRepositoryCore.ToExternalKey(existing));
 
         _activeExternalKeys.TryRemove(storageKey, out _);
 
@@ -169,40 +125,15 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
         _ = cancellationToken;
 
         if (!_byId.TryGetValue(identityId, out AuthenticationIdentityRecord? existing) || existing.DisabledUtc is null)
-        {
             return Task.FromResult(false);
-        }
 
-        AuthenticationIdentityRecord updated = new()
-        {
-            Id = existing.Id,
-            UserId = existing.UserId,
-            ProviderType = existing.ProviderType,
-            NormalizedIssuer = existing.NormalizedIssuer,
-            Subject = existing.Subject,
-            NormalizedEmail = existing.NormalizedEmail,
-            DisplayEmail = existing.DisplayEmail,
-            EmailVerified = existing.EmailVerified,
-            TenantId = existing.TenantId,
-            TenantIdentityProviderId = existing.TenantIdentityProviderId,
-            CreatedUtc = existing.CreatedUtc,
-            LastAuthenticatedUtc = existing.LastAuthenticatedUtc,
-            DisabledUtc = null
-        };
-
-        string storageKey = BuildStorageKey(new ExternalIdentityKey
-        {
-            ProviderType = existing.ProviderType,
-            NormalizedIssuer = existing.NormalizedIssuer,
-            Subject = existing.Subject,
-            TenantId = existing.TenantId,
-            TenantIdentityProviderId = existing.TenantIdentityProviderId
-        });
+        string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(
+            AuthenticationIdentityRepositoryCore.ToExternalKey(existing));
 
         if (_activeExternalKeys.TryGetValue(storageKey, out Guid occupantId) && occupantId != identityId)
-        {
             return Task.FromResult(false);
-        }
+
+        AuthenticationIdentityRecord updated = AuthenticationIdentityRepositoryCore.WithReEnabled(existing);
 
         _byId[identityId] = updated;
         _activeExternalKeys[storageKey] = identityId;
@@ -218,28 +149,9 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
         _ = cancellationToken;
 
         if (!_byId.TryGetValue(identityId, out AuthenticationIdentityRecord? existing))
-        {
             return Task.CompletedTask;
-        }
 
-        AuthenticationIdentityRecord updated = new()
-        {
-            Id = existing.Id,
-            UserId = existing.UserId,
-            ProviderType = existing.ProviderType,
-            NormalizedIssuer = existing.NormalizedIssuer,
-            Subject = existing.Subject,
-            NormalizedEmail = existing.NormalizedEmail,
-            DisplayEmail = existing.DisplayEmail,
-            EmailVerified = existing.EmailVerified,
-            TenantId = existing.TenantId,
-            TenantIdentityProviderId = existing.TenantIdentityProviderId,
-            CreatedUtc = existing.CreatedUtc,
-            LastAuthenticatedUtc = authenticatedUtc,
-            DisabledUtc = existing.DisabledUtc
-        };
-
-        _byId[identityId] = updated;
+        _byId[identityId] = AuthenticationIdentityRepositoryCore.WithLastAuthenticated(existing, authenticatedUtc);
 
         return Task.CompletedTask;
     }
@@ -252,7 +164,4 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
 
         return Task.FromResult(hasActive);
     }
-
-    private static string BuildStorageKey(ExternalIdentityKey key) =>
-        $"{AuthenticationProviderTypeMapper.ToStorageString(key.ProviderType)}|{key.NormalizedIssuer}|{key.Subject}|{AuthenticationProviderTypeMapper.BuildIdentityScopeKey(key.TenantId, key.TenantIdentityProviderId)}";
 }

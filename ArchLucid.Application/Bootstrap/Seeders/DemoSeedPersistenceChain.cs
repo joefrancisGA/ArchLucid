@@ -5,6 +5,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
@@ -50,7 +51,8 @@ public sealed class DemoSeedPersistenceChain(DemoSeedSeederDependencies deps)
         DateTime createdUtc,
         IReadOnlyList<Finding> findings,
         string auditSource,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        AuthorityCommittedChainSeedCustomization? seedCustomization = null)
     {
         AuthorityManifestPersistResult chain = await deps.AuthorityCommittedManifestChainWriter
             .PersistCommittedChainAsync(
@@ -64,7 +66,8 @@ public sealed class DemoSeedPersistenceChain(DemoSeedSeederDependencies deps)
                 cancellationToken,
                 connection: null,
                 transaction: null,
-                committedFindingsOverride: findings)
+                committedFindingsOverride: findings,
+                seedCustomization: seedCustomization)
             .ConfigureAwait(false);
 
         await AuthorityCommittedChainDurableAudit.TryLogAsync(
@@ -110,4 +113,7 @@ public sealed class DemoSeedPersistenceChain(DemoSeedSeederDependencies deps)
 
         await deps.RunRepository.UpdateAsync(row, cancellationToken);
     }
+
+    public Task SaveExportRecordAsync(RunExportRecord record, CancellationToken cancellationToken) =>
+        deps.RunExportRecordRepository.CreateAsync(record, cancellationToken);
 }

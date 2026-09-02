@@ -1,33 +1,11 @@
-﻿/** Coordinator architecture run linkage graph (GET /v1/architecture/reviews/{runId}/provenance). */
+﻿import type { components } from "@/lib/openapi-schemas";
 
-export type ArchitectureLinkageNode = {
-  id: string;
-  type: string;
-  referenceId: string;
-  name: string;
-  metadata?: Record<string, string>;
-};
+/** Coordinator architecture run linkage graph (GET /v1/architecture/reviews/{runId}/provenance). */
 
-export type ArchitectureLinkageEdge = {
-  id: string;
-  type: string;
-  fromNodeId: string;
-  toNodeId: string;
-  metadata?: Record<string, string>;
-};
+export type ArchitectureLinkageNode = components["schemas"]["ArchitectureLinkageNode"];
 
-export type ArchitectureTraceTimelineEntry = {
-  timestampUtc: string;
-  kind: string;
-  label: string;
-  referenceId?: string | null;
-  metadata?: Record<string, string>;
-};
+export type ArchitectureLinkageEdge = components["schemas"]["ArchitectureLinkageEdge"];
 
-export type ArchitectureRunProvenanceGraph = {
-  runId: string;
-  nodes: ArchitectureLinkageNode[];
-  edges: ArchitectureLinkageEdge[];
-  timeline: ArchitectureTraceTimelineEntry[];
-  traceabilityGaps: string[];
-};
+export type ArchitectureTraceTimelineEntry = components["schemas"]["ArchitectureTraceTimelineEntry"];
+
+export type ArchitectureRunProvenanceGraph = components["schemas"]["ArchitectureRunProvenanceGraph"];

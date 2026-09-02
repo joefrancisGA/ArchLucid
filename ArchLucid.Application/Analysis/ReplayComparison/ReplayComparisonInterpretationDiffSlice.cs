@@ -1,13 +1,25 @@
+using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.ArchitectureIntelligence;
-using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.AgentEvaluation;
-using ArchLucid.Application.Diffs;
 
-namespace ArchLucid.Application.Analysis;
+namespace ArchLucid.Application.Analysis.ReplayComparison;
 
-public sealed partial class EndToEndReplayComparisonService
+/// <inheritdoc cref="IReplayComparisonDiffSlice" />
+public sealed class ReplayComparisonInterpretationDiffSlice : IReplayComparisonDiffSlice
 {
+    public Task ApplyAsync(ReplayComparisonBuildContext context, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        AddInterpretationNotes(
+            context.Report,
+            context.LeftEngineProvenance,
+            context.RightEngineProvenance);
+
+        return Task.CompletedTask;
+    }
+
     private static void AddInterpretationNotes(
         EndToEndReplayComparisonReport report,
         ReviewRunEngineProvenance? leftEngineProvenance,
@@ -63,7 +75,6 @@ public sealed partial class EndToEndReplayComparisonService
             report.InterpretationNotes.Add(
                 "The resolved manifest changed, but agent outputs were not compared — confirm agent result availability on both runs.");
         }
-
         else if (report.RunDiff.ManifestVersionsDiffer)
         {
             report.InterpretationNotes.Add(

@@ -1,6 +1,6 @@
 using System.Reflection;
 
-using ArchLucid.Application;
+using ArchLucid.Application.Replay;
 
 using FluentAssertions;
 
@@ -12,9 +12,9 @@ namespace ArchLucid.Architecture.Tests;
 public sealed class ReplayReadOnlyScopeArchitectureTests
 {
     [Fact]
-    public void ReplayRunService_depends_on_run_detail_query_service_for_source_hydration()
+    public void ReplayRunPrepareStage_depends_on_run_detail_query_service_for_source_hydration()
     {
-        Type serviceType = typeof(ReplayRunService);
+        Type serviceType = typeof(ReplayRunPrepareStage);
         ConstructorInfo? ctor = serviceType.GetConstructors(BindingFlags.Instance | BindingFlags.Public).FirstOrDefault();
 
         ctor.Should().NotBeNull();
@@ -28,9 +28,9 @@ public sealed class ReplayReadOnlyScopeArchitectureTests
     }
 
     [Fact]
-    public void ReplayRunService_depends_on_authority_run_repository_for_distinct_replay_persistence()
+    public void ReplayRunPrepareStage_depends_on_authority_run_repository_for_distinct_replay_persistence()
     {
-        Type serviceType = typeof(ReplayRunService);
+        Type serviceType = typeof(ReplayRunPrepareStage);
         ConstructorInfo? ctor = serviceType.GetConstructors(BindingFlags.Instance | BindingFlags.Public).FirstOrDefault();
 
         ctor.Should().NotBeNull();
@@ -57,14 +57,13 @@ public sealed class ReplayReadOnlyScopeArchitectureTests
     }
 
     [Fact]
-    public void ReplayRunService_commits_authority_chain_under_replay_run_id_not_original()
+    public void ReplayRunCommitStage_commits_authority_chain_under_replay_run_id_not_original()
     {
         string root = FindRepoRoot();
-        string applicationDir = Path.Combine(root, "ArchLucid.Application");
-        string[] partialPaths = Directory.GetFiles(applicationDir, "ReplayRunService*.cs");
-        partialPaths.Should().NotBeEmpty("ReplayRunService partial class files must exist under ArchLucid.Application.");
+        string commitStagePath = Path.Combine(root, "ArchLucid.Application", "Replay", "ReplayRunCommitStage.cs");
+        File.Exists(commitStagePath).Should().BeTrue("ReplayRunCommitStage must exist under ArchLucid.Application/Replay.");
 
-        string source = string.Concat(partialPaths.OrderBy(static path => path, StringComparer.Ordinal).Select(File.ReadAllText));
+        string source = File.ReadAllText(commitStagePath);
         // Collapse whitespace so multiline PersistCommittedChainAsync calls still match.
         string compact = System.Text.RegularExpressions.Regex.Replace(source, @"\s+", " ");
 
