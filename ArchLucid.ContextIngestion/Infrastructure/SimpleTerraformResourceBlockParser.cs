@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace ArchLucid.ContextIngestion.Infrastructure;
@@ -17,6 +18,12 @@ internal static class SimpleTerraformResourceBlockParser
     private static readonly Regex ScalarAssignmentRegex = new(
         """
         ^\s*(?<key>[A-Za-z0-9_-]+)\s*=\s*(?<value>.+?)\s*$
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ArrayAssignmentRegex = new(
+        """
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*=\s*\[
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -81,6 +88,26 @@ internal static class SimpleTerraformResourceBlockParser
 
             if (line.StartsWith("${", StringComparison.Ordinal))
                 continue;
+
+            Match arrayMatch = ArrayAssignmentRegex.Match(line);
+
+            if (arrayMatch.Success)
+            {
+                string arrayKey = arrayMatch.Groups["key"].Value;
+                string fromHere = string.Join('\n', lines[lineIndex..]);
+                int bracketIndex = fromHere.IndexOf('[', StringComparison.Ordinal);
+                string arrayBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBracketBody(fromHere, bracketIndex);
+
+                if (!string.IsNullOrWhiteSpace(arrayBody)
+                    && BicepArrayLiteralConverter.TryParseToJsonElement(arrayBody, out JsonElement arrayElement))
+                {
+                    BicepArrayLiteralConverter.TryAddParsedArrayProperty(properties, arrayKey, arrayElement);
+                }
+
+                int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
+                lineIndex += consumedArrayLines;
+                continue;
+            }
 
             Match nestedBlockMatch = NestedBlockStartRegex.Match(line);
 
@@ -234,5 +261,22 @@ internal static class SimpleTerraformResourceBlockParser
             return rawValue[1..^1];
 
         return rawValue;
+    }
+
+    private static int CountConsumedLines(string fromHere, string arrayBody)
+    {
+        if (string.IsNullOrEmpty(arrayBody) || string.IsNullOrEmpty(fromHere))
+            return 1;
+
+        int length = Math.Min(arrayBody.Length, fromHere.Length);
+        int newlineCount = 0;
+
+        for (int index = 0; index < length; index++)
+        {
+            if (fromHere[index] == '\n')
+                newlineCount++;
+        }
+
+        return newlineCount + 1;
     }
 }

@@ -1,3 +1,4 @@
+using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
 
@@ -308,5 +309,66 @@ public sealed class SimpleTerraformDeclarationParserTests
 
         result.Should().ContainSingle();
         result[0].Properties["tf.location"].Should().Be("eastus");
+    }
+
+    [Fact]
+    public async Task ParseAsync_IpSecurityRestrictionsArray_PreservesRulesForNetworkExpander()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        ip_security_restrictions = [
+                          {
+                            name       = "AllowAll"
+                            ip_address = "0.0.0.0/0"
+                            action     = "Allow"
+                          }
+                        ]
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ip_security_restrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+    }
+
+    [Fact]
+    public async Task ParseAsync_IpSecurityRestrictionsArray_ExpandsNetworkBaseline()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-hcl-appservice-network",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        ip_security_restrictions = [
+                          {
+                            name       = "AllowAll"
+                            ip_address = "0.0.0.0/0"
+                            action     = "Allow"
+                          }
+                        ]
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand(parsed);
+
+        expanded.Should().HaveCountGreaterThan(1);
+
+        CanonicalObject? baseline = expanded.FirstOrDefault(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint");
+
+        baseline.Should().NotBeNull();
     }
 }

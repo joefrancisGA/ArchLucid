@@ -207,6 +207,30 @@ public sealed class BicepInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_InlineSingleLineArray_PreservesIpSecurityRestrictions()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource app 'Microsoft.Web/sites@2022-03-01' = {
+                        properties: {
+                          siteConfig: {
+                            ipSecurityRestrictions: [{ name: 'AllowAll', ipAddress: '0.0.0.0/0', action: 'Allow' }]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ipsecurityrestrictions"].Should().Contain("0.0.0.0/0");
+    }
+
+    [Fact]
     public async Task ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander()
     {
         InfrastructureDeclarationReference declaration = new()

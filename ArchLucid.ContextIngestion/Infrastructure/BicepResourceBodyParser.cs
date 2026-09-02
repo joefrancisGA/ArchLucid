@@ -70,8 +70,7 @@ internal static class BicepResourceBodyParser
                 if (!string.IsNullOrWhiteSpace(arrayBody)
                     && BicepArrayLiteralConverter.TryParseToJsonElement(arrayBody, out JsonElement arrayElement))
                 {
-                    CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(properties, arrayKey, arrayElement);
-                    MirrorSecurityArrayAlias(properties, arrayKey, arrayElement);
+                    BicepArrayLiteralConverter.TryAddParsedArrayProperty(properties, arrayKey, arrayElement);
                 }
 
                 int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
@@ -197,22 +196,5 @@ internal static class BicepResourceBodyParser
         }
 
         return string.IsNullOrWhiteSpace(line) && inBlockComment;
-    }
-
-    private static void MirrorSecurityArrayAlias(
-        Dictionary<string, string> properties,
-        string rawKey,
-        JsonElement arrayElement)
-    {
-        if (!CanonicalInfrastructurePropertyBag.IsSecurityPriorityProperty(rawKey))
-            return;
-
-        string sanitizedKey = CanonicalInfrastructurePropertyBag.SanitizePropertyKey(rawKey).ToLowerInvariant();
-        string tfKey = $"tf.{sanitizedKey}";
-
-        if (!properties.TryGetValue(tfKey, out string? serialized) || string.IsNullOrWhiteSpace(serialized))
-            return;
-
-        properties[rawKey] = serialized;
     }
 }

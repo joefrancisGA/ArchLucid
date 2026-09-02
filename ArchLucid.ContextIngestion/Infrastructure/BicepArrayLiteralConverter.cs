@@ -4,13 +4,13 @@ using System.Text.RegularExpressions;
 namespace ArchLucid.ContextIngestion.Infrastructure;
 
 /// <summary>
-///     Converts lightweight Bicep array literals into canonical JSON for <c>tf.*</c> property bags.
+///     Converts lightweight Bicep/HCL array literals into canonical JSON for <c>tf.*</c> property bags.
 /// </summary>
 internal static class BicepArrayLiteralConverter
 {
     private static readonly Regex ScalarAssignmentRegex = new(
         """
-        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*(?<value>.+?)\s*$
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?::|=)\s*(?<value>.+?)\s*$
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -59,6 +59,28 @@ internal static class BicepArrayLiteralConverter
         return true;
     }
 
+    internal static void TryAddParsedArrayProperty(
+        Dictionary<string, string> properties,
+        string rawKey,
+        JsonElement arrayElement)
+    {
+        ArgumentNullException.ThrowIfNull(properties);
+
+        if (!CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(properties, rawKey, arrayElement))
+            return;
+
+        if (!CanonicalInfrastructurePropertyBag.IsSecurityPriorityProperty(rawKey))
+            return;
+
+        string sanitizedKey = CanonicalInfrastructurePropertyBag.SanitizePropertyKey(rawKey).ToLowerInvariant();
+        string tfKey = $"tf.{sanitizedKey}";
+
+        if (!properties.TryGetValue(tfKey, out string? serialized) || string.IsNullOrWhiteSpace(serialized))
+            return;
+
+        properties[rawKey] = serialized;
+    }
+
     private static Dictionary<string, string> ParseObjectScalars(string objectBody)
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
@@ -81,6 +103,7 @@ internal static class BicepArrayLiteralConverter
 
             string key = scalarMatch.Groups["key"].Value;
             string rawValue = scalarMatch.Groups["value"].Value.Trim();
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
             string scalarValue = UnquoteScalar(rawValue);
