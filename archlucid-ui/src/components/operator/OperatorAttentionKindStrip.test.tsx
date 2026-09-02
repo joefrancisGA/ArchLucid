@@ -44,7 +44,15 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
       keyof typeof OPERATOR_ATTENTION_KIND_LABELS
     >) {
       const chip = screen.getByTestId(`operator-attention-kind-chip-${kind}`);
-      expect(chip).toHaveAttribute("href", OPERATOR_ATTENTION_KIND_DESTINATIONS[kind].href);
+      const count = kind === "alerts" ? 0 : kind === "unfinished-work" ? 2 : kind === "assigned-to-me" ? 1 : 3;
+
+      if (count === 0) {
+        expect(chip).not.toHaveAttribute("href");
+        expect(chip).toBeDisabled();
+      } else {
+        expect(chip).toHaveAttribute("href", OPERATOR_ATTENTION_KIND_DESTINATIONS[kind].href);
+      }
+
       expect(chip.textContent).toContain(OPERATOR_ATTENTION_KIND_LABELS[kind]);
     }
 

@@ -46,6 +46,10 @@ export function operatorAttentionKindLabel(kind: OperatorAttentionKindId): strin
   return OPERATOR_ATTENTION_KIND_LABELS[kind];
 }
 
+export function operatorAttentionKindEmptyReason(kind: OperatorAttentionKindId): string {
+  return `No items in ${OPERATOR_ATTENTION_KIND_LABELS[kind]} right now.`;
+}
+
 export function operatorAttentionSurfaceInventory(): readonly {
   readonly surfaceId: OperatorAttentionSurfaceId;
   readonly kind: OperatorAttentionKindId;

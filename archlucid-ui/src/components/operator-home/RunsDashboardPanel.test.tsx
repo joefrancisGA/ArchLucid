@@ -410,12 +410,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    renderRunsDashboardPanel();
-
-    expect(await screen.findByRole("link", { name: "Clear" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Needs follow-up" })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByTestId("runs-dashboard-governance-warnings-only"));
+    renderRunsDashboardPanel(<RunsDashboardPanel />, "warnings=1");
 
     await waitFor(() => {
       expect(screen.queryByRole("link", { name: "Clear" })).toBeNull();

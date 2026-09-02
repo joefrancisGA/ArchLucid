@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { useSyncExternalStore, type ReactElement, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
@@ -7,12 +8,46 @@ import { writeFavoriteReviews } from "@/lib/favorite-reviews";
 
 const useArchitectureDraftRegistryEntries = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
-const useSearchParams = vi.fn();
-const useRouter = vi.fn();
+
+const inventorySearchParamsHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { query: "" };
+
+  return {
+    state,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyHref(href: string): void {
+      try {
+        const url = new URL(href, "http://localhost/");
+        state.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+      } catch {
+        const qIndex = href.indexOf("?");
+        state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+      }
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.query = "";
+    },
+  };
+});
 
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => useSearchParams(),
-  useRouter: () => useRouter(),
+  useSearchParams: () => new URLSearchParams(inventorySearchParamsHarness.state.query),
+  useRouter: () => ({
+    replace: (href: string) => {
+      inventorySearchParamsHarness.applyHref(href);
+    },
+  }),
 }));
 
 vi.mock("@/components/reviews/ReviewArchiveControl", () => ({
@@ -75,7 +110,14 @@ vi.mock("next/link", () => ({
     children: React.ReactNode;
     [key: string]: unknown;
   }) => (
-    <a href={href} {...rest}>
+    <a
+      href={href}
+      {...rest}
+      onClick={(event) => {
+        event.preventDefault();
+        inventorySearchParamsHarness.applyHref(href);
+      }}
+    >
       {children}
     </a>
   ),
@@ -88,21 +130,34 @@ function emptySummary() {
   return deriveReviewsWorkspaceSummary([]);
 }
 
+function InventorySearchParamsRerenderHost({ children }: { readonly children: ReactNode }): ReactElement {
+  useSyncExternalStore(
+    inventorySearchParamsHarness.subscribe,
+    () => inventorySearchParamsHarness.state.query,
+    () => "",
+  );
+
+  return <>{children}</>;
+}
+
+function renderInventory(ui: ReactElement, searchQuery = "") {
+  inventorySearchParamsHarness.state.query = searchQuery;
+
+  return render(<InventorySearchParamsRerenderHost>{ui}</InventorySearchParamsRerenderHost>);
+}
+
 beforeEach(() => {
   window.localStorage.clear();
+  inventorySearchParamsHarness.reset();
   useArchitectureDraftRegistryEntries.mockReset();
   useArchitectureDraftRegistryEntries.mockReturnValue([]);
   readOperatorScopeFromStorage.mockReset();
   readOperatorScopeFromStorage.mockReturnValue(null);
-  useSearchParams.mockReset();
-  useSearchParams.mockReturnValue(new URLSearchParams());
-  useRouter.mockReset();
-  useRouter.mockReturnValue({ replace: vi.fn() });
 });
 
 describe("ReviewsHubReviewInventory", () => {
   it("renders a rich empty state with start and sample actions when no drafts exist", () => {
-    render(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
+    renderInventory(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
 
     expect(screen.getByText("No reviews yet")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
@@ -125,7 +180,7 @@ describe("ReviewsHubReviewInventory", () => {
       projectLabel: "Payments",
     });
 
-    render(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
+    renderInventory(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
 
     expect(screen.getByTestId("workspace-scope-empty-teaching")).toBeInTheDocument();
     expect(screen.getByText("No reviews in Payments")).toBeInTheDocument();
@@ -146,7 +201,7 @@ describe("ReviewsHubReviewInventory", () => {
       },
     ]);
 
-    render(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
+    renderInventory(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
 
     expect(screen.getByText("No reviews yet")).toBeInTheDocument();
     expect(screen.getByText(/Continue the draft from the header/i)).toBeInTheDocument();
@@ -160,7 +215,7 @@ describe("ReviewsHubReviewInventory", () => {
   });
 
   it("renders review rows with governance, risks, and StatusTag", () => {
-    render(
+    renderInventory(
       <ReviewsHubReviewInventory
         runs={[
           {
@@ -201,7 +256,7 @@ describe("ReviewsHubReviewInventory", () => {
   });
 
   it("renders all review inventory filter chips inline without a more-filters disclosure", () => {
-    render(
+    renderInventory(
       <ReviewsHubReviewInventory
         runs={[
           {
@@ -215,14 +270,14 @@ describe("ReviewsHubReviewInventory", () => {
     );
 
     expect(screen.queryByTestId("reviews-hub-more-filters")).toBeNull();
-    expect(screen.getByRole("button", { name: /Filter reviews: Draft/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Filter reviews: Active/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Filter reviews: Awaiting approval/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Filter reviews: Archived/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Filter reviews: Draft/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Filter reviews: Active/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Filter reviews: Awaiting approval/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Filter reviews: Archived/ })).toBeInTheDocument();
   });
 
   it("filters to finalized reviews from the primary FilterChip row", () => {
-    render(
+    renderInventory(
       <ReviewsHubReviewInventory
         runs={[
           {
@@ -251,16 +306,19 @@ describe("ReviewsHubReviewInventory", () => {
           } satisfies RunSummary,
         ])}
       />,
+      "filter=finalized",
     );
-
-    fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Finalized/ }));
 
     expect(screen.getByTestId("reviews-hub-row-finalized")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-row-draft")).toBeNull();
+    expect(screen.getByRole("link", { name: /Filter reviews: Finalized/ })).toHaveAttribute(
+      "href",
+      "/architecture/reviews?filter=finalized",
+    );
   });
 
   it("renders a pin toggle on each inventory row (TB-2206)", () => {
-    render(
+    renderInventory(
       <ReviewsHubReviewInventory
         runs={[
           {
@@ -285,7 +343,7 @@ describe("ReviewsHubReviewInventory", () => {
       { runId: "run-pinned", title: "Pinned package", pinnedAt: "2026-08-10T12:00:00.000Z" },
     ]);
 
-    render(
+    renderInventory(
       <ReviewsHubReviewInventory
         runs={[
           {
@@ -338,7 +396,7 @@ describe("ReviewsHubReviewInventory", () => {
       } satisfies RunSummary,
     ]);
 
-    render(
+    renderInventory(
       <ReviewsHubReviewInventory
         runs={[
           {
@@ -362,7 +420,29 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.queryByTestId("reviews-hub-row-archived-review")).toBeNull();
     expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Archived/ }));
+    cleanup();
+
+    renderInventory(
+      <ReviewsHubReviewInventory
+        runs={[
+          {
+            runId: "active-review",
+            projectId: "default",
+            description: "Active package",
+            createdUtc: "2026-08-10T12:00:00.000Z",
+          } satisfies RunSummary,
+        ]}
+        summary={deriveReviewsWorkspaceSummary([
+          {
+            runId: "active-review",
+            projectId: "default",
+            description: "Active package",
+            createdUtc: "2026-08-10T12:00:00.000Z",
+          } satisfies RunSummary,
+        ])}
+      />,
+      "filter=Archived",
+    );
 
     expect(screen.getByTestId("reviews-hub-row-archived-review")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-row-active-review")).toBeNull();
@@ -379,7 +459,7 @@ describe("ReviewsHubReviewInventory", () => {
       } satisfies RunSummary,
     ]);
 
-    render(
+    renderInventory(
       <ReviewsHubReviewInventory
         runs={[
           {
@@ -393,13 +473,11 @@ describe("ReviewsHubReviewInventory", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "Filter reviews: Archived (1)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filter reviews: Archived (1)" })).toBeInTheDocument();
   });
 
   it("shows a clear action when search filters out all reviews", () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("q=no-such-review"));
-
-    render(
+    renderInventory(
       <ReviewsHubReviewInventory
         runs={[
           {
@@ -411,6 +489,7 @@ describe("ReviewsHubReviewInventory", () => {
         ]}
         summary={emptySummary()}
       />,
+      "q=no-such-review",
     );
 
     expect(screen.queryByTestId("reviews-hub-search")).toBeNull();

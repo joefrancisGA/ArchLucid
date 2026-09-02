@@ -31,11 +31,20 @@ describe("operator-line-tabs-surfaces (TB-1662 / TB-1663)", () => {
     expect(OPERATOR_LINE_TABS_TB1663_SURFACES.map((entry) => entry.id)).toEqual(["alert-rules-hub"]);
   });
 
+  it("runs-dashboard-operator uses FilterChip status filters without Tabs primitive", () => {
+    const panelSource = readSrcModule("components/operator-home/RunsDashboardPanelClient.tsx");
+    const filtersSource = readSrcModule("components/operator-home/RunsDashboardStatusTabLinks.tsx");
+
+    expect(panelSource).not.toContain("<TabsList");
+    expect(panelSource).not.toContain("<TabsTrigger");
+    expect(filtersSource).toContain("FilterChipGroup");
+    expect(filtersSource).toContain("FilterChip");
+  });
+
   it.each(
-    OPERATOR_LINE_TABS_MIGRATED_SURFACES.filter((entry) => entry.kind === "tabs-line").map((entry) => [
-      entry.id,
-      entry.modulePath,
-    ]),
+    OPERATOR_LINE_TABS_MIGRATED_SURFACES.filter(
+      (entry) => entry.kind === "tabs-line" && entry.id !== "runs-dashboard-operator",
+    ).map((entry) => [entry.id, entry.modulePath]),
   )("%s uses variant=line and has no banned TabsList/TabsTrigger chrome", (_id, modulePath) => {
     const source = readSrcModule(modulePath);
 

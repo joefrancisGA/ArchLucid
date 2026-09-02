@@ -9,7 +9,7 @@ import {
   runsDashboardTabHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 import { FilterChip } from "@/components/ui/filter-chip";
-import { handleFilterChipGroupKeyDown } from "@/components/ui/filter-chip-group-keyboard";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { cn } from "@/lib/utils";
 
@@ -23,27 +23,14 @@ export type RunsDashboardStatusTabLinksProps = {
 };
 
 export function RunsDashboardStatusTabLinks(props: RunsDashboardStatusTabLinksProps): React.JSX.Element {
-  const groupRef = useRef<HTMLDivElement>(null);
-
-  function onGroupKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
-    if (groupRef.current === null) {
-      return;
-    }
-
-    handleFilterChipGroupKeyDown(event, groupRef.current);
-  }
-
   return (
-    <div
-      ref={groupRef}
-      role="group"
+    <FilterChipGroup
       aria-label={props.buyerPolishedShell ? "Filter reviews" : "Review views"}
       data-testid="runs-dashboard-status-filters"
       className={cn(
         "flex flex-wrap gap-1.5",
         props.buyerPolishedShell ? "" : "-mb-px overflow-x-auto border-b border-neutral-200 pb-0 dark:border-neutral-800",
       )}
-      onKeyDown={onGroupKeyDown}
     >
       {props.statusTabIds.map((id) => {
         const selected = props.tab === id;
@@ -83,6 +70,6 @@ export function RunsDashboardStatusTabLinks(props: RunsDashboardStatusTabLinksPr
           </FilterChip>
         );
       })}
-    </div>
+    </FilterChipGroup>
   );
 }

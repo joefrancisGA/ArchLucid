@@ -6,6 +6,7 @@ import { FilterChip } from "@/components/ui/filter-chip";
 import {
   homeGovernanceWarningsClearHrefFromSearch,
   homeGovernanceWarningsHrefFromSearch,
+  runsDashboardArchivedDisabledReason,
   runsDashboardHomeHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
@@ -23,6 +24,7 @@ export type RunsDashboardFiltersProps = {
 export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
+  const archivedDisabledReasonId = "runs-dashboard-archived-disabled-reason";
 
   if (props.buyerPolishedShell) {
     return null;
@@ -70,16 +72,24 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
             {RUNS_DASHBOARD_LABELS.showArchived}
           </FilterChip>
         ) : (
-          <FilterChip
-            href={props.archivedFilterDisabled ? undefined : runsDashboardHomeHrefFromSearch(currentSearch, { showArchived: true })}
-            scroll={false}
-            className={buyerFilterChipClass(false, props.archivedFilterDisabled)}
-            aria-label={RUNS_DASHBOARD_LABELS.showArchived}
-            disabled={props.archivedFilterDisabled}
-            data-testid="runs-dashboard-show-archived"
-          >
-            {RUNS_DASHBOARD_LABELS.showArchived}
-          </FilterChip>
+          <span className="inline-flex">
+            <FilterChip
+              href={props.archivedFilterDisabled ? undefined : runsDashboardHomeHrefFromSearch(currentSearch, { showArchived: true })}
+              scroll={false}
+              className={buyerFilterChipClass(false, props.archivedFilterDisabled)}
+              aria-label={RUNS_DASHBOARD_LABELS.showArchived}
+              aria-describedby={props.archivedFilterDisabled ? archivedDisabledReasonId : undefined}
+              disabled={props.archivedFilterDisabled}
+              data-testid="runs-dashboard-show-archived"
+            >
+              {RUNS_DASHBOARD_LABELS.showArchived}
+            </FilterChip>
+            {props.archivedFilterDisabled ? (
+              <span id={archivedDisabledReasonId} className="sr-only">
+                {runsDashboardArchivedDisabledReason(props.archivedFieldSupported, props.archivedCount)}
+              </span>
+            ) : null}
+          </span>
         )
       ) : null}
     </div>
