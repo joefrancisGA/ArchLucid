@@ -1,6 +1,6 @@
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
-internal enum ReviewCacheStorageKind
+public enum ReviewCacheStorageKind
 {
     FullRun = 0,
 

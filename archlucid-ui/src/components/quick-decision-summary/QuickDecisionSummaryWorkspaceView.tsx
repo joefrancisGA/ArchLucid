@@ -1,11 +1,14 @@
-import type { ReactElement } from "react";
+"use client";
 
+import type { ReactElement } from "react";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import { QuickDecisionAdditionalFindingsList } from "@/components/QuickDecisionAdditionalFindingsList";
 import { ReviewDetailPolicyPackFindingsBreakdown } from "@/components/findings/ReviewDetailPolicyPackFindingsBreakdown";
 import { QuickDecisionWorkspacePrimaryFindingCard } from "@/components/findings/QuickDecisionWorkspacePrimaryFindingCard";
 import { QuickDecisionWorkspaceSecondaryFindingCard } from "@/components/findings/QuickDecisionWorkspaceSecondaryFindingCard";
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
-import { Button } from "@/components/ui/button";
 import {
   buildWorkspaceCardRenderedFindings,
   sortQuickDecisionFindings,
@@ -13,6 +16,7 @@ import {
 } from "@/lib/quick-decision-summary-derive";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { PRIORITY_FINDINGS_DISPLAY_LIMIT } from "@/lib/usability/usability-consolidation";
 
 import { QuickDecisionSummaryEmptyState } from "./QuickDecisionSummaryEmptyState";
 import type { QuickDecisionSummaryDerivedData, QuickDecisionSummaryInteractionState, QuickDecisionSummaryProps } from "./types";
@@ -50,9 +54,14 @@ export function QuickDecisionSummaryWorkspaceView({
   interaction,
   workspaceCardContext,
 }: QuickDecisionSummaryWorkspaceViewProps): ReactElement {
+  const [showAllFindings, setShowAllFindings] = useState(false);
   const visibleFindings = buildWorkspaceVisibleFindings(props, derived, interaction);
-  const primaryFinding = visibleFindings[0] ?? null;
-  const additionalFindings = visibleFindings.slice(1);
+  const priorityFindings = showAllFindings
+    ? visibleFindings
+    : visibleFindings.slice(0, PRIORITY_FINDINGS_DISPLAY_LIMIT);
+  const hiddenPriorityCount = Math.max(0, visibleFindings.length - priorityFindings.length);
+  const primaryFinding = priorityFindings[0] ?? null;
+  const additionalFindings = priorityFindings.slice(1);
 
   return (
     <div
@@ -183,6 +192,22 @@ export function QuickDecisionSummaryWorkspaceView({
                 )}
               />
             </section>
+          ) : null}
+          {hiddenPriorityCount > 0 ? (
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                Showing top {PRIORITY_FINDINGS_DISPLAY_LIMIT} sponsor-relevant findings.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="quick-decision-show-all-findings"
+                onClick={() => setShowAllFindings(true)}
+              >
+                Show all ({visibleFindings.length})
+              </Button>
+            </div>
           ) : null}
         </div>
       )}

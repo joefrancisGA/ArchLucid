@@ -25,21 +25,15 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+r",
-    label: "Reviews",
+    label: OPERATOR_NAV_LINK_LABELS.packages,
     route: "/architecture/reviews",
-    description: "Open reviews list",
+    description: "Open packages list",
   },
   {
     key: "alt+c",
     label: "Compare",
     route: COMPARE_TWO_REVIEWS_PATH,
     description: "Compare two reviews",
-  },
-  {
-    key: "alt+p",
-    label: "Policy packs",
-    route: "/governance/policy-packs",
-    description: "Open workspace policy packs (architect-safe — not internal validate route)",
   },
   {
     key: "alt+a",
@@ -214,3 +208,16 @@ export const FINDINGS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
  * {@link CommandPalette} listens and calls `setOpen(true)`.
  */
 export const OPEN_COMMAND_PALETTE_EVENT = "archlucid-open-command-palette";
+
+export type OpenCommandPaletteEventDetail = {
+  readonly initialQuery?: string;
+};
+
+/** Open the command palette from header search or other shell chrome, optionally seeding the query. */
+export function dispatchOpenCommandPalette(initialQuery?: string): void {
+  const trimmed = initialQuery?.trim() ?? "";
+  const detail: OpenCommandPaletteEventDetail =
+    trimmed.length > 0 ? { initialQuery: trimmed } : {};
+
+  window.dispatchEvent(new CustomEvent<OpenCommandPaletteEventDetail>(OPEN_COMMAND_PALETTE_EVENT, { detail }));
+}

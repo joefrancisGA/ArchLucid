@@ -21,7 +21,7 @@ function PolicyToggle(props: {
   return (
     <label className="flex items-start justify-between gap-4 rounded-md border border-border p-4">
       <span className="space-y-1">
-        <span className={cn("font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.label}</span>
+        <span className={OPERATOR_TYPOGRAPHY.label}>{props.label}</span>
         <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.description}</span>
       </span>
       <input

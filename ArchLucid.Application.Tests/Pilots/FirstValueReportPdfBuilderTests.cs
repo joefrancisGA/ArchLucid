@@ -185,6 +185,8 @@ public sealed class FirstValueReportPdfBuilderTests
             siteOpts.Object,
             branding.Object,
             baselineRepo,
+            FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
+            FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

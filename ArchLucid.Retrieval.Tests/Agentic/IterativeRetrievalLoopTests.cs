@@ -95,6 +95,32 @@ public sealed class IterativeRetrievalLoopTests
     }
 
     [Fact]
+    public async Task MaybeRetryAsync_when_retry_improves_same_chunk_score_uses_higher_score()
+    {
+        IterativeRetrievalLoop sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableIterativeRetrieveCritiqueRetry = true,
+                MaxIterativeRetrievalRounds = 3,
+            });
+
+        RetrievalQuery query = BuildQuery();
+        List<RetrievalHit> initialHits = [Hit("chunk-1", 0.35)];
+
+        (IReadOnlyList<RetrievalHit> hits, _) = await sut.MaybeRetryAsync(
+            query,
+            PassthroughPlan(),
+            initialHits,
+            (_, _, _) => Task.FromResult<IReadOnlyList<RetrievalHit>>([Hit("chunk-1", 0.92)]),
+            CancellationToken.None);
+
+        hits.Should().ContainSingle();
+        hits[0].ChunkId.Should().Be("chunk-1");
+        hits[0].Score.Should().Be(0.92);
+    }
+
+    [Fact]
     public async Task MaybeRetryAsync_returns_at_most_query_topk_hits_after_merge()
     {
         IterativeRetrievalLoop sut = CreateSut(

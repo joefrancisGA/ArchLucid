@@ -5,7 +5,7 @@ import { Users } from "lucide-react";
 import type { ReactElement } from "react";
 
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { buildInviteReviewerHref } from "@/lib/invite-reviewer-flow";
 import { cn } from "@/lib/utils";
 
@@ -21,21 +21,15 @@ export function ReviewShareCollaboratorStrip(props: ReviewShareCollaboratorStrip
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="review-share-collaborator-strip">
-      {props.canInviteReviewer !== false ? (
-        <Link
-          href={inviteHref}
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5")}
-          data-testid="review-invite-collaborator-link"
-        >
-          <Users className="h-4 w-4" aria-hidden />
-          Invite reviewer
-        </Link>
-      ) : (
-        <Button type="button" variant="outline" size="sm" disabled title="Workspace admin access required">
-          <Users className="h-4 w-4" aria-hidden />
-          Invite reviewer
-        </Button>
-      )}
+      <Link
+        href={inviteHref}
+        className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5")}
+        data-testid="review-invite-collaborator-link"
+        title={props.canInviteReviewer === false ? "Workspace admin access required to send invitations" : undefined}
+      >
+        <Users className="h-4 w-4" aria-hidden />
+        Invite reviewer
+      </Link>
       <ShareableReviewLinkButton runId={props.runId} isCommitted={props.isCommitted} />
     </div>
   );

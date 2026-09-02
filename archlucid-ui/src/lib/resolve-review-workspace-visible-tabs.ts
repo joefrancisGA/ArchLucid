@@ -10,6 +10,7 @@ import {
   REVIEW_DETAIL_DEFAULT_TAB,
   type ReviewDetailTabId,
 } from "@/lib/review-detail-workspace-tabs";
+import { splitReviewWorkspaceTabsByStage } from "@/lib/usability/usability-consolidation";
 
 /** Primary create-home tabs — canonical `reviewTab` ids (TB-2367). */
 export const CREATE_HOME_REVIEW_WORKSPACE_TAB_IDS = [
@@ -29,9 +30,12 @@ export type ResolveReviewWorkspaceVisibleTabsInput = ResolveReviewDetailVisibleT
 };
 
 function createHomeVisibleTabs(): ReviewWorkspaceVisibleTabs {
+  const split = splitReviewWorkspaceTabsByStage("draft", CREATE_HOME_REVIEW_WORKSPACE_TAB_IDS);
+
   return {
     stage: "draft",
-    visibleTabIds: CREATE_HOME_REVIEW_WORKSPACE_TAB_IDS,
+    visibleTabIds: split.primaryTabIds,
+    moreTabIds: split.moreTabIds,
     defaultTabId: REVIEW_DETAIL_DEFAULT_TAB,
   };
 }

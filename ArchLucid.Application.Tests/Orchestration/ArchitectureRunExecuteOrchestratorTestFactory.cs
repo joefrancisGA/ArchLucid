@@ -1,25 +1,34 @@
-using ArchLucid.TestSupport.Diagnostics;
+using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.AiUsage;
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Operations;
-using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
-using ArchLucid.Core.Audit;
+using ArchLucid.Application.Runs.Orchestration.Execute;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.AiUsage;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -28,6 +37,128 @@ namespace ArchLucid.Application.Tests.Orchestration;
 
 public static class ArchitectureRunExecuteOrchestratorTestFactory
 {
+    internal static ArchitectureRunExecuteOrchestrator Create(
+        IRunRepository runRepository,
+        IScopeContextProvider scopeContextProvider,
+        IArchitectureRequestRepository requestRepository,
+        IAgentTaskRepository taskRepository,
+        IAgentExecutor agentExecutor,
+        ArchitectureRunExecuteOrchestratorCreateArgs? optional = null)
+    {
+        ArgumentNullException.ThrowIfNull(runRepository);
+        ArgumentNullException.ThrowIfNull(scopeContextProvider);
+        ArgumentNullException.ThrowIfNull(requestRepository);
+        ArgumentNullException.ThrowIfNull(taskRepository);
+        ArgumentNullException.ThrowIfNull(agentExecutor);
+
+        ArchitectureRunExecuteOrchestratorCreateArgs args = optional ?? new ArchitectureRunExecuteOrchestratorCreateArgs();
+
+        IAgentResultRepository resultRepository =
+            args.AgentResultRepository ?? Mock.Of<IAgentResultRepository>();
+
+        IOptions<AgentExecutionOptions> agentExecutionOptions =
+            args.AgentExecutionOptions ?? Options.Create(new AgentExecutionOptions());
+
+        IEffectiveAgentExecutionModeAccessor effectiveModeAccessor =
+            args.EffectiveAgentExecutionModeAccessor ?? new FixedEffectiveAgentExecutionModeAccessor();
+
+        IRunStateTransitionService runStateTransitionService =
+            args.RunStateTransitionService ?? new RunStateTransitionService();
+
+        ArchitectureRunExecutePostExecuteHooks postExecuteHooks =
+            args.PostExecuteHooks
+            ?? CreatePostExecuteHooks(
+                scopeContextProvider: scopeContextProvider,
+                runRepository: runRepository,
+                runStateTransitionService: runStateTransitionService);
+
+        IArchLucidUnitOfWorkFactory unitOfWorkFactory =
+            args.UnitOfWorkFactory ?? ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory();
+
+        IArchitectureRunExecutePersistenceStage persistenceStage = new ArchitectureRunExecutePersistenceStage(
+            unitOfWorkFactory,
+            scopeContextProvider,
+            args.AgentEvidencePackageRepository ?? Mock.Of<IAgentEvidencePackageRepository>(),
+            resultRepository,
+            args.AgentEvaluationRepository ?? Mock.Of<IAgentEvaluationRepository>(),
+            runRepository,
+            effectiveModeAccessor);
+
+        IArchitectureRunExecuteQualityGateStage qualityGateStage = new ArchitectureRunExecuteQualityGateStage(
+            args.AgentOutputQualityGateOptions ?? Options.Create(new AgentOutputQualityGateOptions()),
+            args.OutputTraceEvaluationHook ?? Mock.Of<IAgentOutputTraceEvaluationHook>(),
+            agentExecutor,
+            args.AgentResultPostExecutionEnricher ?? new NoOpAgentResultPostExecutionEnricher(),
+            resultRepository,
+            scopeContextProvider,
+            postExecuteHooks,
+            persistenceStage,
+            NullLogger<ArchitectureRunExecuteQualityGateStage>.Instance);
+
+        IArchitectureRunExecuteFailureRecorder failureRecorder = new ArchitectureRunExecuteFailureRecorder(
+            runRepository,
+            scopeContextProvider,
+            runStateTransitionService,
+            NullLogger<ArchitectureRunExecuteFailureRecorder>.Instance);
+
+        IArchitectureRunExecutePreExecuteStage preExecuteStage = new ArchitectureRunExecutePreExecuteStage(
+            scopeContextProvider,
+            runRepository,
+            taskRepository,
+            resultRepository,
+            runStateTransitionService,
+            args.OperationCancellationRegistry ?? new OperationCancellationRegistry(),
+            args.RunCancellationMarker ?? new OperationRunCancellationMarker(runRepository),
+            effectiveModeAccessor,
+            args.ActorContext ?? Mock.Of<IActorContext>(),
+            postExecuteHooks,
+            NullLogger<ArchitectureRunExecutePreExecuteStage>.Instance);
+
+        IArchitectureRunExecuteAgentLoopStage agentLoopStage = new ArchitectureRunExecuteAgentLoopStage(
+            requestRepository,
+            args.RequestContentSafetyPrecheck ?? Mock.Of<IRequestContentSafetyPrecheck>(),
+            scopeContextProvider,
+            taskRepository,
+            args.EvidenceBuilder ?? new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
+            args.EvidencePackageInjectionMitigator ?? new NoOpEvidencePackageInjectionMitigator(),
+            args.AgentEvidenceUntrustedInputSanitizer ?? new NoOpAgentEvidenceUntrustedInputSanitizer(),
+            agentExecutor,
+            args.AgentEvaluationService ?? Mock.Of<IAgentEvaluationService>(),
+            args.AgentResultPostExecutionEnricher ?? new NoOpAgentResultPostExecutionEnricher(),
+            args.AgentOutputQualityGateOptions ?? Options.Create(new AgentOutputQualityGateOptions()),
+            preExecuteStage,
+            persistenceStage,
+            qualityGateStage,
+            failureRecorder,
+            args.RunScopedLlmBudgetReservationService ?? CreatePassThroughRunScopedLlmBudgetReservationService(),
+            args.RunEngineProvenanceCaptureService ?? Mock.Of<IRunEngineProvenanceCaptureService>(),
+            args.ExecuteTimeGovernanceScopeCaptureService ?? Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
+            args.TopologyProposalSeeder ?? CreateDefaultTopologyProposalSeeder(scopeContextProvider),
+            args.BaselineMutationAuditService ?? Mock.Of<IBaselineMutationAuditService>(),
+            NullLogger<ArchitectureRunExecuteAgentLoopStage>.Instance);
+
+        return new ArchitectureRunExecuteOrchestrator(
+            runRepository,
+            scopeContextProvider,
+            requestRepository,
+            taskRepository,
+            resultRepository,
+            args.ActorContext ?? Mock.Of<IActorContext>(),
+            args.BaselineMutationAuditService ?? Mock.Of<IBaselineMutationAuditService>(),
+            postExecuteHooks,
+            agentExecutionOptions,
+            effectiveModeAccessor,
+            runStateTransitionService,
+            args.DemoExpensiveActionGate ?? CreatePermissiveDemoExpensiveActionGate(),
+            args.RunExecuteOwnershipLeaseService ?? new DisabledRunExecuteOwnershipLeaseService(),
+            args.RunStageOutcomesRepository ?? Mock.Of<IRunStageOutcomesRepository>(),
+            args.AgentExecutionReadinessGuard ?? new PermissiveAgentExecutionReadinessGuard(),
+            preExecuteStage,
+            agentLoopStage,
+            args.Logger ?? NullLogger<ArchitectureRunExecuteOrchestrator>.Instance,
+            args.IncompleteAuthorityPipelineExecuteHandler);
+    }
+
     internal static ArchitectureRunExecuteOrchestratorTailDependencies CreateStandardTailDependencies(
         IScopeContextProvider? scopeContextProvider = null,
         IRunRepository? runRepository = null)

@@ -5,17 +5,18 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -27,13 +28,22 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class GovernanceControllerDryRunTests
 {
+    private static readonly Guid RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+    };
+
     [SkippableFact]
     public async Task SubmitApprovalRequest_WhenDryRun_SetsDryRunResponseHeader()
     {
-        Mock<IGovernanceWorkflowService> workflow = new();
+        string runId = RunId.ToString("D");
+
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.SubmitApprovalRequestAsync(
-                "r1",
+                runId,
                 "v1",
                 "dev",
                 "test",
@@ -45,7 +55,7 @@ public sealed class GovernanceControllerDryRunTests
             .ReturnsAsync(
                 new GovernanceApprovalRequest
                 {
-                    RunId = "r1",
+                    RunId = runId,
                     ManifestVersion = "v1",
                     SourceEnvironment = "dev",
                     TargetEnvironment = "test",
@@ -56,37 +66,49 @@ public sealed class GovernanceControllerDryRunTests
         actor.Setup(a => a.GetActor()).Returns("actor-1");
         actor.Setup(a => a.GetActorId()).Returns("actor-1");
 
-        GovernanceController sut = new(
-            workflow.Object,
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            actor.Object,
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<IRunRepository>(),
-            Mock.Of<IGovernanceDashboardService>(),
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            Mock.Of<ITenantRepository>(),
-            NullLogger<GovernanceController>.Instance);
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = RunId });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(t => t.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
 
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "tester")]))
         };
-        sut.ControllerContext = new ControllerContext { HttpContext = http };
+
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            workflowFacade: workflow.Object,
+            actorContext: actor.Object,
+            scopeContextProvider: scope.Object,
+            runRepository: runs.Object,
+            tenantRepository: tenants.Object,
+            httpContext: http);
 
         IActionResult actionResult = await sut.SubmitApprovalRequest(
             new CreateGovernanceApprovalRequest
             {
-                RunId = "r1", ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
+                RunId = runId,
+                ManifestVersion = "v1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test"
             },
             true,
             CancellationToken.None);
@@ -98,10 +120,12 @@ public sealed class GovernanceControllerDryRunTests
     [SkippableFact]
     public async Task Promote_WhenDryRun_SetsDryRunResponseHeader()
     {
-        Mock<IGovernanceWorkflowService> workflow = new();
+        string runId = RunId.ToString("D");
+
+        Mock<IGovernanceWorkflowFacade> workflow = new();
         workflow
             .Setup(w => w.PromoteAsync(
-                "r1",
+                runId,
                 "v1",
                 "test",
                 GovernanceEnvironment.Prod,
@@ -114,7 +138,7 @@ public sealed class GovernanceControllerDryRunTests
             .ReturnsAsync(
                 new GovernancePromotionRecord
                 {
-                    RunId = "r1",
+                    RunId = runId,
                     ManifestVersion = "v1",
                     SourceEnvironment = "test",
                     TargetEnvironment = GovernanceEnvironment.Prod,
@@ -126,37 +150,57 @@ public sealed class GovernanceControllerDryRunTests
         actor.Setup(a => a.GetActor()).Returns("promoter");
         actor.Setup(a => a.GetActorId()).Returns("promoter");
 
-        GovernanceController sut = new(
-            workflow.Object,
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            actor.Object,
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<IRunRepository>(),
-            Mock.Of<IGovernanceDashboardService>(),
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IPolicyPackDryRunService>(),
-            Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<IAuditService>(),
-            Mock.Of<IPolicyPackDraftService>(),
-            Mock.Of<IPolicyPackGeneratorService>(),
-            Mock.Of<ITenantRepository>(),
-            NullLogger<GovernanceController>.Instance);
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = RunId });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(t => t.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
 
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "promoter")]))
         };
-        sut.ControllerContext = new ControllerContext { HttpContext = http };
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(a => a.GetByIdAsync("apr-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new GovernanceApprovalRequest
+                {
+                    ApprovalRequestId = "apr-1",
+                    RunId = runId,
+                });
+
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            workflowFacade: workflow.Object,
+            approvalRepository: approvals.Object,
+            actorContext: actor.Object,
+            scopeContextProvider: scope.Object,
+            runRepository: runs.Object,
+            tenantRepository: tenants.Object,
+            httpContext: http);
 
         IActionResult actionResult = await sut.Promote(
             new CreateGovernancePromotionRequest
             {
-                RunId = "r1",
+                RunId = runId,
                 ManifestVersion = "v1",
                 SourceEnvironment = "test",
                 TargetEnvironment = GovernanceEnvironment.Prod,

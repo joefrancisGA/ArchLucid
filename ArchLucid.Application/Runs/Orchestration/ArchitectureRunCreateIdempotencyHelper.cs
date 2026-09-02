@@ -91,6 +91,32 @@ public sealed class ArchitectureRunCreateIdempotencyHelper(
     }
 
     /// <summary>
+    ///     Recovers a prior create result from idempotency key alone (504 / gateway-timeout recovery).
+    /// </summary>
+    public async Task<CreateRunResult?> TryLookupByIdempotencyKeyAsync(
+        ScopeContext scope,
+        string idempotencyKey,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
+
+        byte[] keyHash = ArchitectureRunIdempotencyHashing.HashIdempotencyKey(idempotencyKey.Trim());
+
+        ArchitectureRunIdempotencyLookup? existing = await _architectureRunIdempotencyRepository.TryGetAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            keyHash,
+            cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        return await RehydrateCreateRunResultAsync(existing.RunId, cancellationToken);
+    }
+
+    /// <summary>
     ///     Resolves a recent identical request body to an existing run when no idempotency key was supplied.
     /// </summary>
     public async Task<CreateRunResult?> TryReplayFromRecentFingerprintAsync(

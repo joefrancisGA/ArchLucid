@@ -76,7 +76,6 @@ import {
   HelpPageSituationRegistrarDeferred,
   ReviewGenerationCreatedNoticeDeferred,
 } from "./run-detail-page-view-deferred-chunks";
-import { ReviewPackageAfterFinalizeNextStepsStrip } from "./ReviewPackageAfterFinalizeNextStepsStrip";
 import { RunDetailNextReviewFooterClient } from "./RunDetailNextReviewFooterClient";
 import { RunDetailBelowFoldSectionsDeferred } from "./RunDetailBelowFoldSectionsDeferred";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
@@ -307,10 +306,6 @@ export async function RunDetailPageView(props: {
                     requestAssumptionTexts={requestAssumptionTexts}
                     {...reviewPackageDoThisNextEvidenceProps}
                   />
-
-                  {m.manifestId ? (
-                    <ReviewPackageAfterFinalizeNextStepsStrip runId={m.resolvedDetail.run.runId} />
-                  ) : null}
 
                   {tabbedWorkspaceEl}
                 </>

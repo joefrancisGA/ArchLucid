@@ -432,30 +432,15 @@ public sealed class GovernanceControllerSimulateTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        GovernanceController controller = new(
-            Mock.Of<IGovernanceWorkflowService>(),
-            Mock.Of<IGovernanceApprovalRequestRepository>(),
-            Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
-            scope.Object,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            Mock.Of<IGovernanceDashboardService>(),
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
-            Mock.Of<IComplianceDriftTrendService>(),
-            dryRunService ?? Mock.Of<IPolicyPackDryRunService>(),
-            governanceDryRunService ?? Mock.Of<IPolicyPackGovernanceDryRunService>(),
-            Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
-            draftService ?? Mock.Of<IPolicyPackDraftService>(),
-            generatorService ?? Mock.Of<IPolicyPackGeneratorService>(),
-            tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+        GovernanceController controller = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            policyPackDryRunService: dryRunService ?? Mock.Of<IPolicyPackDryRunService>(),
+            policyPackGovernanceDryRunService: governanceDryRunService ?? Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            policyPackDraftService: draftService ?? Mock.Of<IPolicyPackDraftService>(),
+            policyPackGeneratorService: generatorService ?? Mock.Of<IPolicyPackGeneratorService>(),
+            tenantRepository: tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
                 Scope.TenantId,
-                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })),
-            NullLogger<GovernanceController>.Instance);
-
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })));
 
         return controller;
     }

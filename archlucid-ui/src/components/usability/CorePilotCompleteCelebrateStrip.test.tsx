@@ -9,11 +9,12 @@ const mockDerivedState = vi.hoisted(() => ({
   },
 }));
 
-const mockCompareAvailability = vi.hoisted(() => ({
+const mockCommitContextQuery = vi.hoisted(() => ({
   current: {
-    loading: false,
-    finalizedCount: 1,
-    insufficientForCompare: true,
+    isPending: false,
+    data: {
+      committedReviewCount: 1,
+    },
   },
 }));
 
@@ -21,12 +22,9 @@ vi.mock("@/lib/use-core-pilot-derived-step-status", () => ({
   useCorePilotDerivedStepStatus: () => mockDerivedState.current,
 }));
 
-vi.mock(
-  "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFinalizedRunAvailability",
-  () => ({
-    useCompareFinalizedRunAvailability: () => mockCompareAvailability.current,
-  }),
-);
+vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
+  useCorePilotCommitContextQuery: () => mockCommitContextQuery.current,
+}));
 
 import { render, screen } from "@testing-library/react";
 
@@ -40,10 +38,11 @@ describe("CorePilotCompleteCelebrateStrip", () => {
       progress: { doneCount: 7, totalCount: 7, allDone: true },
       nextStepIndex: null,
     };
-    mockCompareAvailability.current = {
-      loading: false,
-      finalizedCount: 1,
-      insufficientForCompare: true,
+    mockCommitContextQuery.current = {
+      isPending: false,
+      data: {
+        committedReviewCount: 1,
+      },
     };
   });
 
@@ -60,7 +59,7 @@ describe("CorePilotCompleteCelebrateStrip", () => {
     expect(screen.queryByTestId("core-pilot-complete-celebrate-strip")).toBeNull();
   });
 
-  it("hides compare when fewer than two finalized reviews exist", () => {
+  it("hides compare when fewer than two committed reviews exist", () => {
     render(<CorePilotCompleteCelebrateStrip />);
 
     expect(screen.getByTestId("core-pilot-complete-celebrate-strip")).toBeInTheDocument();
@@ -71,11 +70,10 @@ describe("CorePilotCompleteCelebrateStrip", () => {
     );
   });
 
-  it("keeps copy neutral while compare availability is loading", () => {
-    mockCompareAvailability.current = {
-      loading: true,
-      finalizedCount: 0,
-      insufficientForCompare: false,
+  it("keeps copy neutral while commit context is loading", () => {
+    mockCommitContextQuery.current = {
+      isPending: true,
+      data: undefined,
     };
 
     render(<CorePilotCompleteCelebrateStrip />);
@@ -88,11 +86,12 @@ describe("CorePilotCompleteCelebrateStrip", () => {
     );
   });
 
-  it("shows compare when at least two finalized reviews exist", () => {
-    mockCompareAvailability.current = {
-      loading: false,
-      finalizedCount: 2,
-      insufficientForCompare: false,
+  it("shows compare when at least two committed reviews exist", () => {
+    mockCommitContextQuery.current = {
+      isPending: false,
+      data: {
+        committedReviewCount: 2,
+      },
     };
 
     render(<CorePilotCompleteCelebrateStrip />);

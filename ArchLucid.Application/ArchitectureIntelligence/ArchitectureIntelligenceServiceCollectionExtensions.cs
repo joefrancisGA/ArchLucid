@@ -1,3 +1,4 @@
+using ArchLucid.Application.ArchitectureIntelligence.Stages;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -134,6 +135,12 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
                 sp.GetService<IScopeContextProvider>(),
                 authorityFindingsSnapshotUpdater);
         });
+        services.AddScoped<ClosedLoopModelPersistenceHelper>();
+        services.AddScoped<IClosedLoopExtractionStage, ClosedLoopExtractionStage>();
+        services.AddScoped<IClosedLoopInterviewStage, ClosedLoopInterviewStage>();
+        services.AddScoped<IClosedLoopReviewStage, ClosedLoopReviewStage>();
+        services.AddScoped<IClosedLoopRecommendationStage, ClosedLoopRecommendationStage>();
+        services.AddScoped<IClosedLoopPublishStage, ClosedLoopPublishStage>();
         services.AddScoped<IClosedLoopArchitectureReasoningOrchestrator, ClosedLoopArchitectureReasoningOrchestrator>();
         services.AddScoped<IGoldenArchitectureTestRunner, GoldenArchitectureTestRunner>();
         services.AddScoped<IAuthorityClosedLoopStrengtheningPass, AuthorityClosedLoopStrengtheningPass>();

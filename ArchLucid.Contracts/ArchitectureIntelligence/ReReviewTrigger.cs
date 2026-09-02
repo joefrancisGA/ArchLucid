@@ -11,4 +11,5 @@ public enum ReReviewTrigger
     ModelOrPolicyPackUpgrade = 6,
     EvidenceGraphSchemaChange = 7,
     PeriodicMilestone = 8,
+    EvidenceAdded = 9,
 }

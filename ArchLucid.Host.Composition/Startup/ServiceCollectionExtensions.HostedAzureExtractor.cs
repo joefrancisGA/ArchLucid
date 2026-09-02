@@ -1,9 +1,4 @@
-using ArchLucid.Application.AzureExtractor;
-using ArchLucid.Contracts.Abstractions.Integrations;
-using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Http;
-using ArchLucid.Host.Core.Http;
-using ArchLucid.Integrations.AzureExtractor;
+using ArchLucid.Host.Composition.Startup.Modules;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,29 +14,7 @@ public static partial class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddScoped<IHostedAzureExtractorConfigurationService, HostedAzureExtractorConfigurationService>();
-        services.AddScoped<IHostedAzureExtractorRunService, HostedAzureExtractorRunService>();
-        services.AddScoped<IAzureExtractorAutoPullOrchestrator, AzureExtractorAutoPullOrchestrator>();
-        services.Configure<HostedAzureExtractorOptions>(configuration.GetSection(HostedAzureExtractorOptions.SectionName));
-        services.AddSingleton<IHostedAzureExtractorCredentialFactory, WorkloadIdentityHostedAzureExtractorCredentialFactory>();
-        services
-            .AddHttpClient<IHostedAzureArmReadClient, GetOnlyHostedAzureArmReadClient>(static client =>
-            {
-                client.Timeout = TimeSpan.FromMinutes(5);
-            })
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
-            .AddLongLivedPolicyHandler(static serviceProvider =>
-                ArchLucid.Core.Http.AzureRmAndRetailPricesHttpRetryPolicy.Create(
-                    serviceProvider
-                        .GetRequiredService<ILoggerFactory>()
-                        .CreateLogger("HostedAzureArmReadClient.Policies")));
-        services.AddScoped<IHostedAzureExtractorClient, HostedAzureExtractorClient>();
-        services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
-        services.AddScoped<IAzureExtractorResultEnricher, AzureExtractorResultEnricher>();
-        services.Configure<AzureExtractorEnrichmentOptions>(
-            configuration.GetSection(AzureExtractorEnrichmentOptions.SectionPath));
-        services.AddScoped<AzureExtractorChunkedUploadService>();
-
+        HostedCloudExtractorCompositionModule.RegisterAzure(services, configuration);
         return services;
     }
 }

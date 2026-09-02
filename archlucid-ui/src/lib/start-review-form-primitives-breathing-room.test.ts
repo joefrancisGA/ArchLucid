@@ -33,13 +33,13 @@ describe("start review shared form primitives breathing room (TB-2002)", () => {
   });
 
   it("applies TB-2000 stacks on guided intake step 0 field groups (TB-2001)", () => {
-    const guidedIntake = readFileSync(
-      join(process.cwd(), "src", "app", "(operator)", "architecture", "reviews", "new", "SocraticIntakeWizard.tsx"),
+    const stepScope = readFileSync(
+      join(process.cwd(), "src", "app", "(operator)", "architecture", "reviews", "new", "SocraticIntakeWizardStepScope.tsx"),
       "utf8",
     );
 
-    expect(guidedIntake).toContain("OPERATOR_FORM_FIELD_STACK_CLASS");
-    expect(guidedIntake).toContain("OPERATOR_FORM_FIELD_HELPER_CLASS");
-    expect(guidedIntake).not.toMatch(/step === 0[\s\S]*space-y-2/);
+    expect(stepScope).toContain("OPERATOR_FORM_FIELD_STACK_CLASS");
+    expect(stepScope).toContain("OPERATOR_FORM_FIELD_HELPER_CLASS");
+    expect(stepScope).not.toMatch(/OPERATOR_FORM_FIELD_STACK_CLASS[\s\S]*space-y-2/);
   });
 });

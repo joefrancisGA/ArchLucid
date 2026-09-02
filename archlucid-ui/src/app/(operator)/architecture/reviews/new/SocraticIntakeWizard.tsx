@@ -4,12 +4,8 @@ import { useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
-import { EvidenceExtractionAwaitingSkeleton } from "@/components/evidence/EvidenceExtractionAwaitingSkeleton";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
@@ -18,44 +14,24 @@ import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
-import {
-  OPERATOR_LAYOUT,
-  OPERATOR_TYPOGRAPHY,
-} from "@/lib/design-tokens";
-import {
-  WIZARD_STICKY_FOOTER_CLASS,
-  WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS,
-  WIZARD_STICKY_FOOTER_TEST_ID,
-} from "@/lib/wizard-sticky-progress";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
-  GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION,
-  GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT,
-  GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_HELPER,
-  GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_LABEL,
+  GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_TAIL,
   GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD,
-  guidedIntakeClarificationsAnsweredCounter,
-  GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
-  resolveGuidedIntakeClarificationsDoneLabel,
 } from "@/lib/guided-intake-copy";
-import {
-  UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER,
-  UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER,
-  UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER,
-  UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER,
-} from "@/lib/universal-intake-answer-inference";
 import {
   DraftIntakeDecisionReceiptCard,
   SocraticIntakeWizardAdvancedRail,
 } from "./SocraticIntakeWizardDeferredPanels";
+import { SocraticIntakeWizardStepClarifications } from "./SocraticIntakeWizardStepClarifications";
 import { SocraticIntakeWizardStepConfirm } from "./SocraticIntakeWizardStepConfirm";
 import { SocraticIntakeWizardStepScope } from "./SocraticIntakeWizardStepScope";
 import { ReviewsNewBuyerChrome } from "./ReviewsNewBuyerChrome";
-import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
 import { GuidedIntakeAlreadySubmittedCallout } from "./GuidedIntakeAlreadySubmittedCallout";
-import { INTAKE_STEPS, INTAKE_WIZARD_STEPPER_STEPS } from "./guided-intake-steps";
+import { INTAKE_WIZARD_STEPPER_STEPS } from "./guided-intake-steps";
 import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
@@ -96,6 +72,8 @@ export function SocraticIntakeWizard() {
     confirmedScopeLines,
     scopeUnderstandingInput,
     guidedIntakeEvidencePresence,
+    priorAttachedFileNames,
+    setEvidenceFiles,
     // Draft workflow
     busy,
     submitError,
@@ -148,7 +126,6 @@ export function SocraticIntakeWizard() {
     markQuestionEdited,
   } = clarificationInference;
   const suggestedDraftCount = inferredQuestionKeys.size;
-  const hasRephrasedSuggestions = rephrasedQuestionKeys.size > 0;
 
   useEffect(() => {
     if (suggestedDraftCount > 0) {
@@ -160,49 +137,6 @@ export function SocraticIntakeWizard() {
     () => Array.from({ length: step }, (_, index) => index),
     [step],
   );
-
-  function renderClarificationField(
-    question: (typeof pendingQuestions)[number],
-    options: {
-      readonly isPrimary: boolean;
-      readonly isFocused: boolean;
-    },
-  ): React.JSX.Element {
-    const questionKey = question.questionKey;
-
-    return (
-      <DraftIntakeRequiredClarificationField
-        key={questionKey}
-        question={question}
-        answer={answers[questionKey] ?? ""}
-        busy={busy}
-        clarificationIndex={getClarificationOrdinal(questionKey)}
-        clarificationTotal={totalRequiredClarifications}
-        isPrimary={options.isPrimary}
-        isFocused={options.isFocused}
-        compactActions={viewAllClarifications}
-        showAllMode={viewAllClarifications}
-        showRequirednessSuffix={false}
-        clarificationStatus={getClarificationStatus(questionKey)}
-        isSuggested={inferredQuestionKeys.has(questionKey)}
-        suggestionWasRephrased={rephrasedQuestionKeys.has(questionKey)}
-        canSaveAndContinue={(answers[questionKey]?.trim() ?? "").length > 0}
-        onAnswerChange={(nextQuestionKey, value) => {
-          markQuestionEdited(nextQuestionKey);
-          setAnswers((current) => ({
-            ...current,
-            [nextQuestionKey]: value,
-          }));
-        }}
-        onSaveAndContinue={(nextQuestionKey) => {
-          saveAndContinue(nextQuestionKey);
-        }}
-        onSkip={(nextQuestionKey) => {
-          void skipQuestion(nextQuestionKey);
-        }}
-      />
-    );
-  }
 
   if (sourceArchitectureAccessBlocked) {
     return (
@@ -232,14 +166,18 @@ export function SocraticIntakeWizard() {
           onDismiss={wizardSession.dismissRestore}
         />
       ) : null}
-      <div className="flex justify-end">
+      <div
+        className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+        data-testid="socratic-intake-stepper-row"
+      >
+        <WizardStepper
+          steps={[...INTAKE_WIZARD_STEPPER_STEPS]}
+          currentStep={step}
+          completedSteps={completedWizardSteps}
+          className="min-w-0 flex-1"
+        />
         <WizardSessionSaveStatus saveState={wizardSession.saveState} />
       </div>
-      <WizardStepper
-        steps={[...INTAKE_WIZARD_STEPPER_STEPS]}
-        currentStep={step}
-        completedSteps={completedWizardSteps}
-      />
       {draftId !== null && step >= 1 ? (
         <div data-testid="socratic-intake-advanced-options">
           <SocraticIntakeWizardAdvancedRail
@@ -354,191 +292,46 @@ export function SocraticIntakeWizard() {
           advanceHint={advanceHint}
           submitError={submitError}
           systemNameAvailability={systemNameAvailability}
+          priorAttachedFileNames={priorAttachedFileNames}
+          onEvidenceFilesChange={setEvidenceFiles}
           onCreateArchitectureContinuation={runCreateArchitectureContinuation}
           onAdmission={runAdmission}
         />
       ) : null}
 
       {step === 1 ? (
-        <div data-testid="socratic-clarifications-step">
-          <Card data-testid="guided-intake-primary-panel">
-            <CardHeader>
-            <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
-            <CardDescription>
-              {isCreateArchitectureFlow ? (
-                <>
-                  {GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION}{" "}
-                  Your answers stay with the architecture draft until you choose to start a review.
-                </>
-              ) : activePendingQuestions.length === 0 ? (
-                "All required clarifications are answered or skipped. You can continue."
-              ) : (
-                `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent
-            className={cn(
-              OPERATOR_LAYOUT.sectionStack,
-              viewAllClarifications && activePendingQuestions.length > 1
-                ? WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS
-                : undefined,
-            )}
-          >
-            {primaryPendingQuestion !== null
-              ? renderClarificationField(primaryPendingQuestion, {
-                  isPrimary: true,
-                  isFocused: !viewAllClarifications,
-                })
-              : null}
-
-            {isExtractingEvidenceText ? <EvidenceExtractionAwaitingSkeleton /> : null}
-
-            {canSuggestFromEvidence ? (
-              <div className="space-y-4" data-testid="guided-intake-clarification-suggest-from-brief">
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                  {GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_HELPER}
-                </p>
-                {isSimulator ? (
-                  <p
-                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="guided-intake-clarification-simulator-suggest-helper"
-                  >
-                    {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER}
-                  </p>
-                ) : null}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={busy || isExtractingEvidenceText}
-                  data-testid="guided-intake-suggest-from-brief"
-                  onClick={() => {
-                    suggestAnswersFromEvidence();
-                  }}
-                >
-                  {isExtractingEvidenceText
-                    ? "Suggesting answers…"
-                    : GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_LABEL}
-                </Button>
-              </div>
-            ) : null}
-
-            {suggestedDraftCount > 0 ? (
-              <p
-                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="guided-intake-clarification-inferred-helper"
-              >
-                {hasRephrasedSuggestions
-                  ? UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER
-                  : UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER}
-              </p>
-            ) : null}
-
-            {suggestedDraftCount > 0 ? (
-              <p
-                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="guided-intake-clarification-suggested-draft-count"
-              >
-                {suggestedDraftCount} suggested from your architecture brief — review and save each.
-              </p>
-            ) : null}
-
-            {clarificationSuggestionsUnavailable ? (
-              <p
-                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="guided-intake-clarification-inference-unavailable"
-              >
-                {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER}
-              </p>
-            ) : null}
-
-            {activePendingQuestions.length > 1 ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={busy}
-                data-testid="socratic-view-all-clarifications"
-                onClick={() => {
-                  setViewAllClarifications((current) => !current);
-                }}
-              >
-                {viewAllClarifications
-                  ? "Show one at a time"
-                  : `Show all ${totalRequiredClarifications} clarifications`}
-              </Button>
-            ) : null}
-
-            {otherPendingQuestions.length > 0 ? (
-              <div className="space-y-3" data-testid="socratic-other-clarifications">
-                <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.tab)}>
-                  Other required clarifications
-                </p>
-                {otherPendingQuestions.map((question) =>
-                  renderClarificationField(question, {
-                    isPrimary: false,
-                    isFocused: false,
-                  }),
-                )}
-              </div>
-            ) : null}
-
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="socratic-clarification-helper">
-              Answer or skip each clarification. You can review everything before starting the architecture review.
-            </p>
-
-            {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
-          </CardContent>
-        </Card>
-
-        <div
-          className={WIZARD_STICKY_FOOTER_CLASS}
-          data-testid={WIZARD_STICKY_FOOTER_TEST_ID}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="space-y-1">
-              <p
-                className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="socratic-clarifications-answered-counter"
-              >
-                {guidedIntakeClarificationsAnsweredCounter(
-                  handledClarificationCount,
-                  totalRequiredClarifications,
-                )}
-              </p>
-              {!allClarificationsHandled ? (
-                <p
-                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="socratic-review-answers-hint"
-                >
-                  {GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT}
-                </p>
-              ) : null}
-            </div>
-            <Button
-              type="button"
-              variant="primary"
-              disabled={!canReviewAnswers}
-              onClick={() => {
-                if (isSubmitBlocked) {
-                  return;
-                }
-
-                if (pendingQuestions.length === 0) {
-                  setStep(2);
-                  return;
-                }
-
-                void reviewAnswers();
-              }}
-              data-testid="socratic-questions-done"
-            >
-              {resolveGuidedIntakeClarificationsDoneLabel(allClarificationsHandled, busy)}
-            </Button>
-          </div>
-        </div>
-        </div>
+        <SocraticIntakeWizardStepClarifications
+          isCreateArchitectureFlow={isCreateArchitectureFlow}
+          activePendingQuestions={activePendingQuestions}
+          primaryPendingQuestion={primaryPendingQuestion}
+          otherPendingQuestions={otherPendingQuestions}
+          pendingQuestions={pendingQuestions}
+          answers={answers}
+          setAnswers={setAnswers}
+          viewAllClarifications={viewAllClarifications}
+          setViewAllClarifications={setViewAllClarifications}
+          totalRequiredClarifications={totalRequiredClarifications}
+          handledClarificationCount={handledClarificationCount}
+          allClarificationsHandled={allClarificationsHandled}
+          getClarificationOrdinal={getClarificationOrdinal}
+          getClarificationStatus={getClarificationStatus}
+          inferredQuestionKeys={inferredQuestionKeys}
+          rephrasedQuestionKeys={rephrasedQuestionKeys}
+          isExtractingEvidenceText={isExtractingEvidenceText}
+          canSuggestFromEvidence={canSuggestFromEvidence}
+          isSimulator={isSimulator}
+          clarificationSuggestionsUnavailable={clarificationSuggestionsUnavailable}
+          busy={busy}
+          submitError={submitError}
+          canReviewAnswers={canReviewAnswers}
+          isSubmitBlocked={isSubmitBlocked}
+          suggestAnswersFromEvidence={suggestAnswersFromEvidence}
+          markQuestionEdited={markQuestionEdited}
+          saveAndContinue={saveAndContinue}
+          skipQuestion={skipQuestion}
+          reviewAnswers={reviewAnswers}
+          onAdvanceToConfirm={() => setStep(2)}
+        />
       ) : null}
 
       {step === 2 && !isSubmitBlocked ? (

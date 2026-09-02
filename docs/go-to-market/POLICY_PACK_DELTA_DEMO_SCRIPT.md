@@ -73,7 +73,7 @@ X-Project-Id: {projectId}
 
 | Proof path | What it demonstrates |
 | --- | --- |
-| **Offline (CI)** | `PolicyFilteredGoldenCorpusTests` — SOC 2 vs CIS Azure changes compliance rule ids; `PolicyFilteredDeclarationGoldenCorpusTests` — `soc2-004` vs `cis-az-006` changes declaration titles; `PolicyExpectationCoverageGoldenCorpusTests` — stamped `identity` extra changes topology missing categories |
+| **Offline (CI)** | `PolicyFilteredGoldenCorpusTests` — SOC 2 vs CIS Azure changes compliance rule ids; `PolicyFilteredDeclarationGoldenCorpusTests` — `soc2-004` vs `cis-az-006` changes declaration titles; `PolicyPackP1ToggleGoldenCorpusTests` — bundled SOC 2 vs CIS Azure at **P1** on the same declaration graph; `PolicyExpectationCoverageGoldenCorpusTests` — stamped `identity` extra changes topology missing categories |
 | **Talk track** | Same graph, two filtered packs → different finding rule ids / severities; overlay extras (FinOps `cost.requireBudgetCap`, CIS `expectation.topologyCategories.add=identity`) change coverage/cost rows when bundled JSON contains the keys |
 | **Screenshot checklist** | Findings list, severity column, pre-finalize verdict, audit `FindingsSnapshotSealed` / policy assignment rows |
 
@@ -104,7 +104,7 @@ Optional: `.\scripts\demo-policy-pack-delta.ps1 -RunId … -ShowFindingDelta` dr
   -OutputDirectory artifacts/policy-pack-delta-demo
 ```
 
-**Offline-only (no API, no founder, no committed run):** write the sales-engineer cite packet from sample pack JSON (SOC 2 vs CIS Azure keys + FinOps `cost.requireBudgetCap` + CIS identity overlay extra):
+**Offline-only (no API, no founder narration, no committed run):** write the sales-engineer cite packet from sample pack JSON (SOC 2 vs CIS Azure keys + FinOps `cost.requireBudgetCap` + CIS identity overlay extra):
 
 ```powershell
 .\scripts\demo-policy-pack-delta.ps1 -OfflineFindingDelta

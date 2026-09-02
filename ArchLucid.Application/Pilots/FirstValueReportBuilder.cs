@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
@@ -42,6 +43,8 @@ public sealed class FirstValueReportBuilder(
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ITenantFirstValueReportBrandingRepository tenantFirstValueReportBrandingRepository,
     IPilotBaselineRepository pilotBaselineRepository,
+    RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
+    IOptions<RoiCostEvidenceFreshnessOptions> roiCostEvidenceFreshnessOptions,
     ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -57,6 +60,12 @@ public sealed class FirstValueReportBuilder(
 
     private readonly IPilotBaselineRepository _pilotBaselineRepository =
         pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
+
+    private readonly RoiCostEvidenceCollectionResolver _roiCostEvidenceCollectionResolver =
+        roiCostEvidenceCollectionResolver ?? throw new ArgumentNullException(nameof(roiCostEvidenceCollectionResolver));
+
+    private readonly RoiCostEvidenceFreshnessOptions _roiCostEvidenceFreshnessOptions =
+        roiCostEvidenceFreshnessOptions?.Value ?? throw new ArgumentNullException(nameof(roiCostEvidenceFreshnessOptions));
 
     private readonly ILogger<FirstValueReportBuilder> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
@@ -128,13 +137,28 @@ public sealed class FirstValueReportBuilder(
             proofCompleteness,
             buyerSafeGate);
         SponsorDecisionDeltaNoveltyMarkdownFormatter.AppendMarkdownSections(sb, decisionDeltaNovelty);
+
+        DateTime? extractorCollectionTimestampUtc = await _roiCostEvidenceCollectionResolver
+            .TryResolveLatestCollectionTimestampUtcAsync(scope, run.RunId, cancellationToken)
+            .ConfigureAwait(false);
+
+        bool hasUploadedCostEvidence = extractorCollectionTimestampUtc is not null
+            || await _roiCostEvidenceCollectionResolver
+                .HasAnyUploadedInventoryPackagesAsync(scope, cancellationToken)
+                .ConfigureAwait(false);
+
+        string costEvidenceFreshnessForBadges = ResolveCostEvidenceFreshnessForBadges(
+            proofCompleteness,
+            deltas,
+            extractorCollectionTimestampUtc);
+
         SponsorArtifactEvidenceBadgeMarkdownFormatter.AppendMarkdownSection(
             sb,
             deltas,
             proofCompleteness,
             valueWindowSnapshot,
-            ResolveSavingsPricingBasisForBadges(proofCompleteness, valueWindowSnapshot, deltas),
-            ResolveCostEvidenceFreshnessForBadges(proofCompleteness, deltas));
+            ResolveSavingsPricingBasisForBadges(proofCompleteness, deltas, hasUploadedCostEvidence),
+            costEvidenceFreshnessForBadges);
         SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness, deltas, run);
         if (run.RealModeFellBackToSimulator)
         {
@@ -237,12 +261,9 @@ public sealed class FirstValueReportBuilder(
 
     private static string ResolveSavingsPricingBasisForBadges(
         ProofPackageCompletenessResponse proof,
-        ValueReportSnapshot snapshot,
-        PilotRunDeltas deltas)
+        PilotRunDeltas deltas,
+        bool hasUploadedCostEvidence)
     {
-        bool hasUploadedCostEvidence = proof.RoiConfidenceLabel.Contains("uploaded", StringComparison.OrdinalIgnoreCase)
-            || proof.RoiConfidenceLabel.Contains("extractor", StringComparison.OrdinalIgnoreCase);
-
         return SponsorRoiSavingsPricingBasis.Resolve(
             1.0m,
             hasUploadedCostEvidence,
@@ -251,17 +272,15 @@ public sealed class FirstValueReportBuilder(
                 && !deltas.IsDemoTenant);
     }
 
-    private static string ResolveCostEvidenceFreshnessForBadges(
+    private string ResolveCostEvidenceFreshnessForBadges(
         ProofPackageCompletenessResponse proof,
-        PilotRunDeltas deltas)
+        PilotRunDeltas deltas,
+        DateTime? extractorCollectionTimestampUtc)
     {
-        if (deltas.IsDemoTenant || proof.DemoTenantWarningRequired)
-            return RoiCostEvidenceFreshness.Missing;
-
-        if (proof.RoiConfidenceLabel.Contains("uploaded", StringComparison.OrdinalIgnoreCase)
-            || proof.RoiConfidenceLabel.Contains("extractor", StringComparison.OrdinalIgnoreCase))
-            return RoiCostEvidenceFreshness.Fresh;
-
-        return RoiCostEvidenceFreshness.Missing;
+        return PilotCostEvidenceFreshnessBadgeResolver.Resolve(
+            extractorCollectionTimestampUtc,
+            deltas.IsDemoTenant || proof.DemoTenantWarningRequired,
+            TimeProvider.System.UtcNowDateTime(),
+            _roiCostEvidenceFreshnessOptions.StaleAfterDays);
     }
 }

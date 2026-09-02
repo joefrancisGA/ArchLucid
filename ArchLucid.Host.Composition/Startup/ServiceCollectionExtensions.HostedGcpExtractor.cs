@@ -1,7 +1,4 @@
-using ArchLucid.Application.GcpExtractor;
-using ArchLucid.Contracts.Abstractions.Integrations;
-using ArchLucid.Core.Configuration;
-using ArchLucid.Integrations.GcpExtractor;
+using ArchLucid.Host.Composition.Startup.Modules;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,14 +14,7 @@ public static partial class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddScoped<IHostedGcpExtractorRunService, HostedGcpExtractorRunService>();
-        services.AddScoped<IGcpExtractorAutoPullOrchestrator, GcpExtractorAutoPullOrchestrator>();
-        services.Configure<HostedGcpExtractorOptions>(configuration.GetSection(HostedGcpExtractorOptions.SectionName));
-        services.Configure<GcpExtractorAutoPullOptions>(configuration.GetSection(GcpExtractorAutoPullOptions.SectionName));
-        services.AddSingleton<IGcpSubjectTokenProvider, AzureManagedIdentityGcpSubjectTokenProvider>();
-        services.AddSingleton<GcpWorkloadIdentityCredentialFactory>();
-        services.AddScoped<IHostedGcpExtractorClient, HostedGcpExtractorClient>();
-
+        HostedCloudExtractorCompositionModule.RegisterGcp(services, configuration);
         return services;
     }
 }
