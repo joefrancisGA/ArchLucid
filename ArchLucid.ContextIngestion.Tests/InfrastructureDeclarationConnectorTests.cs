@@ -2551,6 +2551,72 @@ public sealed class InfrastructureDeclarationConnectorTests
     }
 
     [Fact]
+    public async Task DeltaAsync_ArmJsonArrayPropertyOrderChange_ReportsUnchanged()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([
+                new ArmJsonInfrastructureDeclarationParser(
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<ArmJsonInfrastructureDeclarationParser>.Instance),
+            ]),
+            new SetDiffConnectorDeltaComputer());
+
+        static InfrastructureDeclarationReference CreateDeclaration(string restrictionsJson) => new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-array-order-delta",
+            Content = $$"""
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Web/sites",
+                            "name": "web-app",
+                            "properties": {
+                              "ipSecurityRestrictions": {{restrictionsJson}}
+                            }
+                          }
+                        ]
+                      }
+                      """,
+        };
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                CreateDeclaration(
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"},{"name":"DenyAll","ipAddress":"255.255.255.255/32","action":"Deny"}]"""),
+            ],
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                CreateDeclaration(
+                    """[{"name":"DenyAll","ipAddress":"255.255.255.255/32","action":"Deny"},{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]"""),
+            ],
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.ModifiedCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task DeltaAsync_BicepInlineSlashSlashCommentChange_ReportsUnchanged()
     {
         InfrastructureDeclarationConnector connector = new(
