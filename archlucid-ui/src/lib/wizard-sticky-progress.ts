@@ -40,4 +40,4 @@ export const WIZARD_STICKY_FOOTER_TEST_ID = "wizard-sticky-footer";
  * wrapper that also contains the sticky footer (avoids a dead band before follow-ups).
  * Only when multiple active clarifications are visible in show-all mode.
  */
-export const WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS = "pb-24 md:pb-14";
+export const WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS = "pb-14";
