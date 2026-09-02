@@ -158,6 +158,17 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine("Not specified.");
         sb.AppendLine();
 
+        sb.AppendLine("## Decisions");
+        foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
+
+            sb.AppendLine($"- {decision.Category}: {decision.Title} -> {decision.SelectedOption}");
+
+        if (manifest.Decisions.Count == 0)
+
+            sb.AppendLine("No decisions recorded.");
+
+        sb.AppendLine();
+
         sb.AppendLine("## Unresolved Issues");
         if (manifest.UnresolvedIssues.Items.Count == 0)
 
