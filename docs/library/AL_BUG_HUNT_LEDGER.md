@@ -257,11 +257,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 5
-- **bugs-found:** 4
+- **hunts:** 6
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23 — hunt #37: AttemptIndex must rank before CreatedUtc in latest-per-task selector
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — empty TaskId collapsed unrelated agent traces in latest-per-task selector
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** 0
 
@@ -272,9 +272,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Integrity failure is logged but commit still proceeds Î“Ã‡Ã¶ retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
 - [x] Latest-per-task selector breaks on equal `CreatedUtc` and picks a superseded rejected schema-remediation attempt over a later accepted attempt Î“Ã‡Ã¶ fixed: tie-break on `AttemptIndex` then `TraceId` in `AgentExecutionTraceLatestPerTaskSelector`
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` sorts `CreatedUtc` before `AttemptIndex`, so a superseded rejected attempt with a newer timestamp blocks commit after a higher `AttemptIndex` accepted retry — **hit 2026-08-23 hunt #37:** order by `AttemptIndex` then `CreatedUtc` then `TraceId`
-- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode.Real`, `PilotStrict`, and empty `traces` — returns no blocking reasons, so `CommitOutputIntegrityService.EnsurePassOrThrowAsync` allows commit with zero execution traces recorded.
-- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode` not equal to `Real` — ignores `QualityRejected` and `RecordedQualityGateOutcome.Rejected` on all traces, permitting commit despite recorded rejections in simulator/non-real runs.
-- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator` with latest-per-task trace showing `RecordedQualityGateOutcome != Rejected` but `QualityRejected == true` — still emits a blocking reason, so a patch that clears only `RecordedQualityGateOutcome` cannot un-block commit while `QualityRejected` remains set.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode.Real`, `PilotStrict`, and empty `traces` — TB-2226 fail-closed scope is recorded rejections on persisted traces, not trace-count presence; empty list yields no rejection to block (lifecycle Complete remains a separate commit guard).
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode` not equal to `Real` — simulator/non-real bypass is intentional (`GetBlockingReasons_when_simulator_mode_returns_empty`).
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator` with `RecordedQualityGateOutcome != Rejected` but `QualityRejected == true` — dual-flag defense is intentional (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`).
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` — empty `TaskId` collapsed unrelated agent traces into one retry chain — **hit 2026-09-02 (#507):** two PilotStrict traces with `TaskId=""` kept only the lexicographically greatest `TraceId`, hiding a rejected topology trace behind an accepted cost trace; fixed by grouping missing task ids per `TraceId` (`Select_when_task_id_missing_keeps_each_trace_distinct`, `GetBlockingReasons_when_task_id_missing_groups_by_agent_type_not_single_empty_task`).
+
+2026-09-02 thorough hunt #507: cheap-disproof on three hunt-ready rows (empty traces, non-Real bypass, dual-flag defense); proved empty-TaskId latest-per-task collapse gap.
 
 ---
 
