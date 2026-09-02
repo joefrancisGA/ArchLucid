@@ -1,80 +1,17 @@
-/**
- * 59R learning / improvement planning API (`GET /v1/learning/*`). Shapes match ArchLucid.Api.Models.Learning (camelCase JSON).
- */
-
-export type LearningThemeResponse = {
-  themeId: string;
-  themeKey: string;
-  sourceAggregateKey?: string | null;
-  patternKey?: string | null;
-  title: string;
-  summary: string;
-  affectedArtifactTypeOrWorkflowArea: string;
-  severityBand: string;
-  evidenceSignalCount: number;
-  distinctRunCount: number;
-  averageTrustScore?: number | null;
-  derivationRuleVersion: string;
-  status: string;
-  createdUtc: string;
-  createdByUserId?: string | null;
-};
-
-export type LearningThemesListResponse = {
-  generatedUtc: string;
-  themes: LearningThemeResponse[];
-};
-
-export type LearningPlanListItemResponse = {
-  planId: string;
-  themeId: string;
-  title: string;
-  summary: string;
-  priorityScore: number;
-  priorityExplanation?: string | null;
-  status: string;
-  createdUtc: string;
-  themeEvidenceSignalCount?: number | null;
-};
-
-export type LearningPlansListResponse = {
-  generatedUtc: string;
-  plans: LearningPlanListItemResponse[];
-};
-
-export type LearningSummaryResponse = {
-  generatedUtc: string;
-  themeCount: number;
-  planCount: number;
-  totalThemeEvidenceSignals: number;
-  maxPlanPriorityScore?: number | null;
-  totalLinkedSignalsAcrossPlans: number;
-};
-
-export type LearningPlanStepResponse = {
-  ordinal: number;
-  actionType: string;
-  description: string;
-  acceptanceCriteria?: string | null;
-};
-
-export type LearningPlanEvidenceCountsResponse = {
-  linkedSignalCount: number;
-  linkedArtifactCount: number;
-  linkedArchitectureRunCount: number;
-};
-
-export type LearningPlanDetailResponse = {
-  planId: string;
-  themeId: string;
-  title: string;
-  summary: string;
-  priorityScore: number;
-  priorityExplanation?: string | null;
-  status: string;
-  createdUtc: string;
-  createdByUserId?: string | null;
-  actionSteps: LearningPlanStepResponse[];
-  evidenceCounts: LearningPlanEvidenceCountsResponse;
-  theme?: LearningThemeResponse | null;
-};
+import type { components } from "@/lib/openapi-schemas";
+type LearningThemeResponseSchema = components["schemas"]["LearningThemeResponse"];
+export type LearningThemeResponse = LearningThemeResponseSchema & Required<Pick<LearningThemeResponseSchema, "themeId" | "themeKey" | "title" | "summary" | "affectedArtifactTypeOrWorkflowArea" | "severityBand" | "evidenceSignalCount" | "distinctRunCount" | "derivationRuleVersion" | "status" | "createdUtc">>;
+type LearningThemesListResponseSchema = components["schemas"]["LearningThemesListResponse"];
+export type LearningThemesListResponse = LearningThemesListResponseSchema & Required<Pick<LearningThemesListResponseSchema, "generatedUtc" | "themes">>;
+type LearningPlanListItemResponseSchema = components["schemas"]["LearningPlanListItemResponse"];
+export type LearningPlanListItemResponse = LearningPlanListItemResponseSchema & Required<Pick<LearningPlanListItemResponseSchema, "planId" | "themeId" | "title" | "summary" | "priorityScore" | "status" | "createdUtc">>;
+type LearningPlansListResponseSchema = components["schemas"]["LearningPlansListResponse"];
+export type LearningPlansListResponse = LearningPlansListResponseSchema & Required<Pick<LearningPlansListResponseSchema, "generatedUtc" | "plans">>;
+type LearningSummaryResponseSchema = components["schemas"]["LearningSummaryResponse"];
+export type LearningSummaryResponse = LearningSummaryResponseSchema & Required<Pick<LearningSummaryResponseSchema, "generatedUtc" | "themeCount" | "planCount" | "totalThemeEvidenceSignals" | "totalLinkedSignalsAcrossPlans">>;
+type LearningPlanStepResponseSchema = components["schemas"]["LearningPlanStepResponse"];
+export type LearningPlanStepResponse = LearningPlanStepResponseSchema & Required<Pick<LearningPlanStepResponseSchema, "ordinal" | "actionType" | "description">>;
+type LearningPlanEvidenceCountsResponseSchema = components["schemas"]["LearningPlanEvidenceCountsResponse"];
+export type LearningPlanEvidenceCountsResponse = LearningPlanEvidenceCountsResponseSchema & Required<Pick<LearningPlanEvidenceCountsResponseSchema, "linkedSignalCount" | "linkedArtifactCount" | "linkedArchitectureRunCount">>;
+type LearningPlanDetailResponseSchema = components["schemas"]["LearningPlanDetailResponse"];
+export type LearningPlanDetailResponse = LearningPlanDetailResponseSchema & Required<Pick<LearningPlanDetailResponseSchema, "planId" | "themeId" | "title" | "summary" | "priorityScore" | "status" | "createdUtc" | "actionSteps" | "evidenceCounts">>;

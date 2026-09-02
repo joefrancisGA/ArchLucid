@@ -242,9 +242,9 @@ export function buildCompareEffectiveGovernanceSnapshot(
   effectiveContent: PolicyPackContentDocument | null,
 ): CompareEffectiveGovernanceSnapshot {
   const packAssignments: CompareEffectivePackAssignmentRow[] = effective.packs.map((pack) => ({
-    policyPackId: pack.policyPackId.trim(),
-    name: pack.name.trim(),
-    version: pack.version.trim(),
+    policyPackId: (pack.policyPackId ?? "").trim(),
+    name: (pack.name ?? "").trim(),
+    version: (pack.version ?? "").trim(),
   }));
 
   const complianceRuleKeys = effectiveContent?.complianceRuleKeys ?? [];

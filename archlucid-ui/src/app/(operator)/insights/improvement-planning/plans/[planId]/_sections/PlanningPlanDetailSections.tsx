@@ -150,7 +150,7 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
 
           <ol className={cn("m-0 pl-[22px] leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
 
-            {[...plan.actionSteps].sort((a, b) => a.ordinal - b.ordinal).map((s) => (
+            {[...(plan.actionSteps ?? [])].sort((a, b) => (a.ordinal ?? 0) - (b.ordinal ?? 0)).map((s) => (
 
               <li key={`${s.ordinal}-${s.actionType}`} className="mb-3">
 

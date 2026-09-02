@@ -1,26 +1,35 @@
-/** A single metric condition within a composite alert rule (metric + operator + threshold). */
-export type CompositeAlertRuleCondition = {
+import type { components } from "@/lib/openapi-schemas";
+
+type AlertRuleConditionSchema = components["schemas"]["AlertRuleCondition"];
+
+export type CompositeAlertRuleCondition = Omit<
+  AlertRuleConditionSchema & Required<Pick<AlertRuleConditionSchema, "metricType" | "operator">>,
+  "thresholdValue"
+> & {
   conditionId?: string;
-  metricType: string;
-  operator: string;
-  thresholdValue: number;
+  thresholdValue: string | number;
 };
 
-/** Multi-condition alert rule with AND/OR logic, suppression window, cooldown, and deduplication. */
-export type CompositeAlertRule = {
-  compositeRuleId: string;
-  tenantId: string;
-  workspaceId: string;
-  projectId: string;
-  name: string;
-  severity: string;
-  operator: string;
-  isEnabled: boolean;
-  suppressionWindowMinutes: number;
-  cooldownMinutes: number;
-  reopenDeltaThreshold: number;
-  dedupeScope: string;
-  targetChannelType: string;
-  createdUtc: string;
-  conditions: CompositeAlertRuleCondition[];
-};
+type CompositeAlertRuleSchema = components["schemas"]["CompositeAlertRule"];
+
+export type CompositeAlertRule = CompositeAlertRuleSchema &
+  Required<
+    Pick<
+      CompositeAlertRuleSchema,
+      | "compositeRuleId"
+      | "tenantId"
+      | "workspaceId"
+      | "projectId"
+      | "name"
+      | "severity"
+      | "operator"
+      | "isEnabled"
+      | "suppressionWindowMinutes"
+      | "cooldownMinutes"
+      | "reopenDeltaThreshold"
+      | "dedupeScope"
+      | "targetChannelType"
+      | "createdUtc"
+      | "conditions"
+    >
+  >;

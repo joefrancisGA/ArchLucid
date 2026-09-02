@@ -1,51 +1,42 @@
-/**
- * 60R evolution API (`/v1/evolution/*`). Shapes match ArchLucid.Api.Models.Evolution (camelCase JSON).
- */
+import type { components } from "@/lib/openapi-schemas";
 
-export type EvolutionCandidateChangeSetResponse = {
-  candidateChangeSetId: string;
-  sourcePlanId: string;
-  status: string;
-  title: string;
-  summary: string;
-  derivationRuleVersion: string;
-  createdUtc: string;
-  createdByUserId?: string | null;
-};
+type EvaluationScoreSchema = components["schemas"]["EvaluationScoreResponse"];
 
-export type EvolutionCandidateChangeSetListResponse = {
-  candidates: EvolutionCandidateChangeSetResponse[];
-};
-
-export type EvaluationScoreResponse = {
-  simulationScore?: number | null;
-  determinismScore?: number | null;
-  regressionRiskScore?: number | null;
-  improvementDelta?: number | null;
-  regressionSignals: string[];
+/** OpenAPI score fields may deserialize as strings; UI math expects numbers. */
+export type EvaluationScoreResponse = Omit<
+  EvaluationScoreSchema,
+  "confidenceScore" | "determinismScore" | "improvementDelta" | "regressionRiskScore" | "simulationScore"
+> & {
   confidenceScore?: number | null;
+  determinismScore?: number | null;
+  improvementDelta?: number | null;
+  regressionRiskScore?: number | null;
+  simulationScore?: number | null;
 };
 
-export type EvolutionSimulationRunWithEvaluationResponse = {
-  simulationRunId: string;
-  baselineArchitectureRunId: string;
-  evaluationMode: string;
-  outcomeJson: string;
-  warningsJson?: string | null;
-  completedUtc: string;
-  isShadowOnly: boolean;
-  evaluationScore?: EvaluationScoreResponse | null;
-  evaluationExplanationSummary?: string | null;
-  outcomeSchemaVersion?: string | null;
-};
-
-export type EvolutionResultsResponse = {
-  candidate: EvolutionCandidateChangeSetResponse;
-  planSnapshotJson: string;
-  simulationRuns: EvolutionSimulationRunWithEvaluationResponse[];
-};
-
-export type EvolutionSimulateResponse = {
-  candidate: EvolutionCandidateChangeSetResponse;
-  simulationRuns: EvolutionSimulationRunWithEvaluationResponse[];
-};
+type EvolutionCandidateChangeSetResponseSchema = components["schemas"]["EvolutionCandidateChangeSetResponse"];
+export type EvolutionCandidateChangeSetResponse = EvolutionCandidateChangeSetResponseSchema &
+  Required<
+    Pick<
+      EvolutionCandidateChangeSetResponseSchema,
+      "candidateChangeSetId" | "sourcePlanId" | "status" | "title" | "summary" | "derivationRuleVersion" | "createdUtc"
+    >
+  >;
+type EvolutionCandidateChangeSetListResponseSchema = components["schemas"]["EvolutionCandidateChangeSetListResponse"];
+export type EvolutionCandidateChangeSetListResponse = EvolutionCandidateChangeSetListResponseSchema &
+  Required<Pick<EvolutionCandidateChangeSetListResponseSchema, "candidates">>;
+type EvolutionSimulationRunWithEvaluationResponseSchema =
+  components["schemas"]["EvolutionSimulationRunWithEvaluationResponse"];
+export type EvolutionSimulationRunWithEvaluationResponse = EvolutionSimulationRunWithEvaluationResponseSchema &
+  Required<
+    Pick<
+      EvolutionSimulationRunWithEvaluationResponseSchema,
+      "simulationRunId" | "baselineArchitectureRunId" | "evaluationMode" | "outcomeJson" | "completedUtc" | "isShadowOnly"
+    >
+  >;
+type EvolutionResultsResponseSchema = components["schemas"]["EvolutionResultsResponse"];
+export type EvolutionResultsResponse = EvolutionResultsResponseSchema &
+  Required<Pick<EvolutionResultsResponseSchema, "candidate" | "planSnapshotJson" | "simulationRuns">>;
+type EvolutionSimulateResponseSchema = components["schemas"]["EvolutionSimulateResponse"];
+export type EvolutionSimulateResponse = EvolutionSimulateResponseSchema &
+  Required<Pick<EvolutionSimulateResponseSchema, "candidate" | "simulationRuns">>;

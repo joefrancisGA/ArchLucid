@@ -1,3 +1,4 @@
+import type { components } from "@/lib/openapi-schemas";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 /** Maps inspect API wire JSON to the UI payload shape (camelCase normalization). */
@@ -45,7 +46,10 @@ export function mapFindingInspectApiPayload(raw: Record<string, unknown>): Findi
       raw.confidenceLevel === "Low" || raw.confidenceLevel === "Medium" || raw.confidenceLevel === "High"
         ? raw.confidenceLevel
         : null,
-    humanReviewStatus: typeof raw.humanReviewStatus === "number" ? raw.humanReviewStatus : null,
+    humanReviewStatus:
+      typeof raw.humanReviewStatus === "number" || typeof raw.humanReviewStatus === "string"
+        ? (raw.humanReviewStatus as components["schemas"]["FindingHumanReviewStatus"])
+        : undefined,
     assignedToUserId: typeof raw.assignedToUserId === "string" ? raw.assignedToUserId : null,
     remediationDueUtc: typeof raw.remediationDueUtc === "string" ? raw.remediationDueUtc : null,
     trustLabel: typeof raw.trustLabel === "string" ? raw.trustLabel : null,

@@ -32,7 +32,7 @@ import {
   formatCompositeAlertRuleSummary,
 } from "@/lib/composite-alert-rules-labels";
 import type { CompositeAlertRulesContinueLastTarget } from "@/lib/resolve-continue-last-composite-alert-rule";
-import type { CompositeAlertRule } from "@/types/composite-alert-rules";
+import type { CompositeAlertRule, CompositeAlertRuleCondition } from "@/types/composite-alert-rules";
 
 function CompositeAlertRulesListLoadingSkeleton(): React.JSX.Element {
   return (
@@ -206,7 +206,7 @@ export function CompositeAlertRulesTable(props: CompositeAlertRulesTableProps): 
                 <ul className="mt-2">
                   {(r.conditions ?? []).map((c) => (
                     <li key={c.conditionId ?? `${c.metricType}-${c.thresholdValue}`}>
-                      {formatCompositeAlertConditionSummary(c)}
+                      {formatCompositeAlertConditionSummary(c as CompositeAlertRuleCondition)}
                     </li>
                   ))}
                 </ul>
