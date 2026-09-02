@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 50
-- **bugs-found:** 123
+- **hunts:** 51
+- **bugs-found:** 127
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — graph/azure/marketplace string-encoded boolean case normalization
+- **last-bug:** 2026-09-02 — integration/alert-routing string-encoded boolean case normalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1912,6 +1912,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — string-encoded boolean `name` / `resourceType` case not normalized — **hit 2026-09-02 (#462):** `"name":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryReadFromZip_string_encoded_boolean_name_and_resourceType_coerce_to_lowercase_strings`).
 - [x] (proven) `GraphJsonElementReaders.TryReadStringToken` / `ReadProperties` — string-encoded boolean graph tokens case not normalized — **hit 2026-09-02 (#462):** `"nodeId":"True"` and `"properties":{"enabled":"True"}` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with shared boolean normalization (`Read_string_encoded_boolean_nodeId_coerces_to_lowercase_string`, `ReadProperties_string_encoded_boolean_values_coerce_to_lowercase_strings`).
 - [x] (proven) `MarketplaceWebhookPayloadParser.TryGetStringPropertyCaseInsensitive` — string-encoded boolean `planId` case not normalized — **hit 2026-09-02 (#462):** `"planId":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryGetPlanId_reads_string_encoded_boolean_planId`).
+
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryReadCorrelationIdToken` — string-encoded boolean `correlationId` case not normalized — **hit 2026-09-02 (#463):** `"correlationId":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryResolveForPublish_reads_string_encoded_boolean_correlationId_from_payload_when_activity_unset`).
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryReadStringOrNumberToken` — string-encoded boolean `deduplicationKey` case not normalized — **hit 2026-09-02 (#463):** `"deduplicationKey":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryNormalizeBooleanString` (`TryResolveForPublish_alert_resolved_maps_string_encoded_boolean_deduplication_key`).
+- [x] (proven) `AlertRoutingCriteriaMetadata.TryReadStringArrayItem` / `ReadSeverityArrayItem` — string-encoded boolean `tags` / `severities` case not normalized — **hit 2026-09-02 (#463):** `"tags":["True"]` and `"severities":["True"]` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with shared boolean normalization (`AlertRoutingCriteriaMetadata_Parse_string_encoded_boolean_tags_coerce_to_lowercase_strings`, `AlertRoutingCriteriaMetadata_Parse_string_encoded_boolean_severities_coerce_to_lowercase_strings`).
+
+2026-09-02 seed hunt #463: reseeded from ArchLucid.Core; proved integration/alert-routing string-encoded boolean case normalization gaps.
 
 2026-09-02 seed hunt #462: reseeded from ArchLucid.Core; proved graph/azure/marketplace string-encoded boolean case normalization gaps.
 

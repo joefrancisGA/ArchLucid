@@ -208,6 +208,36 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_string_encoded_boolean_tags_coerce_to_lowercase_strings()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "tags": ["True", "ops"]
+              }
+            }
+            """);
+
+        parsed.Tags.Should().Equal("true", "ops");
+    }
+
+    [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_string_encoded_boolean_severities_coerce_to_lowercase_strings()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "severities": ["True", "High"]
+              }
+            }
+            """);
+
+        parsed.Severities.Should().Equal("true", "High");
+    }
+
+    [Fact]
     public void AlertRoutingMatcher_numeric_findingType_metadata_filters_non_matching_signals()
     {
         AlertRoutingSubscription subscription = new()

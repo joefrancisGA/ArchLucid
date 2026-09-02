@@ -90,6 +90,13 @@ public static class IntegrationEventServiceBusCorrelationId
                 return true;
             }
 
+            if (TryNormalizeBooleanString(raw, out string? normalized))
+            {
+                value = normalized;
+
+                return true;
+            }
+
             value = raw;
 
             return true;
@@ -143,6 +150,34 @@ public static class IntegrationEventServiceBusCorrelationId
         }
 
         value = default;
+
+        return false;
+    }
+
+    private static bool TryNormalizeBooleanString(string? raw, out string? value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = null;
+
+            return false;
+        }
+
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "true";
+
+            return true;
+        }
+
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "false";
+
+            return true;
+        }
+
+        value = null;
 
         return false;
     }
