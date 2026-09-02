@@ -62,7 +62,7 @@ public sealed partial class FindingJsonConverter
         if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind != JsonValueKind.Array)
             return [];
 
-        return el.EnumerateArray().Select(e => e.GetString() ?? "").Where(s => s.Length > 0).ToList();
+        return el.EnumerateArray().Select(ReadStringDictValue).Where(s => s.Length > 0).ToList();
     }
 
     private static Dictionary<string, string> ReadStringDict(JsonElement root, string name)

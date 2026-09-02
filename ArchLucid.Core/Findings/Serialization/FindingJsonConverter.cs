@@ -61,12 +61,12 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
             finding.EnforcementTier = ReadEnforcementTierFromString(tierFromProps);
         }
 
-        if (root.TryGetProperty("confidenceScore", out JsonElement confEl) &&
+        if (TryGetPropertyCaseInsensitive(root, "confidenceScore", out JsonElement confEl) &&
             confEl.ValueKind == JsonValueKind.Number &&
             confEl.TryGetDouble(out double conf))
             finding.ConfidenceScore = conf;
 
-        if (root.TryGetProperty("evaluationConfidenceScore", out JsonElement ecsEl) &&
+        if (TryGetPropertyCaseInsensitive(root, "evaluationConfidenceScore", out JsonElement ecsEl) &&
             ecsEl.ValueKind == JsonValueKind.Number &&
             ecsEl.TryGetInt32(out int ecs))
             finding.EvaluationConfidenceScore = ecs;
@@ -77,12 +77,12 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         if (TryGetPropertyCaseInsensitive(root, "humanReviewStatus", out JsonElement hrsEl))
             finding.HumanReviewStatus = ReadHumanReviewStatus(hrsEl);
 
-        if (root.TryGetProperty("projectedImpactUsd", out JsonElement impactEl) &&
+        if (TryGetPropertyCaseInsensitive(root, "projectedImpactUsd", out JsonElement impactEl) &&
             impactEl.ValueKind == JsonValueKind.Number &&
             impactEl.TryGetDecimal(out decimal projectedImpactUsd))
             finding.ProjectedImpactUsd = projectedImpactUsd;
 
-        if (root.TryGetProperty("reviewedAtUtc", out JsonElement raEl) && raEl.ValueKind == JsonValueKind.String &&
+        if (TryGetPropertyCaseInsensitive(root, "reviewedAtUtc", out JsonElement raEl) && raEl.ValueKind == JsonValueKind.String &&
             DateTimeOffset.TryParse(raEl.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind,
                 out DateTimeOffset ra))
             finding.ReviewedAtUtc = ra;
