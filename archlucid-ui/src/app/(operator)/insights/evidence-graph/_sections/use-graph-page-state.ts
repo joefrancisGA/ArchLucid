@@ -27,6 +27,7 @@ export function useGraphPageState() {
     setRunId,
     setGraphLoadRequested,
     setPresentationView,
+    setMode: loadController.setMode,
   });
   const canMutateEnterpriseShell = useOperateCapability();
 

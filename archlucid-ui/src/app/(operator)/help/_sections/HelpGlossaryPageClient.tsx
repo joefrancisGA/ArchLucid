@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
 
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Input } from "@/components/ui/input";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
@@ -34,6 +36,13 @@ import { LOAD_BEARING_GLOSSARY_NOUN_IDS } from "@/lib/load-bearing-glossary-noun
 import { OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  helpGlossaryCategoryHrefFromSearch,
+  helpGlossaryClearSearchHrefFromSearch,
+  helpGlossarySearchHrefFromSearch,
+  parseHelpGlossaryCategoryFilter,
+  parseHelpGlossarySearchQuery,
+} from "@/lib/help/help-glossary-filters";
 import { cn } from "@/lib/utils";
 
 const CUSTOMER_TERMS = listCustomerFacingGlossaryTerms();
@@ -42,8 +51,6 @@ const TERM_LABEL_INDEX = buildGlossaryTermLabelIndex(CUSTOMER_TERMS);
 const GLOSSARY_FEATURED_TERM_IDS = LOAD_BEARING_GLOSSARY_NOUN_IDS;
 
 const FILTER_CHIP_CLASS = "min-h-8 px-3";
-
-type CategoryFilter = CustomerGlossaryCategoryId | "all";
 
 type GlossaryTermEntryProps = {
   readonly term: CustomerGlossaryTerm;
@@ -112,8 +119,35 @@ function GlossaryTermEntry(props: GlossaryTermEntryProps): React.ReactElement {
 }
 
 export function HelpGlossaryPageClient(): React.ReactElement {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<CategoryFilter>("all");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlQuery = parseHelpGlossarySearchQuery(searchParams.get("q"));
+  const category = parseHelpGlossaryCategoryFilter(searchParams.get("category"));
+  const [query, setQuery] = useState(urlQuery);
+
+  useEffect(() => {
+    setQuery(urlQuery);
+  }, [urlQuery]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = helpGlossarySearchHrefFromSearch(searchParams.toString(), query);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [query, router, searchParams]);
+
+  const clearSearch = useCallback(() => {
+    setQuery("");
+    router.replace(helpGlossaryClearSearchHrefFromSearch(currentSearch), { scroll: false });
+  }, [currentSearch, router]);
 
   const filteredTerms = useMemo(() => {
     const categoryTerms = glossaryTermsForCategory(CUSTOMER_TERMS, category);
@@ -149,7 +183,7 @@ export function HelpGlossaryPageClient(): React.ReactElement {
 
   const handleRelatedTermNavigate = useCallback((relatedId: string) => {
     setQuery("");
-    setCategory("all");
+    router.replace(helpGlossaryClearSearchHrefFromSearch(currentSearch), { scroll: false });
 
     requestAnimationFrame(() => {
       const target = document.getElementById(`term-${relatedId}`);
@@ -161,7 +195,7 @@ export function HelpGlossaryPageClient(): React.ReactElement {
       target.scrollIntoView({ behavior: "smooth", block: "start" });
       window.history.replaceState(null, "", `#term-${relatedId}`);
     });
-  }, []);
+  }, [currentSearch, router]);
 
   return (
     <div className={HELP_PAGE_LAYOUT.contentGrid}>
@@ -198,31 +232,43 @@ export function HelpGlossaryPageClient(): React.ReactElement {
               data-testid="glossary-search-input"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && query.trim().length > 0) {
+                  event.preventDefault();
+                  clearSearch();
+                }
+              }}
               placeholder={CUSTOMER_GLOSSARY_SEARCH_PLACEHOLDER}
             />
           </div>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status" aria-live="polite">
             {filteredTerms.length} {filteredTerms.length === 1 ? "term" : "terms"}
           </p>
-          <div className="flex flex-wrap gap-2" data-testid="glossary-category-filters" role="group" aria-label="Glossary categories">
+          <FilterChipGroup
+            aria-label="Glossary categories"
+            className="flex flex-wrap gap-2"
+            data-testid="glossary-category-filters"
+          >
             <FilterChip
+              href={helpGlossaryCategoryHrefFromSearch(currentSearch, "all")}
+              scroll={false}
               className={cn(buyerFilterChipClass(category === "all", false), FILTER_CHIP_CLASS)}
-              aria-pressed={category === "all"}
-              onClick={() => setCategory("all")}
+              aria-current={category === "all" ? "page" : undefined}
             >
               {CUSTOMER_GLOSSARY_ALL_TERMS_FILTER}
             </FilterChip>
             {CUSTOMER_GLOSSARY_CATEGORY_ORDER.map((categoryId) => (
               <FilterChip
                 key={categoryId}
+                href={helpGlossaryCategoryHrefFromSearch(currentSearch, categoryId)}
+                scroll={false}
                 className={cn(buyerFilterChipClass(category === categoryId, false), FILTER_CHIP_CLASS)}
-                aria-pressed={category === categoryId}
-                onClick={() => setCategory(categoryId)}
+                aria-current={category === categoryId ? "page" : undefined}
               >
                 {CUSTOMER_GLOSSARY_CATEGORY_LABELS[categoryId]}
               </FilterChip>
             ))}
-          </div>
+          </FilterChipGroup>
           {availableLetters.length > 0 ? (
             <nav aria-label="Alphabetical glossary index" data-testid="glossary-letter-index">
               <p className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

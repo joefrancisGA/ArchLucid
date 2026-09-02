@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import {
   homeGovernanceWarningsClearHrefFromSearch,
   homeGovernanceWarningsHrefFromSearch,
@@ -31,10 +32,9 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   }
 
   return (
-    <div
+    <FilterChipGroup
       className="flex flex-wrap items-center gap-x-2 gap-y-1.5"
       data-testid="runs-dashboard-filters"
-      role="group"
       aria-label="Filter reviews"
     >
       {props.governanceWarningsOnly ? (
@@ -92,6 +92,6 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
           </span>
         )
       ) : null}
-    </div>
+    </FilterChipGroup>
   );
 }

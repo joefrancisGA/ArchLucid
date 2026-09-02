@@ -62,3 +62,21 @@ export function readFindingJobViewFromWindowLocation(): FindingJobView {
     new URLSearchParams(window.location.search).get(REVIEW_FINDINGS_JOB_VIEW_PARAM),
   );
 }
+
+export function reviewFindingsJobViewHrefFromSearch(
+  currentSearch: string,
+  pathname: string,
+  jobView: FindingJobView,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (jobView === DEFAULT_FINDING_JOB_VIEW) {
+    params.delete(REVIEW_FINDINGS_JOB_VIEW_PARAM);
+  } else {
+    params.set(REVIEW_FINDINGS_JOB_VIEW_PARAM, jobView);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
