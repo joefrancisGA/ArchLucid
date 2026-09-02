@@ -75,10 +75,7 @@ export function OperatorHomeWorkspaceContextDisclosure(
 
   const sectionHeading =
     showDetailsToggle ? (
-      <OperatorHomeCardSectionTitle
-        id="operator-home-workspace-metrics-heading"
-        className="flex items-center gap-2"
-      >
+      <div className="flex items-center gap-2">
         <CollapsibleTrigger asChild>
           <Button
             type="button"
@@ -90,13 +87,13 @@ export function OperatorHomeWorkspaceContextDisclosure(
             aria-label={detailsToggleLabel}
             data-testid="operator-home-workspace-metrics-details-toggle"
           >
-            <DisclosureTriangleIndicator
-              className={cn(showDetailsExpanded ? "rotate-90" : "rotate-0")}
-            />
+            <DisclosureTriangleIndicator className={cn(showDetailsExpanded ? "rotate-90" : "rotate-0")} />
           </Button>
         </CollapsibleTrigger>
-        {WORKSPACE_METRICS_SECTION_TITLE}
-      </OperatorHomeCardSectionTitle>
+        <OperatorHomeCardSectionTitle id="operator-home-workspace-metrics-heading">
+          {WORKSPACE_METRICS_SECTION_TITLE}
+        </OperatorHomeCardSectionTitle>
+      </div>
     ) : (
       <OperatorHomeCardSectionTitle id="operator-home-workspace-metrics-heading">
         {WORKSPACE_METRICS_SECTION_TITLE}
