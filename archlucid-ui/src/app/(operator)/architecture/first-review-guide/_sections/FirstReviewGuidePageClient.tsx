@@ -22,13 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { StatusTag } from "@/components/ui/status-tag";
 
-import {
-
-  PageContextualHelpButton,
-
-  PAGE_HELP_SHORT_TRIGGER_TEXT,
-
-} from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 
 import { OperatorErrorRecoveryActions } from "@/components/usability/OperatorErrorRecoveryActions";
 
@@ -43,6 +37,8 @@ import {
   BUYER_ONBOARDING_PAGE_LEAD,
 
   BUYER_ONBOARDING_PAGE_TITLE,
+
+  FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
 
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 
@@ -233,7 +229,9 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
 
         subtitleClassName="max-w-3xl"
 
-        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
+        actions={
+          <PageContextualHelpButton triggerText={FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL} />
+        }
 
       >
 

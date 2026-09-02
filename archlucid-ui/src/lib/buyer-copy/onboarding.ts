@@ -14,6 +14,9 @@ export const GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD =
 
 export const BUYER_ONBOARDING_PAGE_TITLE = "First review guide";
 
+/** Visible label on the page header contextual help trigger (distinct from shortened "Help"). */
+export const FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL = "First Review Guide";
+
 export const BUYER_ONBOARDING_PAGE_LEAD =
   "Create, evaluate, and finalize your first evidence-backed architecture review.";
 

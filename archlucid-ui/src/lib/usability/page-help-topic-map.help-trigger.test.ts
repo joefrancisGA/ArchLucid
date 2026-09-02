@@ -5,7 +5,10 @@ import { describe, expect, it } from "vitest";
 
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import {
+  BUYER_ONBOARDING_PAGE_TITLE,
+  FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
+} from "@/lib/buyer/buyer-polish-copy";
 import { INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE } from "@/lib/developer-settings-evidence-copy";
 import { GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -44,11 +47,6 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
     pathname: "/administration/developer",
     pageTitle: INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE,
     modulePath: "app/(operator)/administration/developer/DeveloperSettingsPageClient.tsx",
-  },
-  {
-    pathname: "/architecture/first-review-guide",
-    pageTitle: BUYER_ONBOARDING_PAGE_TITLE,
-    modulePath: "app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuidePageClient.tsx",
   },
   {
     pathname: "/governance/setup",
@@ -125,6 +123,20 @@ describe("page-help-topic-map — help trigger label collisions (P0-5)", () => {
     expect(source).toContain("<PageContextualHelpButton");
     expect(source).not.toContain("PAGE_HELP_SHORT_TRIGGER_TEXT");
     expect(pageHelpTopicForPathname("/")?.label).toBe(OPERATOR_HOME_PAGE_TITLE);
+  });
+
+  it("first review guide mounts a descriptive help trigger label (not shortened Help)", () => {
+    const source = readSrcModule(
+      "app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuidePageClient.tsx",
+    );
+
+    expect(source).toContain("FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL");
+    expect(source).toMatch(
+      /PageContextualHelpButton[^>]*triggerText=\{FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL\}/,
+    );
+    expect(source).not.toContain("PAGE_HELP_SHORT_TRIGGER_TEXT");
+    expect(pageHelpTopicForPathname("/architecture/first-review-guide")?.label).toBe(BUYER_ONBOARDING_PAGE_TITLE);
+    expect(FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL).toBe("First Review Guide");
   });
 });
 
