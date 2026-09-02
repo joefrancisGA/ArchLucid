@@ -161,20 +161,28 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         headingLevel="h1"
         subtitle={props.eyebrowLabel}
         metadata={
-          <span className="inline-flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="inline-flex min-w-0 items-center gap-1">
-              <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
-              <code className="max-w-[14rem] truncate font-mono select-all">{props.reviewIdentifierLabel}</code>
-              <CopyIdButton value={props.runId} aria-label="Copy review ID" />
-            </span>
-            {props.signedReviewRecordId !== null && props.signedReviewRecordIdLabel !== null ? (
+          <details
+            className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+            data-testid="run-detail-copy-identifiers-disclosure"
+          >
+            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+              Copy identifiers
+            </summary>
+            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
               <span className="inline-flex min-w-0 items-center gap-1">
-                <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
-                <code className="max-w-[14rem] truncate font-mono select-all">{props.signedReviewRecordIdLabel}</code>
-                <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
+                <code className="max-w-[14rem] truncate font-mono select-all">{props.reviewIdentifierLabel}</code>
+                <CopyIdButton value={props.runId} aria-label="Copy review ID" />
               </span>
-            ) : null}
-          </span>
+              {props.signedReviewRecordId !== null && props.signedReviewRecordIdLabel !== null ? (
+                <span className="inline-flex min-w-0 items-center gap-1">
+                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
+                  <code className="max-w-[14rem] truncate font-mono select-all">{props.signedReviewRecordIdLabel}</code>
+                  <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
+                </span>
+              ) : null}
+            </div>
+          </details>
         }
         actions={
           <>
