@@ -109,6 +109,11 @@ jobs:
           Auth__Trial__LocalIdentity__JwtAudience: "api://archlucid-live-e2e-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
+          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          AzureOpenAI__Endpoint: ""
+          AzureOpenAI__ApiKey: ""
+          AzureOpenAI__DeploymentName: ""
+          AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
