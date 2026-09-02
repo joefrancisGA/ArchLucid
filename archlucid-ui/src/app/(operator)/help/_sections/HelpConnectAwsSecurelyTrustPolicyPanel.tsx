@@ -20,12 +20,13 @@ import {
   AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL,
 } from "@/lib/aws-cloud-connection-trust-policy-starter";
 import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
+import { ASSURANCE_STATUS_PUBLIC_PATH } from "@/lib/marketing-assurance-public-labels";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { showError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
-const ASSURANCE_STATUS_PATH = "/assurance-status";
+const ASSURANCE_STATUS_PATH = ASSURANCE_STATUS_PUBLIC_PATH;
 
 /** Federation identifiers table and copyable IAM trust-policy template for AWS setup. */
 export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
