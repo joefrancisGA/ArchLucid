@@ -90,8 +90,29 @@ public static class AwsEc2OfferIndexParser
     {
         hourlyUsd = 0m;
 
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetDecimal(out hourlyUsd))
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            if (element.TryGetDecimal(out hourlyUsd))
+                return hourlyUsd > 0m;
+
+            if (element.TryGetDouble(out double numeric)
+                && double.IsFinite(numeric)
+                && numeric > 0)
+            {
+                hourlyUsd = (decimal)numeric;
+
+                return hourlyUsd > 0m;
+            }
+
+            return false;
+        }
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            hourlyUsd = element.ValueKind == JsonValueKind.True ? 1m : 0m;
+
             return hourlyUsd > 0m;
+        }
 
         if (element.ValueKind != JsonValueKind.String)
             return false;
@@ -101,8 +122,53 @@ public static class AwsEc2OfferIndexParser
         if (string.IsNullOrWhiteSpace(raw))
             return false;
 
+        if (TryParseBooleanString(raw, out bool boolean))
+        {
+            hourlyUsd = boolean ? 1m : 0m;
+
+            return hourlyUsd > 0m;
+        }
+
         return decimal.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out hourlyUsd)
             && hourlyUsd > 0m;
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("enabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("disabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static bool TryReadAttribute(JsonElement attributes, string name, out string? value)

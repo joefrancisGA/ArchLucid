@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 76
-- **bugs-found:** 188
+- **hunts:** 77
+- **bugs-found:** 189
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — GcpCloudBillingCatalogClient whole-number double units/nanos ignored
+- **last-bug:** 2026-09-02 — AwsEc2OfferIndexParser boolean USD price tokens ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2015,7 +2015,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GcpCloudBillingCatalogClient.TryReadInt32Token` / `TryReadInt64Token` — whole-number double `unitPrice.units` / `unitPrice.nanos` JSON tokens ignored — **hit 2026-09-02 (#488):** `"nanos":10400000.0` returned null while integer `10400000` parsed in #487; fixed with whole-number double coercion (`TryGetComputeEngineMonthlyUsdAsync_parses_whole_number_double_unit_price_tokens`).
 
-2026-09-02 seed hunt #488: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog whole-number double units/nanos coercion gap after #487 integer-token fix.
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadUsdPrice` — boolean / string-encoded boolean `pricePerUnit.USD` JSON tokens ignored — **hit 2026-09-02 (#489):** `"USD":true` and `"USD":"true"` returned null while numeric/string price tokens already parsed in #486; fixed with boolean coercion and `TryGetDouble` fallback (`TryGetLinuxOnDemandHourlyUsd_parses_boolean_usd_price`, `TryGetLinuxOnDemandHourlyUsd_parses_string_encoded_boolean_usd_price`).
+
+2026-09-02 seed hunt #489: reseeded from ArchLucid.Core costing parsers; proved AWS offer-index boolean USD price coercion gap after #486 numeric-token fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
