@@ -523,6 +523,8 @@ public sealed class FirstValueReportBuilderTests
             siteOpts.Object,
             branding.Object,
             pilotBaselines.Object,
+            FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
+            FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }
