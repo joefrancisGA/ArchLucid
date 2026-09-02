@@ -2855,11 +2855,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — missing findings snapshot marked pack assignments Evaluated instead of Skipped
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — PolicyPackCoverageProofEvaluator ignored camelCase governance scope JSON and recorded outcomes
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2875,8 +2875,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Synthetic pre-commit simulation reports a missing or foreign scoped run as allowed — **hit 2026-08-24:** `PreCommitGovernanceGate.SimulateSyntheticFindingsInternalAsync` returned `Allowed()` when scoped `GetByIdAsync(runId)` returned null, so the CI simulation endpoint could report a pass without evaluating the requested synthetic Critical finding; simulation now throws `RunNotFoundException` while live evaluation semantics remain unchanged
 - [x] (proven) Curated rule metadata key lookup is case-sensitive after JSON deserialization — **hit 2026-08-25:** `PolicyPackCuratedRuleKeyReader` used `metadata.TryGetValue` for `pack.curatedRules.v1`, so PascalCase `Pack.CuratedRules.V1` from deserialized pack content was ignored and authoring validation warned on tenant-authored rule keys; fixed via `PolicyPackContentMetadataReader`; regression in `ValidateAsync_when_curated_metadata_key_uses_PascalCase_accepts_matching_rule`
 - [x] (proven) `PolicyPackAssignmentOutcomeRecorder` marked assignments `evaluated` when `findingsSnapshot` was null — **hit 2026-08-26:** pre-finalize coverage refresh with no snapshot row fell through to `Evaluated` even with zero matching findings, overstating pack evaluation proof; fixed by returning `Skipped` when snapshot is absent (`PolicyPackAssignmentOutcomeRecorderTests.ApplyOutcomes_marks_skipped_when_findings_snapshot_is_missing`)
+- [x] (proven) `PolicyPackCoverageProofEvaluator` deserialized execute-time governance scope with default `JsonSerializer` options — **hit 2026-09-02:** camelCase `GovernanceScopeJson` from `ExecutedEffectiveGovernanceSnapshotJson` never bound `packAssignments`, so pre-finalize coverage proof always reported zero assignments and skipped advisories; fixed by using `TryDeserialize` and honoring recorded `EvaluationOutcome` values (`PolicyPackCoverageProofEvaluatorTests`)
 - [x] (invalid) Policy pack coverage proof ignores muted findings in outcome recorder mismatch — `PolicyPackCoverageProofEvaluator` and `PolicyPackAssignmentOutcomeRecorder` both filter `IsMuted` before matching; `PartiallyComplete` snapshots use the same incomplete branch as `Generating` (muted-only signals → `Skipped`, active signals → `Evaluated`; coverage proof agrees)
 - [x] (invalid) Governance dry-run returns null for invalid run id format — `PolicyPackGovernanceDryRunService.EvaluateAsync` intentionally returns null for non-GUID `targetRunId` so the API surfaces the same 404 as an out-of-scope run (no id-format oracle)
+
+2026-09-02 seed hunt #8: reseeded pre-finalize coverage proof path; proved governance-scope JSON deserialization gap.
 
 2026-08-26 thorough hunt #7: proved missing-snapshot pack outcome; retired muted-finding divergence and dry-run null-shape candidates.
 
