@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 62
-- **bugs-found:** 159
+- **hunts:** 63
+- **bugs-found:** 160
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — policy-pack breach severity label normalization
+- **last-bug:** 2026-09-02 — policy-pack priority floor whole-number coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1956,6 +1956,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — string-encoded boolean quality-gate mode ignored — **hit 2026-09-02 (#473):** config `"False"` skipped WarnOnly advisory while `"0"` / `"0.0"` emitted; fixed with `TryParseBooleanOrdinalString` (`ShouldEmitFinding_production_real_string_encoded_boolean_warn_only_emits_rule`).
 
 - [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` — coerced severity labels not normalized for downstream enum parse — **hit 2026-09-02 (#474):** `"2.0"` / `"True"` stored raw while `PolicyExpectationCostGraphReader.ResolveBreachSeverityOverride` only accepts enum names; fixed by returning `FindingSeverity.ToString()` for ordinal/boolean coercion paths (`Parse_breach_severity_string_encoded_whole_number_ordinal_maps_label`, `Parse_breach_severity_string_encoded_boolean_maps_label`).
+
+- [x] (proven) `PolicyPackPriorityFloor.NormalizeTier` — string-encoded whole-number priority floor ignored — **hit 2026-09-02 (#475):** advisory `priorityFloor="2.0"` / `"0.0"` defaulted to `P1` while `"2"` / `"0"` honored `P2` / `P0`; fixed with whole-number and boolean ordinal coercion (`ResolveFloor_string_encoded_whole_number_p2_maps_p2`, `ResolveFloor_string_encoded_whole_number_p0_maps_p0`).
+
+2026-09-02 seed hunt #475: reseeded from ArchLucid.Core; proved policy-pack priority floor string whole-number coercion gap.
 
 2026-09-02 seed hunt #474: reseeded from ArchLucid.Core; proved policy-pack breach severity stores non-parseable coerced labels for downstream cost override reader.
 
