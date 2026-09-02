@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Contracts.Roi;
+
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>

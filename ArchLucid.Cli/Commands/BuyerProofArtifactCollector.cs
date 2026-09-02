@@ -109,7 +109,7 @@ internal sealed class BuyerProofArtifactCollectionResult
     public static BuyerProofArtifactCollectionResult NotFound(string runId) =>
         new(BuyerProofArtifactCollectionStatus.NotFound, null, null, runId);
 
-    public static BuyerProofArtifactCollectionResult.FetchFailed(string message) =>
+    public static BuyerProofArtifactCollectionResult FetchFailed(string message) =>
         new(BuyerProofArtifactCollectionStatus.FetchFailed, null, message, null);
 
     public static BuyerProofArtifactCollectionResult GateFailed(string message) =>
