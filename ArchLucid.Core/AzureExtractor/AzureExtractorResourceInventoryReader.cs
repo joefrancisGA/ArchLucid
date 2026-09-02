@@ -122,6 +122,13 @@ public static class AzureExtractorResourceInventoryReader
             return true;
         }
 
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.GetRawText();
+
+            return true;
+        }
+
         value = null;
 
         return false;

@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 39
-- **bugs-found:** 89
+- **hunts:** 40
+- **bugs-found:** 91
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — marketplace quantity whole-number coercion; finding boolean runIdRef; extractor string schemaVersion 1.0; enum string ordinals
+- **last-bug:** 2026-09-02 — finding string-encoded whole-number severity; Azure extractor boolean resource fields
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1884,6 +1884,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadOptionalString` — boolean scalar refs return null — **hit 2026-09-02 (#450):** `"runIdRef":true` left null on snapshot reload; fixed by coercing boolean tokens (`Deserialize_boolean_runIdRef_coerces_to_string`).
 - [x] (proven) `AzureExtractorPackageZipValidator.TryReadSchemaVersion` — string-encoded whole-number `schemaVersion` rejected — **hit 2026-09-02 (#450):** `"schemaVersion":"1.0"` failed valid ZIP manifest validation; fixed with `TryParseWholeNumberString` (`Validate_string_whole_number_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
 - [x] (proven) `FindingJsonConverter` enum string readers — string-encoded whole-number ordinals throw on reload — **hit 2026-09-02 (#450):** `"humanReviewStatus":"1.0"` threw `JsonException`; fixed by routing string numeric paths through `TryParseWholeNumberString` (`Deserialize_string_encoded_whole_number_humanReviewStatus_maps_pending`).
+- [x] (proven) `FindingJsonConverter.ReadSeverity` — string-encoded whole-number severity ordinals throw on reload — **hit 2026-09-02 (#452):** `"severity":"2.0"` threw `JsonException` while sibling enum readers already accepted decimal strings; fixed with `TryParseWholeNumberString` (`Deserialize_string_encoded_whole_number_severity_maps_error`).
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — boolean `name` / `resourceType` JSON tokens skipped so inventory rows dropped — **hit 2026-09-02 (#452):** `"name":true` omitted row from costing inventory; fixed by coercing boolean tokens to strings (`TryReadFromZip_boolean_name_and_resourceType_coerce_to_strings`).
+
+2026-09-02 seed hunt #452: reseeded from ArchLucid.Core; proved finding string-encoded whole-number severity and Azure extractor boolean resource field coercion gaps.
 
 2026-09-02 seed hunt #450: reseeded from ArchLucid.Core; proved marketplace quantity whole-number coercion, finding boolean runIdRef, extractor string schemaVersion, and enum string-encoded ordinal gaps.
 

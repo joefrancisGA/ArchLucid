@@ -28,6 +28,15 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             return FindingSeverity.Info;
 
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
+            || TryParseWholeNumberString(raw, out numericFromString))
+        {
+            if (!Enum.IsDefined(typeof(FindingSeverity), numericFromString))
+                throw new JsonException($"Unknown finding severity value '{raw}'.");
+
+            return (FindingSeverity)numericFromString;
+        }
+
         if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed) && Enum.IsDefined(parsed))
             return parsed;
 
