@@ -25,7 +25,13 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         if (!_drafts.TryGetValue(draftId, out StoredDraft? stored))
             return Task.FromResult<DraftRequestResponse?>(null);
 
-        if (stored.TenantId != tenantId || stored.WorkspaceId != workspaceId || stored.ProjectId != projectId)
+        if (!DraftRequestRepositoryCore.MatchesProjectScope(
+                tenantId,
+                workspaceId,
+                projectId,
+                stored.TenantId,
+                stored.WorkspaceId,
+                stored.ProjectId))
             return Task.FromResult<DraftRequestResponse?>(null);
 
         return Task.FromResult<DraftRequestResponse?>(Map(stored));
@@ -81,7 +87,13 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         if (!_drafts.TryGetValue(draftId, out StoredDraft? stored))
             return Task.FromResult<DraftRequestResponse?>(null);
 
-        if (stored.TenantId != tenantId || stored.WorkspaceId != workspaceId || stored.ProjectId != projectId)
+        if (!DraftRequestRepositoryCore.MatchesProjectScope(
+                tenantId,
+                workspaceId,
+                projectId,
+                stored.TenantId,
+                stored.WorkspaceId,
+                stored.ProjectId))
             return Task.FromResult<DraftRequestResponse?>(null);
 
         stored.Status = status;
@@ -116,10 +128,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
 
             StoredDraft stored = entry.Value;
 
-            if (stored.Status is not (DraftRequestStatus.Redirected or DraftRequestStatus.Abandoned))
-                continue;
-
-            if (stored.UpdatedUtc >= cutoff)
+            if (!DraftRequestRepositoryCore.IsReaperEligible(stored.Status, stored.UpdatedUtc, cutoff))
                 continue;
 
             if (_drafts.TryRemove(entry.Key, out _))
@@ -138,10 +147,14 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         CancellationToken cancellationToken)
     {
         int count = _drafts.Values.Count(stored =>
-            stored.TenantId == tenantId
-            && stored.WorkspaceId == workspaceId
-            && stored.ProjectId == projectId
-            && stored.Document.ParentDraftId == parentDraftId);
+            DraftRequestRepositoryCore.MatchesProjectScope(
+                tenantId,
+                workspaceId,
+                projectId,
+                stored.TenantId,
+                stored.WorkspaceId,
+                stored.ProjectId)
+            && DraftRequestRepositoryCore.MatchesChildBranch(stored.Document.ParentDraftId, parentDraftId));
 
         return Task.FromResult(count);
     }
@@ -162,10 +175,12 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         bool exists = _drafts.Values.Any(stored =>
             stored.TenantId == tenantId
             && stored.WorkspaceId == workspaceId
-            && stored.DraftId != excludeDraftId
-            && stored.Status is DraftRequestStatus.Drafting or DraftRequestStatus.Admitted
-            && !string.IsNullOrWhiteSpace(stored.Document.SystemName)
-            && string.Equals(stored.Document.SystemName.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase));
+            && DraftRequestRepositoryCore.IsMutableDraftStatus(stored.Status)
+            && DraftRequestRepositoryCore.MatchesMutableSystemName(
+                stored.Document.SystemName,
+                normalizedName,
+                stored.DraftId,
+                excludeDraftId));
 
         return Task.FromResult(exists);
     }
@@ -182,11 +197,17 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         int effectiveMax = DraftRequestRepositoryCore.ClampPriorDraftsMaxCount(maxCount);
         List<DraftRequestResponse> matches = _drafts.Values
             .Where(stored =>
-                stored.TenantId == tenantId
-                && stored.WorkspaceId == workspaceId
-                && stored.ProjectId == projectId
-                && stored.Status == DraftRequestStatus.RunSpawned
-                && stored.DraftId != excludeDraftId)
+                DraftRequestRepositoryCore.MatchesProjectScope(
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    stored.TenantId,
+                    stored.WorkspaceId,
+                    stored.ProjectId)
+                && DraftRequestRepositoryCore.MatchesRunSpawnedInScope(
+                    stored.Status,
+                    stored.DraftId,
+                    excludeDraftId))
             .OrderByDescending(stored => stored.UpdatedUtc)
             .Take(effectiveMax)
             .Select(Map)
@@ -206,9 +227,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(createdByUserId);
-
-        if (statuses is null || statuses.Count == 0)
-            throw new ArgumentException("At least one status filter is required.", nameof(statuses));
+        DraftRequestRepositoryCore.ValidateStatusFilter(statuses);
 
         (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
         int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
@@ -218,8 +237,11 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             .Where(stored =>
                 stored.TenantId == tenantId
                 && stored.WorkspaceId == workspaceId
-                && string.Equals(stored.CreatedByUserId, createdByUserId, StringComparison.Ordinal)
-                && statusFilter.Contains(stored.Status))
+                && DraftRequestRepositoryCore.MatchesCreatorInWorkspace(
+                    stored.CreatedByUserId,
+                    stored.Status,
+                    createdByUserId,
+                    statusFilter))
             .OrderByDescending(stored => stored.UpdatedUtc)
             .Select(Map)
             .ToList();
@@ -240,10 +262,14 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(spawnedRunId);
 
         StoredDraft? match = _drafts.Values.FirstOrDefault(stored =>
-            stored.TenantId == tenantId
-            && stored.WorkspaceId == workspaceId
-            && stored.ProjectId == projectId
-            && string.Equals(stored.SpawnedRunId, spawnedRunId, StringComparison.OrdinalIgnoreCase));
+            DraftRequestRepositoryCore.MatchesProjectScope(
+                tenantId,
+                workspaceId,
+                projectId,
+                stored.TenantId,
+                stored.WorkspaceId,
+                stored.ProjectId)
+            && DraftRequestRepositoryCore.MatchesSpawnedRunId(stored.SpawnedRunId, spawnedRunId));
 
         return Task.FromResult(match is null ? null : Map(match));
     }

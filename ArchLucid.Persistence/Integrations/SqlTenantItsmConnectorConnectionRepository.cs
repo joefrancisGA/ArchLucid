@@ -80,7 +80,11 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
         Row? row = await connection.QueryFirstOrDefaultAsync<Row>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, Provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderPersistenceLabel(provider) },
+                new
+                {
+                    TenantId = tenantId,
+                    Provider = TenantItsmConnectorConnectionRepositoryCore.ToPersistenceProviderLabel(provider)
+                },
                 cancellationToken: cancellationToken));
 
         return row is null ? null : ToRecord(row);
@@ -110,6 +114,10 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
 
         if (tenantCount == 0)
             return null;
+
+        bool isEnabled = TenantItsmConnectorConnectionRepositoryCore.ResolveIsEnabled(command);
+        ItsmConnectorAuthMode authMode =
+            TenantItsmConnectorConnectionRepositoryCore.NormalizeAuthModeForProvider(provider, command.AuthMode);
 
         const string mergeSql = """
                                 MERGE dbo.TenantItsmConnectorConnections AS t
@@ -177,16 +185,16 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
                 new
                 {
                     TenantId = tenantId,
-                    Provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderPersistenceLabel(provider),
+                    Provider = TenantItsmConnectorConnectionRepositoryCore.ToPersistenceProviderLabel(provider),
                     command.InstanceBaseUrl,
-                    AuthMode = TenantItsmConnectorConnectionUpsertValidation.ToAuthModeLabel(command.AuthMode),
+                    AuthMode = TenantItsmConnectorConnectionRepositoryCore.ToPersistenceAuthModeLabel(authMode),
                     command.AuthUserName,
                     command.CredentialKeyVaultSecretName,
                     command.OAuthClientIdKeyVaultSecretName,
                     command.OAuthClientSecretKeyVaultSecretName,
                     command.OAuthRefreshTokenKeyVaultSecretName,
                     command.InboundWebhookKeyVaultSecretName,
-                    command.IsEnabled,
+                    IsEnabled = isEnabled,
                     command.Label
                 },
                 cancellationToken: cancellationToken));
@@ -210,37 +218,31 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
         int affected = await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, Provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderPersistenceLabel(provider) },
+                new
+                {
+                    TenantId = tenantId,
+                    Provider = TenantItsmConnectorConnectionRepositoryCore.ToPersistenceProviderLabel(provider)
+                },
                 cancellationToken: cancellationToken));
 
         return affected > 0;
     }
 
-    private static TenantItsmConnectorConnectionRecord ToRecord(Row row)
-    {
-        if (!TenantItsmConnectorConnectionUpsertValidation.TryParseProvider(row.Provider, out TenantItsmConnectorProvider provider, out _))
-            throw new InvalidOperationException($"Unknown ITSM provider label '{row.Provider}' in SQL row.");
-
-        if (!TenantItsmConnectorConnectionUpsertValidation.TryParseAuthModeLabel(row.AuthMode, out ItsmConnectorAuthMode authMode))
-            throw new InvalidOperationException($"Unknown ITSM auth mode label '{row.AuthMode}' in SQL row.");
-
-        return new TenantItsmConnectorConnectionRecord
-        {
-            TenantId = row.TenantId,
-            Provider = provider,
-            InstanceBaseUrl = row.InstanceBaseUrl,
-            AuthMode = authMode,
-            AuthUserName = row.AuthUserName,
-            CredentialKeyVaultSecretName = row.CredentialKeyVaultSecretName,
-            OAuthClientIdKeyVaultSecretName = row.OAuthClientIdKeyVaultSecretName,
-            OAuthClientSecretKeyVaultSecretName = row.OAuthClientSecretKeyVaultSecretName,
-            OAuthRefreshTokenKeyVaultSecretName = row.OAuthRefreshTokenKeyVaultSecretName,
-            InboundWebhookKeyVaultSecretName = row.InboundWebhookKeyVaultSecretName,
-            IsEnabled = row.IsEnabled,
-            Label = row.Label,
-            UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero)
-        };
-    }
+    private static TenantItsmConnectorConnectionRecord ToRecord(Row row) =>
+        TenantItsmConnectorConnectionRepositoryCore.MapFromSqlRow(
+            row.TenantId,
+            row.Provider,
+            row.InstanceBaseUrl,
+            row.AuthMode,
+            row.AuthUserName,
+            row.CredentialKeyVaultSecretName,
+            row.OAuthClientIdKeyVaultSecretName,
+            row.OAuthClientSecretKeyVaultSecretName,
+            row.OAuthRefreshTokenKeyVaultSecretName,
+            row.InboundWebhookKeyVaultSecretName,
+            row.IsEnabled,
+            row.Label,
+            row.UpdatedUtc);
 
     private sealed class Row
     {

@@ -1,5 +1,6 @@
 using ArchLucid.Application.Admin;
 using ArchLucid.Application.Identity;
+using ArchLucid.Application.Identity.LinkProposal;
 using ArchLucid.Core.Identity;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Notifications.Email;
@@ -96,6 +97,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IUserAccountRecoveryService, UserAccountRecoveryService>();
         services.AddScoped<IAuthenticationIdentityLinkProposalPersistStage, AuthenticationIdentityLinkProposalPersistStage>();
         services.AddScoped<IAuthenticationIdentityLinkProposalAuditNotifier, AuthenticationIdentityLinkProposalAuditNotifier>();
+        services.AddScoped<IExternalKeyEligibilityChecker, ExternalKeyEligibilityChecker>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalCreateStage, AuthenticationIdentityLinkProposalCreateStage>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalConfirmStage, AuthenticationIdentityLinkProposalConfirmStage>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalCancelStage, AuthenticationIdentityLinkProposalCancelStage>();
         services.AddScoped<IAuthenticationIdentityLinkProposalService, AuthenticationIdentityLinkProposalService>();
         services.AddScoped<IAuthenticationIdentityLinkChallengeService, AuthenticationIdentityLinkChallengeService>();
         services.AddScoped<IAuthenticationIdentityLinkingService, AuthenticationIdentityLinkingService>();
