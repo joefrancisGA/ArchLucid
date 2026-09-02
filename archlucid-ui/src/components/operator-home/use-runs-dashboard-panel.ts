@@ -39,7 +39,6 @@ import {
   resolveRunsDashboardStatusTabIds,
   RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
-import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator/operator-home-metric-hrefs";
 import { fetchPagedReviewsInventory, restoreArchitectureRequest } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
