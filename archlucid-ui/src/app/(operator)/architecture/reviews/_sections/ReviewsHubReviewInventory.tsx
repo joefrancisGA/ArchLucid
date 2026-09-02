@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-client-cache";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
@@ -182,15 +183,6 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     router.replace(reviewsHubInventoryClearFilterHrefFromSearch(currentSearch), { scroll: false });
   }, [currentSearch, router]);
 
-  const clearInventorySearch = useCallback(() => {
-    router.replace(reviewsHubInventoryClearSearchHrefFromSearch(searchParams.toString()), { scroll: false });
-  }, [router, searchParams]);
-
-  const clearInventoryFilter = useCallback(() => {
-    setActiveFilter("all");
-    router.replace(reviewsHubInventoryClearFilterHrefFromSearch(searchParams.toString()), { scroll: false });
-  }, [router, searchParams]);
-
   const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 
   const sampleHref = showcaseSampleReviewPackageHref();
@@ -247,7 +239,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             data-testid="reviews-hub-toolbar"
           >
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2" data-testid="reviews-hub-filters">
-              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter reviews">
+              <FilterChipGroup aria-label="Filter reviews" className="flex flex-wrap gap-1.5">
                 {INVENTORY_FILTER_OPTIONS.map((option) => (
                   <ReviewFilterChip
                     key={option.id}
@@ -257,7 +249,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                     href={reviewsHubInventoryHrefFromSearch(currentSearch, option.id)}
                   />
                 ))}
-              </div>
+              </FilterChipGroup>
             </div>
           </div>
 

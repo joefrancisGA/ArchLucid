@@ -3,6 +3,27 @@ import { describe, expect, it, vi } from "vitest";
 
 import { GovernanceFindingsFilterBar } from "./GovernanceFindingsFilterBar";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/governance/findings",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: unknown;
+    [key: string]: unknown;
+  }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
 describe("GovernanceFindingsFilterBar", () => {
   it("confirms before removing a saved filter preset", () => {
     const onRemovePreset = vi.fn();

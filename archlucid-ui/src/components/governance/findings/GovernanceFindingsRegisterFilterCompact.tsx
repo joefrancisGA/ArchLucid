@@ -4,6 +4,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import {
   RISK_REGISTER_FILTER_LABELS,
   RISK_REGISTER_QUICK_FILTERS,
@@ -45,29 +46,31 @@ export function GovernanceFindingsRegisterFilterCompact(
       aria-label="Findings register filter"
     >
       <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Show</span>
-      <FilterChip
-        href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, "all", pathname)}
-        scroll={false}
-        className={buyerFilterChipClass(props.registerFilter === "all", false)}
-        aria-current={props.registerFilter === "all" ? "page" : undefined}
-      >
-        {renderFilterLabel("all", RISK_REGISTER_FILTER_LABELS.all, props.allCount)}
-      </FilterChip>
-      {RISK_REGISTER_QUICK_FILTERS.map((filter) => (
+      <FilterChipGroup aria-label="Findings register filter" className="flex flex-wrap items-center gap-2">
         <FilterChip
-          key={filter}
-          href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, filter, pathname)}
+          href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, "all", pathname)}
           scroll={false}
-          className={buyerFilterChipClass(props.registerFilter === filter, false)}
-          aria-current={props.registerFilter === filter ? "page" : undefined}
+          className={buyerFilterChipClass(props.registerFilter === "all", false)}
+          aria-current={props.registerFilter === "all" ? "page" : undefined}
         >
-          {renderFilterLabel(
-            filter,
-            RISK_REGISTER_FILTER_LABELS[filter],
-            filter === "open" ? props.openCount : undefined,
-          )}
+          {renderFilterLabel("all", RISK_REGISTER_FILTER_LABELS.all, props.allCount)}
         </FilterChip>
-      ))}
+        {RISK_REGISTER_QUICK_FILTERS.map((filter) => (
+          <FilterChip
+            key={filter}
+            href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, filter, pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(props.registerFilter === filter, false)}
+            aria-current={props.registerFilter === filter ? "page" : undefined}
+          >
+            {renderFilterLabel(
+              filter,
+              RISK_REGISTER_FILTER_LABELS[filter],
+              filter === "open" ? props.openCount : undefined,
+            )}
+          </FilterChip>
+        ))}
+      </FilterChipGroup>
       {hasNonDefaultFilter ? (
         <Button type="button" size="sm" variant="outline" onClick={props.onClearAllFilters}>
           Clear filters
