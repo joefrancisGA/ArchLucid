@@ -132,7 +132,11 @@ export function useDigestsBrowseContent(
         return;
       }
 
-      void selectDigest(match.digestId ?? "").then(() => {
+      if (!match.digestId) {
+        return;
+      }
+
+      void selectDigest(match.digestId).then(() => {
         detailPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     }
