@@ -31,13 +31,14 @@ import {
   subscribeOperatorHomeLifecycleRefresh,
 } from "@/lib/operator/operator-home-lifecycle-notify";
 import {
+  homeGovernanceWarningsClearHrefFromSearch,
+  homeGovernanceWarningsHrefFromSearch,
   homeGovernanceWarningsQueryEnabled,
   resolveRunsDashboardOpenAllReviewsHref,
   resolveRunsDashboardRecentListTab,
   resolveRunsDashboardStatusTabIds,
   RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
-import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator/operator-home-metric-hrefs";
 import { fetchPagedReviewsInventory, restoreArchitectureRequest } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -426,22 +427,29 @@ export function useRunsDashboardPanel({
     setShowArchived(false);
   }, []);
 
+  const setGovernanceWarningsOnlyWithUrl = useCallback(
+    (value: boolean) => {
+      setGovernanceWarningsOnly(value);
+
+      const nextHref = value
+        ? homeGovernanceWarningsHrefFromSearch(searchParams.toString())
+        : homeGovernanceWarningsClearHrefFromSearch(searchParams.toString());
+
+      router.replace(nextHref, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
   const clearGovernanceWarningsFilter = useCallback(() => {
-    setGovernanceWarningsOnly(false);
-
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete(OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM);
-    const query = params.toString();
-
-    router.replace(query.length === 0 ? "/" : `/?${query}`, { scroll: false });
-  }, [router, searchParams]);
+    setGovernanceWarningsOnlyWithUrl(false);
+  }, [setGovernanceWarningsOnlyWithUrl]);
 
   return {
     hideHeading,
     tab,
     buyerPolishedShell,
     governanceWarningsOnly,
-    setGovernanceWarningsOnly,
+    setGovernanceWarningsOnly: setGovernanceWarningsOnlyWithUrl,
     showArchived,
     setShowArchived,
     restoreBusyRequestId,

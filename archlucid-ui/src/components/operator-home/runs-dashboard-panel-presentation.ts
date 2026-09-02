@@ -13,6 +13,22 @@ export function homeGovernanceWarningsQueryEnabled(searchParams: URLSearchParams
   return raw === "1" || raw === "true";
 }
 
+export function homeGovernanceWarningsHrefFromSearch(currentSearch: string): string {
+  const params = new URLSearchParams(currentSearch);
+  params.set(OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM, "1");
+  const query = params.toString();
+
+  return query.length === 0 ? "/" : `/?${query}`;
+}
+
+export function homeGovernanceWarningsClearHrefFromSearch(currentSearch: string): string {
+  const params = new URLSearchParams(currentSearch);
+  params.delete(OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM);
+  const query = params.toString();
+
+  return query.length === 0 ? "/" : `/?${query}`;
+}
+
 export function resolveRunsDashboardOpenAllReviewsHref(projectId: string): string {
   return `/architecture/reviews?projectId=${encodeURIComponent(projectId)}`;
 }
