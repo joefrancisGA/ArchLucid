@@ -449,6 +449,18 @@ public sealed class GcpCloudBillingCatalogClient
 
         int endIndex = index + machineType.Length;
 
+        if (index > 0)
+        {
+            char previous = description[index - 1];
+
+            if (previous is >= '0' and <= '9' or '-')
+                return false;
+
+            // Reject letter-variant prefixes such as e2-micro matching ve2-micro.
+            if (char.IsLetter(previous))
+                return false;
+        }
+
         if (endIndex >= description.Length)
             return true;
 

@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 114
-- **bugs-found:** 226
+- **hunts:** 115
+- **bugs-found:** 227
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Azure retail /h UOM false-positive on 1/health
+- **last-bug:** 2026-09-02 — GCP machine-type letter-prefix collision (e2-micro vs ve2-micro)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2169,6 +2169,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GcpCloudBillingCatalogClient.DescriptionMatchesMachineType` — letter-variant machine-type suffix prefix collision — **hit 2026-09-02 (#531):** lookup `n1-standard-1` matched catalog SKU `n1-standard-1d` after #522 digit-boundary fix because trailing `d` was not rejected; fixed by rejecting letter suffixes immediately following a digit (`TryGetComputeEngineMonthlyUsdAsync_rejects_letter_suffix_machine_type_collision`).
 
 2026-09-02 seed hunt #531: reseeded from ArchLucid.Core GCP billing catalog; proved letter-suffix machine-type collision (parity with Azure #529).
+
+- [x] (proven) `GcpCloudBillingCatalogClient.DescriptionMatchesMachineType` — letter-variant machine-type prefix collision — **hit 2026-09-02 (#537):** lookup `e2-micro` matched catalog SKU `ve2-micro` after #531 suffix-boundary fix because leading `v` was not rejected; fixed by rejecting letter prefixes immediately before the match (`TryGetComputeEngineMonthlyUsdAsync_rejects_letter_prefix_machine_type_collision`).
+
+2026-09-02 seed hunt #537: reseeded from ArchLucid.Core GCP billing catalog; proved letter-prefix machine-type collision (parity with #531 suffix fix).
 
 - [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — backslash/pipe-delimited `enterprise` token not recognized — **hit 2026-09-02 (#532):** `contoso\enterprise\monthly` and `contoso|enterprise|annual` returned `Standard` because `IsPlanIdDelimiter` omitted `\` and `|` after #526 slash/colon fix; fixed by extending delimiters (`TierStorageCodeFromPlanId_maps_backslash_or_pipe_delimited_enterprise_token`).
 
