@@ -183,9 +183,20 @@ public static class AzureExtractorPackageZipValidator
         if (element.ValueKind == JsonValueKind.Number && TryReadWholeNumberSchemaVersion(element, out schemaVersion))
             return true;
 
-        if (element.ValueKind == JsonValueKind.String
-            && TryParseWholeNumberString(element.GetString(), out schemaVersion))
-            return true;
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            string? raw = element.GetString();
+
+            if (TryParseBooleanString(raw, out bool booleanSchema))
+            {
+                schemaVersion = booleanSchema ? 1 : 0;
+
+                return true;
+            }
+
+            if (TryParseWholeNumberString(raw, out schemaVersion))
+                return true;
+        }
 
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
@@ -243,6 +254,36 @@ public static class AzureExtractorPackageZipValidator
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
 
             return true;
         }

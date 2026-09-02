@@ -176,4 +176,51 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals!.CitationCount.Should().Be(2);
         RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
     }
+
+    [Fact]
+    public void FromAggregateJson_maps_string_encoded_boolean_faithfulness_support_ratio_as_hold()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": "false"
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.0);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+    }
+
+    [Fact]
+    public void FromAggregateJson_maps_boolean_citation_count()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": true
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(1);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
+
+    [Fact]
+    public void FromAggregateJson_maps_string_encoded_boolean_citation_count()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": "true"
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(1);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
 }

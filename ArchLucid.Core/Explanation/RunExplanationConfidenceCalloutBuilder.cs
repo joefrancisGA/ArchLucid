@@ -58,10 +58,22 @@ public static class RunExplanationConfidenceCalloutBuilder
             {
                 citationCount = wholeNumberCount;
             }
-            else if (citationsEl.ValueKind == JsonValueKind.String
-                     && TryParseWholeNumberString(citationsEl.GetString(), out int stringEncodedCount))
+            else if (citationsEl.ValueKind is JsonValueKind.True or JsonValueKind.False)
             {
-                citationCount = stringEncodedCount;
+                citationCount = citationsEl.ValueKind == JsonValueKind.True ? 1 : 0;
+            }
+            else if (citationsEl.ValueKind == JsonValueKind.String)
+            {
+                string? raw = citationsEl.GetString();
+
+                if (TryParseBooleanString(raw, out bool booleanCount))
+                {
+                    citationCount = booleanCount ? 1 : 0;
+                }
+                else if (TryParseWholeNumberString(raw, out int stringEncodedCount))
+                {
+                    citationCount = stringEncodedCount;
+                }
             }
         }
 
@@ -168,6 +180,16 @@ public static class RunExplanationConfidenceCalloutBuilder
         if (string.IsNullOrWhiteSpace(raw))
         {
             return null;
+        }
+
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            return 1.0;
+        }
+
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            return 0.0;
         }
 
         if (double.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
@@ -314,6 +336,36 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         value = null;
+
+        return false;
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
+
+            return true;
+        }
+
+        value = default;
 
         return false;
     }

@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 42
-- **bugs-found:** 97
+- **hunts:** 43
+- **bugs-found:** 100
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — marketplace boolean quantity; graph edge boolean weight; extractor boolean schemaVersion
+- **last-bug:** 2026-09-02 — string-encoded boolean quantity/weight/confidence coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1891,6 +1891,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MarketplaceWebhookPayloadParser.ReadQuantity` — boolean `quantity` JSON token ignored and falls back to caller default — **hit 2026-09-02 (#454):** `"quantity":true` with `fallback:10` returned `10` instead of coercing to `1`; fixed by mapping booleans before fallback (`ReadQuantity_reads_boolean_quantity_instead_of_fallback`).
 - [x] (proven) `GraphJsonElementReaders.ReadFirstDouble` — boolean `weight` JSON token ignored so graph edges default to `1.0` — **hit 2026-09-02 (#454):** `"weight":false` hydrated as `1.0`; fixed by coercing boolean tokens (`Read_boolean_weight_coerces_to_zero_or_one`).
 - [x] (proven) `AzureExtractorPackageZipValidator.TryReadSchemaVersion` / `CloudInventoryExtractorPackageZipValidator` — boolean `schemaVersion` rejected — **hit 2026-09-02 (#454):** `"schemaVersion":true` failed valid ZIP manifest validation; fixed by coercing boolean tokens (`Validate_boolean_schemaVersion_succeeds`).
+- [x] (proven) `FindingJsonConverter.TryReadFiniteDouble` / `TryReadInt32` / `TryReadDecimal` — string-encoded boolean score JSON tokens ignored — **hit 2026-09-02 (#455):** `"confidenceScore":"true"` left nullable scores null after #453 boolean JSON fix; fixed with string boolean coercion (`Deserialize_string_encoded_boolean_confidenceScore_maps_one`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.ReadQuantity` — string-encoded boolean `quantity` falls back to caller default — **hit 2026-09-02 (#455):** `"quantity":"true"` with `fallback:10` returned `10` instead of `1`; fixed with string boolean coercion (`ReadQuantity_reads_string_encoded_boolean_quantity_instead_of_fallback`).
+- [x] (proven) `GraphJsonElementReaders.ReadFirstDouble` — string-encoded boolean `weight` ignored so graph edges default to `1.0` — **hit 2026-09-02 (#455):** `"weight":"false"` hydrated as `1.0` after #454 boolean JSON fix; fixed with string boolean coercion (`Read_string_encoded_boolean_weight_coerces_to_zero`).
+
+2026-09-02 seed hunt #455: reseeded from ArchLucid.Core; proved string-encoded boolean quantity, graph edge weight, and finding confidence score coercion gaps.
 
 2026-09-02 seed hunt #454: reseeded from ArchLucid.Core; proved marketplace boolean quantity fallback leak, graph edge boolean weight, and extractor boolean schemaVersion gaps.
 
