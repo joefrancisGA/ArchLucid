@@ -76749,6 +76749,15 @@
     },
     "/v1/architecture/request/idempotency": {
       "get": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
