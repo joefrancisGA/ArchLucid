@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { expectFollowUpLink, expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { UsersAndRolesHelpEvidenceOrientationStrip } from "@/components/help/UsersAndRolesHelpEvidenceOrientationStrip";
 import {
@@ -23,8 +23,6 @@ describe("UsersAndRolesHelpEvidenceOrientationStrip", () => {
       USERS_AND_ROLES_HELP_AS_OF_APPLICABILITY,
     );
 
-    for (const link of USERS_AND_ROLES_HELP_SOURCES) {
-      expectFollowUpLink(screen, link);
-    }
+    expectWhereToGoNextFollowUpLinks(screen, USERS_AND_ROLES_HELP_SOURCES);
   });
 });

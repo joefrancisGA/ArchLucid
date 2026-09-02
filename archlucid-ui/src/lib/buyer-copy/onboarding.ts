@@ -35,6 +35,9 @@ export const GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD =
 
 export const BUYER_ONBOARDING_PAGE_TITLE = "First review guide";
 
+/** Visible label on the page header contextual help trigger (distinct from shortened "Help"). */
+export const FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL = "First Review Guide";
+
 export const BUYER_ONBOARDING_PAGE_LEAD =
   "Create, evaluate, and finalize your first evidence-backed architecture review.";
 
@@ -60,8 +63,6 @@ export const FIRST_REVIEW_GUIDE_GET_MORE_TITLE = "Get more from ArchLucid";
 
 export const FIRST_REVIEW_GUIDE_GET_MORE_ROI_COPY =
   "Add an ROI baseline to estimate savings and support sponsor reporting.";
-
-export const FIRST_REVIEW_GUIDE_HELP_TITLE = "Need help?";
 
 export const FIRST_REVIEW_GUIDE_TEMPLATE_LABEL = "Templates";
 

@@ -1,9 +1,27 @@
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import { isSponsorDashboardPath } from "@/lib/sponsor/sponsor-dashboard-route";
 
+import {
+  isGovernanceFindingsQueueHeaderSearchPath,
+  isReviewsHubInventoryHeaderSearchPath,
+} from "@/lib/shell-header-route-local-search";
+import { isReviewDetailHeaderSearchPath } from "@/lib/review-detail-header-section-search";
+
 /** Buyer-polished header search: route-aware label for the shell search + command palette. */
 export function resolveShellHeaderSearchLabel(pathname: string): string {
   const path = (pathname ?? "").split("?")[0] ?? "";
+
+  if (isReviewsHubInventoryHeaderSearchPath(path)) {
+    return "Filter reviews";
+  }
+
+  if (isGovernanceFindingsQueueHeaderSearchPath(path)) {
+    return "Filter findings";
+  }
+
+  if (isReviewDetailHeaderSearchPath(path)) {
+    return "Jump to section";
+  }
 
   if (path.startsWith("/insights/evidence-graph")) {
     return "Search evidence trail";
@@ -45,6 +63,18 @@ export function resolveShellHeaderSearchLabel(pathname: string): string {
 /** Route-aware placeholder for buyer-polished shell header search. */
 export function resolveShellHeaderSearchPlaceholder(pathname: string): string {
   const path = (pathname ?? "").split("?")[0] ?? "";
+
+  if (isReviewsHubInventoryHeaderSearchPath(path)) {
+    return "Filter reviews in this list…";
+  }
+
+  if (isGovernanceFindingsQueueHeaderSearchPath(path)) {
+    return "Filter findings in this queue…";
+  }
+
+  if (isReviewDetailHeaderSearchPath(path)) {
+    return "Jump to a section on this page…";
+  }
 
   if (path.startsWith("/insights/evidence-graph")) {
     return "Jump to audit, finalized review record, governance, or type another destination…";

@@ -1,6 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { expectClaimDisciplineBandContent, expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import {
+  expectClaimDisciplineBandContent,
+  expectWhereToGoNextFollowUpLinks,
+} from "@/lib/claim-discipline-test-helpers";
 
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
 import {
@@ -19,8 +22,6 @@ describe("IntegrationReadinessHelpEvidenceOrientationStrip", () => {
       INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
 
-    for (const link of INTEGRATION_READINESS_HELP_SOURCES) {
-      expectFollowUpLink(screen, link);
-    }
+    expectWhereToGoNextFollowUpLinks(screen, INTEGRATION_READINESS_HELP_SOURCES);
   });
 });

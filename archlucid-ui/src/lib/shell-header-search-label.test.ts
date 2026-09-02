@@ -7,13 +7,15 @@ import {
 
 describe("shell header search copy", () => {
   it("uses route-aware labels on governance and review surfaces", () => {
-    expect(resolveShellHeaderSearchLabel("/governance/findings")).toBe("Search findings");
-    expect(resolveShellHeaderSearchLabel("/architecture/reviews/run-abc")).toBe("Search this review");
+    expect(resolveShellHeaderSearchLabel("/governance/findings")).toBe("Filter findings");
+    expect(resolveShellHeaderSearchLabel("/architecture/reviews")).toBe("Filter reviews");
+    expect(resolveShellHeaderSearchLabel("/architecture/reviews/run-abc")).toBe("Jump to section");
     expect(resolveShellHeaderSearchLabel("/")).toBe("Search reviews");
   });
 
   it("uses route-aware placeholders in buyer-polished shell", () => {
-    expect(resolveShellHeaderSearchPlaceholder("/governance/findings")).toContain("findings");
-    expect(resolveShellHeaderSearchPlaceholder("/architecture/reviews/run-abc")).toContain("sponsor");
+    expect(resolveShellHeaderSearchPlaceholder("/governance/findings")).toContain("Filter findings");
+    expect(resolveShellHeaderSearchPlaceholder("/architecture/reviews")).toContain("Filter reviews");
+    expect(resolveShellHeaderSearchPlaceholder("/architecture/reviews/run-abc")).toContain("section");
   });
 });

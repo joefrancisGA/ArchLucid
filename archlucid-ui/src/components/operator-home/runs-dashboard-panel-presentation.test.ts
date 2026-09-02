@@ -4,6 +4,9 @@ import {
   homeGovernanceWarningsClearHrefFromSearch,
   homeGovernanceWarningsHrefFromSearch,
   homeGovernanceWarningsQueryEnabled,
+  parseRunsDashboardShowArchivedFromSearch,
+  parseRunsDashboardTabFromSearch,
+  runsDashboardHomeHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 
 describe("home governance warnings URL helpers", () => {
@@ -17,5 +20,14 @@ describe("home governance warnings URL helpers", () => {
     expect(homeGovernanceWarningsHrefFromSearch("")).toBe("/?warnings=1");
     expect(homeGovernanceWarningsHrefFromSearch("tab=attention")).toBe("/?tab=attention&warnings=1");
     expect(homeGovernanceWarningsClearHrefFromSearch("warnings=1&tab=attention")).toBe("/?tab=attention");
+  });
+
+  it("parses and writes home dashboard tab and archived params", () => {
+    expect(parseRunsDashboardTabFromSearch("attention")).toBe("attention");
+    expect(parseRunsDashboardTabFromSearch("invalid")).toBe("all");
+    expect(parseRunsDashboardShowArchivedFromSearch("1")).toBe(true);
+    expect(runsDashboardHomeHrefFromSearch("", { tab: "approved", showArchived: true })).toBe(
+      "/?tab=approved&archived=1",
+    );
   });
 });

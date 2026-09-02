@@ -68,6 +68,17 @@ public sealed partial class ReplayRunService
                 $"Replay blocked for run '{originalRunId}': authority stage outcomes exist; four-agent / DecisionEngineV2 replay is not permitted.");
         }
 
+        if (replayTasks.Count == 0 && sourceDetail.AuthorityPipelineComplete)
+            return await ExecuteAuthorityPreparedReplayAsync(
+                preparedReplayRunId,
+                originalRunId,
+                executionMode,
+                commitReplay,
+                manifestVersionOverride,
+                request,
+                sourceDetail,
+                cancellationToken);
+
         if (replayTasks.Count == 0)
             throw new InvalidOperationException($"No tasks found for replay run '{preparedReplayRunId}'.");
 

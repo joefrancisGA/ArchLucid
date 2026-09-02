@@ -10,9 +10,9 @@ import {
   formatOperatorHomeCompactMetricsLine,
   formatSetupReadinessLabel,
 } from "@/lib/operator/operator-home-workspace-metrics";
+import { OperatorHomeGovernanceWarningsMetricLink } from "@/components/operator-home/OperatorHomeGovernanceWarningsMetricLink";
 import {
   OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF,
-  OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
   OPERATOR_HOME_OPEN_FINDINGS_HREF,
   OPERATOR_HOME_SETUP_READINESS_HREF,
 } from "@/lib/operator/operator-home-metric-hrefs";
@@ -96,7 +96,9 @@ export function OperatorHomeWorkspaceMetricsStrip(
           href={OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF}
         />
         <MetricTile label={findingsLabel} href={OPERATOR_HOME_OPEN_FINDINGS_HREF} />
-        <MetricTile label={warningsLabel} href={OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF} />
+        <div className="min-w-0">
+          <OperatorHomeGovernanceWarningsMetricLink label={warningsLabel} />
+        </div>
         <MetricTile
           label={setupLabel}
           href={readiness.phase === "loading" ? undefined : OPERATOR_HOME_SETUP_READINESS_HREF}
