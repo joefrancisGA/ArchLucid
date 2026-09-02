@@ -1555,13 +1555,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 5
-- **bugs-found:** 8
+- **hunts:** 6
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — sparse agent results suppressed richer findings snapshot in pilot deltas
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — first-value report cost-evidence badges ignored extractor collection timestamps
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1575,10 +1575,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Buyer proof `artifact-and-proof-summary.md` omitted governed-finding coverage — **hit 2026-08-24:** `BuyerProofPackArtifactSummaryBuilder` ignored `governedFindingCoverage` in deltas JSON (`BuyerProofPackArtifactSummaryBuilderTests.Build_WhenGovernedFindingCoveragePresent_EmitsGovernedCoverageSection`).
 - [x] (proven) `PilotValueReportService` and `RecentPilotRunDeltasService` counted `ReadyForCommit` runs with manifest versions as committed — **hit 2026-08-25:** `IsCommittedSummary` / `IsCommitted` treated `CurrentManifestVersion` as sufficient; aligned with scorecard fix to require `Status == Committed` (`BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted`, `GetRecentDeltasAsync_ExcludesReadyForCommitRunWithManifestVersion`).
 - [x] (proven) `PilotRunDeltaComputer` partial agent results blocked findings-snapshot fallback — **hit 2026-08-26:** sparse non-muted agent rows skipped persisted snapshot severity/top/governed coverage when snapshot had more findings; fixed by loading snapshot whenever `FindingsSnapshotId` is set and preferring snapshot when it reports more findings (`ComputeAsync_WhenAgentResultsHaveSparseFindings_StillUsesFindingsSnapshotForSeverityTopFindingAndGovernedCoverage`).
-- [ ] (candidate) `FirstValueReportBuilder.ResolveCostEvidenceFreshnessForBadges` never sees extractor collection timestamp — badges stay Missing unless `RoiConfidenceLabel` contains uploaded/extractor wording
-- [ ] (candidate) `PilotProofPackageCompletenessMapper` committed timestamp Present contradicts buyer-safe gate soft gap when `CompletedUtc` resolves manifest timestamp
-- [ ] (candidate) `SponsorEvidencePackService` explainability trace completeness vs `PilotRunDeltaComputer` delta counts diverge on sparse agent + snapshot runs
-- [ ] (candidate) `PilotProofPackageCompletenessMapper.FindingsBySeverityPresent` hard-coded true — zero-finding runs still show Present in proof contract
+- [x] (proven) `FirstValueReportBuilder.ResolveCostEvidenceFreshnessForBadges` never sees extractor collection timestamp — badges stay Missing unless `RoiConfidenceLabel` contains uploaded/extractor wording — **hit 2026-09-02:** `RoiConfidenceLabel` is baseline-provenance only; wired `RoiCostEvidenceCollectionResolver` + `PilotCostEvidenceFreshnessBadgeResolver` (`FirstValueReportBuilderCostEvidenceFreshnessTests`).
+- [x] (valid-no-repro) `PilotProofPackageCompletenessMapper` committed timestamp Present contradicts buyer-safe gate soft gap when `CompletedUtc` resolves manifest timestamp — gate soft gap still surfaces in `PilotBuyerSafeEvidenceGateEvaluator`; `CommittedManifestTimestampResolved` fallback to `ManifestCommittedUtc` is intentional (`Build_WhenManifestCreatedUtcDefaultButDeltasCarryCompletedUtc_ResolvesCommittedTimestamp`).
+- [x] (invalid) `SponsorEvidencePackService` explainability trace completeness vs `PilotRunDeltaComputer` delta counts diverge on sparse agent + snapshot runs — **closed 2026-08-26** proven fix loads snapshot when `FindingsSnapshotId` is set; pack and deltas share the same snapshot source.
+- [x] (invalid) `PilotProofPackageCompletenessMapper.FindingsBySeverityPresent` hard-coded true — zero-finding runs still show Present in proof contract — intentional: empty severity breakdown is attested evidence, not missing data (`Build_ZeroTotalFindings_StillMarksFindingsEvidencePresent`).
 
 ---
 
