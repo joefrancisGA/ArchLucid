@@ -35,6 +35,7 @@ const EMPTY_COMMIT_CONTEXT: CorePilotCommitContext = {
   firstCommittedRunId: null,
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 const WORKFLOW_STEP_TOTAL = CORE_PILOT_HELP_WORKFLOW_STEPS.length;

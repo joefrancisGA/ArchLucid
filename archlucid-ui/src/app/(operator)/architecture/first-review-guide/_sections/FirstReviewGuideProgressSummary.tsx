@@ -42,13 +42,14 @@ export function FirstReviewGuideProgressSummary({
           <span className="block text-neutral-600 dark:text-neutral-400">{progress.detailLabel}</span>
         ) : null}
       </p>
-      <StepProgressMeter
-        completedCount={progress.completedStepCount}
-        totalCount={progress.totalStepCount}
-        label="First review progress"
-        valueText={formatStepProgressCompleteLabel(progress.completedStepCount, progress.totalStepCount)}
-        className="max-w-none"
-      />
+      {progress.phase === "complete" ? null : (
+        <StepProgressMeter
+          completedCount={progress.completedStepCount}
+          totalCount={progress.totalStepCount}
+          label="First review progress"
+          valueText={formatStepProgressCompleteLabel(progress.completedStepCount, progress.totalStepCount)}
+        />
+      )}
     </div>
   );
 }

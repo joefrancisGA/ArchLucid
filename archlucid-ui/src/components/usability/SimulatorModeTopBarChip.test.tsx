@@ -138,7 +138,10 @@ describe("SimulatorModeTopBarChip", () => {
     expect(screen.getByTestId("simulator-mode-top-bar-chip-label")).toHaveTextContent(
       SIMULATOR_MODE_TOP_BAR_CHIP_LABEL,
     );
-    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveAttribute(
+      "aria-label",
+      expect.stringContaining(SIMULATOR_MODE_TOP_BAR_CHIP_LABEL),
+    );
 
     devOverrides.devEnabled = true;
   });

@@ -81,7 +81,7 @@ describe("PilotNavGroupBuilder", () => {
       "Home",
       "Packages",
       "Sponsor dashboard",
-      "Getting started",
+      "First review guide",
       "Digests",
     ]);
     expect(group.links.some((link) => link.href === "/insights/evidence-graph")).toBe(false);

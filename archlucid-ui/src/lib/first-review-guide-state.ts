@@ -68,6 +68,11 @@ export type FirstReviewGuideHeaderActions = {
   readonly secondaryHref: string;
 };
 
+export type FirstReviewGuideOutcomeLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
 export type FirstReviewGuideStateInput = {
   readonly commitContext: CorePilotCommitContext;
   readonly canExecute: boolean;
@@ -93,14 +98,6 @@ function reviewFinalizeHref(runId: string): string {
 
 function reviewShareHref(runId: string): string {
   return `${reviewDetailPath(runId)}?reviewTab=review-package`;
-}
-
-function resolveShareHref(commitContext: CorePilotCommitContext): string {
-  if (commitContext.firstCommittedRunId !== null) {
-    return reviewDetailHref(commitContext.firstCommittedRunId);
-  }
-
-  return reviewDetailHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 }
 
 export function resolveFirstReviewGuideRequiredBlockers(
@@ -138,19 +135,19 @@ export function resolveFirstReviewGuideReadiness(input: FirstReviewGuideStateInp
   const { commitContext } = input;
   const blockers = resolveFirstReviewGuideRequiredBlockers(input);
 
+  if (hasSealedReviewRecord(commitContext)) {
+    return {
+      kind: "completed",
+      headline: "First review completed",
+      detail: "Your finalized architecture review is ready to inspect and share.",
+    };
+  }
+
   if (blockers.length > 0) {
     return {
       kind: "required-setup-remains",
       headline: "One required setup item remains",
       detail: blockers[0]?.title ?? null,
-    };
-  }
-
-  if (commitContext.hasCommittedManifest) {
-    return {
-      kind: "completed",
-      headline: "First review completed",
-      detail: "Your finalized architecture review is ready to inspect and share.",
     };
   }
 
@@ -178,10 +175,14 @@ export function resolveFirstReviewGuideReadiness(input: FirstReviewGuideStateInp
   };
 }
 
+function hasSealedReviewRecord(commitContext: CorePilotCommitContext): boolean {
+  return commitContext.firstCommittedRunId !== null;
+}
+
 function baseStepStatuses(commitContext: CorePilotCommitContext): FirstReviewGuideStepUiStatus[] {
   const hasRun = commitContext.latestRunId !== null;
   const readyToFinalize = commitContext.latestRunReadyToFinalize;
-  const committed = commitContext.hasCommittedManifest;
+  const committed = hasSealedReviewRecord(commitContext);
 
   return [
     hasRun || committed ? "complete" : "not-started",
@@ -217,6 +218,10 @@ function resolveStepAction(
   commitContext: CorePilotCommitContext,
   canExecute: boolean,
 ): { readonly label: string | null; readonly href: string | null } {
+  if (hasSealedReviewRecord(commitContext)) {
+    return { label: null, href: null };
+  }
+
   const latestRunId = commitContext.latestRunId;
   const latestRunHref = latestRunId !== null ? reviewDetailHref(latestRunId) : null;
 
@@ -240,21 +245,25 @@ function resolveStepAction(
         ? { label: "Open review", href: latestRunHref }
         : { label: null, href: null };
     case 3:
-      return latestRunHref !== null
-        ? { label: "Review findings", href: reviewFindingsHref(latestRunId!) }
-        : { label: null, href: null };
+      if (latestRunId === null) {
+        return { label: null, href: null };
+      }
+
+      return { label: "Open findings", href: reviewFindingsHref(latestRunId) };
     case 4:
-      return latestRunHref !== null
-        ? { label: "Record decisions", href: reviewDecisionsHref(latestRunId!) }
-        : { label: null, href: null };
+      if (latestRunId === null) {
+        return { label: null, href: null };
+      }
+
+      return { label: "Record decisions", href: reviewDecisionsHref(latestRunId) };
     case 5:
-      return latestRunHref !== null
-        ? { label: "Finalize review", href: reviewFinalizeHref(latestRunId!) }
-        : { label: null, href: null };
+      if (latestRunId === null) {
+        return { label: null, href: null };
+      }
+
+      return { label: "Seal review", href: reviewFinalizeHref(latestRunId) };
     case 6:
-      return commitContext.hasCommittedManifest
-        ? { label: "Open completed package", href: resolveShareHref(commitContext) }
-        : { label: "Explore sample review", href: reviewShareHref(SHOWCASE_STATIC_DEMO_RUN_ID) };
+      return { label: "Explore sample review", href: reviewShareHref(SHOWCASE_STATIC_DEMO_RUN_ID) };
     default:
       return { label: null, href: null };
   }
@@ -284,7 +293,7 @@ export function resolveFirstReviewGuideProgress(
   const progressFraction = completedStepCount / totalStepCount;
   const stepProgressLabel = formatStepProgressCompleteLabel(completedStepCount, totalStepCount);
 
-  if (commitContext.hasCommittedManifest) {
+  if (hasSealedReviewRecord(commitContext)) {
     return {
       phase: "complete",
       progressFraction: 1,
@@ -344,21 +353,21 @@ export function resolveFirstReviewGuideHeaderActions(
   const { commitContext, canExecute } = input;
   const sampleHref = reviewDetailHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 
-  if (commitContext.hasCommittedManifest && commitContext.firstCommittedRunId !== null) {
+  if (hasSealedReviewRecord(commitContext) && commitContext.firstCommittedRunId !== null) {
     return {
-      primaryLabel: "Open completed package",
+      primaryLabel: "Open sealed review record",
       primaryHref: reviewDetailHref(commitContext.firstCommittedRunId),
       primaryDisabled: false,
       primaryDisabledReason: null,
-      secondaryLabel: "Explore sample review",
-      secondaryHref: sampleHref,
+      secondaryLabel: "Start another review",
+      secondaryHref: REVIEWS_NEW_PATH,
     };
   }
 
   if (commitContext.latestRunId !== null) {
     if (commitContext.latestRunReadyToFinalize) {
       return {
-        primaryLabel: "Finalize review",
+        primaryLabel: "Seal review",
         primaryHref: reviewDetailHref(commitContext.latestRunId),
         primaryDisabled: false,
         primaryDisabledReason: null,
@@ -397,4 +406,15 @@ export function resolveOptionalWorkspaceSetupComplete(
   }
 
   return areFinishSetupRequiredStepsComplete(finishContext);
+}
+
+export function resolveFirstReviewGuideOutcomeLinks(runId: string): readonly FirstReviewGuideOutcomeLink[] {
+  const baseHref = reviewDetailHref(runId);
+
+  return [
+    { label: "A sealed review record", href: baseHref },
+    { label: "Evidence-backed findings", href: reviewFindingsHref(runId) },
+    { label: "Recorded decisions and exceptions", href: reviewDecisionsHref(runId) },
+    { label: "A shareable architecture package", href: reviewShareHref(runId) },
+  ];
 }

@@ -2,8 +2,7 @@
 
 import type { ReactElement } from "react";
 import { useCallback, useId, useLayoutEffect, useState } from "react";
-import { ChevronDown } from "lucide-react";
-
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
@@ -13,6 +12,8 @@ import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readine
 import { useLiveOperatorHomeRunsDashboard } from "@/hooks/use-live-operator-home-runs-dashboard";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
+  collapseAriaLabel,
+  expandAriaLabel,
   OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS,
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
@@ -21,7 +22,6 @@ import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SURFACE_CARD_CLASS,
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -67,9 +67,48 @@ export function OperatorHomeWorkspaceContextDisclosure(
     runsDashboard.totalCount,
   );
   const showDetailsExpanded = hydrated ? detailsExpanded : false;
-  const detailsToggleLabel = showDetailsExpanded ? "Hide metrics details" : "View details";
+  const detailsToggleLabel = showDetailsExpanded
+    ? collapseAriaLabel(WORKSPACE_METRICS_SECTION_TITLE)
+    : expandAriaLabel(WORKSPACE_METRICS_SECTION_TITLE);
   // TB-1037: details (delta / zero evidence) stay collapsed away until reviews exist.
   const showDetailsToggle = workspaceMetrics.hasReviews;
+
+  const sectionHeading =
+    showDetailsToggle ? (
+      <div className="flex items-center gap-2">
+        <CollapsibleTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-7 w-7 shrink-0 text-neutral-900 hover:text-neutral-700 dark:text-neutral-100 dark:hover:text-neutral-200"
+            aria-expanded={showDetailsExpanded}
+            aria-controls={detailsPanelId}
+            aria-label={detailsToggleLabel}
+            data-testid="operator-home-workspace-metrics-details-toggle"
+          >
+            <DisclosureTriangleIndicator className={cn(showDetailsExpanded ? "rotate-90" : "rotate-0")} />
+          </Button>
+        </CollapsibleTrigger>
+        <OperatorHomeCardSectionTitle id="operator-home-workspace-metrics-heading">
+          {WORKSPACE_METRICS_SECTION_TITLE}
+        </OperatorHomeCardSectionTitle>
+      </div>
+    ) : (
+      <OperatorHomeCardSectionTitle id="operator-home-workspace-metrics-heading">
+        {WORKSPACE_METRICS_SECTION_TITLE}
+      </OperatorHomeCardSectionTitle>
+    );
+
+  const primaryMetricsSummary = (
+    <OperatorHomeWorkspaceMetricsSummary
+      variant="primary"
+      runsDashboard={runsDashboard}
+      setupReadyCount={setupReadiness.readyCount}
+      setupTotalCount={setupReadiness.totalCount}
+      setupReadinessLoading={setupReadiness.phase === "loading"}
+    />
+  );
 
   return (
     <section
@@ -82,44 +121,10 @@ export function OperatorHomeWorkspaceContextDisclosure(
         OPERATOR_LAYOUT.sectionHeadingStack,
       )}
     >
-      <OperatorHomeCardSectionTitle id="operator-home-workspace-metrics-heading">
-        {WORKSPACE_METRICS_SECTION_TITLE}
-      </OperatorHomeCardSectionTitle>
-
-      <OperatorHomeWorkspaceMetricsSummary
-        variant="primary"
-        runsDashboard={runsDashboard}
-        setupReadyCount={setupReadiness.readyCount}
-        setupTotalCount={setupReadiness.totalCount}
-        setupReadinessLoading={setupReadiness.phase === "loading"}
-      />
-
       {showDetailsToggle ? (
         <Collapsible open={showDetailsExpanded} onOpenChange={persistDetailsExpanded}>
-          <CollapsibleTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className={cn(
-                "mt-1 h-auto gap-1 px-0 py-1 hover:bg-transparent",
-                OPERATOR_LINK.optional,
-              )}
-              aria-expanded={showDetailsExpanded}
-              aria-controls={detailsPanelId}
-              data-testid="operator-home-workspace-metrics-details-toggle"
-            >
-              <span>{detailsToggleLabel}</span>
-              <ChevronDown
-                className={cn(
-                  "h-3.5 w-3.5 shrink-0 transition-transform",
-                  showDetailsExpanded ? "rotate-180" : "rotate-0",
-                )}
-                aria-hidden
-              />
-            </Button>
-          </CollapsibleTrigger>
-
+          {sectionHeading}
+          {primaryMetricsSummary}
           <CollapsibleContent id={detailsPanelId} data-testid="operator-home-workspace-metrics-details">
             <div className="space-y-4 border-t border-neutral-200/80 pt-3 dark:border-neutral-800">
               <OperatorHomeWorkspaceMetricsSummary
@@ -134,7 +139,12 @@ export function OperatorHomeWorkspaceContextDisclosure(
             </div>
           </CollapsibleContent>
         </Collapsible>
-      ) : null}
+      ) : (
+        <>
+          {sectionHeading}
+          {primaryMetricsSummary}
+        </>
+      )}
     </section>
   );
 }

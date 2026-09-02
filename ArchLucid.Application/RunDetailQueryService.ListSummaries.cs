@@ -27,6 +27,7 @@ public sealed partial class RunDetailQueryService
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
             PackageOrigin = r.PackageOrigin,
             GoldenManifestId = r.GoldenManifestId,
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(r),
             RowVersion = r.RowVersion
         }).ToList();
     }
@@ -59,6 +60,7 @@ public sealed partial class RunDetailQueryService
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
             PackageOrigin = r.PackageOrigin,
             GoldenManifestId = r.GoldenManifestId,
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(r),
             RowVersion = r.RowVersion
         }).ToList();
         string? next = null;
@@ -94,6 +96,7 @@ public sealed partial class RunDetailQueryService
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
             PackageOrigin = r.PackageOrigin,
             GoldenManifestId = r.GoldenManifestId,
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(r),
             RowVersion = r.RowVersion
         }).ToList();
 

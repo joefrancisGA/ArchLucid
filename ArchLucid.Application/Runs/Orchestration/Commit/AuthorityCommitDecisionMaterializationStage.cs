@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Runs.Orchestration.Commit;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Common;
@@ -140,6 +141,7 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
         ApplyRuleAuditScope(trace, scope);
         ApplyAuthorityManifestScope(manifestModel, scope);
         manifestModel.ArchitectureVersionId = runRecord.ArchitectureVersionId;
+        AuthorityCommitCreateTimePinBinder.BindFromRunHeader(manifestModel, runRecord);
         Cm.GoldenManifest contract = await _projectionBuilder.BuildAsync(
             manifestModel,
             new AuthorityCommitProjectionInput { SystemName = request.SystemName },

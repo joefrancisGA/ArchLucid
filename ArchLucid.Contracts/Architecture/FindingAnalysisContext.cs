@@ -61,10 +61,17 @@ public sealed class FindingAnalysisContext
         init;
     } = [];
 
-    /// <summary>Pinned extractor evidence for effectful engines (wave-4 suggestion 32).</summary>
+    /// <summary>Primary pinned extractor evidence for effectful engines (wave-4 suggestion 32).</summary>
     public EvidencePackagePin? EvidencePin
     {
         get;
         init;
     }
+
+    /// <summary>All pinned extractor packages for multi-cloud effectful engines (wave-6 suggestion 55).</summary>
+    public IReadOnlyList<EvidencePackagePin> EvidencePins
+    {
+        get;
+        init;
+    } = [];
 }

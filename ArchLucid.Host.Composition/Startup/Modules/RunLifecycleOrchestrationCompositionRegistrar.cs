@@ -219,6 +219,9 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IEvidencePackagePinResolver, EvidencePackagePinResolver>();
         services.AddSingleton<IEvidenceGraphMaterializer, EvidenceGraphMaterializer>();
         services.AddScoped<IRunPolicyPackPinService, RunPolicyPackPinService>();
+        services.AddScoped<IRunEvidencePackagePinService, RunEvidencePackagePinService>();
+        services.AddScoped<IRunGovernanceScopePinService, RunGovernanceScopePinService>();
+        services.AddScoped<IRunCreatePinOrchestrator, RunCreatePinOrchestrator>();
         services.AddScoped<IWorkspaceSystemNameCollisionGuard, WorkspaceSystemNameCollisionGuard>();
         services.AddScoped<IHolisticCriticService, HolisticCriticService>();
         services.Configure<GenerateRunSummaryOptions>(

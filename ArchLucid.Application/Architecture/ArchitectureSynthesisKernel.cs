@@ -33,7 +33,7 @@ public sealed class ArchitectureSynthesisKernel(
     TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
     IArchitectureIdentityService? architectureIdentityService,
     IArchitectureVersionService? architectureVersionService,
-    IRunPolicyPackPinService runPolicyPackPinService,
+    IRunCreatePinOrchestrator runCreatePinOrchestrator,
     ILogger<ArchitectureSynthesisKernel> logger,
     TimeProvider timeProvider) : IArchitectureSynthesisKernel
 {
@@ -71,8 +71,8 @@ public sealed class ArchitectureSynthesisKernel(
 
     private readonly IArchitectureVersionService? _architectureVersionService = architectureVersionService;
 
-    private readonly IRunPolicyPackPinService _runPolicyPackPinService =
-        runPolicyPackPinService ?? throw new ArgumentNullException(nameof(runPolicyPackPinService));
+    private readonly IRunCreatePinOrchestrator _runCreatePinOrchestrator =
+        runCreatePinOrchestrator ?? throw new ArgumentNullException(nameof(runCreatePinOrchestrator));
 
     private readonly ILogger<ArchitectureSynthesisKernel> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -147,7 +147,8 @@ public sealed class ArchitectureSynthesisKernel(
         await _runRepository.SaveAsync(header, cancellationToken);
 
         StructuralExecutionModeAdmittanceGuard.EnsureAdmittableOrThrow(header.StructuralExecutionMode);
-        await _runPolicyPackPinService.ApplyToRunHeaderAsync(header, scope, cancellationToken).ConfigureAwait(false);
+        await _runCreatePinOrchestrator.ApplyCreateTimePinsAsync(header, scope, request, cancellationToken)
+            .ConfigureAwait(false);
         await _runRepository.UpdateAsync(header, cancellationToken).ConfigureAwait(false);
 
         string runId = runGuid.ToString("N");

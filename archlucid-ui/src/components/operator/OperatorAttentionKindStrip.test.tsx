@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
-  OPERATOR_ATTENTION_KIND_STRIP_COMPACT_HELPER,
   OPERATOR_ATTENTION_KIND_STRIP_HELPER,
   OperatorAttentionKindStrip,
 } from "@/components/operator/OperatorAttentionKindStrip";
@@ -53,16 +52,15 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toHaveTextContent("3");
   });
 
-  it("supports compact helper text for hub pages", () => {
+  it("omits helper text in compact hub layout", () => {
     usePathname.mockReturnValue("/");
     useSearchParams.mockReturnValue(new URLSearchParams());
 
     render(<OperatorAttentionKindStrip variant="compact" />);
 
     expect(screen.getByTestId("operator-attention-kind-strip")).toHaveAttribute("data-variant", "compact");
-    expect(screen.getByTestId("operator-attention-kind-strip")).toHaveTextContent(
-      OPERATOR_ATTENTION_KIND_STRIP_COMPACT_HELPER,
-    );
+    expect(screen.queryByText(OPERATOR_ATTENTION_KIND_STRIP_HELPER)).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-attention-kind-chips")).toBeInTheDocument();
   });
 
   it("marks the matching destination chip as selected", () => {

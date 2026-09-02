@@ -59,7 +59,12 @@ internal static class AuthorityCoordinationTestFactory
                 new StubExternalSubprocessorEngineAcknowledgmentService()),
             new StubAgentModelAliasRegistry(),
             Mock.Of<IAuditService>(),
-            new RunPolicyPackPinService(new InMemoryPolicyPackAssignmentRepository()),
+            new RunCreatePinOrchestrator(
+                new RunPolicyPackPinService(new InMemoryPolicyPackAssignmentRepository()),
+                new RunEvidencePackagePinService(
+                    new NoOpAzureExtractorPackageRepository(),
+                    new NoOpCloudInventoryExtractorPackageRepository()),
+                new RunGovernanceScopePinService()),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
     }
 

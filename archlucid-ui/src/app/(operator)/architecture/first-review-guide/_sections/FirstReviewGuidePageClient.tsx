@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
@@ -28,9 +30,13 @@ import {
   isFirstReviewGuideProgressDeepLinkHash,
 } from "@/lib/first-review-guide-route";
 import { useDeepLinkHashScroll } from "@/hooks/use-deep-link-hash-scroll";
-import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
-import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
-import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+import {
+  FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE,
+  FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER,
+  FIRST_REVIEW_GUIDE_SOURCES,
+  FIRST_REVIEW_GUIDE_SOURCES_INTRO,
+} from "@/lib/first-review-guide-evidence-copy";
+import { formatConversationListDate } from "@/lib/locale-datetime";
 
 import { FirstReviewGuideProgressSummary } from "./FirstReviewGuideProgressSummary";
 import { FirstReviewGuideRequiredSetupPanel } from "./FirstReviewGuideRequiredSetupPanel";
@@ -64,6 +70,12 @@ function readinessStatusKind(
   }
 }
 
+function shouldShowEvaluationScopeHelper(
+  kind: ReturnType<typeof useFirstReviewGuideState>["readiness"]["kind"],
+): boolean {
+  return kind === "ready-to-start" || kind === "in-progress";
+}
+
 function FirstReviewGuideHeaderLoadingSkeleton() {
   return (
     <div className="space-y-3" data-testid="first-review-guide-header-loading">
@@ -94,6 +106,46 @@ function FirstReviewGuideContextErrorCallout(props: { readonly onRetry: () => vo
   );
 }
 
+function sealedRecordFinalizedOnLabel(finalizedOnUtc: string | null): string | null {
+  if (finalizedOnUtc === null) {
+    return null;
+  }
+
+  const trimmed = finalizedOnUtc.trim();
+
+  if (trimmed.length === 0 || !Number.isFinite(Date.parse(trimmed))) {
+    return null;
+  }
+
+  return formatConversationListDate(trimmed);
+}
+
+function FirstReviewGuideSealedRecordProvenance(props: {
+  readonly sealedReviewRecord: NonNullable<ReturnType<typeof useFirstReviewGuideState>["sealedReviewRecord"]>;
+}) {
+  const { sealedReviewRecord } = props;
+  const recordTitle = sealedReviewRecord.displayName ?? "Architecture review";
+  const finalizedOn = sealedRecordFinalizedOnLabel(sealedReviewRecord.finalizedOnUtc);
+
+  return (
+    <div className="space-y-1" data-testid="first-review-guide-sealed-record-provenance">
+      <p className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}>
+        <span className="font-medium text-neutral-900 dark:text-neutral-100">{recordTitle}</span>
+        {finalizedOn !== null ? ` — finalized ${finalizedOn}` : null}
+      </p>
+      <details className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
+        <summary className={cn("cursor-pointer", OPERATOR_TYPOGRAPHY.helper)}>Technical identifiers</summary>
+        <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>Record ID: {sealedReviewRecord.runId}</p>
+        {sealedReviewRecord.finalizedByUserId !== null ? (
+          <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+            Created by: {sealedReviewRecord.finalizedByUserId}
+          </p>
+        ) : null}
+      </details>
+    </div>
+  );
+}
+
 export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClientProps) {
   const guide = useFirstReviewGuideState();
   useDeepLinkHashScroll(FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID, isFirstReviewGuideProgressDeepLinkHash);
@@ -119,9 +171,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             title={BUYER_ONBOARDING_PAGE_TITLE}
             headingLevel="h1"
             subtitle={BUYER_ONBOARDING_PAGE_LEAD}
-            actions={
-              <PageContextualHelpButton triggerText={FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL} />
-            }
+            actions={<PageContextualHelpButton triggerText={FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL} />}
           >
             {guide.isError ? (
               <FirstReviewGuideContextErrorCallout onRetry={guide.retry} />
@@ -129,11 +179,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
               <FirstReviewGuideHeaderLoadingSkeleton />
             ) : (
               <>
-                <div
-                  className="space-y-2"
-                  data-testid="first-review-guide-readiness"
-                  aria-live="polite"
-                >
+                <div className="space-y-2" data-testid="first-review-guide-readiness">
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusTag kind={readinessStatusKind(guide.readiness.kind)} label={guide.readiness.headline} />
                   </div>
@@ -142,6 +188,10 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
                     <p className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}>
                       {guide.readiness.detail}
                     </p>
+                  ) : null}
+
+                  {guide.sealedReviewRecord !== null ? (
+                    <FirstReviewGuideSealedRecordProvenance sealedReviewRecord={guide.sealedReviewRecord} />
                   ) : null}
                 </div>
 
@@ -155,13 +205,13 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
                       {guide.headerActions.primaryLabel}
                     </Button>
                   ) : (
-                    <Button asChild data-testid="first-review-guide-primary">
+                    <Button asChild variant="primary" data-testid="first-review-guide-primary">
                       <Link href={guide.headerActions.primaryHref}>{guide.headerActions.primaryLabel}</Link>
                     </Button>
                   )}
 
                   {guide.headerActions.secondaryHref !== null ? (
-                    <Button size="sm" variant="outline" asChild data-testid="first-review-guide-secondary">
+                    <Button variant="outline" asChild data-testid="first-review-guide-secondary">
                       <Link href={guide.headerActions.secondaryHref}>{guide.headerActions.secondaryLabel}</Link>
                     </Button>
                   ) : null}
@@ -174,27 +224,21 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
                   className={OPERATOR_SHORT_HELPER_MEASURE_CLASS}
                 />
 
-                <p
-                  className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="first-review-guide-evaluation-scope"
-                >
-                  {FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER}
-                </p>
-
-                <p
-                  className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="first-review-guide-help-crosslink"
-                >
-                  Step-by-step walkthrough:{" "}
-                  <Link href={FIRST_ARCHITECTURE_REVIEW_HELP_PATH}>{FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}</Link>
-                </p>
+                {shouldShowEvaluationScopeHelper(guide.readiness.kind) ? (
+                  <p
+                    className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="first-review-guide-evaluation-scope"
+                  >
+                    {FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER}
+                  </p>
+                ) : null}
 
                 <FirstReviewGuideRequiredSetupPanel blockers={guide.requiredBlockers} />
               </>
             )}
           </OperatorPageHeader>
 
-          <OnboardingSampleReviewShortcut />
+          {guide.sealedReviewRecord === null ? <OnboardingSampleReviewShortcut /> : null}
 
           {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
 
@@ -220,12 +264,25 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
               isPending={guide.isPending}
               isError={guide.isError}
               announceProgress={guide.hasLoadedContext}
+              progressPhase={guide.progress.phase}
             />
           </section>
         </div>
 
-        <FirstReviewGuideSupportPanel className={OPERATOR_LAYOUT.stickyAsideTop} />
+        <FirstReviewGuideSupportPanel
+          className={OPERATOR_LAYOUT.stickyAsideTop}
+          sealedRunId={guide.sealedReviewRecord?.runId ?? null}
+        />
       </div>
+
+      <EvidenceOrientationClaimAndSourcesStrip
+        slug="first-review-guide"
+        claim={FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE}
+        sourcesIntro={FIRST_REVIEW_GUIDE_SOURCES_INTRO}
+        sources={FIRST_REVIEW_GUIDE_SOURCES}
+        claimElement="aside"
+        sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
+      />
 
       <OnboardingOptionalSetupSection />
     </OperatorPageContainer>
