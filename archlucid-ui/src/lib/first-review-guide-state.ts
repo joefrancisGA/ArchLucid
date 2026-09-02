@@ -135,19 +135,19 @@ export function resolveFirstReviewGuideReadiness(input: FirstReviewGuideStateInp
   const { commitContext } = input;
   const blockers = resolveFirstReviewGuideRequiredBlockers(input);
 
-  if (blockers.length > 0) {
-    return {
-      kind: "required-setup-remains",
-      headline: "One required setup item remains",
-      detail: blockers[0]?.title ?? null,
-    };
-  }
-
   if (hasSealedReviewRecord(commitContext)) {
     return {
       kind: "completed",
       headline: "First review completed",
       detail: "Your finalized architecture review is ready to inspect and share.",
+    };
+  }
+
+  if (blockers.length > 0) {
+    return {
+      kind: "required-setup-remains",
+      headline: "One required setup item remains",
+      detail: blockers[0]?.title ?? null,
     };
   }
 

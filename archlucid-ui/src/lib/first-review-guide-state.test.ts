@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { REVIEWS_NEW_GUIDED_INTAKE_HREF, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
@@ -22,6 +22,16 @@ const emptyContext: CorePilotCommitContext = {
 };
 
 describe("first-review-guide-state", () => {
+  const originalSelfHosted = process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED;
+
+  afterEach(() => {
+    if (originalSelfHosted === undefined) {
+      delete process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED;
+    } else {
+      process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED = originalSelfHosted;
+    }
+  });
+
   it("reports ready to start for an empty workspace with execute permission", () => {
     const readiness = resolveFirstReviewGuideReadiness({
       commitContext: emptyContext,
@@ -227,5 +237,33 @@ describe("first-review-guide-state", () => {
     expect(actions.primaryHref).toBe("/architecture/reviews/run-sealed");
     expect(actions.secondaryLabel).toBe("Start another review");
     expect(actions.secondaryHref).toBe("/architecture/reviews/new");
+  });
+
+  it("reports completed when a sealed record exists despite self-hosted setup blockers", () => {
+    process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED = "true";
+
+    const readiness = resolveFirstReviewGuideReadiness({
+      commitContext: {
+        ...emptyContext,
+        hasCommittedManifest: true,
+        firstCommittedRunId: "run-sealed",
+        sealedReviewRecord: {
+          runId: "run-sealed",
+          displayName: null,
+          finalizedOnUtc: null,
+          finalizedByUserId: null,
+        },
+      },
+      canExecute: true,
+      finishSetupContext: {
+        healthReady: false,
+        healthLoadFailed: true,
+        principalAdmin: true,
+      },
+      finishSetupLoaded: true,
+    });
+
+    expect(readiness.kind).toBe("completed");
+    expect(readiness.headline).toBe("First review completed");
   });
 });
