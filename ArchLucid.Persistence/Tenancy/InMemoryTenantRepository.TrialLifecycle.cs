@@ -35,48 +35,21 @@ public sealed partial class InMemoryTenantRepository
                 return Task.CompletedTask;
         }
 
-        TenantRecord updated = new()
-        {
-            Id = existing.Id,
-            Name = existing.Name,
-            Slug = existing.Slug,
-            Tier = existing.Tier,
-            EntraTenantId = existing.EntraTenantId,
-            CreatedUtc = existing.CreatedUtc,
-            SuspendedUtc = existing.SuspendedUtc,
-            TrialStartUtc = trialStartUtc,
-            TrialExpiresUtc = trialExpiresUtc,
-            TrialRunsLimit = runsLimit,
-            TrialRunsUsed = 0,
-            TrialSeatsLimit = seatsLimit,
-            TrialSeatsUsed = 0,
-            TrialStatus = TrialLifecycleStatus.Active,
-            TrialSampleRunId = sampleRunId,
-            TrialArchitecturePreseedEnqueuedUtc = null,
-            TrialWelcomeRunId = null,
-            TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
-            BaselineReviewCycleHours = baselineReviewCycleHours,
-            BaselineReviewCycleSource = baselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
-            CompanySize = companySize,
-            ArchitectureTeamSize = architectureTeamSize,
-            IndustryVertical = industryVertical,
-            IndustryVerticalOther = industryVerticalOther,
-            BaselineManualPrepHoursPerReview = existing.BaselineManualPrepHoursPerReview,
-            BaselinePeoplePerReview = existing.BaselinePeoplePerReview,
-            BaselineManualPrepCapturedUtc = existing.BaselineManualPrepCapturedUtc,
-            EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed,
-            OffboardedUtc = existing.OffboardedUtc,
-            ErasureEligibleUtc = existing.ErasureEligibleUtc,
-            LegalHoldUntilUtc = existing.LegalHoldUntilUtc,
-            LegalHoldReason = existing.LegalHoldReason,
-            LegalHoldSetByUserId = existing.LegalHoldSetByUserId,
-            LegalHoldSetUtc = existing.LegalHoldSetUtc,
-            TenantErasureRequestedUtc = existing.TenantErasureRequestedUtc,
-            TenantErasureApprovedUtc = existing.TenantErasureApprovedUtc,
-            TenantErasureApprovedByUserId = existing.TenantErasureApprovedByUserId
-        };
+        TenantTrialLifecycleCore.CommitSelfServiceTrialMutation mutation =
+            TenantTrialLifecycleCore.CreateCommitSelfServiceTrialMutation(
+                trialStartUtc,
+                trialExpiresUtc,
+                runsLimit,
+                seatsLimit,
+                sampleRunId,
+                baselineReviewCycleHours,
+                baselineReviewCycleSource,
+                baselineReviewCycleCapturedUtc,
+                companySize,
+                architectureTeamSize,
+                industryVertical,
+                industryVerticalOther);
+        TenantRecord updated = TenantTrialLifecycleCore.ApplyCommitSelfServiceTrial(existing, mutation);
 
         lock (_trialGate)
         {
@@ -104,48 +77,14 @@ public sealed partial class InMemoryTenantRepository
                 return Task.CompletedTask;
         }
 
-        TenantRecord updated = new()
-        {
-            Id = existing.Id,
-            Name = existing.Name,
-            Slug = existing.Slug,
-            Tier = existing.Tier,
-            EntraTenantId = existing.EntraTenantId,
-            CreatedUtc = existing.CreatedUtc,
-            SuspendedUtc = existing.SuspendedUtc,
-            TrialStartUtc = existing.TrialStartUtc,
-            TrialExpiresUtc = existing.TrialExpiresUtc,
-            TrialRunsLimit = existing.TrialRunsLimit,
-            TrialRunsUsed = existing.TrialRunsUsed,
-            TrialSeatsLimit = existing.TrialSeatsLimit,
-            TrialSeatsUsed = existing.TrialSeatsUsed,
-            TrialStatus = existing.TrialStatus,
-            TrialSampleRunId = existing.TrialSampleRunId,
-            TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
-            TrialWelcomeRunId = existing.TrialWelcomeRunId,
-            TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
-            BaselineReviewCycleHours = baselineReviewCycleHours,
-            BaselineReviewCycleSource = baselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
-            BaselineManualPrepHoursPerReview = existing.BaselineManualPrepHoursPerReview,
-            BaselinePeoplePerReview = existing.BaselinePeoplePerReview,
-            BaselineManualPrepCapturedUtc = existing.BaselineManualPrepCapturedUtc,
-            CompanySize = existing.CompanySize,
-            ArchitectureTeamSize = existing.ArchitectureTeamSize,
-            IndustryVertical = existing.IndustryVertical,
-            IndustryVerticalOther = existing.IndustryVerticalOther,
-            EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed,
-            OffboardedUtc = existing.OffboardedUtc,
-            ErasureEligibleUtc = existing.ErasureEligibleUtc,
-            LegalHoldUntilUtc = existing.LegalHoldUntilUtc,
-            LegalHoldReason = existing.LegalHoldReason,
-            LegalHoldSetByUserId = existing.LegalHoldSetByUserId,
-            LegalHoldSetUtc = existing.LegalHoldSetUtc,
-            TenantErasureRequestedUtc = existing.TenantErasureRequestedUtc,
-            TenantErasureApprovedUtc = existing.TenantErasureApprovedUtc,
-            TenantErasureApprovedByUserId = existing.TenantErasureApprovedByUserId
-        };
+        TenantRecord updated = TenantTrialLifecycleCore.ApplyPersistTrialSignupBaselineReviewCycle(
+            existing,
+            new TenantTrialLifecycleCore.PersistTrialSignupBaselineReviewCycleMutation
+            {
+                BaselineReviewCycleHours = baselineReviewCycleHours,
+                BaselineReviewCycleSource = baselineReviewCycleSource,
+                BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
+            });
 
         lock (_trialGate)
         {
@@ -168,53 +107,10 @@ public sealed partial class InMemoryTenantRepository
                 return Task.CompletedTask;
         }
 
-        if (!string.Equals(existing.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+        TenantRecord? updated = TenantTrialLifecycleCore.TryApplyMarkTrialConverted(existing, newCommercialTier);
+
+        if (updated is null)
             return Task.CompletedTask;
-
-        TenantTier tier = newCommercialTier ?? existing.Tier;
-
-        TenantRecord updated = new()
-        {
-            Id = existing.Id,
-            Name = existing.Name,
-            Slug = existing.Slug,
-            Tier = tier,
-            EntraTenantId = existing.EntraTenantId,
-            CreatedUtc = existing.CreatedUtc,
-            SuspendedUtc = existing.SuspendedUtc,
-            TrialStartUtc = existing.TrialStartUtc,
-            TrialExpiresUtc = existing.TrialExpiresUtc,
-            TrialRunsLimit = existing.TrialRunsLimit,
-            TrialRunsUsed = existing.TrialRunsUsed,
-            TrialSeatsLimit = existing.TrialSeatsLimit,
-            TrialSeatsUsed = existing.TrialSeatsUsed,
-            TrialStatus = TrialLifecycleStatus.Converted,
-            TrialSampleRunId = existing.TrialSampleRunId,
-            TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
-            TrialWelcomeRunId = existing.TrialWelcomeRunId,
-            TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
-            BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
-            BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
-            BaselineManualPrepHoursPerReview = existing.BaselineManualPrepHoursPerReview,
-            BaselinePeoplePerReview = existing.BaselinePeoplePerReview,
-            BaselineManualPrepCapturedUtc = existing.BaselineManualPrepCapturedUtc,
-            CompanySize = existing.CompanySize,
-            ArchitectureTeamSize = existing.ArchitectureTeamSize,
-            IndustryVertical = existing.IndustryVertical,
-            IndustryVerticalOther = existing.IndustryVerticalOther,
-            EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed,
-            OffboardedUtc = existing.OffboardedUtc,
-            ErasureEligibleUtc = existing.ErasureEligibleUtc,
-            LegalHoldUntilUtc = existing.LegalHoldUntilUtc,
-            LegalHoldReason = existing.LegalHoldReason,
-            LegalHoldSetByUserId = existing.LegalHoldSetByUserId,
-            LegalHoldSetUtc = existing.LegalHoldSetUtc,
-            TenantErasureRequestedUtc = existing.TenantErasureRequestedUtc,
-            TenantErasureApprovedUtc = existing.TenantErasureApprovedUtc,
-            TenantErasureApprovedByUserId = existing.TenantErasureApprovedByUserId
-        };
 
         lock (_trialGate)
         {
@@ -235,10 +131,7 @@ public sealed partial class InMemoryTenantRepository
         lock (_trialGate)
         {
             ids = _byId.Values
-                .Where(static t =>
-                    t.TrialExpiresUtc is not null &&
-                    !string.IsNullOrWhiteSpace(t.TrialStatus) &&
-                    !string.Equals(t.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
+                .Where(TenantTrialLifecycleCore.IsTrialLifecycleAutomationCandidate)
                 .Select(static t => t.Id)
                 .ToList();
         }
@@ -283,19 +176,19 @@ public sealed partial class InMemoryTenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t) || !_trialFirstManifestCommitted.TryAdd(tenantId, 0))
                 return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
 
-            DateTimeOffset anchor = t.TrialStartUtc ?? t.CreatedUtc;
-            double seconds = (committedUtc - anchor).TotalSeconds;
-
-            double ratio = 0;
-
-            if (t.TrialRunsLimit is { } lim and > 0)
-
-                ratio = (double)t.TrialRunsUsed / lim;
+            TrialFirstManifestCommitOutcome outcome = TenantTrialLifecycleCore.ComputeFirstManifestCommitOutcome(
+                new TenantTrialLifecycleCore.TrialFirstManifestSourceRow
+                {
+                    TrialRunsUsed = t.TrialRunsUsed,
+                    TrialRunsLimit = t.TrialRunsLimit,
+                    CreatedUtc = t.CreatedUtc,
+                    TrialStartUtc = t.TrialStartUtc,
+                },
+                committedUtc);
 
             _byId[tenantId] = CopyTenant(t, trialFirstManifestCommittedUtc: committedUtc);
 
-            return Task.FromResult<TrialFirstManifestCommitOutcome?>(
-                new TrialFirstManifestCommitOutcome { SignupToCommitSeconds = seconds, TrialRunUsageRatio = ratio });
+            return Task.FromResult<TrialFirstManifestCommitOutcome?>(outcome);
         }
     }
 
