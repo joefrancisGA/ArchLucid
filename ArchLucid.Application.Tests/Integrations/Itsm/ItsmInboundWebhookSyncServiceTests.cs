@@ -1109,15 +1109,14 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         IOptionsMonitor<IntegrationsItsmInboundOptions> inboundOptions,
         ItsmInboundDispositionSync dispositionSync,
         IItsmInboundWebhookReplayGuard replayGuard,
-        ILogger<ItsmInboundWebhookProcessPipeline>? jiraLogger = null,
-        ILogger<ItsmInboundWebhookProcessPipeline>? serviceNowLogger = null)
+        ILogger<ItsmInboundWebhookProcessPipeline>? pipelineLogger = null)
     {
         ItsmInboundWebhookSyncSupport support = new(correlations, replayGuard);
         ItsmInboundWebhookProcessPipeline pipeline = new(
             support,
             inboundOptions,
             dispositionSync,
-            NullLogger<ItsmInboundWebhookProcessPipeline>.Instance);
+            pipelineLogger ?? NullLogger<ItsmInboundWebhookProcessPipeline>.Instance);
         ItsmInboundJiraWebhookProcessor jiraProcessor = new(
             pipeline,
             new ItsmInboundJiraPayloadReader(),
