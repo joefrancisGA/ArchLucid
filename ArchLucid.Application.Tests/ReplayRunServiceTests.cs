@@ -202,7 +202,8 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuditService>(),
             UnitTestActor(),
             Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommandService>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
             NullLogger<ReplayRunService>.Instance);
 
         Func<Task> act = async () => await sut.ReplayAsync("missing", ExecutionModes.Current, false, null, CancellationToken.None);
@@ -319,7 +320,8 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuditService>(),
             UnitTestActor(),
             Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommandService>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
             NullLogger<ReplayRunService>.Instance);
 
         ReplayRunResult output = await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: false, null, CancellationToken.None);
@@ -507,7 +509,8 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuditService>(),
             UnitTestActor(),
             Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommandService>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
             NullLogger<ReplayRunService>.Instance);
 
         ReplayRunResult output =
@@ -657,7 +660,8 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuditService>(),
             UnitTestActor(),
             Mock.Of<IAuthorityRunOrchestrator>(),
-            Mock.Of<IArchitectureRunCommandService>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
             NullLogger<ReplayRunService>.Instance);
 
         ReplayRunResult output = await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: false, null, CancellationToken.None);
