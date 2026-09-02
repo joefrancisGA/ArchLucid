@@ -45,7 +45,7 @@ function RunsDashboardStatusTabLinks(props: {
 }): React.JSX.Element {
   return (
     <div
-      role="tablist"
+      role="group"
       aria-label={props.buyerPolishedShell ? "Filter reviews" : "Review views"}
       data-testid="runs-dashboard-status-filters"
       className={cn(
