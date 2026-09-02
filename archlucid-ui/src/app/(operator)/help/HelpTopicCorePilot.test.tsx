@@ -506,18 +506,15 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.getByTestId("core-pilot-help-claim-discipline")).toHaveTextContent(CORE_PILOT_HELP_CLAIM_DISCIPLINE);
   });
 
-  it("keeps the guide-scope disclosure collapsed by default", () => {
+  it("renders guide-scope copy without a collapsible wrapper", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
 
-    const scopeSummary = screen.getByText(CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title);
-    const scopeDetails = scopeSummary.closest("details");
-
-    expect(scopeDetails).not.toBeNull();
-    expect(scopeDetails?.open).toBe(false);
+    expect(screen.getByText(CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title)).toBeInTheDocument();
+    expect(screen.getByText(CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body)).toBeVisible();
   });
 
   it("renders sticky on-this-page navigation when enough sections exist", () => {

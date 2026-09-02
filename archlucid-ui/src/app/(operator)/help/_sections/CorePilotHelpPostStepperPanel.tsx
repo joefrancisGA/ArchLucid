@@ -41,11 +41,7 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
       <section aria-labelledby="optional-paths" className="space-y-3" data-testid="core-pilot-optional-paths">
         <PostStepperSectionHeading id="optional-paths">{CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE}</PostStepperSectionHeading>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CORE_PILOT_HELP_OPTIONAL_PATHS_SUMMARY}</p>
-        <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-optional-paths-disclosure">
-          <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Show optional cloud, evidence-only, and later topics
-          </summary>
-          <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-6")}>
+        <div className="space-y-6" data-testid="core-pilot-optional-paths-disclosure">
             <div className="space-y-3" data-testid="core-pilot-cloud-actions">
               <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Cloud connectors</h3>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
@@ -118,8 +114,7 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
                 {CORE_PILOT_HELP_DISCLOSURE.whatCanWaitUntilLater.body}
               </p>
             </div>
-          </div>
-        </details>
+        </div>
       </section>
     </>
   );

@@ -17,7 +17,7 @@ import { HelpAzurePermissionsRequiredRolesSummary } from "@/app/(operator)/help/
 import { HelpAzurePermissionsSetupSection } from "@/app/(operator)/help/_sections/HelpAzurePermissionsSetupSection";
 import { HelpAzurePermissionsVerificationPanel } from "@/app/(operator)/help/_sections/HelpAzurePermissionsVerificationPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { HelpStaticSection } from "@/components/help/HelpStaticSection";
 import { Button } from "@/components/ui/button";
 import {
   AZURE_CLOUD_CONNECTION_CANNOT_DO,
@@ -271,17 +271,17 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
           </section>
 
           <section aria-labelledby="permissions-matrix" className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <CollapsibleSection
-              title={AZURE_PERMISSIONS_MATRIX_HEADING}
+            <HelpStaticSection
+              id="permissions-matrix"
               headingLevel={2}
-              summaryLine={AZURE_PERMISSIONS_MATRIX_DISCLOSURE_SUMMARY}
-              summaryId="permissions-matrix"
-              sectionTestId={AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID}
+              title={AZURE_PERMISSIONS_MATRIX_HEADING}
+              intro={AZURE_PERMISSIONS_MATRIX_DISCLOSURE_SUMMARY}
+              testId={AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID}
             >
               <div className="space-y-3">
                 <AzureCloudConnectionRolesTable expandedDetails={false} testId="azure-permissions-matrix-table" />
               </div>
-            </CollapsibleSection>
+            </HelpStaticSection>
           </section>
 
           <section
@@ -346,12 +346,12 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             className="border-t border-neutral-200 pt-6 dark:border-neutral-800"
             data-testid="azure-permissions-custom-role-section"
           >
-            <CollapsibleSection
-              title={AZURE_PERMISSIONS_CUSTOM_ROLE_HEADING}
+            <HelpStaticSection
+              id="custom-role"
               headingLevel={2}
-              summaryLine={AZURE_PERMISSIONS_CUSTOM_ROLE_DISCLOSURE_SUMMARY}
-              summaryId="custom-role"
-              sectionTestId={AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID}
+              title={AZURE_PERMISSIONS_CUSTOM_ROLE_HEADING}
+              intro={AZURE_PERMISSIONS_CUSTOM_ROLE_DISCLOSURE_SUMMARY}
+              testId={AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID}
             >
               <div className="space-y-3">
                 <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -359,7 +359,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
                 </p>
                 <CustomRoleActionsTable />
               </div>
-            </CollapsibleSection>
+            </HelpStaticSection>
           </section>
 
           <section
@@ -393,16 +393,16 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
           </section>
 
           <section className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <CollapsibleSection
-              title={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TITLE}
+            <HelpStaticSection
               headingLevel={2}
-              summaryLine={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY}
-              sectionTestId={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID}
+              title={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TITLE}
+              intro={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY}
+              testId={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID}
             >
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 {formatAzurePermissionsHelpRequirementsReviewedLine(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}
               </p>
-            </CollapsibleSection>
+            </HelpStaticSection>
           </section>
         </div>
         <HelpTopicTableOfContents headings={AZURE_PERMISSIONS_TOC_HEADINGS} />

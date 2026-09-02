@@ -23,17 +23,16 @@ export function HelpEvidenceIntakeFindingCoverageTable(): React.ReactElement {
       data-testid="help-evidence-intake-finding-coverage"
       id="finding-coverage"
     >
-      <details className={HELP_PAGE_LAYOUT.details}>
-        <summary
-          id="help-evidence-intake-coverage-heading"
-          className={cn("cursor-pointer list-none marker:content-none [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.sectionTitle, "text-al-text-primary")}
-        >
-          {EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_DISCLOSURE_LABEL}
-        </summary>
-        <div className={HELP_PAGE_LAYOUT.detailsBody}>
-          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_TITLE}
-          </h3>
+      <h2
+        id="help-evidence-intake-coverage-heading"
+        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      >
+        {EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_DISCLOSURE_LABEL}
+      </h2>
+      <div className={cn(HELP_PAGE_LAYOUT.details, "mt-3")}>
+        <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_TITLE}
+        </h3>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Each class of evidence gives reviewers something concrete to cite. When a class is missing, findings in the
             domains it supports tend to stay generic. {EVIDENCE_GAP_FORECAST_DISCLAIMER}
@@ -69,7 +68,7 @@ export function HelpEvidenceIntakeFindingCoverageTable(): React.ReactElement {
             </table>
           </div>
         </div>
-      </details>
+      </div>
     </section>
   );
 }
