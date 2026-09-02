@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useState, type ReactElement, type ReactNode } from "react";
+import { useSyncExternalStore, type ReactElement, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const dashboardSearchParamsHarness = vi.hoisted(() => {
@@ -167,18 +167,25 @@ function buildInitialModel(
 const originalFetch = globalThis.fetch;
 
 function DashboardSearchParamsRerenderHost({ children }: { readonly children: ReactNode }): ReactElement {
-  const [, setTick] = useState(0);
-
-  useEffect(() => {
-    return dashboardSearchParamsHarness.subscribe(() => {
-      setTick((current) => current + 1);
-    });
-  }, []);
+  useSyncExternalStore(
+    dashboardSearchParamsHarness.subscribe,
+    () => dashboardSearchParamsHarness.state.query,
+    () => "",
+  );
 
   return <>{children}</>;
 }
 
-function renderRunsDashboardPanel(ui: ReactElement = <RunsDashboardPanel />) {
+function statusFilterChip(testId: string) {
+  return within(screen.getByTestId("runs-dashboard-status-filters")).getByTestId(testId);
+}
+
+function renderRunsDashboardPanel(
+  ui: ReactElement = <RunsDashboardPanel />,
+  searchQuery = "",
+) {
+  dashboardSearchParamsHarness.state.query = searchQuery;
+
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -223,6 +230,8 @@ describe("RunsDashboardPanel", () => {
     vi.clearAllMocks();
     dashboardSearchParamsHarness.reset();
     window.sessionStorage.clear();
+    runsDashBuyerPolishedForced.on = false;
+    sampleReviewsVisibleMock.value = true;
   });
 
   afterEach(() => {
@@ -368,12 +377,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    renderRunsDashboardPanel();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("runs-dashboard-tab-attention")).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByTestId("runs-dashboard-tab-attention"));
+    renderRunsDashboardPanel(<RunsDashboardPanel />, "tab=attention");
 
     expect(
       await screen.findByText("Findings ready · finalize this review to lock export readiness"),
@@ -551,11 +555,7 @@ describe("RunsDashboardPanel", () => {
       });
       stubFetchForDashboard();
 
-      renderRunsDashboardPanel();
-
-      expect(await screen.findByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
-
-      fireEvent.click(screen.getByTestId("runs-dashboard-filter-outcomes"));
+      renderRunsDashboardPanel(<RunsDashboardPanel />, "tab=outcomes");
 
       const monitoringPanel = await screen.findByTestId("runs-dashboard-panel-outcomes");
       expect(monitoringPanel).toBeInTheDocument();
@@ -590,11 +590,7 @@ describe("RunsDashboardPanel", () => {
       });
       stubFetchForDashboard();
 
-      renderRunsDashboardPanel();
-
-      expect(await screen.findByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
-
-      fireEvent.click(screen.getByTestId("runs-dashboard-filter-approved"));
+      renderRunsDashboardPanel(<RunsDashboardPanel />, "tab=approved");
 
       const approvedPanel = await screen.findByTestId("runs-dashboard-panel-approved");
       expect(approvedPanel.querySelector('[data-testid="runs-dashboard-buyer-proof-summary"]')).not.toBeNull();
@@ -640,40 +636,42 @@ describe("RunsDashboardPanel", () => {
   it("shows buyer status filters without zero-count facets when a single review exists", async () => {
     runsDashBuyerPolishedForced.on = true;
 
-    const run: RunSummary = {
-      runId: "33333333-3333-3333-3333-333333333333",
-      projectId: "default",
-      description: "Active review",
-      createdUtc: "2026-01-15T12:00:00.000Z",
-      hasFindingsSnapshot: true,
-      hasGoldenManifest: true,
-    };
+    try {
+      const run: RunSummary = {
+        runId: "33333333-3333-3333-3333-333333333333",
+        projectId: "default",
+        description: "Active review",
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+      };
 
-    listRuns.mockResolvedValue({
-      items: [run],
-      totalCount: 1,
-      page: 1,
-      pageSize: 5,
-      hasMore: false,
-    });
-    stubFetchForDashboard();
+      listRuns.mockResolvedValue({
+        items: [run],
+        totalCount: 1,
+        page: 1,
+        pageSize: 5,
+        hasMore: false,
+      });
+      stubFetchForDashboard();
 
-    renderRunsDashboardPanel();
+      renderRunsDashboardPanel();
 
-    await waitFor(() => {
-      expect(screen.getByRole("group", { name: "Filter reviews" })).toBeInTheDocument();
-      expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveTextContent("All (1)");
-      expect(screen.getByTestId("runs-dashboard-filter-approved")).toHaveTextContent("Approved (1)");
-    });
+      await waitFor(() => {
+        expect(screen.getByRole("group", { name: "Filter reviews" })).toBeInTheDocument();
+        expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveTextContent("All (1)");
+        expect(screen.getByTestId("runs-dashboard-filter-approved")).toHaveTextContent("Approved (1)");
+      });
 
-    expect(screen.queryByTestId("runs-dashboard-filter-attention")).toBeNull();
-    expect(screen.queryByTestId("runs-dashboard-filter-outcomes")).toBeNull();
-    expect(screen.queryByTestId("runs-dashboard-view-all-reviews")).toBeNull();
-    expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
-    expect(screen.queryByTestId("runs-dashboard-filters")).toBeNull();
-    expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).toBeNull();
-
-    runsDashBuyerPolishedForced.on = false;
+      expect(screen.queryByTestId("runs-dashboard-filter-attention")).toBeNull();
+      expect(screen.queryByTestId("runs-dashboard-filter-outcomes")).toBeNull();
+      expect(screen.queryByTestId("runs-dashboard-view-all-reviews")).toBeNull();
+      expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
+      expect(screen.queryByTestId("runs-dashboard-filters")).toBeNull();
+      expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).toBeNull();
+    } finally {
+      runsDashBuyerPolishedForced.on = false;
+    }
   });
 
   it("buyer-polished empty state shows workspace empty copy without duplicate onboarding CTAs", async () => {
@@ -712,83 +710,81 @@ describe("RunsDashboardPanel", () => {
   it("buyer-polished archived filter is disabled with zero count when archive field is supported", async () => {
     runsDashBuyerPolishedForced.on = true;
 
-    const run: RunSummary = {
-      runId: "33333333-3333-3333-3333-333333333333",
-      projectId: "default",
-      description: "Active review",
-      createdUtc: "2026-01-15T12:00:00.000Z",
-      hasFindingsSnapshot: true,
-      hasGoldenManifest: true,
-      isArchived: false,
-    };
-    listRuns.mockResolvedValue({
-      items: [run],
-      totalCount: 1,
-      page: 1,
-      pageSize: 5,
-      hasMore: false,
-    });
-    stubFetchForDashboard();
+    try {
+      const run: RunSummary = {
+        runId: "33333333-3333-3333-3333-333333333333",
+        projectId: "default",
+        description: "Active review",
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+        isArchived: false,
+      };
+      listRuns.mockResolvedValue({
+        items: [run],
+        totalCount: 1,
+        page: 1,
+        pageSize: 5,
+        hasMore: false,
+      });
+      stubFetchForDashboard();
 
-    renderRunsDashboardPanel();
+      renderRunsDashboardPanel();
 
-    const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
-    expect(archivedFilter).toHaveTextContent("Archived 0");
-    expect(archivedFilter).toBeDisabled();
-    expect(screen.queryByTestId("runs-dashboard-open-review-packages")).toBeNull();
-    expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
-    expect(screen.queryByText(/contact your administrator/i)).toBeNull();
-
-    runsDashBuyerPolishedForced.on = false;
+      const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
+      expect(archivedFilter).toHaveTextContent("Archived 0");
+      expect(archivedFilter).toBeDisabled();
+      expect(screen.queryByTestId("runs-dashboard-open-review-packages")).toBeNull();
+      expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
+      expect(screen.queryByText(/contact your administrator/i)).toBeNull();
+    } finally {
+      runsDashBuyerPolishedForced.on = false;
+    }
   });
 
   it("buyer-polished archived filter lists archived reviews when count is greater than zero", async () => {
     runsDashBuyerPolishedForced.on = true;
 
-    const activeRun: RunSummary = {
-      runId: "44444444-4444-4444-4444-444444444444",
-      projectId: "default",
-      description: "Active review",
-      createdUtc: "2026-01-15T12:00:00.000Z",
-      hasFindingsSnapshot: true,
-      hasGoldenManifest: true,
-      isArchived: false,
-    };
-    const archivedRun: RunSummary = {
-      runId: "55555555-5555-5555-5555-555555555555",
-      projectId: "default",
-      description: "Archived review",
-      createdUtc: "2026-01-10T12:00:00.000Z",
-      hasFindingsSnapshot: true,
-      hasGoldenManifest: true,
-      isArchived: true,
-      requestId: "req-archived-1",
-    };
-    listRuns.mockResolvedValue({
-      items: [activeRun, archivedRun],
-      totalCount: 2,
-      page: 1,
-      pageSize: 5,
-      hasMore: false,
-    });
-    stubFetchForDashboard();
+    try {
+      const activeRun: RunSummary = {
+        runId: "44444444-4444-4444-4444-444444444444",
+        projectId: "default",
+        description: "Active review",
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+        isArchived: false,
+      };
+      const archivedRun: RunSummary = {
+        runId: "55555555-5555-5555-5555-555555555555",
+        projectId: "default",
+        description: "Archived review",
+        createdUtc: "2026-01-10T12:00:00.000Z",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+        isArchived: true,
+        requestId: "req-archived-1",
+      };
+      listRuns.mockResolvedValue({
+        items: [activeRun, archivedRun],
+        totalCount: 2,
+        page: 1,
+        pageSize: 5,
+        hasMore: false,
+      });
+      stubFetchForDashboard();
 
-    renderRunsDashboardPanel();
+      renderRunsDashboardPanel(<RunsDashboardPanel />, "archived=1");
 
-    const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
-    expect(archivedFilter).toHaveTextContent("Archived 1");
-    expect(archivedFilter).not.toBeDisabled();
-
-    fireEvent.click(archivedFilter);
-
-    await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Archived review" })).toBeInTheDocument();
-    });
-    expect(screen.queryByRole("link", { name: "Active review" })).toBeNull();
-    expect(screen.queryByTestId("operator-home-workspace-archived-empty-state")).toBeNull();
-    expect(screen.queryByText(/contact your administrator/i)).toBeNull();
-
-    runsDashBuyerPolishedForced.on = false;
+      await waitFor(() => {
+        expect(screen.getByRole("link", { name: "Archived review" })).toBeInTheDocument();
+      });
+      expect(screen.queryByRole("link", { name: "Active review" })).toBeNull();
+      expect(screen.queryByTestId("operator-home-workspace-archived-empty-state")).toBeNull();
+      expect(screen.queryByText(/contact your administrator/i)).toBeNull();
+    } finally {
+      runsDashBuyerPolishedForced.on = false;
+    }
   });
 
   it("operator shell exposes filter links with aria-current and attention panel when selected (TB-667)", async () => {
@@ -811,7 +807,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    renderRunsDashboardPanel();
+    const firstPaint = renderRunsDashboardPanel();
 
     await screen.findByRole("link", { name: "Active review" });
 
@@ -819,14 +815,16 @@ describe("RunsDashboardPanel", () => {
       expect(screen.getByRole("group", { name: "Review views" })).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("runs-dashboard-tab-all")).toHaveAttribute("aria-current", "page");
+    expect(statusFilterChip("runs-dashboard-tab-all")).toHaveAttribute("aria-current", "page");
+    expect(statusFilterChip("runs-dashboard-tab-attention")).toHaveAttribute("href", "/?tab=attention");
     expect(screen.queryByRole("link", { name: /open all reviews/i })).not.toBeNull();
     expect(screen.getByTestId("runs-dashboard-status-filters").querySelector("a")).not.toBeNull();
 
-    fireEvent.click(screen.getByTestId("runs-dashboard-tab-attention"));
+    firstPaint.unmount();
+    renderRunsDashboardPanel(<RunsDashboardPanel />, "tab=attention");
 
     await waitFor(() => {
-      expect(screen.getByTestId("runs-dashboard-tab-attention")).toHaveAttribute("aria-current", "page");
+      expect(statusFilterChip("runs-dashboard-tab-attention")).toHaveAttribute("aria-current", "page");
     });
     expect(screen.getByTestId("runs-dashboard-panel-attention")).toBeInTheDocument();
   });
@@ -859,17 +857,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    renderRunsDashboardPanel();
-
-    await screen.findByRole("link", { name: "Active review" });
-
-    fireEvent.click(screen.getByTestId("runs-dashboard-show-archived"));
-
-    await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Archived review" })).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId("runs-dashboard-governance-warnings-only"));
+    renderRunsDashboardPanel(<RunsDashboardPanel />, "archived=1&warnings=1");
 
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-workspace-archived-empty-state")).toBeInTheDocument();

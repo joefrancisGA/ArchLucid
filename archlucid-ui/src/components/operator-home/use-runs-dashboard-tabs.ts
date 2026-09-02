@@ -111,10 +111,15 @@ export function useRunsDashboardTabs({
   const archivedFilterDisabled = !archivedFieldSupported || archivedCount === 0;
 
   useEffect(() => {
+    // Counts are unknown until the list paints; keep `?archived=1` during first load.
+    if (phase !== "ready" && phase !== "error") {
+      return;
+    }
+
     if (archivedFilterDisabled && showArchived) {
       setShowArchived(false);
     }
-  }, [archivedFilterDisabled, showArchived]);
+  }, [archivedFilterDisabled, phase, showArchived]);
 
   const filteredItems = useMemo(() => {
     let rows = displayItems;
