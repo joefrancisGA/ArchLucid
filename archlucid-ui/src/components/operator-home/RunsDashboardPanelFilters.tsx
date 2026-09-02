@@ -55,7 +55,7 @@ function RunsDashboardStatusTabLinks(props: {
     >
       {props.statusTabIds.map((id) => {
         const selected = props.tab === id;
-        const disabled = props.statusTabCounts[id] === 0 && id !== "all";
+        const disabled = props.buyerPolishedShell && props.statusTabCounts[id] === 0 && id !== "all";
         const label = runsDashboardTabLabel(id, props.buyerPolishedShell, props.statusTabCounts[id]);
 
         if (disabled) {
