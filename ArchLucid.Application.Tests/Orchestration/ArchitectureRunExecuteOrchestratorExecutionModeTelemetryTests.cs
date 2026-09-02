@@ -223,6 +223,6 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
                 RunStageOutcomesRepository = Mock.Of<IRunStageOutcomesRepository>(),
                 AgentExecutionReadinessGuard = new PermissiveAgentExecutionReadinessGuard(),
                 Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance
-            });;
+            });
     }
 }
