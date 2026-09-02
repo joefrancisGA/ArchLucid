@@ -1,6 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { expectClaimDisciplineBandContent, expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import {
+  expectClaimDisciplineBandContent,
+  expectWhereToGoNextFollowUpLinks,
+} from "@/lib/claim-discipline-test-helpers";
 
 import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
 import {
@@ -25,10 +28,9 @@ describe("EnterpriseOnboardingHelpEvidenceOrientationStrip", () => {
     expect(screen.queryByText(/Diligence artifact/i)).toBeNull();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
 
-    for (const link of ENTERPRISE_ONBOARDING_HELP_SOURCES) {
-      expectFollowUpLink(screen, link);
-    }
+    expectWhereToGoNextFollowUpLinks(screen, ENTERPRISE_ONBOARDING_HELP_SOURCES);
 
     expect(screen.queryByRole("link", { name: "Hosted SaaS enterprise onboarding checklist" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Open Identity providers" })).toBeNull();
   });
 });

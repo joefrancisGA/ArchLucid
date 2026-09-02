@@ -1,6 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { expectClaimDisciplineBandContent, expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import {
+  expectClaimDisciplineBandContent,
+  expectWhereToGoNextFollowUpLinks,
+} from "@/lib/claim-discipline-test-helpers";
 
 import { ComparisonReplayHelpEvidenceOrientationStrip } from "@/components/help/ComparisonReplayHelpEvidenceOrientationStrip";
 import {
@@ -20,8 +23,6 @@ describe("ComparisonReplayHelpEvidenceOrientationStrip", () => {
       COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
 
-    for (const source of COMPARISON_REPLAY_HELP_SOURCES) {
-      expectFollowUpLink(screen, source);
-    }
+    expectWhereToGoNextFollowUpLinks(screen, COMPARISON_REPLAY_HELP_SOURCES);
   });
 });
