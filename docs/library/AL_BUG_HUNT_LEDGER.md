@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 58
-- **bugs-found:** 151
+- **hunts:** 59
+- **bugs-found:** 153
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — enforcement tier, confidence source, execution profile, webhook timestamp coercion
+- **last-bug:** 2026-09-02 — run status and risk-register boolean/string coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1944,6 +1944,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DecisionConfidenceSourceMapper.ToBuyerLabel` — string-encoded whole-number confidence source ignored — **hit 2026-09-02 (#470):** `"5.0"` mapped to `Unknown` while `"5"` mapped to model-assisted; fixed with ordinal coercion and `Enum.IsDefined` guard on name parse (`ToBuyerLabel_parses_string_encoded_whole_number_ordinal`).
 - [x] (proven) `AgentModelExecutionProfileParser.TryParse` — string-encoded whole-number profile ordinal rejected — **hit 2026-09-02 (#470):** `"2.0"` failed parse while `"2"` accepted HighAssurance; fixed with whole-number ordinal coercion (`TryParse_accepts_string_encoded_whole_number_high_assurance_ordinal`).
 - [x] (proven) `WebhookSecrets.TimestampWithinSkew` — string-encoded whole-number unix timestamp rejected — **hit 2026-09-02 (#470):** `"1735689600.0"` failed skew validation while integer strings accepted; fixed with `TryParseWholeNumberLong` (`TimestampWithinSkew_accepts_string_encoded_whole_number_epoch`).
+
+- [x] (proven) `ArchitectureRunStatusTransitionTable.TryParseStatus` — string-encoded whole-number legacy status ignored — **hit 2026-09-02 (#471):** `"4.0"` failed parse while `"4"` mapped to `ReadyForCommit`; fixed with `TryParseWholeNumberString` (`TryParseStatus_parses_string_encoded_whole_number_ordinal`).
+- [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` — string-encoded boolean review status ignored — **hit 2026-09-02 (#471):** `"True"` defaulted to `NotRequired` while sibling finding enum readers already coerced boolean ordinals; fixed with `TryParseBooleanOrdinalString` (`ParseOrDefault_string_encoded_boolean_maps_pending`).
+
+2026-09-02 seed hunt #471: reseeded from ArchLucid.Core; proved run-status legacy string whole-number and risk-register boolean review-status coercion gaps.
 
 2026-09-02 seed hunt #470: reseeded from ArchLucid.Core; proved enforcement-tier, confidence-source, execution-profile, and webhook timestamp string whole-number coercion gaps.
 
