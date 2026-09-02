@@ -22,5 +22,4 @@ export const FIRST_REVIEW_GUIDE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start a review", href: REVIEWS_NEW_PATH },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "Evidence intake help", href: inAppHelpHref("evidence-intake") },
-  { label: "Getting started", href: inAppHelpHref("getting-started") },
 ] as const;

@@ -13,6 +13,7 @@ export const operatorFirstRunEmptyCommitContext: CorePilotCommitContext = {
   firstCommittedRunId: null,
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 export const operatorFirstRunShowcaseCommitContext: CorePilotCommitContext = {
@@ -22,6 +23,7 @@ export const operatorFirstRunShowcaseCommitContext: CorePilotCommitContext = {
   firstCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 export const operatorFirstRunCorePilotSteps = CORE_PILOT_STEPS;

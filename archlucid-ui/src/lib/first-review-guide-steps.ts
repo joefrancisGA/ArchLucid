@@ -16,7 +16,7 @@ export const FIRST_REVIEW_GUIDE_STEPS: readonly FirstReviewGuideStepDefinition[]
     explanation: "Provide the documents, decisions, and context the review should evaluate.",
   },
   {
-    title: "Evaluate the architecture review",
+    title: "Evaluate the architecture",
     explanation: "Evaluate the architecture against the selected policies and standards.",
   },
   {
@@ -28,12 +28,12 @@ export const FIRST_REVIEW_GUIDE_STEPS: readonly FirstReviewGuideStepDefinition[]
     explanation: "Record remediation, decisions, exceptions, or accepted risk.",
   },
   {
-    title: "Finalize the review",
-    explanation: "Commit the review record and preserve its evidence and decisions.",
+    title: "Seal the review record",
+    explanation: "Seal the review record and preserve its evidence and decisions.",
   },
   {
-    title: "Share the review",
-    explanation: "Open or export the finalized package for stakeholders.",
+    title: "Share the architecture package",
+    explanation: "Open or export the sealed review record for stakeholders.",
   },
 ] as const;
 

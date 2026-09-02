@@ -10,6 +10,7 @@ const committedContext: CorePilotCommitContext = {
   firstCommittedRunId: "run-1",
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 describe("resolveAcceleratorChooserPrerequisitePresentation", () => {

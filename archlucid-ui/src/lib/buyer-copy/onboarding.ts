@@ -21,12 +21,26 @@ export const FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE = "Your first review";
 
 export const FIRST_REVIEW_GUIDE_OUTCOMES_TITLE = "What you will have";
 
+export const FIRST_REVIEW_GUIDE_OUTCOMES_COMPLETED_TITLE = "What you have";
+
 export const FIRST_REVIEW_GUIDE_OUTCOMES: readonly string[] = [
   "A finalized architecture review record",
   "Evidence-backed findings",
   "Recorded decisions and exceptions",
   "A shareable review",
 ] as const;
+
+export const FIRST_REVIEW_GUIDE_OUTCOMES_COMPLETED: readonly string[] = [
+  "A sealed review record",
+  "Evidence-backed findings",
+  "Recorded decisions and exceptions",
+  "A shareable architecture package",
+] as const;
+
+export const FIRST_REVIEW_GUIDE_SAMPLE_REVIEW_RAIL_TITLE = "Sample architecture package";
+
+export const FIRST_REVIEW_GUIDE_SAMPLE_REVIEW_RAIL_BODY =
+  "Open a finalized sample architecture package with demo findings and decisions when you want a reference walkthrough.";
 
 export const FIRST_REVIEW_GUIDE_REQUIRED_SETUP_TITLE = "Required before you start";
 

@@ -18,6 +18,7 @@ const emptyContext: CorePilotCommitContext = {
   firstCommittedRunId: null,
   secondCommittedRunId: null,
   latestRunReadyToFinalize: false,
+  sealedReviewRecord: null,
 };
 
 describe("first-review-guide-state", () => {
@@ -71,7 +72,7 @@ describe("first-review-guide-state", () => {
 
     expect(steps[2]?.status).toBe("current");
     expect(steps[0]?.status).toBe("complete");
-    expect(steps[2]?.title).toBe("Evaluate the architecture review");
+    expect(steps[2]?.title).toBe("Evaluate the architecture");
   });
 
   it("uses distinct walkthrough actions instead of repeating start review", () => {
@@ -138,7 +139,7 @@ describe("first-review-guide-state", () => {
       finishSetupLoaded: true,
     });
 
-    expect(actions.primaryLabel).toBe("Finalize review");
+    expect(actions.primaryLabel).toBe("Seal review");
     expect(actions.primaryHref).toBe("/architecture/reviews/run-123");
   });
 
@@ -159,5 +160,72 @@ describe("first-review-guide-state", () => {
 
     expect(title.toLowerCase()).not.toMatch(/\brun\b/);
     expect(title).toMatch(/Evaluate/i);
+  });
+
+  it("strips mutating step actions after the review record is sealed", () => {
+    const steps = resolveFirstReviewGuideSteps({
+      commitContext: {
+        ...emptyContext,
+        hasCommittedManifest: true,
+        firstCommittedRunId: "run-sealed",
+        latestRunId: "run-sealed",
+        sealedReviewRecord: {
+          runId: "run-sealed",
+          displayName: "Payments platform",
+          finalizedOnUtc: "2026-04-15T12:00:00.000Z",
+          finalizedByUserId: "user-1",
+        },
+      },
+      canExecute: true,
+      finishSetupContext: null,
+      finishSetupLoaded: true,
+    });
+
+    expect(steps.every((step) => step.actionLabel === null && step.actionHref === null)).toBe(true);
+  });
+
+  it("does not treat a trial-anchored commit without a sealed run as complete", () => {
+    const input = {
+      commitContext: {
+        ...emptyContext,
+        hasCommittedManifest: true,
+        firstCommittedRunId: null,
+        sealedReviewRecord: null,
+      },
+      canExecute: true,
+      finishSetupContext: null,
+      finishSetupLoaded: true,
+    };
+    const readiness = resolveFirstReviewGuideReadiness(input);
+    const progress = resolveFirstReviewGuideProgress(input.commitContext);
+    const actions = resolveFirstReviewGuideHeaderActions(input);
+
+    expect(readiness.kind).toBe("ready-to-start");
+    expect(progress.phase).toBe("not-started");
+    expect(actions.primaryLabel).toBe("Start first review");
+  });
+
+  it("uses sealed-record header actions when the first review is complete", () => {
+    const actions = resolveFirstReviewGuideHeaderActions({
+      commitContext: {
+        ...emptyContext,
+        hasCommittedManifest: true,
+        firstCommittedRunId: "run-sealed",
+        sealedReviewRecord: {
+          runId: "run-sealed",
+          displayName: null,
+          finalizedOnUtc: null,
+          finalizedByUserId: null,
+        },
+      },
+      canExecute: true,
+      finishSetupContext: null,
+      finishSetupLoaded: true,
+    });
+
+    expect(actions.primaryLabel).toBe("Open sealed review record");
+    expect(actions.primaryHref).toBe("/architecture/reviews/run-sealed");
+    expect(actions.secondaryLabel).toBe("Start another review");
+    expect(actions.secondaryHref).toBe("/architecture/reviews/new");
   });
 });
