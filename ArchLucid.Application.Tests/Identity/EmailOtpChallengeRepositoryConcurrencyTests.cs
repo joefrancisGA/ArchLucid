@@ -85,11 +85,12 @@ public sealed class EmailOtpChallengeRepositoryConcurrencyTests
         InMemoryEmailOtpChallengeRepository repository = new();
         string normalizedEmail = "replace-active@example.com";
         DateTimeOffset now = DateTimeOffset.UtcNow;
+        Guid seedId = Guid.NewGuid();
 
         await repository.InsertAsync(
             new EmailOtpChallengeInsert
             {
-                Id = Guid.NewGuid(),
+                Id = seedId,
                 NormalizedEmail = normalizedEmail,
                 CodeHash = "seed-hash",
                 ExpiresUtc = now.AddMinutes(10)

@@ -158,7 +158,11 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
                            SET AccessFailedCount = AccessFailedCount + 1,
                                LockoutEnd = CASE
                                    WHEN AccessFailedCount + 1 >= @MaxAttemptsBeforeLockout
-                                       THEN @LockoutEndUtcIfThresholdReached
+                                       THEN CASE
+                                          WHEN LockoutEnd IS NULL OR LockoutEnd < @LockoutEndUtcIfThresholdReached
+                                              THEN @LockoutEndUtcIfThresholdReached
+                                          ELSE LockoutEnd
+                                       END
                                    ELSE LockoutEnd
                                END
                            WHERE NormalizedEmail = @NormalizedEmail;
