@@ -55,6 +55,7 @@ export function RunDetailGovernanceDecisionSection(
   const decisionBy = formatActionActorName(props.operatorGovernanceDecisionByUserId);
   const manifestFinalized = (props.manifestId ?? "").trim().length > 0;
   const showGovernanceCta = shouldShowRunDetailGovernanceCta({
+    runId: props.runId,
     manifestId: props.manifestId,
     buyerPolishedArtifactTable: props.buyerPolishedArtifactTable,
     operatorGovernanceDecision: props.operatorGovernanceDecision,

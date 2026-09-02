@@ -175,6 +175,7 @@ export function deriveRecommendedWorkspaceActions(input: {
 
   if (
     shouldShowRunDetailGovernanceCta({
+      runId: input.runId,
       manifestId: input.manifestId,
       buyerPolishedArtifactTable: input.buyerPolishedArtifactTable,
       operatorGovernanceDecision: input.operatorGovernanceDecision,
