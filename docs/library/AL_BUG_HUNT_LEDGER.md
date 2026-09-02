@@ -3011,11 +3011,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 11
-- **bugs-found:** 17
+- **hunts:** 12
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — Overview SSR runs snapshot ignored tenant scope; billing plan ignored commercial tier when isTrialUsage omitted
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — SSR runs snapshot without scope stamp; billing active subscription without tier label
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3042,6 +3042,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `fetchLlmMonthlyDollarBudgetStatusCached` — AI budget percent on billing summary did not refresh after operator scope switch without full page reload — **hit 2026-08-31:** `OperatorBillingCurrentPlanSummary` held mount-time local state while TanStack cache cleared on scope change; switched to `useLlmMonthlyBudgetStatusQuery`; regression in `operator-shell-status-scope-cache.test.ts` and `operator-scope-storage.test.ts`.
 - [x] (proven) `isOperatorHomeRunsDashboardServerSnapshotFresh` / `shouldSkipRunsDashboardClientFetchOnMount` — SSR runs snapshot treated fresh when `projectId` matched after tenant switch, skipping client refetch and leaving prior-tenant review rows on Overview — **hit 2026-08-31 (#329):** compare optional `scopeQueryKeySnapshot` on model against live scope key; SSR loader stamps scope; `useRunsDashboardPanel` subscribes to scope changes; regression in `operator-home-runs-dashboard-client-fetch.test.ts`.
 - [x] (proven) `resolveOperatorBillingCurrentPlan` — non-empty `commercialTier` with omitted `isTrialUsage` and stale `trialStatus: Active` returned `tenant-trial` instead of `paid-plan` — **hit 2026-08-31 (#329):** treat commercial tier as paid unless `isTrialUsage === true` (usage omission parity with explicit `false`); regression in `operator-billing-current-plan.test.ts`.
+- [x] (proven) `isOperatorHomeRunsDashboardServerSnapshotFresh` / `shouldSkipRunsDashboardClientFetchOnMount` — SSR runs snapshot treated fresh when `scopeQueryKeySnapshot` was omitted, reopening tenant-switch stale rows after #329 — **hit 2026-09-02 (#423):** reject snapshots missing scope stamp; regression in `operator-home-runs-dashboard-client-fetch.test.ts`.
+- [x] (proven) `resolveOperatorBillingCurrentPlan` — active `hasSubscription` with empty `tierCode` / `commercialTier` and `isTrialUsage: false` returned `no-paid-plan` while invoice helpers reported a live subscription — **hit 2026-09-02 (#423):** `hasActiveSubscription` branch before trial fallback; regression in `operator-billing-current-plan.test.ts`.
+- [ ] (candidate) `mapHomepageSettings` — `isConfigured` / `isAvailable` require literal `true`; omitted/null API flags may hide configured homepage hero.
+- [ ] (candidate) `runProjectMatchesEffectiveScope` — empty effective project id matches any run project during scope transitions.
+- [ ] (candidate) `markOperatorHomeRunsSnapshotStale` — `OPERATOR_HOME_RUNS_STALE` session flag not cleared on `notifyOperatorScopeChanged`.
+- [ ] (candidate) `parseOperatorScopeQueryKey` — scope ids containing `:` break three-part split parsing.
+- [x] (invalid) `deriveOperatorHomeWorkspaceMetrics` — paginated slice with `totalCount > items.length` shows zero KPI aggregates — **cheap-disproof 2026-09-02:** intentional partial-page guard (`operator-home-workspace-metrics.test.ts`); zeroed aggregates avoid overstating workspace-wide totals.
+
+2026-09-02 seed hunt #423: proved SSR scope-stamp gap and billing subscription-without-tier plan card mismatch; seeded homepage flags, scope match, stale runs flag, and scope-id parsing candidates; cheap-disproved partial-page KPI zeroing.
 
 2026-08-31 thorough hunt #329: proved Overview SSR runs snapshot scope invalidation and billing commercial-tier precedence when `isTrialUsage` is omitted; zone candidate backlog cleared after hunt #327 merge.
 

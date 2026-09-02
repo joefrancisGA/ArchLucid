@@ -17,7 +17,7 @@ export function isOperatorHomeRunsDashboardServerSnapshotFresh(
   }
 
   if (
-    initialModel.scopeQueryKeySnapshot !== undefined &&
+    initialModel.scopeQueryKeySnapshot === undefined ||
     initialModel.scopeQueryKeySnapshot !== scopeQueryKeySnapshot
   ) {
     return false;

@@ -120,6 +120,7 @@ export function OperatorBillingCurrentPlanSummary() {
         aiBudgetRemainingPercent,
         isTrialUsage,
         commercialTier,
+        hasActiveSubscription: subscriptionStatus?.hasSubscription === true,
         subscriptionLoadState,
       }),
     [
@@ -127,6 +128,7 @@ export function OperatorBillingCurrentPlanSummary() {
       commercialTier,
       isTrialUsage,
       subscriptionLoadState,
+      subscriptionStatus?.hasSubscription,
       trialPayload?.daysRemaining,
       trialPayload?.status,
       workspaceLabel,
