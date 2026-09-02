@@ -18,7 +18,7 @@ public sealed class InMemoryNoTrialIdentityUserRepositoryTests
     {
         InMemoryNoTrialIdentityUserRepository sut = new();
 
-        await sut.RecordAccessFailedAsync("user@example.com", 1, null, CancellationToken.None);
+        await sut.RecordAccessFailedAsync("user@example.com", 5, DateTimeOffset.UtcNow.AddMinutes(15), CancellationToken.None);
         await sut.ResetAccessFailedAsync("user@example.com", CancellationToken.None);
     }
 
