@@ -167,7 +167,7 @@ public sealed class ArchitectureRunExecuteOrchestratorAuthorityCompletenessTests
                 RunStageOutcomesRepository = stagesRepo.Object,
                 AgentExecutionReadinessGuard = new PermissiveAgentExecutionReadinessGuard(),
                 Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance
-            });;
+            });
     }
 
     private static IReadOnlyList<StageTimelineSummary> SucceededStages()
