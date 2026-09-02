@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 23
-- **bugs-found:** 47
+- **hunts:** 24
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — graph node numeric ids; alert routing numeric findingTypes; Azure extractor numeric sku name
+- **last-bug:** 2026-09-02 — graph properties numeric coercion; finding JSON unix reviewedAtUtc
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1843,6 +1843,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GraphJsonElementReaders.ReadFirstString` — numeric `nodeId` / `sourceId` JSON tokens return null so graph nodes deserialize with empty ids — **hit 2026-09-02 (#434):** `"nodeId":12345` hydrated as empty string; fixed with number coercion in `ReadFirstString` (`GraphNodeJsonConverterTests.Read_numeric_nodeId_and_sourceId_coerce_to_strings`).
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` — numeric `findingTypes` / `tags` array entries silently dropped — **hit 2026-09-02 (#434):** `"findingTypes":[42]` omitted filter token; fixed with `TryReadStringArrayItem` number coercion (`AlertRoutingCriteriaMetadata_Parse_numeric_findingTypes_coerce_to_strings`, `AlertRoutingMatcher_numeric_findingType_metadata_filters_non_matching_signals`).
 - [x] (proven) `AzureExtractorResourceInventoryReader.ExtractSku` — numeric `sku.name` JSON tokens ignored — **hit 2026-09-02 (#434):** `"sku":{"name":12345}` left `SkuName` null; fixed with `TryReadStringToken` on sku object fields (`AzureExtractorResourceInventoryReaderTests.TryReadFromZip_numeric_sku_name_coerces_to_string`).
+- [x] (proven) `GraphJsonElementReaders.ReadProperties` — numeric-only `properties` bag entries dropped on dictionary deserialize fallback — **hit 2026-09-02 (#435):** `"properties":{"resourceId":12345}` hydrated as empty bag; fixed by coercing number tokens to strings in fallback (`GraphJsonElementReadersPropertiesTests.ReadProperties_numeric_only_values_coerce_to_strings`).
+- [x] (proven) `FindingJsonConverter.Read` — numeric `reviewedAtUtc` JSON tokens ignored (string round-trip only) — **hit 2026-09-02 (#435):** unix-millisecond `reviewedAtUtc` left null on snapshot reload; fixed with `TryReadReviewedAtUtc` (`FindingJsonConverterTests.Deserialize_unix_millisecond_reviewedAtUtc_maps_value`).
+
+2026-09-02 seed hunt #435: reseeded from ArchLucid.Core; proved graph properties numeric coercion and finding unix reviewedAtUtc gaps.
 
 2026-09-02 seed hunt #434: reseeded from ArchLucid.Core; proved graph node numeric id coercion, alert routing numeric findingTypes, and Azure extractor numeric sku name gaps.
 

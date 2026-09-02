@@ -33,10 +33,17 @@ internal static class GraphJsonElementReaders
 
             foreach (JsonProperty property in propsEl.EnumerateObject())
             {
-                if (property.Value.ValueKind != JsonValueKind.String)
-                    continue;
+                if (property.Value.ValueKind == JsonValueKind.String)
+                {
+                    result[property.Name] = property.Value.GetString() ?? "";
 
-                result[property.Name] = property.Value.GetString() ?? "";
+                    continue;
+                }
+
+                if (property.Value.ValueKind == JsonValueKind.Number)
+                {
+                    result[property.Name] = property.Value.GetRawText();
+                }
             }
 
             return result;

@@ -977,6 +977,38 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_unix_millisecond_reviewedAtUtc_maps_value()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": "Approved",
+                              "reviewedAtUtc": 1735689600000
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.ReviewedAtUtc.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1735689600000));
+    }
+
+    [Fact]
     public void Deserialize_string_encoded_confidenceScore_maps_value()
     {
         const string json = """

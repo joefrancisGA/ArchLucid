@@ -165,4 +165,28 @@ public sealed partial class FindingJsonConverter
 
         return false;
     }
+
+    private static bool TryReadReviewedAtUtc(JsonElement element, out DateTimeOffset value)
+    {
+        if (element.ValueKind == JsonValueKind.String
+            && DateTimeOffset.TryParse(
+                element.GetString(),
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind,
+                out value))
+        {
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long unixMilliseconds))
+        {
+            value = DateTimeOffset.FromUnixTimeMilliseconds(unixMilliseconds);
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
 }
