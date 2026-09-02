@@ -112,7 +112,7 @@ public sealed class ArchitectureDraftStructuredBrief
             .ToList();
     }
 
-    /// <summary>TB-2282: at least one confirmed quality-attribute chip is required for review start.</summary>
+    /// <summary>TB-2282: quality-attribute chips must be non-empty and all entries must be confirmed for review start.</summary>
     public static bool QualityAttributeMeetsMinimum(string? qualityAttribute)
     {
         IReadOnlyList<string> entries = ParseQualityAttributeEntries(qualityAttribute);
