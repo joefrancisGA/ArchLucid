@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 68
-- **bugs-found:** 169
+- **hunts:** 69
+- **bugs-found:** 174
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — boolean synonym coercion across four Core parsers
+- **last-bug:** 2026-09-02 — boolean on/off synonym coercion across five Core parsers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1976,6 +1976,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureRunStatusTransitionTable.TryParseBooleanString` — `on` legacy status synonym ignored — **hit 2026-09-02 (#480):** `"on"` failed parse while `"True"` mapped to `Created`; fixed with boolean synonym coercion (`TryParseStatus_parses_on_synonym_boolean_ordinal`).
 
 - [x] (proven) `MarketplaceWebhookPayloadParser.TryParseBooleanString` — `on` quantity synonym ignored — **hit 2026-09-02 (#480):** `"quantity":"on"` fell back to caller default while `"true"` coerced to `1`; fixed with boolean synonym coercion (`ReadQuantity_reads_on_synonym_quantity_instead_of_fallback`).
+
+- [x] (proven) `AgentModelExecutionProfileParser.TryParseBooleanString` — `on` profile ordinal synonym ignored — **hit 2026-09-02 (#481):** `"on"` failed parse while `"True"` mapped to Balanced; fixed with boolean synonym coercion (`TryParse_accepts_on_synonym_balanced_ordinal`).
+
+- [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.TryParseBooleanString` — `on` review-status synonym ignored — **hit 2026-09-02 (#481):** `"on"` defaulted to `NotRequired` while `"True"` mapped to `Pending`; fixed with boolean synonym coercion (`ParseOrDefault_on_synonym_maps_pending`).
+
+- [x] (proven) `PolicyPackExpectationFacetParser.TryParseBooleanString` — `on` breach-severity synonym ignored — **hit 2026-09-02 (#481):** advisory `breachSeverity="on"` returned null while `"True"` mapped to Warning; fixed with boolean synonym coercion (`Parse_breach_severity_on_synonym_maps_label`).
+
+- [x] (proven) `RealLlmOutputStructuralValidator.TryParseBooleanString` — `on` agentType synonym ignored — **hit 2026-09-02 (#481):** `"agentType":"on"` failed structural validation while `"True"` accepted; fixed with boolean synonym coercion (`ValidateAgentResultStructure_accepts_on_synonym_agentType`).
+
+- [x] (proven) `AzureExtractorPackageZipValidator.TryParseBooleanString` — `on` schemaVersion synonym ignored — **hit 2026-09-02 (#481):** `"schemaVersion":"on"` failed manifest validation while `"True"` accepted; fixed with boolean synonym coercion (`Validate_on_synonym_schemaVersion_succeeds`).
+
+2026-09-02 seed hunt #481: reseeded from ArchLucid.Core; proved execution-profile, risk-register, breach-severity, golden-corpus agentType, and extractor schemaVersion on/off boolean synonym gaps.
 
 2026-09-02 seed hunt #480: reseeded from ArchLucid.Core; proved enforcement-tier, priority-floor, run-status, and marketplace quantity on/off boolean synonym gaps.
 

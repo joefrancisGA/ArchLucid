@@ -24,4 +24,12 @@ public sealed class ArchitectureRiskRegisterHumanReviewLabelCoercionTests
             .Should()
             .Be(FindingHumanReviewStatus.Pending);
     }
+
+    [Fact]
+    public void ParseOrDefault_on_synonym_maps_pending()
+    {
+        ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault("on")
+            .Should()
+            .Be(FindingHumanReviewStatus.Pending);
+    }
 }

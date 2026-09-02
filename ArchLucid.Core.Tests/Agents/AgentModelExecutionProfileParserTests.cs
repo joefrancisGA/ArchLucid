@@ -46,4 +46,13 @@ public sealed class AgentModelExecutionProfileParserTests
         ok.Should().BeTrue();
         profile.Should().Be(AgentModelExecutionProfile.Economy);
     }
+
+    [Fact]
+    public void TryParse_accepts_on_synonym_balanced_ordinal()
+    {
+        bool ok = AgentModelExecutionProfileParser.TryParse("on", out AgentModelExecutionProfile profile);
+
+        ok.Should().BeTrue();
+        profile.Should().Be(AgentModelExecutionProfile.Balanced);
+    }
 }
