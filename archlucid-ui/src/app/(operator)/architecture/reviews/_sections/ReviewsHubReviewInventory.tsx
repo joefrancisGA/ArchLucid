@@ -88,7 +88,7 @@ function ReviewFilterChip(props: {
     <FilterChip
       className={buyerFilterChipClass(props.selected, false)}
       aria-pressed={props.selected}
-      aria-current={props.selected ? "true" : undefined}
+      aria-current={props.selected ? true : undefined}
       aria-label={`Filter reviews: ${props.option.label}${props.count > 0 ? ` (${props.count})` : ""}`}
       onClick={() => props.onSelect(props.option.id)}
     >
