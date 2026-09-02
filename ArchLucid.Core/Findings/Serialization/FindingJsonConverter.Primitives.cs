@@ -173,13 +173,24 @@ public sealed partial class FindingJsonConverter
             return true;
         }
 
-        if (element.ValueKind == JsonValueKind.String
-            && double.TryParse(element.GetString(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
-            && double.IsFinite(parsed))
+        if (element.ValueKind == JsonValueKind.String)
         {
-            value = parsed;
+            string? raw = element.GetString();
 
-            return true;
+            if (TryParseBooleanString(raw, out bool boolean))
+            {
+                value = boolean ? 1.0 : 0.0;
+
+                return true;
+            }
+
+            if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
+                && double.IsFinite(parsed))
+            {
+                value = parsed;
+
+                return true;
+            }
         }
 
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
@@ -199,9 +210,20 @@ public sealed partial class FindingJsonConverter
         if (TryReadWholeNumberInt32(element, out value))
             return true;
 
-        if (element.ValueKind == JsonValueKind.String
-            && TryParseWholeNumberString(element.GetString(), out value))
-            return true;
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            string? raw = element.GetString();
+
+            if (TryParseBooleanString(raw, out bool boolean))
+            {
+                value = boolean ? 1 : 0;
+
+                return true;
+            }
+
+            if (TryParseWholeNumberString(raw, out value))
+                return true;
+        }
 
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
@@ -251,13 +273,54 @@ public sealed partial class FindingJsonConverter
         if (element.ValueKind == JsonValueKind.Number && element.TryGetDecimal(out value))
             return true;
 
-        if (element.ValueKind == JsonValueKind.String
-            && decimal.TryParse(element.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out value))
-            return true;
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            string? raw = element.GetString();
+
+            if (TryParseBooleanString(raw, out bool boolean))
+            {
+                value = boolean ? 1m : 0m;
+
+                return true;
+            }
+
+            if (decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out value))
+                return true;
+        }
 
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
             value = element.ValueKind == JsonValueKind.True ? 1m : 0m;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
 
             return true;
         }

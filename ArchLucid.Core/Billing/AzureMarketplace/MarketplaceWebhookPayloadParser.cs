@@ -103,6 +103,9 @@ public static class MarketplaceWebhookPayloadParser
 
         string? s = q.GetString();
 
+        if (TryParseBooleanString(s, out bool booleanQuantity))
+            return Math.Max(1, booleanQuantity ? 1 : 0);
+
         if (TryParseWholeNumberString(s, out int parsed))
             return Math.Max(1, parsed);
 
@@ -160,6 +163,36 @@ public static class MarketplaceWebhookPayloadParser
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
 
             return true;
         }

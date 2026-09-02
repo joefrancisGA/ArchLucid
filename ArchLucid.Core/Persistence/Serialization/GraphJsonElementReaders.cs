@@ -95,8 +95,22 @@ internal static class GraphJsonElementReaders
                 if (el.ValueKind is JsonValueKind.True or JsonValueKind.False)
                     return el.ValueKind == JsonValueKind.True ? 1.0 : 0.0;
 
-                if (el.ValueKind == JsonValueKind.String && double.TryParse(el.GetString(), out double parsed))
-                    return parsed;
+                if (el.ValueKind == JsonValueKind.String)
+                {
+                    string? raw = el.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(raw))
+                    {
+                        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase))
+                            return 1.0;
+
+                        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase))
+                            return 0.0;
+
+                        if (double.TryParse(raw, out double parsed))
+                            return parsed;
+                    }
+                }
             }
 
         return null;

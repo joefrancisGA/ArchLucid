@@ -79,4 +79,14 @@ public sealed class MarketplaceWebhookPayloadParserTests
 
         quantity.Should().Be(1);
     }
+
+    [Fact]
+    public void ReadQuantity_reads_string_encoded_boolean_quantity_instead_of_fallback()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":"true"}""");
+
+        int quantity = MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement, fallback: 10);
+
+        quantity.Should().Be(1);
+    }
 }

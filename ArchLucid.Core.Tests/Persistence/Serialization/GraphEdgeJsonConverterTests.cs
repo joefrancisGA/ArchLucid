@@ -25,4 +25,19 @@ public sealed class GraphEdgeJsonConverterTests
         edge.Should().NotBeNull();
         edge!.Weight.Should().Be(0.0);
     }
+
+    [Fact]
+    public void Read_string_encoded_boolean_weight_coerces_to_zero()
+    {
+        const string json =
+            """{"edgeId":"e1","fromNodeId":"a","toNodeId":"b","edgeType":"dependsOn","weight":"false"}""";
+
+        JsonSerializerOptions options = new();
+        options.Converters.Add(new GraphEdgeJsonConverter());
+
+        GraphEdge? edge = JsonSerializer.Deserialize<GraphEdge>(json, options);
+
+        edge.Should().NotBeNull();
+        edge!.Weight.Should().Be(0.0);
+    }
 }
