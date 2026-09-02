@@ -42,6 +42,7 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly assignedToMeLoadedFindingCount: number;
   readonly scopeRecordProjectId: string | undefined;
   readonly filterBarVisible: boolean;
+  readonly compactRegisterFilterVisible: boolean;
   readonly registerFilter: RiskRegisterFilter;
   readonly onRegisterFilterChange: (next: RiskRegisterFilter) => void;
   readonly onJobViewChange: (next: FindingJobView) => void;

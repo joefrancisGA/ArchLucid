@@ -276,15 +276,15 @@ export default function GovernanceFindingsQueueClient({
       const applied = applyFindingsSavedViewFilters(filters);
 
       setRegisterFilter(applied.registerFilter);
-      setJobViewState(applied.jobView);
-      setNlFacetsState(applied.nlFacets);
+      setJobView(applied.jobView);
+      setNlFacets(applied.nlFacets);
       applyGroupByResource(applied.groupByResource);
 
       if (applied.scopedRunId !== null && applied.scopedRunId.trim().length > 0) {
         onPickReviewForTriage(applied.scopedRunId);
       }
     },
-    [applyGroupByResource, onPickReviewForTriage, setRegisterFilter],
+    [applyGroupByResource, onPickReviewForTriage, setJobView, setNlFacets, setRegisterFilter],
   );
 
   return (

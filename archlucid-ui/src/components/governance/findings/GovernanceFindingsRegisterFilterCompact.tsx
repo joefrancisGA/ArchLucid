@@ -48,7 +48,7 @@ export function GovernanceFindingsRegisterFilterCompact(
         </Button>
       ))}
       {hasNonDefaultFilter ? (
-        <Button type="button" size="sm" variant="ghost" onClick={props.onClearAllFilters}>
+        <Button type="button" size="sm" variant="outline" onClick={props.onClearAllFilters}>
           Clear filters
         </Button>
       ) : null}

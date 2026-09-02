@@ -2,6 +2,7 @@
 
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
+import { GovernanceFindingsRegisterFilterCompact } from "@/components/governance/findings/GovernanceFindingsRegisterFilterCompact";
 import { GovernanceFindingsSavedViewsBar } from "@/components/governance/findings/GovernanceFindingsSavedViewsBar";
 
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
@@ -9,6 +10,16 @@ import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(opera
 export function GovernanceFindingsQueueToolbarSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element | null {
+  if (props.compactRegisterFilterVisible) {
+    return (
+      <GovernanceFindingsRegisterFilterCompact
+        registerFilter={props.registerFilter}
+        onRegisterFilterChange={props.onRegisterFilterChange}
+        onClearAllFilters={props.onClearAllFilters}
+      />
+    );
+  }
+
   if (!props.filterBarVisible) {
     return null;
   }

@@ -34,13 +34,9 @@ import {
   filterGraphViewModelToNodeIds,
   resolveBuyerTrailPathBreadcrumb,
   resolveBuyerTrailPathNodeIds,
-} from "@/lib/graph-buyer-pathceled = true;
-      window.cancelAnimationFrame(outer);
-    };
-  }, [nodeCount, edgeCount, presentationKey, padding, maxZoom, fitView]);
-
-  return null;
-}
+} from "@/lib/graph-buyer-path-filter";
+import { applyGraphSelectionFocus } from "@/lib/graph-selection-highlight";
+import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 
 /**
  * Interactive graph viewer wrapping React Flow. Supports node type filtering

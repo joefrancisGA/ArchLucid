@@ -1,5 +1,8 @@
 // Thin forwarding surface so existing registrars keep a single import while helpers are split by concern.
 
+using ArchLucid.AgentRuntime;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Resilience;
 using ArchLucid.Host.Composition.AzureOpenAI;
 using Microsoft.Extensions.Configuration;
 using ArchLucid.Host.Core.Configuration;
