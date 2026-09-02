@@ -174,7 +174,7 @@ export function useAdvisorySchedulesPage(initialRunId?: string | null) {
       schedules.map((schedule) =>
         withLatestExecutionOutcome(
           buildAdvisoryScheduleListItemView(schedule, displayTimeZoneId, projectLabel),
-          executionsBySchedule[schedule.scheduleId ?? ""],
+          schedule.scheduleId ? executionsBySchedule[schedule.scheduleId] : undefined,
         ),
       ),
     [displayTimeZoneId, executionsBySchedule, projectLabel, schedules],
