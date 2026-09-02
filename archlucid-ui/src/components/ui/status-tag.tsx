@@ -28,7 +28,6 @@ export function StatusTag({
   return (
     <MetadataStatusLabel
       {...rest}
-      role="status"
       aria-label={accessibleName}
       className={cn(enterpriseStatusTagClass(kind), className)}
     >
