@@ -100,7 +100,7 @@ public sealed partial class DapperTenantRepository
         await using SqlConnection connection =
             await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
-        string normalizedSlug = slug.Trim().ToLowerInvariant();
+        string normalizedSlug = TenantRepositoryCore.NormalizeSlug(slug);
 
         string sql = enterpriseScimSeatsLimit is null
             ? """

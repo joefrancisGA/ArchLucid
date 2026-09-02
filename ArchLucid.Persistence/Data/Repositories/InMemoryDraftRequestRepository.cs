@@ -52,7 +52,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             ProjectId = projectId,
             CreatedByUserId = createdByUserId,
             Status = DraftRequestStatus.Drafting,
-            Document = CloneDocument(document),
+            Document = DraftRequestRepositoryCore.CloneDocument(document, JsonOptions),
             CreatedUtc = now,
             UpdatedUtc = now,
         };
@@ -82,7 +82,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             return Task.FromResult<DraftRequestResponse?>(null);
 
         stored.Status = status;
-        stored.Document = CloneDocument(document);
+        stored.Document = DraftRequestRepositoryCore.CloneDocument(document, JsonOptions);
         stored.RedirectReason = redirectReason;
         stored.SpawnedRunId = spawnedRunId;
         stored.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
@@ -96,7 +96,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         int batchSize,
         CancellationToken cancellationToken)
     {
-        int effectiveBatchSize = Math.Clamp(batchSize, 1, 10_000);
+        int effectiveBatchSize = DraftRequestRepositoryCore.ClampReaperBatchSize(batchSize);
         DateTime cutoff = updatedBeforeUtc.UtcDateTime;
         List<Guid> deleted = [];
 
@@ -148,7 +148,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         if (string.IsNullOrWhiteSpace(systemName))
             throw new ArgumentException("System name is required.", nameof(systemName));
 
-        string normalizedName = systemName.Trim().ToUpperInvariant();
+        string normalizedName = DraftRequestRepositoryCore.NormalizeSystemName(systemName);
 
         bool exists = _drafts.Values.Any(stored =>
             stored.TenantId == tenantId
@@ -170,7 +170,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         int maxCount,
         CancellationToken cancellationToken)
     {
-        int effectiveMax = Math.Clamp(maxCount, 1, MaxPriorDraftsCap);
+        int effectiveMax = DraftRequestRepositoryCore.ClampPriorDraftsMaxCount(maxCount);
         List<DraftRequestResponse> matches = _drafts.Values
             .Where(stored =>
                 stored.TenantId == tenantId
@@ -220,7 +220,6 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         return Task.FromResult(PagedResponseBuilder.FromDatabasePage(pageItems, matches.Count, safePage, safePageSize));
     }
 
-    private const int MaxPriorDraftsCap = 25;
 
     private static DraftRequestResponse Map(StoredDraft stored) =>
         new()
@@ -230,7 +229,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             WorkspaceId = stored.WorkspaceId,
             ProjectId = stored.ProjectId,
             Status = stored.Status,
-            Document = CloneDocument(stored.Document),
+            Document = DraftRequestRepositoryCore.CloneDocument(stored.Document, JsonOptions),
             RedirectReason = stored.RedirectReason,
             SpawnedRunId = stored.SpawnedRunId,
             CreatedByUserId = stored.CreatedByUserId,
@@ -238,13 +237,6 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             UpdatedUtc = stored.UpdatedUtc,
         };
 
-    private static DraftRequestDocument CloneDocument(DraftRequestDocument document)
-    {
-        string json = JsonSerializer.Serialize(document, JsonOptions);
-        DraftRequestDocument? clone = JsonSerializer.Deserialize<DraftRequestDocument>(json, JsonOptions);
-
-        return clone ?? throw new InvalidOperationException("Failed to clone draft document.");
-    }
 
     private sealed class StoredDraft
     {
