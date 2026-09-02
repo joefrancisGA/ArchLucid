@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Parsing;
+using ArchLucid.ContextIngestion.Infrastructure.Canonical;
 
 namespace ArchLucid.ContextIngestion.Infrastructure;
 
@@ -25,9 +26,9 @@ internal static class KubernetesManifestCanonicalObjectMapper
             if (document.ValueKind is not JsonValueKind.Object)
                 continue;
 
-            if (TryGetPropertyIgnoreCase(document, "kind", out JsonElement kindElement)
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(document, "kind", out JsonElement kindElement)
                 && string.Equals(kindElement.GetString(), "List", StringComparison.OrdinalIgnoreCase)
-                && TryGetPropertyIgnoreCase(document, "items", out JsonElement items)
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(document, "items", out JsonElement items)
                 && items.ValueKind is JsonValueKind.Array)
             {
                 foreach (JsonElement item in items.EnumerateArray())
@@ -57,9 +58,9 @@ internal static class KubernetesManifestCanonicalObjectMapper
         if (document.ValueKind is not JsonValueKind.Object)
             return;
 
-        if (TryGetPropertyIgnoreCase(document, "kind", out JsonElement kindElement)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(document, "kind", out JsonElement kindElement)
             && string.Equals(kindElement.GetString(), "List", StringComparison.OrdinalIgnoreCase)
-            && TryGetPropertyIgnoreCase(document, "items", out JsonElement items)
+            && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(document, "items", out JsonElement items)
             && items.ValueKind is JsonValueKind.Array)
         {
             foreach (JsonElement item in items.EnumerateArray())
@@ -73,7 +74,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
     private static void IncrementManifestLabelCount(JsonElement resource, Dictionary<string, int> counts)
     {
-        if (!TryGetPropertyIgnoreCase(resource, "kind", out JsonElement kindElement) || kindElement.ValueKind is not JsonValueKind.String)
+        if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(resource, "kind", out JsonElement kindElement) || kindElement.ValueKind is not JsonValueKind.String)
             return;
 
         string kind = (kindElement.GetString() ?? string.Empty).Trim();
@@ -81,8 +82,8 @@ internal static class KubernetesManifestCanonicalObjectMapper
         if (string.IsNullOrWhiteSpace(kind))
             return;
 
-        string namespaceValue = ReadMetadataString(resource, "metadata", "namespace") ?? string.Empty;
-        string name = ReadMetadataString(resource, "metadata", "name") ?? string.Empty;
+        string namespaceValue = CanonicalInfrastructureJsonElementReader.ReadMetadataString(resource, "metadata", "namespace") ?? string.Empty;
+        string name = CanonicalInfrastructureJsonElementReader.ReadMetadataString(resource, "metadata", "name") ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(name))
             return;
@@ -102,7 +103,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
         IReadOnlyDictionary<string, int> labelTotals,
         Dictionary<string, int> labelSeen)
     {
-        if (!TryGetPropertyIgnoreCase(resource, "kind", out JsonElement kindElement) || kindElement.ValueKind is not JsonValueKind.String)
+        if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(resource, "kind", out JsonElement kindElement) || kindElement.ValueKind is not JsonValueKind.String)
             return;
 
         string kind = (kindElement.GetString() ?? string.Empty).Trim();
@@ -110,9 +111,9 @@ internal static class KubernetesManifestCanonicalObjectMapper
         if (string.IsNullOrWhiteSpace(kind))
             return;
 
-        string apiVersion = ReadTopLevelString(resource, "apiVersion") ?? string.Empty;
-        string namespaceValue = ReadMetadataString(resource, "metadata", "namespace") ?? string.Empty;
-        string name = ReadMetadataString(resource, "metadata", "name") ?? string.Empty;
+        string apiVersion = CanonicalInfrastructureJsonElementReader.ReadTopLevelString(resource, "apiVersion") ?? string.Empty;
+        string namespaceValue = CanonicalInfrastructureJsonElementReader.ReadMetadataString(resource, "metadata", "namespace") ?? string.Empty;
+        string name = CanonicalInfrastructureJsonElementReader.ReadMetadataString(resource, "metadata", "name") ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(name))
             return;
@@ -133,17 +134,14 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         string objectType = ResolveObjectType(kind);
         string labelKey = $"{kind.ToLowerInvariant()}|{canonicalName}";
-        int occurrence = labelSeen.GetValueOrDefault(labelKey) + 1;
-        labelSeen[labelKey] = occurrence;
+        string stableIdentity = CanonicalInfrastructureObjectMapper.BuildOccurrenceAwareStableIdentity(
+            labelKey,
+            labelTotals,
+            labelSeen,
+            properties,
+            "k8sOccurrence");
 
-        string stableIdentity = labelTotals.TryGetValue(labelKey, out int total) && total > 1
-            ? $"{labelKey}|occurrence:{occurrence}"
-            : labelKey;
-
-        if (labelTotals.TryGetValue(labelKey, out int duplicateTotal) && duplicateTotal > 1)
-            properties["k8sOccurrence"] = occurrence.ToString(System.Globalization.CultureInfo.InvariantCulture);
-
-        string stableObjectId = BuildStableObjectId(objectType, declaration, stableIdentity);
+        string stableObjectId = CanonicalInfrastructureObjectMapper.BuildStableObjectId(objectType, declaration, stableIdentity);
 
         if (string.Equals(kind, "Secret", StringComparison.OrdinalIgnoreCase))
         {
@@ -180,13 +178,13 @@ internal static class KubernetesManifestCanonicalObjectMapper
         string kind,
         Dictionary<string, string> properties)
     {
-        if (!TryGetPropertyIgnoreCase(resource, "spec", out JsonElement specElement)
+        if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(resource, "spec", out JsonElement specElement)
             || specElement.ValueKind is not JsonValueKind.Object)
             return;
 
         if (string.Equals(kind, "Service", StringComparison.OrdinalIgnoreCase))
         {
-            if (TryGetPropertyIgnoreCase(specElement, "type", out JsonElement typeElement)
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "type", out JsonElement typeElement)
                 && typeElement.ValueKind is JsonValueKind.String
                 && !string.IsNullOrWhiteSpace(typeElement.GetString()))
                 CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "serviceType", typeElement.GetString()!);
@@ -196,12 +194,12 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         if (string.Equals(kind, "NetworkPolicy", StringComparison.OrdinalIgnoreCase))
         {
-            if (TryGetPropertyIgnoreCase(specElement, "ingress", out JsonElement ingress)
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "ingress", out JsonElement ingress)
                 && ingress.ValueKind is JsonValueKind.Array
                 && ingress.GetArrayLength() > 0)
                 CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "networkPolicyIngress", "true");
 
-            if (TryGetPropertyIgnoreCase(specElement, "egress", out JsonElement egress)
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "egress", out JsonElement egress)
                 && egress.ValueKind is JsonValueKind.Array
                 && egress.GetArrayLength() > 0)
                 CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "networkPolicyEgress", "true");
@@ -214,7 +212,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
         if (podSpec.ValueKind is not JsonValueKind.Object)
             return;
 
-        if (TryGetPropertyIgnoreCase(podSpec, "hostNetwork", out JsonElement hostNetwork)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "hostNetwork", out JsonElement hostNetwork)
             && hostNetwork.ValueKind is JsonValueKind.True)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostNetwork", "true");
 
@@ -228,21 +226,21 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         if (string.Equals(kind, "CronJob", StringComparison.OrdinalIgnoreCase))
         {
-            if (TryGetPropertyIgnoreCase(specElement, "jobTemplate", out JsonElement jobTemplate)
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "jobTemplate", out JsonElement jobTemplate)
                 && jobTemplate.ValueKind is JsonValueKind.Object
-                && TryGetPropertyIgnoreCase(jobTemplate, "spec", out JsonElement cronJobSpec)
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(jobTemplate, "spec", out JsonElement cronJobSpec)
                 && cronJobSpec.ValueKind is JsonValueKind.Object
-                && TryGetPropertyIgnoreCase(cronJobSpec, "template", out JsonElement cronJobPodTemplate)
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(cronJobSpec, "template", out JsonElement cronJobPodTemplate)
                 && cronJobPodTemplate.ValueKind is JsonValueKind.Object
-                && TryGetPropertyIgnoreCase(cronJobPodTemplate, "spec", out JsonElement cronJobPodSpec))
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(cronJobPodTemplate, "spec", out JsonElement cronJobPodSpec))
                 return cronJobPodSpec;
 
             return default;
         }
 
-        if (TryGetPropertyIgnoreCase(specElement, "template", out JsonElement workloadTemplate)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "template", out JsonElement workloadTemplate)
             && workloadTemplate.ValueKind is JsonValueKind.Object
-            && TryGetPropertyIgnoreCase(workloadTemplate, "spec", out JsonElement workloadPodSpec))
+            && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(workloadTemplate, "spec", out JsonElement workloadPodSpec))
             return workloadPodSpec;
 
         return default;
@@ -258,19 +256,19 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         void InspectContainer(JsonElement container)
         {
-            if (!TryGetPropertyIgnoreCase(container, "securityContext", out JsonElement securityContext)
+            if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(container, "securityContext", out JsonElement securityContext)
                 || securityContext.ValueKind is not JsonValueKind.Object)
                 return;
 
-            if (TryGetPropertyIgnoreCase(securityContext, "privileged", out JsonElement privilegedElement)
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(securityContext, "privileged", out JsonElement privilegedElement)
                 && privilegedElement.ValueKind is JsonValueKind.True)
                 privileged = true;
 
-            if (TryGetPropertyIgnoreCase(securityContext, "allowPrivilegeEscalation", out JsonElement escalationElement)
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(securityContext, "allowPrivilegeEscalation", out JsonElement escalationElement)
                 && escalationElement.ValueKind is JsonValueKind.True)
                 allowPrivilegeEscalation = true;
 
-            if (TryGetPropertyIgnoreCase(securityContext, "runAsNonRoot", out JsonElement runAsNonRootElement))
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(securityContext, "runAsNonRoot", out JsonElement runAsNonRootElement))
             {
                 sawRunAsNonRoot = true;
 
@@ -281,14 +279,14 @@ internal static class KubernetesManifestCanonicalObjectMapper
             }
         }
 
-        if (TryGetPropertyIgnoreCase(podSpec, "containers", out JsonElement containers)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "containers", out JsonElement containers)
             && containers.ValueKind is JsonValueKind.Array)
         {
             foreach (JsonElement container in containers.EnumerateArray())
                 InspectContainer(container);
         }
 
-        if (TryGetPropertyIgnoreCase(podSpec, "initContainers", out JsonElement initContainers)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "initContainers", out JsonElement initContainers)
             && initContainers.ValueKind is JsonValueKind.Array)
         {
             foreach (JsonElement container in initContainers.EnumerateArray())
@@ -307,17 +305,6 @@ internal static class KubernetesManifestCanonicalObjectMapper
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runAsNonRoot", "true");
     }
 
-    private static string BuildStableObjectId(
-        string objectType,
-        InfrastructureDeclarationReference declaration,
-        string stableIdentity)
-    {
-        return InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
-            declaration.DeclarationId,
-            objectType,
-            stableIdentity);
-    }
-
     private static string ResolveObjectType(string kind)
     {
         return kind.ToLowerInvariant() switch
@@ -326,48 +313,5 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 or "serviceaccount" or "ingress" or "secret" => "SecurityBaseline",
             _ => "TopologyResource",
         };
-    }
-
-    private static string? ReadTopLevelString(JsonElement resource, string propertyName)
-    {
-        if (!TryGetPropertyIgnoreCase(resource, propertyName, out JsonElement value) || value.ValueKind is not JsonValueKind.String)
-            return null;
-
-        string? text = value.GetString();
-
-        return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
-    }
-
-    private static string? ReadMetadataString(JsonElement resource, string objectName, string propertyName)
-    {
-        if (!TryGetPropertyIgnoreCase(resource, objectName, out JsonElement objectElement) || objectElement.ValueKind is not JsonValueKind.Object)
-            return null;
-
-        if (!TryGetPropertyIgnoreCase(objectElement, propertyName, out JsonElement value) || value.ValueKind is not JsonValueKind.String)
-            return null;
-
-        string? text = value.GetString();
-
-        return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
-    }
-
-    private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
-    {
-        if (element.TryGetProperty(propertyName, out value))
-            return true;
-
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            value = property.Value;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
     }
 }
