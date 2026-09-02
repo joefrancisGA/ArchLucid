@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 36
-- **bugs-found:** 77
+- **hunts:** 37
+- **bugs-found:** 81
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Service Bus whole-number double tokens; finding whole-number double severity and relatedNodeIds
+- **last-bug:** 2026-09-02 — golden-corpus whole-number double agentType; finding whole-number double enum/scalar coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1872,6 +1872,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryReadStringOrNumberToken` — whole-number double `deduplicationKey` / `severity` ignored — **hit 2026-09-02 (#447):** `"deduplicationKey":42424242.0` returned null; `"severity":2.0` omitted user properties; fixed with whole-number double coercion (`TryResolveForPublish_alert_resolved_maps_whole_number_double_deduplication_key`, `TryResolveForPublish_alert_fired_maps_whole_number_double_severity`).
 - [x] (proven) `FindingJsonConverter.ReadSeverity` — whole-number double severity ordinals throw — **hit 2026-09-02 (#447):** `"severity":2.0` threw `JsonException` on snapshot reload; fixed with `TryReadWholeNumberInt32` (`Deserialize_whole_number_double_severity_maps_error`).
 - [x] (proven) `FindingJsonConverter.ReadStringDictValue` — whole-number double list/property entries silently dropped — **hit 2026-09-02 (#447):** `"relatedNodeIds":[42.0]` hydrated as empty list; fixed with whole-number double coercion (`Deserialize_relatedNodeIds_whole_number_double_entries_coerce_to_strings`).
+- [x] (proven) `RealLlmOutputStructuralValidator.JsonAgentTypeMatchesExpected` — whole-number double `agentType` rejected — **hit 2026-09-02 (#448):** `"agentType":1.0` failed structural validation for Topology envelopes; fixed with `TryReadWholeNumberAgentType` (`ValidateAgentResultStructure_accepts_whole_number_double_agentType`).
+- [x] (proven) `FindingJsonConverter` enum numeric readers — whole-number double ordinals throw on reload — **hit 2026-09-02 (#448):** `"humanReviewStatus":1.0` threw `JsonException`; fixed by routing enum numeric paths through `TryReadWholeNumberInt32` (`Deserialize_whole_number_double_humanReviewStatus_maps_pending`).
+- [x] (proven) `FindingJsonConverter.ReadOptionalString` — whole-number double scalar refs return null — **hit 2026-09-02 (#448):** `"runIdRef":42.0` left null on snapshot reload; fixed with whole-number double coercion (`Deserialize_whole_number_double_runIdRef_coerces_to_string`).
+- [x] (proven) `FindingJsonConverter.TryReadInt32` — whole-number double schema/score fields ignored — **hit 2026-09-02 (#448):** `"findingSchemaVersion":2.0` defaulted to `0`; fixed by delegating to `TryReadWholeNumberInt32` (`Deserialize_whole_number_double_findingSchemaVersion_maps_version`).
+
+2026-09-02 seed hunt #448: reseeded from ArchLucid.Core; proved golden-corpus whole-number double agentType and finding whole-number double enum/scalar coercion gaps.
 
 2026-09-02 seed hunt #447: reseeded from ArchLucid.Core; proved Service Bus whole-number double token gaps and finding whole-number double severity/relatedNodeIds coercion gaps.
 
