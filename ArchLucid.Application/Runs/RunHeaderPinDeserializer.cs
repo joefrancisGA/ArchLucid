@@ -20,7 +20,7 @@ public static class RunHeaderPinDeserializer
                 json,
                 ContractJson.CamelCaseIgnoreNullCompact);
 
-            if (parsed is { Length: > 0 })
+            if (parsed is not null)
             {
                 rows = parsed;
                 return true;
