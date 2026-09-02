@@ -39,4 +39,4 @@ export const WIZARD_STICKY_FOOTER_TEST_ID = "wizard-sticky-footer";
  * {@link WIZARD_STICKY_FOOTER_CLASS}. Apply on the scrollable step body — not the
  * wrapper that also contains the sticky footer (avoids a dead band before follow-ups).
  */
-export const WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS = "pb-14";
+export const WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS = "pb-24 md:pb-14";
