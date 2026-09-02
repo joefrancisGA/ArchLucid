@@ -1708,11 +1708,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 4
-- **bugs-found:** 6
+- **hunts:** 5
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — embedding cache ignored model identity; Azure Search delete truncated at 1000 chunks; iterative retrieval exceeded TopK; malformed policy-pack ContentJson threw
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — seed hunt proved indexing catalog-before-upsert, iterative merge stale scores, and multi-cloud evidence provider substring bugs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1726,6 +1726,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Azure Search document delete truncated at first 1000 chunk ids — **hit 2026-08-24:** `RemoveChunksForDocumentAsync` single search page left orphan vectors; regression in `DeleteAllPagesAsync_deletes_all_chunks_when_document_exceeds_search_page_size`
 - [x] (proven) `IterativeRetrievalLoop` exceeded `TopK` after critique retry merge — **hit 2026-08-24:** merged union not capped; regression in `MaybeRetryAsync_returns_at_most_query_topk_hits_after_merge`
 - [x] (proven) `PolicyPackRulePackIdMapper` threw on malformed `ContentJson` — **hit 2026-08-24:** `JsonException` aborted scope resolution; regression in `PolicyPackRulePackIdMapper_returns_null_when_pack_content_json_is_malformed`
+- [x] (proven) `IterativeRetrievalLoop.MergeHits` kept stale score when critique retry returned the same `ChunkId` with a higher score — **hit 2026-09-02:** merge only inserted new chunk ids; fixed to upgrade on collision (`MaybeRetryAsync_when_retry_improves_same_chunk_score_uses_higher_score`).
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` recorded catalog state before vector upsert — **hit 2026-09-02:** failed upsert left document skipped on retry with same `ContentHash`; fixed by deferring `RecordIndexed` until after `UpsertChunksAsync` (`IndexDocumentsAsync_when_upsert_fails_still_reindexes_on_retry_with_same_content_hash`).
+- [x] (proven) `CostRetailGroundingBuilder.ResolveGroundingProvider` matched `aws` inside Azure DR prose — **hit 2026-09-02:** substring scan picked AWS for `"Azure primary (DR on AWS us-east-1)"`; fixed with first word-boundary cloud-token mention (`Build_azure_evidence_with_dr_aws_substring_prefers_azure_not_aws`).
+- [ ] (candidate) `RetrievalQueryService.ExecuteSearchPassAsync` clamps `TopK` to 25 while API allows 50 — service-layer cap may surprise callers requesting larger result sets
+- [ ] (candidate) `GraphRagNeighborExpander.ExpandAsync` re-sorts by vector score after lexical rerank — graph expansion can undo reranker ordering when knowledge-graph seeds are present
+- [ ] (candidate) `InMemoryVectorIndex.UpsertChunksAsync` silently evicts oldest chunks past `MaxChunks` — dev/single-node index can drop searchable vectors without surfacing an error
 
 ---
 

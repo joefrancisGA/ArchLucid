@@ -1,0 +1,90 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000035",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000035",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000035-0000-4000-8000-000000000035",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000035",
+    "runId": "20000000-0000-4000-8000-000000000035",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "obj-sa-1",
+        "nodeType": "TopologyResource",
+        "label": "payments/worker",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-sa-1",
+        "properties": {
+          "k8s.kind": "serviceaccount",
+          "k8s.name": "worker",
+          "k8s.namespace": "payments"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-role-public",
+        "nodeType": "TopologyResource",
+        "label": "public_role",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-role-1",
+        "properties": {
+          "terraformType": "aws_iam_role",
+          "anonymous": "true"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "intake-human-1",
+        "nodeType": "Actor",
+        "label": "architect",
+        "category": null,
+        "sourceType": "GuidedIntake",
+        "sourceId": "intake-1",
+        "properties": {
+          "kind": "Human",
+          "trustOrigin": "Internal"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "declaration-actor-00000035000040008000000000000035-1",
+        "nodeType": "Actor",
+        "label": "worker",
+        "category": null,
+        "sourceType": "DeclarationIdentity",
+        "sourceId": "decl-sa-1",
+        "properties": {
+          "kind": "Machine",
+          "trustOrigin": "Internal",
+          "contract": "Sync",
+          "origin": "Inferred",
+          "confidence": "70",
+          "declarationSourceNodeId": "obj-sa-1"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "declaration-actor-00000035000040008000000000000035-2",
+        "nodeType": "Actor",
+        "label": "public_role",
+        "category": null,
+        "sourceType": "DeclarationIdentity",
+        "sourceId": "decl-role-1",
+        "properties": {
+          "kind": "Machine",
+          "trustOrigin": "PublicAnonymous",
+          "contract": "Sync",
+          "origin": "Inferred",
+          "confidence": "70",
+          "declarationSourceNodeId": "obj-role-public"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null
+}

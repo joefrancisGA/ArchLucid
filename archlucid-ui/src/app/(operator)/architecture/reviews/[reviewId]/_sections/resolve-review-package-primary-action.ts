@@ -6,6 +6,7 @@ import {
 
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { shortenNextActionForPrimaryCta } from "@/lib/run-detail-workspace-derive";
+import { SPONSOR_BRIEFING_EXPORT_LABEL } from "@/lib/usability/canonical-product-terms";
 
 import { resolveReviewPackageSummaryMode } from "./resolve-review-package-summary-mode";
 
@@ -42,7 +43,7 @@ const REVIEW_PACKAGE_PRIMARY_ACTION_LABELS: Record<
   "review-findings": "Review findings",
   "add-evidence": "Add evidence",
   "finalize-package": "Finalize review",
-  "send-to-sponsor": "Send to sponsor",
+  "send-to-sponsor": `Send ${SPONSOR_BRIEFING_EXPORT_LABEL.toLowerCase()}`,
 };
 
 function reviewFindingsHref(runId: string): string {

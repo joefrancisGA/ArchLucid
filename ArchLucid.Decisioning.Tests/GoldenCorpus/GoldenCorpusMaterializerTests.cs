@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.TestSupport.GoldenCorpus;
 
 using FluentAssertions;
@@ -86,6 +87,30 @@ public sealed class GoldenCorpusMaterializerTests
 
         await RecordHandAuthoredCaseAsync("case-33");
         await RecordHandAuthoredCaseAsync("case-34");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_35_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        GraphSnapshot graph = GoldenCorpusActorEngineGraphFactory.CreateDeclarationSeededActorGraph();
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+        };
+
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, "case-35");
+        Directory.CreateDirectory(dir);
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        await RecordHandAuthoredCaseAsync("case-35");
     }
 
     private static async Task RecordHandAuthoredCaseAsync(string caseFolderName)
