@@ -17,6 +17,7 @@ import {
 } from "@/lib/findings/findings-natural-language-filter";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 import { governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
+import { patchGovernanceFindingsQueueFacets } from "@/lib/governance/governance-findings-queue-facets-storage";
 
 export type UseGovernanceFindingsQueueSavedViewsInput = {
   readonly mode: string;
@@ -68,6 +69,7 @@ export function useGovernanceFindingsQueueSavedViews({
 
       if (chipId === "nl-facets") {
         setNlFacets(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
+        patchGovernanceFindingsQueueFacets({ nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS }, mode);
       }
     },
     [mode, navHref, router, searchParams, setJobView, setNlFacets, setRegisterFilter],
