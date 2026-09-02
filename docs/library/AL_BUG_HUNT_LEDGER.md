@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 106
-- **bugs-found:** 218
+- **hunts:** 107
+- **bugs-found:** 219
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — GCP billing catalog machine-type prefix collision
+- **last-bug:** 2026-09-02 — Commercial packaging ignored purchased caps for non-Active subscriptions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2145,6 +2145,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GcpCloudBillingCatalogClient.TryFetchComputeHourlyUsdAsync` — machine-type `Contains` prefix collision — **hit 2026-09-02 (#522):** catalog SKU `n1-standard-10` matched lookup for `n1-standard-1` and returned the higher hourly rate; fixed with boundary-aware `DescriptionMatchesMachineType` (`TryGetComputeEngineMonthlyUsdAsync_prefers_exact_machine_type_over_prefix_collision`).
 
 2026-09-02 seed hunt #522: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog machine-type prefix collision beyond marketplace billing fixes.
+
+- [x] (proven) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — non-`Active` subscription ignored purchased caps — **hit 2026-09-02 (#523):** canceled subscription with `WorkspacesPurchased=8` fell through to usage inference and returned `Team` instead of `Professional`; fixed by resolving purchased caps whenever a subscription row exists (`ResolveCommercialTierLabel_uses_purchased_caps_when_subscription_is_not_active`).
+
+2026-09-02 seed hunt #523: reseeded from ArchLucid.Core billing packaging resolver; proved non-Active subscription purchased-cap drift beyond GCP costing prefix fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
