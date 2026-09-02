@@ -21,6 +21,7 @@ import { isPersistentWorkspaceNextActionStripPath } from "@/lib/persistent-works
 export function AppShellMainAffordances() {
   const pathname = usePathname() ?? "/";
   const isOperatorHome = pathname === "/";
+  const isPreferencesSettingsPath = pathname === "/account/preferences";
   const showPersistentWorkspaceNextActionStrip = isPersistentWorkspaceNextActionStripPath(pathname);
   const staticDemoEnv = isExplicitStaticDemoMarketingBuild();
 
@@ -29,11 +30,11 @@ export function AppShellMainAffordances() {
       <BuyerGoldenJourneyLayerContextStrip />
       {showPersistentWorkspaceNextActionStrip ? <PersistentWorkspaceNextActionStrip /> : null}
       {isOperatorHome ? <CorePilotCompleteCelebrateStrip /> : null}
-      <GlobalSearchShortcutCoach />
+      {isPreferencesSettingsPath ? null : <GlobalSearchShortcutCoach />}
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
       <FirstVisitHelpAutoOpen />
-      <KeyboardShortcutsDiscoverabilityCoach />
+      {isPreferencesSettingsPath ? null : <KeyboardShortcutsDiscoverabilityCoach />}
       {staticDemoEnv ? (
         <DemoVsLiveChromeBanner isStaticDemoEnv showWatermark className="mb-3" />
       ) : null}

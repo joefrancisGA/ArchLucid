@@ -4,6 +4,7 @@ export type PreferencesSaveChecklistStep = {
   readonly id: string;
   readonly label: string;
   readonly status: PreferencesSaveChecklistStepStatus;
+  readonly anchorId: string;
 };
 
 export type PreferenceSaveStepInput = {
@@ -38,27 +39,32 @@ export function resolvePreferencesSaveSteps(input: {
   return [
     {
       id: "appearance",
-      label: "Choose appearance theme",
+      label: "Appearance",
+      anchorId: "appearance",
       status: resolvePreferenceStepStatus(input.appearance),
     },
     {
       id: "time-zone",
-      label: "Choose time zone",
+      label: "Time zone",
+      anchorId: "time-zone",
       status: resolvePreferenceStepStatus(input.timeZone),
     },
     {
       id: "cloud-platforms",
-      label: "Choose cloud platform scope",
+      label: "Cloud platforms shown",
+      anchorId: "cloud-platforms-shown",
       status: resolvePreferenceStepStatus(input.cloudPlatforms),
     },
     {
       id: "sample-reviews-on-overview",
-      label: "Choose sample reviews on Overview",
+      label: "Sample reviews on Overview",
+      anchorId: "sample-reviews-on-overview",
       status: resolvePreferenceStepStatus(input.sampleReviewsOnOverview),
     },
     {
       id: "follow-up-link-strips",
-      label: "Choose follow-up link strips",
+      label: "Follow-up link strips",
+      anchorId: "follow-up-link-strips",
       status: resolvePreferenceStepStatus(input.followUpLinkStrips),
     },
   ];
