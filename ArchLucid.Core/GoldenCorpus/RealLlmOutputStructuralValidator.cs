@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -314,6 +315,37 @@ public static class RealLlmOutputStructuralValidator
         return false;
     }
 
+    private static bool TryParseWholeNumberString(string? raw, out int value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
     private static bool EnumTryParseLenient(string? text, AgentType expected, out string? message)
     {
         message = null;
@@ -323,6 +355,17 @@ public static class RealLlmOutputStructuralValidator
             message = "agentType string is empty.";
 
             return false;
+        }
+
+        if (TryParseWholeNumberString(text, out int agentTypeOrdinal)
+            && Enum.IsDefined(typeof(AgentType), agentTypeOrdinal))
+        {
+            if ((AgentType)agentTypeOrdinal == expected)
+            {
+                return true;
+            }
+
+            return SetMsg(out message, "agentType number does not match the expected type.");
         }
 
         if (Enum.TryParse(text, true, out AgentType t) && t == expected)

@@ -256,6 +256,11 @@ public static class RunExplanationConfidenceCalloutBuilder
             return false;
         }
 
+        if (TryParseWholeNumberString(raw, out int numericFromString))
+        {
+            return numericFromString != 0;
+        }
+
         return false;
     }
 

@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 43
-- **bugs-found:** 100
+- **hunts:** 45
+- **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — string-encoded boolean quantity/weight/confidence coercion
+- **last-bug:** 2026-09-02 — explanation string whole-number deterministic fallback; golden-corpus string-encoded agentType ordinal
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1894,6 +1894,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.TryReadFiniteDouble` / `TryReadInt32` / `TryReadDecimal` — string-encoded boolean score JSON tokens ignored — **hit 2026-09-02 (#455):** `"confidenceScore":"true"` left nullable scores null after #453 boolean JSON fix; fixed with string boolean coercion (`Deserialize_string_encoded_boolean_confidenceScore_maps_one`).
 - [x] (proven) `MarketplaceWebhookPayloadParser.ReadQuantity` — string-encoded boolean `quantity` falls back to caller default — **hit 2026-09-02 (#455):** `"quantity":"true"` with `fallback:10` returned `10` instead of `1`; fixed with string boolean coercion (`ReadQuantity_reads_string_encoded_boolean_quantity_instead_of_fallback`).
 - [x] (proven) `GraphJsonElementReaders.ReadFirstDouble` — string-encoded boolean `weight` ignored so graph edges default to `1.0` — **hit 2026-09-02 (#455):** `"weight":"false"` hydrated as `1.0` after #454 boolean JSON fix; fixed with string boolean coercion (`Read_string_encoded_boolean_weight_coerces_to_zero`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadFiniteDouble` — string-encoded boolean `faithfulnessSupportRatio` ignored — **hit 2026-09-02 (#456):** `"faithfulnessSupportRatio":"false"` left ratio null so PASS was returned instead of HOLD; fixed with string boolean coercion (`FromAggregateJson_maps_string_encoded_boolean_faithfulness_support_ratio_as_hold`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — boolean / string-encoded boolean `citations` count ignored — **hit 2026-09-02 (#456):** `"citations":true` and `"citations":"true"` left `CitationCount` null; fixed with boolean token coercion (`FromAggregateJson_maps_boolean_citation_count`, `FromAggregateJson_maps_string_encoded_boolean_citation_count`).
+- [x] (proven) `AzureExtractorPackageZipValidator.TryReadSchemaVersion` / `CloudInventoryExtractorPackageZipValidator` — string-encoded boolean `schemaVersion` rejected — **hit 2026-09-02 (#456):** `"schemaVersion":"true"` failed valid ZIP manifest validation after #454 boolean JSON fix; fixed with string boolean coercion (`Validate_string_boolean_schemaVersion_succeeds`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadBoolean` — string-encoded whole-number `deterministicFallbackUsed` ignored — **hit 2026-09-02 (#457):** `"deterministicFallbackUsed":"1.0"` left fallback false so HOLD disposition was skipped after #449 whole-number JSON fix; fixed with `TryParseWholeNumberString` (`FromAggregateJson_maps_string_encoded_whole_number_deterministic_fallback_flag`).
+- [x] (proven) `RealLlmOutputStructuralValidator.EnumTryParseLenient` — string-encoded whole-number `agentType` rejected — **hit 2026-09-02 (#457):** `"agentType":"1.0"` failed structural validation while numeric `1.0` already accepted in #448; fixed with `TryParseWholeNumberString` (`ValidateAgentResultStructure_accepts_string_encoded_whole_number_double_agentType`).
+
+2026-09-02 seed hunt #457: reseeded from ArchLucid.Core; proved explanation string whole-number deterministic fallback and golden-corpus string-encoded agentType ordinal gaps.
+
+2026-09-02 seed hunt #456: reseeded from ArchLucid.Core; proved explanation aggregate string/boolean citation coercion and extractor string boolean schemaVersion gaps.
 
 2026-09-02 seed hunt #455: reseeded from ArchLucid.Core; proved string-encoded boolean quantity, graph edge weight, and finding confidence score coercion gaps.
 
