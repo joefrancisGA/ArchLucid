@@ -49,9 +49,9 @@ function curatedRuleToPreview(
     description: rule.description,
     remediationGuidance: rule.remediationGuidance,
     severity: rule.severity,
-    packId: pack.policyPackId,
-    packName: pack.name,
-    packVersion: pack.version,
+    packId: pack.policyPackId ?? "",
+    packName: pack.name ?? "",
+    packVersion: pack.version ?? "",
     evidenceHints: rule.evidenceHints,
     hasCuratedRuleText: rule.description.trim().length > 0 || rule.remediationGuidance.trim().length > 0,
   };
@@ -69,7 +69,7 @@ export function lookupPolicyRulePreviewInEffectivePacks(
   }
 
   for (const pack of effectivePacks) {
-    const document = parseContentDocument(pack.contentJson);
+    const document = parseContentDocument(pack.contentJson ?? "");
 
     if (document === null) {
       continue;

@@ -81,17 +81,12 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     /// <inheritdoc />
     public Task<IReadOnlyList<IntegrationEventOutboxEntry>> DequeuePendingAsync(int maxBatch, CancellationToken ct)
     {
-        int take = Math.Clamp(maxBatch, 1, 100);
+        int take = IntegrationEventOutboxRepositoryCore.ClampDequeueBatch(maxBatch);
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
         lock (_gate)
         {
-            List<IntegrationEventOutboxEntry> batch = _rows
-                .Where(e => e.DeadLetteredUtc is null && (e.NextRetryUtc is null || e.NextRetryUtc <= utcNow))
-                .OrderBy(e => DrainSortPriority(e.Priority))
-                .ThenBy(e => e.CreatedUtc)
-                .Take(take)
-                .ToList();
+            List<IntegrationEventOutboxEntry> batch = IntegrationEventOutboxRepositoryCore.OrderPendingForDequeue(_rows, utcNow).Take(take).ToList();
 
             return Task.FromResult<IReadOnlyList<IntegrationEventOutboxEntry>>(batch);
         }
@@ -178,8 +173,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         int skip,
         CancellationToken ct)
     {
-        int take = Math.Clamp(maxRows, 1, 500);
-        int offset = Math.Max(0, skip);
+        int take = IntegrationEventOutboxRepositoryCore.ClampDeadLetterRows(maxRows);
+        int offset = IntegrationEventOutboxRepositoryCore.ClampDeadLetterSkip(skip);
 
         lock (_gate)
         {
@@ -271,7 +266,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         int maxRows,
         CancellationToken ct)
     {
-        int take = Math.Clamp(maxRows, 1, 500);
+        int take = IntegrationEventOutboxRepositoryCore.ClampDeadLetterRows(maxRows);
         string? normalizedEventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim();
 
         lock (_gate)
@@ -340,6 +335,4 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         }
     }
 
-    /// <summary>Matches <c>ORDER BY ISNULL(Priority, 1)</c> in SQL dequeue.</summary>
-    private static int DrainSortPriority(int? priority) => priority ?? 1;
 }

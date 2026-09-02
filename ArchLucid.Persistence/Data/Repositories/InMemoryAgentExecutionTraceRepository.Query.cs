@@ -54,13 +54,7 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
             List<AgentExecutionTraceLlmCostSlice> list = _items
                 .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
                 .OrderBy(t => t.CreatedUtc)
-                .Select(static t => new AgentExecutionTraceLlmCostSlice
-                {
-                    ModelDeploymentName = t.ModelDeploymentName,
-                    InputTokenCount = t.InputTokenCount,
-                    OutputTokenCount = t.OutputTokenCount,
-                    ReasoningTokenCount = t.ReasoningTokenCount,
-                })
+                .Select(AgentExecutionTraceQueryPatchCore.ToLlmCostSlice)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(list);
@@ -77,11 +71,7 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(runIds);
 
-        List<string> normalized = runIds
-            .Where(static s => !string.IsNullOrWhiteSpace(s))
-            .Select(static s => s.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        List<string> normalized = AgentExecutionTraceQueryPatchCore.NormalizeRunIds(runIds);
 
         lock (_gate)
         {
@@ -93,13 +83,7 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
                 List<AgentExecutionTraceLlmCostSlice> list = _items
                     .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
                     .OrderBy(t => t.CreatedUtc)
-                    .Select(static t => new AgentExecutionTraceLlmCostSlice
-                    {
-                        ModelDeploymentName = t.ModelDeploymentName,
-                        InputTokenCount = t.InputTokenCount,
-                        OutputTokenCount = t.OutputTokenCount,
-                        ReasoningTokenCount = t.ReasoningTokenCount,
-                    })
+                    .Select(AgentExecutionTraceQueryPatchCore.ToLlmCostSlice)
                     .ToList();
 
                 result[runId] = list;
@@ -126,16 +110,10 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
                 .OrderBy(t => t.CreatedUtc)
                 .ToList();
 
-            int total = ordered.Count;
-            int clampedOffset = Math.Max(0, offset);
-            int clampedLimit = Math.Clamp(limit, 1, 500);
-            List<AgentExecutionTrace> page = ordered
-                .Skip(clampedOffset)
-                .Take(clampedLimit)
-                .Select(Clone)
-                .ToList();
+            (IReadOnlyList<AgentExecutionTrace> page, int total) =
+                AgentExecutionTraceQueryPatchCore.PageInMemory(ordered, offset, limit);
 
-            return Task.FromResult<(IReadOnlyList<AgentExecutionTrace>, int)>((page, total));
+            return Task.FromResult<(IReadOnlyList<AgentExecutionTrace>, int)>((page.Select(Clone).ToList(), total));
         }
     }
 
@@ -156,16 +134,14 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
                 .OrderBy(t => t.CreatedUtc)
                 .ToList();
 
-            int total = ordered.Count;
-            int clampedOffset = Math.Max(0, offset);
-            int clampedLimit = Math.Clamp(limit, 1, 500);
-            List<AgentExecutionTraceSummary> page = ordered
-                .Skip(clampedOffset)
-                .Take(clampedLimit)
+            (IReadOnlyList<AgentExecutionTrace> page, int total) =
+                AgentExecutionTraceQueryPatchCore.PageInMemory(ordered, offset, limit);
+
+            List<AgentExecutionTraceSummary> summaries = page
                 .Select(AgentExecutionTraceSummary.FromTrace)
                 .ToList();
 
-            return Task.FromResult<(IReadOnlyList<AgentExecutionTraceSummary>, int)>((page, total));
+            return Task.FromResult<(IReadOnlyList<AgentExecutionTraceSummary>, int)>((summaries, total));
         }
     }
 
@@ -232,11 +208,7 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
         ArgumentNullException.ThrowIfNull(runIds);
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<string> normalized = runIds
-            .Where(static s => !string.IsNullOrWhiteSpace(s))
-            .Select(static s => s.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        List<string> normalized = AgentExecutionTraceQueryPatchCore.NormalizeRunIds(runIds);
 
         lock (_gate)
         {

@@ -1,6 +1,5 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
 
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
@@ -27,6 +26,7 @@ import {
   type AskRunListAvailability,
 } from "@/lib/graph-page-state";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
+import { useGraphPageUrlState } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-url-state";
 import { useGraphPageFetch } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-fetch";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { GraphViewModel } from "@/types/graph";
@@ -48,10 +48,6 @@ import type { GraphSavedViewFilters } from "@/lib/operator/operator-saved-view-t
 import type { EmptyStateProps } from "@/components/EmptyState";
 
 export function useGraphPageState() {
-  const searchParams = useSearchParams();
-  const urlRunId = searchParams.get("runId")?.trim() ?? "";
-  const urlGraphNodeId = searchParams.get("graphNodeId")?.trim() ?? "";
-  const urlPresentation = searchParams.get("presentation");
   const workspaceRun = useWorkspaceActiveRun();
   const [decisionId, setDecisionId] = useState("");
   const [nodeId, setNodeId] = useState("");
@@ -65,7 +61,7 @@ export function useGraphPageState() {
   }, []);
   const [graphInteractiveReady, setGraphInteractiveReady] = useState(false);
   const [presentationView, setPresentationView] = useState<EvidenceTrailPresentationView>(() =>
-    resolveEvidenceTrailPresentationView(urlPresentation, isBuyerPolishedOperatorShellEnv()),
+    resolveEvidenceTrailPresentationView(null, isBuyerPolishedOperatorShellEnv()),
   );
   const [reviewsListLoadError, setReviewsListLoadError] = useState(false);
   const [reviewListAvailability, setReviewListAvailability] = useState<AskRunListAvailability>({
@@ -76,14 +72,13 @@ export function useGraphPageState() {
   });
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const [runId, setRunId] = useState(() => {
-    if (urlRunId.length > 0) {
-      return urlRunId;
-    }
-
-    return "";
+  const [runId, setRunId] = useState("");
+  const [graphLoadRequested, setGraphLoadRequested] = useState(false);
+  const { urlRunId, urlGraphNodeId } = useGraphPageUrlState({
+    setRunId,
+    setGraphLoadRequested,
+    setPresentationView,
   });
-  const [graphLoadRequested, setGraphLoadRequested] = useState(() => urlRunId.length > 0);
   const canMutateEnterpriseShell = useOperateCapability();
   const graphMainColumnMaxClass = buyerPolishedShell
     ? OPERATOR_PAGE_CONTAINER.variant.dashboard
@@ -157,21 +152,6 @@ export function useGraphPageState() {
     setGraphLoadRequested(false);
     setGraph(null);
   }, [setGraph]);
-
-  useEffect(() => {
-    if (urlRunId.length === 0) {
-      return;
-    }
-
-    setRunId(urlRunId);
-    setGraphLoadRequested(true);
-  }, [urlRunId]);
-
-  useEffect(() => {
-    setPresentationView(
-      resolveEvidenceTrailPresentationView(urlPresentation, isBuyerPolishedOperatorShellEnv()),
-    );
-  }, [urlPresentation]);
 
   useLayoutEffect(() => {
     setGraph(null);

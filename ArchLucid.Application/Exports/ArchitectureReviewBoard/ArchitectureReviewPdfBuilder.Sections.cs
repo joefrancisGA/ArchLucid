@@ -18,21 +18,58 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         page.Content().Column(column =>
         {
-            AddSponsorReport(column, model);
-            AddSystemOverview(column, model);
-            AddEvidenceReviewed(column, model);
-            AddArchitectureDecisions(column, model);
-            AddKeyRisks(column, model);
-            AddPolicyFindings(column, model);
-            AddAiAssistedAnalysis(column, model);
-            AddTraceabilityAppendix(column, model);
-            AddRecommendedNextActions(column, model);
+            ArchitectureReviewBoardExportSectionVisitor.VisitBodySections((kind, firstMajorHeading) =>
+                RenderPdfBodySection(column, kind, model, firstMajorHeading));
         });
     }
 
-    private static void AddSponsorReport(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    private static void RenderPdfBodySection(
+        ColumnDescriptor column,
+        ArchitectureReviewBoardExportSectionKind kind,
+        ArchitectureReviewBoardExportDocumentModel model,
+        bool firstMajorHeading)
     {
-        AddHeading(column, "Sponsor report", firstMajorHeading: true);
+        switch (kind)
+        {
+            case ArchitectureReviewBoardExportSectionKind.SponsorReport:
+                AddSponsorReport(column, model, firstMajorHeading);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.SystemOverview:
+                AddSystemOverview(column, model, firstMajorHeading);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.EvidenceReviewed:
+                AddEvidenceReviewed(column, model, firstMajorHeading);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.ArchitectureDecisions:
+                AddArchitectureDecisions(column, model, firstMajorHeading);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.KeyRisks:
+                AddKeyRisks(column, model, firstMajorHeading);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.PolicyFindings:
+                AddPolicyFindings(column, model, firstMajorHeading);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.AiAssistedAnalysis:
+                AddAiAssistedAnalysis(column, model, firstMajorHeading);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.TraceabilityAppendix:
+                AddTraceabilityAppendix(column, model, firstMajorHeading);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.RecommendedNextActions:
+                AddRecommendedNextActions(column, model, firstMajorHeading);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown export section kind.");
+        }
+    }
+
+    private static void AddSponsorReport(
+        ColumnDescriptor column,
+        ArchitectureReviewBoardExportDocumentModel model,
+        bool firstMajorHeading)
+    {
+        AddHeading(column, ArchitectureReviewBoardExportSectionCatalog.GetHeading(
+            ArchitectureReviewBoardExportSectionKind.SponsorReport), firstMajorHeading);
 
         if (string.IsNullOrWhiteSpace(model.SponsorReport))
             AddPlaceholder(column, "Sponsor report content");
@@ -40,9 +77,13 @@ public sealed partial class ArchitectureReviewPdfBuilder
             AddMultilineBodyText(column, model.SponsorReport);
     }
 
-    private static void AddSystemOverview(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    private static void AddSystemOverview(
+        ColumnDescriptor column,
+        ArchitectureReviewBoardExportDocumentModel model,
+        bool firstMajorHeading)
     {
-        AddHeading(column, "System overview (architecture snapshot)", firstMajorHeading: false);
+        AddHeading(column, ArchitectureReviewBoardExportSectionCatalog.GetHeading(
+            ArchitectureReviewBoardExportSectionKind.SystemOverview), firstMajorHeading);
 
         IReadOnlyList<string> bullets = model.SystemOverviewBullets ?? [];
 
@@ -64,9 +105,13 @@ public sealed partial class ArchitectureReviewPdfBuilder
         column.Item().Height(8);
     }
 
-    private static void AddEvidenceReviewed(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    private static void AddEvidenceReviewed(
+        ColumnDescriptor column,
+        ArchitectureReviewBoardExportDocumentModel model,
+        bool firstMajorHeading)
     {
-        AddHeading(column, "Evidence reviewed", firstMajorHeading: false);
+        AddHeading(column, ArchitectureReviewBoardExportSectionCatalog.GetHeading(
+            ArchitectureReviewBoardExportSectionKind.EvidenceReviewed), firstMajorHeading);
 
         IReadOnlyList<ArchitectureReviewBoardExportEvidenceItem> items = model.EvidenceReviewed ?? [];
 
@@ -93,9 +138,13 @@ public sealed partial class ArchitectureReviewPdfBuilder
         }
     }
 
-    private static void AddArchitectureDecisions(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    private static void AddArchitectureDecisions(
+        ColumnDescriptor column,
+        ArchitectureReviewBoardExportDocumentModel model,
+        bool firstMajorHeading)
     {
-        AddHeading(column, "Architecture decisions", firstMajorHeading: false);
+        AddHeading(column, ArchitectureReviewBoardExportSectionCatalog.GetHeading(
+            ArchitectureReviewBoardExportSectionKind.ArchitectureDecisions), firstMajorHeading);
 
         IReadOnlyList<ArchitectureReviewBoardExportDecisionRow> rows = model.ArchitectureDecisions ?? [];
 
@@ -122,9 +171,13 @@ public sealed partial class ArchitectureReviewPdfBuilder
         }
     }
 
-    private static void AddKeyRisks(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    private static void AddKeyRisks(
+        ColumnDescriptor column,
+        ArchitectureReviewBoardExportDocumentModel model,
+        bool firstMajorHeading)
     {
-        AddHeading(column, "Key risks", firstMajorHeading: false);
+        AddHeading(column, ArchitectureReviewBoardExportSectionCatalog.GetHeading(
+            ArchitectureReviewBoardExportSectionKind.KeyRisks), firstMajorHeading);
 
         IReadOnlyList<ArchitectureReviewBoardExportRiskRow> risks = model.KeyRisks ?? [];
 
@@ -149,9 +202,13 @@ public sealed partial class ArchitectureReviewPdfBuilder
         }
     }
 
-    private static void AddPolicyFindings(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    private static void AddPolicyFindings(
+        ColumnDescriptor column,
+        ArchitectureReviewBoardExportDocumentModel model,
+        bool firstMajorHeading)
     {
-        AddHeading(column, "Policy findings", firstMajorHeading: false);
+        AddHeading(column, ArchitectureReviewBoardExportSectionCatalog.GetHeading(
+            ArchitectureReviewBoardExportSectionKind.PolicyFindings), firstMajorHeading);
 
         IReadOnlyList<ArchitectureReviewBoardExportPolicyFindingRow> findings = model.PolicyFindings ?? [];
 
@@ -177,9 +234,13 @@ public sealed partial class ArchitectureReviewPdfBuilder
         }
     }
 
-    private static void AddAiAssistedAnalysis(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    private static void AddAiAssistedAnalysis(
+        ColumnDescriptor column,
+        ArchitectureReviewBoardExportDocumentModel model,
+        bool firstMajorHeading)
     {
-        AddHeading(column, "AI-assisted analysis", firstMajorHeading: false);
+        AddHeading(column, ArchitectureReviewBoardExportSectionCatalog.GetHeading(
+            ArchitectureReviewBoardExportSectionKind.AiAssistedAnalysis), firstMajorHeading);
 
         column.Item()
             .Background(Colors.Grey.Lighten4)
@@ -227,9 +288,13 @@ public sealed partial class ArchitectureReviewPdfBuilder
         }
     }
 
-    private static void AddTraceabilityAppendix(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    private static void AddTraceabilityAppendix(
+        ColumnDescriptor column,
+        ArchitectureReviewBoardExportDocumentModel model,
+        bool firstMajorHeading)
     {
-        AddHeading(column, "Traceability appendix", firstMajorHeading: false);
+        AddHeading(column, ArchitectureReviewBoardExportSectionCatalog.GetHeading(
+            ArchitectureReviewBoardExportSectionKind.TraceabilityAppendix), firstMajorHeading);
 
         List<(string Key, string Value)> rows = [];
 
@@ -273,9 +338,13 @@ public sealed partial class ArchitectureReviewPdfBuilder
         });
     }
 
-    private static void AddRecommendedNextActions(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    private static void AddRecommendedNextActions(
+        ColumnDescriptor column,
+        ArchitectureReviewBoardExportDocumentModel model,
+        bool firstMajorHeading)
     {
-        AddHeading(column, "Recommended next actions", firstMajorHeading: false);
+        AddHeading(column, ArchitectureReviewBoardExportSectionCatalog.GetHeading(
+            ArchitectureReviewBoardExportSectionKind.RecommendedNextActions), firstMajorHeading);
 
         IReadOnlyList<string> actions = model.RecommendedNextActions ?? [];
 

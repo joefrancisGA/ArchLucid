@@ -20,7 +20,7 @@ export async function loadPlanningPlanDetailPageData(planIdRaw: string): Promise
   try {
     const [plan, plansResponse] = await Promise.all([fetchLearningPlanDetail(planId), fetchLearningPlans()]);
 
-    return { planId, plan, plans: plansResponse.plans, failure: null };
+    return { planId, plan, plans: (plansResponse.plans ?? []) as LearningPlanListItemResponse[], failure: null };
   } catch (e: unknown) {
     return { planId, plan: null, plans: [], failure: toApiLoadFailure(e) };
   }

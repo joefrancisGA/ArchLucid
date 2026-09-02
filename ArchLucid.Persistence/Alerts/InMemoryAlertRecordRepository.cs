@@ -99,18 +99,10 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
-        int n = Math.Clamp(take <= 0 ? 50 : take, 1, 500);
+        int n = AlertRecordRepositoryCore.ClampListTake(take);
         lock (_gate)
         {
-            IEnumerable<AlertRecord> q = _items.Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId);
-
-            if (!includeArchived)
-                q = q.Where(x => !x.IsArchived);
-
-            if (!string.IsNullOrWhiteSpace(status))
-                q = q.Where(x => string.Equals(x.Status, status, StringComparison.OrdinalIgnoreCase));
-
-            List<AlertRecord> result = q.OrderByDescending(x => x.CreatedUtc).Take(n).ToList();
+            List<AlertRecord> result = AlertRecordRepositoryCore.OrderForInbox(AlertRecordRepositoryCore.FilterInbox(_items, tenantId, workspaceId, projectId, status, includeArchived)).Take(n).ToList();
             return Task.FromResult<IReadOnlyList<AlertRecord>>(result);
         }
     }
@@ -127,21 +119,12 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
-        take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
-        skip = Math.Max(skip, 0);
+        take = AlertRecordRepositoryCore.ClampPagedTake(take);
+        skip = AlertRecordRepositoryCore.ClampPagedSkip(skip);
 
         lock (_gate)
         {
-            IEnumerable<AlertRecord> q = _items.Where(x =>
-                x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId);
-
-            if (!includeArchived)
-                q = q.Where(x => !x.IsArchived);
-
-            if (!string.IsNullOrWhiteSpace(status))
-                q = q.Where(x => string.Equals(x.Status, status, StringComparison.OrdinalIgnoreCase));
-
-            List<AlertRecord> ordered = q.OrderByDescending(x => x.CreatedUtc).ToList();
+            List<AlertRecord> ordered = AlertRecordRepositoryCore.OrderForInbox(AlertRecordRepositoryCore.FilterInbox(_items, tenantId, workspaceId, projectId, status, includeArchived)).ToList();
             int total = ordered.Count;
             List<AlertRecord> page = ordered.Skip(skip).Take(take).ToList();
             return Task.FromResult<(IReadOnlyList<AlertRecord>, int)>((page, total));
@@ -161,21 +144,14 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
-        ValidateAlertKeysetCursor(cursorCreatedUtc, cursorAlertId);
+        AlertRecordRepositoryCore.ValidateAlertKeysetCursor(cursorCreatedUtc, cursorAlertId);
 
-        int safeTake = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
+        int safeTake = AlertRecordRepositoryCore.ClampKeysetTake(take);
         int fetch = safeTake + 1;
 
         lock (_gate)
         {
-            IEnumerable<AlertRecord> q = _items.Where(x =>
-                x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId);
-
-            if (!includeArchived)
-                q = q.Where(x => !x.IsArchived);
-
-            if (!string.IsNullOrWhiteSpace(status))
-                q = q.Where(x => string.Equals(x.Status, status, StringComparison.OrdinalIgnoreCase));
+            IEnumerable<AlertRecord> q = AlertRecordRepositoryCore.FilterInbox(_items, tenantId, workspaceId, projectId, status, includeArchived);
 
             if (cursorAlertId.HasValue)
             {
@@ -188,11 +164,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
                         || (x.CreatedUtc == cursorUtc && x.AlertId.CompareTo(cursorId) < 0)));
             }
 
-            List<AlertRecord> rows = q
-                .OrderByDescending(x => x.CreatedUtc)
-                .ThenByDescending(x => x.AlertId)
-                .Take(fetch)
-                .ToList();
+            List<AlertRecord> rows = AlertRecordRepositoryCore.OrderForInbox(q).Take(fetch).ToList();
 
             bool hasMore = rows.Count > safeTake;
 
@@ -203,11 +175,6 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         }
     }
 
-    private static void ValidateAlertKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorAlertId)
-    {
-        if (cursorCreatedUtc.HasValue != cursorAlertId.HasValue)
-            throw new ArgumentException("cursorCreatedUtc and cursorAlertId must both be null or both be set.");
-    }
 
     /// <inheritdoc />
     public Task<AlertsInboxSummaryDto> GetInboxSummaryByScopeAsync(

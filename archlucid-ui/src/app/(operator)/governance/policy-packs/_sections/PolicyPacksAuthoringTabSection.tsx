@@ -24,7 +24,7 @@ export function PolicyPacksAuthoringTabSection(props: PolicyPacksAuthoringTabSec
         buyerPolishedShell={m.buyerPolishedShell}
         canMutatePacks={m.canMutatePacks}
         packs={m.packs}
-        effectivePackIds={new Set((m.effective?.packs ?? []).map((p) => p.policyPackId))}
+        effectivePackIds={new Set((m.effective?.packs ?? []).map((p) => p.policyPackId).filter((id): id is string => typeof id === "string" && id.length > 0))}
         selectedPackId={m.selectedPackId}
         onSelectedPackIdChange={m.setSelectedPackId}
       />

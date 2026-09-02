@@ -14,6 +14,7 @@ import {
   coerceArchitectureFindingSeverity,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import { normalizeFindingHumanReviewStatus } from "@/lib/quick-decision-severity-labels";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 function readTypedRecord(payload: FindingInspectPayload): Record<string, unknown> | null {
@@ -90,7 +91,7 @@ export function mapInspectPayloadToQuickDecisionFinding(payload: FindingInspectP
     policyRuleId: coercePolicyRuleIdFromFindingWire(typed) ?? payload.decisionRuleId,
     trustLabel: payload.trustLabel ?? null,
     trustLabelReason: payload.trustLabelReason ?? null,
-    humanReviewStatus: payload.humanReviewStatus ?? null,
+    humanReviewStatus: normalizeFindingHumanReviewStatus(payload.humanReviewStatus),
     assignedToUserId: payload.assignedToUserId ?? null,
   };
 }

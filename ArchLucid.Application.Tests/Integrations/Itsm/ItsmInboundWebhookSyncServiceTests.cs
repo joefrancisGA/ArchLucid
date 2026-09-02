@@ -427,7 +427,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     public async Task Jira_unknown_status_logs_warning_emits_audit_and_does_not_update_finding()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
-        Mock<ILogger<ItsmInboundJiraWebhookProcessor>> logger = new();
+        Mock<ILogger<ItsmInboundWebhookProcessPipeline>> logger = new();
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
         Mock<IFindingDispositionService> dispositionService = new();
@@ -438,7 +438,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             .Setup(g => g.TryClaimAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         ItsmInboundWebhookSyncService sut =
-            CreateSut(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, logger.Object);
+            CreateSut(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, pipelineLogger: logger.Object);
 
         using JsonDocument doc = JsonDocument.Parse(
             """{"issue":{"key":"KK-9","fields":{"status":{"name":"Custom-Not-Mapped"}}}}""");
@@ -475,7 +475,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     public async Task ServiceNow_unknown_state_logs_warning_emits_audit_and_does_not_touch_correlation_repository()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
-        Mock<ILogger<ItsmInboundServiceNowWebhookProcessor>> logger = new();
+        Mock<ILogger<ItsmInboundWebhookProcessPipeline>> logger = new();
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
         Mock<IFindingDispositionService> dispositionService = new();
@@ -486,7 +486,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             .Setup(g => g.TryClaimAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         ItsmInboundWebhookSyncService sut =
-            CreateSut(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, serviceNowLogger: logger.Object);
+            CreateSut(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, pipelineLogger: logger.Object);
 
         const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"88"}""";
         using JsonDocument doc = JsonDocument.Parse(json);
@@ -1109,20 +1109,22 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         IOptionsMonitor<IntegrationsItsmInboundOptions> inboundOptions,
         ItsmInboundDispositionSync dispositionSync,
         IItsmInboundWebhookReplayGuard replayGuard,
-        ILogger<ItsmInboundJiraWebhookProcessor>? jiraLogger = null,
-        ILogger<ItsmInboundServiceNowWebhookProcessor>? serviceNowLogger = null)
+        ILogger<ItsmInboundWebhookProcessPipeline>? pipelineLogger = null)
     {
         ItsmInboundWebhookSyncSupport support = new(correlations, replayGuard);
+        ItsmInboundWebhookProcessPipeline pipeline = new(
+            support,
+            inboundOptions,
+            dispositionSync,
+            pipelineLogger ?? NullLogger<ItsmInboundWebhookProcessPipeline>.Instance);
         ItsmInboundJiraWebhookProcessor jiraProcessor = new(
-            support,
-            inboundOptions,
-            dispositionSync,
-            jiraLogger ?? NullLogger<ItsmInboundJiraWebhookProcessor>.Instance);
+            pipeline,
+            new ItsmInboundJiraPayloadReader(),
+            new ItsmInboundJiraStatusMapper());
         ItsmInboundServiceNowWebhookProcessor serviceNowProcessor = new(
-            support,
-            inboundOptions,
-            dispositionSync,
-            serviceNowLogger ?? NullLogger<ItsmInboundServiceNowWebhookProcessor>.Instance);
+            pipeline,
+            new ItsmInboundServiceNowPayloadReader(),
+            new ItsmInboundServiceNowStatusMapper());
 
         return new ItsmInboundWebhookSyncService(jiraProcessor, serviceNowProcessor);
     }

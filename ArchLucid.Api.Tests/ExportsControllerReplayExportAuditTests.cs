@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -39,7 +40,7 @@ public sealed class ExportsControllerReplayExportAuditTests
                     RunId = victimRunId,
                     Format = "docx",
                     FileName = "r.docx",
-                    Content = []
+                    Content = [],
                 });
 
         Mock<IRunExportRecordRepository> exports = new();
@@ -54,7 +55,7 @@ public sealed class ExportsControllerReplayExportAuditTests
 
         Mock<IAuditService> audit = new();
 
-        ExportsController sut = new(
+        RunExportQueryFacade facade = new(
             runDetails.Object,
             exports.Object,
             Mock.Of<IComparisonAuditService>(),
@@ -62,10 +63,12 @@ public sealed class ExportsControllerReplayExportAuditTests
             Mock.Of<IExportRecordDiffService>(),
             Mock.Of<IExportRecordDiffSummaryFormatter>(),
             audit.Object);
+
+        ExportsController sut = new(facade);
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u")])),
-            Request = { Method = "POST" }
+            Request = { Method = "POST" },
         };
         sut.ControllerContext = new ControllerContext { HttpContext = http };
 

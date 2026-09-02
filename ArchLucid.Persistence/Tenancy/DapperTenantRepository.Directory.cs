@@ -35,7 +35,7 @@ public sealed partial class DapperTenantRepository
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
 
-        string normalizedSlug = slug.Trim().ToLowerInvariant();
+        string normalizedSlug = TenantRepositoryCore.NormalizeSlug(slug);
 
         // Self-service /v1/register duplicate gates must read dbo.Tenants on the control-plane catalog even when the
         // ambient HTTP scope is DefaultTenant and tenant-plane routing would open a different catalog.
@@ -83,7 +83,7 @@ public sealed partial class DapperTenantRepository
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
 
-        string normalizedSlug = slug.Trim().ToLowerInvariant();
+        string normalizedSlug = TenantRepositoryCore.NormalizeSlug(slug);
 
         TenantRecord? fromDirectory = await QueryTenantDirectoryBySlugAsync(normalizedSlug, ct).ConfigureAwait(false);
 
@@ -104,13 +104,13 @@ public sealed partial class DapperTenantRepository
     {
         await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
 
-        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
+        TenantSqlRow? row = await connection.QuerySingleOrDefaultAsync<TenantSqlRow>(
             new CommandDefinition(TenantDirectorySql.SelectByEntraTenantId, new
             {
                 EntraTenantId = entraTenantId
             }, cancellationToken: ct)).ConfigureAwait(false);
 
-        return row?.ToRecord();
+        return row is null ? null : TenantRepositoryCore.MapSqlRowToRecord(row);
     }
 
 
@@ -118,11 +118,11 @@ public sealed partial class DapperTenantRepository
     {
         await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
 
-        IEnumerable<TenantRow> rows =
-            await connection.QueryAsync<TenantRow>(
+        IEnumerable<TenantSqlRow> rows =
+            await connection.QueryAsync<TenantSqlRow>(
                 new CommandDefinition(TenantDirectorySql.ListOrderByCreatedUtcDesc, cancellationToken: ct))
                 .ConfigureAwait(false);
 
-        return rows.Select(static r => r.ToRecord()).ToList();
+        return rows.Select(static r => TenantRepositoryCore.MapSqlRowToRecord(r)).ToList();
     }
 }

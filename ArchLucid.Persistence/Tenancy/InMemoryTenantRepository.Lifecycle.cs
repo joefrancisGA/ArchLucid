@@ -26,7 +26,7 @@ public sealed partial class InMemoryTenantRepository
 
         _ = ct;
 
-        string slugKey = slug.Trim().ToLowerInvariant();
+        string slugKey = TenantRepositoryCore.NormalizeSlug(slug);
 
         string residencyKey = TenantDataRegions.NormalizeOptional(dataRegion);
         TenantRecord record = new()
@@ -115,7 +115,7 @@ public sealed partial class InMemoryTenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.CompletedTask;
 
-            _byId[tenantId] = CopyTenant(existing, suspendedUtcOverride: TimeProvider.System.GetUtcNow());
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(existing, suspendedUtcOverride: TimeProvider.System.GetUtcNow());
         }
 
         return Task.CompletedTask;
@@ -135,7 +135,7 @@ public sealed partial class InMemoryTenantRepository
             if (existing.OffboardedUtc is not null)
                 return Task.FromResult(false);
 
-            _byId[tenantId] = CopyTenant(existing, clearSuspendedUtc: true);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(existing, clearSuspendedUtc: true);
 
             return Task.FromResult(true);
         }

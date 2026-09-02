@@ -63,8 +63,7 @@ public sealed class ExportsControllerScopeTests
         IActionResult result = await sut.GetExportRecord(ExportRecordId, CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        Api.Models.RunExportRecordResponse body =
-            ok.Value.Should().BeOfType<Api.Models.RunExportRecordResponse>().Subject;
+        RunExportRecordResponse body = ok.Value.Should().BeOfType<RunExportRecordResponse>().Subject;
         body.Record.ExportRecordId.Should().Be(ExportRecordId);
     }
 
@@ -75,7 +74,7 @@ public sealed class ExportsControllerScopeTests
         exports = new Mock<IRunExportRecordRepository>();
         runDetails = new Mock<IRunDetailQueryService>();
 
-        ExportsController controller = new(
+        RunExportQueryFacade facade = new(
             runDetails.Object,
             exports.Object,
             Mock.Of<IComparisonAuditService>(),
@@ -84,6 +83,7 @@ public sealed class ExportsControllerScopeTests
             Mock.Of<IExportRecordDiffSummaryFormatter>(),
             Mock.Of<IAuditService>());
 
+        ExportsController controller = new(facade);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         return controller;

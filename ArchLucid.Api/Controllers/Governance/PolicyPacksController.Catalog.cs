@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
@@ -109,12 +110,11 @@ public sealed partial class PolicyPacksController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        if (request.SourcePolicyPackId == Guid.Empty)
-        {
-            return this.BadRequestProblem(
-                "sourcePolicyPackId is required.",
-                ProblemTypes.ValidationFailed);
-        }
+        IActionResult? promoteValidation =
+            PolicyPacksHttpMapper.ValidatePromoteCatalogEntry(request).ToBadRequestProblemOrNull(this);
+
+        if (promoteValidation is not null)
+            return promoteValidation;
 
         PolicyPackCatalogEntryDetail? row;
 
@@ -151,8 +151,11 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (request.PolicyPackCatalogEntryId == Guid.Empty)
-            return this.BadRequestProblem("policyPackCatalogEntryId is required.", ProblemTypes.ValidationFailed);
+        IActionResult? demoteValidation =
+            PolicyPacksHttpMapper.ValidateDemoteCatalogEntry(request).ToBadRequestProblemOrNull(this);
+
+        if (demoteValidation is not null)
+            return demoteValidation;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
 
@@ -211,8 +214,11 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        if (string.IsNullOrWhiteSpace(packVersion))
-            return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
+        IActionResult? versionProblem =
+            PolicyPacksHttpMapper.ValidatePackVersion(packVersion).ToBadRequestProblemOrNull(this);
+
+        if (versionProblem is not null)
+            return versionProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
 

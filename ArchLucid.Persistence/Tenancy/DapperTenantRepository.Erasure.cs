@@ -198,7 +198,7 @@ public sealed partial class DapperTenantRepository
         IEnumerable<Guid> ids =
             await connection.QueryAsync<Guid>(new CommandDefinition(sql, new
             {
-                Take = take,
+                Take = TenantRepositoryCore.ClampErasureListTake(take),
                 UtcNow = utcNow
             }, cancellationToken: ct)).ConfigureAwait(false);
 
@@ -228,7 +228,7 @@ public sealed partial class DapperTenantRepository
         IEnumerable<Guid> ids =
             await connection.QueryAsync<Guid>(new CommandDefinition(sql, new
             {
-                Take = take,
+                Take = TenantRepositoryCore.ClampErasureListTake(take),
                 ErasureRequestedOnOrBefore = erasureRequestedOnOrBefore,
                 UtcNow = utcNow
             }, cancellationToken: ct)).ConfigureAwait(false);

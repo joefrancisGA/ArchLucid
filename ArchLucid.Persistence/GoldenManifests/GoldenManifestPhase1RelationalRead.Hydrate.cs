@@ -1,5 +1,6 @@
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
+using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
 
 using Dapper;
@@ -80,21 +81,21 @@ internal static partial class GoldenManifestPhase1RelationalRead
             RuleSetId = row.RuleSetId,
             RuleSetVersion = row.RuleSetVersion,
             RuleSetHash = row.RuleSetHash,
-            Metadata = DeserializeOrNew(row.MetadataJson,
+            Metadata = RelationalSliceReadCore.DeserializeOrNew(row.MetadataJson,
                 static j => JsonEntitySerializer.Deserialize<ManifestMetadata>(j)),
-            Requirements = DeserializeOrNew(
+            Requirements = RelationalSliceReadCore.DeserializeOrNew(
                 row.RequirementsJson,
                 static j => JsonEntitySerializer.Deserialize<RequirementsCoverageSection>(j)),
             Topology =
-                DeserializeOrNew(row.TopologyJson, static j => JsonEntitySerializer.Deserialize<TopologySection>(j)),
+                RelationalSliceReadCore.DeserializeOrNew(row.TopologyJson, static j => JsonEntitySerializer.Deserialize<TopologySection>(j)),
             Security =
-                DeserializeOrNew(row.SecurityJson, static j => JsonEntitySerializer.Deserialize<SecuritySection>(j)),
+                RelationalSliceReadCore.DeserializeOrNew(row.SecurityJson, static j => JsonEntitySerializer.Deserialize<SecuritySection>(j)),
             Compliance = DeserializeCompliance(row.ComplianceJson),
-            Cost = DeserializeOrNew(row.CostJson, static j => JsonEntitySerializer.Deserialize<CostSection>(j)),
-            Constraints = DeserializeOrNew(
+            Cost = RelationalSliceReadCore.DeserializeOrNew(row.CostJson, static j => JsonEntitySerializer.Deserialize<CostSection>(j)),
+            Constraints = RelationalSliceReadCore.DeserializeOrNew(
                 row.ConstraintsJson,
                 static j => JsonEntitySerializer.Deserialize<ConstraintSection>(j)),
-            UnresolvedIssues = DeserializeOrNew(
+            UnresolvedIssues = RelationalSliceReadCore.DeserializeOrNew(
                 row.UnresolvedIssuesJson,
                 static j => JsonEntitySerializer.Deserialize<UnresolvedIssuesSection>(j)),
             Decisions = decisions,
@@ -218,16 +219,13 @@ internal static partial class GoldenManifestPhase1RelationalRead
         SqlConnection connection,
         string sql,
         Guid manifestId,
-        CancellationToken ct)
-    {
-        IEnumerable<string> rows = await connection.QueryAsync<string>(
-            new CommandDefinition(
-                sql,
-                new { ManifestId = manifestId },
-                cancellationToken: ct));
-
-        return rows.ToList();
-    }
+        CancellationToken ct) =>
+        await RelationalSliceReadCore.LoadOrderedStringsAsync(
+            connection,
+            sql,
+            new { ManifestId = manifestId },
+            transaction: null,
+            ct);
 
     private static ComplianceSection DeserializeCompliance(string? json)
     {
@@ -246,20 +244,8 @@ internal static partial class GoldenManifestPhase1RelationalRead
 
     /// <summary>Shared JSON section deserialize used by full hydrate and prior-retrieval slim hydrate.</summary>
     internal static T DeserializeOrNew<T>(string? json, Func<string, T> deserialize)
-        where T : class, new()
-    {
-        if (string.IsNullOrWhiteSpace(json))
-            return new T();
-
-        try
-        {
-            return deserialize(json) ?? new T();
-        }
-        catch (InvalidOperationException)
-        {
-            return new T();
-        }
-    }
+        where T : class, new() =>
+        RelationalSliceReadCore.DeserializeOrNew(json, deserialize);
 
     private sealed class ManifestDecisionRow
     {

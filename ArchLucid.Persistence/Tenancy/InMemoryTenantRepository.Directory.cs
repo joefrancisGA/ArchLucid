@@ -56,7 +56,7 @@ public sealed partial class InMemoryTenantRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
         _ = ct;
 
-        string key = slug.Trim().ToLowerInvariant();
+        string key = TenantRepositoryCore.NormalizeSlug(slug);
 
         return !_slugToId.TryGetValue(key, out Guid id) ? Task.FromResult<TenantRecord?>(null) : GetByIdAsync(id, ct);
     }
