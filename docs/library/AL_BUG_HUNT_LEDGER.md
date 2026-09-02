@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 66
-- **bugs-found:** 164
+- **hunts:** 67
+- **bugs-found:** 165
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — boolean advisory synonym coercion gaps
+- **last-bug:** 2026-09-02 — quality-gate warn-only off synonym coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1966,6 +1966,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPackExpectationFacetParser.ParseRequireBudgetCap` — `enabled` / `disabled` advisory synonyms ignored — **hit 2026-09-02 (#478):** `cost.requireBudgetCap="enabled"` / `"disabled"` returned null while yes/no/on/off already mapped; fixed by accepting enabled/disabled (`Parse_require_budget_cap_enabled_disabled_synonyms_map_true_and_false`).
 
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadBoolean` — string-encoded `on` / `off` / `enabled` / `disabled` fallback flags ignored — **hit 2026-09-02 (#478):** `"deterministicFallbackUsed":"on"` left fallback false so PASS was returned instead of HOLD while yes/no already mapped; fixed by accepting on/off/enabled/disabled (`FromAggregateJson_maps_string_encoded_on_deterministic_fallback_flag`).
+
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.TryParseBooleanString` — `off` / `on` / `yes` / `no` / `enabled` / `disabled` quality-gate mode synonyms ignored — **hit 2026-09-02 (#479):** config `"off"` skipped WarnOnly advisory while `"False"` / `"0"` emitted; fixed by accepting boolean synonyms before ordinal coercion (`ShouldEmitFinding_production_real_off_synonym_warn_only_emits_rule`).
+
+2026-09-02 seed hunt #479: reseeded from ArchLucid.Core; proved production-like quality-gate off/no/on boolean synonym coercion gap.
 
 2026-09-02 seed hunt #478: reseeded from ArchLucid.Core; proved require-budget-cap enabled/disabled and explanation fallback on/off boolean synonym gaps.
 
