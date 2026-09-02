@@ -23,7 +23,8 @@ describe("ReviewsHubActiveFiltersStrip", () => {
 
     expect(clear).toHaveClass("border-neutral-300");
     fireEvent.click(clear);
-    expect(onClear).toHaveBeenCalledTimes(1);
+    expect(onClearSearch).toHaveBeenCalledTimes(1);
+    expect(onClearFilter).toHaveBeenCalledTimes(1);
   });
 
   it("renders nothing when no filters are active", () => {

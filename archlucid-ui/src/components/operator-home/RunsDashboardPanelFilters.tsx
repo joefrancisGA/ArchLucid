@@ -153,6 +153,7 @@ export function RunsDashboardPanelFilters({
               aria-current="page"
               aria-label={`Filter reviews: Archived ${archivedCount}`}
               data-testid="runs-dashboard-show-archived"
+            >
               Archived {archivedCount}
             </FilterChip>
           ) : (
