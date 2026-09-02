@@ -101,7 +101,7 @@ function resolveSealedReviewRecordSummary(
 
   const displayName = committed?.displayName?.trim() ?? "";
   const completedUtc = committed?.completedUtc?.trim() ?? "";
-  const createdByUserId = committed?.createdByUserId?.trim() ?? "";
+  const createdUtc = committed?.createdUtc?.trim() ?? "";
 
   return {
     runId: firstCommittedRunId,
@@ -109,10 +109,12 @@ function resolveSealedReviewRecordSummary(
     finalizedOnUtc:
       completedUtc.length > 0
         ? completedUtc
-        : trialFirstCommitUtc !== null && trialFirstCommitUtc.length > 0
-          ? trialFirstCommitUtc
-          : null,
-    finalizedByUserId: createdByUserId.length > 0 ? createdByUserId : null,
+        : createdUtc.length > 0
+          ? createdUtc
+          : trialFirstCommitUtc !== null && trialFirstCommitUtc.length > 0
+            ? trialFirstCommitUtc
+            : null,
+    finalizedByUserId: null,
   };
 }
 
