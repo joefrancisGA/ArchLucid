@@ -58,14 +58,15 @@ public sealed class AuthenticationIdentityLinkingServiceTests
         AuthenticationIdentityLinkProposalPersistStage proposalPersistStage = new(proposals);
         AuthenticationIdentityLinkProposalAuditNotifier proposalAuditNotifier = new(audit.Object);
 
-        AuthenticationIdentityLinkProposalService proposalService = new(
-            platformIdentity,
-            users,
-            identities,
-            proposalPersistStage,
-            reviews,
-            proposalAuditNotifier,
-            clockProvider);
+        AuthenticationIdentityLinkProposalService proposalService =
+            AuthenticationIdentityLinkProposalServiceTestSupport.Create(
+                platformIdentity,
+                users,
+                identities,
+                proposalPersistStage,
+                reviews,
+                proposalAuditNotifier,
+                clockProvider);
 
         AuthenticationIdentityLinkChallengeService challengeService = new(
             identities,
@@ -357,14 +358,15 @@ public sealed class AuthenticationIdentityLinkingServiceTests
         AuthenticationIdentityLinkProposalPersistStage proposalPersist = new(proposals.Object);
         AuthenticationIdentityLinkProposalAuditNotifier proposalAudit = new(audit.Object);
 
-        AuthenticationIdentityLinkProposalService sut = new(
-            platformIdentity.Object,
-            users.Object,
-            identities.Object,
-            proposalPersist,
-            reviews.Object,
-            proposalAudit,
-            TimeProvider.System);
+        AuthenticationIdentityLinkProposalService sut =
+            AuthenticationIdentityLinkProposalServiceTestSupport.Create(
+                platformIdentity.Object,
+                users.Object,
+                identities.Object,
+                proposalPersist,
+                reviews.Object,
+                proposalAudit,
+                TimeProvider.System);
 
         // CAS lost and the re-read proposal is not Confirmed: the confirm must fail rather
         // than return an identity linked to a non-confirmed proposal, and skip the audit.
@@ -436,14 +438,15 @@ public sealed class AuthenticationIdentityLinkingServiceTests
         AuthenticationIdentityLinkProposalPersistStage proposalPersist = new(proposals.Object);
         AuthenticationIdentityLinkProposalAuditNotifier proposalAudit = new(audit.Object);
 
-        AuthenticationIdentityLinkProposalService sut = new(
-            platformIdentity.Object,
-            users.Object,
-            identities.Object,
-            proposalPersist,
-            reviews.Object,
-            proposalAudit,
-            TimeProvider.System);
+        AuthenticationIdentityLinkProposalService sut =
+            AuthenticationIdentityLinkProposalServiceTestSupport.Create(
+                platformIdentity.Object,
+                users.Object,
+                identities.Object,
+                proposalPersist,
+                reviews.Object,
+                proposalAudit,
+                TimeProvider.System);
 
         await Assert.ThrowsAsync<AuthenticationIdentityLinkProposalNotFoundException>(() =>
             sut.ConfirmLinkProposalAsync(
@@ -492,14 +495,15 @@ public sealed class AuthenticationIdentityLinkingServiceTests
         AuthenticationIdentityLinkProposalPersistStage proposalPersist = new(proposals.Object);
         AuthenticationIdentityLinkProposalAuditNotifier proposalAudit = new(audit.Object);
 
-        AuthenticationIdentityLinkProposalService sut = new(
-            platformIdentity.Object,
-            users.Object,
-            identities.Object,
-            proposalPersist,
-            reviews.Object,
-            proposalAudit,
-            TimeProvider.System);
+        AuthenticationIdentityLinkProposalService sut =
+            AuthenticationIdentityLinkProposalServiceTestSupport.Create(
+                platformIdentity.Object,
+                users.Object,
+                identities.Object,
+                proposalPersist,
+                reviews.Object,
+                proposalAudit,
+                TimeProvider.System);
 
         await Assert.ThrowsAsync<AuthenticationIdentityLinkProposalNotFoundException>(() =>
             sut.CancelLinkProposalAsync(
@@ -550,14 +554,15 @@ public sealed class AuthenticationIdentityLinkingServiceTests
         AuthenticationIdentityLinkProposalPersistStage proposalPersist = new(proposals.Object);
         AuthenticationIdentityLinkProposalAuditNotifier proposalAudit = new(audit.Object);
 
-        AuthenticationIdentityLinkProposalService sut = new(
-            platformIdentity.Object,
-            users.Object,
-            identities.Object,
-            proposalPersist,
-            reviews.Object,
-            proposalAudit,
-            TimeProvider.System);
+        AuthenticationIdentityLinkProposalService sut =
+            AuthenticationIdentityLinkProposalServiceTestSupport.Create(
+                platformIdentity.Object,
+                users.Object,
+                identities.Object,
+                proposalPersist,
+                reviews.Object,
+                proposalAudit,
+                TimeProvider.System);
 
         await Assert.ThrowsAsync<DuplicateAuthenticationIdentityException>(() =>
             sut.ConfirmLinkProposalAsync(
@@ -630,14 +635,15 @@ public sealed class AuthenticationIdentityLinkingServiceTests
         AuthenticationIdentityLinkProposalPersistStage proposalPersist = new(proposals.Object);
         AuthenticationIdentityLinkProposalAuditNotifier proposalAudit = new(audit.Object);
 
-        AuthenticationIdentityLinkProposalService sut = new(
-            platformIdentity.Object,
-            users.Object,
-            identities.Object,
-            proposalPersist,
-            reviews.Object,
-            proposalAudit,
-            TimeProvider.System);
+        AuthenticationIdentityLinkProposalService sut =
+            AuthenticationIdentityLinkProposalServiceTestSupport.Create(
+                platformIdentity.Object,
+                users.Object,
+                identities.Object,
+                proposalPersist,
+                reviews.Object,
+                proposalAudit,
+                TimeProvider.System);
 
         AuthenticationIdentityRecord result = await sut.ConfirmLinkProposalAsync(
             pendingProposal.UserId,

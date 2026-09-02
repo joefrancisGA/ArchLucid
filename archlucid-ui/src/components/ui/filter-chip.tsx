@@ -47,6 +47,7 @@ export function FilterChip(props: FilterChipProps): ReactElement {
       onClick={props.onClick}
       aria-label={props["aria-label"]}
       aria-pressed={props["aria-pressed"]}
+      aria-current={props["aria-current"]}
       aria-describedby={props["aria-describedby"]}
       disabled={props.disabled}
       data-testid={props["data-testid"]}

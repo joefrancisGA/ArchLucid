@@ -7,6 +7,7 @@ using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Http;
 using ArchLucid.Application.Reporting;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;

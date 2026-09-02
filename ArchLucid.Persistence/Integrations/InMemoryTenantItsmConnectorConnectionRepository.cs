@@ -41,22 +41,11 @@ public sealed class InMemoryTenantItsmConnectorConnectionRepository : ITenantIts
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        TenantItsmConnectorConnectionRecord row = new()
-        {
-            TenantId = tenantId,
-            Provider = provider,
-            InstanceBaseUrl = command.InstanceBaseUrl,
-            AuthMode = command.AuthMode,
-            AuthUserName = command.AuthUserName,
-            CredentialKeyVaultSecretName = command.CredentialKeyVaultSecretName,
-            OAuthClientIdKeyVaultSecretName = command.OAuthClientIdKeyVaultSecretName,
-            OAuthClientSecretKeyVaultSecretName = command.OAuthClientSecretKeyVaultSecretName,
-            OAuthRefreshTokenKeyVaultSecretName = command.OAuthRefreshTokenKeyVaultSecretName,
-            InboundWebhookKeyVaultSecretName = command.InboundWebhookKeyVaultSecretName,
-            IsEnabled = command.IsEnabled,
-            Label = command.Label,
-            UpdatedUtc = TimeProvider.System.GetUtcNow()
-        };
+        TenantItsmConnectorConnectionRecord row = TenantItsmConnectorConnectionRepositoryCore.CreateFromUpsert(
+            tenantId,
+            provider,
+            command,
+            TimeProvider.System.GetUtcNow());
 
         _store[(tenantId, provider)] = row;
 
