@@ -30,4 +30,15 @@ public sealed class PolicyPackPriorityFloorCoercionTests
 
         PolicyPackPriorityFloor.ResolveFloor(effective).Should().Be(PolicyPackRulePriority.P0);
     }
+
+    [Fact]
+    public void ResolveFloor_off_synonym_maps_p0()
+    {
+        PolicyPackContentDocument effective = new()
+        {
+            AdvisoryDefaults = { [PolicyPackRulePriority.AdvisoryDefaultsKey] = "off" },
+        };
+
+        PolicyPackPriorityFloor.ResolveFloor(effective).Should().Be(PolicyPackRulePriority.P0);
+    }
 }

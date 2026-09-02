@@ -26,4 +26,13 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
         ok.Should().BeTrue();
         status.Should().Be(ArchitectureRunStatus.Created);
     }
+
+    [Fact]
+    public void TryParseStatus_parses_on_synonym_boolean_ordinal()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("on", out ArchitectureRunStatus status);
+
+        ok.Should().BeTrue();
+        status.Should().Be(ArchitectureRunStatus.Created);
+    }
 }

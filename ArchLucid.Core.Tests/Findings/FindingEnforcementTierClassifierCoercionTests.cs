@@ -78,4 +78,27 @@ public sealed class FindingEnforcementTierClassifierCoercionTests
             .Should()
             .Be(FindingEnforcementTier.PolicyViolation);
     }
+
+    [Fact]
+    public void ClassifyFinding_honors_on_synonym_enforcement_tier_property()
+    {
+        Finding finding = new()
+        {
+            FindingId = "f-6",
+            FindingType = "TopologyGap",
+            Category = "Topology",
+            EngineType = "TopologyCoverage",
+            Severity = FindingSeverity.Warning,
+            Title = "Gap",
+            Rationale = "Gap",
+            Properties = new Dictionary<string, string>
+            {
+                [FindingPropertyKeys.EnforcementTier] = "on",
+            },
+        };
+
+        FindingEnforcementTierClassifier.ClassifyFinding(finding)
+            .Should()
+            .Be(FindingEnforcementTier.Advisory);
+    }
 }

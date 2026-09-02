@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 67
-- **bugs-found:** 165
+- **hunts:** 68
+- **bugs-found:** 169
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — quality-gate warn-only off synonym coercion
+- **last-bug:** 2026-09-02 — boolean synonym coercion across four Core parsers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1968,6 +1968,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadBoolean` — string-encoded `on` / `off` / `enabled` / `disabled` fallback flags ignored — **hit 2026-09-02 (#478):** `"deterministicFallbackUsed":"on"` left fallback false so PASS was returned instead of HOLD while yes/no already mapped; fixed by accepting on/off/enabled/disabled (`FromAggregateJson_maps_string_encoded_on_deterministic_fallback_flag`).
 
 - [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.TryParseBooleanString` — `off` / `on` / `yes` / `no` / `enabled` / `disabled` quality-gate mode synonyms ignored — **hit 2026-09-02 (#479):** config `"off"` skipped WarnOnly advisory while `"False"` / `"0"` emitted; fixed by accepting boolean synonyms before ordinal coercion (`ShouldEmitFinding_production_real_off_synonym_warn_only_emits_rule`).
+
+- [x] (proven) `FindingEnforcementTierClassifier.TryParseBooleanString` — `on` / `off` property-tier synonyms ignored — **hit 2026-09-02 (#480):** `properties.enforcementTier="on"` fell through to policy-violation while `"True"` honored advisory; fixed with shared boolean synonym coercion (`ClassifyFinding_honors_on_synonym_enforcement_tier_property`).
+
+- [x] (proven) `PolicyPackPriorityFloor.TryParseBooleanString` — `off` priority-floor synonym ignored — **hit 2026-09-02 (#480):** advisory `priorityFloor="off"` defaulted to `P1` while `"False"` / `"0"` mapped `P0`; fixed with boolean synonym coercion (`ResolveFloor_off_synonym_maps_p0`).
+
+- [x] (proven) `ArchitectureRunStatusTransitionTable.TryParseBooleanString` — `on` legacy status synonym ignored — **hit 2026-09-02 (#480):** `"on"` failed parse while `"True"` mapped to `Created`; fixed with boolean synonym coercion (`TryParseStatus_parses_on_synonym_boolean_ordinal`).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryParseBooleanString` — `on` quantity synonym ignored — **hit 2026-09-02 (#480):** `"quantity":"on"` fell back to caller default while `"true"` coerced to `1`; fixed with boolean synonym coercion (`ReadQuantity_reads_on_synonym_quantity_instead_of_fallback`).
+
+2026-09-02 seed hunt #480: reseeded from ArchLucid.Core; proved enforcement-tier, priority-floor, run-status, and marketplace quantity on/off boolean synonym gaps.
 
 2026-09-02 seed hunt #479: reseeded from ArchLucid.Core; proved production-like quality-gate off/no/on boolean synonym coercion gap.
 

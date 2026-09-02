@@ -122,4 +122,14 @@ public sealed class MarketplaceWebhookPayloadParserTests
 
         quantity.Should().Be(1);
     }
+
+    [Fact]
+    public void ReadQuantity_reads_on_synonym_quantity_instead_of_fallback()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":"on"}""");
+
+        int quantity = MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement, fallback: 10);
+
+        quantity.Should().Be(1);
+    }
 }

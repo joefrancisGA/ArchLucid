@@ -88,14 +88,22 @@ public static class PolicyPackPriorityFloor
 
         string normalized = raw.Trim();
 
-        if (normalized.Equals("true", StringComparison.OrdinalIgnoreCase))
+        if (normalized.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("enabled", StringComparison.OrdinalIgnoreCase))
         {
             value = true;
 
             return true;
         }
 
-        if (normalized.Equals("false", StringComparison.OrdinalIgnoreCase))
+        if (normalized.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("disabled", StringComparison.OrdinalIgnoreCase))
         {
             value = false;
 
