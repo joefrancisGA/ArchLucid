@@ -10,6 +10,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.ExecuteOwnership;
+using ArchLucid.Application.Runs.Orchestration.Execute;
 using ArchLucid.Application.Operations;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Evidence;
@@ -25,8 +26,8 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
@@ -44,49 +45,30 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <inheritdoc cref = "IArchitectureRunExecuteOrchestrator"/>
-public sealed partial class ArchitectureRunExecuteOrchestrator(
+public sealed class ArchitectureRunExecuteOrchestrator(
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
     IArchitectureRequestRepository requestRepository,
     IAgentTaskRepository taskRepository,
-    IAgentExecutor agentExecutor,
-    IAgentEvaluationService agentEvaluationService,
     IAgentResultRepository resultRepository,
-    IAgentEvaluationRepository agentEvaluationRepository,
-    IAgentEvidencePackageRepository agentEvidencePackageRepository,
-    IEvidenceBuilder evidenceBuilder,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
     ArchitectureRunExecutePostExecuteHooks postExecuteHooks,
-    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
-    IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
-    IAgentResultPostExecutionEnricher agentResultPostExecutionEnricher,
-    IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
-    IAgentEvidenceUntrustedInputSanitizer agentEvidenceUntrustedInputSanitizer,
-    IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     IOptions<AgentExecutionOptions> agentExecutionOptions,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
-    IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
     IRunStateTransitionService runStateTransitionService,
-    IRunEngineProvenanceCaptureService runEngineProvenanceCaptureService,
-    IExecuteTimeGovernanceScopeCaptureService executeTimeGovernanceScopeCaptureService,
-    TechnologyLedgerTopologyProposalSeeder technologyLedgerTopologyProposalSeeder,
     DemoExpensiveActionGate demoExpensiveActionGate,
-    IRunScopedLlmBudgetReservationService runScopedLlmBudgetReservationService,
-    IOperationCancellationRegistry operationCancellationRegistry,
-    OperationRunCancellationMarker runCancellationMarker,
     IRunExecuteOwnershipLeaseService runExecuteOwnershipLeaseService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IAgentExecutionReadinessGuard agentExecutionReadinessGuard,
+    IArchitectureRunExecutePreExecuteStage preExecuteStage,
+    IArchitectureRunExecuteAgentLoopStage agentLoopStage,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly ArchitectureRunExecutePostExecuteHooks _postExecuteHooks =
         postExecuteHooks ?? throw new ArgumentNullException(nameof(postExecuteHooks));
-
-    private readonly IOptions<AgentOutputQualityGateOptions> _agentOutputQualityGateOptions =
-        agentOutputQualityGateOptions ?? throw new ArgumentNullException(nameof(agentOutputQualityGateOptions));
 
     private readonly IOptions<AgentExecutionOptions> _agentExecutionOptions =
         agentExecutionOptions ?? throw new ArgumentNullException(nameof(agentExecutionOptions));
@@ -96,67 +78,21 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
 
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
 
-    private readonly IAgentOutputTraceEvaluationHook _outputTraceEvaluationHook =
-        outputTraceEvaluationHook ?? throw new ArgumentNullException(nameof(outputTraceEvaluationHook));
-
-    private readonly IAgentResultPostExecutionEnricher _agentResultPostExecutionEnricher =
-        agentResultPostExecutionEnricher ?? throw new ArgumentNullException(nameof(agentResultPostExecutionEnricher));
-
-    private readonly IEvidencePackageInjectionMitigator _evidencePackageInjectionMitigator =
-        evidencePackageInjectionMitigator ?? throw new ArgumentNullException(nameof(evidencePackageInjectionMitigator));
-
-    private readonly IAgentEvidenceUntrustedInputSanitizer _agentEvidenceUntrustedInputSanitizer =
-        agentEvidenceUntrustedInputSanitizer ?? throw new ArgumentNullException(nameof(agentEvidenceUntrustedInputSanitizer));
-
     private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
-    private readonly IAgentEvaluationService
-        _agentEvaluationService = agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
-
-    private readonly IAgentEvaluationRepository _agentEvaluationRepository =
-        agentEvaluationRepository ?? throw new ArgumentNullException(nameof(agentEvaluationRepository));
-
-    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
-        agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
-
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
-    private readonly IEvidenceBuilder _evidenceBuilder = evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
     private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
 
     private readonly IBaselineMutationAuditService _baselineMutationAudit =
         baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
 
-    private readonly IAgentExecutor _agentExecutor = agentExecutor ?? throw new ArgumentNullException(nameof(agentExecutor));
-    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-
-    private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
-        requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
-
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
 
-    private readonly IRunEngineProvenanceCaptureService _runEngineProvenanceCaptureService =
-        runEngineProvenanceCaptureService ?? throw new ArgumentNullException(nameof(runEngineProvenanceCaptureService));
-
-    private readonly IExecuteTimeGovernanceScopeCaptureService _executeTimeGovernanceScopeCaptureService =
-        executeTimeGovernanceScopeCaptureService ?? throw new ArgumentNullException(nameof(executeTimeGovernanceScopeCaptureService));
-
-    private readonly TechnologyLedgerTopologyProposalSeeder _technologyLedgerTopologyProposalSeeder =
-        technologyLedgerTopologyProposalSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerTopologyProposalSeeder));
-
     private readonly DemoExpensiveActionGate _demoExpensiveActionGate =
         demoExpensiveActionGate ?? throw new ArgumentNullException(nameof(demoExpensiveActionGate));
-
-    private readonly IRunScopedLlmBudgetReservationService _runScopedLlmBudgetReservationService =
-        runScopedLlmBudgetReservationService ?? throw new ArgumentNullException(nameof(runScopedLlmBudgetReservationService));
-
-    private readonly IOperationCancellationRegistry _operationCancellationRegistry =
-        operationCancellationRegistry ?? throw new ArgumentNullException(nameof(operationCancellationRegistry));
-
-    private readonly OperationRunCancellationMarker _runCancellationMarker =
-        runCancellationMarker ?? throw new ArgumentNullException(nameof(runCancellationMarker));
 
     private readonly IRunExecuteOwnershipLeaseService _runExecuteOwnershipLeaseService =
         runExecuteOwnershipLeaseService ?? throw new ArgumentNullException(nameof(runExecuteOwnershipLeaseService));
@@ -167,15 +103,29 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     private readonly IAgentExecutionReadinessGuard _agentExecutionReadinessGuard =
         agentExecutionReadinessGuard ?? throw new ArgumentNullException(nameof(agentExecutionReadinessGuard));
 
+    private readonly IArchitectureRunExecutePreExecuteStage _preExecuteStage =
+        preExecuteStage ?? throw new ArgumentNullException(nameof(preExecuteStage));
+
+    private readonly IArchitectureRunExecuteAgentLoopStage _agentLoopStage =
+        agentLoopStage ?? throw new ArgumentNullException(nameof(agentLoopStage));
+
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-        ValidateDependencies(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository,
-            agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, postExecuteHooks, unitOfWorkFactory,
-            outputTraceEvaluationHook, agentResultPostExecutionEnricher, evidencePackageInjectionMitigator,
-            agentEvidenceUntrustedInputSanitizer, requestContentSafetyPrecheck,
-            agentExecutionOptions, agentOutputQualityGateOptions, logger);
+        ValidateDependencies(
+            runRepository,
+            scopeContextProvider,
+            requestRepository,
+            taskRepository,
+            resultRepository,
+            actorContext,
+            baselineMutationAudit,
+            postExecuteHooks,
+            agentExecutionOptions,
+            preExecuteStage,
+            agentLoopStage,
+            logger);
         string actor = actorContext.GetActor();
         try
         {
@@ -212,11 +162,19 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
-        ValidateDependencies(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository,
-            agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, postExecuteHooks, unitOfWorkFactory,
-            outputTraceEvaluationHook, agentResultPostExecutionEnricher, evidencePackageInjectionMitigator,
-            agentEvidenceUntrustedInputSanitizer, requestContentSafetyPrecheck,
-            agentExecutionOptions, agentOutputQualityGateOptions, logger);
+        ValidateDependencies(
+            runRepository,
+            scopeContextProvider,
+            requestRepository,
+            taskRepository,
+            resultRepository,
+            actorContext,
+            baselineMutationAudit,
+            postExecuteHooks,
+            agentExecutionOptions,
+            preExecuteStage,
+            agentLoopStage,
+            logger);
 
         string actor = actorContext.GetActor();
         ArchitectureRun? run =
@@ -251,45 +209,42 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
             await _resultRepository.DeleteForRunTaskAsync(runId, task.TaskId, cancellationToken);
         }
 
-        await TryDemoteReadyForCommitBeforeSelectiveExecuteAsync(runId, run.Status, cancellationToken);
+        await _preExecuteStage.TryDemoteReadyForCommitBeforeSelectiveExecuteAsync(runId, run.Status, cancellationToken);
         await _postExecuteHooks.LogSelectiveExecuteRequestedAsync(runId, actor, forcedTasks, request.IncludeDependents, cancellationToken);
 
         return await ExecuteRunAsync(runId, cancellationToken);
     }
 
-    private static void ValidateDependencies(IRunRepository runRepository, IScopeContextProvider scopeContextProvider,
-        IArchitectureRequestRepository requestRepository, IAgentTaskRepository taskRepository, IAgentExecutor agentExecutor,
-        IAgentEvaluationService agentEvaluationService, IAgentResultRepository resultRepository, IAgentEvaluationRepository agentEvaluationRepository,
-        IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IActorContext actorContext,
-        IBaselineMutationAuditService baselineMutationAudit, ArchitectureRunExecutePostExecuteHooks postExecuteHooks, IArchLucidUnitOfWorkFactory unitOfWorkFactory,
-        IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IAgentResultPostExecutionEnricher agentResultPostExecutionEnricher,
-        IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
-        IAgentEvidenceUntrustedInputSanitizer agentEvidenceUntrustedInputSanitizer,
-        IRequestContentSafetyPrecheck requestContentSafetyPrecheck, IOptions<AgentExecutionOptions> agentExecutionOptions,
-        IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
+    internal static bool ArePersistedResultsCompleteForTasks(
+        IReadOnlyList<AgentTask> tasks,
+        IReadOnlyList<AgentResult> existingResults) =>
+        ArchitectureRunExecutePreExecuteStage.ArePersistedResultsCompleteForTasks(tasks, existingResults);
+
+    private static void ValidateDependencies(
+        IRunRepository runRepository,
+        IScopeContextProvider scopeContextProvider,
+        IArchitectureRequestRepository requestRepository,
+        IAgentTaskRepository taskRepository,
+        IAgentResultRepository resultRepository,
+        IActorContext actorContext,
+        IBaselineMutationAuditService baselineMutationAudit,
+        ArchitectureRunExecutePostExecuteHooks postExecuteHooks,
+        IOptions<AgentExecutionOptions> agentExecutionOptions,
+        IArchitectureRunExecutePreExecuteStage preExecuteStage,
+        IArchitectureRunExecuteAgentLoopStage agentLoopStage,
         ILogger<ArchitectureRunExecuteOrchestrator> logger)
     {
         ArgumentNullException.ThrowIfNull(runRepository);
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
         ArgumentNullException.ThrowIfNull(requestRepository);
         ArgumentNullException.ThrowIfNull(taskRepository);
-        ArgumentNullException.ThrowIfNull(agentExecutor);
-        ArgumentNullException.ThrowIfNull(agentEvaluationService);
         ArgumentNullException.ThrowIfNull(resultRepository);
-        ArgumentNullException.ThrowIfNull(agentEvaluationRepository);
-        ArgumentNullException.ThrowIfNull(agentEvidencePackageRepository);
-        ArgumentNullException.ThrowIfNull(evidenceBuilder);
         ArgumentNullException.ThrowIfNull(actorContext);
         ArgumentNullException.ThrowIfNull(baselineMutationAudit);
         ArgumentNullException.ThrowIfNull(postExecuteHooks);
-        ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
-        ArgumentNullException.ThrowIfNull(outputTraceEvaluationHook);
-        ArgumentNullException.ThrowIfNull(agentResultPostExecutionEnricher);
-        ArgumentNullException.ThrowIfNull(evidencePackageInjectionMitigator);
-        ArgumentNullException.ThrowIfNull(agentEvidenceUntrustedInputSanitizer);
-        ArgumentNullException.ThrowIfNull(requestContentSafetyPrecheck);
         ArgumentNullException.ThrowIfNull(agentExecutionOptions);
-        ArgumentNullException.ThrowIfNull(agentOutputQualityGateOptions);
+        ArgumentNullException.ThrowIfNull(preExecuteStage);
+        ArgumentNullException.ThrowIfNull(agentLoopStage);
         ArgumentNullException.ThrowIfNull(logger);
     }
 
@@ -340,7 +295,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
 
         await _postExecuteHooks.LogFailedRunRetryRequestedAsync(run, runId, actor, cancellationToken);
 
-        ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
+        ExecuteRunResult? idempotent = await _preExecuteStage.TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 
         if (idempotent is not null)
             return idempotent;
@@ -355,7 +310,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
 
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunStarted, actor, runId, null, cancellationToken);
 
-        return await ExecuteRunAgentBatchAsync(run, runId, actor, cancellationToken);
+        return await _agentLoopStage.ExecuteRunAgentBatchAsync(run, runId, actor, cancellationToken);
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)

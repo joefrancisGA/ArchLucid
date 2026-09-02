@@ -29,14 +29,13 @@ Global shortcuts apply from the main content region wrapped by [`KeyboardShortcu
 
 | Combo | Action | Navigates to |
 |-------|--------|--------------|
-| **Alt+N** | New review wizard | `/reviews/new` |
-| **Alt+R** | Runs list | `/runs?projectId=default` |
+| **Alt+N** | New review wizard | `/architecture/reviews/new` |
+| **Alt+R** | Packages list | `/architecture/reviews` |
 | **Alt+C** | Compare | `/insights/compare-two-reviews` |
-| **Alt+P** | Replay | `/internal/validate-route` |
-| **Alt+A** | Ask (Q&A) | `/ask` |
+| **Alt+A** | Ask (Q&A) | `/insights/ask-review-questions` |
 | **Alt+G** | Governance findings | `/governance/findings` |
-| **Alt+Y** | Graph | `/graph` |
-| **Alt+L** | Alerts | `/alerts` |
+| **Alt+Y** | Graph | `/insights/evidence-graph` |
+| **Alt+L** | Alerts | `/governance/alerts` |
 | **Alt+H** | Overview | `/` |
 | **Shift+?** | Open / close help (Escape closes) | *(dialog only)* |
 

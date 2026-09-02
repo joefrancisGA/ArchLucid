@@ -1,29 +1,16 @@
-using System.Text.Json;
-
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
-using ArchLucid.Application.Http;
-using ArchLucid.Application.Runs;
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.AspNetCore.RateLimiting;
-
 
 namespace ArchLucid.Api.Controllers.Governance;
 
@@ -54,19 +41,13 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        (IActionResult? scopeError, string? normalizedRunId) =
-            await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
-
-        if (scopeError is not null)
-            return scopeError;
-
         string requestedBy = actorContext.GetActor();
         string requestedByActorKey = actorContext.GetActorId();
 
         try
         {
-            GovernanceApprovalRequest result = await workflowService.SubmitApprovalRequestAsync(
-                normalizedRunId!,
+            GovernanceApprovalRequest result = await _approvalRequestsFacade.SubmitApprovalRequestAsync(
+                request.RunId,
                 request.ManifestVersion,
                 request.SourceEnvironment,
                 request.TargetEnvironment,
@@ -84,9 +65,13 @@ public sealed partial class GovernanceController
 
             return Ok(result);
         }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "SubmitApprovalRequest failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
         catch (InvalidOperationException ex)
         {
-            // Workflow stages throw this for illegal environment transitions (and similar validation).
             logger.LogWarningWithSanitizedUserArg(ex, "SubmitApprovalRequest failed for run '{RunId}'.", request.RunId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
@@ -127,30 +112,13 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        GovernanceApprovalRequest? approval = await approvalRepo
-            .GetByIdAsync(approvalRequestId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (approval is null)
-        {
-            return this.NotFoundProblem(
-                $"Approval request '{approvalRequestId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-        }
-
-        (IActionResult? scopeError, _) =
-            await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
-
-        if (scopeError is not null)
-            return scopeError;
-
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
         try
         {
-            GovernanceApprovalRequest result = await workflowService.ApproveAsync(
+            GovernanceApprovalRequest result = await _approvalRequestsFacade.ApproveAsync(
                 approvalRequestId,
                 reviewedBy,
                 reviewedByActorKey,
@@ -159,6 +127,21 @@ public sealed partial class GovernanceController
                 cancellationToken);
 
             return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Approve failed: approval request not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Approve failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (RunNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Approve failed: run not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (GovernanceSelfApprovalException ex)
         {
@@ -212,30 +195,13 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        GovernanceApprovalRequest? approval = await approvalRepo
-            .GetByIdAsync(approvalRequestId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (approval is null)
-        {
-            return this.NotFoundProblem(
-                $"Approval request '{approvalRequestId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-        }
-
-        (IActionResult? scopeError, _) =
-            await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
-
-        if (scopeError is not null)
-            return scopeError;
-
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
         try
         {
-            GovernanceApprovalRequest result = await workflowService.RejectAsync(
+            GovernanceApprovalRequest result = await _approvalRequestsFacade.RejectAsync(
                 approvalRequestId,
                 reviewedBy,
                 reviewedByActorKey,
@@ -244,6 +210,21 @@ public sealed partial class GovernanceController
                 cancellationToken);
 
             return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Reject failed: approval request not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Reject failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (RunNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Reject failed: run not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (GovernanceSelfApprovalException ex)
         {
@@ -311,12 +292,6 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        string reviewedBy = actorContext.GetActor();
-        string reviewedByActorKey = actorContext.GetActorId();
-        string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
-
-        List<GovernanceBatchReviewItemResult> results = [];
-
         if (!body.ApprovalRequestIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
         {
             return this.BadRequestProblem(
@@ -324,160 +299,32 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
-        HashSet<string> processedApprovalRequestIds = new(StringComparer.OrdinalIgnoreCase);
+        string reviewedBy = actorContext.GetActor();
+        string reviewedByActorKey = actorContext.GetActorId();
+        string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
-        foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
-        {
-            if (string.IsNullOrWhiteSpace(rawApprovalRequestId))
+        Application.Governance.GovernanceBatchReviewResponse batchResult =
+            await _approvalRequestsFacade.BatchReviewAsync(
+                body.ApprovalRequestIds,
+                approve,
+                body.ReviewComment,
+                reviewedBy,
+                reviewedByActorKey,
+                reviewedByMailbox,
+                cancellationToken);
+
+        return Ok(
+            new GovernanceBatchReviewResponse
             {
-                results.Add(
-                    new GovernanceBatchReviewItemResult
+                Results = batchResult.Results
+                    .Select(static r => new GovernanceBatchReviewItemResult
                     {
-                        ApprovalRequestId = rawApprovalRequestId,
-                        Succeeded = false,
-                        ErrorCode = ProblemTypes.ValidationFailed,
-                        Message = "approvalRequestId is required.",
-                    });
-
-                continue;
-            }
-
-            string approvalRequestId = rawApprovalRequestId.Trim();
-
-            if (!processedApprovalRequestIds.Add(approvalRequestId))
-            {
-                results.Add(
-                    new GovernanceBatchReviewItemResult
-                    {
-                        ApprovalRequestId = approvalRequestId,
-                        Succeeded = false,
-                        ErrorCode = ProblemTypes.ValidationFailed,
-                        Message = "duplicate approvalRequestId in batch.",
-                    });
-
-                continue;
-            }
-
-            try
-            {
-                GovernanceApprovalRequest? approval = await approvalRepo
-                    .GetByIdAsync(approvalRequestId, cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (approval is null)
-                {
-                    results.Add(
-                        new GovernanceBatchReviewItemResult
-                        {
-                            ApprovalRequestId = approvalRequestId,
-                            Succeeded = false,
-                            ErrorCode = ProblemTypes.ResourceNotFound,
-                            Message = $"Approval request '{approvalRequestId}' was not found.",
-                        });
-
-                    continue;
-                }
-
-                (IActionResult? scopeError, _) =
-                    await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
-
-                if (scopeError is not null)
-                {
-                    string errorCode = ProblemTypes.RunNotFound;
-                    string message = $"Run '{approval.RunId}' was not found.";
-
-                    if (scopeError is ObjectResult { Value: Microsoft.AspNetCore.Mvc.ProblemDetails scopeProblem })
-                    {
-                        if (!string.IsNullOrWhiteSpace(scopeProblem.Type))
-                            errorCode = scopeProblem.Type;
-
-                        if (!string.IsNullOrWhiteSpace(scopeProblem.Detail))
-                            message = scopeProblem.Detail;
-                    }
-
-                    results.Add(
-                        new GovernanceBatchReviewItemResult
-                        {
-                            ApprovalRequestId = approvalRequestId,
-                            Succeeded = false,
-                            ErrorCode = errorCode,
-                            Message = message,
-                        });
-
-                    continue;
-                }
-
-                if (approve)
-
-                    _ = await workflowService.ApproveAsync(
-                        approvalRequestId,
-                        reviewedBy,
-                        reviewedByActorKey,
-                        body.ReviewComment,
-                        reviewedByMailbox,
-                        cancellationToken);
-
-                else
-
-                    _ = await workflowService.RejectAsync(
-                        approvalRequestId,
-                        reviewedBy,
-                        reviewedByActorKey,
-                        body.ReviewComment,
-                        reviewedByMailbox,
-                        cancellationToken);
-
-                results.Add(
-                    new GovernanceBatchReviewItemResult { ApprovalRequestId = approvalRequestId, Succeeded = true });
-            }
-            catch (GovernanceSelfApprovalException ex)
-            {
-                logger.LogWarningWithSanitizedUserArg(
-                    ex,
-                    "Batch review blocked: segregation of duties for approval request '{ApprovalRequestId}'.",
-                    approvalRequestId);
-                results.Add(
-                    new GovernanceBatchReviewItemResult
-                    {
-                        ApprovalRequestId = approvalRequestId,
-                        Succeeded = false,
-                        ErrorCode = ProblemTypes.GovernanceSelfApproval,
-                        Message = ex.Message
-                    });
-            }
-            catch (GovernanceApprovalReviewConflictException ex)
-            {
-                logger.LogWarningWithSanitizedUserArg(
-                    ex,
-                    "Batch review conflict: approval request '{ApprovalRequestId}'.",
-                    approvalRequestId);
-                results.Add(
-                    new GovernanceBatchReviewItemResult
-                    {
-                        ApprovalRequestId = approvalRequestId,
-                        Succeeded = false,
-                        ErrorCode = ProblemTypes.Conflict,
-                        Message = ex.Message
-                    });
-            }
-            catch (InvalidOperationException ex)
-            {
-                logger.LogWarningWithSanitizedUserArg(
-                    ex,
-                    "Batch review failed for approval request '{ApprovalRequestId}'.",
-                    approvalRequestId);
-                results.Add(
-                    new GovernanceBatchReviewItemResult
-                    {
-                        ApprovalRequestId = approvalRequestId,
-                        Succeeded = false,
-                        ErrorCode = ProblemTypes.ValidationFailed,
-                        Message = ex.Message
-                    });
-            }
-        }
-
-        return Ok(new GovernanceBatchReviewResponse { Results = results });
+                        ApprovalRequestId = r.ApprovalRequestId,
+                        Succeeded = r.Succeeded,
+                        ErrorCode = r.ErrorCode,
+                        Message = r.Message,
+                    })
+                    .ToList(),
+            });
     }
-
 }

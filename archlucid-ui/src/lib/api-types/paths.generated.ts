@@ -28954,8 +28954,8 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: {
-                    mine?: boolean;
+                query: {
+                    mine: boolean;
                     status?: string;
                     page?: number;
                     pageSize?: number;
@@ -47197,6 +47197,7 @@ export interface paths {
                     systemName?: string;
                     excludeDraftId?: string;
                     excludeRunId?: string;
+                    occupancyKind?: components["schemas"]["WorkspaceSystemNameOccupancyKind"];
                 };
                 header?: never;
                 path?: never;
@@ -70580,13 +70581,16 @@ export interface paths {
                         "text/plain": components["schemas"]["CoveragePreviewResponse"];
                     };
                 };
-                /** @description Bad Request (validation or malformed input). */
+                /** @description Bad Request */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unauthorized */

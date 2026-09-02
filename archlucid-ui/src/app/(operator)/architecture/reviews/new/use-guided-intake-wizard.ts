@@ -93,6 +93,7 @@ export function useGuidedIntakeWizard() {
     businessOutcome: form.businessOutcome,
     structuredBrief: workflow.structuredBrief,
     actorSet: form.actorSet,
+    evidenceFiles: form.evidenceFiles,
     answers: workflow.answers,
     onAnswersChange: workflow.setAnswers,
     blocksLlmRephrase: blocksLlmExecution,
@@ -110,6 +111,7 @@ export function useGuidedIntakeWizard() {
     setActorSet: form.setActorSet,
     setScopeBullets: form.setScopeBullets,
     setScopeGateOpen: form.setScopeGateOpen,
+    setPriorAttachedFileNames: form.setPriorAttachedFileNames,
     enabled: priorRunId !== null && sourceArchitectureId.length === 0,
   });
 
@@ -202,6 +204,43 @@ export function useGuidedIntakeWizard() {
     !workflow.isSubmitBlocked &&
     !blocksLlmExecution &&
     policyPackCloudMismatch === null;
+
+  const rerunAutoSubmitStartedRef = useRef(false);
+
+  useEffect(() => {
+    if (priorRunId === null || workflow.busy || rerunAutoSubmitStartedRef.current) {
+      return;
+    }
+
+    if (workflow.draftId === null || !workflow.allClarificationsHandled) {
+      return;
+    }
+
+    if (step < 2) {
+      if (workflow.pendingQuestions.length === 0) {
+        setStep(2);
+      }
+
+      return;
+    }
+
+    if (!canSubmit) {
+      return;
+    }
+
+    rerunAutoSubmitStartedRef.current = true;
+    void workflow.submitDraft();
+  }, [
+    canSubmit,
+    priorRunId,
+    setStep,
+    step,
+    workflow.allClarificationsHandled,
+    workflow.busy,
+    workflow.draftId,
+    workflow.pendingQuestions.length,
+    workflow.submitDraft,
+  ]);
 
   const stepLabel = useMemo(() => `Step ${step + 1} of ${INTAKE_STEPS.length}`, [step]);
 

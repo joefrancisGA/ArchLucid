@@ -238,7 +238,7 @@ public sealed class TenantCustomerSuccessController(
             return scopeProblem;
 
         if (request.RunId == Guid.Empty)
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem("runId must be a non-empty GUID when provided.", ProblemTypes.ValidationFailed);
 
         if (request.RunId is Guid runId)
         {

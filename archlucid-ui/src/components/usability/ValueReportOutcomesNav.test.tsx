@@ -30,7 +30,7 @@ describe("ValueReportOutcomesNav", () => {
     render(<ValueReportOutcomesNav />);
 
     expect(screen.getByTestId("value-report-outcomes-nav")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Sponsor report sections" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Outcomes report sections" })).toBeInTheDocument();
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
     expect(screen.queryByRole("tab")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: SPONSOR_REPORT_PAGE_TITLE })).toHaveAttribute(
@@ -40,6 +40,7 @@ describe("ValueReportOutcomesNav", () => {
     expect(screen.queryByRole("link", { name: "Pilot outcomes" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ROI summary" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Architecture scorecard" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Workspace health" })).toBeInTheDocument();
   });
 
   it("shows sponsor report, scorecard, and ROI links for all visitors (TB-643 nav placement)", () => {
@@ -50,5 +51,6 @@ describe("ValueReportOutcomesNav", () => {
     expect(screen.getByRole("link", { name: SPONSOR_REPORT_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Architecture scorecard" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ROI summary" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Workspace health" })).toBeInTheDocument();
   });
 });

@@ -10,50 +10,31 @@ import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/R
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
-import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
-import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
-import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
-import { WizardStepEvidenceUpload } from "@/components/wizard/steps/WizardStepEvidenceUpload";
-import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
-import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
-import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { LlmUsageBandHint } from "@/components/llm/LlmUsageBandHint";
 import type { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { AzureExtractorDemoScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { LlmMonthlyDollarBudgetStatus } from "@/lib/llm-monthly-budget-status";
 import type { ReviewIntakeExampleTemplate } from "@/lib/operator/operator-home-example-request";
 import type { WizardCreationProgressState } from "@/components/wizard/WizardCreationProgressNotices";
 import type { WizardBaselineConfidence } from "@/lib/wizard-baseline-confidence";
-import {
-  FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
-  FULL_WIZARD_EVIDENCE_STEP_INDEX,
-} from "@/lib/wizard-step-fields";
 
 import {
   ArchitectureRequestWizardHelpDrawer,
   QuickStartWizard,
   SimplifiedPilotWizard,
-  WizardPostCreateEvidenceUploadPanel,
-  WizardStepAdvanced,
-  WizardStepCloudInventoryContext,
-  WizardStepBaselineMetrics,
-  WizardStepBaselineZip,
-  WizardStepTrack,
 } from "./NewRunWizardDeferredChunks";
 import { NewRunWizardModeToggle } from "./NewRunWizardModeToggle";
+import { NewRunWizardStepPanels } from "./NewRunWizardStepPanels";
 import { NewRunWizardStepRecap } from "./NewRunWizardStepRecap";
 import {
   MACRO_WIZARD_STEP_DEFINITIONS,
-  REVIEW_STEP_INDEX,
   TRACK_STEP_INDEX,
-  macroCompletedSteps,
-  macroWizardStepIndex,
 } from "./new-run-wizard-steps";
 import type { useNewRunWizardPendingEvidence } from "./use-new-run-wizard-pending-evidence";
 
@@ -250,80 +231,28 @@ export function NewRunWizardStepBody(props: NewRunWizardStepBodyProps) {
             <NewRunWizardStepRecap stepIndex={props.stepIndex} />
           ) : null}
 
-          {props.stepIndex === 0 ? (
-            props.embeddedInPathSwitcher ? (
-              <div data-testid="reviews-new-detailed-template-entry">
-                <WizardStepPreset
-                  baselineFirst={props.baselineFirst}
-                  featuredSampleRunId={props.featuredSampleRunId}
-                  onStartingPointCommitted={() => props.goToStep(1)}
-                  onWizardNotice={(kind, message) => props.showToast(kind === "ok" ? "ok" : "err", message)}
-                />
-              </div>
-            ) : (
-              <WizardStepPreset
-                baselineFirst={props.baselineFirst}
-                featuredSampleRunId={props.featuredSampleRunId}
-                onStartingPointCommitted={() => props.goToStep(1)}
-                onWizardNotice={(kind, message) => props.showToast(kind === "ok" ? "ok" : "err", message)}
-              />
-            )
-          ) : null}
-          {props.stepIndex === FULL_WIZARD_EVIDENCE_STEP_INDEX && !props.baselineFirst ? (
-            <WizardStepEvidenceUpload
-              pendingFile={props.evidence.pendingEvidenceFile}
-              pendingDocumentFiles={props.evidence.pendingDocumentFiles}
-              onPendingFileChange={props.evidence.handlePendingEvidenceFileChange}
-              onPendingDocumentFilesChange={props.evidence.setPendingDocumentFiles}
-              onTryDemoData={props.tryWithDemoData}
-              onSkipDemoData={props.skipEvidenceAndAdvance}
-            />
-          ) : null}
-          {props.stepIndex === 1 && props.baselineFirst ? (
-            <WizardStepBaselineZip onPendingZipFileChange={props.evidence.handlePendingEvidenceFileChange} />
-          ) : null}
-          {props.stepIndex === 2 ? (
-            <div className={OPERATOR_LAYOUT.sectionStack}>
-              <ReviewAssuranceCoverageSection
-                focusedPilotModeEnabled={props.focusedPilotModeEnabled}
-                onFocusedPilotModeEnabledChange={props.setFocusedPilotModeEnabled}
-              />
-              <WizardStepIdentity />
-              <WizardStepDescription />
-            </div>
-          ) : null}
-          {props.stepIndex === 3 ? <WizardStepConstraints /> : null}
-          {props.stepIndex === 4 ? (
-            <WizardStepCloudInventoryContext
-              pendingFile={props.evidence.pendingEvidenceFile}
-              onPendingFileChange={props.evidence.handlePendingEvidenceFileChange}
-            />
-          ) : null}
-          {props.stepIndex === 5 ? <WizardStepAdvanced /> : null}
-          {props.stepIndex === FULL_WIZARD_BASELINE_METRICS_STEP_INDEX ? (
-            <WizardStepBaselineMetrics
-              reviewCycleHours={props.baselineReviewCycleHours}
-              confidence={props.baselineConfidence}
-              fieldError={props.baselineMetricsError}
-              onReviewCycleHoursChange={(value: string) => {
-                props.setBaselineReviewCycleHours(value);
-
-                if (props.baselineMetricsError !== null) {
-                  props.setBaselineMetricsError(null);
-                }
-              }}
-              onConfidenceChange={props.setBaselineConfidence}
-            />
-          ) : null}
-          {props.stepIndex === REVIEW_STEP_INDEX ? (
-            <WizardStepReview focusedPilotModeEnabled={props.focusedPilotModeEnabled} />
-          ) : null}
-          {props.stepIndex === TRACK_STEP_INDEX && props.runId ? (
-            <>
-              {props.postCreateEvidencePanel}
-              {props.pipelineTrackPanel}
-            </>
-          ) : null}
+          <NewRunWizardStepPanels
+            embeddedInPathSwitcher={props.embeddedInPathSwitcher}
+            baselineFirst={props.baselineFirst}
+            featuredSampleRunId={props.featuredSampleRunId}
+            stepIndex={props.stepIndex}
+            focusedPilotModeEnabled={props.focusedPilotModeEnabled}
+            setFocusedPilotModeEnabled={props.setFocusedPilotModeEnabled}
+            baselineReviewCycleHours={props.baselineReviewCycleHours}
+            setBaselineReviewCycleHours={props.setBaselineReviewCycleHours}
+            baselineConfidence={props.baselineConfidence}
+            setBaselineConfidence={props.setBaselineConfidence}
+            baselineMetricsError={props.baselineMetricsError}
+            setBaselineMetricsError={props.setBaselineMetricsError}
+            runId={props.runId}
+            postCreateEvidencePanel={props.postCreateEvidencePanel}
+            pipelineTrackPanel={props.pipelineTrackPanel}
+            evidence={props.evidence}
+            tryWithDemoData={props.tryWithDemoData}
+            skipEvidenceAndAdvance={props.skipEvidenceAndAdvance}
+            goToStep={props.goToStep}
+            showToast={props.showToast}
+          />
 
           {props.showNav ? (
             <WizardStickyFooter

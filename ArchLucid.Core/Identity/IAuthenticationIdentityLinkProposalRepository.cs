@@ -8,7 +8,7 @@ public interface IAuthenticationIdentityLinkProposalRepository
 
     Task<AuthenticationIdentityLinkProposalRecord?> GetByIdAsync(Guid proposalId, CancellationToken cancellationToken);
 
-    Task UpdateStatusAsync(
+    Task<bool> TryUpdateStatusAsync(
         Guid proposalId,
         AuthenticationIdentityLinkProposalStatus status,
         DateTimeOffset statusUtc,

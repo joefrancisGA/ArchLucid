@@ -38,5 +38,6 @@ export const WIZARD_STICKY_FOOTER_TEST_ID = "wizard-sticky-footer";
  * Scroll clearance so the last fields in a long step are not hidden under
  * {@link WIZARD_STICKY_FOOTER_CLASS}. Apply on the scrollable step body — not the
  * wrapper that also contains the sticky footer (avoids a dead band before follow-ups).
+ * Only when multiple active clarifications are visible in show-all mode.
  */
 export const WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS = "pb-24";

@@ -8301,10 +8301,7 @@
       "CorePilotChecklistPutRequest": {
         "properties": {
           "isCompleted": {
-            "type": [
-              "null",
-              "boolean"
-            ]
+            "type": "boolean"
           },
           "stepIndex": {
             "format": "int32",
@@ -32718,6 +32715,13 @@
           }
         },
         "type": "object"
+      },
+      "WorkspaceSystemNameOccupancyKind": {
+        "enum": [
+          "Review",
+          "Architecture"
+        ],
+        "type": "string"
       }
     }
   },
@@ -67437,6 +67441,7 @@
           {
             "in": "query",
             "name": "mine",
+            "required": true,
             "schema": {
               "type": "boolean"
             }
@@ -92813,6 +92818,14 @@
             "schema": {
               "format": "uuid",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "occupancyKind",
+            "schema": {
+              "$ref": "#/components/schemas/WorkspaceSystemNameOccupancyKind",
+              "default": 0
             }
           }
         ],
@@ -122648,13 +122661,28 @@
           },
           "400": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Bad Request (validation or malformed input)."
+            "description": "Bad Request"
           },
           "401": {
             "content": {
