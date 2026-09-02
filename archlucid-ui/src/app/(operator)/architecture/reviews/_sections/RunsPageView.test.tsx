@@ -19,10 +19,12 @@ import {
   REVIEWS_HUB_HEADER_START_LABEL,
   REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT,
   REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT,
+  REVIEWS_HUB_MEDIAN_DELTA_TITLE,
   REVIEWS_HUB_PAGE_SUBTITLE,
   REVIEWS_HUB_PAGE_TITLE,
   REVIEWS_HUB_PRIMARY_START_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
+  REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE,
 } from "./reviews-hub-copy";
 import { RunsPageView } from "./RunsPageView";
 import type { RunsPageModel } from "./runs-page-model";
@@ -213,7 +215,35 @@ describe("RunsPageView page chrome", () => {
     expect(screen.queryByTestId("reviews-hub-recent-empty")).toBeNull();
     expect(screen.getByTestId("reviews-hub-more-ways")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-more-ways")).toHaveClass("mt-4");
+    expect(screen.getByTestId("reviews-hub-median-delta")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-median-delta")).not.toHaveAttribute("open");
+    expect(screen.getByText(REVIEWS_HUB_MEDIAN_DELTA_TITLE)).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-review-cycle-delta")).toBeNull();
     expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
+  });
+
+  it("parks review-cycle delta under a collapsed disclosure when a committed run exists", () => {
+    render(
+      <RunsPageView
+        model={baseModel({
+          totalCount: 1,
+          firstCommittedRunId: "review-committed-001",
+          runs: [
+            {
+              runId: "review-committed-001",
+              projectId: "default",
+              createdUtc: "2026-01-15T12:00:00.000Z",
+              hasFindingsSnapshot: true,
+              findingCount: 2,
+            } as RunsPageModel["runs"][number],
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("reviews-hub-review-cycle-delta")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-review-cycle-delta")).not.toHaveAttribute("open");
+    expect(screen.getByText(REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE)).toBeInTheDocument();
   });
 
   it("promotes the paginated inventory when the hub exceeds one page in full-operator shell", () => {

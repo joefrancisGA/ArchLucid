@@ -29,8 +29,13 @@ const ReviewsHubBeforeAfterDeltaPanelDeferredBase = createDeferredComponentFromM
   { suppressLoading: true },
 );
 
-export const ReviewsHubBeforeAfterDeltaPanelDeferred: ComponentType = () => (
-  <ReviewsHubBeforeAfterDeltaPanelDeferredBase variant="top" />
+export const ReviewsHubBeforeAfterDeltaPanelDeferred: ComponentType<{
+  readonly embeddedInCollapsible?: boolean;
+}> = ({ embeddedInCollapsible = false }) => (
+  <ReviewsHubBeforeAfterDeltaPanelDeferredBase
+    variant="top"
+    embeddedInCollapsible={embeddedInCollapsible}
+  />
 );
 
 export const ReviewsHubReviewInventoryDeferred: ComponentType<{

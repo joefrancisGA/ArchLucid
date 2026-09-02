@@ -28,9 +28,14 @@ import { useDeltaQuery } from "./useDeltaQuery";
 export type BeforeAfterDeltaTopPanelProps = {
   /** Hard upper bound — server still clamps to [1, 25]. Default 5 matches the prompt. */
   count?: number;
+  /** When true, omits outer card chrome and heading for use inside `CollapsibleSection`. */
+  embeddedInCollapsible?: boolean;
 };
 
-export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanelProps) {
+export function BeforeAfterDeltaTopPanel({
+  count = 5,
+  embeddedInCollapsible = false,
+}: BeforeAfterDeltaTopPanelProps) {
   const { status, data } = useDeltaQuery({ count });
 
   if (status !== "ready" || data === null) return null;
@@ -45,12 +50,24 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
       data-testid="before-after-delta-panel-top"
       role="region"
       aria-label="Median proof-of-ROI deltas across recent finalized reviews"
-      className="mb-6 max-w-4xl rounded-md border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
+      className={
+        embeddedInCollapsible
+          ? "max-w-4xl"
+          : "mb-6 max-w-4xl rounded-md border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
+      }
     >
-      <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-        Recent finalized reviews — median delta
-      </h3>
-      <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+      {embeddedInCollapsible ? null : (
+        <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+          Recent finalized reviews — median delta
+        </h3>
+      )}
+      <p
+        className={cn(
+          embeddedInCollapsible ? "m-0" : "mt-1",
+          "text-neutral-600 dark:text-neutral-400",
+          OPERATOR_TYPOGRAPHY.helper,
+        )}
+      >
         Across the last <strong data-testid="delta-top-window">{windowCount}</strong> finalized review(s) in
         scope. Median (not mean) so one outlier does not skew the headline. Same numbers as the per-run value
         report.
