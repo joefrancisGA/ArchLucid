@@ -41,8 +41,8 @@ public static class RunExplanationConfidenceCalloutBuilder
                 && TryReadBoolean(legacy));
 
         string? warning = TryGetPropertyCaseInsensitive(root, "faithfulnessWarning", out JsonElement warningEl)
-                          && warningEl.ValueKind == JsonValueKind.String
-            ? warningEl.GetString()?.Trim()
+                          && TryReadNonEmptyTextToken(warningEl, out string? warningText)
+            ? warningText?.Trim()
             : null;
 
         int? citationCount = null;
@@ -56,6 +56,15 @@ public static class RunExplanationConfidenceCalloutBuilder
             else if (citationsEl.ValueKind == JsonValueKind.Number && citationsEl.TryGetInt32(out int numericCount))
             {
                 citationCount = numericCount;
+            }
+            else if (citationsEl.ValueKind == JsonValueKind.String
+                     && int.TryParse(
+                         citationsEl.GetString()?.Trim(),
+                         NumberStyles.Integer,
+                         CultureInfo.InvariantCulture,
+                         out int stringEncodedCount))
+            {
+                citationCount = stringEncodedCount;
             }
         }
 
@@ -180,6 +189,16 @@ public static class RunExplanationConfidenceCalloutBuilder
             return false;
         }
 
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            if (element.TryGetInt32(out int numeric))
+            {
+                return numeric != 0;
+            }
+
+            return false;
+        }
+
         if (element.ValueKind != JsonValueKind.String)
         {
             return false;
@@ -205,6 +224,27 @@ public static class RunExplanationConfidenceCalloutBuilder
         {
             return false;
         }
+
+        return false;
+    }
+
+    private static bool TryReadNonEmptyTextToken(JsonElement element, out string? value)
+    {
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            value = element.GetString();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            value = element.GetRawText();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        value = null;
 
         return false;
     }

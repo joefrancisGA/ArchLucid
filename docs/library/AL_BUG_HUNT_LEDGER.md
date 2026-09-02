@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 27
-- **bugs-found:** 56
+- **hunts:** 28
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — golden corpus numeric finding content; explanation aggregate numeric citation count
+- **last-bug:** 2026-09-02 — explanation aggregate numeric fallback flag; numeric faithfulness warning; string-encoded citation count
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1851,6 +1851,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RealLlmOutputStructuralValidator` — numeric `trace.sourceAgentExecutionTraceId` rejected (string/null only) — **hit 2026-09-02 (#437):** `"sourceAgentExecutionTraceId":9001` failed validation; fixed by accepting number tokens (`ValidateAgentResultStructure_accepts_numeric_source_agent_execution_trace_id`).
 - [x] (proven) `RealLlmOutputStructuralValidator` — numeric finding content fields (`description` / `title` / etc.) rejected while numeric `severity` already accepted — **hit 2026-09-02 (#438):** `"description":42` failed `findingContent` validation; fixed by reusing `TryReadNonEmptyTextToken` (`ValidateAgentResultStructure_accepts_numeric_finding_content_field`).
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — numeric `citations` count ignored (array JSON only) — **hit 2026-09-02 (#438):** `"citations":2` left `CitationCount` null so WARN disposition was skipped; fixed with numeric token coercion (`FromAggregateJson_maps_numeric_citation_count`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — numeric `deterministicFallbackUsed` ignored (boolean/string JSON only) — **hit 2026-09-02 (#439):** `"deterministicFallbackUsed":1` left fallback false so HOLD disposition was skipped; fixed with numeric boolean coercion in `TryReadBoolean` (`FromAggregateJson_maps_numeric_deterministic_fallback_flag`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — numeric `faithfulnessWarning` ignored (string JSON only) — **hit 2026-09-02 (#439):** `"faithfulnessWarning":42` dropped warning text so WARN disposition was skipped; fixed with `TryReadNonEmptyTextToken` (`FromAggregateJson_maps_numeric_faithfulness_warning`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — string-encoded `citations` count ignored (array/number JSON only) — **hit 2026-09-02 (#439):** `"citations":"2"` left `CitationCount` null; fixed with string numeric coercion (`FromAggregateJson_maps_string_encoded_citation_count`).
+
+2026-09-02 seed hunt #439: reseeded from ArchLucid.Core; proved explanation aggregate numeric fallback flag, numeric faithfulness warning, and string-encoded citation count gaps.
 
 2026-09-02 seed hunt #438: reseeded from ArchLucid.Core; proved golden-corpus numeric finding content and explanation aggregate numeric citation count gaps.
 
