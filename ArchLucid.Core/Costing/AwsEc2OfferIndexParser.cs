@@ -150,6 +150,7 @@ public static class AwsEc2OfferIndexParser
 
         return string.Equals(trimmed, "Hrs", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "hour", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "hours", StringComparison.OrdinalIgnoreCase);
     }
