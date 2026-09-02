@@ -9,7 +9,7 @@
 
 **Tracking:** Deferred engineering IDs live in **[`TECH_BACKLOG.md`](TECH_BACKLOG.md)**. This doc lists **cross-cutting structural refactors** that span multiple areas.
 
-**Note:** The 2026-09-01 items in the completed table were implemented on this branch. The **2026-09-02** active list is **suggestions only** (no product code for those ten items).
+**Note:** The 2026-09-01 items in the completed table shipped in PR #1098. The **2026-09-02** active list is **suggestions only** (no product code for those ten items).
 
 ## Completed (removed from active list)
 
