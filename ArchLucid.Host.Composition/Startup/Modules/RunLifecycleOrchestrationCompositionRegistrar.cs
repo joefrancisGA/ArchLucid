@@ -104,8 +104,12 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureRunExecuteBaselineMutationHook, ArchitectureRunExecuteBaselineMutationHook>();
         services.AddScoped<IArchitectureRunExecuteOutboxPublishHook, ArchitectureRunExecuteOutboxPublishHook>();
         services.AddScoped<IIncompleteAuthorityPipelineExecuteHandler, IncompleteAuthorityPipelineExecuteHandler>();
+        services.AddScoped<IArchitectureRunExecuteIdempotencyStage, ArchitectureRunExecuteIdempotencyStage>();
+        services.AddScoped<IArchitectureRunExecuteCancellationGuardStage, ArchitectureRunExecuteCancellationGuardStage>();
         services.AddScoped<IArchitectureRunExecutePreExecuteStage, ArchitectureRunExecutePreExecuteStage>();
+        services.AddScoped<IArchitectureRunExecutePersistRowsStage, ArchitectureRunExecutePersistRowsStage>();
         services.AddScoped<IArchitectureRunExecutePersistenceStage, ArchitectureRunExecutePersistenceStage>();
+        services.AddScoped<IArchitectureRunExecuteQualityGateRetryStage, ArchitectureRunExecuteQualityGateRetryStage>();
         services.AddScoped<IArchitectureRunExecuteQualityGateStage, ArchitectureRunExecuteQualityGateStage>();
         services.AddScoped<IAgentLoopPrepareStage, AgentLoopPrepareStage>();
         services.AddScoped<IAgentLoopInvokeStage, AgentLoopInvokeStage>();

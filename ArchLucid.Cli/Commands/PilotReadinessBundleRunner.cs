@@ -1,12 +1,23 @@
+using ArchLucid.Cli.Commands.PilotReadiness;
+
 namespace ArchLucid.Cli.Commands;
 
 internal sealed class PilotReadinessBundleRunner
 {
-    private const string OfflineCitationIntegrityManifestRelative =
-        "fixtures/citation-integrity/offline-release-train-manifest.v1.json";
-
     private const string OfflineTenantIsolationManifestRelative =
         "fixtures/tenant-isolation/offline-release-train-manifest.v1.json";
+
+    private readonly IReadOnlyList<IPilotReadinessSlotRunner> _slotRunners;
+
+    internal PilotReadinessBundleRunner()
+        : this(CreateDefaultSlotRunners())
+    {
+    }
+
+    internal PilotReadinessBundleRunner(IReadOnlyList<IPilotReadinessSlotRunner> slotRunners)
+    {
+        _slotRunners = slotRunners ?? throw new ArgumentNullException(nameof(slotRunners));
+    }
 
     internal async Task<PilotReadinessBundleReport> RunAsync(
         string repositoryRoot,
@@ -20,16 +31,19 @@ internal sealed class PilotReadinessBundleRunner
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(rawArgs);
 
-        List<PilotReadinessBundleSlotResult> slots = new(capacity: 8);
+        PilotReadinessSlotRunContext context = new()
+        {
+            RepositoryRoot = repositoryRoot,
+            Options = options,
+            HttpClient = httpClient,
+            Config = config,
+            RawArgs = rawArgs,
+        };
 
-        slots.Add(await RunBuyerProofEvidenceLedgerSlotAsync(repositoryRoot, options, cancellationToken));
-        slots.Add(await RunReturnTriggerTelemetrySlotAsync(repositoryRoot, options, cancellationToken));
-        slots.Add(await RunDecisionOwnerScoreboardSlotAsync(repositoryRoot, options, cancellationToken));
-        slots.Add(await RunFrontierAiBaselineSlotAsync(repositoryRoot, options, cancellationToken));
-        slots.Add(await RunCitationIntegritySlotAsync(repositoryRoot, options, httpClient, rawArgs, cancellationToken));
-        slots.Add(await RunTenantIsolationSlotAsync(repositoryRoot, options, httpClient, config, cancellationToken));
-        slots.Add(await RunItsmPullForwardSlotAsync(repositoryRoot, options, httpClient, cancellationToken));
-        slots.Add(await RunShipGateEvidenceSlotAsync(repositoryRoot, options, httpClient, config, rawArgs, cancellationToken));
+        List<PilotReadinessBundleSlotResult> slots = new(capacity: _slotRunners.Count);
+
+        foreach (IPilotReadinessSlotRunner slotRunner in _slotRunners)
+            slots.Add(await slotRunner.RunAsync(context, cancellationToken));
 
         return new PilotReadinessBundleReport
         {
@@ -41,54 +55,32 @@ internal sealed class PilotReadinessBundleRunner
         };
     }
 
-    private static async Task<PilotReadinessBundleSlotResult> RunBuyerProofEvidenceLedgerSlotAsync(
-        string repositoryRoot,
-        PilotReadinessBundleOptions bundleOptions,
-        CancellationToken cancellationToken)
-    {
-        BuyerProofEvidenceLedgerOptions childOptions = new()
-        {
-            SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
-        };
-        BuyerProofEvidenceLedgerRules rules = BuyerProofEvidenceLedgerRulesLoader.Load(childOptions.RulesPath);
-        BuyerProofEvidenceLedgerRunner runner = new();
-        BuyerProofEvidenceLedgerReport report = runner.Run(repositoryRoot, childOptions, rules);
-        string artifactKey = BuyerProofEvidenceLedgerOutputPaths.ResolveArtifactKey(report);
-        BuyerProofEvidenceLedgerOutputResolution outputPaths =
-            BuyerProofEvidenceLedgerOutputPaths.Resolve(childOptions, repositoryRoot, artifactKey);
-        BuyerProofEvidenceLedgerReport finalReport = report.WithOutputMetadata(
-            outputPaths.JsonPath,
-            outputPaths.MarkdownPath);
-
-        await PilotReadinessBundleChildArtifactWriter.WriteBuyerProofAsync(
-            finalReport,
-            outputPaths,
-            cancellationToken);
-
-        return BuildSlotResult(
-            PilotReadinessBundleSlots.BuyerProofEvidenceLedger,
-            "Buyer-proof evidence ledger",
-            PilotReadinessBundleVerdictMapper.FromBuyerProof(finalReport.OverallVerdict),
-            $"Overall {finalReport.OverallVerdict}; {finalReport.NormalizedSlots.Count} normalized slot(s).",
-            finalReport.JsonArtifactPath,
-            finalReport.MarkdownArtifactPath);
-    }
+    private static IReadOnlyList<IPilotReadinessSlotRunner> CreateDefaultSlotRunners() =>
+    [
+        new BuyerProofEvidenceLedgerSlotRunner(),
+        new FuncPilotReadinessSlotRunner(RunReturnTriggerTelemetrySlotAsync),
+        new FuncPilotReadinessSlotRunner(RunDecisionOwnerScoreboardSlotAsync),
+        new FuncPilotReadinessSlotRunner(RunFrontierAiBaselineSlotAsync),
+        new CitationIntegritySlotRunner(),
+        new FuncPilotReadinessSlotRunner(RunTenantIsolationSlotAsync),
+        new FuncPilotReadinessSlotRunner(RunItsmPullForwardSlotAsync),
+        new FuncPilotReadinessSlotRunner(RunShipGateEvidenceSlotAsync),
+    ];
 
     private static async Task<PilotReadinessBundleSlotResult> RunReturnTriggerTelemetrySlotAsync(
-        string repositoryRoot,
-        PilotReadinessBundleOptions bundleOptions,
+        PilotReadinessSlotRunContext context,
         CancellationToken cancellationToken)
     {
         ReturnTriggerTelemetryOptions childOptions = new()
         {
-            SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
+            SuppressDefaultArtifacts = context.Options.SuppressDefaultArtifacts,
         };
         ReturnTriggerTelemetryRules rules = ReturnTriggerTelemetryRulesLoader.Load(childOptions.RulesPath);
         ReturnTriggerTelemetryRunner runner = new();
-        ReturnTriggerTelemetryReport report = runner.Run(repositoryRoot, childOptions, rules);
+        ReturnTriggerTelemetryReport report = runner.Run(context.RepositoryRoot, childOptions, rules);
         string artifactKey = ReturnTriggerTelemetryOutputPaths.ResolveArtifactKey(report);
         ReturnTriggerTelemetryOutputResolution outputPaths =
-            ReturnTriggerTelemetryOutputPaths.Resolve(childOptions, repositoryRoot, artifactKey);
+            ReturnTriggerTelemetryOutputPaths.Resolve(childOptions, context.RepositoryRoot, artifactKey);
         ReturnTriggerTelemetryReport finalReport = report.WithOutputMetadata(
             outputPaths.JsonPath,
             outputPaths.MarkdownPath);
@@ -98,7 +90,7 @@ internal sealed class PilotReadinessBundleRunner
             outputPaths,
             cancellationToken);
 
-        return BuildSlotResult(
+        return PilotReadinessSlotRunnerBase.BuildSlotResult(
             PilotReadinessBundleSlots.ReturnTriggerTelemetry,
             "Return-trigger telemetry",
             PilotReadinessBundleVerdictMapper.FromReturnTrigger(finalReport.OverallVerdict),
@@ -108,20 +100,19 @@ internal sealed class PilotReadinessBundleRunner
     }
 
     private static async Task<PilotReadinessBundleSlotResult> RunDecisionOwnerScoreboardSlotAsync(
-        string repositoryRoot,
-        PilotReadinessBundleOptions bundleOptions,
+        PilotReadinessSlotRunContext context,
         CancellationToken cancellationToken)
     {
         DecisionOwnerScoreboardOptions childOptions = new()
         {
-            SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
+            SuppressDefaultArtifacts = context.Options.SuppressDefaultArtifacts,
         };
         DecisionOwnerScoreboardRules rules = DecisionOwnerScoreboardRulesLoader.Load(childOptions.RulesPath);
         DecisionOwnerScoreboardRunner runner = new();
-        DecisionOwnerScoreboardReport report = runner.Run(repositoryRoot, childOptions, rules);
+        DecisionOwnerScoreboardReport report = runner.Run(context.RepositoryRoot, childOptions, rules);
         string artifactKey = DecisionOwnerScoreboardOutputPaths.ResolveArtifactKey(report);
         DecisionOwnerScoreboardOutputResolution outputPaths =
-            DecisionOwnerScoreboardOutputPaths.Resolve(childOptions, repositoryRoot, artifactKey);
+            DecisionOwnerScoreboardOutputPaths.Resolve(childOptions, context.RepositoryRoot, artifactKey);
         DecisionOwnerScoreboardReport finalReport = report.WithOutputMetadata(
             outputPaths.JsonPath,
             outputPaths.MarkdownPath,
@@ -132,7 +123,7 @@ internal sealed class PilotReadinessBundleRunner
             outputPaths,
             cancellationToken);
 
-        return BuildSlotResult(
+        return PilotReadinessSlotRunnerBase.BuildSlotResult(
             PilotReadinessBundleSlots.DecisionOwnerScoreboard,
             "Decision-owner scoreboard",
             PilotReadinessBundleVerdictMapper.FromDecisionOwner(finalReport.OverallVerdict),
@@ -143,19 +134,18 @@ internal sealed class PilotReadinessBundleRunner
     }
 
     private static async Task<PilotReadinessBundleSlotResult> RunFrontierAiBaselineSlotAsync(
-        string repositoryRoot,
-        PilotReadinessBundleOptions bundleOptions,
+        PilotReadinessSlotRunContext context,
         CancellationToken cancellationToken)
     {
         FrontierAiBaselineOptions childOptions = new()
         {
-            SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
+            SuppressDefaultArtifacts = context.Options.SuppressDefaultArtifacts,
         };
         FrontierAiBaselineRunner runner = new();
-        FrontierAiBaselineReport report = runner.Run(repositoryRoot, childOptions);
+        FrontierAiBaselineReport report = runner.Run(context.RepositoryRoot, childOptions);
         string artifactKey = FrontierAiBaselineOutputPaths.ResolveArtifactKey(report);
         FrontierAiBaselineOutputResolution outputPaths =
-            FrontierAiBaselineOutputPaths.Resolve(childOptions, repositoryRoot, artifactKey);
+            FrontierAiBaselineOutputPaths.Resolve(childOptions, context.RepositoryRoot, artifactKey);
         FrontierAiBaselineReport finalReport = report.WithOutputMetadata(
             outputPaths.JsonPath,
             outputPaths.MarkdownPath);
@@ -165,7 +155,7 @@ internal sealed class PilotReadinessBundleRunner
             outputPaths,
             cancellationToken);
 
-        return BuildSlotResult(
+        return PilotReadinessSlotRunnerBase.BuildSlotResult(
             PilotReadinessBundleSlots.FrontierAiBaseline,
             "Frontier-AI baseline",
             PilotReadinessBundleVerdictMapper.FromFrontierAi(finalReport.OverallVerdict),
@@ -174,73 +164,16 @@ internal sealed class PilotReadinessBundleRunner
             finalReport.MarkdownArtifactPath);
     }
 
-    private static async Task<PilotReadinessBundleSlotResult> RunCitationIntegritySlotAsync(
-        string repositoryRoot,
-        PilotReadinessBundleOptions bundleOptions,
-        HttpClient? httpClient,
-        string[] rawArgs,
-        CancellationToken cancellationToken)
-    {
-        CitationIntegrityOptions childOptions = new()
-        {
-            IncludeApi = bundleOptions.IncludeApi,
-            SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
-            ManifestPath = bundleOptions.IncludeApi
-                ? null
-                : Path.Combine(repositoryRoot, OfflineCitationIntegrityManifestRelative),
-        };
-        CitationIntegrityRules rules = CitationIntegrityRulesLoader.Load(childOptions.RulesPath);
-        CitationIntegrityRunner runner = new();
-        CitationIntegrityReport report;
-
-        if (childOptions.IncludeApi)
-        {
-            if (httpClient is null)
-                throw new InvalidOperationException("Citation integrity live API mode requires a configured HTTP client.");
-
-            report = await runner.RunWithApiAsync(repositoryRoot, httpClient, childOptions, rules, cancellationToken);
-        }
-        else
-        {
-            report = runner.RunOffline(repositoryRoot, childOptions, rules);
-        }
-
-        string artifactKey = CitationIntegrityOutputPaths.ResolveArtifactKey(report);
-        CitationIntegrityOutputResolution outputPaths =
-            CitationIntegrityOutputPaths.Resolve(childOptions, repositoryRoot, artifactKey);
-        CitationIntegrityReport finalReport = report.WithOutputMetadata(
-            outputPaths.JsonPath,
-            outputPaths.MarkdownPath);
-
-        await PilotReadinessBundleChildArtifactWriter.WriteCitationAsync(
-            finalReport,
-            outputPaths,
-            cancellationToken);
-
-        string modeLabel = childOptions.IncludeApi ? "live-api" : "offline-fixture";
-
-        return BuildSlotResult(
-            PilotReadinessBundleSlots.CitationIntegrity,
-            "Citation integrity",
-            PilotReadinessBundleVerdictMapper.FromCitation(finalReport.OverallVerdict),
-            $"Overall {finalReport.OverallVerdict}; mode {modeLabel}; {finalReport.RunsWithFailIssues} run(s) with FAIL issues.",
-            finalReport.JsonArtifactPath,
-            finalReport.MarkdownArtifactPath);
-    }
-
     private static async Task<PilotReadinessBundleSlotResult> RunTenantIsolationSlotAsync(
-        string repositoryRoot,
-        PilotReadinessBundleOptions bundleOptions,
-        HttpClient? httpClient,
-        ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
+        PilotReadinessSlotRunContext context,
         CancellationToken cancellationToken)
     {
         TenantIsolationNegativeTestOptions childOptions = new()
         {
-            RunId = bundleOptions.RunId,
-            SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
-            ManifestPath = string.IsNullOrWhiteSpace(bundleOptions.RunId)
-                ? Path.Combine(repositoryRoot, OfflineTenantIsolationManifestRelative)
+            RunId = context.Options.RunId,
+            SuppressDefaultArtifacts = context.Options.SuppressDefaultArtifacts,
+            ManifestPath = string.IsNullOrWhiteSpace(context.Options.RunId)
+                ? Path.Combine(context.RepositoryRoot, OfflineTenantIsolationManifestRelative)
                 : null,
         };
         TenantIsolationNegativeTestRunner runner = new();
@@ -248,31 +181,31 @@ internal sealed class PilotReadinessBundleRunner
 
         if (!string.IsNullOrWhiteSpace(childOptions.RunId))
         {
-            if (httpClient is null)
+            if (context.HttpClient is null)
                 throw new InvalidOperationException("Tenant-isolation live API mode requires a configured HTTP client.");
 
             (string tenantId, string workspaceId, string projectId) =
                 TenantIsolationNegativeTestRunner.ResolveAlternateScope(childOptions);
 
-            string baseUrl = httpClient.BaseAddress!.ToString().Trim().TrimEnd('/');
-            using HttpClient alternateClient = CliAuthorizedHttpClient.Create(baseUrl, config);
+            string baseUrl = context.HttpClient.BaseAddress!.ToString().Trim().TrimEnd('/');
+            using HttpClient alternateClient = CliAuthorizedHttpClient.Create(baseUrl, context.Config);
             CliScopeHeaders.ApplyExplicit(alternateClient, tenantId, workspaceId, projectId);
 
             report = await runner.RunLiveAsync(
-                repositoryRoot,
-                httpClient,
+                context.RepositoryRoot,
+                context.HttpClient,
                 alternateClient,
                 childOptions,
                 cancellationToken);
         }
         else
         {
-            report = runner.RunOffline(repositoryRoot, childOptions);
+            report = runner.RunOffline(context.RepositoryRoot, childOptions);
         }
 
         string artifactKey = TenantIsolationNegativeTestOutputPaths.ResolveArtifactKey(report);
         TenantIsolationNegativeTestOutputResolution outputPaths =
-            TenantIsolationNegativeTestOutputPaths.Resolve(childOptions, repositoryRoot, artifactKey);
+            TenantIsolationNegativeTestOutputPaths.Resolve(childOptions, context.RepositoryRoot, artifactKey);
         TenantIsolationNegativeTestReport finalReport = report.WithOutputMetadata(
             outputPaths.JsonPath,
             outputPaths.MarkdownPath);
@@ -284,7 +217,7 @@ internal sealed class PilotReadinessBundleRunner
 
         string modeLabel = finalReport.LiveApiMode ? "live-api" : "offline-fixture";
 
-        return BuildSlotResult(
+        return PilotReadinessSlotRunnerBase.BuildSlotResult(
             PilotReadinessBundleSlots.TenantIsolationNegativeTest,
             "Tenant-isolation negative test",
             PilotReadinessBundleVerdictMapper.FromTenantIsolation(finalReport.OverallVerdict),
@@ -294,26 +227,24 @@ internal sealed class PilotReadinessBundleRunner
     }
 
     private static async Task<PilotReadinessBundleSlotResult> RunItsmPullForwardSlotAsync(
-        string repositoryRoot,
-        PilotReadinessBundleOptions bundleOptions,
-        HttpClient? httpClient,
+        PilotReadinessSlotRunContext context,
         CancellationToken cancellationToken)
     {
         ItsmPullForwardOptions childOptions = new()
         {
-            IncludeApi = bundleOptions.IncludeApi,
-            SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
+            IncludeApi = context.Options.IncludeApi,
+            SuppressDefaultArtifacts = context.Options.SuppressDefaultArtifacts,
         };
         ItsmPullForwardRunner runner = new();
-        ItsmPullForwardReport report = runner.Run(repositoryRoot, childOptions);
+        ItsmPullForwardReport report = runner.Run(context.RepositoryRoot, childOptions);
 
         if (childOptions.IncludeApi)
         {
-            if (httpClient is null)
+            if (context.HttpClient is null)
                 throw new InvalidOperationException("ITSM pull-forward live API mode requires a configured HTTP client.");
 
-            string baseUrl = httpClient.BaseAddress!.ToString().Trim().TrimEnd('/');
-            PilotPreflightRunner preflightRunner = new(httpClient);
+            string baseUrl = context.HttpClient.BaseAddress!.ToString().Trim().TrimEnd('/');
+            PilotPreflightRunner preflightRunner = new(context.HttpClient);
             PilotPreflightReport preflightReport = await preflightRunner.RunAsync(
                 baseUrl,
                 [],
@@ -355,7 +286,7 @@ internal sealed class PilotReadinessBundleRunner
 
         string artifactKey = ItsmPullForwardOutputPaths.ResolveArtifactKey(report);
         ItsmPullForwardOutputResolution outputPaths =
-            ItsmPullForwardOutputPaths.Resolve(childOptions, repositoryRoot, artifactKey);
+            ItsmPullForwardOutputPaths.Resolve(childOptions, context.RepositoryRoot, artifactKey);
         ItsmPullForwardReport finalReport = report.WithOutputMetadata(
             outputPaths.JsonPath,
             outputPaths.MarkdownPath);
@@ -367,7 +298,7 @@ internal sealed class PilotReadinessBundleRunner
 
         string modeLabel = childOptions.IncludeApi ? "live-api" : "offline-ledger";
 
-        return BuildSlotResult(
+        return PilotReadinessSlotRunnerBase.BuildSlotResult(
             PilotReadinessBundleSlots.ItsmPullForwardGate,
             "ITSM pull-forward gate",
             PilotReadinessBundleVerdictMapper.FromItsmPullForward(finalReport),
@@ -377,14 +308,10 @@ internal sealed class PilotReadinessBundleRunner
     }
 
     private static async Task<PilotReadinessBundleSlotResult> RunShipGateEvidenceSlotAsync(
-        string repositoryRoot,
-        PilotReadinessBundleOptions bundleOptions,
-        HttpClient? httpClient,
-        ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
-        string[] rawArgs,
+        PilotReadinessSlotRunContext context,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(bundleOptions.RunId))
+        if (string.IsNullOrWhiteSpace(context.Options.RunId))
         {
             return new PilotReadinessBundleSlotResult
             {
@@ -396,17 +323,17 @@ internal sealed class PilotReadinessBundleRunner
             };
         }
 
-        if (httpClient is null)
+        if (context.HttpClient is null)
             throw new InvalidOperationException("Ship-gate evidence requires a configured HTTP client.");
 
         ShipGateEvidenceOptions childOptions = new()
         {
-            RunId = bundleOptions.RunId.Trim(),
-            UiBaseUrl = bundleOptions.UiBaseUrl,
-            SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
+            RunId = context.Options.RunId.Trim(),
+            UiBaseUrl = context.Options.UiBaseUrl,
+            SuppressDefaultArtifacts = context.Options.SuppressDefaultArtifacts,
         };
-        ShipGateUiBaseUrlResolution uiOrigin = ShipGateUiBaseUrlResolver.Resolve(rawArgs, config);
-        ShipGateEvidenceRunner runner = new(httpClient, config);
+        ShipGateUiBaseUrlResolution uiOrigin = ShipGateUiBaseUrlResolver.Resolve(context.RawArgs, context.Config);
+        ShipGateEvidenceRunner runner = new(context.HttpClient, context.Config);
         ShipGateEvidenceReport report = await runner.RunAsync(
             childOptions.RunId,
             uiOrigin.BaseUrl,
@@ -415,9 +342,9 @@ internal sealed class PilotReadinessBundleRunner
             childOptions.SkipClaimLint,
             cancellationToken);
         ShipGateEvidenceOutputResolution outputPaths =
-            ShipGateEvidenceOutputPaths.Resolve(childOptions, repositoryRoot, report.RunId);
+            ShipGateEvidenceOutputPaths.Resolve(childOptions, context.RepositoryRoot, report.RunId);
         ShipGateEvidenceReport finalReport = report.WithOutputMetadata(
-            repositoryRoot,
+            context.RepositoryRoot,
             outputPaths.JsonPath,
             outputPaths.MarkdownPath);
 
@@ -426,7 +353,7 @@ internal sealed class PilotReadinessBundleRunner
             outputPaths,
             cancellationToken);
 
-        return BuildSlotResult(
+        return PilotReadinessSlotRunnerBase.BuildSlotResult(
             PilotReadinessBundleSlots.ShipGateEvidence,
             "Ship-gate evidence",
             PilotReadinessBundleVerdictMapper.FromShipGate(finalReport.OverallVerdict),
@@ -434,23 +361,4 @@ internal sealed class PilotReadinessBundleRunner
             finalReport.JsonArtifactPath,
             finalReport.MarkdownArtifactPath);
     }
-
-    private static PilotReadinessBundleSlotResult BuildSlotResult(
-        string slotKey,
-        string displayName,
-        PilotReadinessBundleSlotVerdict verdict,
-        string evidence,
-        string? jsonArtifactPath,
-        string? markdownArtifactPath,
-        string? sponsorMarkdownArtifactPath = null) =>
-        new()
-        {
-            SlotKey = slotKey,
-            DisplayName = displayName,
-            Verdict = verdict,
-            Evidence = evidence,
-            JsonArtifactPath = jsonArtifactPath,
-            MarkdownArtifactPath = markdownArtifactPath,
-            SponsorMarkdownArtifactPath = sponsorMarkdownArtifactPath,
-        };
 }
