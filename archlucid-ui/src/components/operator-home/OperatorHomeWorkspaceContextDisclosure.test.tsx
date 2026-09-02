@@ -96,7 +96,7 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
     expect(screen.queryByText("Reviews")).not.toBeInTheDocument();
     expect(screen.queryByText("Open findings")).not.toBeInTheDocument();
     expect(screen.queryByText("Governance warnings")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "View details" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Expand Workspace metrics and status" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("home-block-delta-panel")).not.toBeInTheDocument();
   });
 
@@ -105,7 +105,7 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
 
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus runsDashboard={loadedRunsDashboard} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "View details" }));
+    fireEvent.click(screen.getByRole("button", { name: "Expand Workspace metrics and status" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-workspace-metrics-secondary")).toBeInTheDocument();
@@ -114,7 +114,7 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
       expect(screen.getByTestId("home-block-workspace-status")).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("button", { name: "Hide metrics details" })).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("button", { name: "Collapse Workspace metrics and status" })).toHaveAttribute("aria-expanded", "true");
   });
 
   it("renders loaded workspace metrics when reviews exist", () => {
