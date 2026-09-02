@@ -1563,6 +1563,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` daily chart labels prior-month UTC dates with current-month spend when `days` exceeds elapsed month days — fixed 2026-08-24; clamp window to month start (`TenantLlmCostReportingServiceTests.BuildDashboardAsync_daily_buckets_stay_within_current_utc_month`).
 - [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` labels tenant-wide `monthPressure` as "Current project" in `ByWorkspaceProject` — fixed 2026-08-24; row now reads "Tenant-wide (estimated)" (`TenantLlmCostReportingServiceTests.BuildDashboardAsync_labels_breakdown_as_tenant_wide_estimate`).
 - [x] (proven) `MarketplaceChangePlanWebhookMutationHandler` defaults missing `planId` to `TenantTier.Standard` and mutates ledger — fixed 2026-08-24; defer without mutation (`MarketplaceChangePlanWebhookMutationHandlerTests.Ga_enabled_missing_planId_defers_without_ledger_mutation`).
+- [x] (proven) `MarketplaceChangeQuantityWebhookMutationHandler` defaults missing `quantity` to one seat and mutates ledger — **hit 2026-09-02 (#511):** GA-enabled `ChangeQuantity` without `quantity` called `ReadQuantity` fallback `1` while sibling `ChangePlan` defers on missing `planId`; fixed with `TryReadQuantity` guard (`MarketplaceChangeQuantityWebhookMutationHandlerTests.Ga_enabled_missing_quantity_defers_without_ledger_mutation`).
+
+2026-09-02 seed hunt #511: reseeded from ArchLucid.Application/Billing marketplace mutation handlers; proved ChangeQuantity missing-quantity default seat mutation gap (symmetric to #508 ChangePlan missing planId deferral).
 
 ---
 

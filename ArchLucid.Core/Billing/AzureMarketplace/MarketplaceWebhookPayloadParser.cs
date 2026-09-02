@@ -160,30 +160,68 @@ public static class MarketplaceWebhookPayloadParser
     }
 
     /// <summary>
+    ///     Reads seat <c>quantity</c> when the webhook root includes a parseable <c>quantity</c> field.
+    /// </summary>
+    public static bool TryReadQuantity(JsonElement root, out int quantity)
+    {
+        quantity = 0;
+
+        if (!TryGetPropertyCaseInsensitive(root, "quantity", out JsonElement q))
+            return false;
+
+        if (q.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(q, out int wholeNumber))
+        {
+            if (wholeNumber < 1)
+                return false;
+
+            quantity = wholeNumber;
+
+            return true;
+        }
+
+        if (q.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            if (q.ValueKind != JsonValueKind.True)
+                return false;
+
+            quantity = 1;
+
+            return true;
+        }
+
+        if (q.ValueKind != JsonValueKind.String)
+            return false;
+
+        string? s = q.GetString();
+
+        if (TryParseBooleanString(s, out bool booleanQuantity))
+        {
+            if (!booleanQuantity)
+                return false;
+
+            quantity = 1;
+
+            return true;
+        }
+
+        if (TryParseWholeNumberString(s, out int parsed) && parsed >= 1)
+        {
+            quantity = parsed;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     ///     Reads seat <c>quantity</c> from the webhook root (number or numeric string); defaults to
     ///     <paramref name="fallback" /> when absent.
     /// </summary>
     public static int ReadQuantity(JsonElement root, int fallback = 1)
     {
-        if (!TryGetPropertyCaseInsensitive(root, "quantity", out JsonElement q))
-            return Math.Max(1, fallback);
-
-        if (q.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(q, out int wholeNumber))
-            return Math.Max(1, wholeNumber);
-
-        if (q.ValueKind is JsonValueKind.True or JsonValueKind.False)
-            return Math.Max(1, q.ValueKind == JsonValueKind.True ? 1 : 0);
-
-        if (q.ValueKind != JsonValueKind.String)
-            return Math.Max(1, fallback);
-
-        string? s = q.GetString();
-
-        if (TryParseBooleanString(s, out bool booleanQuantity))
-            return Math.Max(1, booleanQuantity ? 1 : 0);
-
-        if (TryParseWholeNumberString(s, out int parsed))
-            return Math.Max(1, parsed);
+        if (TryReadQuantity(root, out int quantity))
+            return quantity;
 
         return Math.Max(1, fallback);
     }
