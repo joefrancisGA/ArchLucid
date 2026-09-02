@@ -312,3 +312,4 @@ public static class CoordinatorArtifactsCompositionModule
         services.AddSingleton<IInfrastructureCostArtifactAugmentationProvider,
             MultiCloudInfrastructureCostArtifactAugmentationProvider>();
     }
+}
