@@ -251,7 +251,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
                 RunStageOutcomesRepository = Mock.Of<IRunStageOutcomesRepository>(),
                 AgentExecutionReadinessGuard = new PermissiveAgentExecutionReadinessGuard(),
                 Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance
-            });;
+            });
     }
 
     private static AgentTask MakeAgentTask(string runId, string taskId, AgentType agentType) =>
