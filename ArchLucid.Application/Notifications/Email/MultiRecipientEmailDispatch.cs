@@ -24,6 +24,7 @@ internal static class MultiRecipientEmailDispatch
         CancellationToken cancellationToken)
     {
         bool recordedAny = false;
+        bool skippedAllAsAlreadyRecorded = true;
         List<string> distinctMailboxes = DistinctMailboxesCaseInsensitive(normalizedMailboxes);
 
         foreach (string mailbox in distinctMailboxes)
@@ -39,6 +40,7 @@ internal static class MultiRecipientEmailDispatch
             if (await sentEmailLedger.IsRecordedAsync(tenantId, mailboxIdempotencyKey, cancellationToken).ConfigureAwait(false))
                 continue;
 
+            skippedAllAsAlreadyRecorded = false;
             EmailMessage message = buildMessage(mailbox);
 
             try
@@ -54,6 +56,9 @@ internal static class MultiRecipientEmailDispatch
             if (await sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken).ConfigureAwait(false))
                 recordedAny = true;
         }
+
+        if (skippedAllAsAlreadyRecorded && distinctMailboxes.Count > 0)
+            return true;
 
         return recordedAny;
     }

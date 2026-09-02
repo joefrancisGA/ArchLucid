@@ -2270,11 +2270,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 9
-- **bugs-found:** 13
+- **hunts:** 10
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `GetRunRoiEstimate` whitespace runId threw before 404 parity; `RephraseClarificationAnswers` omitted per-item `ExtractedAnswer` max length
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — stage-timeline whitespace runId 404 parity; ExplainStructuredBriefSuggestion SuggestionText max length
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2288,9 +2288,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunsController.GetDraftRequestAsyncResult` mapped `OperationState.Failed` to HTTP 400 `ValidationFailed` — background advisory-draft failure is an operational outcome, not bad client input; fixed 2026-08-25 to return 422 `BusinessRuleViolation` (`RunsControllerTests.GetDraftRequestAsyncResult_failed_operation_returns_422_not_400_validation`)
 - [x] (proven) `DraftRequest` / `DraftRequestAsync` omitted `MaximumChatIntakeTextLength` guard present on sibling `ChatIntake` — **hit 2026-08-25:** 50_001+ char paste reached LLM parse on draft routes while chat-intake returned 400 (`RunsControllerTests.DraftRequest_returns_bad_request_when_description_exceeds_chat_intake_max_length`, `DraftRequestAsync_returns_bad_request_when_description_exceeds_chat_intake_max_length`).
 - [x] (proven) `RewriteArchitectureOverview` omitted `MaximumChatIntakeTextLength` guard on `CurrentOverview` — **hit 2026-08-26:** 50_001+ char paste reached overview rewrite LLM while sibling draft/chat-intake returned 400 (`RunsControllerTests.RewriteArchitectureOverview_returns_bad_request_when_current_overview_exceeds_chat_intake_max_length`).
-- [ ] (candidate) `ExplainStructuredBriefSuggestion` omits `MaximumChatIntakeTextLength` on `SourceText` — sibling intake endpoints cap at 50_000 chars; 50_001+ paste may reach LLM explain path.
-- [ ] (candidate) `GetRunRoiEstimate` whitespace `runId` may return 400 via `ArgumentException` while sibling `GetRun` returns 404 — `RunGraphQueryService` id-normalization parity gap.
-- [ ] (candidate) `RephraseClarificationAnswers` omits per-item `ExtractedAnswer` max length — multi-item paste may exceed chat-intake ceiling.
+- [x] (proven) `ExplainStructuredBriefSuggestion` omitted `MaximumChatIntakeTextLength` on `SourceText` — **hit 2026-08-28:** `DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength` guard on `SourceText`; regression in `RunsControllerTests.ExplainStructuredBriefSuggestion_returns_bad_request_when_source_text_exceeds_chat_intake_max_length`.
+- [x] (proven) `GetRunRoiEstimate` whitespace `runId` returned 400 via `ArgumentException` while sibling `GetRun` returned 404 — **hit 2026-08-28:** `AuthorityRunIdentifier.TryParse` NotFound parity in `RunGraphQueryService`; regression in `RunGraphQueryServiceTests` and `RunQueryControllerTests`.
+- [x] (proven) `RephraseClarificationAnswers` omitted per-item `ExtractedAnswer` max length — **hit 2026-08-28:** per-item `DraftIntakeValidation` guard; regression in `RunsControllerTests.RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_exceeds_chat_intake_max_length`.
+- [x] (proven) `GetRunStageTimeline` whitespace `runId` returned 400 while sibling `GetRun` / `GetRunRoiEstimate` returned 404 — **hit 2026-09-02 (#424):** removed whitespace `BadRequest` pre-check; rely on `AuthorityRunIdentifier.TryParse`; regression in `RunGraphQueryServiceTests` and `RunQueryControllerTests`.
+- [x] (proven) `ExplainStructuredBriefSuggestion` omitted `MaximumChatIntakeTextLength` on `SuggestionText` — **hit 2026-09-02 (#424):** `DraftIntakeValidation` guard on `SuggestionText`; regression in `RunsControllerTests.ExplainStructuredBriefSuggestion_returns_bad_request_when_suggestion_text_exceeds_chat_intake_max_length`.
+
+2026-09-02 thorough hunt #424: closed three stale ledger candidates (already fixed 2026-08-28); proved stage-timeline whitespace 404 parity and explain `SuggestionText` max-length gap.
 
 ---
 
