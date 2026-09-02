@@ -185,30 +185,36 @@ public sealed class GcpCloudBillingCatalogClient
             return false;
         }
 
-        JsonElement firstTier = tieredRates[0];
-
-        if (!TryGetPropertyCaseInsensitive(firstTier, "unitPrice", out JsonElement unitPrice))
-            return false;
-
-        long units = 0;
-
-        if (TryGetPropertyCaseInsensitive(unitPrice, "units", out JsonElement unitsElement)
-            && !TryReadInt64Token(unitsElement, out units))
+        foreach (JsonElement tier in tieredRates.EnumerateArray())
         {
-            units = 0;
+            if (!TryGetPropertyCaseInsensitive(tier, "unitPrice", out JsonElement unitPrice))
+                continue;
+
+            long units = 0;
+
+            if (TryGetPropertyCaseInsensitive(unitPrice, "units", out JsonElement unitsElement)
+                && !TryReadInt64Token(unitsElement, out units))
+            {
+                units = 0;
+            }
+
+            int nanos = 0;
+
+            if (TryGetPropertyCaseInsensitive(unitPrice, "nanos", out JsonElement nanosElement)
+                && !TryReadInt32Token(nanosElement, out nanos))
+            {
+                nanos = 0;
+            }
+
+            hourlyUsd = units + nanos / 1_000_000_000m;
+
+            if (hourlyUsd > 0m)
+                return true;
         }
 
-        int nanos = 0;
+        hourlyUsd = 0m;
 
-        if (TryGetPropertyCaseInsensitive(unitPrice, "nanos", out JsonElement nanosElement)
-            && !TryReadInt32Token(nanosElement, out nanos))
-        {
-            nanos = 0;
-        }
-
-        hourlyUsd = units + nanos / 1_000_000_000m;
-
-        return hourlyUsd > 0m;
+        return false;
     }
 
     private static bool IsHourlyUsageUnit(JsonElement element)

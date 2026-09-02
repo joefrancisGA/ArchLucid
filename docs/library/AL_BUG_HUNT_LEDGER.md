@@ -1780,11 +1780,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 92
-- **bugs-found:** 204
+- **hunts:** 93
+- **bugs-found:** 205
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — GCP billing catalog later hourly pricingInfo entry ignored
+- **last-bug:** 2026-09-02 — GCP billing catalog later paid tieredRates entry ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2081,6 +2081,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GcpCloudBillingCatalogClient.TryFetchComputeHourlyUsdAsync` — only first `pricingInfo` entry consulted — **hit 2026-09-02 (#505):** SKU with non-hourly `pricingInfo[0]` (`usageUnit: "mo"`) and hourly `pricingInfo[1]` returned null instead of scanning later entries; fixed by iterating all `pricingInfo` rows (`TryGetComputeEngineMonthlyUsdAsync_uses_later_hourly_pricing_info_entry`).
 
 2026-09-02 seed hunt #505: reseeded from ArchLucid.Core costing parsers; proved GCP pricingInfo first-entry-only scan gap after #504 AWS h unit synonym fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — only first `tieredRates` entry consulted — **hit 2026-09-02 (#506):** zero-price `tieredRates[0]` caused null while `tieredRates[1]` held the paid hourly rate; fixed by iterating all tier rows (`TryGetComputeEngineMonthlyUsdAsync_uses_later_paid_tiered_rate_entry`).
+
+2026-09-02 seed hunt #506: reseeded from ArchLucid.Core costing parsers; proved GCP tieredRates first-entry-only scan gap after #505 pricingInfo iteration fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
