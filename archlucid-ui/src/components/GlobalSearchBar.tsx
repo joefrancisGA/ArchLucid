@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { SeverityTag } from "@/components/ui/severity-tag";
@@ -16,6 +16,11 @@ import {
 } from "@/lib/keyboard-shortcut-display";
 import { palettePressUsesPaletteModifier } from "@/components/CommandPalette";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  resolveShellHeaderSearchLabel,
+  resolveShellHeaderSearchPlaceholder,
+} from "@/lib/shell-header-search-label";
 import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -50,6 +55,19 @@ type GlobalSearchBarProps = {
 export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const inputId = useId();
   const router = useRouter();
+  const pathname = usePathname();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const searchPlaceholder = useMemo(
+    () =>
+      buyerPolishedShell
+        ? resolveShellHeaderSearchPlaceholder(pathname ?? "")
+        : GLOBAL_SEARCH_PLACEHOLDER,
+    [buyerPolishedShell, pathname],
+  );
+  const searchAriaLabel = useMemo(
+    () => (buyerPolishedShell ? resolveShellHeaderSearchLabel(pathname ?? "") : GLOBAL_SEARCH_ARIA_LABEL),
+    [buyerPolishedShell, pathname],
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
@@ -167,7 +185,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
       data-testid="global-search"
     >
       <label htmlFor={inputId} className="sr-only">
-        {GLOBAL_SEARCH_ARIA_LABEL}
+        {searchAriaLabel}
       </label>
       <p id={`${inputId}-helper`} className="sr-only">
         {GLOBAL_FIND_PAGE_SEARCH.helper}
@@ -177,7 +195,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         ref={inputRef}
         id={inputId}
         type="search"
-        placeholder={GLOBAL_SEARCH_PLACEHOLDER}
+        placeholder={searchPlaceholder}
         title={globalSearchInputTitle()}
         value={query}
         onChange={(event) => {
@@ -203,7 +221,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         aria-haspopup={resultsPanelOpen ? "listbox" : quickActionsPanelOpen ? "dialog" : undefined}
         aria-expanded={resultsPanelOpen || quickActionsPanelOpen}
         aria-controls={resultsPanelOpen || quickActionsPanelOpen ? `${inputId}-results` : undefined}
-        aria-label={GLOBAL_SEARCH_ARIA_LABEL}
+        aria-label={searchAriaLabel}
         aria-describedby={`${inputId}-helper`}
         aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
         autoComplete="off"

@@ -1,3 +1,4 @@
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance.Stickiness;
@@ -31,11 +32,11 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        if (request.RunId == Guid.Empty)
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+        IActionResult? createValidation =
+            GovernanceStickinessHttpMapper.ValidateCreateRiskException(request).ToBadRequestProblemOrNull(this);
 
-        if (string.IsNullOrWhiteSpace(request.FindingId))
-            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+        if (createValidation is not null)
+            return createValidation;
 
         try
         {
@@ -98,8 +99,12 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        if (riskExceptionId == Guid.Empty)
-            return this.BadRequestProblem("riskExceptionId is required.", ProblemTypes.ValidationFailed);
+        IActionResult? routeValidation =
+            GovernanceStickinessHttpMapper.ValidateRouteGuid(riskExceptionId, "riskExceptionId")
+                .ToBadRequestProblemOrNull(this);
+
+        if (routeValidation is not null)
+            return routeValidation;
 
         try
         {
@@ -132,8 +137,12 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        if (riskExceptionId == Guid.Empty)
-            return this.BadRequestProblem("riskExceptionId is required.", ProblemTypes.ValidationFailed);
+        IActionResult? routeValidation =
+            GovernanceStickinessHttpMapper.ValidateRouteGuid(riskExceptionId, "riskExceptionId")
+                .ToBadRequestProblemOrNull(this);
+
+        if (routeValidation is not null)
+            return routeValidation;
 
         try
         {

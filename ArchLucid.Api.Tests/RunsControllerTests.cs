@@ -65,9 +65,11 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task DraftRequest_returns_bad_request_when_body_null()
     {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
         RunsController controller = CreateController();
 
-        IActionResult action = await controller.DraftRequest(null, CancellationToken.None);
+        IActionResult action = await controller.DraftRequest(null, intakeFacade.Object, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -76,11 +78,13 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task DraftRequest_returns_bad_request_when_description_too_short()
     {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
         RunsController controller = CreateController();
 
         DraftArchitectureRequestInput input = new() { FreeTextDescription = "too short" };
 
-        IActionResult action = await controller.DraftRequest(input, CancellationToken.None);
+        IActionResult action = await controller.DraftRequest(input, intakeFacade.Object, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -89,15 +93,15 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task RewriteArchitectureOverview_returns_rewritten_overview_when_valid()
     {
-        Mock<IArchitectureOverviewRewriteService> rewriteService = new();
-        rewriteService
-            .Setup(s => s.RewriteAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()))
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.RewriteOverviewAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RewriteArchitectureOverviewResponse
             {
                 RewrittenOverview = "Grounded overview with EU data residency.",
             });
 
-        RunsController controller = CreateController(overviewRewriteService: rewriteService.Object);
+        RunsController controller = CreateController();
 
         RewriteArchitectureOverviewInput input = new()
         {
@@ -108,7 +112,7 @@ public sealed class RunsControllerTests
             },
         };
 
-        IActionResult action = await controller.RewriteArchitectureOverview(input, CancellationToken.None);
+        IActionResult action = await controller.RewriteArchitectureOverview(input, intakeFacade.Object, CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         RewriteArchitectureOverviewResponse response =
@@ -120,9 +124,11 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null()
     {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
         RunsController controller = CreateController();
 
-        IActionResult action = await controller.ExplainStructuredBriefSuggestion(null, CancellationToken.None);
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(null, intakeFacade.Object, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -131,6 +137,8 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task ExplainStructuredBriefSuggestion_returns_bad_request_when_source_text_exceeds_chat_intake_max_length()
     {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
         RunsController controller = CreateController();
 
         ExplainStructuredBriefSuggestionInput input = new()
@@ -140,7 +148,7 @@ public sealed class RunsControllerTests
             SuggestionText = "EU data residency",
         };
 
-        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, CancellationToken.None);
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, intakeFacade.Object, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -149,6 +157,8 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task ExplainStructuredBriefSuggestion_returns_bad_request_when_suggestion_text_exceeds_chat_intake_max_length()
     {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
         RunsController controller = CreateController();
 
         ExplainStructuredBriefSuggestionInput input = new()
@@ -158,7 +168,7 @@ public sealed class RunsControllerTests
             SuggestionText = OverLimitIntakeText.Value,
         };
 
-        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, CancellationToken.None);
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, intakeFacade.Object, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -167,6 +177,8 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_exceeds_chat_intake_max_length()
     {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
         RunsController controller = CreateController();
 
         RephraseClarificationAnswersInput input = new()
@@ -183,7 +195,7 @@ public sealed class RunsControllerTests
             ],
         };
 
-        IActionResult action = await controller.RephraseClarificationAnswers(input, CancellationToken.None);
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -192,15 +204,15 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task ExplainStructuredBriefSuggestion_returns_explanation_when_valid()
     {
-        Mock<IStructuredBriefSuggestionExplainService> explainService = new();
-        explainService
-            .Setup(s => s.ExplainAsync(It.IsAny<ExplainStructuredBriefSuggestionInput>(), It.IsAny<CancellationToken>()))
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.ExplainStructuredBriefSuggestionAsync(It.IsAny<ExplainStructuredBriefSuggestionInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ExplainStructuredBriefSuggestionResponse
             {
                 Explanation = "Your overview mentioned EU customers.",
             });
 
-        RunsController controller = CreateController(explainService: explainService.Object);
+        RunsController controller = CreateController();
 
         ExplainStructuredBriefSuggestionInput input = new()
         {
@@ -209,7 +221,7 @@ public sealed class RunsControllerTests
             SuggestionText = "EU data residency",
         };
 
-        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, CancellationToken.None);
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, intakeFacade.Object, CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ExplainStructuredBriefSuggestionResponse response =
@@ -221,9 +233,9 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task RephraseClarificationAnswers_returns_rephrased_answers_when_valid()
     {
-        Mock<IClarificationAnswerRephraseService> rephraseService = new();
-        rephraseService
-            .Setup(s => s.RephraseAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()))
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RephraseClarificationAnswersResponse
             {
                 RephrasedAnswers = new Dictionary<string, string>
@@ -233,7 +245,7 @@ public sealed class RunsControllerTests
                 },
             });
 
-        RunsController controller = CreateController(clarificationRephraseService: rephraseService.Object);
+        RunsController controller = CreateController();
 
         RephraseClarificationAnswersInput input = new()
         {
@@ -249,7 +261,7 @@ public sealed class RunsControllerTests
             ],
         };
 
-        IActionResult action = await controller.RephraseClarificationAnswers(input, CancellationToken.None);
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         RephraseClarificationAnswersResponse response =
@@ -261,9 +273,11 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task ChatIntake_returns_bad_request_when_raw_text_missing()
     {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
         RunsController controller = CreateController();
 
-        IActionResult action = await controller.ChatIntake(new ChatIntakeRequest(), CancellationToken.None);
+        IActionResult action = await controller.ChatIntake(new ChatIntakeRequest(), intakeFacade.Object, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -535,9 +549,18 @@ public sealed class RunsControllerTests
         string opaqueOperationId = OperationIdCodec.ForDraft(record.OperationId);
         store.MarkFailed(opaqueOperationId, "LLM timeout");
 
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(f => f.GetDraftAsyncResult(record.OperationId, Scope))
+            .Returns(new AdvisoryDraftOperationQueryResult
+            {
+                Outcome = AdvisoryDraftOperationOutcome.Failed,
+                ErrorMessage = "LLM timeout",
+            });
+
         RunsController controller = CreateController();
 
-        IActionResult action = controller.GetDraftRequestAsyncResult(record.OperationId, store);
+        IActionResult action = controller.GetDraftRequestAsyncResult(record.OperationId, intakeFacade.Object);
 
         ObjectResult problem = action.Should().BeOfType<ObjectResult>().Subject;
         problem.StatusCode.Should().Be(StatusCodes.Status422UnprocessableEntity);
@@ -549,10 +572,6 @@ public sealed class RunsControllerTests
 
     private static RunsController CreateController(
         IArchitectureApplicationService? architectureApplicationService = null,
-        IArchitectureRequestDraftService? draftService = null,
-        IArchitectureOverviewRewriteService? overviewRewriteService = null,
-        IClarificationAnswerRephraseService? clarificationRephraseService = null,
-        IStructuredBriefSuggestionExplainService? explainService = null,
         IRunLifecycleCommandService? runLifecycleCommandService = null,
         IRunRepository? runRepository = null,
         IAuditService? auditService = null)
@@ -571,12 +590,6 @@ public sealed class RunsControllerTests
         return new RunsController(
             runLifecycleCommandService ?? Mock.Of<IRunLifecycleCommandService>(),
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),
-            draftService ?? Mock.Of<IArchitectureRequestDraftService>(),
-            overviewRewriteService ?? Mock.Of<IArchitectureOverviewRewriteService>(),
-            clarificationRephraseService ?? Mock.Of<IClarificationAnswerRephraseService>(),
-            explainService ?? Mock.Of<IStructuredBriefSuggestionExplainService>(),
-            Mock.Of<IChatIntakeParserService>(),
-            Mock.Of<IConnectorIntakeParserService>(),
             validator.Object,
             scopeProvider.Object,
             actor.Object,

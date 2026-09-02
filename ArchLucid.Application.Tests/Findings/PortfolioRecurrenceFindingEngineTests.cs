@@ -1,4 +1,5 @@
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Findings.PortfolioRecurrence;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -279,11 +280,10 @@ public sealed class PortfolioRecurrenceFindingEngineTests
 
         return new PortfolioRecurrenceFindingEngine(
             scopeProvider.Object,
-            runQuery.Object,
-            snapshotRepository.Object,
             CreateOptionsResolver(enabled),
-            identitySource,
-            NullLogger<PortfolioRecurrenceFindingEngine>.Instance);
+            new PortfolioRunScanSource(runQuery.Object, NullLogger<PortfolioRunScanSource>.Instance),
+            new RecurrenceIdentityMatcher(runQuery.Object, snapshotRepository.Object, identitySource),
+            new PortfolioRecurrenceFindingEmitter());
     }
 
     private static IPortfolioRecurrenceFindingOptionsResolver CreateOptionsResolver(bool enabled)

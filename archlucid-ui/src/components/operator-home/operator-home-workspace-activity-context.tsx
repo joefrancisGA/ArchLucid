@@ -20,8 +20,11 @@ type OperatorHomeWorkspaceActivityContextValue = {
   readonly liveRunsSnapshot: OperatorHomeLiveRunsSnapshot | null;
   /** Run ids already shown on unfinished-work rail awaiting-disposition rows (TB-2369). */
   readonly homeAttentionPreviewExcludedRunIds: readonly string[];
+  /** Live unfinished-work rail total for attention chip parity. */
+  readonly unfinishedWorkRailCount: number | null;
   readonly reportWorkspaceReviews: (items: readonly RunSummary[], totalCount?: number) => void;
   readonly reportHomeAttentionPreviewExcludedRunIds: (runIds: readonly string[]) => void;
+  readonly reportUnfinishedWorkRailCount: (count: number) => void;
 };
 
 const defaultValue: OperatorHomeWorkspaceActivityContextValue = {
@@ -32,8 +35,10 @@ const defaultValue: OperatorHomeWorkspaceActivityContextValue = {
   recentRunIds: [],
   liveRunsSnapshot: null,
   homeAttentionPreviewExcludedRunIds: [],
+  unfinishedWorkRailCount: null,
   reportWorkspaceReviews: () => {},
   reportHomeAttentionPreviewExcludedRunIds: () => {},
+  reportUnfinishedWorkRailCount: () => {},
 };
 
 const OperatorHomeWorkspaceActivityContext =
@@ -62,7 +67,12 @@ export function OperatorHomeWorkspaceActivityProvider(
   const [homeAttentionPreviewExcludedRunIds, setHomeAttentionPreviewExcludedRunIds] = useState<
     readonly string[]
   >([]);
+  const [unfinishedWorkRailCount, setUnfinishedWorkRailCount] = useState<number | null>(null);
   const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
+
+  const reportUnfinishedWorkRailCount = useCallback((count: number) => {
+    setUnfinishedWorkRailCount((current) => (current === count ? current : count));
+  }, []);
 
   const reportHomeAttentionPreviewExcludedRunIds = useCallback((runIds: readonly string[]) => {
     setHomeAttentionPreviewExcludedRunIds((current) =>
@@ -120,18 +130,22 @@ export function OperatorHomeWorkspaceActivityProvider(
       recentRunIds,
       liveRunsSnapshot,
       homeAttentionPreviewExcludedRunIds,
+      unfinishedWorkRailCount,
       reportWorkspaceReviews,
       reportHomeAttentionPreviewExcludedRunIds,
+      reportUnfinishedWorkRailCount,
     }),
     [
       hasActionNeededReviews,
       hasOverviewReviewRows,
       hasWorkspaceReviews,
       homeAttentionPreviewExcludedRunIds,
+      unfinishedWorkRailCount,
       liveRunsSnapshot,
       openFindingsCount,
       recentRunIds,
       reportHomeAttentionPreviewExcludedRunIds,
+      reportUnfinishedWorkRailCount,
       reportWorkspaceReviews,
     ],
   );

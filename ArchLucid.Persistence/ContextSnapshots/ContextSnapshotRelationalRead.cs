@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;
 
@@ -131,22 +132,18 @@ internal static class ContextSnapshotRelationalRead
         return sourceHashes;
     }
 
-    private static async Task<List<string>> LoadStringColumnRelationalAsync(
+    private static Task<List<string>> LoadStringColumnRelationalAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
         string sql,
         Guid snapshotId,
-        CancellationToken ct)
-    {
-        IEnumerable<string> rows = await connection.QueryAsync<string>(
-            new CommandDefinition(
-                sql,
-                new { SnapshotId = snapshotId },
-                transaction,
-                cancellationToken: ct));
-
-        return rows.ToList();
-    }
+        CancellationToken ct) =>
+        RelationalSliceReadCore.LoadOrderedStringsAsync(
+            connection,
+            sql,
+            new { SnapshotId = snapshotId },
+            transaction,
+            ct);
 
     private static async Task<List<CanonicalObject>> LoadCanonicalObjectsRelationalAsync(
         IDbConnection connection,

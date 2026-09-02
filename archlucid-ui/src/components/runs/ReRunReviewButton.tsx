@@ -167,9 +167,9 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     const clickStartedAtMs = Date.now();
     const attemptNumber = resolveReRunReviewAttemptNumber(retryCount, sessionAttemptOffset);
 
+    setSessionAttemptOffset((previous) => previous + 1);
     setBusy(true);
     setError(null);
-    setSessionAttemptOffset((previous) => previous + 1);
 
     const nextOutcome: ReRunReviewOutcomeState = {
       phase: "running",

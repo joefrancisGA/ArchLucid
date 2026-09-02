@@ -1,5 +1,6 @@
 "use client";
 
+import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -8,8 +9,10 @@ import {
 } from "@/hooks/useWorkspaceAiAvailabilityCheck";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { WorkspaceAiConfigurationSignal } from "@/lib/review-failure-recovery-role-copy";
+import type { WorkspaceAiAvailabilityResult } from "@/lib/workspace-ai-availability";
 import {
   workspaceAiAvailabilityStatusLabel,
+  workspaceAiAvailableDetail,
   workspaceAiUnavailableDetail,
 } from "@/lib/workspace-ai-availability";
 import { cn } from "@/lib/utils";
@@ -63,7 +66,7 @@ function resolveWorkspaceAiDetail(
 ): string {
   if (state.status === "loaded") {
     return state.result.isAvailable
-      ? state.result.summary
+      ? workspaceAiAvailableDetail(state.result)
       : workspaceAiUnavailableDetail(state.result);
   }
 
@@ -80,6 +83,55 @@ function resolveWorkspaceAiDetail(
   }
 
   return workspaceAiSignal.detail;
+}
+
+function WorkspaceAiProbeDiagnostics(props: {
+  readonly result: WorkspaceAiAvailabilityResult;
+  readonly probeModelLabel: string | null;
+}): React.JSX.Element {
+  const { result, probeModelLabel } = props;
+
+  return (
+    <div className="space-y-3" data-testid="review-package-workspace-ai-debug">
+      {probeModelLabel !== null ? (
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-workspace-ai-model">
+          {probeModelLabel}
+        </p>
+      ) : null}
+
+      <div>
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Probe checks</p>
+        <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {result.checks.map((row) => (
+            <li key={`${row.name}:${row.status}`}>
+              <span className="font-medium text-al-text-primary">{row.name}</span>
+              {" — "}
+              <span>{row.status}</span>
+              {row.detail.trim().length > 0 ? `: ${row.detail}` : null}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {Object.keys(result.debug).length > 0 ? (
+        <div>
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Debug metadata</p>
+          <dl className={cn("m-0 mt-2 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
+            {Object.entries(result.debug).map(([key, value]) => (
+              <div key={key}>
+                <dt className="font-medium text-neutral-500 dark:text-neutral-400">{key}</dt>
+                <dd className="m-0 mt-1 break-all text-neutral-800 dark:text-neutral-200">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ) : null}
+
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-workspace-ai-as-of">
+        Validated at {new Date(result.asOfUtc).toLocaleString()} · source {result.aiSource}
+      </p>
+    </div>
+  );
 }
 
 /** API-validated workspace AI availability with full probe diagnostics for review failure recovery. */
@@ -133,11 +185,6 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
               Running a live completion probe (typically a few seconds). You can press the button again to retry.
             </p>
           ) : null}
-          {probeModelLabel !== null ? (
-            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-workspace-ai-model">
-              {probeModelLabel}
-            </p>
-          ) : null}
           {liveProbeFailure !== null && liveProbeFailure !== undefined ? (
             <p
               className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
@@ -162,39 +209,15 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       </div>
 
       {state.status === "loaded" ? (
-        <div className="mt-3 space-y-3" data-testid="review-package-workspace-ai-debug">
-          <div>
-            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Probe checks</p>
-            <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {state.result.checks.map((row) => (
-                <li key={`${row.name}:${row.status}`}>
-                  <span className="font-medium text-al-text-primary">{row.name}</span>
-                  {" — "}
-                  <span>{row.status}</span>
-                  {row.detail.trim().length > 0 ? `: ${row.detail}` : null}
-                </li>
-              ))}
-            </ul>
+        state.result.isAvailable ? (
+          <AdvancedOptionsAccordion triggerLabel="Probe details" defaultOpen={false} className="mt-3">
+            <WorkspaceAiProbeDiagnostics result={state.result} probeModelLabel={probeModelLabel} />
+          </AdvancedOptionsAccordion>
+        ) : (
+          <div className="mt-3">
+            <WorkspaceAiProbeDiagnostics result={state.result} probeModelLabel={probeModelLabel} />
           </div>
-
-          {Object.keys(state.result.debug).length > 0 ? (
-            <div>
-              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Debug metadata</p>
-              <dl className={cn("m-0 mt-2 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
-                {Object.entries(state.result.debug).map(([key, value]) => (
-                  <div key={key}>
-                    <dt className="font-medium text-neutral-500 dark:text-neutral-400">{key}</dt>
-                    <dd className="m-0 mt-1 break-all text-neutral-800 dark:text-neutral-200">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          ) : null}
-
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-workspace-ai-as-of">
-            Validated at {new Date(state.result.asOfUtc).toLocaleString()} · source {state.result.aiSource}
-          </p>
-        </div>
+        )
       ) : null}
 
       {state.status === "error" ? (

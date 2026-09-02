@@ -138,6 +138,7 @@ export function resolveReviewPackagePrimaryAction(
 
     if (
       shouldShowRunDetailGovernanceCta({
+        runId: input.runId,
         manifestId: input.manifestId,
         buyerPolishedArtifactTable: input.buyerPolishedArtifactTable,
         operatorGovernanceDecision: input.operatorGovernanceDecision,

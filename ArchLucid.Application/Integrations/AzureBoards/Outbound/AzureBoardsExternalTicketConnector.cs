@@ -21,7 +21,7 @@ public sealed class AzureBoardsExternalTicketConnector(
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ITenantAzureBoardsOutboundSettingsRepository azureBoardsSettings,
     AzureBoardsOutboundIssueClient azureBoardsClient,
-    IItsmOutboundHttpAuthenticator httpAuthenticator) : IExternalTicketConnector
+    IItsmOutboundHttpAuthenticator httpAuthenticator) : ExternalTicketCreatePipeline, IExternalTicketConnector
 {
     private const string ProjectNameMissingMessage = "Azure Boards connector not configured: project name required.";
 
@@ -47,13 +47,19 @@ public sealed class AzureBoardsExternalTicketConnector(
 
     public ItsmOutboundIssueProvider ProviderId => ItsmOutboundIssueProvider.AzureBoards;
 
-    public string ProviderLabel => "Azure Boards";
+    public string ProviderLabel => PipelineProviderLabel;
 
-    public string CreateFailedAuditEventType => AuditEventTypes.IntegrationAzureBoardsWorkItemCreateFailed;
+    protected override string PipelineProviderLabel => "Azure Boards";
+
+    public string CreateFailedAuditEventType => PipelineCreateFailedAuditEventType;
+
+    protected override string PipelineCreateFailedAuditEventType => AuditEventTypes.IntegrationAzureBoardsWorkItemCreateFailed;
 
     public string CreateSkippedAuditEventType => AuditEventTypes.IntegrationAzureBoardsWorkItemCreateSkipped;
 
-    public string CreateSucceededAuditEventType => AuditEventTypes.IntegrationAzureBoardsWorkItemCreateSucceeded;
+    public string CreateSucceededAuditEventType => PipelineCreateSucceededAuditEventType;
+
+    protected override string PipelineCreateSucceededAuditEventType => AuditEventTypes.IntegrationAzureBoardsWorkItemCreateSucceeded;
 
     public async Task<ItsmOutboundIssueCreationResult> TryCreateForFindingAsync(
         ExternalTicketCreateContext context,
@@ -69,18 +75,12 @@ public sealed class AzureBoardsExternalTicketConnector(
 
         if (credentials is null)
         {
-            AuditEvent ev = ExternalTicketConnectorSupport.SkippedAudit(
+            return Skipped(
                 CreateSkippedAuditEventType,
                 scope,
                 inspect,
-                "azure_boards_connector_missing_credentials");
-
-            return new ItsmOutboundIssueCreationResult
-            {
-                Kind = ItsmOutboundCreateTerminalKind.Skipped,
-                UserMessage = "Azure Boards outbound connector is not configured (organization URL and PAT are required).",
-                AuditEvents = [ev]
-            };
+                "azure_boards_connector_missing_credentials",
+                "Azure Boards outbound connector is not configured (organization URL and PAT are required).");
         }
 
         TenantAzureBoardsOutboundSettings? settingsRow =
@@ -122,18 +122,7 @@ public sealed class AzureBoardsExternalTicketConnector(
 
         if (priority is null)
         {
-            AuditEvent ev = ExternalTicketConnectorSupport.SkippedAudit(
-                CreateSkippedAuditEventType,
-                scope,
-                inspect,
-                "informational_severity_dropped");
-
-            return new ItsmOutboundIssueCreationResult
-            {
-                Kind = ItsmOutboundCreateTerminalKind.Skipped,
-                UserMessage = "Informational findings do not create Azure Boards work items.",
-                AuditEvents = [ev]
-            };
+            return Skipped(CreateSkippedAuditEventType, scope, inspect, "informational_severity_dropped", "Informational findings do not create Azure Boards work items.");
         }
 
         string descriptionForVendor = AzureBoardsWorkItemDescriptionBuilder.Build(
@@ -155,18 +144,7 @@ public sealed class AzureBoardsExternalTicketConnector(
 
         if (authorization is null)
         {
-            AuditEvent ev = ExternalTicketConnectorSupport.SkippedAudit(
-                CreateSkippedAuditEventType,
-                scope,
-                inspect,
-                "azure_boards_connector_authorization_unavailable");
-
-            return new ItsmOutboundIssueCreationResult
-            {
-                Kind = ItsmOutboundCreateTerminalKind.Skipped,
-                UserMessage = "Azure Boards outbound connector credentials could not be authorized (check PAT settings).",
-                AuditEvents = [ev]
-            };
+            return Skipped(CreateSkippedAuditEventType, scope, inspect, "azure_boards_connector_authorization_unavailable", "Azure Boards outbound connector credentials could not be authorized (check PAT settings).");
         }
 
         AzureBoardsOutboundIssueHttpResult http = await _azureBoardsClient.CreateWorkItemAsync(
@@ -206,73 +184,13 @@ public sealed class AzureBoardsExternalTicketConnector(
             };
         }
 
-        try
-        {
-            Guid? findingRecordId =
-                await ExternalTicketConnectorSupport
-                    .ResolveFindingRecordIdForInspectAsync(_correlations, scope, inspect, cancellationToken)
-                    .ConfigureAwait(false);
-
-            await _correlations.RegisterAsync(
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    inspect.FindingId,
-                    ProviderLabel,
-                    http.WorkItemId,
-                    http.RemoteId,
-                    findingRecordId,
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            AuditEvent ev = new()
-            {
-                EventType = CreateFailedAuditEventType,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = inspect.RunId,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    findingId = inspect.FindingId,
-                    workItemId = http.WorkItemId,
-                    reason = "correlation_persist_failed",
-                    error = ex.Message
-                })
-            };
-
-            return new ItsmOutboundIssueCreationResult
-            {
-                Kind = ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed,
-                UserMessage = "Azure Boards work item was created but ArchLucid could not persist ITSM correlation.",
-                ExternalKey = http.WorkItemId,
-                AuditEvents = [ev]
-            };
-        }
-
-        AuditEvent ok = new()
-        {
-            EventType = CreateSucceededAuditEventType,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = inspect.RunId,
-            DataJson = JsonSerializer.Serialize(new
-            {
-                findingId = inspect.FindingId,
-                workItemId = http.WorkItemId
-            })
-        };
-
-        return new ItsmOutboundIssueCreationResult
-        {
-            Kind = ItsmOutboundCreateTerminalKind.Succeeded,
-            ExternalKey = http.WorkItemId,
-            UserMessage = "Azure Boards work item created.",
-            AuditEvents = [ok]
-        };
+        return await RegisterCorrelationOrReturnPersistenceFailureAsync(
+            _correlations,
+            scope,
+            inspect,
+            http.WorkItemId,
+            http.RemoteId,
+            cancellationToken);
     }
 
     public async Task<string?> TryBuildBrowseUrlAsync(

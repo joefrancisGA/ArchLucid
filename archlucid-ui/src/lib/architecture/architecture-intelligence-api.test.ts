@@ -1,13 +1,60 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildArchitectureIntelligenceRunRequest,
   buildArchitectureIntelligenceSourcesFromDraftFields,
+  fetchArchitectureIntelligenceProductSourceContext,
   formatArchitectureIntelligenceSpendSummary,
   primaryDescriptionFromSources,
+  runArchitectureIntelligenceReasoning,
 } from "@/lib/architecture/architecture-intelligence-api";
+import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 
 describe("architecture-intelligence-api", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("forwards operator scope headers on product source-context GET", async () => {
+    const tenantId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const workspaceId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const projectId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    writeOperatorScopeToStorage({ tenantId, workspaceId, projectId });
+
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ sourceTexts: [] }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchArchitectureIntelligenceProductSourceContext("run-1");
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const headers = new Headers((fetchMock.mock.calls[0]?.[1] as RequestInit | undefined)?.headers);
+    expect(headers.get("x-tenant-id")).toBe(tenantId);
+    expect(headers.get("x-workspace-id")).toBe(workspaceId);
+    expect(headers.get("x-project-id")).toBe(projectId);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("forwards operator scope headers on reasoning POST", async () => {
+    const tenantId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const workspaceId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const projectId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    writeOperatorScopeToStorage({ tenantId, workspaceId, projectId });
+
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ runId: "run-1" }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await runArchitectureIntelligenceReasoning({ sourceTexts: [] });
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const headers = new Headers((fetchMock.mock.calls[0]?.[1] as RequestInit | undefined)?.headers);
+    expect(headers.get("x-tenant-id")).toBe(tenantId);
+    expect(headers.get("x-workspace-id")).toBe(workspaceId);
+    expect(headers.get("x-project-id")).toBe(projectId);
+
+    vi.unstubAllGlobals();
+  });
+
   it("prefers the architecture-description source for the primary text", () => {
     expect(
       primaryDescriptionFromSources([

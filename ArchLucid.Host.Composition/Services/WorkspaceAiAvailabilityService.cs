@@ -12,6 +12,7 @@ using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Secrets;
+using ArchLucid.Host.Composition.Services.Probes;
 using ArchLucid.Host.Core.Resilience;
 
 using Microsoft.Extensions.Configuration;
@@ -130,13 +131,7 @@ public sealed class WorkspaceAiAvailabilityService(
 
         if (!AzureOpenAiConfigurationProbe.IsCompletionStackConfigured(_configuration))
         {
-            checks.Add(
-                new WorkspaceAiAvailabilityCheckRow
-                {
-                    Name = "azure_openai_configuration",
-                    Status = "failed",
-                    Detail = AgentExecutionReadinessMessages.LiveCompletionUnavailable,
-                });
+            checks.Add(WorkspaceAiConnectionProbe.BuildManagedConfigurationCheckRow(configured: false));
 
             return Unavailable(
                 "managed-platform",
@@ -161,13 +156,7 @@ public sealed class WorkspaceAiAvailabilityService(
 
         if (row is null)
         {
-            checks.Add(
-                new WorkspaceAiAvailabilityCheckRow
-                {
-                    Name = "customer_connection_record",
-                    Status = "failed",
-                    Detail = "Customer-provided AI connection policy is enabled but no connection row exists.",
-                });
+            checks.Add(WorkspaceAiConnectionProbe.BuildMissingRecordCheckRow());
 
             return Unavailable(
                 "customer-connection",
@@ -177,22 +166,11 @@ public sealed class WorkspaceAiAvailabilityService(
                 asOfUtc);
         }
 
-        debug["customerConnectionEnabled"] = row.IsEnabled.ToString();
-
-        if (!string.IsNullOrWhiteSpace(row.Endpoint))
-        {
-            debug["customerConnectionEndpointHost"] = TryHost(row.Endpoint);
-        }
+        WorkspaceAiConnectionProbe.AppendConnectionDebugMetadata(debug, row);
 
         if (!row.IsEnabled)
         {
-            checks.Add(
-                new WorkspaceAiAvailabilityCheckRow
-                {
-                    Name = "customer_connection_record",
-                    Status = "failed",
-                    Detail = "Customer-provided AI connection exists but is disabled.",
-                });
+            checks.Add(WorkspaceAiConnectionProbe.BuildDisabledRecordCheckRow());
 
             return Unavailable(
                 "customer-connection",
@@ -202,7 +180,9 @@ public sealed class WorkspaceAiAvailabilityService(
                 asOfUtc);
         }
 
-        AppendBudgetCheck(checks, debug, await _llmBudgetStatusService.GetStatusAsync(cancellationToken).ConfigureAwait(false));
+        LlmMonthlyTenantDollarBudgetStatusResult customerBudgetStatus = await _llmBudgetStatusService.GetStatusAsync(cancellationToken).ConfigureAwait(false);
+        WorkspaceAiBudgetProbe.AppendDebugMetadata(debug, customerBudgetStatus);
+        checks.Add(WorkspaceAiBudgetProbe.BuildCheckRow(customerBudgetStatus));
 
         WorkspaceAiLiveCompletionProbeResult liveProbe;
 
@@ -214,13 +194,7 @@ public sealed class WorkspaceAiAvailabilityService(
 
             if (customerClient is null)
             {
-                checks.Add(
-                    new WorkspaceAiAvailabilityCheckRow
-                    {
-                        Name = "customer_connection_live_probe",
-                        Status = "failed",
-                        Detail = "API key secret is missing or empty.",
-                    });
+                checks.Add(WorkspaceAiConnectionProbe.BuildMissingApiKeyCheckRow());
 
                 return Unavailable(
                     "customer-connection",
@@ -244,15 +218,8 @@ public sealed class WorkspaceAiAvailabilityService(
             liveProbe = WorkspaceAiLiveCompletionProbeResult.Failed("(unknown)", AzureOpenAiVendorProbeErrorFormatter.Format(ex));
         }
 
-        AppendLiveProbeMetadata(debug, liveProbe);
-
-        checks.Add(
-            new WorkspaceAiAvailabilityCheckRow
-            {
-                Name = "customer_connection_live_probe",
-                Status = liveProbe.Succeeded ? "ok" : "failed",
-                Detail = liveProbe.Detail,
-            });
+        WorkspaceAiLiveCompletionCheckProbe.AppendProbeMetadata(debug, liveProbe);
+        checks.Add(WorkspaceAiConnectionProbe.BuildCustomerLiveProbeCheckRow(liveProbe));
 
         if (!liveProbe.Succeeded)
         {
@@ -300,20 +267,12 @@ public sealed class WorkspaceAiAvailabilityService(
 
         bool configured = AzureOpenAiConfigurationProbe.IsCompletionStackConfigured(_configuration);
 
-        checks.Add(
-            new WorkspaceAiAvailabilityCheckRow
-            {
-                Name = "azure_openai_configuration",
-                Status = configured ? "ok" : "failed",
-                Detail = configured
-                    ? "Azure OpenAI endpoint and deployment are configured for Real agent execution."
-                    : "Azure OpenAI endpoint, deployment, or credentials are missing for Real agent execution.",
-            });
+        checks.Add(WorkspaceAiConnectionProbe.BuildManagedConfigurationCheckRow(configured));
 
-        LlmMonthlyTenantDollarBudgetStatusResult budgetStatus =
-            await _llmBudgetStatusService.GetStatusAsync(cancellationToken).ConfigureAwait(false);
+        LlmMonthlyTenantDollarBudgetStatusResult budgetStatus = await _llmBudgetStatusService.GetStatusAsync(cancellationToken).ConfigureAwait(false);
 
-        AppendBudgetCheck(checks, debug, budgetStatus);
+        WorkspaceAiBudgetProbe.AppendDebugMetadata(debug, budgetStatus);
+        checks.Add(WorkspaceAiBudgetProbe.BuildCheckRow(budgetStatus));
 
         bool circuitHealthy = AppendCircuitBreakerChecks(checks, debug);
 
@@ -340,17 +299,11 @@ public sealed class WorkspaceAiAvailabilityService(
 
                 completionSucceeded = liveProbe.Succeeded;
                 completionDetail = liveProbe.Detail;
-                AppendLiveProbeMetadata(debug, liveProbe);
+                WorkspaceAiLiveCompletionCheckProbe.AppendProbeMetadata(debug, liveProbe);
             }
         }
 
-        checks.Add(
-            new WorkspaceAiAvailabilityCheckRow
-            {
-                Name = "azure_openai_live_completion_probe",
-                Status = !configured ? "skipped" : completionSucceeded ? "ok" : "failed",
-                Detail = completionDetail,
-            });
+        checks.Add(WorkspaceAiConnectionProbe.BuildManagedLiveProbeCheckRow(configured, completionSucceeded, completionDetail));
 
         bool budgetBlocking = budgetStatus.BlocksAdditionalLlmExecution;
         bool isAvailable = configured && completionSucceeded && circuitHealthy && !budgetBlocking;
@@ -379,51 +332,6 @@ public sealed class WorkspaceAiAvailabilityService(
             Checks = checks,
             Debug = debug,
         };
-    }
-
-    private static void AppendLiveProbeMetadata(Dictionary<string, string> debug, WorkspaceAiLiveCompletionProbeResult liveProbe)
-    {
-        if (!string.IsNullOrWhiteSpace(liveProbe.DeploymentName))
-        {
-            debug["probeDeploymentName"] = liveProbe.DeploymentName;
-        }
-
-        if (!string.IsNullOrWhiteSpace(liveProbe.ModelId))
-        {
-            debug["probeModelId"] = liveProbe.ModelId;
-        }
-    }
-
-    private static void AppendBudgetCheck(
-        List<WorkspaceAiAvailabilityCheckRow> checks,
-        Dictionary<string, string> debug,
-        LlmMonthlyTenantDollarBudgetStatusResult budgetStatus)
-    {
-        debug["monthlyBudgetMonitoringActive"] = budgetStatus.MonthlyBudgetMonitoringActive.ToString();
-        debug["blocksAdditionalLlmExecution"] = budgetStatus.BlocksAdditionalLlmExecution.ToString();
-
-        if (!string.IsNullOrWhiteSpace(budgetStatus.UtcMonth))
-        {
-            debug["llmBudgetUtcMonth"] = budgetStatus.UtcMonth;
-        }
-
-        if (budgetStatus.HardCapUtilizationFraction is not null)
-        {
-            debug["llmBudgetUtilizationFraction"] =
-                budgetStatus.HardCapUtilizationFraction.Value.ToString(CultureInfo.InvariantCulture);
-        }
-
-        checks.Add(
-            new WorkspaceAiAvailabilityCheckRow
-            {
-                Name = "workspace_llm_budget",
-                Status = budgetStatus.BlocksAdditionalLlmExecution ? "failed" : "ok",
-                Detail = budgetStatus.BlocksAdditionalLlmExecution
-                    ? "Workspace AI spend cap is exhausted for the current UTC month."
-                    : budgetStatus.MonthlyBudgetMonitoringActive
-                        ? "Workspace AI spend is within the configured monthly cap."
-                        : "Monthly LLM dollar budget monitoring is not active for this workspace.",
-            });
     }
 
     private bool AppendCircuitBreakerChecks(List<WorkspaceAiAvailabilityCheckRow> checks, Dictionary<string, string> debug)

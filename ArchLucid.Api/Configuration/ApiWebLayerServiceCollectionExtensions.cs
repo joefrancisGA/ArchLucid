@@ -57,6 +57,8 @@ public static class ApiWebLayerServiceCollectionExtensions
             services.AddScoped<IEvolutionSimulationService, EvolutionSimulationService>();
         }
 
+        services.AddScoped<IEvolutionApplicationFacade, EvolutionApplicationFacade>();
+
         services.AddScoped<IDataConsistencyRemediationExecutor, DataConsistencyRemediationExecutor>();
         services.AddScoped<IAdminRunArchiveAuditLogger, AdminRunArchiveAuditLogger>();
         services.AddScoped<IAdminIntegrationOutboxDiagnosticsService, AdminIntegrationOutboxDiagnosticsService>();

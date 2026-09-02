@@ -152,6 +152,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       return;
     }
 
+    setProductContextStatus("loading");
     setProductContextReloadNonce((previous) => previous + 1);
   }, [scopeKey, inboundRunId]);
 

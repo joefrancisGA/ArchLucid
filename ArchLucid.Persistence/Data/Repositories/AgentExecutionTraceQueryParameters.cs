@@ -11,7 +11,7 @@ namespace ArchLucid.Persistence.Data.Repositories;
 internal static class AgentExecutionTraceQueryParameters
 {
     /// <summary>Upper bound on a single trace page, matching the API's own page-size ceiling.</summary>
-    private const int MaxPageSize = 500;
+    public const int MaxPageSize = AgentExecutionTraceQueryPatchCore.MaxPageSize;
 
     public static object ForRun(ScopeContext scope, string runId)
     {
@@ -36,8 +36,8 @@ internal static class AgentExecutionTraceQueryParameters
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
-            Offset = Math.Max(0, offset),
-            Limit = Math.Clamp(limit, 1, MaxPageSize),
+            Offset = AgentExecutionTraceQueryPatchCore.ClampPageOffset(offset),
+            Limit = AgentExecutionTraceQueryPatchCore.ClampPageLimit(limit),
         };
     }
 
@@ -79,16 +79,8 @@ internal static class AgentExecutionTraceQueryParameters
     ///     Trims, drops blanks, and de-duplicates the caller's run ids. The returned order is the lookup order used to
     ///     shape multi-run results, so callers must group against this list rather than their own input.
     /// </summary>
-    public static List<string> NormalizeRunIds(IEnumerable<string> runIds)
-    {
-        ArgumentNullException.ThrowIfNull(runIds);
-
-        return runIds
-            .Where(static s => !string.IsNullOrWhiteSpace(s))
-            .Select(static s => s.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-    }
+    public static List<string> NormalizeRunIds(IEnumerable<string> runIds) =>
+        AgentExecutionTraceQueryPatchCore.NormalizeRunIds(runIds);
 
     private static Guid[] ToSqlRunIds(IReadOnlyList<string> runIds) =>
         runIds.Select(SqlRunIdMapping.ToSqlRunId).ToArray();

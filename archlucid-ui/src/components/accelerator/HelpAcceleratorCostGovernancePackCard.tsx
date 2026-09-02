@@ -18,7 +18,10 @@ import {
   resolveAcceleratorCostGovernancePackEntry,
 } from "@/lib/accelerator-chooser-grid";
 import { resolvePackCtaState } from "@/lib/accelerator-chooser-pack-prerequisite";
-import { ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL } from "@/lib/accelerator-chooser-start-copy";
+import {
+  ACCELERATOR_COST_GOVERNANCE_CLOUD_SELECTION_REQUIRED_MESSAGE,
+  ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL,
+} from "@/lib/accelerator-chooser-start-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
@@ -35,8 +38,9 @@ export function HelpAcceleratorCostGovernancePackCard(
 ): React.JSX.Element {
   const { prerequisiteStatus, onRetry } = props;
   const { selectedPackId, setSelectedPackId } = useAcceleratorCostGovernancePackSelection();
-  const selectedPack = resolveAcceleratorCostGovernancePackEntry(selectedPackId);
-  const ctaState = resolvePackCtaState(prerequisiteStatus, selectedPackId);
+  const selectedPack = selectedPackId === null ? null : resolveAcceleratorCostGovernancePackEntry(selectedPackId);
+  const ctaState = resolvePackCtaState(prerequisiteStatus, selectedPackId ?? ACCELERATOR_COST_GOVERNANCE_GROUP_ID);
+  const cloudSelectionRequiredId = `help-accelerator-chooser-pack-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-cloud-required`;
 
   return (
     <li
@@ -69,7 +73,7 @@ export function HelpAcceleratorCostGovernancePackCard(
       />
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-medium text-al-text-primary">When not to use: </span>
-        {selectedPack.doNotUseWhen}
+        {selectedPack?.doNotUseWhen ?? "Choose a cloud above to see provider-specific guidance."}
       </p>
       <CollapsibleSection
         title="Technical outputs and file detail"
@@ -85,17 +89,33 @@ export function HelpAcceleratorCostGovernancePackCard(
           {ACCELERATOR_COST_GOVERNANCE_GROUP.expectedOutputs}
         </p>
       </CollapsibleSection>
+      {selectedPackId === null ? (
+        <p
+          id={cloudSelectionRequiredId}
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        >
+          {ACCELERATOR_COST_GOVERNANCE_CLOUD_SELECTION_REQUIRED_MESSAGE}
+        </p>
+      ) : null}
       <AcceleratorPackStartCta
-        packId={selectedPackId}
-        packLabel={selectedPack.packLabel}
-        buyerJob={selectedPack.buyerJob}
-        startHref={selectedPack.startHref}
+        packId={selectedPackId ?? ACCELERATOR_COST_GOVERNANCE_GROUP_ID}
+        packLabel={selectedPack?.packLabel ?? ACCELERATOR_COST_GOVERNANCE_GROUP.packLabel}
+        buyerJob={selectedPack?.buyerJob ?? ACCELERATOR_COST_GOVERNANCE_GROUP.buyerJob}
+        startHref={selectedPack?.startHref ?? "#"}
         prerequisiteStatus={prerequisiteStatus}
-        startTestId={ctaState === "ready" ? `help-accelerator-chooser-start-${selectedPackId}` : undefined}
+        startTestId={
+          ctaState === "ready" && selectedPackId !== null
+            ? `help-accelerator-chooser-start-${selectedPackId}`
+            : selectedPackId === null
+              ? `help-accelerator-chooser-start-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}`
+              : undefined
+        }
         blockedMessageTestId={
           ctaState !== "ready" ? `help-accelerator-chooser-pack-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-blocked` : undefined
         }
         onRetry={onRetry}
+        disabled={selectedPackId === null}
+        disabledReasonId={selectedPackId === null ? cloudSelectionRequiredId : undefined}
       />
     </li>
   );

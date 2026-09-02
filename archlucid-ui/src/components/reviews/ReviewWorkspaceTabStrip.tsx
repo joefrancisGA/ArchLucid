@@ -232,7 +232,20 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
             )}
           >
             {primaryTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
-            {secondaryTabIds.length > 0 ? <ReviewWorkspaceTabDivider /> : null}
+            {secondaryTabIds.length > 0 ? (
+              <>
+                <ReviewWorkspaceTabDivider />
+                <span
+                  className={cn(
+                    "hidden shrink-0 self-center pr-1 text-al-text-secondary md:inline",
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                  data-testid="review-detail-workspace-tab-additional-label"
+                >
+                  Additional
+                </span>
+              </>
+            ) : null}
             {secondaryTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
           </TabsList>
         </Tabs>

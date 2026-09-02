@@ -14,9 +14,7 @@ import {
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-  governanceApprovalQueueHref,
   pathMatchesGovernanceAlerts,
-  pathMatchesGovernanceApprovalQueue,
   pathMatchesGovernanceAudit,
   pathMatchesGovernanceExceptions,
 } from "@/lib/governance/governance-route-paths";
@@ -24,7 +22,7 @@ import {
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 /**
- * Canonical five-step buyer demo spine — keep in sync with {@link LayerContextStrip} journey chips and home CTAs.
+ * Canonical four-step buyer demo spine — keep in sync with {@link LayerContextStrip} journey chips and home CTAs.
  */
 export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   {
@@ -49,16 +47,11 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   },
   {
     step: 4,
-    label: "Governance approval",
-    href: governanceApprovalQueueHref(SHOWCASE_STATIC_DEMO_RUN_ID),
-    chipTooltip: "Resolve outcome impact, approvals, and monitoring hooks tied to this review.",
-  },
-  {
-    step: 5,
     label: BUYER_SURFACE_VOCABULARY.auditTrail,
     // Canonical TB-405 path; legacy `/audit` permanently redirects here.
     href: auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID),
-    chipTooltip: "Chronological audit trail of review events for compliance and operational follow-up.",
+    chipTooltip:
+      "Chronological audit trail of review events — including recorded governance approval decisions for this sample.",
   },
 ] as const;
 
@@ -159,21 +152,6 @@ export function resolveBuyerGoldenJourneyNav(
       return null;
     } else if (pathMatchesGovernanceAudit(path)) {
       // Must run before the `/governance` catch-all — `/audit` permanently redirects to `/governance/audit`.
-      stepIdx = 4;
-    } else if (pathMatchesGovernanceApprovalQueue(path)) {
-      const governanceRunId =
-        options?.searchRunId?.trim() ??
-        new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
-        "";
-
-      if (governanceRunId.length === 0) {
-        return null;
-      }
-
-      if (!isBuyerGoldenSpineRunId(governanceRunId)) {
-        return null;
-      }
-
       stepIdx = 3;
     } else if (path.startsWith("/governance")) {
       return null;

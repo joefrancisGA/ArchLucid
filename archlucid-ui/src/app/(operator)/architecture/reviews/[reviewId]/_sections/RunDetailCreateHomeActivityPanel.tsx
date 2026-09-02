@@ -94,6 +94,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
               preFinalizeReadyToFinalize={props.preFinalizeReadyToFinalize}
               buyerAssessmentCopy
               diagnosticContext={props.pipelineDiagnosticContext}
+              deferFailureRecoveryToDoThisNext
             />
           </div>
         ) : null}

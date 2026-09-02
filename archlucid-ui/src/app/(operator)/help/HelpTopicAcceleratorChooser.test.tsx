@@ -178,10 +178,8 @@ describe("HelpAcceleratorChooserGuideView", () => {
     expect(
       screen.getByTestId("help-accelerator-chooser-pack-cost-governance-baseline-recommendation"),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("help-accelerator-chooser-start-azure-cost-governance")).toHaveAttribute(
-      "href",
-      "/architecture/reviews/new?baseline=1&accelerator=azure-cost-governance",
-    );
+    expect(screen.getByTestId("help-accelerator-chooser-start-cost-governance")).toBeDisabled();
+    expect(screen.queryByTestId("help-accelerator-chooser-start-azure-cost-governance")).toBeNull();
 
     fireEvent.click(screen.getByRole("radio", { name: "AWS" }));
 
@@ -231,7 +229,11 @@ describe("HelpAcceleratorChooserGuideView", () => {
   it("enables all pack CTAs when prerequisite is met", () => {
     renderGuideWithPrerequisiteStatus("met");
 
-    expect(screen.getAllByRole("link", { name: /start with this pack/i })).toHaveLength(5);
+    expect(screen.getAllByRole("link", { name: /start with this pack/i })).toHaveLength(4);
+    expect(screen.getByTestId("help-accelerator-chooser-start-cost-governance")).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("radio", { name: "Azure" }));
+
     expect(screen.getByTestId("help-accelerator-chooser-start-azure-cost-governance")).toHaveAttribute(
       "href",
       "/architecture/reviews/new?baseline=1&accelerator=azure-cost-governance",

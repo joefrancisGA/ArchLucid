@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Core.Tenancy;
@@ -58,6 +59,13 @@ public static class MarketplaceWebhookPayloadParser
                 return true;
             }
 
+            if (property.Value.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            {
+                value = property.Value.GetRawText();
+
+                return true;
+            }
+
             if (property.Value.ValueKind != JsonValueKind.String)
             {
                 value = null;
@@ -84,15 +92,78 @@ public static class MarketplaceWebhookPayloadParser
         if (!TryGetPropertyCaseInsensitive(root, "quantity", out JsonElement q))
             return Math.Max(1, fallback);
 
-        if (q.ValueKind == JsonValueKind.Number && q.TryGetInt32(out int n))
-            return Math.Max(1, n);
+        if (q.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(q, out int wholeNumber))
+            return Math.Max(1, wholeNumber);
 
         if (q.ValueKind != JsonValueKind.String)
             return Math.Max(1, fallback);
 
         string? s = q.GetString();
 
-        return Math.Max(1, int.TryParse(s, out int parsed) ? parsed : fallback);
+        if (TryParseWholeNumberString(s, out int parsed))
+            return Math.Max(1, parsed);
+
+        return Math.Max(1, fallback);
+    }
+
+    private static bool TryReadWholeNumberInt32(JsonElement element, out int value)
+    {
+        if (element.ValueKind != JsonValueKind.Number)
+        {
+            value = default;
+
+            return false;
+        }
+
+        if (element.TryGetInt32(out value))
+        {
+            return true;
+        }
+
+        if (element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberString(string? raw, out int value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static bool TryGetPropertyCaseInsensitive(JsonElement root, string propertyName, out JsonElement value)

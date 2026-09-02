@@ -1,3 +1,4 @@
+using ArchLucid.Application.Findings.PortfolioRecurrence;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
@@ -84,6 +85,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.AwsInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GcpInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.OpenCommitmentFindingEngine>();
+        services.AddPortfolioRecurrenceFindingEngine();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PortfolioRecurrenceFindingEngine>();
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();

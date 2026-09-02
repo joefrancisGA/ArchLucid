@@ -25,6 +25,7 @@ describe("ReviewWorkspaceTabStrip", () => {
 
     expect(resolved.moreTabIds.length).toBeGreaterThan(0);
     expect(screen.getByTestId("review-detail-workspace-tab-divider")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-workspace-tab-additional-label")).toHaveTextContent("Additional");
   });
 
   it("renders all workspace tabs in the desktop strip and a mobile section picker", () => {

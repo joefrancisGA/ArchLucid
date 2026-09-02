@@ -87,13 +87,13 @@ public sealed partial class DapperTenantRepository
 
             throw new TrialLimitExceededException(
                 TrialLimitReason.Expired,
-                ComputeDaysRemaining(row.TrialExpiresUtc));
+                TenantRepositoryCore.ComputeDaysRemaining(row.TrialExpiresUtc));
 
         if (row.TrialRunsUsed >= row.TrialRunsLimit.Value)
 
             throw new TrialLimitExceededException(
                 TrialLimitReason.RunsExceeded,
-                ComputeDaysRemaining(row.TrialExpiresUtc));
+                TenantRepositoryCore.ComputeDaysRemaining(row.TrialExpiresUtc));
 
         int updated = await connection.ExecuteAsync(
             new CommandDefinition(
@@ -110,7 +110,7 @@ public sealed partial class DapperTenantRepository
 
             throw new TrialLimitExceededException(
                 TrialLimitReason.RunsExceeded,
-                ComputeDaysRemaining(row.TrialExpiresUtc));
+                TenantRepositoryCore.ComputeDaysRemaining(row.TrialExpiresUtc));
     }
 
 
@@ -152,7 +152,7 @@ public sealed partial class DapperTenantRepository
 
             throw new TrialLimitExceededException(
                 TrialLimitReason.Expired,
-                ComputeDaysRemaining(t.TrialExpiresUtc));
+                TenantRepositoryCore.ComputeDaysRemaining(t.TrialExpiresUtc));
         }
 
         const string insertSql = """
@@ -217,7 +217,7 @@ public sealed partial class DapperTenantRepository
 
             throw new TrialLimitExceededException(
                 TrialLimitReason.SeatsExceeded,
-                ComputeDaysRemaining(t.TrialExpiresUtc));
+                TenantRepositoryCore.ComputeDaysRemaining(t.TrialExpiresUtc));
         }
 
         await tran.CommitAsync(ct).ConfigureAwait(false);

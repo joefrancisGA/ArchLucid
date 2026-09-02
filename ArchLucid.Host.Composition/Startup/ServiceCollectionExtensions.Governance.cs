@@ -121,6 +121,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<GovernanceWorkflowIntegrationEventSupport>();
         services.AddScoped<IGovernanceWorkflowSubmitStage, GovernanceWorkflowSubmitStage>();
         services.AddScoped<IGovernanceWorkflowReviewStage, GovernanceWorkflowReviewStage>();
+        services.AddScoped<IGovernanceWorkflowPromoteValidateStage, GovernanceWorkflowPromoteValidateStage>();
+        services.AddScoped<IGovernanceWorkflowPromotePersistStage, GovernanceWorkflowPromotePersistStage>();
         services.AddScoped<IGovernanceWorkflowPromoteStage, GovernanceWorkflowPromoteStage>();
         services.AddScoped<IGovernanceWorkflowActivateStage, GovernanceWorkflowActivateStage>();
         services.AddScoped<IGovernanceWorkflowFacade, GovernanceWorkflowFacade>();

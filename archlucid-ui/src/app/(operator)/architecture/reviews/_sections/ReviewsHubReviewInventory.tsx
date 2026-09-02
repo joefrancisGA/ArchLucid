@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
@@ -44,11 +44,15 @@ import {
   matchesFilter,
   matchesSearch,
   mergeRunsWithArchivedCache,
+  parseReviewsHubInventoryFilter,
+  parseReviewsHubInventorySearchQuery,
+  reviewsHubInventoryHrefFromSearch,
+  reviewsHubInventorySearchHrefFromSearch,
+  countRunsMatchingInventoryFilter,
   INVENTORY_FILTER_OPTIONS,
   sortRunsForInventory,
   type ReviewFilterId,
 } from "./reviews-hub-inventory-filters";
-import { REVIEWS_HUB_NEEDS_ATTENTION_FILTER } from "@/lib/reviews-hub-unfinished-work-href";
 import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
 type ReviewsHubReviewInventoryProps = {
@@ -75,37 +79,70 @@ function getServerOperatorScopeRecordSnapshot(): OperatorScopeRecord | null {
 function ReviewFilterChip(props: {
   readonly option: { id: ReviewFilterId; label: string };
   readonly selected: boolean;
+  readonly count: number;
   readonly onSelect: (id: ReviewFilterId) => void;
 }): React.JSX.Element {
   return (
     <FilterChip
       className={buyerFilterChipClass(props.selected, false)}
       aria-pressed={props.selected}
-      aria-label={`Filter reviews: ${props.option.label}`}
+      aria-label={`Filter reviews: ${props.option.label}${props.count > 0 ? ` (${props.count})` : ""}`}
       onClick={() => props.onSelect(props.option.id)}
     >
-      {props.option.label}
+      <span>{props.option.label}</span>
+      {props.count > 0 ? (
+        <span
+          className="ml-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-100"
+          aria-hidden
+        >
+          {props.count}
+        </span>
+      ) : null}
     </FilterChip>
   );
-}
-
-function resolveInitialInventoryFilter(searchParams: URLSearchParams): ReviewFilterId {
-  const filter = searchParams.get("filter");
-
-  if (filter === REVIEWS_HUB_NEEDS_ATTENTION_FILTER) {
-    return REVIEWS_HUB_NEEDS_ATTENTION_FILTER;
-  }
-
-  return "all";
 }
 
 /** Filterable review inventory for `/architecture/reviews`. */
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(() =>
-    resolveInitialInventoryFilter(searchParams),
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState(() =>
+    parseReviewsHubInventorySearchQuery(searchParams.get("q")),
   );
+  const urlFilter = parseReviewsHubInventoryFilter(searchParams.get("filter"));
+  const urlSearchQuery = parseReviewsHubInventorySearchQuery(searchParams.get("q"));
+  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(urlFilter);
+
+  useEffect(() => {
+    setActiveFilter(urlFilter);
+  }, [urlFilter]);
+
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = reviewsHubInventorySearchHrefFromSearch(searchParams.toString(), searchQuery);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [router, searchParams, searchQuery]);
+
+  const selectInventoryFilter = useCallback(
+    (filter: ReviewFilterId) => {
+      setActiveFilter(filter);
+      router.replace(reviewsHubInventoryHrefFromSearch(searchParams.toString(), filter), { scroll: false });
+    },
+    [router, searchParams],
+  );
+
   const { isFavorite } = useFavoriteReviews();
   const { archivedRuns } = useArchivedReviewsClientCache();
   const draftEntries = useArchitectureDraftRegistryEntries();
@@ -136,6 +173,19 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     return mergedRuns.filter((run) => !isArchivedRun(run));
   }, [activeFilter, mergedRuns]);
 
+  const filterCounts = useMemo(() => {
+    const counts = new Map<ReviewFilterId, number>();
+
+    for (const option of INVENTORY_FILTER_OPTIONS) {
+      counts.set(
+        option.id,
+        countRunsMatchingInventoryFilter(visibilityFilteredRuns, option.id, ownerContext, mergedRuns),
+      );
+    }
+
+    return counts;
+  }, [mergedRuns, ownerContext, visibilityFilteredRuns]);
+
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(
       (run) =>
@@ -164,7 +214,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     : null;
 
   return (
-    <section className="mt-4" data-testid="reviews-hub-recent-packages">
+    <section data-testid="reviews-hub-recent-packages">
       {rows.length === 0 ? (
         <div className="space-y-4">
           <ReviewsHubSummaryRow summary={props.summary} />
@@ -219,7 +269,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                     key={option.id}
                     option={option}
                     selected={activeFilter === option.id}
-                    onSelect={setActiveFilter}
+                    count={filterCounts.get(option.id) ?? 0}
+                    onSelect={selectInventoryFilter}
                   />
                 ))}
               </div>

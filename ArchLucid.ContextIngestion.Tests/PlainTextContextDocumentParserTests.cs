@@ -133,6 +133,23 @@ public sealed class PlainTextContextDocumentParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement()
+    {
+        ContextDocumentReference doc = new()
+        {
+            Name = "spec.txt",
+            ContentType = "text/plain",
+            Content = "REQ : Must scale horizontally"
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(doc, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].ObjectType.Should().Be("Requirement");
+        result[0].Properties["text"].Should().Be("must scale horizontally");
+    }
+
+    [Fact]
     public async Task ParseAsync_RequirementInternalWhitespace_Reparse_ProducesStableObjectId()
     {
         ContextDocumentReference spaced = new()

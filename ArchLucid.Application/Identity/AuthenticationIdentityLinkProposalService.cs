@@ -1,4 +1,3 @@
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Identity;
 
 namespace ArchLucid.Application.Identity;
@@ -44,9 +43,9 @@ public sealed class AuthenticationIdentityLinkProposalService(
     IPlatformIdentityService platformIdentity,
     IPlatformUserRepository users,
     IAuthenticationIdentityRepository identities,
-    IAuthenticationIdentityLinkProposalRepository proposals,
+    IAuthenticationIdentityLinkProposalPersistStage proposalPersistStage,
     IIdentityMigrationReviewRepository migrationReviews,
-    IAuditService auditService,
+    IAuthenticationIdentityLinkProposalAuditNotifier proposalAuditNotifier,
     TimeProvider timeProvider) : IAuthenticationIdentityLinkProposalService
 {
     private readonly IPlatformIdentityService _platformIdentity =
@@ -58,14 +57,14 @@ public sealed class AuthenticationIdentityLinkProposalService(
     private readonly IAuthenticationIdentityRepository _identities =
         identities ?? throw new ArgumentNullException(nameof(identities));
 
-    private readonly IAuthenticationIdentityLinkProposalRepository _proposals =
-        proposals ?? throw new ArgumentNullException(nameof(proposals));
+    private readonly IAuthenticationIdentityLinkProposalPersistStage _proposalPersistStage =
+        proposalPersistStage ?? throw new ArgumentNullException(nameof(proposalPersistStage));
 
     private readonly IIdentityMigrationReviewRepository _migrationReviews =
         migrationReviews ?? throw new ArgumentNullException(nameof(migrationReviews));
 
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IAuthenticationIdentityLinkProposalAuditNotifier _proposalAuditNotifier =
+        proposalAuditNotifier ?? throw new ArgumentNullException(nameof(proposalAuditNotifier));
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -119,18 +118,13 @@ public sealed class AuthenticationIdentityLinkProposalService(
             ExpiresUtc = now.AddMinutes(AuthenticationIdentityLinkingSupport.LinkProposalLifetimeMinutes)
         };
 
-        await _proposals.InsertAsync(proposal, cancellationToken).ConfigureAwait(false);
+        await _proposalPersistStage.InsertAsync(proposal, cancellationToken).ConfigureAwait(false);
 
-        await AuthAuditEmitter.LogIdentityEventAsync(
-                _auditService,
-                AuditEventTypes.AuthenticationIdentityLinkProposed,
+        await _proposalAuditNotifier.LogProposedAsync(
                 actorId,
-                new
-                {
-                    proposalId = proposal.Id,
-                    providerType = externalKey.ProviderType.ToString(),
-                    requiresExplicitConfirmation
-                },
+                proposal.Id,
+                externalKey.ProviderType.ToString(),
+                requiresExplicitConfirmation,
                 cancellationToken)
             .ConfigureAwait(false);
 
@@ -161,8 +155,7 @@ public sealed class AuthenticationIdentityLinkProposalService(
             .AttachIdentityToExistingUserAsync(userId, attachRequest, cancellationToken)
             .ConfigureAwait(false);
 
-        // Finalize the proposal only after attachment succeeded so a failed attach leaves it retryable.
-        bool confirmed = await _proposals
+        bool confirmed = await _proposalPersistStage
             .TryUpdateStatusAsync(
                 proposalId,
                 AuthenticationIdentityLinkProposalStatus.Confirmed,
@@ -170,15 +163,10 @@ public sealed class AuthenticationIdentityLinkProposalService(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        // Attachment is idempotent for this user's key. A lost finalization race is only an
-        // idempotent retry when the proposal is already Confirmed; re-read it and fail the
-        // confirm otherwise so a terminal (cancelled/expired) proposal is not left with a
-        // linked identity. The confirmed-audit is skipped for the losing transition.
-
         if (!confirmed)
         {
             AuthenticationIdentityLinkProposalRecord? current =
-                await _proposals.GetByIdAsync(proposalId, cancellationToken).ConfigureAwait(false);
+                await _proposalPersistStage.GetByIdAsync(proposalId, cancellationToken).ConfigureAwait(false);
 
             if (current?.Status == AuthenticationIdentityLinkProposalStatus.Confirmed)
             {
@@ -195,16 +183,11 @@ public sealed class AuthenticationIdentityLinkProposalService(
             throw new AuthenticationIdentityLinkProposalNotFoundException(proposalId);
         }
 
-        await AuthAuditEmitter.LogIdentityEventAsync(
-                _auditService,
-                AuditEventTypes.AuthenticationIdentityLinkConfirmed,
+        await _proposalAuditNotifier.LogConfirmedAsync(
                 actorId,
-                new
-                {
-                    proposalId,
-                    identityId = attached.Id,
-                    providerType = attached.ProviderType.ToString()
-                },
+                proposalId,
+                attached.Id,
+                attached.ProviderType.ToString(),
                 cancellationToken)
             .ConfigureAwait(false);
 
@@ -227,13 +210,7 @@ public sealed class AuthenticationIdentityLinkProposalService(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        await AuthAuditEmitter.LogIdentityEventAsync(
-                _auditService,
-                AuditEventTypes.AuthenticationIdentityLinkCancelled,
-                actorId,
-                new { proposalId },
-                cancellationToken)
-            .ConfigureAwait(false);
+        await _proposalAuditNotifier.LogCancelledAsync(actorId, proposalId, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task EnsureEmailNotAlreadyLinkedToAnotherUserAsync(
@@ -252,8 +229,6 @@ public sealed class AuthenticationIdentityLinkProposalService(
 
         _ = userId;
         _ = actorId;
-
-        // Email match is guidance only — never authorize linking from email alone.
     }
 
     private async Task<AuthenticationIdentityLinkProposalView> CreateProposalFromVerifiedExternalAsync(
@@ -321,15 +296,10 @@ public sealed class AuthenticationIdentityLinkProposalService(
             _timeProvider.GetUtcNow(),
             cancellationToken).ConfigureAwait(false);
 
-        await AuthAuditEmitter.LogIdentityEventAsync(
-                _auditService,
-                AuditEventTypes.AuthenticationIdentityLinkFailed,
+        await _proposalAuditNotifier.LogFailedAsync(
                 actorId,
-                new
-                {
-                    reason = "external_identity_attached_elsewhere",
-                    providerType = externalKey.ProviderType.ToString()
-                },
+                "external_identity_attached_elsewhere",
+                externalKey.ProviderType.ToString(),
                 cancellationToken)
             .ConfigureAwait(false);
 
@@ -342,7 +312,7 @@ public sealed class AuthenticationIdentityLinkProposalService(
         CancellationToken cancellationToken)
     {
         AuthenticationIdentityLinkProposalRecord? proposal =
-            await _proposals.GetByIdAsync(proposalId, cancellationToken).ConfigureAwait(false);
+            await _proposalPersistStage.GetByIdAsync(proposalId, cancellationToken).ConfigureAwait(false);
 
         if (proposal is null || proposal.UserId != userId)
         {
@@ -356,7 +326,7 @@ public sealed class AuthenticationIdentityLinkProposalService(
 
         if (proposal.ExpiresUtc <= _timeProvider.GetUtcNow())
         {
-            _ = await _proposals
+            _ = await _proposalPersistStage
                 .TryUpdateStatusAsync(
                     proposalId,
                     AuthenticationIdentityLinkProposalStatus.Expired,
@@ -376,7 +346,7 @@ public sealed class AuthenticationIdentityLinkProposalService(
         DateTimeOffset statusUtc,
         CancellationToken cancellationToken)
     {
-        bool updated = await _proposals
+        bool updated = await _proposalPersistStage
             .TryUpdateStatusAsync(proposalId, status, statusUtc, cancellationToken)
             .ConfigureAwait(false);
 
@@ -386,7 +356,7 @@ public sealed class AuthenticationIdentityLinkProposalService(
         }
 
         AuthenticationIdentityLinkProposalRecord? current =
-            await _proposals.GetByIdAsync(proposalId, cancellationToken).ConfigureAwait(false);
+            await _proposalPersistStage.GetByIdAsync(proposalId, cancellationToken).ConfigureAwait(false);
 
         if (current?.Status == AuthenticationIdentityLinkProposalStatus.Expired
             || (current?.Status == AuthenticationIdentityLinkProposalStatus.PendingConfirmation

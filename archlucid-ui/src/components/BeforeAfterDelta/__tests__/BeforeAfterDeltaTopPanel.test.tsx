@@ -147,4 +147,16 @@ describe("BeforeAfterDeltaTopPanel", () => {
 
     expect(calls.some((u) => u.includes("count=2"))).toBe(true);
   });
+
+  it("omits the standalone card heading when embedded in a collapsible section", async () => {
+    installRecentDeltasFetch(makePayload([makeRow({ runId: "row1" })]));
+
+    render(<BeforeAfterDeltaTopPanel embeddedInCollapsible />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("before-after-delta-panel-top")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole("heading", { name: /recent finalized reviews/i })).toBeNull();
+  });
 });

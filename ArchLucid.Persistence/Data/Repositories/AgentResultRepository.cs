@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Sql;
 
 using Dapper;
@@ -18,9 +19,6 @@ public sealed class AgentResultRepository(
     IDbConnectionFactory connectionFactory,
     IAgentResultEnrichmentRepository agentResultEnrichmentRepository) : IAgentResultRepository
 {
-    /// <summary>SQL Server error numbers for unique index / primary key violations.</summary>
-    private static readonly int[] UniqueViolationErrorNumbers = [2627, 2601];
-
     private readonly IAgentResultEnrichmentRepository _agentResultEnrichmentRepository =
         agentResultEnrichmentRepository ?? throw new ArgumentNullException(nameof(agentResultEnrichmentRepository));
 
@@ -68,7 +66,7 @@ public sealed class AgentResultRepository(
         if (results.Count == 0)
             return;
 
-        RequireSingleRun(results);
+        AgentResultRepositoryCore.RequireSingleRun(results);
 
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken)
@@ -283,21 +281,7 @@ public sealed class AgentResultRepository(
     }
 
     private static bool IsUniqueViolation(SqlException exception) =>
-        UniqueViolationErrorNumbers.Contains(exception.Number);
-
-    /// <summary>
-    ///     Batch inserts share one <c>(RunId, TaskId)</c> conflict report, so a batch spanning runs would attribute a
-    ///     conflict to the wrong run.
-    /// </summary>
-    private static void RequireSingleRun(IReadOnlyList<AgentResult> results)
-    {
-        List<string> distinctRunIds = results.Select(static r => r.RunId).Distinct().ToList();
-
-        if (distinctRunIds.Count > 1)
-            throw new ArgumentException(
-                $"All results in a batch must belong to the same run. Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
-                nameof(results));
-    }
+        AgentResultRepositoryCore.IsUniqueViolation(exception);
 
     private async Task<IEnumerable<TRow>> QueryRunScopedAsync<TRow>(
         string sql,
