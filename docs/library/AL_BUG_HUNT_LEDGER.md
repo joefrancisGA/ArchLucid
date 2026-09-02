@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 77
-- **bugs-found:** 189
+- **hunts:** 78
+- **bugs-found:** 190
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AwsEc2OfferIndexParser boolean USD price tokens ignored
+- **last-bug:** 2026-09-02 — costing parser unit/usageUnit trim and GCP boolean price tokens
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2017,7 +2017,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `AwsEc2OfferIndexParser.TryReadUsdPrice` — boolean / string-encoded boolean `pricePerUnit.USD` JSON tokens ignored — **hit 2026-09-02 (#489):** `"USD":true` and `"USD":"true"` returned null while numeric/string price tokens already parsed in #486; fixed with boolean coercion and `TryGetDouble` fallback (`TryGetLinuxOnDemandHourlyUsd_parses_boolean_usd_price`, `TryGetLinuxOnDemandHourlyUsd_parses_string_encoded_boolean_usd_price`).
 
-2026-09-02 seed hunt #489: reseeded from ArchLucid.Core costing parsers; proved AWS offer-index boolean USD price coercion gap after #486 numeric-token fix.
+- [x] (proven) `AwsEc2OfferIndexParser` / `GcpCloudBillingCatalogClient` — whitespace-padded hourly `unit` / `usageUnit` strings rejected — **hit 2026-09-02 (#490):** `"unit":" Hrs "` and `"usageUnit":" h "` skipped hourly SKUs while unpadded tokens matched; fixed with trim-aware unit checks (`TryGetLinuxOnDemandHourlyUsd_parses_whitespace_padded_unit`, `TryGetComputeEngineMonthlyUsdAsync_parses_whitespace_padded_usage_unit`).
+- [x] (proven) `GcpCloudBillingCatalogClient.TryReadInt32Token` / `TryReadInt64Token` — boolean `unitPrice.units` / `unitPrice.nanos` JSON tokens ignored — **hit 2026-09-02 (#490):** `"nanos":true` returned null after #487–#488 numeric fixes; fixed with boolean coercion on units/nanos readers (`TryGetComputeEngineMonthlyUsdAsync_parses_boolean_unit_price_tokens`).
+
+2026-09-02 seed hunt #490: reseeded from ArchLucid.Core costing parsers; proved whitespace-padded unit matching and GCP boolean units/nanos coercion gaps after #489 AWS USD boolean fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

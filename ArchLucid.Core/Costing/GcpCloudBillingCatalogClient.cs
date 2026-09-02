@@ -151,7 +151,7 @@ public sealed class GcpCloudBillingCatalogClient
                     continue;
 
                 if (!expression.TryGetProperty("usageUnit", out JsonElement usageUnit)
-                    || !string.Equals(usageUnit.GetString(), "h", StringComparison.OrdinalIgnoreCase))
+                    || !IsHourlyUsageUnit(usageUnit))
                 {
                     continue;
                 }
@@ -206,6 +206,16 @@ public sealed class GcpCloudBillingCatalogClient
         return hourlyUsd > 0m;
     }
 
+    private static bool IsHourlyUsageUnit(JsonElement element)
+    {
+        if (element.ValueKind != JsonValueKind.String)
+            return false;
+
+        string? raw = element.GetString();
+
+        return string.Equals(raw?.Trim(), "h", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool TryReadInt64Token(JsonElement element, out long value)
     {
         if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out value))
@@ -216,6 +226,13 @@ public sealed class GcpCloudBillingCatalogClient
             && numeric <= long.MaxValue)
         {
             value = (long)numeric;
+
+            return true;
+        }
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.ValueKind == JsonValueKind.True ? 1L : 0L;
 
             return true;
         }
@@ -234,6 +251,13 @@ public sealed class GcpCloudBillingCatalogClient
             value = default;
 
             return false;
+        }
+
+        if (TryParseBooleanString(raw, out bool boolean))
+        {
+            value = boolean ? 1L : 0L;
+
+            return true;
         }
 
         if (long.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
@@ -267,6 +291,13 @@ public sealed class GcpCloudBillingCatalogClient
             return true;
         }
 
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.ValueKind == JsonValueKind.True ? 1 : 0;
+
+            return true;
+        }
+
         if (element.ValueKind != JsonValueKind.String)
         {
             value = default;
@@ -283,10 +314,55 @@ public sealed class GcpCloudBillingCatalogClient
             return false;
         }
 
+        if (TryParseBooleanString(raw, out bool boolean))
+        {
+            value = boolean ? 1 : 0;
+
+            return true;
+        }
+
         if (int.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
             return true;
 
         return TryParseWholeNumberString(raw.Trim(), out value);
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("enabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("disabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static bool TryReadWholeNumberDouble(JsonElement element, out double value)

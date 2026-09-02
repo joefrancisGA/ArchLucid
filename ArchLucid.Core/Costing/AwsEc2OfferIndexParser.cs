@@ -68,7 +68,7 @@ public static class AwsEc2OfferIndexParser
                     if (!dimension.Value.TryGetProperty("unit", out JsonElement unitElement))
                         continue;
 
-                    if (!string.Equals(unitElement.GetString(), "Hrs", StringComparison.OrdinalIgnoreCase))
+                    if (!TryReadHourlyUnit(unitElement))
                         continue;
 
                     if (!dimension.Value.TryGetProperty("pricePerUnit", out JsonElement pricePerUnit))
@@ -131,6 +131,16 @@ public static class AwsEc2OfferIndexParser
 
         return decimal.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out hourlyUsd)
             && hourlyUsd > 0m;
+    }
+
+    private static bool TryReadHourlyUnit(JsonElement element)
+    {
+        if (element.ValueKind != JsonValueKind.String)
+            return false;
+
+        string? raw = element.GetString();
+
+        return string.Equals(raw?.Trim(), "Hrs", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryParseBooleanString(string? raw, out bool value)
