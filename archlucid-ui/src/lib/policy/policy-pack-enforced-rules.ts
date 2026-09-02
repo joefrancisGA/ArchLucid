@@ -52,10 +52,10 @@ function resolveSourcePackLabel(
   const metadataRuleSetId = ruleSetId?.trim() ?? "";
 
   if (metadataRuleSetId.length > 0) {
-    return policyPackBuyerLabel(metadataRuleSetId, primary.version);
+    return policyPackBuyerLabel(metadataRuleSetId, primary.version ?? "");
   }
 
-  return primary.name;
+  return primary.name ?? "";
 }
 
 export function buildPolicyPackEnforcedRuleRows(

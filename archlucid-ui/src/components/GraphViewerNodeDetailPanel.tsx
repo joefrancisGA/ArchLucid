@@ -112,7 +112,7 @@ export function GraphViewerNodeDetailPanel({
         ? (() => {
             const dispositionLine = graphBuyerTrailDispositionLine(
               selectedNode.type,
-              selectedNode.metadata,
+              selectedNode.metadata ?? undefined,
             );
 
             if (dispositionLine === null) {
