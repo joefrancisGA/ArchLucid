@@ -29,20 +29,6 @@ export function deriveOperatorHomeWorkspaceMetrics(
   totalCount: number,
 ): OperatorHomeWorkspaceMetricsSnapshot {
   const reviewPackagesTotal = Math.max(0, totalCount);
-  const loadedRunCount = items.length;
-  const aggregatesFromLoadedPageOnly = loadedRunCount < reviewPackagesTotal;
-
-  if (aggregatesFromLoadedPageOnly) {
-    return {
-      reviewPackagesTotal,
-      reviewPackagesCommitted: 0,
-      reviewPackagesActive: 0,
-      openFindings: 0,
-      governanceWarnings: 0,
-      evidenceSources: 0,
-      hasReviews: reviewPackagesTotal > 0,
-    };
-  }
 
   let reviewPackagesCommitted = 0;
   let reviewPackagesActive = 0;

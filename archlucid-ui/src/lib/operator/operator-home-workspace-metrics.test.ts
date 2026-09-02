@@ -31,12 +31,13 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     });
   });
 
-  it("does not treat a paginated runs page as workspace-wide open findings total", () => {
+  it("aggregates loaded-page KPIs when the dashboard is paginated", () => {
     const items: RunSummary[] = [
       makeRun({
         runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         hasFindingsSnapshot: true,
         findingCount: 2,
+        hasGovernanceWarnings: true,
       }),
     ];
 
@@ -44,9 +45,10 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
 
     expect(metrics.reviewPackagesTotal).toBe(10);
     expect(metrics.hasReviews).toBe(true);
-    expect(metrics.openFindings).toBe(0);
+    expect(metrics.openFindings).toBe(2);
     expect(metrics.reviewPackagesCommitted).toBe(0);
-    expect(metrics.reviewPackagesActive).toBe(0);
+    expect(metrics.reviewPackagesActive).toBe(1);
+    expect(metrics.governanceWarnings).toBe(1);
   });
 
   it("aggregates committed, active, findings, warnings, and evidence from runs", () => {

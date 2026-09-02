@@ -10,10 +10,8 @@ import {
   formatOperatorHomeCompactMetricsLine,
 } from "@/lib/operator/operator-home-workspace-metrics";
 import {
-  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
-} from "@/lib/governance/governance-route-paths";
-import {
   OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF,
+  OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
   OPERATOR_HOME_OPEN_FINDINGS_HREF,
   OPERATOR_HOME_SETUP_READINESS_HREF,
 } from "@/lib/operator/operator-home-metric-hrefs";
@@ -88,7 +86,7 @@ export function OperatorHomeWorkspaceMetricsStrip(
           href={OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF}
         />
         <MetricTile label={findingsLabel} href={OPERATOR_HOME_OPEN_FINDINGS_HREF} />
-        <MetricTile label={warningsLabel} href={GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH} />
+        <MetricTile label={warningsLabel} href={OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF} />
         <MetricTile
           label={setupLabel}
           href={readiness.phase === "loading" ? undefined : OPERATOR_HOME_SETUP_READINESS_HREF}

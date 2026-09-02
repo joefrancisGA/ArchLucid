@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
@@ -37,6 +37,7 @@ import {
   resolveRunsDashboardStatusTabIds,
   RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
+import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator/operator-home-metric-hrefs";
 import { fetchPagedReviewsInventory, restoreArchitectureRequest } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -76,6 +77,7 @@ export function useRunsDashboardPanel({
   initialModel = null,
 }: UseRunsDashboardPanelOptions = {}) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [tab, setTab] = useState<RunsDashboardTabId>("all");
   const [governanceWarningsOnly, setGovernanceWarningsOnly] = useState(() =>
     homeGovernanceWarningsQueryEnabled(searchParams),
@@ -424,6 +426,16 @@ export function useRunsDashboardPanel({
     setShowArchived(false);
   }, []);
 
+  const clearGovernanceWarningsFilter = useCallback(() => {
+    setGovernanceWarningsOnly(false);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM);
+    const query = params.toString();
+
+    router.replace(query.length === 0 ? "/" : `/?${query}`, { scroll: false });
+  }, [router, searchParams]);
+
   return {
     hideHeading,
     tab,
@@ -463,6 +475,7 @@ export function useRunsDashboardPanel({
     archivedFilterDisabled,
     selectDashboardTab,
     restoreArchivedRequest,
+    clearGovernanceWarningsFilter,
   };
 }
 

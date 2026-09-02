@@ -103,7 +103,7 @@ export function GovernanceFindingsQueueHeader({
         metadata={
           isAssignedToMe ? (
             assignedToMeHeaderMetadata
-          ) : !buyerPolishedShell && !loading ? (
+          ) : !loading ? (
             <>
               <SelfDescribingMetricCount
                 variant="inline"

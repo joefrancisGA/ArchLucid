@@ -142,10 +142,16 @@ export default function GovernanceFindingsQueueClient({
           objectPlural: "findings",
         })
       : null;
+  const findingsAdvancedFiltersAvailable = !loading && rows.length > 0 && !isAssignedToMe;
   const filterBarVisible = !buyerPolishedShell && !loading && rows.length > 0;
   const compactRegisterFilterVisible = buyerPolishedShell && !loading && !isAssignedToMe;
-  const effectiveJobView = resolveEffectiveFindingJobView(jobView, filterBarVisible);
-  const jobViewFilterActive = filterBarVisible && jobView !== DEFAULT_FINDING_JOB_VIEW;
+  const advancedFiltersDisclosureVisible = buyerPolishedShell && findingsAdvancedFiltersAvailable;
+  const effectiveJobView = resolveEffectiveFindingJobView(
+    jobView,
+    filterBarVisible || advancedFiltersDisclosureVisible,
+  );
+  const jobViewFilterActive =
+    (filterBarVisible || advancedFiltersDisclosureVisible) && jobView !== DEFAULT_FINDING_JOB_VIEW;
   const scopedRows = useMemo(
     () => filterGovernanceFindingsScopedRows(rows, scopedRunId),
     [rows, scopedRunId],
@@ -352,6 +358,7 @@ export default function GovernanceFindingsQueueClient({
         scopeRecordProjectId={scopeRecord?.projectId}
         filterBarVisible={filterBarVisible}
         compactRegisterFilterVisible={compactRegisterFilterVisible}
+        advancedFiltersDisclosureVisible={advancedFiltersDisclosureVisible}
         registerFilter={registerFilter}
         onRegisterFilterChange={setRegisterFilter}
         onJobViewChange={setJobView}
