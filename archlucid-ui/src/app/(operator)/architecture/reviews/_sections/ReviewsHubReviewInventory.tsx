@@ -87,6 +87,7 @@ function ReviewFilterChip(props: {
   return (
     <FilterChip
       href={props.href}
+      scroll={false}
       className={buyerFilterChipClass(props.selected, false)}
       aria-current={props.selected ? "page" : undefined}
       aria-label={`Filter reviews: ${props.option.label}${props.count > 0 ? ` (${props.count})` : ""}`}
@@ -180,6 +181,15 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const clearInventoryFilter = useCallback(() => {
     router.replace(reviewsHubInventoryClearFilterHrefFromSearch(currentSearch), { scroll: false });
   }, [currentSearch, router]);
+
+  const clearInventorySearch = useCallback(() => {
+    router.replace(reviewsHubInventoryClearSearchHrefFromSearch(searchParams.toString()), { scroll: false });
+  }, [router, searchParams]);
+
+  const clearInventoryFilter = useCallback(() => {
+    setActiveFilter("all");
+    router.replace(reviewsHubInventoryClearFilterHrefFromSearch(searchParams.toString()), { scroll: false });
+  }, [router, searchParams]);
 
   const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 

@@ -14,6 +14,7 @@ export type FilterChipProps = {
   readonly "aria-current"?: boolean | "page" | "step" | "location" | "date" | "time";
   readonly "aria-describedby"?: string;
   readonly disabled?: boolean;
+  readonly scroll?: boolean;
   readonly "data-testid"?: string;
 };
 
@@ -28,6 +29,7 @@ export function FilterChip(props: FilterChipProps): ReactElement {
     return (
       <Link
         href={props.href}
+        scroll={props.scroll}
         className={shell}
         aria-label={props["aria-label"]}
         aria-current={props["aria-current"]}

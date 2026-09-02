@@ -1,16 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
-import {
-  homeGovernanceWarningsClearHrefFromSearch,
-  homeGovernanceWarningsHrefFromSearch,
-  runsDashboardHomeHrefFromSearch,
-} from "@/components/operator-home/runs-dashboard-panel-presentation";
+import { runsDashboardHomeHrefFromSearch } from "@/components/operator-home/runs-dashboard-panel-presentation";
+import { RunsDashboardStatusTabLinks } from "@/components/operator-home/RunsDashboardStatusTabLinks";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { FilterChip } from "@/components/ui/filter-chip";
-import { RunsDashboardStatusTabLinks } from "@/components/operator-home/RunsDashboardStatusTabLinks";
 import {
   BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
@@ -20,7 +17,6 @@ import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 export type RunsDashboardPanelFiltersProps = {
   readonly buyerPolishedShell: boolean;
@@ -95,8 +91,9 @@ export function RunsDashboardPanelFilters({
           showArchived ? (
             <FilterChip
               href={runsDashboardHomeHrefFromSearch(currentSearch, { tab: "all", showArchived: false })}
+              scroll={false}
               className={buyerFilterChipClass(true, archivedFilterDisabled)}
-              aria-current={true}
+              aria-current="page"
               aria-label={`Filter reviews: Archived ${archivedCount}`}
               data-testid="runs-dashboard-show-archived"
             >
@@ -105,6 +102,7 @@ export function RunsDashboardPanelFilters({
           ) : (
             <FilterChip
               href={archivedFilterDisabled ? undefined : archivedHref}
+              scroll={false}
               className={buyerFilterChipClass(false, archivedFilterDisabled)}
               aria-label={`Filter reviews: Archived ${archivedCount}`}
               disabled={archivedFilterDisabled}

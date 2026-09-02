@@ -39,10 +39,11 @@ public static class EffectfulFindingEngineEvidenceLoader
             return pinnedDownload;
         }
 
-        if (analysisContext?.EvidencePins is { Count: > 0 })
+        if (analysisContext?.HasCreateTimeEvidencePinCommitment == true
+            || analysisContext?.EvidencePins is { Count: > 0 })
         {
             throw new ConflictException(
-                "Effectful finding engine blocked: run has create-time evidence pins but no Azure package was pinned.");
+                "Effectful finding engine blocked: run has create-time evidence pin commitment but no Azure package was pinned.");
         }
 
         return await repository.TryGetLatestDownloadInScopeAsync(scope, cancellationToken).ConfigureAwait(false);
@@ -82,10 +83,11 @@ public static class EffectfulFindingEngineEvidenceLoader
             return pinnedDownload;
         }
 
-        if (analysisContext?.EvidencePins is { Count: > 0 })
+        if (analysisContext?.HasCreateTimeEvidencePinCommitment == true
+            || analysisContext?.EvidencePins is { Count: > 0 })
         {
             throw new ConflictException(
-                $"Effectful finding engine blocked: run has create-time evidence pins but no {cloudProvider} package was pinned.");
+                $"Effectful finding engine blocked: run has create-time evidence pin commitment but no {cloudProvider} package was pinned.");
         }
 
         return await repository.TryGetLatestDownloadInScopeAsync(scope, cloudProvider, cancellationToken)

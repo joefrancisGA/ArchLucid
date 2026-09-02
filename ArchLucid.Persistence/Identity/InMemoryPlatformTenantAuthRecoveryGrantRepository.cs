@@ -15,23 +15,9 @@ public sealed class InMemoryPlatformTenantAuthRecoveryGrantRepository : IPlatfor
         _ = cancellationToken;
         ArgumentNullException.ThrowIfNull(grant);
 
-        Guid grantId = grant.GrantId != Guid.Empty ? grant.GrantId : Guid.NewGuid();
-        PlatformTenantAuthRecoveryGrantRecord stored = new()
-        {
-            GrantId = grantId,
-            TenantId = grant.TenantId,
-            NormalizedDomain = grant.NormalizedDomain,
-            Reason = grant.Reason,
-            EvidenceReference = grant.EvidenceReference,
-            GrantedByActorId = grant.GrantedByActorId,
-            GrantedUtc = grant.GrantedUtc,
-            ExpiresUtc = grant.ExpiresUtc,
-            RevokedUtc = grant.RevokedUtc,
-            RevokedByActorId = grant.RevokedByActorId,
-            TenantNotifiedUtc = grant.TenantNotifiedUtc
-        };
+        PlatformTenantAuthRecoveryGrantRecord stored = PlatformTenantAuthRecoveryGrantRepositoryCore.PrepareInsert(grant);
 
-        _byId[grantId] = stored;
+        _byId[stored.GrantId] = stored;
 
         return Task.FromResult(stored);
     }
@@ -45,10 +31,7 @@ public sealed class InMemoryPlatformTenantAuthRecoveryGrantRepository : IPlatfor
         _ = cancellationToken;
 
         PlatformTenantAuthRecoveryGrantRecord? match = _byId.Values
-            .Where(row =>
-                row.TenantId == tenantId
-                && string.Equals(row.NormalizedDomain, normalizedDomain, StringComparison.Ordinal)
-                && row.IsActive(nowUtc))
+            .Where(row => PlatformTenantAuthRecoveryGrantRepositoryCore.MatchesActiveGrant(row, tenantId, normalizedDomain, nowUtc))
             .OrderByDescending(row => row.GrantedUtc)
             .FirstOrDefault();
 
@@ -73,29 +56,15 @@ public sealed class InMemoryPlatformTenantAuthRecoveryGrantRepository : IPlatfor
         _ = cancellationToken;
 
         if (!_byId.TryGetValue(grantId, out PlatformTenantAuthRecoveryGrantRecord? existing))
-        {
             return Task.FromResult(false);
-        }
 
         if (existing.RevokedUtc is not null)
-        {
             return Task.FromResult(false);
-        }
 
-        _byId[grantId] = new PlatformTenantAuthRecoveryGrantRecord
-        {
-            GrantId = existing.GrantId,
-            TenantId = existing.TenantId,
-            NormalizedDomain = existing.NormalizedDomain,
-            Reason = existing.Reason,
-            EvidenceReference = existing.EvidenceReference,
-            GrantedByActorId = existing.GrantedByActorId,
-            GrantedUtc = existing.GrantedUtc,
-            ExpiresUtc = existing.ExpiresUtc,
-            RevokedUtc = revokedUtc,
-            RevokedByActorId = revokedByActorId,
-            TenantNotifiedUtc = existing.TenantNotifiedUtc
-        };
+        _byId[grantId] = PlatformTenantAuthRecoveryGrantRepositoryCore.WithRevoked(
+            existing,
+            revokedByActorId,
+            revokedUtc);
 
         return Task.FromResult(true);
     }
@@ -105,24 +74,9 @@ public sealed class InMemoryPlatformTenantAuthRecoveryGrantRepository : IPlatfor
         _ = cancellationToken;
 
         if (!_byId.TryGetValue(grantId, out PlatformTenantAuthRecoveryGrantRecord? existing))
-        {
             return Task.CompletedTask;
-        }
 
-        _byId[grantId] = new PlatformTenantAuthRecoveryGrantRecord
-        {
-            GrantId = existing.GrantId,
-            TenantId = existing.TenantId,
-            NormalizedDomain = existing.NormalizedDomain,
-            Reason = existing.Reason,
-            EvidenceReference = existing.EvidenceReference,
-            GrantedByActorId = existing.GrantedByActorId,
-            GrantedUtc = existing.GrantedUtc,
-            ExpiresUtc = existing.ExpiresUtc,
-            RevokedUtc = existing.RevokedUtc,
-            RevokedByActorId = existing.RevokedByActorId,
-            TenantNotifiedUtc = notifiedUtc
-        };
+        _byId[grantId] = PlatformTenantAuthRecoveryGrantRepositoryCore.WithTenantNotified(existing, notifiedUtc);
 
         return Task.CompletedTask;
     }

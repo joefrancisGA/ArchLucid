@@ -47,8 +47,9 @@ export function GovernanceFindingsRegisterFilterCompact(
       <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Show</span>
       <FilterChip
         href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, "all", pathname)}
+        scroll={false}
         className={buyerFilterChipClass(props.registerFilter === "all", false)}
-        aria-current={props.registerFilter === "all" ? true : undefined}
+        aria-current={props.registerFilter === "all" ? "page" : undefined}
       >
         {renderFilterLabel("all", RISK_REGISTER_FILTER_LABELS.all, props.allCount)}
       </FilterChip>
@@ -56,8 +57,9 @@ export function GovernanceFindingsRegisterFilterCompact(
         <FilterChip
           key={filter}
           href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, filter, pathname)}
+          scroll={false}
           className={buyerFilterChipClass(props.registerFilter === filter, false)}
-          aria-current={props.registerFilter === filter ? true : undefined}
+          aria-current={props.registerFilter === filter ? "page" : undefined}
         >
           {renderFilterLabel(
             filter,

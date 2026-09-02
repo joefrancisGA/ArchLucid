@@ -38,8 +38,9 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
       {props.governanceWarningsOnly ? (
         <FilterChip
           href={homeGovernanceWarningsClearHrefFromSearch(currentSearch)}
+          scroll={false}
           className={buyerFilterChipClass(true, false)}
-          aria-current={true}
+          aria-current="page"
           aria-label={RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
           data-testid="runs-dashboard-governance-warnings-only"
         >
@@ -48,6 +49,7 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
       ) : (
         <FilterChip
           href={homeGovernanceWarningsHrefFromSearch(currentSearch)}
+          scroll={false}
           className={buyerFilterChipClass(false, false)}
           aria-label={RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
           data-testid="runs-dashboard-governance-warnings-only"
@@ -59,8 +61,9 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
         props.showArchived ? (
           <FilterChip
             href={runsDashboardHomeHrefFromSearch(currentSearch, { showArchived: false })}
+            scroll={false}
             className={buyerFilterChipClass(true, props.archivedFilterDisabled)}
-            aria-current={true}
+            aria-current="page"
             aria-label={RUNS_DASHBOARD_LABELS.showArchived}
             data-testid="runs-dashboard-show-archived"
           >
@@ -69,6 +72,7 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
         ) : (
           <FilterChip
             href={props.archivedFilterDisabled ? undefined : runsDashboardHomeHrefFromSearch(currentSearch, { showArchived: true })}
+            scroll={false}
             className={buyerFilterChipClass(false, props.archivedFilterDisabled)}
             aria-label={RUNS_DASHBOARD_LABELS.showArchived}
             disabled={props.archivedFilterDisabled}

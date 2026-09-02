@@ -1,6 +1,7 @@
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Runs;
+using ArchLucid.Core.Runs;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Runs.Enrichment;

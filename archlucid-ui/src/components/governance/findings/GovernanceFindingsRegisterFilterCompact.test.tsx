@@ -41,7 +41,7 @@ describe("GovernanceFindingsRegisterFilterCompact", () => {
       "href",
       "/governance/findings?q=payments",
     );
-    expect(screen.getByRole("link", { name: "Open (4)" })).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("link", { name: "Open (4)" })).toHaveAttribute("aria-current", "page");
     const openHref = screen.getByRole("link", { name: "Open (4)" }).getAttribute("href");
     expect(openHref).toContain("filter=open");
     expect(openHref).toContain("q=payments");

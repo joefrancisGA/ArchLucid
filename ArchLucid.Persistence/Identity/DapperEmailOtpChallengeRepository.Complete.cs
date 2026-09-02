@@ -77,34 +77,23 @@ public sealed partial class DapperEmailOtpChallengeRepository
 
         EmailOtpChallengeRecord record = existing.ToRecord();
 
-        if (record.CompletedUtc is not null)
+        (EmailOtpChallengeCompletionOutcome outcome, EmailOtpChallengeRecord? updated) =
+            EmailOtpChallengeRepositoryCore.EvaluateCompletion(record, codeHash, nowUtc, maxFailedAttempts);
+
+        if (outcome.Result is EmailOtpChallengeCompletionResult.NotFound
+            or EmailOtpChallengeCompletionResult.AlreadyCompleted
+            or EmailOtpChallengeCompletionResult.Invalidated
+            or EmailOtpChallengeCompletionResult.Expired)
         {
             await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
 
-            return new EmailOtpChallengeCompletionOutcome
-            {
-                Result = EmailOtpChallengeCompletionResult.AlreadyCompleted
-            };
+            return outcome;
         }
 
-        if (record.InvalidatedUtc is not null)
+        if (outcome.Result is EmailOtpChallengeCompletionResult.InvalidCode
+            or EmailOtpChallengeCompletionResult.TooManyAttempts)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-
-            return new EmailOtpChallengeCompletionOutcome { Result = EmailOtpChallengeCompletionResult.Invalidated };
-        }
-
-        if (record.ExpiresUtc <= nowUtc)
-        {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-
-            return new EmailOtpChallengeCompletionOutcome { Result = EmailOtpChallengeCompletionResult.Expired };
-        }
-
-        if (!FixedTimeHexEquals.Equals(record.CodeHash, codeHash))
-        {
-            int failed = record.FailedAttemptCount + 1;
-            DateTime? invalidatedUtc = failed >= maxFailedAttempts ? nowUtc.UtcDateTime : null;
+            ArgumentNullException.ThrowIfNull(updated);
 
             const string failSql = """
                                    UPDATE dbo.EmailOtpChallenges
@@ -120,8 +109,8 @@ public sealed partial class DapperEmailOtpChallengeRepository
                     new
                     {
                         Id = challengeId,
-                        FailedAttemptCount = failed,
-                        InvalidatedUtc = invalidatedUtc,
+                        FailedAttemptCount = updated.FailedAttemptCount,
+                        InvalidatedUtc = updated.InvalidatedUtc?.UtcDateTime,
                         RowVersion = existing.RowVersion
                     },
                     transaction: transaction,
@@ -136,12 +125,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
 
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
-            return new EmailOtpChallengeCompletionOutcome
-            {
-                Result = failed >= maxFailedAttempts
-                    ? EmailOtpChallengeCompletionResult.TooManyAttempts
-                    : EmailOtpChallengeCompletionResult.InvalidCode
-            };
+            return outcome;
         }
 
         const string completeSql = """
@@ -264,24 +248,18 @@ public sealed partial class DapperEmailOtpChallengeRepository
         } = [];
 
         public EmailOtpChallengeRecord ToRecord() =>
-            new()
-            {
-                Id = Id,
-                NormalizedEmail = NormalizedEmail,
-                CodeHash = CodeHash,
-                CreatedUtc = new DateTimeOffset(DateTime.SpecifyKind(CreatedUtc, DateTimeKind.Utc)),
-                ExpiresUtc = new DateTimeOffset(DateTime.SpecifyKind(ExpiresUtc, DateTimeKind.Utc)),
-                FailedAttemptCount = FailedAttemptCount,
-                CompletedUtc = CompletedUtc is null
-                    ? null
-                    : new DateTimeOffset(DateTime.SpecifyKind(CompletedUtc.Value, DateTimeKind.Utc)),
-                InvalidatedUtc = InvalidatedUtc is null
-                    ? null
-                    : new DateTimeOffset(DateTime.SpecifyKind(InvalidatedUtc.Value, DateTimeKind.Utc)),
-                ClientIpHash = ClientIpHash,
-                UserAgentHash = UserAgentHash,
-                InvitationId = InvitationId,
-                RowVersion = RowVersion
-            };
+            EmailOtpChallengeRepositoryCore.MapFromStorage(
+                Id,
+                NormalizedEmail,
+                CodeHash,
+                CreatedUtc,
+                ExpiresUtc,
+                FailedAttemptCount,
+                CompletedUtc,
+                InvalidatedUtc,
+                ClientIpHash,
+                UserAgentHash,
+                InvitationId,
+                RowVersion);
     }
 }

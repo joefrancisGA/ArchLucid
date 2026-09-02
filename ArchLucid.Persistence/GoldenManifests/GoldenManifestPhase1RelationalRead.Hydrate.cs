@@ -90,7 +90,9 @@ internal static partial class GoldenManifestPhase1RelationalRead
                 RelationalSliceReadCore.DeserializeOrNew(row.TopologyJson, static j => JsonEntitySerializer.Deserialize<TopologySection>(j)),
             Security =
                 RelationalSliceReadCore.DeserializeOrNew(row.SecurityJson, static j => JsonEntitySerializer.Deserialize<SecuritySection>(j)),
-            Compliance = DeserializeCompliance(row.ComplianceJson),
+            Compliance = RelationalSliceReadCore.DeserializeOrDefault(
+                row.ComplianceJson,
+                static () => new ComplianceSection()),
             Cost = RelationalSliceReadCore.DeserializeOrNew(row.CostJson, static j => JsonEntitySerializer.Deserialize<CostSection>(j)),
             Constraints = RelationalSliceReadCore.DeserializeOrNew(
                 row.ConstraintsJson,
@@ -189,12 +191,9 @@ internal static partial class GoldenManifestPhase1RelationalRead
             nodesByDecision.TryGetValue(dr.DecisionId, out List<string>? nodes);
             nodes ??= [];
 
-            DecisionConfidenceSource confidenceSource = Enum.TryParse(
+            DecisionConfidenceSource confidenceSource = RelationalSliceReadCore.ParseEnumOrDefault(
                 dr.ConfidenceSource,
-                ignoreCase: true,
-                out DecisionConfidenceSource parsed)
-                ? parsed
-                : DecisionConfidenceSource.Unknown;
+                DecisionConfidenceSource.Unknown);
 
             result.Add(
                 new ResolvedArchitectureDecision
@@ -226,21 +225,6 @@ internal static partial class GoldenManifestPhase1RelationalRead
             new { ManifestId = manifestId },
             transaction: null,
             ct);
-
-    private static ComplianceSection DeserializeCompliance(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-            return new ComplianceSection();
-
-        try
-        {
-            return JsonEntitySerializer.Deserialize<ComplianceSection>(json) ?? new ComplianceSection();
-        }
-        catch (InvalidOperationException)
-        {
-            return new ComplianceSection();
-        }
-    }
 
     /// <summary>Shared JSON section deserialize used by full hydrate and prior-retrieval slim hydrate.</summary>
     internal static T DeserializeOrNew<T>(string? json, Func<string, T> deserialize)
