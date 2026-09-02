@@ -167,6 +167,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     const clickStartedAtMs = Date.now();
     const attemptNumber = resolveReRunReviewAttemptNumber(retryCount, sessionAttemptOffset);
 
+    setSessionAttemptOffset((previous) => previous + 1);
     setBusy(true);
     setError(null);
 
@@ -182,7 +183,6 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
 
     try {
       await executeArchitectureRunAsync(runId);
-      setSessionAttemptOffset((previous) => previous + 1);
       await awaitMinimumVisibleDuration(clickStartedAtMs, RE_RUN_REVIEW_MIN_BUSY_MS);
 
       setOutcome({
