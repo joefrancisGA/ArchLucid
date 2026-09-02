@@ -36,6 +36,7 @@ public sealed class PortfolioRecurrenceFindingEngineTests
 
         IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(
             new GraphSnapshot { RunId = Guid.NewGuid() },
+            null,
             CancellationToken.None);
 
         findings.Should().BeEmpty();
