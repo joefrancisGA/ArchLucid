@@ -53,9 +53,10 @@ public static class RunExplanationConfidenceCalloutBuilder
             {
                 citationCount = citationsEl.GetArrayLength();
             }
-            else if (citationsEl.ValueKind == JsonValueKind.Number && citationsEl.TryGetInt32(out int numericCount))
+            else if (citationsEl.ValueKind == JsonValueKind.Number
+                     && TryReadWholeNumber(citationsEl, out int wholeNumberCount))
             {
-                citationCount = numericCount;
+                citationCount = wholeNumberCount;
             }
             else if (citationsEl.ValueKind == JsonValueKind.String
                      && int.TryParse(
@@ -224,6 +225,28 @@ public static class RunExplanationConfidenceCalloutBuilder
         {
             return false;
         }
+
+        return false;
+    }
+
+    private static bool TryReadWholeNumber(JsonElement element, out int value)
+    {
+        if (element.TryGetInt32(out value))
+        {
+            return true;
+        }
+
+        if (element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
 
         return false;
     }

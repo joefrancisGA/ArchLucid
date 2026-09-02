@@ -24,7 +24,18 @@ internal static class GraphJsonElementReaders
 #pragma warning restore IDE0028 // Simplify collection initialization
 
 #pragma warning disable IDE0028 // Simplify collection initialization
-            return new Dictionary<string, string>(deserialized, StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, string> normalized =
+                new Dictionary<string, string>(deserialized, StringComparer.OrdinalIgnoreCase);
+
+            foreach (string key in normalized.Keys.ToList())
+            {
+                if (normalized[key] is null)
+                {
+                    normalized[key] = string.Empty;
+                }
+            }
+
+            return normalized;
 #pragma warning restore IDE0028 // Simplify collection initialization
         }
         catch (JsonException)
@@ -33,6 +44,13 @@ internal static class GraphJsonElementReaders
 
             foreach (JsonProperty property in propsEl.EnumerateObject())
             {
+                if (property.Value.ValueKind == JsonValueKind.Null)
+                {
+                    result[property.Name] = string.Empty;
+
+                    continue;
+                }
+
                 if (property.Value.ValueKind == JsonValueKind.String)
                 {
                     result[property.Name] = property.Value.GetString() ?? "";
