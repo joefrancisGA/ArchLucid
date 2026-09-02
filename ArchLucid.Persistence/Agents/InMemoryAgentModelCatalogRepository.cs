@@ -21,7 +21,7 @@ public sealed class InMemoryAgentModelCatalogRepository : IAgentModelCatalogRepo
     {
         lock (_gate)
         {
-            return Task.FromResult<IReadOnlyList<AgentModelCatalogRow>>(_rows.Select(Clone).ToList());
+            return Task.FromResult<IReadOnlyList<AgentModelCatalogRow>>(_rows.Select(AgentModelCatalogRepositoryCore.Clone).ToList());
         }
     }
 
@@ -37,7 +37,7 @@ public sealed class InMemoryAgentModelCatalogRepository : IAgentModelCatalogRepo
             AgentModelCatalogRow? row = _rows.FirstOrDefault(
                 entry => string.Equals(entry.AliasId, aliasId.Trim(), StringComparison.OrdinalIgnoreCase));
 
-            return Task.FromResult(row is null ? null : Clone(row));
+            return Task.FromResult(row is null ? null : AgentModelCatalogRepositoryCore.Clone(row));
         }
     }
 
@@ -52,11 +52,11 @@ public sealed class InMemoryAgentModelCatalogRepository : IAgentModelCatalogRepo
 
             if (index >= 0)
             {
-                _rows[index] = Clone(row);
+                _rows[index] = AgentModelCatalogRepositoryCore.Clone(row);
             }
             else
             {
-                _rows.Add(Clone(row));
+                _rows.Add(AgentModelCatalogRepositoryCore.Clone(row));
             }
         }
 

@@ -123,7 +123,8 @@ public sealed class DapperCoverageAssignmentRepository(IDbConnectionFactory conn
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<CoverageAssignmentRow> rows = await connection.QueryAsync<CoverageAssignmentRow>(
+        IEnumerable<CoverageAssignmentRepositoryCore.CoverageAssignmentRow> rows =
+            await connection.QueryAsync<CoverageAssignmentRepositoryCore.CoverageAssignmentRow>(
             new CommandDefinition(
                 sql,
                 new
@@ -135,7 +136,7 @@ public sealed class DapperCoverageAssignmentRepository(IDbConnectionFactory conn
                 },
                 cancellationToken: cancellationToken));
 
-        return rows.Select(ToAssignment).ToList();
+        return rows.Select(CoverageAssignmentRepositoryCore.ToAssignment).ToList();
     }
 
     public async Task<IReadOnlyList<CoverageAssignment>> ListByScopeAsync(
@@ -173,140 +174,14 @@ public sealed class DapperCoverageAssignmentRepository(IDbConnectionFactory conn
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<CoverageAssignmentRow> rows = await connection.QueryAsync<CoverageAssignmentRow>(
+        IEnumerable<CoverageAssignmentRepositoryCore.CoverageAssignmentRow> rows =
+            await connection.QueryAsync<CoverageAssignmentRepositoryCore.CoverageAssignmentRow>(
             new CommandDefinition(
                 sql,
                 new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
                 cancellationToken: cancellationToken));
 
-        return rows.Select(ToAssignment).ToList();
+        return rows.Select(CoverageAssignmentRepositoryCore.ToAssignment).ToList();
     }
 
-    private static CoverageAssignment ToAssignment(CoverageAssignmentRow row) => new()
-    {
-        CoverageAssignmentId = row.CoverageAssignmentId,
-        TenantId = row.TenantId,
-        WorkspaceId = row.WorkspaceId,
-        ProjectId = row.ProjectId,
-        RunId = row.RunId is null ? null : SqlRunIdMapping.ToContractRunId(row.RunId.Value),
-        PolicyPackId = row.PolicyPackId,
-        PolicyPackVersion = row.PolicyPackVersion,
-        CoverageType = Enum.Parse<CoverageType>(row.CoverageType),
-        SelectionState = Enum.Parse<CoverageSelectionState>(row.SelectionState),
-        RecommendationConfidence = row.RecommendationConfidence is null
-            ? null
-            : Enum.Parse<RecommendationConfidence>(row.RecommendationConfidence),
-        RecommendationTrigger = row.RecommendationTrigger,
-        RecommendationRationale = row.RecommendationRationale,
-        TriggeringEvidenceRef = row.TriggeringEvidenceRef,
-        ExclusionReason = row.ExclusionReason,
-        ActorUserId = row.ActorUserId,
-        CreatedUtc = row.CreatedUtc,
-        EvaluationVersion = row.EvaluationVersion,
-    };
-
-    private sealed class CoverageAssignmentRow
-    {
-        public Guid CoverageAssignmentId
-        {
-            get;
-            set;
-        }
-
-        public Guid TenantId
-        {
-            get;
-            set;
-        }
-
-        public Guid WorkspaceId
-        {
-            get;
-            set;
-        }
-
-        public Guid ProjectId
-        {
-            get;
-            set;
-        }
-
-        public Guid? RunId
-        {
-            get;
-            set;
-        }
-
-        public Guid PolicyPackId
-        {
-            get;
-            set;
-        }
-
-        public string PolicyPackVersion
-        {
-            get;
-            set;
-        } = string.Empty;
-
-        public string CoverageType
-        {
-            get;
-            set;
-        } = string.Empty;
-
-        public string SelectionState
-        {
-            get;
-            set;
-        } = string.Empty;
-
-        public string? RecommendationConfidence
-        {
-            get;
-            set;
-        }
-
-        public string? RecommendationTrigger
-        {
-            get;
-            set;
-        }
-
-        public string? RecommendationRationale
-        {
-            get;
-            set;
-        }
-
-        public string? TriggeringEvidenceRef
-        {
-            get;
-            set;
-        }
-
-        public string? ExclusionReason
-        {
-            get;
-            set;
-        }
-
-        public string ActorUserId
-        {
-            get;
-            set;
-        } = string.Empty;
-
-        public DateTime CreatedUtc
-        {
-            get;
-            set;
-        }
-
-        public string EvaluationVersion
-        {
-            get;
-            set;
-        } = string.Empty;
-    }
 }

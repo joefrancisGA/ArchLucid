@@ -11,13 +11,22 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID } from "@/lib/first-review-guide-route";
 import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
-import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
-import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 vi.mock("next/link", () => ({
-  default: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a>,
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: ReactNode;
+  } & Record<string, unknown>) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -88,6 +97,8 @@ const loadedGuideState = {
   canExecute: true,
   readyToFinalize: false,
   latestRunHref: null,
+  hasCommittedManifest: false,
+  sealedReviewRecord: null,
 };
 
 const mockUseFirstReviewGuideState = vi.fn(() => loadedGuideState);
@@ -133,13 +144,8 @@ describe("FirstReviewGuidePageClient", () => {
     expect(screen.getByTestId("first-review-guide-evaluation-scope")).toHaveTextContent(
       FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER,
     );
-    expect(screen.getByTestId("first-review-guide-help-crosslink")).toHaveTextContent(
-      FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
-    );
-    expect(screen.getByTestId("first-review-guide-help-crosslink").querySelector("a")).toHaveAttribute(
-      "href",
-      FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
-    );
+    expect(screen.queryByTestId("first-review-guide-help-crosslink")).not.toBeInTheDocument();
+    expect(screen.getByTestId("first-review-guide-orientation")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-walkthrough")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(
@@ -155,6 +161,13 @@ describe("FirstReviewGuidePageClient", () => {
       "href",
       `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     );
+
+    const primaryAction = screen.getByTestId("first-review-guide-primary");
+    const secondaryAction = screen.getByTestId("first-review-guide-secondary");
+    expect(primaryAction).toHaveClass("h-9");
+    expect(secondaryAction).toHaveClass("h-9");
+    expect(secondaryAction).not.toHaveClass("h-7");
+
     expect(screen.queryByTestId("first-review-guide-next-action-card")).not.toBeInTheDocument();
     expect(screen.getByTestId("onboarding-optional-setup-section-stub")).toBeInTheDocument();
   });
@@ -198,6 +211,70 @@ describe("FirstReviewGuidePageClient", () => {
     expect(screen.getByTestId("first-review-guide-progress-unavailable")).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-walkthrough-unavailable")).toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-readiness")).not.toBeInTheDocument();
+  });
+
+  it("shows sealed-record provenance and hides the sample banner after completion", () => {
+    mockUseFirstReviewGuideState.mockReturnValue({
+      ...loadedGuideState,
+      readiness: {
+        kind: "completed" as const,
+        headline: "First review completed",
+        detail: "Your finalized architecture review is ready to inspect and share.",
+      },
+      progress: {
+        phase: "complete" as const,
+        progressFraction: 1,
+        summaryLabel: "Complete",
+        detailLabel: "Your first architecture review is finalized.",
+        completedStepCount: 7,
+        totalStepCount: 7,
+      },
+      steps: [
+        {
+          index: 0,
+          title: "Define the architecture",
+          explanation: "Describe the system, business goal, scope, and constraints.",
+          status: "complete" as const,
+          statusLabel: "Complete",
+          actionLabel: null,
+          actionHref: null,
+          isNextStep: false,
+        },
+      ],
+      headerActions: {
+        primaryLabel: "Open sealed review record",
+        primaryHref: "/architecture/reviews/run-sealed",
+        primaryDisabled: false,
+        primaryDisabledReason: null,
+        secondaryLabel: "Start another review",
+        secondaryHref: "/architecture/reviews/new",
+      },
+      hasCommittedManifest: true,
+      sealedReviewRecord: {
+        runId: "run-sealed",
+        displayName: "Payments platform",
+        finalizedOnUtc: "2026-04-15T12:00:00.000Z",
+        finalizedByUserId: "user-1",
+      },
+    });
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    expect(screen.getByTestId("first-review-guide-readiness")).toHaveTextContent("First review completed");
+    expect(screen.getByTestId("first-review-guide-sealed-record-provenance")).toHaveTextContent("Payments platform");
+    expect(screen.getByTestId("first-review-guide-sealed-record-provenance")).toHaveTextContent("Apr 15, 2026");
+    expect(screen.queryByTestId("first-review-guide-evaluation-scope")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("onboarding-sample-review-shortcut")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open sealed review record" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-sealed",
+    );
+    expect(screen.getByRole("link", { name: "Start another review" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new",
+    );
+    expect(screen.getByTestId("first-review-guide-walkthrough-completed-summary")).toBeInTheDocument();
+    expect(screen.queryByTestId("first-review-guide-walkthrough")).not.toBeInTheDocument();
+    expect(screen.getByTestId("first-review-guide-orientation")).toBeInTheDocument();
   });
 
   it("scrolls the walkthrough progress section when the onboarding checklist hash is active", () => {

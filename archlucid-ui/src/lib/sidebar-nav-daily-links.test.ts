@@ -157,8 +157,9 @@ describe("splitSidebarLinksDailyVsMore", () => {
 });
 
 describe("sidebarMoreLinksLabel", () => {
-  it("pluralizes without repeating the group heading", () => {
-    expect(sidebarMoreLinksLabel("Insights", 1)).toBe("1 more link");
-    expect(sidebarMoreLinksLabel("Insights", 4)).toBe("4 more links");
+  it("pluralizes with the group heading for clarity", () => {
+    expect(sidebarMoreLinksLabel("Insights", 1)).toBe("1 more Insights link");
+    expect(sidebarMoreLinksLabel("Insights", 4)).toBe("4 more Insights links");
+    expect(sidebarMoreLinksLabel("Architecture", 5)).toBe("5 more Architecture links");
   });
 });

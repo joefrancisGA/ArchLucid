@@ -4,7 +4,6 @@ using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
@@ -34,16 +33,19 @@ public sealed class PolicyPacksControllerPublishAssignScopeTests
     {
         Guid foreignPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
-        workflow
-            .Setup(f => f.TryPublishVersionAsync(
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.PublishVersionAsync(
                 foreignPackId,
-                "2.0.0",
-                """{"complianceRuleIds":[]}""",
+                It.IsAny<PolicyPackPublishBody>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((PolicyPackVersion?)null);
+            .ReturnsAsync(new PolicyPackHttpResult<PolicyPackVersion>
+            {
+                Outcome = PolicyPackHttpOutcome.ResourceNotFound,
+                Message = $"Policy pack '{foreignPackId}' was not found in the current scope.",
+            });
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
 
         PublishPolicyPackVersionRequest request = new()
         {
@@ -61,17 +63,19 @@ public sealed class PolicyPacksControllerPublishAssignScopeTests
     {
         Guid foreignPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
-        workflow
-            .Setup(f => f.TryAssignAsync(
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.AssignAsync(
                 foreignPackId,
-                "1.0.0",
-                "Project",
-                false,
+                It.IsAny<PolicyPackAssignBody>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.PackNotFound, null));
+            .ReturnsAsync(new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.ResourceNotFound,
+                PolicyPackId = foreignPackId,
+            });
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
 
         AssignPolicyPackRequest request = new()
         {
@@ -100,17 +104,19 @@ public sealed class PolicyPacksControllerPublishAssignScopeTests
             PolicyPackVersion = "1.0.0",
         };
 
-        Mock<IPolicyPackWorkflowFacade> workflow = new();
-        workflow
-            .Setup(f => f.TryAssignAsync(
+        Mock<IPolicyPackHttpFacade> httpFacade = new();
+        httpFacade
+            .Setup(f => f.AssignAsync(
                 packId,
-                "1.0.0",
-                "Project",
-                false,
+                It.IsAny<PolicyPackAssignBody>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.Assigned, assignment));
+            .ReturnsAsync(new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.Success,
+                Assignment = assignment,
+            });
 
-        PolicyPacksController sut = CreateController(workflow);
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
 
         AssignPolicyPackRequest request = new()
         {
@@ -122,20 +128,5 @@ public sealed class PolicyPacksControllerPublishAssignScopeTests
         IActionResult result = await sut.Assign(packId, request, CancellationToken.None);
 
         result.Should().BeOfType<OkObjectResult>();
-    }
-
-    private static PolicyPacksController CreateController(Mock<IPolicyPackWorkflowFacade> workflow)
-    {
-        PolicyPacksController controller = new(
-            workflow.Object,
-            new CreatePolicyPackRequestValidator(),
-            new PublishPolicyPackVersionRequestValidator(),
-            new AssignPolicyPackRequestValidator(),
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<ITenantRepository>());
-
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
-
-        return controller;
     }
 }

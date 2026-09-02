@@ -293,27 +293,21 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                 )
             .ToList();
 
-        Dictionary<Guid, List<ConditionRow>> byRule = rows
+        Dictionary<Guid, IReadOnlyList<AlertRuleCondition>> byRule = rows
             .GroupBy(x => x.CompositeRuleId)
-            .ToDictionary(g => g.Key, g => g.ToList());
-        foreach (CompositeAlertRule rule in rules)
-        {
-            rule.Conditions.Clear();
-            if (!byRule.TryGetValue(rule.CompositeRuleId, out List<ConditionRow>? list))
-                continue;
-
-            foreach (ConditionRow row in list)
-
-                rule.Conditions.Add(
-                    new AlertRuleCondition
-                    {
-                        ConditionId = row.ConditionId,
-                        MetricType = row.MetricType,
-                        Operator = row.Operator,
-                        ThresholdValue = row.ThresholdValue,
-                    });
-
-        }
+            .ToDictionary(
+                g => g.Key,
+                g => (IReadOnlyList<AlertRuleCondition>)g
+                    .Select(
+                        row => new AlertRuleCondition
+                        {
+                            ConditionId = row.ConditionId,
+                            MetricType = row.MetricType,
+                            Operator = row.Operator,
+                            ThresholdValue = row.ThresholdValue,
+                        })
+                    .ToList());
+        CompositeAlertRuleRepositoryCore.AttachConditions(rules, byRule);
     }
 
     private sealed class ConditionRow

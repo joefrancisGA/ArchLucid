@@ -156,7 +156,7 @@ export function RunsDashboardPanelFilters({
             </FilterChip>
           ) : (
             <FilterChip
-              href={archivedHref}
+              href={archivedFilterDisabled ? undefined : archivedHref}
               className={buyerFilterChipClass(false, archivedFilterDisabled)}
               aria-label={`Filter reviews: Archived ${archivedCount}`}
               disabled={archivedFilterDisabled}

@@ -45,9 +45,56 @@ export function RunDetailFeasibilityVerdictSection(
   const trail = verdict.transparencyTrail;
   const verdictDrivers = parseFeasibilityVerdictDrivers(trail);
   const inferredTrailEntries =
-    trail !== undefined ? filterFeasibilityTransparencyTrailInferred(trail) : [];
+    trail != null ? filterFeasibilityTransparencyTrailInferred(trail) : [];
   const skippedTrailEntries =
-    trail !== undefined ? filterFeasibilityTransparencyTrailSkipped(trail) : [];
+    trail != null ? filterFeasibilityTransparencyTrailSkipped(trail) : [];
+
+  let transparencyTrailSection: ReactElement | null = null;
+
+  if (trail != null) {
+    transparencyTrailSection = (
+      <CollapsibleSection title="Transparency trail" defaultOpen={false}>
+        <div className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
+          {trail.asserted.length > 0 ? (
+            <div>
+              <p className="m-0 font-medium">Asserted ({trail.asserted.length})</p>
+              <ul className="mt-1 list-disc pl-5">
+                {trail.asserted.map((entry) => (
+                  <li key={entry.key}>
+                    {entry.key}: {entry.value}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {inferredTrailEntries.length > 0 ? (
+            <div>
+              <p className="m-0 font-medium">Inferred ({inferredTrailEntries.length})</p>
+              <ul className="mt-1 list-disc pl-5">
+                {inferredTrailEntries.map((entry) => (
+                  <li key={entry.key}>
+                    {entry.key}: {entry.value} (confidence {entry.confidence})
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {skippedTrailEntries.length > 0 ? (
+            <div>
+              <p className="m-0 font-medium">Skipped ({skippedTrailEntries.length})</p>
+              <ul className="mt-1 list-disc pl-5">
+                {skippedTrailEntries.map((entry) => (
+                  <li key={entry.questionKey}>
+                    {entry.questionKey} ({entry.tier})
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      </CollapsibleSection>
+    );
+  }
 
   return (
     <section id="feasibility-verdict" className="scroll-mt-24" data-testid="run-detail-feasibility-verdict">
@@ -94,48 +141,7 @@ export function RunDetailFeasibilityVerdictSection(
         ) : null}
       </div>
 
-      {trail !== undefined ? (
-        <CollapsibleSection title="Transparency trail" defaultOpen={false}>
-          <div className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
-            {trail.asserted.length > 0 ? (
-              <div>
-                <p className="m-0 font-medium">Asserted ({trail.asserted.length})</p>
-                <ul className="mt-1 list-disc pl-5">
-                  {trail.asserted.map((entry) => (
-                    <li key={entry.key}>
-                      {entry.key}: {entry.value}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            {inferredTrailEntries.length > 0 ? (
-              <div>
-                <p className="m-0 font-medium">Inferred ({inferredTrailEntries.length})</p>
-                <ul className="mt-1 list-disc pl-5">
-                  {inferredTrailEntries.map((entry) => (
-                    <li key={entry.key}>
-                      {entry.key}: {entry.value} (confidence {entry.confidence})
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            {skippedTrailEntries.length > 0 ? (
-              <div>
-                <p className="m-0 font-medium">Skipped ({skippedTrailEntries.length})</p>
-                <ul className="mt-1 list-disc pl-5">
-                  {skippedTrailEntries.map((entry) => (
-                    <li key={entry.questionKey}>
-                      {entry.questionKey} ({entry.tier})
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-          </div>
-        </CollapsibleSection>
-      ) : null}
+      {transparencyTrailSection}
     </section>
   );
 }

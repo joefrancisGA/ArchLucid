@@ -24,7 +24,7 @@ export type FilterChipProps = {
 export function FilterChip(props: FilterChipProps): ReactElement {
   const shell = cn(DESIGN_TOKENS.interactive.chip, DESIGN_TOKENS.accent.focusRing, props.className);
 
-  if (props.href !== undefined && props.href.trim().length > 0) {
+  if (props.href !== undefined && props.href.trim().length > 0 && props.disabled !== true) {
     return (
       <Link
         href={props.href}

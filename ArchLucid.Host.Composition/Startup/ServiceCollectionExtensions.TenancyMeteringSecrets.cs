@@ -121,6 +121,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDefaultPolicyPackSeeder, DefaultPolicyPackSeeder>();
         services.AddScoped<DefaultPolicyPackCloudBaselineApplicator>();
         services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();
+        services.AddScoped<ITenantTrialFacade, TenantTrialFacade>();
         services.AddScoped<IMarketingAttributionService, MarketingAttributionService>();
         services.AddScoped<TrialLimitGate>();
         services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();

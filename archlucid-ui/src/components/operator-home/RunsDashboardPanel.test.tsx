@@ -1,12 +1,75 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { ReactElement } from "react";
+import { useEffect, useState, type ReactElement, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const dashboardSearchParamsHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { query: "" };
+
+  return {
+    state,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyHref(href: string): void {
+      try {
+        const url = new URL(href, "http://localhost/");
+        state.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+      } catch {
+        const qIndex = href.indexOf("?");
+        state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+      }
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.query = "";
+    },
+  };
+});
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: (href: string) => {
+      dashboardSearchParamsHarness.applyHref(href);
+    },
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+  }),
   usePathname: () => "",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => new URLSearchParams(dashboardSearchParamsHarness.state.query),
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: unknown;
+    [key: string]: unknown;
+  }) => (
+    <a
+      href={href}
+      {...rest}
+      onClick={(event) => {
+        event.preventDefault();
+        dashboardSearchParamsHarness.applyHref(href);
+      }}
+    >
+      {children}
+    </a>
+  ),
 }));
 
 const apiHoisted = vi.hoisted(() => ({
@@ -60,6 +123,7 @@ vi.mock("@/lib/demo-seeded-overview", async (importOriginal) => {
 });
 
 import { listRunsByProjectPaged } from "@/lib/api";
+import { getOperatorScopeQueryKeySnapshot } from "@/lib/operator/operator-scope-query-key";
 import {
   BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES,
   BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA,
@@ -102,6 +166,18 @@ function buildInitialModel(
 
 const originalFetch = globalThis.fetch;
 
+function DashboardSearchParamsRerenderHost({ children }: { readonly children: ReactNode }): ReactElement {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    return dashboardSearchParamsHarness.subscribe(() => {
+      setTick((current) => current + 1);
+    });
+  }, []);
+
+  return <>{children}</>;
+}
+
 function renderRunsDashboardPanel(ui: ReactElement = <RunsDashboardPanel />) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -112,9 +188,11 @@ function renderRunsDashboardPanel(ui: ReactElement = <RunsDashboardPanel />) {
   });
 
   return render(
-    <OperatorHomeWorkspaceActivityProvider initialHasReviews={false}>
-      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
-    </OperatorHomeWorkspaceActivityProvider>,
+    <DashboardSearchParamsRerenderHost>
+      <OperatorHomeWorkspaceActivityProvider initialHasReviews={false}>
+        <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+      </OperatorHomeWorkspaceActivityProvider>
+    </DashboardSearchParamsRerenderHost>,
   );
 }
 
@@ -143,6 +221,8 @@ function stubFetchForDashboard() {
 describe("RunsDashboardPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    dashboardSearchParamsHarness.reset();
+    window.sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -291,9 +371,9 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: /needs attention/i })).toBeInTheDocument();
+      expect(screen.getByTestId("runs-dashboard-tab-attention")).toBeInTheDocument();
     });
-    fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
+    fireEvent.click(screen.getByTestId("runs-dashboard-tab-attention"));
 
     expect(
       await screen.findByText("Findings ready · finalize this review to lock export readiness"),
@@ -581,7 +661,7 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("tablist", { name: "Filter reviews" })).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Filter reviews" })).toBeInTheDocument();
       expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveTextContent("All (1)");
       expect(screen.getByTestId("runs-dashboard-filter-approved")).toHaveTextContent("Approved (1)");
     });
@@ -711,14 +791,14 @@ describe("RunsDashboardPanel", () => {
     runsDashBuyerPolishedForced.on = false;
   });
 
-  it("operator shell exposes tablist with tabpanels and keyboard navigation when reviews exist (TB-667)", async () => {
+  it("operator shell exposes filter links with aria-current and attention panel when selected (TB-667)", async () => {
     const activeRun: RunSummary = {
       runId: "66666666-6666-6666-6666-666666666666",
       projectId: "default",
       description: "Active review",
       createdUtc: "2026-01-15T12:00:00.000Z",
       hasFindingsSnapshot: true,
-      hasGoldenManifest: true,
+      hasGoldenManifest: false,
       isArchived: false,
     };
 
@@ -736,19 +816,19 @@ describe("RunsDashboardPanel", () => {
     await screen.findByRole("link", { name: "Active review" });
 
     await waitFor(() => {
-      expect(screen.getByRole("tablist", { name: "Review views" })).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Review views" })).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("tab", { name: /recent/i })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("runs-dashboard-tab-all")).toHaveAttribute("aria-current", "page");
     expect(screen.queryByRole("link", { name: /open all reviews/i })).not.toBeNull();
-    expect(screen.getByTestId("runs-dashboard-status-filters").querySelector("a")).toBeNull();
+    expect(screen.getByTestId("runs-dashboard-status-filters").querySelector("a")).not.toBeNull();
 
-    fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
+    fireEvent.click(screen.getByTestId("runs-dashboard-tab-attention"));
 
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: /needs attention/i })).toHaveAttribute("aria-selected", "true");
+      expect(screen.getByTestId("runs-dashboard-tab-attention")).toHaveAttribute("aria-current", "page");
     });
-    expect(screen.getByRole("tabpanel")).toHaveAttribute("data-testid", "runs-dashboard-panel-attention");
+    expect(screen.getByTestId("runs-dashboard-panel-attention")).toBeInTheDocument();
   });
 
   it("shows archived empty state when archived filter is active with no matching reviews", async () => {
@@ -784,6 +864,11 @@ describe("RunsDashboardPanel", () => {
     await screen.findByRole("link", { name: "Active review" });
 
     fireEvent.click(screen.getByTestId("runs-dashboard-show-archived"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Archived review" })).toBeInTheDocument();
+    });
+
     fireEvent.click(screen.getByTestId("runs-dashboard-governance-warnings-only"));
 
     await waitFor(() => {
@@ -819,6 +904,7 @@ describe("RunsDashboardPanel", () => {
         initialModel={buildInitialModel({
           items: [run],
           totalCount: 1,
+          scopeQueryKeySnapshot: getOperatorScopeQueryKeySnapshot(),
         })}
       />,
     );

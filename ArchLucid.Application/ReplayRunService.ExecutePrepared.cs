@@ -237,9 +237,11 @@ public sealed partial class ReplayRunService
             };
         }
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        CommitRunIdempotencyOutcome commitOutcome = await _architectureRunCommandService
-            .CommitRunAsync(scope, preparedReplayRunId, request: null, idempotencyKey: null, cancellationToken)
+        CommitRunIdempotencyOutcome commitOutcome = await _commitRunIdempotencyCoordinator
+            .CommitAsync(
+                null,
+                token => _architectureRunCommitOrchestrator.CommitRunAsync(preparedReplayRunId, null, token),
+                cancellationToken)
             .ConfigureAwait(false);
 
         return new ReplayRunResult

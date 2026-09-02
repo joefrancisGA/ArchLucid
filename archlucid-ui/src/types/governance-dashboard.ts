@@ -1,28 +1,40 @@
+import type { components } from "@/lib/openapi-schemas";
 import type {
   GovernanceApprovalRequest,
   GovernancePromotionRecord,
 } from "@/types/governance-workflow";
 
-export interface PolicyPackChangeLogEntry {
-  changeLogId: string;
-  policyPackId: string;
-  tenantId: string;
-  workspaceId: string;
-  projectId: string;
-  changeType: string;
-  changedBy: string;
-  changedUtc: string;
-  previousValue?: string | null;
-  newValue?: string | null;
-  summaryText?: string | null;
-}
+type PolicyPackChangeLogEntrySchema = components["schemas"]["PolicyPackChangeLogEntry"];
 
-export interface GovernanceDashboardSummary {
-  pendingApprovals: GovernanceApprovalRequest[];
-  recentDecisions: GovernanceApprovalRequest[];
-  recentChanges: PolicyPackChangeLogEntry[];
-  pendingCount: number;
-}
+export type PolicyPackChangeLogEntry = PolicyPackChangeLogEntrySchema &
+  Required<
+    Pick<
+      PolicyPackChangeLogEntrySchema,
+      | "changeLogId"
+      | "tenantId"
+      | "workspaceId"
+      | "projectId"
+      | "policyPackId"
+      | "changeType"
+      | "changedBy"
+      | "changedUtc"
+      | "summaryText"
+      | "previousValue"
+      | "newValue"
+    >
+  >;
+
+type GovernanceDashboardSummarySchema = components["schemas"]["GovernanceDashboardSummary"];
+
+export type GovernanceDashboardSummary = Omit<
+  GovernanceDashboardSummarySchema,
+  "pendingApprovals" | "recentDecisions" | "recentChanges"
+> &
+  Required<Pick<GovernanceDashboardSummarySchema, "pendingCount">> & {
+    pendingApprovals: GovernanceApprovalRequest[];
+    recentDecisions: GovernanceApprovalRequest[];
+    recentChanges: PolicyPackChangeLogEntry[];
+  };
 
 /** One time bucket from GET /v1/governance/compliance-drift-trend. */
 export interface ComplianceDriftTrendPoint {
