@@ -1,109 +1,108 @@
 "use client";
 
-import { useCallback } from "react";
-
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 
 import type { AuditPageViewProps } from "./audit-page-view-props";
 import type { AuditPageServerLoad } from "./load-audit-page-data";
-import type { AuditFilterFields } from "./audit-page-helpers";
 import { useAuditPageExport } from "./use-audit-page-export";
-import { useAuditPageFilters } from "./use-audit-page-filters";
 import { useAuditPageLifecycleGroups } from "./use-audit-page-lifecycle-groups";
+import { useAuditPageSearch } from "./use-audit-page-search";
+import { useAuditPageViewMode } from "./use-audit-page-view-mode";
+import { useAuditSavedViews } from "./use-audit-saved-views";
 
 /** Page controller: audit filters, search/export, and derived buyer display state. */
 export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProps {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canMutateEnterpriseShell = useOperateCapability();
-
-  const filters = useAuditPageFilters(serverLoad);
-
-  const currentFilters = useCallback(
-    (): AuditFilterFields => ({
-      eventType: filters.eventType,
-      fromUtc: filters.fromUtc,
-      toUtc: filters.toUtc,
-      correlationId: filters.correlationId,
-      actorUserId: filters.actorUserId,
-      runId: filters.runId,
-    }),
-    [
-      filters.actorUserId,
-      filters.correlationId,
-      filters.eventType,
-      filters.fromUtc,
-      filters.runId,
-      filters.toUtc,
-    ],
-  );
+  const viewMode = useAuditPageViewMode();
+  const search = useAuditPageSearch(serverLoad, viewMode.buyerPolishedShell);
 
   const exportState = useAuditPageExport({
-    fromUtc: filters.fromUtc,
-    toUtc: filters.toUtc,
-    currentFilters,
-    setFailure: filters.setFailure,
+    fromUtc: search.fromUtc,
+    toUtc: search.toUtc,
+    currentFilters: search.currentFilters,
+    setFailure: search.setFailure,
+  });
+
+  const savedViews = useAuditSavedViews({
+    currentFilters: search.currentFilters,
+    auditDatePreset: search.auditDatePreset,
+    advancedAuditFiltersOpen: search.advancedAuditFiltersOpen,
+    executeSearch: search.executeSearch,
+    applySearchPageToState: search.applySearchPageToState,
+    applyDemoAuditFallback: search.applyDemoAuditFallback,
+    setEventType: search.setEventType,
+    setFromUtc: search.setFromUtc,
+    setToUtc: search.setToUtc,
+    setCorrelationId: search.setCorrelationId,
+    setActorUserId: search.setActorUserId,
+    setRunId: search.setRunId,
+    setAuditDatePreset: search.setAuditDatePreset,
+    setAdvancedAuditFiltersOpen: search.setAdvancedAuditFiltersOpen,
+    setSearching: search.setSearching,
+    setFailure: search.setFailure,
   });
 
   const lifecycle = useAuditPageLifecycleGroups({
-    buyerPolishedShell: filters.buyerPolishedShell,
-    viewMode: filters.viewMode,
-    events: filters.events,
-    runId: filters.runId,
-    ctoDemoAuditFilterActive: filters.ctoDemoAuditFilterActive,
+    buyerPolishedShell: viewMode.buyerPolishedShell,
+    viewMode: viewMode.viewMode,
+    events: search.events,
+    runId: search.runId,
+    ctoDemoAuditFilterActive: search.ctoDemoAuditFilterActive,
   });
 
   return {
-    buyerPolishedShell: filters.buyerPolishedShell,
-    viewMode: filters.viewMode,
-    onViewModeChange: filters.onViewModeChange,
-    runId: filters.runId,
+    buyerPolishedShell: viewMode.buyerPolishedShell,
+    viewMode: viewMode.viewMode,
+    onViewModeChange: viewMode.onViewModeChange,
+    runId: search.runId,
     buyerAuditTrailSummaryLine: lifecycle.buyerAuditTrailSummaryLine,
     buyerAuditTrailMetrics: lifecycle.buyerAuditTrailMetrics,
     displayEvents: lifecycle.displayEvents,
     callerAuthorityRank,
     exportRoleOk: exportState.exportRoleOk,
-    failure: filters.failure,
+    failure: search.failure,
     canMutateEnterpriseShell,
-    advancedAuditFiltersOpen: filters.advancedAuditFiltersOpen,
-    setAdvancedAuditFiltersOpen: filters.setAdvancedAuditFiltersOpen,
-    buyerPrimaryFiltersOpen: filters.buyerPrimaryFiltersOpen,
-    setBuyerPrimaryFiltersOpen: filters.setBuyerPrimaryFiltersOpen,
-    eventTypes: filters.eventTypes,
-    eventType: filters.eventType,
-    setEventType: filters.setEventType,
-    fromUtc: filters.fromUtc,
-    setFromUtc: filters.setFromUtc,
-    toUtc: filters.toUtc,
-    setToUtc: filters.setToUtc,
-    correlationId: filters.correlationId,
-    setCorrelationId: filters.setCorrelationId,
-    actorUserId: filters.actorUserId,
-    setActorUserId: filters.setActorUserId,
-    setRunId: filters.setRunId,
-    searching: filters.searching,
-    lastRefreshedAt: filters.lastRefreshedAt,
-    loadingTypes: filters.loadingTypes,
-    auditDatePreset: filters.auditDatePreset,
-    applyAuditDatePreset: filters.applyAuditDatePreset,
-    clearDateRangeAndSearch: filters.clearDateRangeAndSearch,
-    runSearch: filters.runSearch,
-    clearFiltersAndSearch: filters.clearFiltersAndSearch,
-    events: filters.events,
+    advancedAuditFiltersOpen: search.advancedAuditFiltersOpen,
+    setAdvancedAuditFiltersOpen: search.setAdvancedAuditFiltersOpen,
+    buyerPrimaryFiltersOpen: search.buyerPrimaryFiltersOpen,
+    setBuyerPrimaryFiltersOpen: search.setBuyerPrimaryFiltersOpen,
+    eventTypes: search.eventTypes,
+    eventType: search.eventType,
+    setEventType: search.setEventType,
+    fromUtc: search.fromUtc,
+    setFromUtc: search.setFromUtc,
+    toUtc: search.toUtc,
+    setToUtc: search.setToUtc,
+    correlationId: search.correlationId,
+    setCorrelationId: search.setCorrelationId,
+    actorUserId: search.actorUserId,
+    setActorUserId: search.setActorUserId,
+    setRunId: search.setRunId,
+    searching: search.searching,
+    lastRefreshedAt: search.lastRefreshedAt,
+    loadingTypes: search.loadingTypes,
+    auditDatePreset: search.auditDatePreset,
+    applyAuditDatePreset: search.applyAuditDatePreset,
+    clearDateRangeAndSearch: search.clearDateRangeAndSearch,
+    runSearch: search.runSearch,
+    clearFiltersAndSearch: search.clearFiltersAndSearch,
+    events: search.events,
     displayEventGroups: lifecycle.displayEventGroups,
-    hasMoreResults: filters.hasMoreResults,
-    loadingMore: filters.loadingMore,
+    hasMoreResults: search.hasMoreResults,
+    loadingMore: search.loadingMore,
     uniformRunIdForDisplay: lifecycle.uniformRunIdForDisplay,
     auditSearchEmptyLine: lifecycle.auditSearchEmptyLine,
-    loadMore: filters.loadMore,
+    loadMore: search.loadMore,
     csvExportUiAllowed: exportState.csvExportUiAllowed,
     exporting: exportState.exporting,
     exportDateRangeReady: exportState.exportDateRangeReady,
     onExportCsv: exportState.onExportCsv,
-    getAuditSavedViewPayload: filters.getAuditSavedViewPayload,
-    loadAuditSavedView: filters.loadAuditSavedView,
-    ctoDemoAuditFilterActive: filters.ctoDemoAuditFilterActive,
-    onClearCtoDemoAuditFilter: filters.onClearCtoDemoAuditFilter,
-    auditFiltersActive: filters.auditFiltersActive,
+    getAuditSavedViewPayload: savedViews.getAuditSavedViewPayload,
+    loadAuditSavedView: savedViews.loadAuditSavedView,
+    ctoDemoAuditFilterActive: search.ctoDemoAuditFilterActive,
+    onClearCtoDemoAuditFilter: search.onClearCtoDemoAuditFilter,
+    auditFiltersActive: search.auditFiltersActive,
   };
 }

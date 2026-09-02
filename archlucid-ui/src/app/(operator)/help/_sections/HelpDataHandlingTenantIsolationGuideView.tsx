@@ -6,7 +6,7 @@ import { HelpDataHandlingTenantIsolationLeavesStaysChrome } from "@/app/(operato
 import { HelpDataHandlingTenantIsolationOverview } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationOverview";
 import { HelpDataHandlingTenantIsolationRelatedTopics } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationRelatedTopics";
 import { HelpDataHandlingTenantIsolationSourceLinks } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationSourceLinks";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { HelpStaticSection } from "@/components/help/HelpStaticSection";
 import { DataHandlingTenantIsolationHelpEvidenceOrientationStrip } from "@/components/help/DataHandlingTenantIsolationHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -146,13 +146,13 @@ export function HelpDataHandlingTenantIsolationGuideView(
           </div>
 
           {!buyerPolishedShell ? (
-            <CollapsibleSection
+            <HelpStaticSection
               title={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE}
-              summaryLine={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO}
-              sectionTestId="help-data-handling-tenant-isolation-source-disclosure"
+              intro={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO}
+              testId="help-data-handling-tenant-isolation-source-disclosure"
             >
               <HelpDataHandlingTenantIsolationSourceLinks />
-            </CollapsibleSection>
+            </HelpStaticSection>
           ) : null}
         </div>
 

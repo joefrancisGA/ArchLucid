@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
 
 import { HelpCorePilotFirstViewportJobChrome } from "@/app/(operator)/help/_sections/HelpCorePilotFirstViewportJobChrome";
 import { HelpCorePilotJobMatrix } from "@/app/(operator)/help/_sections/HelpCorePilotJobMatrix";
@@ -11,6 +10,7 @@ import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpCorePilotWorkflowStepper } from "@/app/(operator)/help/_sections/HelpCorePilotWorkflowStepper";
+import { HelpStaticSection } from "@/components/help/HelpStaticSection";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -49,19 +49,6 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
-function HelpDisclosure(props: {
-  readonly title: string;
-  readonly children: ReactNode;
-  readonly testId?: string;
-}): React.ReactElement {
-  return (
-    <details className={HELP_PAGE_LAYOUT.details} data-testid={props.testId}>
-      <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.title}</summary>
-      <div className={cn(HELP_PAGE_LAYOUT.detailsBody, OPERATOR_TYPOGRAPHY.body)}>{props.children}</div>
-    </details>
-  );
-}
-
 /** Guided first-review workflow for `/help/first-architecture-review` — action-oriented, not prose documentation. */
 export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): React.ReactElement {
   const { entry } = props;
@@ -82,19 +69,16 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
         </div>
       </header>
 
-      <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-guide-vocabulary-disclosure">
-        <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>About this guide</summary>
-        <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-0")}>
-          <PilotGuideGettingStartedFirstReviewVocabularyRail
-            currentSurfaceId="first-architecture-review"
-            variant="full"
-          />
-          <FirstReviewGuideFirstArchitectureReviewVocabularyRail
-            currentSurfaceId="first-architecture-review"
-            variant="full"
-          />
-        </div>
-      </details>
+      <HelpStaticSection title="About this guide" testId="core-pilot-guide-vocabulary-disclosure" bodyClassName="space-y-0">
+        <PilotGuideGettingStartedFirstReviewVocabularyRail
+          currentSurfaceId="first-architecture-review"
+          variant="full"
+        />
+        <FirstReviewGuideFirstArchitectureReviewVocabularyRail
+          currentSurfaceId="first-architecture-review"
+          variant="full"
+        />
+      </HelpStaticSection>
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
@@ -140,16 +124,17 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             <HelpCorePilotWorkflowStepper />
           </section>
 
-          <HelpDisclosure title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title}>
+          <HelpStaticSection title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title} bodyClassName={OPERATOR_TYPOGRAPHY.body}>
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
-          </HelpDisclosure>
+          </HelpStaticSection>
 
-          <HelpDisclosure
+          <HelpStaticSection
             title={CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.title}
             testId="core-pilot-actor-intake-disclosure"
+            bodyClassName={OPERATOR_TYPOGRAPHY.body}
           >
             {CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.body}
-          </HelpDisclosure>
+          </HelpStaticSection>
 
           <CorePilotHelpPostStepperPanel />
 

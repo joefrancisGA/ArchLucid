@@ -214,7 +214,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(vocabularyLink.tagName).toBe("A");
   });
 
-  it("keeps internal implementation terms inside the administrator disclosure", async () => {
+  it("keeps internal implementation terms inside the administrator section", async () => {
     if (entry === undefined) {
       throw new Error("Expected getting-started documentation entry.");
     }
@@ -239,10 +239,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(within(pipelineDiagram).queryByText(BANNED_PRODUCT_NOUN_RUN)).not.toBeInTheDocument();
 
     const technical = screen.getByTestId("getting-started-technical-details");
-    expect(technical).toBeInstanceOf(HTMLDetailsElement);
-    fireEvent.click(within(technical).getByText(GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE));
-    await waitFor(() => {
-      expect(within(technical).getByText(/runId/i)).toBeInTheDocument();
-    });
+    expect(technical.tagName.toLowerCase()).toBe("section");
+    expect(within(technical).getByText(/runId/i)).toBeInTheDocument();
   });
 });

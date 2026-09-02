@@ -1,9 +1,7 @@
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { HelpStaticSection } from "@/components/help/HelpStaticSection";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help/help-heading-slug";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type HelpEngineeringTroubleshootingMarkdownSection = {
   readonly id: string;
@@ -100,26 +98,13 @@ export function HelpEngineeringTroubleshootingMarkdownSections(
       ) : null}
 
       {sections.map((section) => (
-        <HelpLazyDetails
+        <HelpStaticSection
           key={section.id}
-          className={HELP_PAGE_LAYOUT.details}
-          data-testid="help-engineering-troubleshooting-markdown-section"
-          summaryClassName={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
-          summary={
-            <h2
-              id={section.id}
-              className={cn(
-                "m-0 inline",
-                OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-                OPERATOR_TYPOGRAPHY.sectionTitle,
-              )}
-            >
-              {section.title}
-            </h2>
-          }
+          id={section.id}
+          headingLevel={2}
+          title={section.title}
+          testId="help-engineering-troubleshooting-markdown-section"
           bodyClassName={HELP_PAGE_LAYOUT.detailsBody}
-          // Section title ids live in the summary; avoid mounting every body on any page hash.
-          mountOnHash={false}
         >
           {section.body.length > 0 ? (
             <MarketingAccessibilityMarkdownFragment
@@ -132,7 +117,7 @@ export function HelpEngineeringTroubleshootingMarkdownSections(
               preparedMarkdownOverride={section.body}
             />
           ) : null}
-        </HelpLazyDetails>
+        </HelpStaticSection>
       ))}
     </div>
   );
