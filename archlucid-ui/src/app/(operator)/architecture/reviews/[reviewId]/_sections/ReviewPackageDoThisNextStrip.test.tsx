@@ -269,7 +269,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
   });
 
-  it("renders outline evidence CTA and secondary sponsor link when demoted", () => {
+  it("renders quick links without stacked sponsor or evidence CTAs when demoted", () => {
     render(
       <ReviewPackageDoThisNextStrip
         runId="run-1"
@@ -280,20 +280,25 @@ describe("ReviewPackageDoThisNextStrip", () => {
           kind: "send-to-sponsor",
           sentence:
             "This package is finalized, but none of its 4 open findings have linked evidence — review evidence coverage before sharing with a sponsor.",
-          actionLabel: "Review evidence coverage",
-          href: "/architecture/reviews/run-1?reviewTab=evidence",
-          buttonVariant: "outline",
-          secondaryAction: {
-            label: "Send to sponsor",
-            href: "/architecture/reviews/run-1?reviewTab=review-package#sponsor-handoff",
-          },
+          actionLabel: "",
+          href: null,
+          quickLinks: [
+            {
+              label: "Start follow-up review",
+              href: "/architecture/reviews/new?priorRunId=run-1",
+            },
+            {
+              label: "Open sponsor briefing export",
+              href: "/insights/sponsor-report?runId=run-1",
+            },
+          ],
         }}
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Review evidence coverage" })).toBeInTheDocument();
-    const sponsorAction = screen.getByTestId("review-package-do-this-next-secondary-action");
-    expect(sponsorAction).toHaveTextContent("Send to sponsor");
-    expect(sponsorAction.className).toContain("border-neutral-300");
+    expect(screen.queryByRole("link", { name: "Review evidence coverage" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("review-package-do-this-next-secondary-action")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start follow-up review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open sponsor briefing export" })).toBeInTheDocument();
   });
 });

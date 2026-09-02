@@ -255,6 +255,10 @@ export function ReviewPackageDoThisNextStrip(
   } = props;
   const buttonVariant = next.buttonVariant ?? "primary";
   const blockRerun = next.kind === "rerun-review" && sessionAiReadiness.blocksExecute;
+  const showPrimaryCta =
+    next.kind === "finalize-package"
+    || next.kind === "rerun-review"
+    || (next.href !== null && next.href.trim().length > 0);
 
   return (
     <section
@@ -276,14 +280,14 @@ export function ReviewPackageDoThisNextStrip(
         </div>
 
         <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end" data-testid="review-package-do-this-next-action" data-review-package-do-this-next-kind={next.kind}>
-          {next.kind === "finalize-package" ? (
+          {showPrimaryCta && next.kind === "finalize-package" ? (
             <CommitRunButton
               runId={runId}
               disabled={hasGoldenManifest}
               commitBlockedReason={commitBlockedReason}
               buttonVariant="primary"
             />
-          ) : next.kind === "rerun-review" && !blockRerun ? (
+          ) : showPrimaryCta && next.kind === "rerun-review" && !blockRerun ? (
             <ReRunReviewButton
               runId={runId}
               retryCount={retryCount}
@@ -291,18 +295,18 @@ export function ReviewPackageDoThisNextStrip(
               size="sm"
               data-testid="review-package-re-run-review"
             />
-          ) : next.href !== null && !blockRerun ? (
+          ) : showPrimaryCta && next.href !== null && !blockRerun ? (
             <Button type="button" variant={buttonVariant} size="sm" asChild>
               <Link href={next.href}>{next.actionLabel}</Link>
             </Button>
-          ) : (
+          ) : showPrimaryCta ? (
             <span
               className={cn(buttonVariants({ variant: buttonVariant, size: "sm" }), "pointer-events-none opacity-60")}
               title={blockRerun ? sessionAiReadiness.detail ?? "Live AI is not ready for Real mode." : undefined}
             >
               {next.actionLabel}
             </span>
-          )}
+          ) : null}
           {next.secondaryAction !== null && next.secondaryAction !== undefined ? (
             <Button type="button" variant="outline" size="sm" asChild>
               <Link href={next.secondaryAction.href} data-testid="review-package-do-this-next-secondary-action">
