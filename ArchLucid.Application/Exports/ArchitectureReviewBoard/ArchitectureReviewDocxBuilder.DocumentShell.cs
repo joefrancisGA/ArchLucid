@@ -42,15 +42,8 @@ public sealed partial class ArchitectureReviewDocxBuilder
             AddCoverPageSection(mainPart, body, model, whitelabel, logoImageBytes, activeTrialExportNotice, exportTimestampUtc);
             ArchitectureReviewDocxOpenXmlPrimitives.AddPageBreak(body);
 
-            AddSponsorReportSection(body, model);
-            AddSystemOverviewSection(body, model);
-            AddEvidenceReviewedSection(body, model);
-            AddArchitectureDecisionsSection(body, model);
-            AddKeyRisksSection(body, model);
-            AddPolicyFindingsSection(body, model);
-            AddAiAssistedAnalysisSection(body, model);
-            AddTraceabilityAppendixSection(body, model);
-            AddRecommendedNextActionsSection(body, model);
+            ArchitectureReviewBoardExportSectionVisitor.VisitBodySections((kind, _) =>
+                RenderDocxBodySection(body, kind, model));
 
             ArchitectureReviewDocxOpenXmlPrimitives.AttachDefaultFooter(mainPart, body, footerText);
             mainPart.Document.Save();
@@ -172,5 +165,44 @@ public sealed partial class ArchitectureReviewDocxBuilder
         ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body,
             "Terminology follows buyer-facing glossary: Review ↔ committed run; Architecture snapshot ↔ golden manifest.",
             "Subtle");
+    }
+
+    private void RenderDocxBodySection(
+        Body body,
+        ArchitectureReviewBoardExportSectionKind kind,
+        ArchitectureReviewBoardExportDocumentModel model)
+    {
+        switch (kind)
+        {
+            case ArchitectureReviewBoardExportSectionKind.SponsorReport:
+                AddSponsorReportSection(body, model);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.SystemOverview:
+                AddSystemOverviewSection(body, model);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.EvidenceReviewed:
+                AddEvidenceReviewedSection(body, model);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.ArchitectureDecisions:
+                AddArchitectureDecisionsSection(body, model);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.KeyRisks:
+                AddKeyRisksSection(body, model);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.PolicyFindings:
+                AddPolicyFindingsSection(body, model);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.AiAssistedAnalysis:
+                AddAiAssistedAnalysisSection(body, model);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.TraceabilityAppendix:
+                AddTraceabilityAppendixSection(body, model);
+                break;
+            case ArchitectureReviewBoardExportSectionKind.RecommendedNextActions:
+                AddRecommendedNextActionsSection(body, model);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown export section kind.");
+        }
     }
 }

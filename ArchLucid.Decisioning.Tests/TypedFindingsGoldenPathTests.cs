@@ -138,10 +138,9 @@ public sealed class TypedFindingsGoldenPathTests
             new CostConstraintFindingEngine()
         ];
 
-        FindingsOrchestrator orchestrator = new(
+        FindingsOrchestrator orchestrator = FindingsOrchestratorComposer.Compose(
             engines,
             new FindingPayloadValidator(),
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             DeterministicInsightDensityGate.CreateDefault(),
             TimeProvider.System);

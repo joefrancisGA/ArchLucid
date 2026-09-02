@@ -5,6 +5,8 @@ using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
@@ -15,6 +17,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Models;
@@ -63,6 +66,15 @@ public sealed class ReplayRunServiceTests
                 It.IsAny<IReadOnlyCollection<AgentResult>>(),
                 It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
                 It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return mock.Object;
+    }
+
+    private static IRunStageOutcomesRepository EmptyStageOutcomesRepository()
+    {
+        Mock<IRunStageOutcomesRepository> mock = new();
+        mock.Setup(r => r.ListByRunIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         return mock.Object;
@@ -199,6 +211,10 @@ public sealed class ReplayRunServiceTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
+            Mock.Of<IAuthorityRunOrchestrator>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
+            EmptyStageOutcomesRepository(),
             NullLogger<ReplayRunService>.Instance);
 
         Func<Task> act = async () => await sut.ReplayAsync("missing", ExecutionModes.Current, false, null, CancellationToken.None);
@@ -314,6 +330,10 @@ public sealed class ReplayRunServiceTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
+            Mock.Of<IAuthorityRunOrchestrator>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
+            EmptyStageOutcomesRepository(),
             NullLogger<ReplayRunService>.Instance);
 
         ReplayRunResult output = await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: false, null, CancellationToken.None);
@@ -500,6 +520,10 @@ public sealed class ReplayRunServiceTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
+            Mock.Of<IAuthorityRunOrchestrator>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
+            EmptyStageOutcomesRepository(),
             NullLogger<ReplayRunService>.Instance);
 
         ReplayRunResult output =
@@ -648,6 +672,10 @@ public sealed class ReplayRunServiceTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
+            Mock.Of<IAuthorityRunOrchestrator>(),
+            Mock.Of<IArchitectureRunCommitOrchestrator>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
+            EmptyStageOutcomesRepository(),
             NullLogger<ReplayRunService>.Instance);
 
         ReplayRunResult output = await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: false, null, CancellationToken.None);

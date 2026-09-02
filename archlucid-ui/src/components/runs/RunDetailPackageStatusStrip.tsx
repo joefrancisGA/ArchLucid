@@ -10,8 +10,11 @@ import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer/buyer-poli
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { authorityLifecyclePhaseLabel } from "@/lib/runs/authority-lifecycle-commit-block";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import type { components } from "@/lib/openapi-schemas";
 
 import type { ShowcasePolicyPackStripLink } from "./RunDetailOutcomeCards";
 
@@ -130,6 +133,7 @@ export type RunDetailPackageStatusStripProps = {
   artifactCount: number;
   governanceGateLabel: string | null | undefined;
   showcasePolicyPackStrip: ShowcasePolicyPackStripLink | null | undefined;
+  authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"] | null;
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
@@ -162,6 +166,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
     props.governanceGateLabel.trim().length > 0
       ? props.governanceGateLabel.trim()
       : " — ";
+  const authorityPhaseLabel = authorityLifecyclePhaseLabel(props.authorityLifecyclePhase);
 
   const segmentInner = "min-w-0 flex-1 px-3 py-3 sm:px-4";
   const valueClass = cn("m-0 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body);
@@ -261,6 +266,25 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
           )}
         </div>
       </div>
+
+      {authorityPhaseLabel !== null ? (
+        <div className={segmentInner} data-testid="run-detail-authority-lifecycle-phase">
+          <p className={stripSegmentLabelClass()}>Authority pipeline</p>
+          <div className="mt-1">
+            <StatusTag
+              kind={
+                props.authorityLifecyclePhase === "Complete"
+                  ? "ready"
+                  : props.authorityLifecyclePhase === "Failed"
+                    ? "blocked"
+                    : "in-progress"
+              }
+              label={authorityPhaseLabel}
+              aria-label={`Authority pipeline: ${authorityPhaseLabel}`}
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className={segmentInner}>
         <p className={stripSegmentLabelClass()}>Approval status</p>

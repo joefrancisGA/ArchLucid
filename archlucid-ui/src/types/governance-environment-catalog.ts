@@ -1,22 +1,25 @@
-export type GovernanceEnvironmentDefinition = {
-  slug: string;
-  displayName: string;
-  sortOrder: number;
-  isActive: boolean;
-};
+import type { components } from "@/lib/openapi-schemas";
 
-export type GovernanceEnvironmentTransition = {
-  sourceSlug: string;
-  targetSlug: string;
-};
+type GovernanceEnvironmentDefinitionSchema = components["schemas"]["GovernanceEnvironmentDefinition"];
 
-export type GovernanceEnvironmentCatalog = {
-  isAdministratorConfigured: boolean;
-  environments: GovernanceEnvironmentDefinition[];
-  transitions: GovernanceEnvironmentTransition[];
-};
+export type GovernanceEnvironmentDefinition = GovernanceEnvironmentDefinitionSchema &
+  Required<Pick<GovernanceEnvironmentDefinitionSchema, "slug" | "displayName" | "sortOrder" | "isActive">>;
 
-export type ReplaceGovernanceEnvironmentCatalogRequest = {
-  environments: GovernanceEnvironmentDefinition[];
-  transitions: GovernanceEnvironmentTransition[];
-};
+type GovernanceEnvironmentTransitionSchema = components["schemas"]["GovernanceEnvironmentTransition"];
+
+export type GovernanceEnvironmentTransition = GovernanceEnvironmentTransitionSchema &
+  Required<Pick<GovernanceEnvironmentTransitionSchema, "sourceSlug" | "targetSlug">>;
+
+type GovernanceEnvironmentCatalogSchema = components["schemas"]["GovernanceEnvironmentCatalog"];
+
+export type GovernanceEnvironmentCatalog = Omit<
+  GovernanceEnvironmentCatalogSchema,
+  "environments" | "transitions"
+> &
+  Required<Pick<GovernanceEnvironmentCatalogSchema, "isAdministratorConfigured">> & {
+    environments: GovernanceEnvironmentDefinition[];
+    transitions: GovernanceEnvironmentTransition[];
+  };
+
+export type ReplaceGovernanceEnvironmentCatalogRequest =
+  components["schemas"]["ReplaceGovernanceEnvironmentCatalogRequest"];

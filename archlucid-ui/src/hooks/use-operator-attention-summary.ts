@@ -41,10 +41,13 @@ export function useOperatorAttentionSummary(
   const runs =
     options?.runs ?? workspaceActivity.liveRunsSnapshot?.items ?? undefined;
 
+  const unfinishedWorkRailCount =
+    options?.unfinishedWorkRailCount ?? workspaceActivity.unfinishedWorkRailCount ?? undefined;
+
   const surfaceCounts = useMemo(
     () =>
       deriveAttentionSurfaceCounts({
-        unfinishedWorkRailCount: options?.unfinishedWorkRailCount,
+        unfinishedWorkRailCount,
         runs,
         assignedToMeFindingsCount: assignedQuery.data ?? 0,
         awaitingApprovalCount: awaitingItems.length,
@@ -55,6 +58,7 @@ export function useOperatorAttentionSummary(
       assignedQuery.data,
       alertsSummary.open,
       options?.unfinishedWorkRailCount,
+      unfinishedWorkRailCount,
       runs,
     ],
   );

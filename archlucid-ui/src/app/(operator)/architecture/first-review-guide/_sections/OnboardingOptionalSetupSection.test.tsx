@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_PROGRESS_LEAD,
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE,
-  ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
+  formatOptionalWorkspaceSetupCollapsedSummary,
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
 } from "@/lib/buyer/buyer-polish-copy";
 import { ONBOARDING_OPTIONAL_SETUP_HEADING_ID } from "@/lib/first-review-guide-route";
@@ -46,14 +47,17 @@ vi.mock("@/components/operator-home/OperatorHomeDisclosureSection", () => ({
     children,
     sectionTestId,
     collapsedSummary,
+    headerAside,
   }: {
     title: string;
     children: ReactNode;
     sectionTestId?: string;
     collapsedSummary?: string;
+    headerAside?: ReactNode;
   }) => (
     <section data-testid={sectionTestId ?? title}>
       <h2>{title}</h2>
+      {headerAside}
       {collapsedSummary ? <p data-testid="optional-setup-collapsed-summary">{collapsedSummary}</p> : null}
       {children}
     </section>
@@ -83,10 +87,17 @@ describe("OnboardingOptionalSetupSection", () => {
     expect(screen.getByTestId("onboarding-optional-setup")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("optional-setup-collapsed-summary")).toHaveTextContent(
-      ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
+      formatOptionalWorkspaceSetupCollapsedSummary(2, 3),
     );
+    expect(screen.getByTestId("workspace-setup-readiness-progress")).toHaveTextContent("2 of 3 ready");
     expect(screen.getByTestId("optional-workspace-setup-list-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("onboarding-optional-setup-delegation")).not.toBeInTheDocument();
+  });
+
+  it("shows progress context copy when workspace setup steps remain incomplete", () => {
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.getByText(FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_PROGRESS_LEAD)).toBeInTheDocument();
   });
 
   it("shows admin-delegation copy instead of setup rows for non-admin principals", () => {

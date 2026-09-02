@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
@@ -25,28 +26,31 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(PolicyPacksPageBundleResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPageBundle(CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        PolicyPackHttpResult<PolicyPacksPageBundleResponse> result = await _httpFacade.GetPageBundleAsync(ct)
+            .ConfigureAwait(false);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        PolicyPacksPageBundleResponse body = await _workflow.GetPageBundleAsync(ct);
-        return Ok(body);
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        return Ok(result.Value!);
     }
 
     /// <summary>Lists workspace policy packs with assignment ids for tenant opt-in/opt-out.</summary>
     [HttpGet("workspace-selection")]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPackWorkspaceSelectionItem>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListWorkspaceSelection(
-        CancellationToken ct = default)
+    public async Task<IActionResult> ListWorkspaceSelection(CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        PolicyPackHttpResult<IReadOnlyList<PolicyPackWorkspaceSelectionItem>> result =
+            await _httpFacade.ListWorkspaceSelectionAsync(ct).ConfigureAwait(false);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        IReadOnlyList<PolicyPackWorkspaceSelectionItem> rows = await _workflow.ListWorkspaceSelectionAsync(ct);
-        return Ok(rows);
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        return Ok(result.Value!);
     }
 
     /// <summary>Lists platform-promoted policy pack snapshots available to clone into the current tenant.</summary>
@@ -54,13 +58,15 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPackCatalogListItem>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListCatalog(CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        PolicyPackHttpResult<IReadOnlyList<PolicyPackCatalogListItem>> result =
+            await _httpFacade.ListCatalogAsync(ct).ConfigureAwait(false);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        IReadOnlyList<PolicyPackCatalogListItem> rows = await _workflow.ListCatalogAsync(ct);
-        return Ok(rows);
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        return Ok(result.Value!);
     }
 
     /// <summary>Reads one promoted catalog entry including snapshot JSON for cloning.</summary>
@@ -75,25 +81,28 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        PolicyPackHttpResult<PolicyPackCatalogEntryDetail> result =
+            await _httpFacade.GetCatalogEntryAsync(policyPackCatalogEntryId, ct).ConfigureAwait(false);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        PolicyPackCatalogEntryDetail? row = await _workflow.TryGetCatalogEntryAsync(policyPackCatalogEntryId, ct);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
-        if (row is null)
-            return this.NotFoundProblem(
-                $"Policy pack catalog entry '{policyPackCatalogEntryId}' was not found or is not promoted.",
-                ProblemTypes.ResourceNotFound);
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                $"Policy pack catalog entry '{policyPackCatalogEntryId}' was not found or is not promoted.");
+        }
 
-        return Ok(row);
+        return Ok(result.Value!);
     }
 
     /// <summary>Snapshots a pack from the caller's authoring scope into the global catalog and promotes it.</summary>
     [HttpPost("catalog/promote")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
-    [MutatingAuditExcluded("Audit: IPolicyPackWorkflowFacade.TryPromoteCatalogEntryAsync logs PolicyPackCatalogPromoted.")]
+    [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.PromoteCatalogEntryAsync logs PolicyPackCatalogPromoted.")]
     [ProducesResponseType(typeof(PolicyPackCatalogEntryDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -104,44 +113,42 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        IActionResult? promoteValidation =
+            PolicyPacksHttpMapper.ValidatePromoteCatalogEntry(request).ToBadRequestProblemOrNull(this);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        if (promoteValidation is not null)
+            return promoteValidation;
 
-        if (request.SourcePolicyPackId == Guid.Empty)
+        PolicyPackHttpResult<PolicyPackCatalogEntryDetail> result = await _httpFacade.PromoteCatalogEntryAsync(
+            new PolicyPackPromoteCatalogBody
+            {
+                SourcePolicyPackId = request.SourcePolicyPackId,
+                Version = request.Version,
+            },
+            ct).ConfigureAwait(false);
+
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.CrossTenantDistributionBlocked)
+            return this.BadRequestProblem(result.Message ?? "Cross-tenant distribution blocked.", ProblemTypes.ValidationFailed);
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
         {
-            return this.BadRequestProblem(
-                "sourcePolicyPackId is required.",
-                ProblemTypes.ValidationFailed);
+            return this.MapResourceNotFound(
+                result,
+                $"Policy pack '{request.SourcePolicyPackId}' was not found in the current scope or has no content for the requested version.");
         }
 
-        PolicyPackCatalogEntryDetail? row;
-
-        try
-        {
-            row = await _workflow.TryPromoteCatalogEntryAsync(
-                request.SourcePolicyPackId,
-                request.Version,
-                ct);
-        }
-        catch (PolicyPackCrossTenantDistributionBlockedException ex)
-        {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
-
-        if (row is null)
-            return this.NotFoundProblem(
-                $"Policy pack '{request.SourcePolicyPackId}' was not found in the current scope or has no content for the requested version.",
-                ProblemTypes.ResourceNotFound);
-
-        return Ok(row);
+        return Ok(result.Value!);
     }
 
     /// <summary>Removes a catalog entry from the buyer-visible catalog (row retained).</summary>
     [HttpPost("catalog/demote")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
-    [MutatingAuditExcluded("Audit: IPolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync logs PolicyPackCatalogDemoted.")]
+    [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.DemoteCatalogEntryAsync logs PolicyPackCatalogDemoted.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DemoteCatalogEntry(
@@ -151,20 +158,27 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (request.PolicyPackCatalogEntryId == Guid.Empty)
-            return this.BadRequestProblem("policyPackCatalogEntryId is required.", ProblemTypes.ValidationFailed);
+        IActionResult? demoteValidation =
+            PolicyPacksHttpMapper.ValidateDemoteCatalogEntry(request).ToBadRequestProblemOrNull(this);
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        if (demoteValidation is not null)
+            return demoteValidation;
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        PolicyPackHttpResult<bool> result = await _httpFacade.DemoteCatalogEntryAsync(
+            new PolicyPackDemoteCatalogBody { PolicyPackCatalogEntryId = request.PolicyPackCatalogEntryId },
+            ct).ConfigureAwait(false);
 
-        bool ok = await _workflow.TryDemoteCatalogEntryAsync(request.PolicyPackCatalogEntryId, ct);
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        if (!ok)
-            return this.NotFoundProblem(
-                $"Policy pack catalog entry '{request.PolicyPackCatalogEntryId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                $"Policy pack catalog entry '{request.PolicyPackCatalogEntryId}' was not found.");
+        }
 
         return NoContent();
     }
@@ -181,19 +195,22 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        PolicyPackHttpResult<IReadOnlyList<PolicyPackVersion>> result =
+            await _httpFacade.ListVersionsAsync(policyPackId, ct).ConfigureAwait(false);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        IReadOnlyList<PolicyPackVersion>? versions = await _workflow.TryListVersionsAsync(policyPackId, ct);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
-        if (versions is null)
-            return this.NotFoundProblem(
-                $"Policy pack '{policyPackId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                $"Policy pack '{policyPackId}' was not found in the current scope.");
+        }
 
-        return Ok(versions);
+        return Ok(result.Value!);
     }
 
     /// <summary>Reads one version including full <c>ContentJson</c>.</summary>
@@ -211,27 +228,16 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        if (string.IsNullOrWhiteSpace(packVersion))
-            return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
+        IActionResult? versionProblem =
+            PolicyPacksHttpMapper.ValidatePackVersion(packVersion).ToBadRequestProblemOrNull(this);
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        if (versionProblem is not null)
+            return versionProblem;
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        PolicyPackVersionHttpResult result = await _httpFacade.GetVersionAsync(policyPackId, packVersion, ct)
+            .ConfigureAwait(false);
 
-        PolicyPackVersionLookupResult lookup = await _workflow.TryGetVersionAsync(policyPackId, packVersion, ct);
-
-        return lookup.Outcome switch
-        {
-            PolicyPackVersionLookupOutcome.Found => Ok(lookup.Version!),
-            PolicyPackVersionLookupOutcome.PackNotFound => this.NotFoundProblem(
-                $"Policy pack '{policyPackId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound),
-            PolicyPackVersionLookupOutcome.VersionNotFound => this.NotFoundProblem(
-                $"Policy pack version '{packVersion.Trim()}' was not found for pack '{policyPackId}'.",
-                ProblemTypes.PolicyPackVersionNotFound),
-            _ => throw new InvalidOperationException($"Unexpected version lookup outcome: {lookup.Outcome}."),
-        };
+        return this.MapVersionLookup(result);
     }
 
     /// <summary>Plain-English Markdown summary of the pack's current version JSON (LLM-assisted; advisory only).</summary>
@@ -248,19 +254,22 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        PolicyPackHttpResult<string> result = await _httpFacade.ExplainPackMarkdownAsync(policyPackId, ct)
+            .ConfigureAwait(false);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        string? markdown = await _workflow.TryExplainPackMarkdownAsync(policyPackId, ct);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
-        if (markdown is null)
-            return this.NotFoundProblem(
-                $"Policy pack '{policyPackId}' was not found in the current scope or has no content.",
-                ProblemTypes.ResourceNotFound);
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                $"Policy pack '{policyPackId}' was not found in the current scope or has no content.");
+        }
 
-        return Content(markdown, "text/markdown; charset=utf-8");
+        return Content(result.Value!, "text/markdown; charset=utf-8");
     }
 
     /// <summary>Returns each applicable enabled assignment as a separate resolved pack (no merge).</summary>
@@ -270,13 +279,15 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetEffective(CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        PolicyPackHttpResult<EffectivePolicyPackSet> result = await _httpFacade.GetEffectiveAsync(ct)
+            .ConfigureAwait(false);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        EffectivePolicyPackSet effective = await _workflow.GetEffectiveAsync(ct);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
+        EffectivePolicyPackSet effective = result.Value!;
         ScopeContext scope = HttpContext.RequestServices.GetRequiredService<IScopeContextProvider>().GetCurrentScope();
         string fingerprint =
             $"effective|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}";
@@ -295,13 +306,15 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetEffectiveContent(CancellationToken ct = default)
     {
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(ct).ConfigureAwait(false);
+        PolicyPackHttpResult<PolicyPackContentDocument> result = await _httpFacade.GetEffectiveContentAsync(ct)
+            .ConfigureAwait(false);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
-        PolicyPackContentDocument doc = await _workflow.GetEffectiveContentAsync(ct);
+        if (scopeProblem is not null)
+            return scopeProblem;
 
+        PolicyPackContentDocument doc = result.Value!;
         ScopeContext scope = HttpContext.RequestServices.GetRequiredService<IScopeContextProvider>().GetCurrentScope();
         string fingerprint =
             $"effective-content|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}";
@@ -318,7 +331,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPackRuleTemplateItem>), StatusCodes.Status200OK)]
     public ActionResult<IReadOnlyList<PolicyPackRuleTemplateItem>> GetRuleTemplates()
     {
-        IReadOnlyList<PolicyPackRuleTemplateItem> templates = _workflow.ListRuleTemplates();
-        return Ok(templates);
+        PolicyPackHttpResult<IReadOnlyList<PolicyPackRuleTemplateItem>> result = _httpFacade.ListRuleTemplates();
+        return Ok(result.Value!);
     }
 }

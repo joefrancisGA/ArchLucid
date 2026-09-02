@@ -2,11 +2,13 @@
 
 # Manifest hash field inclusion (wave-2 suggestion 18)
 
-`ManifestHashService.HasherSchemaVersion` is **`v1`**. The hash is a **content commitment** for structural manifest sections and committed governance — not the full findings envelope.
+`ManifestHashService.HasherSchemaVersion` is **`v3`** (wave-6 binds create-time policy/evidence pins; wave-5 bound `ArchitectureVersionId`). The hash is a **content commitment** for structural manifest sections and committed governance — not the full findings envelope.
 
 ## Included in `h(M)`
 
-- Scope ids, manifest/run/snapshot/trace/rule-set ids
+- Scope ids, manifest/run/snapshot/trace/rule-set ids, **`ArchitectureVersionId`**
+- **Create-time policy pack pins** (`CreateTimePolicyPackPins`: id + version rows)
+- **Create-time evidence package pins** (`CreateTimeEvidencePackagePins`: provider + package id + collection timestamp when available)
 - Structural sections: requirements, topology, security, compliance, cost, constraints, unresolved issues
 - Sorted decisions (with sorted supporting finding ids / related node ids)
 - Sorted assumptions and warnings

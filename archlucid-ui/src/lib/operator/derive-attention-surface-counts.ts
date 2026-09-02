@@ -1,3 +1,4 @@
+import { reviewsHubNeedsAttention } from "@/app/(operator)/architecture/reviews/_sections/reviews-hub-review-status";
 import type { SummarizeAttentionSurfacesInput } from "@/lib/operator/attention-summary";
 import { partitionRunsIntoWorkQueueSections } from "@/lib/runs/run-work-queue-groups";
 import type { RunSummary } from "@/types/authority";
@@ -30,26 +31,17 @@ export function deriveAttentionSurfaceCounts(
   }
 
   if (input.runs !== undefined) {
+    // Align unfinished-work chip count with `/architecture/reviews?filter=needs-attention`.
+    counts["run-work-queue-needs-attention"] = input.runs.filter((run) => reviewsHubNeedsAttention(run)).length;
     const sections = partitionRunsIntoWorkQueueSections(input.runs);
 
     for (const section of sections) {
-      switch (section.groupId) {
-        case "needs-attention":
-          counts["run-work-queue-needs-attention"] = section.runs.length;
-          break;
+      if (section.groupId === "in-progress") {
+        counts["run-work-queue-in-progress"] = section.runs.length;
+      }
 
-        case "in-progress":
-          counts["run-work-queue-in-progress"] = section.runs.length;
-          break;
-
-        case "committed":
-          counts["run-work-queue-committed"] = section.runs.length;
-          break;
-
-        default: {
-          const unreachable: never = section.groupId;
-          throw new Error(`Unhandled run work queue group ${unreachable}.`);
-        }
+      if (section.groupId === "committed") {
+        counts["run-work-queue-committed"] = section.runs.length;
       }
     }
   }

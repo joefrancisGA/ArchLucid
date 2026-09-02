@@ -21,7 +21,7 @@ export const OUTCOMES_HUB_NAV_LABEL = "Outcomes" as const;
 export const OUTCOMES_HUB_PATH = SPONSOR_REPORT_PATH;
 
 /** Consolidated first-run surface label (First review guide + getting started). */
-export const FIRST_RUN_GUIDE_NAV_LABEL = "Getting started" as const;
+export const FIRST_RUN_GUIDE_NAV_LABEL = "First review guide" as const;
 
 export const FIRST_RUN_GUIDE_NAV_PATH = FIRST_REVIEW_GUIDE_PATH;
 

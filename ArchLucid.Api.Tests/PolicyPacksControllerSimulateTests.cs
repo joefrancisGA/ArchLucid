@@ -1,10 +1,7 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
-using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
@@ -21,7 +18,7 @@ public sealed class PolicyPacksControllerSimulateTests
     [Fact]
     public async Task Simulate_returns_bad_request_when_run_id_missing()
     {
-        PolicyPacksController sut = CreateController();
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(new Mock<IPolicyPackHttpFacade>());
 
         IActionResult action = await sut.Simulate(
             new PolicyPackSimulateRequest
@@ -38,7 +35,7 @@ public sealed class PolicyPacksControllerSimulateTests
     [Fact]
     public async Task Simulate_returns_bad_request_when_content_missing()
     {
-        PolicyPacksController sut = CreateController();
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(new Mock<IPolicyPackHttpFacade>());
 
         IActionResult action = await sut.Simulate(
             new PolicyPackSimulateRequest
@@ -50,20 +47,5 @@ public sealed class PolicyPacksControllerSimulateTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    private static PolicyPacksController CreateController()
-    {
-        PolicyPacksController controller = new(
-            Mock.Of<IPolicyPackWorkflowFacade>(),
-            new CreatePolicyPackRequestValidator(),
-            new PublishPolicyPackVersionRequestValidator(),
-            new AssignPolicyPackRequestValidator(),
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<ITenantRepository>());
-
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
-
-        return controller;
     }
 }

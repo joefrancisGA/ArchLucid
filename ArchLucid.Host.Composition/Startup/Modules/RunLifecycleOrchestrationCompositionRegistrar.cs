@@ -36,10 +36,14 @@ using ArchLucid.Application.Planning;
 using ArchLucid.Application.Reports;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async;
+using ArchLucid.Application.Runs.Async.Workers;
+using ArchLucid.Application.Runs.Enrichment;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Create.Hooks;
 using ArchLucid.Application.Runs.Orchestration.Execute;
+using ArchLucid.Application.Runs.Orchestration.Execute.Hooks;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Application.Runs.TechnologyLedger;
@@ -91,11 +95,21 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<ArchitectureRunCreateIdempotencyHelper>();
         services.AddScoped<ArchitectureRunCreatePersistenceHelper>();
         services.AddScoped<ArchitectureRunCreatePostCreateHooks>();
+        services.AddScoped<IArchitectureRunCreateAuditHook, ArchitectureRunCreateAuditHook>();
+        services.AddScoped<IArchitectureRunCreateMeteringHook, ArchitectureRunCreateMeteringHook>();
+        services.AddScoped<IArchitectureRunCreatePolicyBaselineHook, ArchitectureRunCreatePolicyBaselineHook>();
+        services.AddScoped<IArchitectureRunCreateIdentityLinkHook, ArchitectureRunCreateIdentityLinkHook>();
         services.AddScoped<ArchitectureRunExecutePostExecuteHooks>();
+        services.AddScoped<IArchitectureRunExecuteAuditHook, ArchitectureRunExecuteAuditHook>();
+        services.AddScoped<IArchitectureRunExecuteBaselineMutationHook, ArchitectureRunExecuteBaselineMutationHook>();
+        services.AddScoped<IArchitectureRunExecuteOutboxPublishHook, ArchitectureRunExecuteOutboxPublishHook>();
         services.AddScoped<IIncompleteAuthorityPipelineExecuteHandler, IncompleteAuthorityPipelineExecuteHandler>();
         services.AddScoped<IArchitectureRunExecutePreExecuteStage, ArchitectureRunExecutePreExecuteStage>();
         services.AddScoped<IArchitectureRunExecutePersistenceStage, ArchitectureRunExecutePersistenceStage>();
         services.AddScoped<IArchitectureRunExecuteQualityGateStage, ArchitectureRunExecuteQualityGateStage>();
+        services.AddScoped<IAgentLoopPrepareStage, AgentLoopPrepareStage>();
+        services.AddScoped<IAgentLoopInvokeStage, AgentLoopInvokeStage>();
+        services.AddScoped<IAgentLoopPersistStage, AgentLoopPersistStage>();
         services.AddScoped<IArchitectureRunExecuteAgentLoopStage, ArchitectureRunExecuteAgentLoopStage>();
         services.AddScoped<IArchitectureRunExecuteFailureRecorder, ArchitectureRunExecuteFailureRecorder>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
@@ -117,6 +131,7 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         // Scoped, not singleton: unlike pure correlation this reads the tenant's finding review trail (TB-2194).
         services.AddScoped<ICrossReviewFindingLifecycleService, CrossReviewFindingLifecycleService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.AddAuthorityRunDetailEnrichment();
         services.AddScoped<IAuthorityRunDetailOperatorEnricher, AuthorityRunDetailOperatorEnricher>();
         services.AddScoped<IAgentOutputQualityGateOptionsResolver, AgentOutputQualityGateOptionsResolver>();
         services.AddScoped<IInsightDensityGateOptionsResolver, InsightDensityGateOptionsResolver>();
@@ -185,6 +200,8 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IPilotsApplicationService, PilotsApplicationService>();
         services.AddScoped<IComparisonsApplicationService, ComparisonsApplicationService>();
         services.AddScoped<ICompareRunsApplicationFacade, CompareRunsApplicationFacade>();
+        services.AddScoped<IRunExportQueryFacade, RunExportQueryFacade>();
+        services.AddScoped<IAdvisoryWorkflowFacade, AdvisoryWorkflowFacade>();
         services.AddScoped<ITraceabilityBundleExportApplicationService, TraceabilityBundleExportApplicationService>();
         services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();
         services.AddScoped<IDemoReadModelClient, DemoReadModelClient>();
@@ -199,6 +216,7 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddSingleton<IArchitectureRunAsyncOperationRegistrar, ArchitectureRunAsyncOperationRegistrar>();
         services.AddScoped<IArchitectureRunAsyncCreateAdmitter, ArchitectureRunAsyncCreateAdmitter>();
         services.AddScoped<IArchitectureRunAsyncOperationAcceptor, ArchitectureRunAsyncOperationAcceptor>();
+        services.AddArchitectureRunAsyncOperationWorkers();
         services.AddHostedService<ArchitectureRunAsyncOperationHostedService>();
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
@@ -207,6 +225,12 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureIdentityService, ArchitectureIdentityService>();
         services.AddScoped<IArchitectureVersionService, ArchitectureVersionService>();
         services.AddScoped<IFindingAnalysisContextBuilder, FindingAnalysisContextBuilder>();
+        services.AddScoped<IEvidencePackagePinResolver, EvidencePackagePinResolver>();
+        services.AddSingleton<IEvidenceGraphMaterializer, EvidenceGraphMaterializer>();
+        services.AddScoped<IRunPolicyPackPinService, RunPolicyPackPinService>();
+        services.AddScoped<IRunEvidencePackagePinService, RunEvidencePackagePinService>();
+        services.AddScoped<IRunGovernanceScopePinService, RunGovernanceScopePinService>();
+        services.AddScoped<IRunCreatePinOrchestrator, RunCreatePinOrchestrator>();
         services.AddScoped<IWorkspaceSystemNameCollisionGuard, WorkspaceSystemNameCollisionGuard>();
         services.AddScoped<IHolisticCriticService, HolisticCriticService>();
         services.Configure<GenerateRunSummaryOptions>(

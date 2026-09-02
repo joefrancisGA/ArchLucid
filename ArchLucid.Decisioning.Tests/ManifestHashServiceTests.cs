@@ -101,7 +101,17 @@ public sealed class ManifestHashServiceTests
     }
 
     [Fact]
-    public void ComputeHash_MatchesPinnedBaseline_v1()
+    public void ComputeHash_ArchitectureVersionId_affects_hash()
+    {
+        ManifestDocument withoutVersion = BaseManifest();
+        ManifestDocument withVersion = BaseManifest();
+        withVersion.ArchitectureVersionId = Guid.Parse("ffffffff-0000-0000-0000-000000000001");
+
+        _sut.ComputeHash(withoutVersion).Should().NotBe(_sut.ComputeHash(withVersion));
+    }
+
+    [Fact]
+    public void ComputeHash_MatchesPinnedBaseline_v3()
     {
         string baselinePath = Path.Combine(
             AppContext.BaseDirectory,
@@ -111,7 +121,7 @@ public sealed class ManifestHashServiceTests
             "..",
             "tests",
             "manifest-hash",
-            "hasher-baseline-v1.json");
+            "hasher-baseline-v3.json");
 
         baselinePath = Path.GetFullPath(baselinePath);
         using FileStream stream = File.OpenRead(baselinePath);

@@ -11,6 +11,7 @@ describe("derive-attention-surface-counts (TB-2369)", () => {
         projectId: "default",
         hasFindingsSnapshot: true,
         hasGoldenManifest: false,
+        findingCount: 2,
       },
       {
         runId: "in-progress",

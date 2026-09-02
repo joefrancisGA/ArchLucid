@@ -1,9 +1,6 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
-using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance.PolicyPacks;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
@@ -22,21 +19,12 @@ public sealed class PolicyPacksControllerSetAssignmentEnabledScopeTests
     {
         Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
-        workflow
-            .Setup(f => f.TrySetAssignmentEnabledAsync(assignmentId, false, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.SetAssignmentEnabledAsync(assignmentId, false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound });
 
-        PolicyPacksController sut = new(
-            workflow.Object,
-            new CreatePolicyPackRequestValidator(),
-            new PublishPolicyPackVersionRequestValidator(),
-            new AssignPolicyPackRequestValidator(),
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<ITenantRepository>())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
 
         SetPolicyPackAssignmentEnabledRequest request = new() { IsEnabled = false };
 

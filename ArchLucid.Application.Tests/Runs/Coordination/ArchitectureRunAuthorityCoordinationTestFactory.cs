@@ -10,6 +10,7 @@ using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Tenancy;
 
@@ -50,6 +51,12 @@ internal static class ArchitectureRunAuthorityCoordinationTestFactory
             CreateDefaultAliasResolver(scopeContextProvider),
             new ConfigAgentModelAliasRegistryStub(),
             auditService ?? Mock.Of<IAuditService>(),
+            new RunCreatePinOrchestrator(
+                new RunPolicyPackPinService(new InMemoryPolicyPackAssignmentRepository()),
+                new RunEvidencePackagePinService(
+                    new NoOpAzureExtractorPackageRepository(),
+                    new NoOpCloudInventoryExtractorPackageRepository()),
+                new RunGovernanceScopePinService()),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
     }
 

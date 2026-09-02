@@ -110,7 +110,7 @@ public sealed partial class DapperIntegrationEventOutboxRepository
     /// <inheritdoc />
     public async Task<IReadOnlyList<IntegrationEventOutboxEntry>> DequeuePendingAsync(int maxBatch, CancellationToken ct)
     {
-        int take = Math.Clamp(maxBatch, 1, 100);
+        int take = IntegrationEventOutboxRepositoryCore.ClampDequeueBatch(maxBatch);
 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -185,7 +185,7 @@ public sealed partial class DapperIntegrationEventOutboxRepository
                     NewRetryCount = newRetryCount,
                     NextRetryUtc = nextRetryUtc,
                     DeadLetteredUtc = deadLetteredUtc,
-                    LastErrorMessage = TruncateError(lastErrorMessage)
+                    LastErrorMessage = IntegrationEventOutboxRepositoryCore.TruncateErrorMessage(lastErrorMessage)
                 },
                 cancellationToken: ct));
     }
@@ -212,14 +212,4 @@ public sealed partial class DapperIntegrationEventOutboxRepository
         return count;
     }
 
-    private static string? TruncateError(string? message)
-    {
-        if (message is null)
-            return null;
-
-
-        const int maxLen = 2048;
-
-        return message.Length <= maxLen ? message : message[..maxLen];
-    }
 }

@@ -22,14 +22,6 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Evolution;
 
-/// <summary>
-///     60R controlled evolution: candidate change sets from 59R plans and read-only shadow evaluation (simulation only).
-/// </summary>
-/// <remarks>
-///     Read actions intentionally omit <see cref="IEvolutionSimulationService" /> from the primary constructor.
-///     Resolving that graph pulls analysis → replay → agent handlers → a DI factory that blocks on
-///     <c>GetAwaiter().GetResult()</c> (schema-remediation completion client), which hung Impact preview list loads.
-/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -37,19 +29,10 @@ namespace ArchLucid.Api.Controllers.Evolution;
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class EvolutionController(
-    IEvolutionCandidateChangeSetRepository candidateRepository,
-    IEvolutionSimulationRunRepository simulationRunRepository,
+    IEvolutionApplicationFacade evolutionApplicationFacade,
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
-    private static readonly JsonSerializerOptions SimulationReportFileJsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = true
-    };
-
-    /// <summary>Creates a reviewable candidate from a persisted 59R improvement plan (copies a JSON snapshot).</summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("candidates/from-plan/{planId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -79,10 +62,6 @@ public sealed class EvolutionController(
         }
     }
 
-    /// <summary>
-    ///     Runs read-only architecture analysis for each baseline run linked on the source plan (persists shadow rows; no
-    ///     commits/replays).
-    /// </summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("candidates/{candidateId:guid}/shadow-evaluate")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -101,12 +80,10 @@ public sealed class EvolutionController(
             IReadOnlyList<EvolutionSimulationRunRecord> runs =
                 await evolutionSimulationService.RunShadowEvaluationAsync(candidateId, scope, cancellationToken);
 
-            EvolutionShadowEvaluateResponse body = new()
+            return Ok(new EvolutionShadowEvaluateResponse
             {
                 SimulationRuns = runs.Select(static r => r.ToResponse()).ToList()
-            };
-
-            return Ok(body);
+            });
         }
         catch (EvolutionResourceNotFoundException ex)
         {
@@ -118,10 +95,6 @@ public sealed class EvolutionController(
         }
     }
 
-    /// <summary>
-    ///     Re-runs simulation for the candidate (replaces prior simulation rows), persists 60R-v2 outcomes with evaluation
-    ///     scores.
-    /// </summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("simulate/{candidateId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -143,21 +116,19 @@ public sealed class EvolutionController(
                     scope,
                     cancellationToken);
 
-            EvolutionCandidateChangeSetRecord? candidate =
-                await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
+            EvolutionCandidateReadBundle? bundle =
+                await evolutionApplicationFacade.TryLoadCandidateBundleAsync(candidateId, scope, cancellationToken);
 
-            if (candidate is null)
+            if (bundle is null)
                 return this.NotFoundProblem(
                     $"Candidate change set '{candidateId}' was not found in the current scope.",
                     ProblemTypes.EvolutionCandidateChangeSetNotFound);
 
-            EvolutionSimulateResponse body = new()
+            return Ok(new EvolutionSimulateResponse
             {
-                Candidate = candidate.ToResponse(),
+                Candidate = bundle.Candidate.ToResponse(),
                 SimulationRuns = runs.Select(EvolutionOutcomeParser.ToRunWithEvaluation).ToList()
-            };
-
-            return Ok(body);
+            });
         }
         catch (EvolutionResourceNotFoundException ex)
         {
@@ -169,7 +140,6 @@ public sealed class EvolutionController(
         }
     }
 
-    /// <summary>Loads candidate, plan snapshot, and simulation runs with parsed evaluation scores.</summary>
     [HttpGet("results/{candidateId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(EvolutionResultsResponse), StatusCodes.Status200OK)]
@@ -178,28 +148,17 @@ public sealed class EvolutionController(
     {
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
-        EvolutionCandidateChangeSetRecord? row =
-            await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
+        EvolutionResultsResponse? body =
+            await evolutionApplicationFacade.TryBuildResultsResponseAsync(candidateId, scope, cancellationToken);
 
-        if (row is null)
+        if (body is null)
             return this.NotFoundProblem(
                 $"Candidate change set '{candidateId}' was not found in the current scope.",
                 ProblemTypes.EvolutionCandidateChangeSetNotFound);
 
-        IReadOnlyList<EvolutionSimulationRunRecord> sims =
-            await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);
-
-        EvolutionResultsResponse body = new()
-        {
-            Candidate = row.ToResponse(),
-            PlanSnapshotJson = row.PlanSnapshotJson,
-            SimulationRuns = sims.Select(EvolutionOutcomeParser.ToRunWithEvaluation).ToList()
-        };
-
         return Ok(body);
     }
 
-    /// <summary>Downloads a Markdown or JSON simulation report (change set, plan snapshot, runs, scores, diff summary).</summary>
     [HttpGet("results/{candidateId:guid}/export")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
@@ -215,35 +174,21 @@ public sealed class EvolutionController(
 
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
-        EvolutionCandidateChangeSetRecord? row =
-            await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
+        EvolutionExportResults? export =
+            await evolutionApplicationFacade.TryBuildExportResultsAsync(
+                candidateId,
+                formatNorm,
+                scope,
+                cancellationToken);
 
-        if (row is null)
+        if (export is null)
             return this.NotFoundProblem(
                 $"Candidate change set '{candidateId}' was not found in the current scope.",
                 ProblemTypes.EvolutionCandidateChangeSetNotFound);
 
-        IReadOnlyList<EvolutionSimulationRunRecord> sims =
-            await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);
-
-        EvolutionSimulationReportDocument document =
-            EvolutionSimulationReportBuilder.Build(row, sims, TimeProvider.System.UtcNowDateTime());
-
-        string fileStem = $"evolution-simulation-report-{candidateId:N}";
-
-        if (string.Equals(formatNorm, "json", StringComparison.Ordinal))
-        {
-            string json = JsonSerializer.Serialize(document, SimulationReportFileJsonOptions);
-
-            return ApiFileResults.RangeText(Request, json, "application/json", $"{fileStem}.json");
-        }
-
-        string markdown = EvolutionSimulationReportMarkdownFormatter.Format(document);
-
-        return ApiFileResults.RangeText(Request, markdown, "text/markdown", $"{fileStem}.md");
+        return ApiFileResults.RangeText(Request, export.Content, export.ContentType, export.FileName);
     }
 
-    /// <summary>Lists recent candidate change sets for the current scope.</summary>
     [HttpGet("candidates")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(EvolutionCandidateChangeSetListResponse), StatusCodes.Status200OK)]
@@ -256,17 +201,14 @@ public sealed class EvolutionController(
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
         IReadOnlyList<EvolutionCandidateChangeSetRecord> rows =
-            await candidateRepository.ListAsync(scope, take, cancellationToken);
+            await evolutionApplicationFacade.ListCandidatesAsync(scope, take, cancellationToken);
 
-        EvolutionCandidateChangeSetListResponse body = new()
+        return Ok(new EvolutionCandidateChangeSetListResponse
         {
             Candidates = rows.Select(static r => r.ToResponse()).ToList()
-        };
-
-        return Ok(body);
+        });
     }
 
-    /// <summary>Loads one candidate, its snapshot JSON, and persisted simulation rows.</summary>
     [HttpGet("candidates/{candidateId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(EvolutionCandidateDetailResponse), StatusCodes.Status200OK)]
@@ -275,23 +217,13 @@ public sealed class EvolutionController(
     {
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
-        EvolutionCandidateChangeSetRecord? row =
-            await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
+        EvolutionCandidateDetailResponse? body =
+            await evolutionApplicationFacade.TryBuildCandidateDetailResponseAsync(candidateId, scope, cancellationToken);
 
-        if (row is null)
+        if (body is null)
             return this.NotFoundProblem(
                 $"Candidate change set '{candidateId}' was not found in the current scope.",
                 ProblemTypes.EvolutionCandidateChangeSetNotFound);
-
-        IReadOnlyList<EvolutionSimulationRunRecord> sims =
-            await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);
-
-        EvolutionCandidateDetailResponse body = new()
-        {
-            Candidate = row.ToResponse(),
-            PlanSnapshotJson = row.PlanSnapshotJson,
-            SimulationRuns = sims.Select(static s => s.ToResponse()).ToList()
-        };
 
         return Ok(body);
     }

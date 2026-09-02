@@ -5,6 +5,7 @@ using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Operator;
+using ArchLucid.Application.Operator.Probes;
 using ArchLucid.Application.Support;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
@@ -93,6 +94,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPlatformAuthRecoveryService, PlatformAuthRecoveryService>();
         services.AddScoped<IPlatformRecoveryNotificationService, PlatformRecoveryNotificationService>();
         services.AddScoped<IUserAccountRecoveryService, UserAccountRecoveryService>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalPersistStage, AuthenticationIdentityLinkProposalPersistStage>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalAuditNotifier, AuthenticationIdentityLinkProposalAuditNotifier>();
         services.AddScoped<IAuthenticationIdentityLinkProposalService, AuthenticationIdentityLinkProposalService>();
         services.AddScoped<IAuthenticationIdentityLinkChallengeService, AuthenticationIdentityLinkChallengeService>();
         services.AddScoped<IAuthenticationIdentityLinkingService, AuthenticationIdentityLinkingService>();
@@ -118,6 +121,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDefaultPolicyPackSeeder, DefaultPolicyPackSeeder>();
         services.AddScoped<DefaultPolicyPackCloudBaselineApplicator>();
         services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();
+        services.AddScoped<ITenantTrialFacade, TenantTrialFacade>();
         services.AddScoped<IMarketingAttributionService, MarketingAttributionService>();
         services.AddScoped<TrialLimitGate>();
         services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
@@ -125,6 +129,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<TrialSeatAccountant>();
         services.AddScoped<ITenantUsageStatusService, TenantUsageStatusService>();
         services.AddScoped<ITenantMigrationStatusService, TenantMigrationStatusService>();
+        services.AddOperatorShellStatusProbes();
         services.AddScoped<IOperatorShellStatusService, OperatorShellStatusService>();
         services.AddScoped<ITenantMigrationRetrievalOutboxDrainer, TenantMigrationRetrievalOutboxDrainer>();
         services.AddScoped<ITenantMigrationProjectionRefreshService, TenantMigrationProjectionRefreshService>();

@@ -1,5 +1,6 @@
 // Weekly digest bounded-context composition registrations (exec digest, sponsor report/summary, architecture digest).
 
+using ArchLucid.Application.Advisory;
 using ArchLucid.Application.ExecDigest;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.SponsorDigest;
@@ -40,6 +41,7 @@ public static class WeeklyDigestCompositionModule
         RegisterWeeklySponsorReportWorkerInfrastructure(services, configuration, hostingRole);
         RegisterWeeklySponsorSummaryWorkerInfrastructure(services, configuration, hostingRole);
         RegisterWeeklyArchitectureDigestWorkerInfrastructure(services, configuration, hostingRole);
+        services.AddScoped<IDigestSubscriptionFacade, DigestSubscriptionFacade>();
     }
 
     private static void RegisterExecDigestServices(IServiceCollection services)

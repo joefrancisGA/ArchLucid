@@ -27,7 +27,6 @@ import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effectiv
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { scopeOperatorShellHrefSet, scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { isSponsorDashboardPath } from "@/lib/sponsor-dashboard-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeContextualOnlyOperatorNavHrefsIntoVisibleSet } from "@/lib/nav-contextual-only-operator-paths";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
@@ -41,7 +40,10 @@ import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-vis
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
 import { COMMAND_PALETTE_SIDEBAR_COMPACT_LINE } from "@/lib/vocabulary/command-palette-sidebar-vocabulary";
 import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
-import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
+import {
+  resolveShellHeaderSearchLabel,
+  resolveShellHeaderSearchPlaceholder,
+} from "@/lib/shell-header-search-label";
 import {
   OPEN_COMMAND_PALETTE_EVENT,
   SHORTCUTS,
@@ -58,43 +60,7 @@ import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
 
 /** Buyer-polished header search: route-aware label for the Ctrl+K command palette trigger. */
 function buyerPolishedCommandPaletteLabel(pathname: string): string {
-  const path = (pathname ?? "").split("?")[0] ?? "";
-
-  if (path.startsWith("/insights/evidence-graph")) {
-    return "Search evidence trail";
-  }
-
-  if (path.startsWith("/insights/ask-review-questions")) {
-    return "Search review evidence";
-  }
-
-  if (path.startsWith("/audit")) {
-    return "Search audit trail";
-  }
-
-  if (path.startsWith("/insights/compare-two-reviews")) {
-    return "Search review change comparison";
-  }
-
-  if (path.startsWith("/governance/findings")) {
-    return "Search findings";
-  }
-
-  if (path.startsWith("/governance")) {
-    return "Search policy record";
-  }
-
-  const reviewPackageSubtree =
-    /^\/architecture\/reviews\/[^/]+(?:\/|$)/u.test(path) ||
-    /^\/(?:governance\/)?(?:signed|sealed)-records\/[^/]/u.test(path) ||
-    /^\/architecture\/reviews\/[^/]+\/architecture/u.test(path) ||
-    /^\/sponsor\/reviews\/[^/]/u.test(path);
-
-  if (reviewPackageSubtree) {
-    return "Search this review";
-  }
-
-  return "Search reviews";
+  return resolveShellHeaderSearchLabel(pathname);
 }
 
 function isEditableEventTarget(target: EventTarget | null): boolean {
@@ -249,37 +215,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const polishedPaletteLabel = useMemo(() => buyerPolishedCommandPaletteLabel(pathname ?? ""), [pathname]);
 
   const polishedPalettePlaceholder = useMemo(() => {
-    const path = (pathname ?? "").split("?")[0] ?? "";
-
-    if (path.startsWith("/insights/evidence-graph")) {
-      return "Jump to audit, finalized review record, governance, or type another destination…";
-    }
-
-    if (path.startsWith("/insights/ask-review-questions")) {
-      return "Jump to sponsor report, finalized review record, evidence trail, or governance…";
-    }
-
-    if (path.startsWith("/insights/compare-two-reviews")) {
-      return "Jump to review, finalized review record, or evidence trail…";
-    }
-
-    if (path.startsWith("/audit")) {
-      return "Jump to sponsor report, evidence graph, finalized review record — or type a destination…";
-    }
-
-    if (path.startsWith("/governance")) {
-      return "Jump to audit trail, findings, sponsor report…";
-    }
-
-    if (isSponsorDashboardPath(path)) {
-      return "Jump to finalized review record, evidence graph, audit…";
-    }
-
-    if (path.startsWith("/signed-records") || path.includes("/architecture")) {
-      return "Jump to sponsor report, graph, governance…";
-    }
-
-    return GLOBAL_FIND_PAGE_SEARCH.placeholder;
+    return resolveShellHeaderSearchPlaceholder(pathname ?? "");
   }, [pathname]);
 
   return (

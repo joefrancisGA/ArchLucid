@@ -15,7 +15,7 @@ describe("GlossaryHelpEvidenceOrientationStrip", () => {
     expect(screen.getByTestId("glossary-help-claim-discipline")).toHaveTextContent(GLOSSARY_HELP_CLAIM_DISCIPLINE);
 
     for (const link of GLOSSARY_HELP_FOLLOW_UP_LINKS) {
-      expectFollowUpLink(screen, link);
+      expectFollowUpLink(screen, link, { rawLabel: true });
     }
   });
 });

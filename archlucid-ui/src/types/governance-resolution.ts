@@ -1,46 +1,65 @@
+import type { components } from "@/lib/openapi-schemas";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
 
-/** A candidate policy pack entry competing in governance resolution (with precedence rank). */
-export type GovernanceResolutionCandidate = {
-  policyPackId: string;
-  policyPackName: string;
-  version: string;
-  scopeLevel: string;
-  precedenceRank: number;
-  wasSelected: boolean;
-  valueJson: string;
-  assignmentId: string;
-  assignedUtc: string;
-};
+type GovernanceResolutionCandidateSchema = components["schemas"]["GovernanceResolutionCandidate"];
 
-/** A single governance merge decision: which policy pack won for a given item. */
-export type GovernanceResolutionDecision = {
-  itemType: string;
-  itemKey: string;
-  winningPolicyPackId: string;
-  winningPolicyPackName: string;
-  winningVersion: string;
-  winningScopeLevel: string;
-  resolutionReason: string;
-  candidates: GovernanceResolutionCandidate[];
-};
+export type GovernanceResolutionCandidate = GovernanceResolutionCandidateSchema &
+  Required<
+    Pick<
+      GovernanceResolutionCandidateSchema,
+      | "assignmentId"
+      | "policyPackId"
+      | "policyPackName"
+      | "precedenceRank"
+      | "scopeLevel"
+      | "valueJson"
+      | "version"
+      | "assignedUtc"
+      | "wasSelected"
+    >
+  >;
 
-/** A conflict detected during governance resolution (overlapping or contradictory policy packs). */
-export type GovernanceConflictRecord = {
-  itemType: string;
-  itemKey: string;
-  conflictType: string;
-  description: string;
-  candidates: GovernanceResolutionCandidate[];
-};
+type GovernanceResolutionDecisionSchema = components["schemas"]["GovernanceResolutionDecision"];
+
+export type GovernanceResolutionDecision = Omit<GovernanceResolutionDecisionSchema, "candidates"> &
+  Required<
+    Pick<
+      GovernanceResolutionDecisionSchema,
+      | "itemType"
+      | "itemKey"
+      | "winningPolicyPackId"
+      | "winningPolicyPackName"
+      | "winningVersion"
+      | "winningScopeLevel"
+      | "resolutionReason"
+    >
+  > & {
+    candidates: GovernanceResolutionCandidate[];
+  };
+
+type GovernanceConflictRecordSchema = components["schemas"]["GovernanceConflictRecord"];
+
+export type GovernanceConflictRecord = Omit<GovernanceConflictRecordSchema, "candidates"> &
+  Required<
+    Pick<GovernanceConflictRecordSchema, "itemType" | "itemKey" | "conflictType" | "description">
+  > & {
+    candidates: GovernanceResolutionCandidate[];
+  };
+
+type EffectiveGovernanceResolutionResultSchema = components["schemas"]["EffectiveGovernanceResolutionResult"];
 
 /** Full governance resolution result: effective content, merge decisions, and any conflicts. */
-export type EffectiveGovernanceResolutionResult = {
-  tenantId: string;
-  workspaceId: string;
-  projectId: string;
-  effectiveContent: PolicyPackContentDocument;
-  decisions: GovernanceResolutionDecision[];
-  conflicts: GovernanceConflictRecord[];
-  notes: string[];
-};
+export type EffectiveGovernanceResolutionResult = Omit<
+  EffectiveGovernanceResolutionResultSchema,
+  "effectiveContent" | "decisions" | "conflicts"
+> &
+  Required<
+    Pick<
+      EffectiveGovernanceResolutionResultSchema,
+      "tenantId" | "workspaceId" | "projectId" | "notes"
+    >
+  > & {
+    effectiveContent: PolicyPackContentDocument;
+    decisions: GovernanceResolutionDecision[];
+    conflicts: GovernanceConflictRecord[];
+  };

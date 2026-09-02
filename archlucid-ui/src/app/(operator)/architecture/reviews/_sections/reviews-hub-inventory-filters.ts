@@ -30,6 +30,114 @@ export const INVENTORY_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label
   { id: "Archived", label: "Archived" },
 ];
 
+const INVENTORY_FILTER_IDS = new Set<string>(INVENTORY_FILTER_OPTIONS.map((option) => option.id));
+
+/** Parses `?filter=` from the reviews hub URL; unknown values fall back to All. */
+export function parseReviewsHubInventoryFilter(raw: string | null | undefined): ReviewFilterId {
+  if (raw === null || raw === undefined) {
+    return "all";
+  }
+
+  const trimmed = raw.trim();
+
+  if (!INVENTORY_FILTER_IDS.has(trimmed)) {
+    return "all";
+  }
+
+  return trimmed as ReviewFilterId;
+}
+
+/** Shareable reviews-hub inventory href for a filter chip. */
+export function reviewsHubInventoryFilterHref(filter: ReviewFilterId): string {
+  if (filter === "all") {
+    return "/architecture/reviews";
+  }
+
+  return `/architecture/reviews?filter=${encodeURIComponent(filter)}`;
+}
+
+export function reviewsHubInventoryHrefFromSearch(
+  currentSearch: string,
+  filter: ReviewFilterId,
+  pathname: string = "/architecture/reviews",
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (filter === "all") {
+    params.delete("filter");
+  } else {
+    params.set("filter", filter);
+  }
+
+  const query = params.toString();
+
+  return query.length === 0 ? pathname : `${pathname}?${query}`;
+}
+
+export const REVIEWS_HUB_INVENTORY_SEARCH_PARAM = "q";
+
+/** Parses `?q=` from the reviews hub URL. */
+export function parseReviewsHubInventorySearchQuery(raw: string | null | undefined): string {
+  if (raw === null || raw === undefined) {
+    return "";
+  }
+
+  return raw;
+}
+
+export function reviewsHubInventorySearchHrefFromSearch(
+  currentSearch: string,
+  query: string,
+  pathname: string = "/architecture/reviews",
+): string {
+  const params = new URLSearchParams(currentSearch);
+  const trimmed = query.trim();
+
+  if (trimmed.length === 0) {
+    params.delete(REVIEWS_HUB_INVENTORY_SEARCH_PARAM);
+  } else {
+    params.set(REVIEWS_HUB_INVENTORY_SEARCH_PARAM, trimmed);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+/** Clears inventory filter and search while preserving unrelated query params. */
+export function reviewsHubInventoryClearFiltersHrefFromSearch(
+  currentSearch: string,
+  pathname: string = "/architecture/reviews",
+): string {
+  const params = new URLSearchParams(currentSearch);
+  params.delete("filter");
+  params.delete(REVIEWS_HUB_INVENTORY_SEARCH_PARAM);
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function resolveInventoryFilterCountRuns(
+  filter: ReviewFilterId,
+  mergedRuns: readonly RunSummary[],
+  visibilityFilteredRuns: readonly RunSummary[],
+): readonly RunSummary[] {
+  if (filter === "Archived") {
+    return mergedRuns;
+  }
+
+  return visibilityFilteredRuns;
+}
+
+export function countRunsMatchingInventoryFilter(
+  runs: readonly RunSummary[],
+  filter: ReviewFilterId,
+  ownerContext: ReviewPackageOwnerResolutionContext,
+  siblingRuns: readonly RunSummary[],
+): number {
+  return runs.filter((run) => matchesFilter(run, filter, ownerContext, siblingRuns)).length;
+}
+
 export function matchesSearch(
   run: RunSummary,
   query: string,

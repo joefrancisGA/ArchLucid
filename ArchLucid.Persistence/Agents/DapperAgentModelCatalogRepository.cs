@@ -15,8 +15,6 @@ namespace ArchLucid.Persistence.Agents;
 public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory connectionFactory)
     : IAgentModelCatalogRepository
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
@@ -67,21 +65,23 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<EntryDbRow> entries = await connection.QueryAsync<EntryDbRow>(
+        IEnumerable<AgentModelCatalogRepositoryCore.EntryDbRow> entries =
+            await connection.QueryAsync<AgentModelCatalogRepositoryCore.EntryDbRow>(
             new CommandDefinition(entrySql, cancellationToken: cancellationToken));
 
-        IEnumerable<EvalDbRow> evaluations = await connection.QueryAsync<EvalDbRow>(
+        IEnumerable<AgentModelCatalogRepositoryCore.EvalDbRow> evaluations =
+            await connection.QueryAsync<AgentModelCatalogRepositoryCore.EvalDbRow>(
             new CommandDefinition(evalSql, cancellationToken: cancellationToken));
 
         Dictionary<string, List<AgentModelCatalogEvaluationRow>> evalByAlias = evaluations
             .GroupBy(row => row.AliasId, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
                 group => group.Key,
-                group => group.Select(MapEvaluation).ToList(),
+                group => group.Select(AgentModelCatalogRepositoryCore.MapEvaluation).ToList(),
                 StringComparer.OrdinalIgnoreCase);
 
         return entries
-            .Select(entry => MapEntry(entry, evalByAlias.GetValueOrDefault(entry.AliasId) ?? []))
+            .Select(entry => AgentModelCatalogRepositoryCore.MapEntry(entry, evalByAlias.GetValueOrDefault(entry.AliasId) ?? []))
             .ToList();
     }
 
@@ -197,8 +197,8 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                     row.ProviderConnectionKind,
                     row.DeploymentName,
                     row.TierBinding,
-                    CapabilityTagsJson = JsonSerializer.Serialize(row.CapabilityTags, JsonOptions),
-                    ApprovedTaskTypesJson = JsonSerializer.Serialize(row.ApprovedTaskTypes, JsonOptions),
+                    CapabilityTagsJson = JsonSerializer.Serialize(row.CapabilityTags, new JsonSerializerOptions(JsonSerializerDefaults.Web)),
+                    ApprovedTaskTypesJson = JsonSerializer.Serialize(row.ApprovedTaskTypes, new JsonSerializerOptions(JsonSerializerDefaults.Web)),
                     StructuredOutputLevel = row.StructuredOutputLevel.ToString(),
                     DataBoundary = row.DataBoundary.ToString(),
                     row.ExternalSubprocessorDisclosureComplete,
@@ -234,117 +234,4 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
         }
     }
 
-    private static AgentModelCatalogRow MapEntry(EntryDbRow entry, IReadOnlyList<AgentModelCatalogEvaluationRow> evaluations)
-    {
-        return new AgentModelCatalogRow
-        {
-            AliasId = entry.AliasId,
-            ProviderConnectionKind = entry.ProviderConnectionKind,
-            DeploymentName = entry.DeploymentName,
-            TierBinding = entry.TierBinding,
-            CapabilityTags = DeserializeList(entry.CapabilityTagsJson),
-            ApprovedTaskTypes = DeserializeList(entry.ApprovedTaskTypesJson),
-            StructuredOutputLevel = Enum.TryParse(entry.StructuredOutputLevel, true, out AgentModelStructuredOutputLevel level)
-                ? level
-                : AgentModelStructuredOutputLevel.StrictJsonSchema,
-            DataBoundary = Enum.TryParse(entry.DataBoundary, true, out AgentModelDataBoundaryKind boundary)
-                ? boundary
-                : AgentModelDataBoundaryKind.AzureBoundary,
-            ExternalSubprocessorDisclosureComplete = entry.ExternalSubprocessorDisclosureComplete,
-            LifecycleStatus = Enum.TryParse(entry.LifecycleStatus, true, out AgentModelCatalogLifecycleStatus lifecycle)
-                ? lifecycle
-                : AgentModelCatalogLifecycleStatus.Available,
-            StructuredOutputProbeUtc = entry.StructuredOutputProbeUtc,
-            TokenizerProfile = Enum.TryParse(entry.TokenizerProfile, true, out AgentModelTokenizerProfile tokenizerProfile)
-                ? tokenizerProfile
-                : AgentModelTokenizerProfile.CharHeuristic,
-            CharsPerToken = entry.CharsPerToken > 0 ? entry.CharsPerToken : AgentModelCatalogTokenMath.DefaultCharsPerToken,
-            TokenizerErrorMarginPercent = entry.TokenizerErrorMarginPercent > 0m
-                ? entry.TokenizerErrorMarginPercent
-                : AgentModelCatalogPricingDefaults.DefaultTokenizerErrorMarginPercent,
-            InputUsdPerMillionTokens = entry.InputUsdPerMillionTokens,
-            OutputUsdPerMillionTokens = entry.OutputUsdPerMillionTokens,
-            ReasoningUsdPerMillionTokens = entry.ReasoningUsdPerMillionTokens,
-            Evaluations = evaluations
-        };
-    }
-
-    private static AgentModelCatalogEvaluationRow MapEvaluation(EvalDbRow row) =>
-        new()
-        {
-            TaskType = row.TaskType,
-            EvaluationState = Enum.TryParse(row.EvaluationState, true, out AgentModelEvaluationStateKind state)
-                ? state
-                : AgentModelEvaluationStateKind.NotEvaluated,
-            EvidenceJson = row.EvidenceJson,
-            EvaluatedUtc = row.EvaluatedUtc
-        };
-
-    private static IReadOnlyList<string> DeserializeList(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return [];
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<List<string>>(json, JsonOptions) ?? [];
-        }
-        catch (JsonException)
-        {
-            return [];
-        }
-    }
-
-    private sealed class EntryDbRow
-    {
-        public string AliasId { get; set; } = string.Empty;
-
-        public string ProviderConnectionKind { get; set; } = string.Empty;
-
-        public string? DeploymentName { get; set; }
-
-        public string? TierBinding { get; set; }
-
-        public string CapabilityTagsJson { get; set; } = "[]";
-
-        public string ApprovedTaskTypesJson { get; set; } = "[]";
-
-        public string StructuredOutputLevel { get; set; } = nameof(AgentModelStructuredOutputLevel.StrictJsonSchema);
-
-        public string DataBoundary { get; set; } = nameof(AgentModelDataBoundaryKind.AzureBoundary);
-
-        public bool ExternalSubprocessorDisclosureComplete { get; set; }
-
-        public string LifecycleStatus { get; set; } = nameof(AgentModelCatalogLifecycleStatus.Available);
-
-        public DateTime? StructuredOutputProbeUtc { get; set; }
-
-        public string TokenizerProfile { get; set; } = nameof(AgentModelTokenizerProfile.CharHeuristic);
-
-        public int CharsPerToken { get; set; } = AgentModelCatalogTokenMath.DefaultCharsPerToken;
-
-        public decimal TokenizerErrorMarginPercent { get; set; } =
-            AgentModelCatalogPricingDefaults.DefaultTokenizerErrorMarginPercent;
-
-        public decimal? InputUsdPerMillionTokens { get; set; }
-
-        public decimal? OutputUsdPerMillionTokens { get; set; }
-
-        public decimal? ReasoningUsdPerMillionTokens { get; set; }
-    }
-
-    private sealed class EvalDbRow
-    {
-        public string AliasId { get; set; } = string.Empty;
-
-        public string TaskType { get; set; } = string.Empty;
-
-        public string EvaluationState { get; set; } = nameof(AgentModelEvaluationStateKind.NotEvaluated);
-
-        public string? EvidenceJson { get; set; }
-
-        public DateTime? EvaluatedUtc { get; set; }
-    }
 }

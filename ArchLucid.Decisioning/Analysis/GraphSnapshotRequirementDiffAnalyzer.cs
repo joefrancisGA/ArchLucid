@@ -34,6 +34,11 @@ public static class GraphSnapshotRequirementDiffAnalyzer
 {
     public static RequirementNameDiffResult AnalyzeNameDelta(GraphSnapshot graphSnapshot)
     {
+        return AnalyzeNameDelta(graphSnapshot, priorGraph: null);
+    }
+
+    public static RequirementNameDiffResult AnalyzeNameDelta(GraphSnapshot graphSnapshot, GraphSnapshot? priorGraph)
+    {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
         RequirementNameDiffResult result = new()
@@ -41,21 +46,30 @@ public static class GraphSnapshotRequirementDiffAnalyzer
             CurrentRequirementNames = ExtractRequirementNames(graphSnapshot)
         };
 
-        GraphNode? contextNode = graphSnapshot.Nodes.FirstOrDefault(n =>
-            string.Equals(n.NodeType, GraphNodeTypes.ContextSnapshot, StringComparison.OrdinalIgnoreCase));
-
-        if (contextNode is null
-            || !contextNode.Properties.TryGetValue(ContextGraphPropertyKeys.PriorRequirementNames, out string? priorRaw)
-            || string.IsNullOrWhiteSpace(priorRaw))
+        if (priorGraph is not null)
         {
-            return result;
+            result.PriorRequirementNames = ExtractRequirementNames(priorGraph);
         }
+        else
+        {
+            GraphNode? contextNode = graphSnapshot.Nodes.FirstOrDefault(n =>
+                string.Equals(n.NodeType, GraphNodeTypes.ContextSnapshot, StringComparison.OrdinalIgnoreCase));
 
-        result.PriorRequirementNames = priorRaw
-            .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(static name => name, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+            if (contextNode is null
+                || !contextNode.Properties.TryGetValue(
+                    ContextGraphPropertyKeys.PriorRequirementNames,
+                    out string? priorRaw)
+                || string.IsNullOrWhiteSpace(priorRaw))
+            {
+                return result;
+            }
+
+            result.PriorRequirementNames = priorRaw
+                .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(static name => name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
 
         HashSet<string> prior = result.PriorRequirementNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
         HashSet<string> current = result.CurrentRequirementNames.ToHashSet(StringComparer.OrdinalIgnoreCase);

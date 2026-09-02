@@ -142,11 +142,11 @@ export function resolveLastFailureCardCopy(args: {
 
   return {
     axis,
-    title: "Agent execution failed",
+    title: "Failure details",
     failureClassLabel,
     remediation: deferredPipeline
-      ? "Processing stopped before assessments were scheduled. Click Re-run review to resume the deferred pipeline with the same intake."
-      : "Fix configuration, credentials, network, schema, or budget issues, then retry when stable. Inspect agent traces if needed. Raw LLM payloads are not shown here.",
+      ? "Processing stopped before assessments were scheduled. Recovery steps are in Do this next above."
+      : "See Do this next above for recovery steps. Inspect agent traces below if you need technical detail.",
     triageTitle,
     rejectCategoryLabel: null,
   };

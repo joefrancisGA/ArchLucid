@@ -14,8 +14,6 @@ internal static class BuyerProofPackCommand
 {
     private const string PackFormatVersion = "1.0";
 
-    private static readonly UTF8Encoding Utf8NoBom = new(false);
-
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
         if (args is null)
@@ -100,35 +98,26 @@ internal static class BuyerProofPackCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
+        using CliHttpProbeSession session = CliHttpProbeSession.ForApi(normalized, config, TimeSpan.FromMinutes(2));
+        HttpClient http = session.Http;
 
-        using HttpClient http = new();
-        http.Timeout = TimeSpan.FromMinutes(2);
-        http.BaseAddress = new Uri(normalized + "/");
+        CliPilotRunDeltasFetchResult deltasFetch = await session.FetchPilotRunDeltasAsync(runId, cancellationToken);
 
-        if (!string.IsNullOrWhiteSpace(apiKey))
-            http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-
-        string deltasPath = $"v1/pilots/runs/{Uri.EscapeDataString(runId)}/pilot-run-deltas";
-
-        using HttpResponseMessage deltasResponse = await http.GetAsync(deltasPath, cancellationToken);
-
-        if (deltasResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        if (deltasFetch.NotFound)
         {
             await Console.Error.WriteLineAsync($"Run '{runId}' was not found (or is out of scope).");
 
             return CliExitCode.UsageError;
         }
 
-        if (!deltasResponse.IsSuccessStatusCode)
+        if (!deltasFetch.Success)
         {
-            string body = await deltasResponse.Content.ReadAsStringAsync(cancellationToken);
-            await Console.Error.WriteLineAsync($"Error fetching pilot-run-deltas: {(int)deltasResponse.StatusCode}: {body}");
+            await Console.Error.WriteLineAsync($"Error fetching pilot-run-deltas: {deltasFetch.StatusCode}: {deltasFetch.Body}");
 
             return CliExitCode.OperationFailed;
         }
 
-        string deltasJson = await deltasResponse.Content.ReadAsStringAsync(cancellationToken);
+        string deltasJson = deltasFetch.Body;
 
         if (!BuyerProofPackCommitGuard.TryValidate(deltasJson, out bool demoWarning, out string? gateError))
         {
@@ -182,34 +171,30 @@ internal static class BuyerProofPackCommand
         {
             Directory.CreateDirectory(staging);
 
-            await File.WriteAllTextAsync(Path.Combine(staging, "first-value-report.md"), markdown, Utf8NoBom, cancellationToken);
+            await BuyerPacketFolderWriter.WriteTextAsync(staging, "first-value-report.md", markdown, cancellationToken);
 
             await File.WriteAllBytesAsync(Path.Combine(staging, "first-value-report.pdf"), pdfBytes, cancellationToken);
 
-            await File.WriteAllTextAsync(
-                Path.Combine(staging, "pilot-run-deltas.json"),
-                PrettyPrintJson(deltasJson),
-                Utf8NoBom,
-                cancellationToken);
+            await BuyerPacketFolderWriter.WriteJsonRawAsync(staging, "pilot-run-deltas.json", deltasJson, cancellationToken);
 
-            await File.WriteAllTextAsync(
-                Path.Combine(staging, "artifact-and-proof-summary.md"),
+            await BuyerPacketFolderWriter.WriteTextAsync(
+                staging,
+                "artifact-and-proof-summary.md",
                 BuildArtifactSummaryMarkdown(deltasJson),
-                Utf8NoBom,
                 cancellationToken);
 
-            await File.WriteAllTextAsync(Path.Combine(staging, "sponsor-sponsor-brief.md"), sponsorBriefText, Utf8NoBom, cancellationToken);
+            await BuyerPacketFolderWriter.WriteTextAsync(staging, "sponsor-sponsor-brief.md", sponsorBriefText, cancellationToken);
 
-            await File.WriteAllTextAsync(
-                Path.Combine(staging, "trust-posture-pointer.md"),
+            await BuyerPacketFolderWriter.WriteTextAsync(
+                staging,
+                "trust-posture-pointer.md",
                 BuildTrustPointerMarkdown(),
-                Utf8NoBom,
                 cancellationToken);
 
-            await File.WriteAllTextAsync(
-                Path.Combine(staging, "pilot-scorecard-blank.md"),
+            await BuyerPacketFolderWriter.WriteTextAsync(
+                staging,
+                "pilot-scorecard-blank.md",
                 PilotScorecardBlankMarkdown,
-                Utf8NoBom,
                 cancellationToken);
 
             PackFileEntry[] entries =
@@ -230,7 +215,7 @@ internal static class BuyerProofPackCommand
             Array.Sort(entries, static (a, b) => string.CompareOrdinal(a.RelativePath, b.RelativePath));
 
             string manifestJson = BuildPackManifestJson(runId, demoWarning, entries);
-            byte[] manifestBytes = Utf8NoBom.GetBytes(manifestJson);
+            byte[] manifestBytes = BuyerPacketFolderWriter.Utf8NoBom.GetBytes(manifestJson);
             await File.WriteAllBytesAsync(Path.Combine(staging, "pack-manifest.json"), manifestBytes, cancellationToken);
 
             string? outDir = Path.GetDirectoryName(Path.GetFullPath(outZip));
@@ -279,12 +264,7 @@ internal static class BuyerProofPackCommand
         return Directory.Exists(full) ? full : CliRepositoryRootResolver.TryResolveRepositoryRoot();
     }
 
-    private static string PrettyPrintJson(string raw)
-    {
-        using JsonDocument doc = JsonDocument.Parse(raw);
-
-        return JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions { WriteIndented = true });
-    }
+    private static string PrettyPrintJson(string raw) => BuyerPacketFolderWriter.PrettyPrintJson(raw);
 
     private static string BuildArtifactSummaryMarkdown(string deltasJson)
     {
@@ -388,7 +368,7 @@ internal static class BuyerProofPackCommand
                 .ToList(),
         };
 
-        return JsonSerializer.Serialize(root, new JsonSerializerOptions { WriteIndented = true });
+        return JsonSerializer.Serialize(root, BuyerPacketFolderWriter.JsonWriteIndented);
     }
 
     private static string Sha256Hex(byte[] content)

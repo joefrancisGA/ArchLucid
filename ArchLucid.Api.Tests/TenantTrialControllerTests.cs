@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Tenancy;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Billing;
@@ -648,14 +649,14 @@ public sealed class TenantTrialControllerTests
         ITrialIdentityUserRepository trialUsers,
         IOptionsMonitor<TrialLifecycleSchedulerOptions> schedulerOpts,
         ISelfServiceTrialAbuseRepository? trialAbuseRepository = null) =>
-        new(
+        new(new TenantTrialFacade(
             tenants,
             scopeProvider,
             audit,
             gate,
             trialUsers,
             trialAbuseRepository ?? Mock.Of<ISelfServiceTrialAbuseRepository>(),
-            schedulerOpts)
+            schedulerOpts))
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

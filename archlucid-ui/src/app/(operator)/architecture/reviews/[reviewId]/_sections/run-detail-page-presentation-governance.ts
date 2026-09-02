@@ -2,6 +2,7 @@ import type { CompareEffectiveGovernanceAtCommitSnapshot } from "@/lib/compare-e
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { resolvePartialRunCommitBlockPresentation } from "@/lib/runs/run-detail-partial-run-commit-block";
+import { resolveAuthorityLifecycleCommitBlock } from "@/lib/runs/authority-lifecycle-commit-block";
 import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governance-cta-visibility";
 import { evaluateFinalizeQualityScorecard } from "@/lib/review-quality/finalize-quality-scorecard";
 import { deriveFinalizeQualityScorecardInput } from "@/lib/review-quality/finalize-quality-scorecard-from-findings";
@@ -29,6 +30,14 @@ export function resolveCommitBlockedReason(
   model: RunDetailPageModel,
   findingCoverageSummary: FindingCoverageSummary | null,
 ): string | null {
+  const authorityLifecycleBlock = resolveAuthorityLifecycleCommitBlock(
+    model.resolvedDetail.authorityLifecyclePhase,
+  );
+
+  if (authorityLifecycleBlock !== null) {
+    return authorityLifecycleBlock;
+  }
+
   const coverageBlocked = findingCoverageSummary?.hasCommitBlockingFailures === true;
 
   if (coverageBlocked) {
@@ -125,6 +134,7 @@ export async function buildRunDetailGovernancePresentation(
         : null;
 
   const showGovernanceCta = shouldShowRunDetailGovernanceCta({
+    runId: model.resolvedDetail.run.runId,
     manifestId: model.manifestId,
     buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
     operatorGovernanceDecision: model.resolvedDetail.run.operatorGovernanceDecision,

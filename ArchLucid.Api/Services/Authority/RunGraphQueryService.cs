@@ -77,6 +77,7 @@ public sealed class RunGraphQueryService(
 
         response.AuthorityPipelineComplete = detail.AuthorityPipelineComplete;
         response.AgentTaskLoopComplete = detail.AgentTaskLoopComplete;
+        response.AuthorityLifecyclePhase = detail.AuthorityLifecyclePhase;
 
         response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             detail.Run,

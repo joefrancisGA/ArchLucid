@@ -12,6 +12,7 @@ import {
   type BuildReviewLifecycleNextActionHrefInput,
 } from "@/lib/review-lifecycle-next-action-registry";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import { resolveReviewFailureDoThisNextSentence } from "@/lib/resolve-review-failure-do-this-next-copy";
 import {
   resolveReviewFailureRecoveryGuidance,
   type ReviewFailureRecoveryGuidance,
@@ -285,7 +286,9 @@ export function resolveReviewPackageDoThisNext(
     return {
       kind: "rerun-review",
       sentence:
-        "Assessment failed — follow the recovery steps below, then re-run the review with the same intake.",
+        failureRecovery !== null
+          ? resolveReviewFailureDoThisNextSentence(failureRecovery)
+          : "Execution failed — follow the steps below, then re-run the review with the same intake.",
       actionLabel: "Re-run review",
       href: resolveRerunHref(input),
       failureRecovery,

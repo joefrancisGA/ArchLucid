@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.ContextIngestion.Infrastructure.Canonical;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -53,7 +54,7 @@ public static class TechnologyLedgerCanonicalObjectMapper
         string typeKey = ResolveTypeKey(canonicalObject);
         CloudProvider providerFamily = InferProviderFamily(
             typeKey,
-            TryGetProperty(canonicalObject, "providerName"));
+            CanonicalObjectPropertyReader.TryGetProperty(canonicalObject, "providerName"));
 
         TechnologyLedgerRole? role = TryResolveResourceRole(typeKey);
 
@@ -226,10 +227,10 @@ public static class TechnologyLedgerCanonicalObjectMapper
 
     private static string ResolveTypeKey(CanonicalObject canonicalObject)
     {
-        if (TryGetProperty(canonicalObject, "terraformType") is { Length: > 0 } terraformType)
+        if (CanonicalObjectPropertyReader.TryGetProperty(canonicalObject, "terraformType") is { Length: > 0 } terraformType)
             return terraformType;
 
-        if (TryGetProperty(canonicalObject, "resourceType") is { Length: > 0 } resourceType)
+        if (CanonicalObjectPropertyReader.TryGetProperty(canonicalObject, "resourceType") is { Length: > 0 } resourceType)
             return resourceType;
 
         return canonicalObject.ObjectType;
@@ -283,13 +284,13 @@ public static class TechnologyLedgerCanonicalObjectMapper
 
     private static string? TryResolveRegion(CanonicalObject canonicalObject)
     {
-        if (TryGetProperty(canonicalObject, "region") is { Length: > 0 } region)
+        if (CanonicalObjectPropertyReader.TryGetProperty(canonicalObject, "region") is { Length: > 0 } region)
             return region;
 
-        if (TryGetProperty(canonicalObject, "tf.location") is { Length: > 0 } location)
+        if (CanonicalObjectPropertyReader.TryGetProperty(canonicalObject, "tf.location") is { Length: > 0 } location)
             return location;
 
-        if (TryGetProperty(canonicalObject, "tf.region") is { Length: > 0 } tfRegion)
+        if (CanonicalObjectPropertyReader.TryGetProperty(canonicalObject, "tf.region") is { Length: > 0 } tfRegion)
             return tfRegion;
 
         return null;
@@ -297,12 +298,4 @@ public static class TechnologyLedgerCanonicalObjectMapper
 
     private static string BuildTechnologyName(string typeKey, string objectName) =>
         $"{typeKey} ({objectName})";
-
-    private static string? TryGetProperty(CanonicalObject canonicalObject, string key)
-    {
-        if (!canonicalObject.Properties.TryGetValue(key, out string? value))
-            return null;
-
-        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-    }
 }

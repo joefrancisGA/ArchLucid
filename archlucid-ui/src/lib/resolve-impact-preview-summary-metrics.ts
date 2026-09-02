@@ -1,21 +1,55 @@
+import type { components } from "@/lib/openapi-schemas";
+
 import {
   IMPACT_PREVIEW_BASED_ON_EVIDENCE_LABEL,
 } from "@/lib/impact-preview-page-copy";
 import type { ImpactPreviewSummaryMetrics } from "@/lib/impact-preview-page-types";
 import type { EvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
 import { parseEvolutionOutcomeJson } from "@/lib/evolution-outcome";
-import type { EvolutionSimulationRunWithEvaluationResponse } from "@/types/evolution";
+import type { EvaluationScoreResponse, EvolutionSimulationRunWithEvaluationResponse } from "@/types/evolution";
 
 import { resolveImpactPreviewRecommendation } from "./resolve-impact-preview-recommendation";
 
 const NOT_AVAILABLE = "Not available" as const;
 
+function asScoreNumber(value: string | number | null | undefined): number | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  return typeof value === "number" ? value : Number(value);
+}
+
+function normalizeEvaluationScore(
+  evaluation:
+    | EvaluationScoreResponse
+    | components["schemas"]["EvaluationScoreResponse"]
+    | null
+    | undefined,
+): EvaluationScoreResponse | null {
+  if (evaluation === null || evaluation === undefined) {
+    return null;
+  }
+
+  return {
+    ...evaluation,
+    confidenceScore: asScoreNumber(evaluation.confidenceScore),
+    determinismScore: asScoreNumber(evaluation.determinismScore),
+    improvementDelta: asScoreNumber(evaluation.improvementDelta),
+    regressionRiskScore: asScoreNumber(evaluation.regressionRiskScore),
+    simulationScore: asScoreNumber(evaluation.simulationScore),
+  };
+}
+
 /** Builds summary card labels from the latest matching simulation run. */
 export function resolveImpactPreviewSummaryMetrics(
-  simulationRun: EvolutionSimulationRunWithEvaluationResponse | null,
+  simulationRun:
+    | EvolutionSimulationRunWithEvaluationResponse
+    | components["schemas"]["EvolutionSimulationRunWithEvaluationResponse"]
+    | null,
   planSnapshot: EvolutionPlanSnapshot | null,
 ): ImpactPreviewSummaryMetrics {
-  const evaluation = simulationRun?.evaluationScore ?? null;
+  const evaluation = normalizeEvaluationScore(simulationRun?.evaluationScore ?? null);
   const parsedOutcome =
     simulationRun !== null ? parseEvolutionOutcomeJson(simulationRun.outcomeJson) : { kind: "empty" as const };
   const warningCount =

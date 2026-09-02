@@ -29,6 +29,7 @@ internal static class DraftIntakeCompositionRegistrar
         services.AddScoped<IDraftAdmissionService, DraftAdmissionService>();
         services.AddScoped<IDraftBranchingService, DraftBranchingService>();
         services.AddScoped<IDraftRequestService, DraftRequestService>();
+        services.AddScoped<IDraftRequestApplicationFacade, DraftRequestApplicationFacade>();
         services.AddScoped<IDecisionReceiptService, DecisionReceiptService>();
         services.AddScoped<IDraftIntakeReaperService, DraftIntakeReaperService>();
         services.AddScoped<IDecisionIntakeTrailProvider, ArchitectureRequestIntakeTrailProvider>();
@@ -47,6 +48,7 @@ internal static class DraftIntakeCompositionRegistrar
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<IGitTerraformContentFetcher, GitTerraformContentFetcher>();
         services.AddScoped<IConnectorIntakeParserService, ConnectorIntakeParserService>();
+        services.AddScoped<IArchitectureRequestIntakeFacade, ArchitectureRequestIntakeFacade>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
         services.AddScoped<ICuratedRulesDocumentValidationService, CuratedRulesDocumentValidationService>();
         services.AddScoped<IPolicyPackGeneratorService, PolicyPackGeneratorService>();

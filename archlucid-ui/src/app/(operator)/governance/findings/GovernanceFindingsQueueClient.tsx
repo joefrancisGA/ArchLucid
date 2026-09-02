@@ -32,10 +32,7 @@ import {
   resolveFindingsQueueTriageEmphasizedStepId,
   resolveFindingsQueueTriageSteps,
 } from "@/lib/findings-queue-triage-checklist";
-import {
-  EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
-  type FindingsNaturalLanguageFacets,
-} from "@/lib/findings/findings-natural-language-filter";
+import { useGovernanceFindingsQueueFacets } from "@/app/(operator)/governance/findings/use-governance-findings-queue-facets";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import {
@@ -48,7 +45,6 @@ import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-corre
 import {
   DEFAULT_FINDING_JOB_VIEW,
   resolveEffectiveFindingJobView,
-  type FindingJobView,
 } from "@/lib/findings/finding-job-view";
 import {
   computeGovernanceFindingsRegisterSummary,
@@ -71,6 +67,7 @@ import {
   resolveGovernanceFindingsSponsorHandoffHref,
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
+import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -87,12 +84,8 @@ export default function GovernanceFindingsQueueClient({
   mode = "tenant",
 }: GovernanceFindingsQueueClientProps) {
   const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(new Set());
-  const [jobView, setJobViewState] = useState<FindingJobView>(
-    () => readGovernanceFindingsQueueFacets(mode).jobView,
-  );
-  const [nlFacets, setNlFacetsState] = useState<FindingsNaturalLanguageFacets>(
-    () => readGovernanceFindingsQueueFacets(mode).nlFacets,
-  );
+  const { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters } =
+    useGovernanceFindingsQueueFacets(mode);
   const isAssignedToMe = mode === "assigned-to-me";
   const { currentPrincipal } = useOperatorNavAuthority();
   const scopeKey = useOperatorScopeQueryKey();
@@ -133,30 +126,6 @@ export default function GovernanceFindingsQueueClient({
     [scopedRunContextQuery.data?.priorCommittedRunId, scopedRunId],
   );
 
-  const setJobView = useCallback((next: FindingJobView): void => {
-    setJobViewState(next);
-    patchGovernanceFindingsQueueFacets({ jobView: next }, mode);
-  }, [mode]);
-
-  const setNlFacets = useCallback((next: FindingsNaturalLanguageFacets): void => {
-    setNlFacetsState(next);
-    patchGovernanceFindingsQueueFacets({ nlFacets: next }, mode);
-  }, [mode]);
-
-  const clearAllFilters = useCallback((): void => {
-    setRegisterFilter("all");
-    setJobViewState(DEFAULT_FINDING_JOB_VIEW);
-    setNlFacetsState(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
-    patchGovernanceFindingsQueueFacets(
-      {
-        registerFilter: "all",
-        jobView: DEFAULT_FINDING_JOB_VIEW,
-        nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
-      },
-      mode,
-    );
-  }, [mode, setRegisterFilter]);
-
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -169,14 +138,21 @@ export default function GovernanceFindingsQueueClient({
           objectPlural: "findings",
         })
       : null;
+  const findingsAdvancedFiltersAvailable = !loading && rows.length > 0 && !isAssignedToMe;
   const filterBarVisible = !buyerPolishedShell && !loading && rows.length > 0;
   const compactRegisterFilterVisible = buyerPolishedShell && !loading && !isAssignedToMe;
-  const effectiveJobView = resolveEffectiveFindingJobView(jobView, filterBarVisible);
-  const jobViewFilterActive = filterBarVisible && jobView !== DEFAULT_FINDING_JOB_VIEW;
+  const advancedFiltersDisclosureVisible = buyerPolishedShell && findingsAdvancedFiltersAvailable;
+  const effectiveJobView = resolveEffectiveFindingJobView(
+    jobView,
+    filterBarVisible || advancedFiltersDisclosureVisible,
+  );
+  const jobViewFilterActive =
+    (filterBarVisible || advancedFiltersDisclosureVisible) && jobView !== DEFAULT_FINDING_JOB_VIEW;
   const scopedRows = useMemo(
     () => filterGovernanceFindingsScopedRows(rows, scopedRunId),
     [rows, scopedRunId],
   );
+  const findingsSearchQuery = parseGovernanceFindingsSearchQuery(searchParams.get("q"));
   const displayedRows = useMemo(
     () =>
       filterGovernanceFindingsDisplayedRows(
@@ -184,8 +160,9 @@ export default function GovernanceFindingsQueueClient({
         registerFilter,
         nlFacets,
         effectiveJobView,
+        findingsSearchQuery,
       ),
-    [scopedRows, registerFilter, effectiveJobView, nlFacets],
+    [scopedRows, registerFilter, effectiveJobView, nlFacets, findingsSearchQuery],
   );
   const registerSummary = useMemo(
     () => computeGovernanceFindingsRegisterSummary(scopedRows),
@@ -196,6 +173,12 @@ export default function GovernanceFindingsQueueClient({
   const pageTitle = resolveGovernanceFindingsPageTitle(isAssignedToMe, buyerPolishedShell);
   const pageSubtitle = resolveGovernanceFindingsPageSubtitle(isAssignedToMe, buyerPolishedShell);
   const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe);
+
+  const clearAllFilters = useCallback((): void => {
+    setRegisterFilter("all");
+    clearFacetFilters();
+    router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
+  }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
 
   const onPickReviewForTriage = useCallback(
     (reviewId: string) => {
@@ -293,8 +276,9 @@ export default function GovernanceFindingsQueueClient({
         jobView,
         nlFacets,
         jobViewFilterActive,
+        findingsSearchQuery,
       ),
-    [registerFilter, jobView, nlFacets, jobViewFilterActive],
+    [registerFilter, jobView, nlFacets, jobViewFilterActive, findingsSearchQuery],
   );
 
   const onLoadFindingsSavedView = useCallback(
@@ -303,15 +287,15 @@ export default function GovernanceFindingsQueueClient({
       const applied = applyFindingsSavedViewFilters(filters);
 
       setRegisterFilter(applied.registerFilter);
-      setJobViewState(applied.jobView);
-      setNlFacetsState(applied.nlFacets);
+      setJobView(applied.jobView);
+      setNlFacets(applied.nlFacets);
       applyGroupByResource(applied.groupByResource);
 
       if (applied.scopedRunId !== null && applied.scopedRunId.trim().length > 0) {
         onPickReviewForTriage(applied.scopedRunId);
       }
     },
-    [applyGroupByResource, onPickReviewForTriage, setRegisterFilter],
+    [applyGroupByResource, onPickReviewForTriage, setJobView, setNlFacets, setRegisterFilter],
   );
 
   return (
@@ -379,6 +363,7 @@ export default function GovernanceFindingsQueueClient({
         scopeRecordProjectId={scopeRecord?.projectId}
         filterBarVisible={filterBarVisible}
         compactRegisterFilterVisible={compactRegisterFilterVisible}
+        advancedFiltersDisclosureVisible={advancedFiltersDisclosureVisible}
         registerFilter={registerFilter}
         onRegisterFilterChange={setRegisterFilter}
         onJobViewChange={setJobView}
@@ -389,6 +374,8 @@ export default function GovernanceFindingsQueueClient({
         onToggleGroupByResource={toggleGroupByResource}
         displayedRows={displayedRows}
         scopedRows={scopedRows}
+        registerSummary={registerSummary}
+        findingsSearchQuery={findingsSearchQuery}
         onNaturalLanguageFilterApply={setNlFacets}
         nlFacets={nlFacets}
         onClearAllFilters={clearAllFilters}

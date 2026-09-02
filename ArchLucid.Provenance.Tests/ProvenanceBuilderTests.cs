@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
@@ -197,6 +198,64 @@ public sealed class ProvenanceBuilderTests
 
         graph.Edges.Should().ContainSingle(e => e.Type == ProvenanceEdgeType.ContainedInManifest);
         graph.Edges.Should().NotContain(e => e.Type == ProvenanceEdgeType.SupportedBy);
+    }
+
+    [Fact]
+    public void Build_links_graph_influence_when_related_node_id_differs_only_by_case()
+    {
+        const string graphNodeId = "obj-svc-api";
+        const string findingId = "find-case";
+
+        GraphSnapshot graphSnap = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = graphNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "api",
+                    Category = "compute",
+                },
+            ],
+        };
+
+        FindingsSnapshot findings = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = findingId,
+                    FindingType = "Compliance",
+                    Category = "sec",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Case mismatch",
+                    Rationale = "r",
+                    RelatedNodeIds = [graphNodeId.ToUpperInvariant()],
+                },
+            ],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = findings,
+            Graph = graphSnap,
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        ProvenanceNode graphNode = graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode).Subject;
+        ProvenanceNode findingNode = graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Finding).Subject;
+
+        graph.Edges.Should().ContainSingle(e =>
+            e.Type == ProvenanceEdgeType.InfluencedByGraphNode
+            && e.FromNodeId == graphNode.Id
+            && e.ToNodeId == findingNode.Id);
     }
 
     [Fact]

@@ -34,6 +34,11 @@ public static class GraphSnapshotTopologyDiffAnalyzer
 {
     public static TopologyCategoryDiffResult AnalyzeCategoryDelta(GraphSnapshot graphSnapshot)
     {
+        return AnalyzeCategoryDelta(graphSnapshot, priorGraph: null);
+    }
+
+    public static TopologyCategoryDiffResult AnalyzeCategoryDelta(GraphSnapshot graphSnapshot, GraphSnapshot? priorGraph)
+    {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
         TopologyCategoryDiffResult result = new()
@@ -41,21 +46,30 @@ public static class GraphSnapshotTopologyDiffAnalyzer
             CurrentCategories = ExtractTopologyCategories(graphSnapshot)
         };
 
-        GraphNode? contextNode = graphSnapshot.Nodes.FirstOrDefault(n =>
-            string.Equals(n.NodeType, GraphNodeTypes.ContextSnapshot, StringComparison.OrdinalIgnoreCase));
-
-        if (contextNode is null
-            || !contextNode.Properties.TryGetValue(ContextGraphPropertyKeys.PriorTopologyCategories, out string? priorRaw)
-            || string.IsNullOrWhiteSpace(priorRaw))
+        if (priorGraph is not null)
         {
-            return result;
+            result.PriorCategories = ExtractTopologyCategories(priorGraph);
         }
+        else
+        {
+            GraphNode? contextNode = graphSnapshot.Nodes.FirstOrDefault(n =>
+                string.Equals(n.NodeType, GraphNodeTypes.ContextSnapshot, StringComparison.OrdinalIgnoreCase));
 
-        result.PriorCategories = priorRaw
-            .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(static c => c, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+            if (contextNode is null
+                || !contextNode.Properties.TryGetValue(
+                    ContextGraphPropertyKeys.PriorTopologyCategories,
+                    out string? priorRaw)
+                || string.IsNullOrWhiteSpace(priorRaw))
+            {
+                return result;
+            }
+
+            result.PriorCategories = priorRaw
+                .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(static c => c, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
 
         HashSet<string> prior = result.PriorCategories.ToHashSet(StringComparer.OrdinalIgnoreCase);
         HashSet<string> current = result.CurrentCategories.ToHashSet(StringComparer.OrdinalIgnoreCase);

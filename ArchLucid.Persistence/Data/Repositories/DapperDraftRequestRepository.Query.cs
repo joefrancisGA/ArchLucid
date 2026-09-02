@@ -143,7 +143,7 @@ public sealed partial class DapperDraftRequestRepository
     {
         PersistenceTenantScope.RequireEntityTenant(tenantId);
 
-        int effectiveMax = Math.Clamp(maxCount, 1, 25);
+        int effectiveMax = DraftRequestRepositoryCore.ClampPriorDraftsMaxCount(maxCount);
 
         const string sql = """
                            SELECT TOP (@MaxCount)
@@ -223,7 +223,7 @@ public sealed partial class DapperDraftRequestRepository
                 {
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
-                    NormalizedSystemName = systemName.Trim().ToUpperInvariant(),
+                    NormalizedSystemName = DraftRequestRepositoryCore.NormalizeSystemName(systemName),
                     DraftingStatus = DraftRequestStatus.Drafting.ToString(),
                     AdmittedStatus = DraftRequestStatus.Admitted.ToString(),
                     ExcludeDraftId = excludeDraftId,
@@ -231,5 +231,56 @@ public sealed partial class DapperDraftRequestRepository
                 cancellationToken: cancellationToken));
 
         return exists == 1;
+    }
+
+    /// <inheritdoc />
+    public async Task<DraftRequestResponse?> GetBySpawnedRunIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string spawnedRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(spawnedRunId);
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
+
+        const string sql = """
+                           SELECT TOP (1)
+                               DraftId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               Status,
+                               DocumentJson,
+                               RedirectReason,
+                               SpawnedRunId,
+                               SpawnedArchitectureVersionId,
+                               DocumentContentHashSha256,
+                               SpawnedDocumentContentHashSha256,
+                               CreatedByUserId,
+                               CreatedUtc,
+                               UpdatedUtc
+                           FROM dbo.DraftRequests
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND SpawnedRunId = @SpawnedRunId
+                           ORDER BY UpdatedUtc DESC;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        DraftRequestRow? row = await connection.QuerySingleOrDefaultAsync<DraftRequestRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    SpawnedRunId = spawnedRunId,
+                },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : MapRow(row);
     }
 }

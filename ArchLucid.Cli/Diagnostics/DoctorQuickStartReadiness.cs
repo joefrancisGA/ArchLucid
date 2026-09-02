@@ -12,7 +12,8 @@ namespace ArchLucid.Cli.Diagnostics;
 
 internal static class DoctorQuickStartReadiness
 {
-    private static readonly HttpClient OpenAiProbeHttpClient = CreateOpenAiProbeHttpClient();
+    private static readonly HttpClient OpenAiProbeHttpClient =
+        CliHttpProbeSession.CreateDetachedProbe(TimeSpan.FromSeconds(12));
 
     internal static async Task WriteSectionAsync(
         TextWriter output,
@@ -465,16 +466,4 @@ internal static class DoctorQuickStartReadiness
         }
     }
 
-    private static HttpClient CreateOpenAiProbeHttpClient()
-    {
-        SocketsHttpHandler handler = new()
-        {
-            PooledConnectionLifetime = TimeSpan.FromMinutes(2),
-        };
-
-        return new HttpClient(handler)
-        {
-            Timeout = TimeSpan.FromSeconds(12),
-        };
-    }
 }

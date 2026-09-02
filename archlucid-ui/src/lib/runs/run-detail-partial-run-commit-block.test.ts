@@ -43,8 +43,9 @@ describe("resolvePartialRunCommitBlockedReason (TB-937)", () => {
       findingCoverageAlreadyBlocking: false,
     });
 
-    expect(failed?.summary).toContain("Assessment failed");
-    expect(failed?.summary).toContain("Do this next below");
+    expect(failed?.summary).toContain("Execution failed");
+    expect(failed?.summary).toContain("re-run the review before finalizing");
+    expect(failed?.summary).not.toContain("Do this next");
   });
 
   it("uses product-language assessment coverage copy with technical detail behind the summary", () => {

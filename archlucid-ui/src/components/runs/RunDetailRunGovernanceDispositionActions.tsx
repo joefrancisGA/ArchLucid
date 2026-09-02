@@ -1,4 +1,5 @@
 "use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -14,8 +15,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { recordRunOperatorGovernanceDisposition } from "@/lib/api/architecture-runs";
+import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  runOperatorGovernanceDispositionSuccessMessage,
+  type RunOperatorGovernanceDispositionDecision,
+} from "@/lib/governance/governance-mutation-outcome-copy";
 
 export type RunDetailRunGovernanceDispositionActionsProps = {
   readonly runId: string;
@@ -23,7 +30,7 @@ export type RunDetailRunGovernanceDispositionActionsProps = {
   readonly existingDecision?: string | null;
 };
 
-type PendingDecision = "Approved" | "Rejected" | "RequestRemediation";
+type PendingDecision = RunOperatorGovernanceDispositionDecision;
 
 /** TB-112: run-level approve / reject / request-remediation from run detail. */
 export function RunDetailRunGovernanceDispositionActions(
@@ -35,6 +42,7 @@ export function RunDetailRunGovernanceDispositionActions(
   const [pending, setPending] = useState<PendingDecision | null>(null);
   const [rationale, setRationale] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   if (buyerPolishedShell)
@@ -46,16 +54,22 @@ export function RunDetailRunGovernanceDispositionActions(
     if (pending === null)
       return;
 
+    const decision = pending;
+    const startedAtMs = Date.now();
+
     setBusy(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
 
     try {
       await recordRunOperatorGovernanceDisposition(runId, {
-        decision: pending,
+        decision,
         rationale: rationale.trim().length > 0 ? rationale.trim() : null,
       });
+      await awaitMinimumVisibleDuration(startedAtMs);
       setPending(null);
       setRationale("");
+      setSuccessMessage(runOperatorGovernanceDispositionSuccessMessage(decision));
       router.refresh();
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to record review disposition.";
@@ -66,11 +80,20 @@ export function RunDetailRunGovernanceDispositionActions(
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" data-testid="run-governance-disposition-actions">
       {normalizedExisting.length > 0 ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Recorded disposition: <span className="font-medium text-al-text-primary">{normalizedExisting}</span>
         </p>
+      ) : null}
+      {successMessage !== null ? (
+        <OperatorSuccessCallout
+          message={successMessage}
+          testId="run-governance-disposition-success"
+          onDismiss={() => {
+            setSuccessMessage(null);
+          }}
+        />
       ) : null}
       <div className="flex flex-wrap gap-2">
         <Button
@@ -104,7 +127,15 @@ export function RunDetailRunGovernanceDispositionActions(
           Approve is blocked while commit-blocking finding coverage failures are open.
         </p>
       ) : null}
-      {errorMessage ? <p className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}>{errorMessage}</p> : null}
+      {errorMessage ? (
+        <p
+          className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="run-governance-disposition-error"
+          role="alert"
+        >
+          {errorMessage}
+        </p>
+      ) : null}
 
       <Dialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
         <DialogContent>

@@ -1,4 +1,5 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Architecture.Execute;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -105,7 +106,7 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
         IOptionsMonitor<QuickScanOptions> options = new TestOptionsMonitor(new QuickScanOptions { Enabled = true });
         IOptionsMonitor<QuickScanSafetyOptions> safetyOptions = new TestSafetyOptionsMonitor(new QuickScanSafetyOptions { Enabled = false });
 
-        QuickScanExecutionOrchestrator sut = new(
+        QuickScanExecutionOrchestrator sut = QuickScanExecutionOrchestratorTestFactory.CreateOrchestrator(
             quickScan.Object,
             guard.Object,
             telemetry.Object,
@@ -118,9 +119,7 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
             operational.Object,
             usageRecorder.Object,
             audit.Object,
-            costEstimator.Object,
-            NullLogger<QuickScanExecutionOrchestrator>.Instance,
-            TimeProvider.System);
+            costEstimator.Object);
 
         ArchitectureQuickScanRequest payload = new()
         {

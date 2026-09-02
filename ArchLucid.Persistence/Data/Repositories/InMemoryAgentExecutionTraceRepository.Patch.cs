@@ -30,62 +30,25 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
         string? fullSystemPromptBlobKey,
         string? fullUserPromptBlobKey,
         string? fullResponseBlobKey,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
-        cancellationToken.ThrowIfCancellationRequested();
-
-        lock (_gate)
-        {
-            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
-
-            if (i < 0)
-                return Task.CompletedTask;
-
-            AgentExecutionTrace t = Clone(_items[i]);
-
-            if (fullSystemPromptBlobKey is not null)
-
-                t.FullSystemPromptBlobKey = fullSystemPromptBlobKey;
-
-            if (fullUserPromptBlobKey is not null)
-
-                t.FullUserPromptBlobKey = fullUserPromptBlobKey;
-
-            if (fullResponseBlobKey is not null)
-
-                t.FullResponseBlobKey = fullResponseBlobKey;
-
-            _items[i] = t;
-        }
-
-        return Task.CompletedTask;
-    }
+        CancellationToken cancellationToken = default) =>
+        PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyBlobStoragePatch(
+                trace,
+                fullSystemPromptBlobKey,
+                fullUserPromptBlobKey,
+                fullResponseBlobKey),
+            cancellationToken);
 
     /// <inheritdoc />
     public Task PatchBlobUploadFailedAsync(
         string traceId,
         bool failed,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
-        cancellationToken.ThrowIfCancellationRequested();
-        lock (_gate)
-        {
-            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
-
-            if (i < 0)
-                return Task.CompletedTask;
-
-            {
-                AgentExecutionTrace t = Clone(_items[i]);
-                t.BlobUploadFailed = failed;
-                _items[i] = t;
-            }
-        }
-
-        return Task.CompletedTask;
-    }
+        CancellationToken cancellationToken = default) =>
+        PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyBlobUploadFailedPatch(trace, failed),
+            cancellationToken);
 
     /// <inheritdoc />
     public Task PatchInlinePromptFallbackAsync(
@@ -93,111 +56,45 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
         string? fullSystemPromptInline,
         string? fullUserPromptInline,
         string? fullResponseInline,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
-        cancellationToken.ThrowIfCancellationRequested();
-
-        lock (_gate)
-        {
-            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
-
-            if (i < 0)
-                return Task.CompletedTask;
-
-            AgentExecutionTrace t = Clone(_items[i]);
-
-            if (fullSystemPromptInline is not null)
-
-                t.FullSystemPromptInline = fullSystemPromptInline;
-
-            if (fullUserPromptInline is not null)
-
-                t.FullUserPromptInline = fullUserPromptInline;
-
-            if (fullResponseInline is not null)
-
-                t.FullResponseInline = fullResponseInline;
-
-            _items[i] = t;
-        }
-
-        return Task.CompletedTask;
-    }
+        CancellationToken cancellationToken = default) =>
+        PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyInlinePromptFallbackPatch(
+                trace,
+                fullSystemPromptInline,
+                fullUserPromptInline,
+                fullResponseInline),
+            cancellationToken);
 
     /// <inheritdoc />
     public Task PatchInlineFallbackFailedAsync(
         string traceId,
         bool failed,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
-        cancellationToken.ThrowIfCancellationRequested();
-
-        lock (_gate)
-        {
-            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
-
-            if (i < 0)
-                return Task.CompletedTask;
-
-            {
-                AgentExecutionTrace t = Clone(_items[i]);
-                t.InlineFallbackFailed = failed ? true : null;
-                _items[i] = t;
-            }
-        }
-
-        return Task.CompletedTask;
-    }
+        CancellationToken cancellationToken = default) =>
+        PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyInlineFallbackFailedPatch(trace, failed),
+            cancellationToken);
 
     /// <inheritdoc />
     public Task PatchQualityWarningAsync(
         string traceId,
         bool qualityWarning,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
-        cancellationToken.ThrowIfCancellationRequested();
-
-        lock (_gate)
-        {
-            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
-
-            if (i < 0)
-                return Task.CompletedTask;
-
-            AgentExecutionTrace t = Clone(_items[i]);
-            t.QualityWarning = qualityWarning;
-            _items[i] = t;
-        }
-
-        return Task.CompletedTask;
-    }
+        CancellationToken cancellationToken = default) =>
+        PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyQualityWarningPatch(trace, qualityWarning),
+            cancellationToken);
 
     /// <inheritdoc />
     public Task PatchQualityRejectedAsync(
         string traceId,
         bool qualityRejected,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
-        cancellationToken.ThrowIfCancellationRequested();
-
-        lock (_gate)
-        {
-            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
-
-            if (i < 0)
-                return Task.CompletedTask;
-
-            AgentExecutionTrace t = Clone(_items[i]);
-            t.QualityRejected = qualityRejected;
-            _items[i] = t;
-        }
-
-        return Task.CompletedTask;
-    }
+        CancellationToken cancellationToken = default) =>
+        PatchLoadedTraceAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.ApplyQualityRejectedPatch(trace, qualityRejected),
+            cancellationToken);
 
     /// <inheritdoc />
     public Task PatchQualityGateRecordedSnapshotAsync(
@@ -222,25 +119,17 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
             if (i < 0)
                 return Task.CompletedTask;
 
-            AgentExecutionTrace existing = _items[i];
+            AgentExecutionTrace t = Clone(_items[i]);
 
-            if (existing.RecordedQualityGateOutcome is not null)
-                return Task.CompletedTask;
-
-            AgentExecutionTrace t = Clone(existing);
-            t.QualityWarning = recordedOutcome == AgentOutputQualityGateOutcome.Warned;
-            t.QualityRejected = recordedOutcome == AgentOutputQualityGateOutcome.Rejected;
-            t.QualityGateDefinitionVersion = definitionVersion;
-            t.QualityGateDefinitionContentHashSha256 = definitionContentHashSha256;
-            t.QualityGateDefinitionMode = gateMode;
-            t.RecordedQualityGateOutcome = recordedOutcome;
-
-            if (evaluationSnapshot is not null)
+            if (!AgentExecutionTraceQueryPatchCore.TryApplyQualityGateRecordedSnapshotPatch(
+                    t,
+                    recordedOutcome,
+                    definitionVersion,
+                    definitionContentHashSha256,
+                    gateMode,
+                    evaluationSnapshot))
             {
-                t.RecordedStructuralCompletenessRatio = evaluationSnapshot.StructuralCompletenessRatio;
-                t.RecordedSemanticScore = evaluationSnapshot.SemanticScore;
-                t.RecordedRejectReasonCategory = evaluationSnapshot.RejectReasonCategory;
-                t.RecordedTriageScenarioId = evaluationSnapshot.TriageScenarioId;
+                return Task.CompletedTask;
             }
 
             _items[i] = t;
@@ -260,6 +149,30 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
         cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult(0);
+    }
+
+    private Task PatchLoadedTraceAsync(
+        string traceId,
+        Action<AgentExecutionTrace> patch,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        ArgumentNullException.ThrowIfNull(patch);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+                return Task.CompletedTask;
+
+            AgentExecutionTrace t = Clone(_items[i]);
+            patch(t);
+            _items[i] = t;
+        }
+
+        return Task.CompletedTask;
     }
 
     private static AgentExecutionTrace Clone(AgentExecutionTrace source)

@@ -10,9 +10,9 @@ import {
   type OperatorHomeWorkspaceMetricsSnapshot,
 } from "@/lib/operator/operator-home-workspace-metrics";
 import { projectReviewLifecycleForDisplay } from "@/lib/vocabulary/project-review-lifecycle-for-display";
+import { OperatorHomeGovernanceWarningsMetricLink } from "@/components/operator-home/OperatorHomeGovernanceWarningsMetricLink";
 import {
   OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF,
-  OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
   OPERATOR_HOME_SETUP_READINESS_HREF,
 } from "@/lib/operator/operator-home-metric-hrefs";
 import { workspaceOpenFindingsPresentation } from "@/lib/metric-count-presentation";
@@ -129,8 +129,7 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
           />
           <MetricItem
             label="Review warnings"
-            value={String(metrics.governanceWarnings)}
-            href={OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF}
+            value={<OperatorHomeGovernanceWarningsMetricLink label={String(metrics.governanceWarnings)} />}
           />
           <MetricItem
             label="Setup readiness"
@@ -172,8 +171,7 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
         />
         <MetricItem
           label="Review warnings"
-          value={String(metrics.governanceWarnings)}
-          href={OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF}
+          value={<OperatorHomeGovernanceWarningsMetricLink label={String(metrics.governanceWarnings)} />}
         />
         <MetricItem
           label="Setup readiness"

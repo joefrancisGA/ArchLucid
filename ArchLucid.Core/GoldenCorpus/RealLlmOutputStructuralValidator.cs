@@ -148,13 +148,18 @@ public static class RealLlmOutputStructuralValidator
                 }
 
                 if (TryGetPropertyCaseInsensitive(trace, "sourceAgentExecutionTraceId", out JsonElement sid)
-                    && sid.ValueKind is not (JsonValueKind.String or JsonValueKind.Null))
+                    && sid.ValueKind is not (
+                        JsonValueKind.String
+                        or JsonValueKind.Null
+                        or JsonValueKind.Number
+                        or JsonValueKind.True
+                        or JsonValueKind.False))
                 {
                     checks.Add(
                         new RealLlmStructuralCheckItem(
                             "traceSourceId",
                             false,
-                            "Optional 'sourceAgentExecutionTraceId' must be a string or null when present."));
+                            "Optional 'sourceAgentExecutionTraceId' must be a string, number, or null when present."));
 
                     return new RealLlmStructuralValidationResult(false, checks);
                 }
@@ -173,11 +178,10 @@ public static class RealLlmOutputStructuralValidator
                     return new RealLlmStructuralValidationResult(false, checks);
                 }
 
-                // Severity must be a non-empty string — a blank severity indicates a hollow or truncated finding.
+                // Severity must be a non-empty string or numeric token — a blank severity indicates a hollow or truncated finding.
 
                 if (!TryGetPropertyCaseInsensitive(finding, "severity", out JsonElement severityEl)
-                    || severityEl.ValueKind != JsonValueKind.String
-                    || string.IsNullOrWhiteSpace(severityEl.GetString()))
+                    || !TryReadNonEmptyTextToken(severityEl, out _))
                 {
                     checks.Add(
                         new RealLlmStructuralCheckItem(
@@ -189,10 +193,9 @@ public static class RealLlmOutputStructuralValidator
                 }
 
                 // At least one content field must be non-empty so hollow findings (all keys present, all blank) are caught.
-                bool hasContent = FindingContentFields.Any(f =>
-                    TryGetPropertyCaseInsensitive(finding, f, out JsonElement el)
-                    && el.ValueKind == JsonValueKind.String
-                    && !string.IsNullOrWhiteSpace(el.GetString()));
+        bool hasContent = FindingContentFields.Any(f =>
+            TryGetPropertyCaseInsensitive(finding, f, out JsonElement el)
+            && TryReadNonEmptyTextToken(el, out _));
 
                 if (!hasContent)
                 {
@@ -255,10 +258,60 @@ public static class RealLlmOutputStructuralValidator
         return agentTypeEl.ValueKind switch
         {
             JsonValueKind.String => EnumTryParseLenient(agentTypeEl.GetString(), expected, out message),
-            JsonValueKind.Number => agentTypeEl.TryGetInt32(out int n) && Enum.IsDefined(typeof(AgentType), n) &&
-                (AgentType)n == expected || SetMsg(out message, "agentType number does not match the expected type."),
+            JsonValueKind.Number => TryReadWholeNumberAgentType(agentTypeEl, expected, out message),
             _ => SetFalse(out message, "agentType must be a string or number.")
         };
+    }
+
+    private static bool TryReadWholeNumberAgentType(JsonElement agentTypeEl, AgentType expected, out string? message)
+    {
+        message = null;
+
+        if (!TryReadWholeNumberInt32(agentTypeEl, out int agentTypeOrdinal))
+        {
+            return SetFalse(out message, "agentType must be a string or number.");
+        }
+
+        if (!Enum.IsDefined(typeof(AgentType), agentTypeOrdinal))
+        {
+            return SetMsg(out message, "agentType number does not match the expected type.");
+        }
+
+        if ((AgentType)agentTypeOrdinal == expected)
+        {
+            return true;
+        }
+
+        return SetMsg(out message, "agentType number does not match the expected type.");
+    }
+
+    private static bool TryReadWholeNumberInt32(JsonElement element, out int value)
+    {
+        if (element.ValueKind != JsonValueKind.Number)
+        {
+            value = default;
+
+            return false;
+        }
+
+        if (element.TryGetInt32(out value))
+        {
+            return true;
+        }
+
+        if (element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static bool EnumTryParseLenient(string? text, AgentType expected, out string? message)
@@ -290,6 +343,34 @@ public static class RealLlmOutputStructuralValidator
     private static bool SetFalse(out string? m, string text)
     {
         m = text;
+
+        return false;
+    }
+
+    private static bool TryReadNonEmptyTextToken(JsonElement element, out string? value)
+    {
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            value = element.GetString();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            value = element.GetRawText();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.GetRawText();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        value = null;
 
         return false;
     }

@@ -47,7 +47,8 @@ public static class RunListPageMapper
                 SystemName = summary.SystemName,
                 PackageOrigin = summary.PackageOrigin,
                 GoldenManifestId = summary.GoldenManifestId,
-                HasGoldenManifest = summary.GoldenManifestId.HasValue
+                HasGoldenManifest = summary.GoldenManifestId.HasValue,
+                AuthorityLifecyclePhase = summary.AuthorityLifecyclePhase
             })
             .ToList();
 

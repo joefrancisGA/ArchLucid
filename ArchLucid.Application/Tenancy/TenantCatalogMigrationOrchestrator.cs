@@ -58,6 +58,18 @@ public sealed class TenantCatalogMigrationOrchestrator(
         if (active is not null)
             return (TenantCatalogMigrationCommandOutcome.AlreadyActive, active.MigrationId);
 
+        if (tenant.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, null);
+
+        TenantSuspendOutcome suspendOutcome = await _tenantSuspendCommandService
+            .TrySuspendAsync(tenantId, actorUserId, actorUserName, correlationId, cancellationToken)
+            .ConfigureAwait(false);
+
+        TenantCatalogMigrationCommandOutcome? suspendBlocker = MapSuspendBlocker(suspendOutcome);
+
+        if (suspendBlocker is not null)
+            return (suspendBlocker.Value, null);
+
         Guid migrationId = Guid.NewGuid();
         DateTimeOffset startedUtc = _timeProvider.GetUtcNow();
 
@@ -73,10 +85,6 @@ public sealed class TenantCatalogMigrationOrchestrator(
 
         await _migrationRepository.InsertAsync(record, cancellationToken).ConfigureAwait(false);
 
-        await _tenantSuspendCommandService
-            .TrySuspendAsync(tenantId, actorUserId, actorUserName, correlationId, cancellationToken)
-            .ConfigureAwait(false);
-
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantCatalogMigrationStarted,
             tenantId,
@@ -88,6 +96,16 @@ public sealed class TenantCatalogMigrationOrchestrator(
 
         return (TenantCatalogMigrationCommandOutcome.Applied, migrationId);
     }
+
+    private static TenantCatalogMigrationCommandOutcome? MapSuspendBlocker(TenantSuspendOutcome suspendOutcome) =>
+        suspendOutcome switch
+        {
+            TenantSuspendOutcome.Applied => null,
+            TenantSuspendOutcome.AlreadyInDesiredState => null,
+            TenantSuspendOutcome.InErasureQuarantine => TenantCatalogMigrationCommandOutcome.InErasureQuarantine,
+            TenantSuspendOutcome.NotFound => TenantCatalogMigrationCommandOutcome.NotFound,
+            _ => throw new InvalidOperationException($"Unhandled tenant suspend outcome: {suspendOutcome}"),
+        };
 
     public async Task<TenantCatalogMigrationCommandOutcome> AcknowledgeCatalogAttachDetachAsync(
         Guid tenantId,

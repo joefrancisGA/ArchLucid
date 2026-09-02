@@ -1,13 +1,17 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Persistence.Data.Repositories;
@@ -21,7 +25,10 @@ public sealed class CommitOutputIntegrityService(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IAgentOutputQualityGateOptionsResolver qualityGateOptionsResolver,
     IRunRepository runRepository,
-    IRunStageOutcomesRepository runStageOutcomesRepository) : ICommitOutputIntegrityService
+    IRunStageOutcomesRepository runStageOutcomesRepository,
+    IRunPolicyPackPinService runPolicyPackPinService,
+    IDraftRequestRepository draftRequestRepository,
+    IArchitectureVersionRepository architectureVersionRepository) : ICommitOutputIntegrityService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -37,6 +44,15 @@ public sealed class CommitOutputIntegrityService(
 
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
         runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
+
+    private readonly IRunPolicyPackPinService _runPolicyPackPinService =
+        runPolicyPackPinService ?? throw new ArgumentNullException(nameof(runPolicyPackPinService));
+
+    private readonly IDraftRequestRepository _draftRequestRepository =
+        draftRequestRepository ?? throw new ArgumentNullException(nameof(draftRequestRepository));
+
+    private readonly IArchitectureVersionRepository _architectureVersionRepository =
+        architectureVersionRepository ?? throw new ArgumentNullException(nameof(architectureVersionRepository));
 
     /// <inheritdoc />
     public async Task EnsurePassOrThrowAsync(
@@ -83,7 +99,9 @@ public sealed class CommitOutputIntegrityService(
         IReadOnlyList<AgentExecutionTrace> traces =
             await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
 
-        await EnsureArchitectureVersionPinnedOrThrowAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+        await EnsureArchitectureVersionPinnedOrThrowAsync(scope, runId, architectureRequest, cancellationToken)
+            .ConfigureAwait(false);
+        await EnsureCreateTimePinsUnchangedOrThrowAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
         AgentOutputQualityGateOptions gateOptions = _qualityGateOptionsResolver.Resolve(cancellationToken);
         IReadOnlyList<string> qualityReasons =
@@ -123,8 +141,10 @@ public sealed class CommitOutputIntegrityService(
     private async Task EnsureArchitectureVersionPinnedOrThrowAsync(
         ScopeContext scope,
         string runId,
+        ArchitectureRequest architectureRequest,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(architectureRequest);
         if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
         {
             throw new ConflictException(
@@ -138,6 +158,55 @@ public sealed class CommitOutputIntegrityService(
         {
             throw new ConflictException(
                 "Commit blocked: run is missing a pinned ArchitectureVersionId.");
+        }
+
+        ArchitectureVersionRecord? version = await _architectureVersionRepository
+            .GetByIdAsync(scope, versionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (version is null)
+        {
+            throw new ConflictException(
+                "Commit blocked: pinned ArchitectureVersionId was not found.");
+        }
+
+        ArchitectureVersionContentFingerprintVerifier.EnsurePinnedVersionMatchesRequestOrThrow(
+            version,
+            architectureRequest,
+            knowledgeModel: null);
+    }
+
+    private async Task EnsureCreateTimePinsUnchangedOrThrowAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
+            return;
+
+        Persistence.Models.RunRecord? header =
+            await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+
+        if (header is null)
+            return;
+
+        await _runPolicyPackPinService
+            .VerifyPinIntegrityOrThrowAsync(header, scope, cancellationToken)
+            .ConfigureAwait(false);
+
+        DraftRequestResponse? draft = await _draftRequestRepository
+            .GetBySpawnedRunIdAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (draft?.SpawnedDocumentContentHashSha256 is null)
+            return;
+
+        byte[] currentHash = DraftDocumentContentFingerprint.Compute(draft.Document);
+
+        if (!DraftDocumentContentFingerprint.SequenceEqual(currentHash, draft.SpawnedDocumentContentHashSha256))
+        {
+            throw new ConflictException(
+                "Commit blocked: draft document content changed after spawn (SpawnedDocumentContentHashSha256 mismatch).");
         }
     }
 }

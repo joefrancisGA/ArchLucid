@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -10,10 +9,6 @@ namespace ArchLucid.Cli.Commands;
 /// </summary>
 internal static class PilotProofPacketCommand
 {
-    private static readonly UTF8Encoding Utf8NoBom = new(false);
-
-    private static readonly JsonSerializerOptions JsonWrite = new() { WriteIndented = true };
-
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
         if (args is null)
@@ -117,36 +112,27 @@ internal static class PilotProofPacketCommand
         ArgumentNullException.ThrowIfNull(errorWriter);
 
         string normalized = apiBaseUrl.Trim().TrimEnd('/');
-        string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
+        using CliHttpProbeSession session = CliHttpProbeSession.ForApi(normalized, config, TimeSpan.FromMinutes(3));
+        HttpClient http = session.Http;
 
-        using HttpClient http = new();
-        http.Timeout = TimeSpan.FromMinutes(3);
-        http.BaseAddress = new Uri(normalized + "/");
+        CliPilotRunDeltasFetchResult deltasFetch = await session.FetchPilotRunDeltasAsync(runId, cancellationToken);
 
-        if (!string.IsNullOrWhiteSpace(apiKey))
-            http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-
-        string deltasPath = $"v1/pilots/runs/{Uri.EscapeDataString(runId)}/pilot-run-deltas";
-
-        using HttpResponseMessage deltasResponse = await http.GetAsync(deltasPath, cancellationToken);
-
-        if (deltasResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        if (deltasFetch.NotFound)
         {
             await errorWriter.WriteLineAsync($"Run '{runId}' was not found (or is out of scope).");
 
             return new PilotProofPacketWriteOutcome(CliExitCode.UsageError, outputDirectory);
         }
 
-        if (!deltasResponse.IsSuccessStatusCode)
+        if (!deltasFetch.Success)
         {
-            string body = await deltasResponse.Content.ReadAsStringAsync(cancellationToken);
             await errorWriter.WriteLineAsync(
-                $"Error fetching pilot-run-deltas: {(int)deltasResponse.StatusCode}: {body}");
+                $"Error fetching pilot-run-deltas: {deltasFetch.StatusCode}: {deltasFetch.Body}");
 
             return new PilotProofPacketWriteOutcome(CliExitCode.OperationFailed, outputDirectory);
         }
 
-        string deltasJson = await deltasResponse.Content.ReadAsStringAsync(cancellationToken);
+        string deltasJson = deltasFetch.Body;
 
         if (!BuyerProofPackCommitGuard.TryValidate(deltasJson, out bool demoWarning, out string? gateError))
         {
@@ -155,10 +141,9 @@ internal static class PilotProofPacketCommand
             return new PilotProofPacketWriteOutcome(CliExitCode.UsageError, outputDirectory);
         }
 
-        string dir = Path.GetFullPath(outputDirectory);
-        Directory.CreateDirectory(dir);
+        string dir = BuyerPacketFolderWriter.EnsureDirectory(outputDirectory);
 
-        await File.WriteAllTextAsync(Path.Combine(dir, "run-evidence.json"), PrettyPrintJson(deltasJson), Utf8NoBom, cancellationToken);
+        await BuyerPacketFolderWriter.WriteJsonRawAsync(dir, "run-evidence.json", deltasJson, cancellationToken);
 
         await PilotProofPacketRoiArtifacts.WriteAsync(dir, deltasJson, cancellationToken);
 
@@ -170,8 +155,7 @@ internal static class PilotProofPacketCommand
                 "WARN: PilotStrict evidence is not satisfied — sponsor handoff is not recommended (see limitations.md).");
         }
 
-        http.DefaultRequestHeaders.Accept.Clear();
-        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        session.SetAcceptJson();
 
         using HttpResponseMessage aggregateResponse =
             await http.GetAsync($"v1/explain/runs/{Uri.EscapeDataString(runId)}/aggregate", cancellationToken);
@@ -180,8 +164,7 @@ internal static class PilotProofPacketCommand
             ? await aggregateResponse.Content.ReadAsStringAsync(cancellationToken)
             : null;
 
-        http.DefaultRequestHeaders.Accept.Clear();
-        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/markdown"));
+        session.SetAcceptMarkdown();
 
         using HttpResponseMessage mdResponse =
             await http.GetAsync($"v1/pilots/runs/{Uri.EscapeDataString(runId)}/first-value-report", cancellationToken);
@@ -194,7 +177,7 @@ internal static class PilotProofPacketCommand
         {
             string summaryBody = PrependProofSummaryRoiLink(firstValueMarkdown, dir);
 
-            await File.WriteAllTextAsync(Path.Combine(dir, "proof-summary.md"), summaryBody, Utf8NoBom, cancellationToken);
+            await BuyerPacketFolderWriter.WriteTextAsync(dir, "proof-summary.md", summaryBody, cancellationToken);
         }
 
         ArchLucidApiClient client = new(normalized, config);
@@ -210,8 +193,8 @@ internal static class PilotProofPacketCommand
                 auditEventIds = auditIds,
                 note = "Event ids only — no payloads or secrets.",
             },
-            JsonWrite);
-        await File.WriteAllTextAsync(Path.Combine(dir, "audit-sample.json"), auditSampleJson, Utf8NoBom, cancellationToken);
+            BuyerPacketFolderWriter.JsonWriteIndented);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "audit-sample.json", auditSampleJson, cancellationToken);
 
         string artifactManifestJson = JsonSerializer.Serialize(
             new
@@ -221,17 +204,17 @@ internal static class PilotProofPacketCommand
                 capturedUtc = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
                 artifactIds,
             },
-            JsonWrite);
-        await File.WriteAllTextAsync(Path.Combine(dir, "artifact-manifest.json"), artifactManifestJson, Utf8NoBom, cancellationToken);
+            BuyerPacketFolderWriter.JsonWriteIndented);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "artifact-manifest.json", artifactManifestJson, cancellationToken);
 
         string environmentJson = BuildEnvironmentJson(config, normalized, deltasJson, demoWarning, pilotStrictSatisfied);
-        await File.WriteAllTextAsync(Path.Combine(dir, "environment.json"), environmentJson, Utf8NoBom, cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "environment.json", environmentJson, cancellationToken);
 
         string? structuralExecutionModeLabel =
             PilotProofPacketStructuralExecutionModeFormatter.TryResolveLabelFromDeltasJson(deltasJson);
 
         string limitations = BuildLimitationsMarkdown(demoWarning, deltasJson, aggregateJson, structuralExecutionModeLabel);
-        await File.WriteAllTextAsync(Path.Combine(dir, "limitations.md"), limitations, Utf8NoBom, cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "limitations.md", limitations, cancellationToken);
 
         string commercialReadiness = PilotProofPacketCommercialReadinessBuilder.BuildJson(
             runId,
@@ -239,122 +222,68 @@ internal static class PilotProofPacketCommand
             demoWarning,
             pilotStrictSatisfied,
             aggregateJson);
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, "quote-to-proof-readiness.json"),
-            commercialReadiness,
-            Utf8NoBom,
-            cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "quote-to-proof-readiness.json", commercialReadiness, cancellationToken);
 
         string governanceSummary = PilotProofPacketGovernanceArtifacts.BuildGovernanceOutcomeSummaryJson(
             runId,
             deltasJson,
             pilotStrictSatisfied);
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, "governance-outcome-summary.json"),
-            governanceSummary,
-            Utf8NoBom,
-            cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "governance-outcome-summary.json", governanceSummary, cancellationToken);
 
         string auditSummary = PilotProofPacketGovernanceArtifacts.BuildAuditEvidenceSummaryJson(
             runId,
             auditIds,
             deltasJson);
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, "audit-evidence-summary.json"),
-            auditSummary,
-            Utf8NoBom,
-            cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "audit-evidence-summary.json", auditSummary, cancellationToken);
 
         string auditSummaryMarkdown = PilotProofPacketGovernanceArtifacts.BuildAuditEvidenceSummaryMarkdown(
             runId,
             auditIds,
             deltasJson);
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, "audit-evidence-summary.md"),
-            auditSummaryMarkdown,
-            Utf8NoBom,
-            cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "audit-evidence-summary.md", auditSummaryMarkdown, cancellationToken);
 
         string dataConsistencyJson = PilotProofPacketDataConsistencyArtifacts.BuildSummaryJson(runId, deltasJson);
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, "data-consistency-summary.json"),
-            dataConsistencyJson,
-            Utf8NoBom,
-            cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "data-consistency-summary.json", dataConsistencyJson, cancellationToken);
 
         string dataConsistencyMarkdown = PilotProofPacketDataConsistencyArtifacts.BuildSummaryMarkdown(runId, deltasJson);
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, "data-consistency-summary.md"),
-            dataConsistencyMarkdown,
-            Utf8NoBom,
-            cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "data-consistency-summary.md", dataConsistencyMarkdown, cancellationToken);
 
         string scaleEnvelope = PilotProofPacketGovernanceArtifacts.BuildScaleEnvelopeEvidenceJson(
             runId,
             deltasJson,
             Support.SupportBundleRedactor.RedactHttpUrl(normalized));
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, "scale-envelope-evidence.json"),
-            scaleEnvelope,
-            Utf8NoBom,
-            cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "scale-envelope-evidence.json", scaleEnvelope, cancellationToken);
 
         string redactionManifest = PilotProofPacketRedactionManifestBuilder.BuildJson(
             redactionPassApplied: true,
             outputDirectory: dir);
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, "redaction-manifest.json"),
-            redactionManifest,
-            Utf8NoBom,
-            cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "redaction-manifest.json", redactionManifest, cancellationToken);
 
         string indexJson = PilotProofPacketIndexBuilder.BuildJson(
             runId,
             pilotStrictSatisfied,
             demoWarning,
             structuralExecutionModeLabel);
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, "sponsor-proof-packet-index.json"),
-            indexJson,
-            Utf8NoBom,
-            cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "sponsor-proof-packet-index.json", indexJson, cancellationToken);
 
         string indexMarkdown = PilotProofPacketIndexBuilder.BuildMarkdown(
             runId,
             pilotStrictSatisfied,
             structuralExecutionModeLabel);
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, "sponsor-proof-packet-index.md"),
-            indexMarkdown,
-            Utf8NoBom,
-            cancellationToken);
+        await BuyerPacketFolderWriter.WriteTextAsync(dir, "sponsor-proof-packet-index.md", indexMarkdown, cancellationToken);
 
-        await File.WriteAllTextAsync(
-            Path.Combine(dir, ProofPacketSourceLabelsBuilder.FileName),
+        await BuyerPacketFolderWriter.WriteTextAsync(
+            dir,
+            ProofPacketSourceLabelsBuilder.FileName,
             ProofPacketSourceLabelsBuilder.Build(runId),
-            Utf8NoBom,
             cancellationToken);
 
-        if (!skipClaimLint)
-        {
-            IReadOnlyList<ProofPacketClaimLintViolation> violations = ProofPacketClaimLinter.ScanDirectory(dir);
+        int claimLintExit = BuyerPacketFolderWriter.RunClaimLintOrFail(dir, skipClaimLint, errorWriter);
 
-            if (violations.Count > 0)
-            {
-                ProofPacketClaimLinter.WriteViolations(errorWriter, violations);
-
-                return new PilotProofPacketWriteOutcome(CliExitCode.OperationFailed, dir);
-            }
-        }
+        if (claimLintExit != CliExitCode.Success)
+            return new PilotProofPacketWriteOutcome(claimLintExit, dir);
 
         return new PilotProofPacketWriteOutcome(CliExitCode.Success, dir);
-    }
-
-    private static string PrettyPrintJson(string raw)
-    {
-        using JsonDocument doc = JsonDocument.Parse(raw);
-
-        return JsonSerializer.Serialize(doc.RootElement, JsonWrite);
     }
 
     private static string PrependProofSummaryRoiLink(string markdown, string outputDirectory)
@@ -402,7 +331,7 @@ internal static class PilotProofPacketCommand
             ["skippedGates"] = "See limitations.md and first-pilot proof rollup for environment-wide gates not exercised by this run.",
         };
 
-        return JsonSerializer.Serialize(payload, JsonWrite);
+        return JsonSerializer.Serialize(payload, BuyerPacketFolderWriter.JsonWriteIndented);
     }
 
     private static string BuildLimitationsMarkdown(

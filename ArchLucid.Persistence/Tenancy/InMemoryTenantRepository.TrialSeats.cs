@@ -34,15 +34,15 @@ public sealed partial class InMemoryTenantRepository
 
                 throw new TrialLimitExceededException(
                     TrialLimitReason.Expired,
-                    ComputeDaysRemaining(t.TrialExpiresUtc));
+                    TenantRepositoryCore.ComputeDaysRemaining(t.TrialExpiresUtc));
 
             if (t.TrialRunsUsed >= runCap)
 
                 throw new TrialLimitExceededException(
                     TrialLimitReason.RunsExceeded,
-                    ComputeDaysRemaining(t.TrialExpiresUtc));
+                    TenantRepositoryCore.ComputeDaysRemaining(t.TrialExpiresUtc));
 
-            _byId[tenantId] = CopyTenant(t, trialRunsUsed: t.TrialRunsUsed + 1);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(t, trialRunsUsed: t.TrialRunsUsed + 1);
         }
 
         return Task.CompletedTask;
@@ -69,7 +69,7 @@ public sealed partial class InMemoryTenantRepository
 
                 throw new TrialLimitExceededException(
                     TrialLimitReason.Expired,
-                    ComputeDaysRemaining(t.TrialExpiresUtc));
+                    TenantRepositoryCore.ComputeDaysRemaining(t.TrialExpiresUtc));
 
             if (_trialSeatOccupants.ContainsKey((tenantId, key)))
                 return Task.CompletedTask;
@@ -78,11 +78,11 @@ public sealed partial class InMemoryTenantRepository
 
                 throw new TrialLimitExceededException(
                     TrialLimitReason.SeatsExceeded,
-                    ComputeDaysRemaining(t.TrialExpiresUtc));
+                    TenantRepositoryCore.ComputeDaysRemaining(t.TrialExpiresUtc));
 
             _trialSeatOccupants[(tenantId, key)] = 1;
 
-            _byId[tenantId] = CopyTenant(t, trialSeatsUsed: t.TrialSeatsUsed + 1);
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(t, trialSeatsUsed: t.TrialSeatsUsed + 1);
         }
 
         return Task.CompletedTask;

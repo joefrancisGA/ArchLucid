@@ -55,6 +55,94 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
   ConversationThread: "ConversationThread",
   ConversationMessage: "ConversationMessage",
   AskResponse: "AskResponse",
+  PolicyPack: "PolicyPack",
+  PolicyPackVersion: "PolicyPackVersion",
+  PolicyPackAssignment: "PolicyPackAssignment",
+  ResolvedPolicyPack: "ResolvedPolicyPack",
+  EffectivePolicyPackSet: "EffectivePolicyPackSet",
+  PolicyPackContentDocument: "PolicyPackContentDocument",
+  ElicitationQuestionTier: "ElicitationQuestionTier",
+  ElicitationAnswerKind: "ElicitationAnswerKind",
+  ElicitationQuestion: "ElicitationQuestion",
+  PolicyPackCatalogListItem: "PolicyPackCatalogListItem",
+  PolicyPackCatalogEntryDetail: "PolicyPackCatalogEntryDetail",
+  PolicyPackWorkspaceSelectionItem: "PolicyPackWorkspaceSelectionItem",
+  GraphNodeVm: "GraphNodeVm",
+  GraphEdgeVm: "GraphEdgeVm",
+  GraphNodesPageResponse: "GraphNodesPageResponse",
+  GraphViewModel: "GraphViewModel",
+  DecisionDelta: "DecisionDelta",
+  RequirementDelta: "RequirementDelta",
+  SecurityDelta: "SecurityDelta",
+  TopologyDelta: "TopologyDelta",
+  CostDelta: "CostDelta",
+  GoldenManifestComparison: "ComparisonResult",
+  FindingInspectEvidence: "FindingInspectEvidenceItem",
+  FindingInspectPayload: "FindingInspectResponse",
+  LearningThemeResponse: "LearningThemeResponse",
+  LearningThemesListResponse: "LearningThemesListResponse",
+  LearningPlanListItemResponse: "LearningPlanListItemResponse",
+  LearningPlansListResponse: "LearningPlansListResponse",
+  LearningSummaryResponse: "LearningSummaryResponse",
+  LearningPlanStepResponse: "LearningPlanStepResponse",
+  LearningPlanEvidenceCountsResponse: "LearningPlanEvidenceCountsResponse",
+  LearningPlanDetailResponse: "LearningPlanDetailResponse",
+  EvolutionCandidateChangeSetResponse: "EvolutionCandidateChangeSetResponse",
+  EvolutionCandidateChangeSetListResponse: "EvolutionCandidateChangeSetListResponse",
+  EvaluationScoreResponse: "EvaluationScoreResponse",
+  EvolutionSimulationRunWithEvaluationResponse: "EvolutionSimulationRunWithEvaluationResponse",
+  EvolutionResultsResponse: "EvolutionResultsResponse",
+  EvolutionSimulateResponse: "EvolutionSimulateResponse",
+  ThresholdCandidate: "ThresholdCandidate",
+  NoiseScoreBreakdown: "NoiseScoreBreakdown",
+  ThresholdCandidateEvaluation: "ThresholdCandidateEvaluation",
+  ThresholdRecommendationResult: "ThresholdRecommendationResult",
+  CompositeAlertRuleCondition: "AlertRuleCondition",
+  CompositeAlertRule: "CompositeAlertRule",
+  TenantTrialStatusPayload: "TenantTrialStatusResponse",
+  TenantHomepageSettingsResponse: "TenantHomepageSettingsGetResponse",
+  FeaturedCompletedSampleCandidate: "FeaturedCompletedSampleCandidateResponse",
+  TenantHomepageSettingsPutRequest: "TenantHomepageSettingsPutRequest",
+  TenantCostSettingsResponse: "TenantCostSettingsGetResponse",
+  TenantCostSettingsPutRequest: "TenantCostSettingsPutRequest",
+  TenantCostEstimateResponse: "TenantCostEstimateResponse",
+  GovernanceResolutionCandidate: "GovernanceResolutionCandidate",
+  GovernanceResolutionDecision: "GovernanceResolutionDecision",
+  GovernanceConflictRecord: "GovernanceConflictRecord",
+  EffectiveGovernanceResolutionResult: "EffectiveGovernanceResolutionResult",
+  PolicyPackDryRunSeverityCount: "PolicyPackDryRunSeverityCount",
+  PolicyPackDryRunThresholdOutcome: "PolicyPackDryRunThresholdOutcome",
+  PolicyPackDryRunRunItem: "PolicyPackDryRunRunItem",
+  PolicyPackDryRunDeltaCounts: "PolicyPackDryRunDeltaCounts",
+  PolicyPackDryRunResponse: "PolicyPackDryRunResponse",
+  PolicyPackDryRunRequest: "PolicyPackDryRunRequest",
+  PreFinalizeChecklistItemStatus: "PreFinalizeChecklistItemStatus",
+  PreFinalizeChecklistItem: "PreFinalizeChecklistItem",
+  PreFinalizeChecklistResult: "PreFinalizeChecklistResult",
+  ProductLearningDashboardSummaryResponse: "ProductLearningDashboardSummaryResponse",
+  ArtifactOutcomeTrend: "ArtifactOutcomeTrend",
+  ImprovementOpportunity: "ImprovementOpportunity",
+  TriageQueueItem: "TriageQueueItem",
+  ProductLearningImprovementOpportunitiesResponse: "ProductLearningImprovementOpportunitiesResponse",
+  ProductLearningArtifactOutcomeTrendsResponse: "ProductLearningArtifactOutcomeTrendsResponse",
+  ProductLearningTriageQueueResponse: "ProductLearningTriageQueueResponse",
+  ProductLearningDashboardBundle: "ProductLearningDashboardBundleResponse",
+  PilotValueReportSeverityJson: "PilotValueReportSeverityBreakdown",
+  PilotValueReportTimelineRow: "PilotValueReportRunTimelinePoint",
+  PilotValueReportJson: "PilotValueReport",
+  PolicyPackChangeLogEntry: "PolicyPackChangeLogEntry",
+  GovernanceDashboardSummary: "GovernanceDashboardSummary",
+  FeasibilityVerdictKind: "FeasibilityVerdictKind",
+  AssertedTrailEntry: "AssertedTrailEntry",
+  InferredTrailEntry: "InferredTrailEntry",
+  SkippedQuestionTrailEntry: "SkippedQuestionTrailEntry",
+  TransparencyTrail: "TransparencyTrail",
+  SoftInfeasibilityEnvelope: "SoftInfeasibilityEnvelope",
+  ManifestFeasibilityVerdict: "FeasibilityVerdict",
+  GovernanceEnvironmentDefinition: "GovernanceEnvironmentDefinition",
+  GovernanceEnvironmentTransition: "GovernanceEnvironmentTransition",
+  GovernanceEnvironmentCatalog: "GovernanceEnvironmentCatalog",
+  ReplaceGovernanceEnvironmentCatalogRequest: "ReplaceGovernanceEnvironmentCatalogRequest",
 } as const satisfies Record<string, keyof components["schemas"]>;
 
 type AssertExtends<Base, Derived extends Base> = Derived;
@@ -207,7 +295,113 @@ type _ConversationAliases = [
   AssertExtends<components["schemas"]["AskResponse"], import("@/types/conversation").AskResponse>,
 ];
 
-// Touch compile-time alias checks so unused-type pruning does not drop them.
+type _PolicyPackAliases = [
+  AssertExtends<components["schemas"]["PolicyPack"], import("@/types/policy-packs").PolicyPack>,
+  AssertExtends<components["schemas"]["PolicyPackVersion"], import("@/types/policy-packs").PolicyPackVersion>,
+  AssertExtends<components["schemas"]["PolicyPackAssignment"], import("@/types/policy-packs").PolicyPackAssignment>,
+  AssertExtends<components["schemas"]["ResolvedPolicyPack"], import("@/types/policy-packs").ResolvedPolicyPack>,
+  AssertExtends<components["schemas"]["EffectivePolicyPackSet"], import("@/types/policy-packs").EffectivePolicyPackSet>,
+  AssertExtends<
+    components["schemas"]["PolicyPackContentDocument"],
+    import("@/types/policy-packs").PolicyPackContentDocument
+  >,
+  AssertExtends<components["schemas"]["ElicitationQuestionTier"], import("@/types/policy-packs").ElicitationQuestionTier>,
+  AssertExtends<components["schemas"]["ElicitationAnswerKind"], import("@/types/policy-packs").ElicitationAnswerKind>,
+  AssertExtends<components["schemas"]["ElicitationQuestion"], import("@/types/policy-packs").ElicitationQuestion>,
+  AssertExtends<
+    components["schemas"]["PolicyPackCatalogListItem"],
+    import("@/types/policy-packs").PolicyPackCatalogListItem
+  >,
+  AssertExtends<
+    components["schemas"]["PolicyPackCatalogEntryDetail"],
+    import("@/types/policy-packs").PolicyPackCatalogEntryDetail
+  >,
+  AssertExtends<
+    components["schemas"]["PolicyPackWorkspaceSelectionItem"],
+    import("@/types/policy-packs").PolicyPackWorkspaceSelectionItem
+  >,
+];
+
+type _GraphAliases = [
+  AssertExtends<components["schemas"]["GraphNodeVm"], import("@/types/graph").GraphNodeVm>,
+  AssertExtends<components["schemas"]["GraphEdgeVm"], import("@/types/graph").GraphEdgeVm>,
+  AssertExtends<components["schemas"]["GraphNodesPageResponse"], import("@/types/graph").GraphNodesPageResponse>,
+  AssertExtends<components["schemas"]["GraphViewModel"], import("@/types/graph").GraphViewModel>,
+];
+
+type _ComparisonAliases = [
+  AssertExtends<components["schemas"]["DecisionDelta"], import("@/types/comparison").DecisionDelta>,
+  AssertExtends<components["schemas"]["RequirementDelta"], import("@/types/comparison").RequirementDelta>,
+  AssertExtends<components["schemas"]["SecurityDelta"], import("@/types/comparison").SecurityDelta>,
+  AssertExtends<components["schemas"]["TopologyDelta"], import("@/types/comparison").TopologyDelta>,
+  AssertExtends<components["schemas"]["CostDelta"], import("@/types/comparison").CostDelta>,
+  AssertExtends<components["schemas"]["ComparisonResult"], import("@/types/comparison").GoldenManifestComparison>,
+];
+
+type _FindingInspectAliases = [
+  AssertExtends<
+    components["schemas"]["FindingInspectEvidenceItem"],
+    import("@/types/finding-inspect").FindingInspectEvidence
+  >,
+  AssertExtends<components["schemas"]["FindingInspectResponse"], import("@/types/finding-inspect").FindingInspectPayload>,
+];
+
+type _LearningAliases = [
+  AssertExtends<components["schemas"]["LearningThemeResponse"], import("@/types/learning").LearningThemeResponse>,
+  AssertExtends<components["schemas"]["LearningThemesListResponse"], import("@/types/learning").LearningThemesListResponse>,
+  AssertExtends<
+    components["schemas"]["LearningPlanListItemResponse"],
+    import("@/types/learning").LearningPlanListItemResponse
+  >,
+  AssertExtends<components["schemas"]["LearningPlansListResponse"], import("@/types/learning").LearningPlansListResponse>,
+  AssertExtends<components["schemas"]["LearningSummaryResponse"], import("@/types/learning").LearningSummaryResponse>,
+  AssertExtends<components["schemas"]["LearningPlanStepResponse"], import("@/types/learning").LearningPlanStepResponse>,
+  AssertExtends<
+    components["schemas"]["LearningPlanEvidenceCountsResponse"],
+    import("@/types/learning").LearningPlanEvidenceCountsResponse
+  >,
+  AssertExtends<components["schemas"]["LearningPlanDetailResponse"], import("@/types/learning").LearningPlanDetailResponse>,
+];
+
+type _EvolutionAliases = [
+  AssertExtends<
+    components["schemas"]["EvolutionCandidateChangeSetResponse"],
+    import("@/types/evolution").EvolutionCandidateChangeSetResponse
+  >,
+  AssertExtends<
+    components["schemas"]["EvolutionCandidateChangeSetListResponse"],
+    import("@/types/evolution").EvolutionCandidateChangeSetListResponse
+  >,
+  AssertExtends<components["schemas"]["EvaluationScoreResponse"], import("@/types/evolution").EvaluationScoreResponse>,
+  AssertExtends<
+    components["schemas"]["EvolutionSimulationRunWithEvaluationResponse"],
+    import("@/types/evolution").EvolutionSimulationRunWithEvaluationResponse
+  >,
+  AssertExtends<components["schemas"]["EvolutionResultsResponse"], import("@/types/evolution").EvolutionResultsResponse>,
+  AssertExtends<components["schemas"]["EvolutionSimulateResponse"], import("@/types/evolution").EvolutionSimulateResponse>,
+];
+
+type _AlertTuningAliases = [
+  AssertExtends<components["schemas"]["ThresholdCandidate"], import("@/types/alert-tuning").ThresholdCandidate>,
+  AssertExtends<components["schemas"]["NoiseScoreBreakdown"], import("@/types/alert-tuning").NoiseScoreBreakdown>,
+  AssertExtends<
+    components["schemas"]["ThresholdCandidateEvaluation"],
+    import("@/types/alert-tuning").ThresholdCandidateEvaluation
+  >,
+  AssertExtends<
+    components["schemas"]["ThresholdRecommendationResult"],
+    import("@/types/alert-tuning").ThresholdRecommendationResult
+  >,
+];
+
+type _CompositeAlertRuleAliases = [
+  AssertExtends<
+    components["schemas"]["AlertRuleCondition"],
+    import("@/types/composite-alert-rules").CompositeAlertRuleCondition
+  >,
+  AssertExtends<components["schemas"]["CompositeAlertRule"], import("@/types/composite-alert-rules").CompositeAlertRule>,
+];
+
 const _compileTimeAliasGuards: [
   _AuthorityAliases,
   _OperateRhythmAliases,
@@ -217,6 +411,14 @@ const _compileTimeAliasGuards: [
   _GovernanceWorkflowAliases,
   _DigestSubscriptionAliases,
   _ConversationAliases,
+  _PolicyPackAliases,
+  _GraphAliases,
+  _ComparisonAliases,
+  _FindingInspectAliases,
+  _LearningAliases,
+  _EvolutionAliases,
+  _AlertTuningAliases,
+  _CompositeAlertRuleAliases,
 ] = [
   [] as unknown as _AuthorityAliases,
   [] as unknown as _OperateRhythmAliases,
@@ -226,6 +428,14 @@ const _compileTimeAliasGuards: [
   [] as unknown as _GovernanceWorkflowAliases,
   [] as unknown as _DigestSubscriptionAliases,
   [] as unknown as _ConversationAliases,
+  [] as unknown as _PolicyPackAliases,
+  [] as unknown as _GraphAliases,
+  [] as unknown as _ComparisonAliases,
+  [] as unknown as _FindingInspectAliases,
+  [] as unknown as _LearningAliases,
+  [] as unknown as _EvolutionAliases,
+  [] as unknown as _AlertTuningAliases,
+  [] as unknown as _CompositeAlertRuleAliases,
 ];
 void _compileTimeAliasGuards;
 
@@ -239,6 +449,6 @@ describe("openapi type alias schema keys", () => {
   });
 
   it("keeps the mapping table in sync with the number of guarded aliases", () => {
-    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(47);
+    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(135);
   });
 });

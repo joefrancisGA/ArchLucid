@@ -124,11 +124,14 @@ export function splitSidebarLinksDailyVsMore(
   return { daily, more };
 }
 
-/** Secondary nav rows under a group heading — omit the group name (the heading already names it). */
-export function sidebarMoreLinksLabel(_groupLabel: string, count: number): string {
+/** Secondary nav rows under a group heading — include the group name so the disclosure is self-explanatory. */
+export function sidebarMoreLinksLabel(groupLabel: string, count: number): string {
+  const trimmedGroupLabel = groupLabel.trim();
+  const groupSuffix = trimmedGroupLabel.length > 0 ? ` ${trimmedGroupLabel}` : "";
+
   if (count === 1) {
-    return "1 more link";
+    return `1 more${groupSuffix} link`;
   }
 
-  return `${count} more links`;
+  return `${count} more${groupSuffix} links`;
 }

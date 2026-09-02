@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Common;
+
 namespace ArchLucid.Api.Models;
 
 /// <summary>Compact run entry returned by the run list endpoint.</summary>
@@ -64,6 +66,13 @@ public sealed class RunListItemResponse
 
     /// <summary><see langword="true" /> when <see cref="GoldenManifestId" /> is set.</summary>
     public bool HasGoldenManifest
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Authority pipeline lifecycle phase (wave-6 suggestion 58).</summary>
+    public AuthorityRunLifecyclePhase AuthorityLifecyclePhase
     {
         get;
         set;
