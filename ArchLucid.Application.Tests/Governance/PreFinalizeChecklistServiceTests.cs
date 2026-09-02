@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Governance.Resolution;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -237,11 +238,18 @@ public sealed class PreFinalizeChecklistServiceTests
         return new PreFinalizeChecklistService(
             scopeProvider.Object,
             runRepository ?? runMock.Object,
+            Mock.Of<IArchitectureRequestRepository>(),
             findingsSnapshotRepository ?? Mock.Of<IFindingsSnapshotRepository>(),
             ledger ?? ledgerMock.Object,
             linkageEngine ?? linkageMock.Object,
             Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = true }),
             gate ?? gateMock.Object,
+            new PreFinalizeExecuteBaselineDriftEvaluator(
+                Mock.Of<IEffectiveGovernanceResolver>(),
+                new EffectiveGovernanceSnapshotBuilder(),
+                Mock.Of<IPolicyPackAssignmentRepository>(),
+                Mock.Of<IPolicyPackRepository>(),
+                Mock.Of<IPolicyPackVersionRepository>()),
             knowledgeModelAccess);
     }
 }

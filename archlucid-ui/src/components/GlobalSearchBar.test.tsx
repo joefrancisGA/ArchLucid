@@ -51,6 +51,19 @@ describe("GlobalSearchBar", () => {
     expect(screen.queryByText("Ctrl+K")).toBeNull();
   });
 
+  it("exposes the quick-actions popup as a dialog rather than a listbox", () => {
+    render(<GlobalSearchBar />);
+
+    const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+    fireEvent.focus(input);
+
+    const popup = screen.getByTestId("global-search-quick-actions");
+    expect(popup).toHaveAttribute("role", "dialog");
+    expect(input).toHaveAttribute("aria-haspopup", "dialog");
+    expect(input).toHaveAttribute("aria-expanded", "true");
+    expect(input).toHaveAttribute("aria-controls", popup.id);
+  });
+
   it("opens the results panel when the query is long enough", async () => {
     render(<GlobalSearchBar />);
 

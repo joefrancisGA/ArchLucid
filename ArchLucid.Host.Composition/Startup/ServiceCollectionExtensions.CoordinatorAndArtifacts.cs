@@ -169,6 +169,7 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<InMemoryQuickScanUsageRecordStore>();
             services.AddSingleton<IQuickScanUsageRecordStore>(sp =>
                 sp.GetRequiredService<InMemoryQuickScanUsageRecordStore>());
+            services.AddSingleton<IWizardIntakeDraftRepository, InMemoryWizardIntakeDraftRepository>();
             return;
         }
 
@@ -200,6 +201,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPromptVariantStatsRepository, SqlPromptVariantStatsRepository>();
         services.AddScoped<IAgentConfidenceCalibrationSampleRepository, AgentConfidenceCalibrationSampleRepository>();
         services.AddScoped<ITenantCuratedEvidenceRepository, TenantCuratedEvidenceRepository>();
+        services.AddScoped<IWizardIntakeDraftRepository, DapperWizardIntakeDraftRepository>();
     }
 
     private static void RegisterRunExplanationSummaryService(

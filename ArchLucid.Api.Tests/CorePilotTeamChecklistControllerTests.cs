@@ -164,24 +164,11 @@ public sealed class CorePilotTeamChecklistControllerTests
     }
 
     [Fact]
-    public async Task PutAsync_returns_bad_request_when_is_completed_omitted()
+    public void CorePilotChecklistPutRequest_rejects_json_without_is_completed()
     {
-        Mock<ICorePilotTeamChecklistRepository> repo = new(MockBehavior.Strict);
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
-        Mock<IActorContext> actor = new();
-        Mock<IAuditService> audit = new();
+        Action act = () => System.Text.Json.JsonSerializer.Deserialize<CorePilotChecklistPutRequest>("""{"stepIndex":1}""");
 
-        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object, audit.Object);
-
-        IActionResult result = await sut.PutAsync(
-            new CorePilotChecklistPutRequest { StepIndex = 1 },
-            CancellationToken.None);
-
-        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
-        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        repo.VerifyNoOtherCalls();
-        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+        act.Should().Throw<System.Text.Json.JsonException>();
     }
 
     [Fact]

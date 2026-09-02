@@ -7,6 +7,7 @@ using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Execute;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -24,6 +25,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 using ArchLucid.TestSupport.Diagnostics;
+using ArchLucid.Application.Tests.Orchestration;
 
 using FluentAssertions;
 
@@ -114,55 +116,53 @@ public sealed class ArchitectureRunOrchestrationAuditTests
         Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventsOptions = new();
         integrationEventsOptions.Setup(o => o.CurrentValue).Returns(new IntegrationEventsOptions());
 
-        return new ArchitectureRunExecuteOrchestrator(
+        return ArchitectureRunExecuteOrchestratorTestFactory.Create(
             runRepository,
             scopeContextProvider,
             Mock.Of<IArchitectureRequestRepository>(),
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IAgentExecutor>(),
-            Mock.Of<IAgentEvaluationService>(),
-            Mock.Of<IAgentResultRepository>(),
-            Mock.Of<IAgentEvaluationRepository>(),
-            Mock.Of<IAgentEvidencePackageRepository>(),
-            Mock.Of<IEvidenceBuilder>(),
-            actorContext,
-            baselineMutationAudit,
-            new ArchitectureRunExecutePostExecuteHooks(
-                auditService,
-                scopeContextProvider,
-                baselineMutationAudit,
-                runRepository,
-                new RunStateTransitionService(),
-                Mock.Of<IIntegrationEventOutboxRepository>(),
-                Mock.Of<IIntegrationEventPublisher>(),
-                integrationEventsOptions.Object,
-                NullLogger<ArchitectureRunExecutePostExecuteHooks>.Instance),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            new NoOpAgentOutputTraceEvaluationHook(),
-            new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
-            new NoOpEvidencePackageInjectionMitigator(),
-            new NoOpAgentEvidenceUntrustedInputSanitizer(),
-            precheck,
-            Options.Create(new AgentExecutionOptions()),
-            Mock.Of<IEffectiveAgentExecutionModeAccessor>(accessor => accessor.GetEffectiveMode() == "Simulator"),
-            Options.Create(new AgentOutputQualityGateOptions()),
-            new RunStateTransitionService(),
-            Mock.Of<IRunEngineProvenanceCaptureService>(),
-            Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
-            new TechnologyLedgerTopologyProposalSeeder(
-                new InMemoryTechnologyLedgerRepository(),
-                scopeContextProvider,
-                TimeProvider.System),
-            new DemoExpensiveActionGate(
-                BuildPermissiveAiBudgetPolicyResolver(),
-                BuildDemoModeOffOptionsMonitor()),
-            new ArchLucid.Application.Budgeting.PassThroughRunScopedLlmBudgetReservationService(),
-            new OperationCancellationRegistry(),
-            new OperationRunCancellationMarker(runRepository),
-            new DisabledRunExecuteOwnershipLeaseService(),
-            Mock.Of<IRunStageOutcomesRepository>(),
-            new PermissiveAgentExecutionReadinessGuard(),
-            NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+            new ArchitectureRunExecuteOrchestratorCreateArgs
+            {
+                ActorContext = actorContext,
+                BaselineMutationAuditService = baselineMutationAudit,
+                PostExecuteHooks = new ArchitectureRunExecutePostExecuteHooks(
+                    auditService,
+                    scopeContextProvider,
+                    baselineMutationAudit,
+                    runRepository,
+                    new RunStateTransitionService(),
+                    Mock.Of<IIntegrationEventOutboxRepository>(),
+                    Mock.Of<IIntegrationEventPublisher>(),
+                    integrationEventsOptions.Object,
+                    NullLogger<ArchitectureRunExecutePostExecuteHooks>.Instance),
+                UnitOfWorkFactory = ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+                OutputTraceEvaluationHook = new NoOpAgentOutputTraceEvaluationHook(),
+                AgentResultPostExecutionEnricher = new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
+                EvidencePackageInjectionMitigator = new NoOpEvidencePackageInjectionMitigator(),
+                AgentEvidenceUntrustedInputSanitizer = new NoOpAgentEvidenceUntrustedInputSanitizer(),
+                RequestContentSafetyPrecheck = precheck,
+                AgentExecutionOptions = Options.Create(new AgentExecutionOptions()),
+                EffectiveAgentExecutionModeAccessor = Mock.Of<IEffectiveAgentExecutionModeAccessor>(accessor => accessor.GetEffectiveMode() == "Simulator"),
+                AgentOutputQualityGateOptions = Options.Create(new AgentOutputQualityGateOptions()),
+                RunStateTransitionService = new RunStateTransitionService(),
+                RunEngineProvenanceCaptureService = Mock.Of<IRunEngineProvenanceCaptureService>(),
+                ExecuteTimeGovernanceScopeCaptureService = Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
+                TopologyProposalSeeder = new TechnologyLedgerTopologyProposalSeeder(
+                    new InMemoryTechnologyLedgerRepository(),
+                    scopeContextProvider,
+                    TimeProvider.System),
+                DemoExpensiveActionGate = new DemoExpensiveActionGate(
+                    BuildPermissiveAiBudgetPolicyResolver(),
+                    BuildDemoModeOffOptionsMonitor()),
+                RunScopedLlmBudgetReservationService = new ArchLucid.Application.Budgeting.PassThroughRunScopedLlmBudgetReservationService(),
+                OperationCancellationRegistry = new OperationCancellationRegistry(),
+                RunCancellationMarker = new OperationRunCancellationMarker(runRepository),
+                RunExecuteOwnershipLeaseService = new DisabledRunExecuteOwnershipLeaseService(),
+                RunStageOutcomesRepository = Mock.Of<IRunStageOutcomesRepository>(),
+                AgentExecutionReadinessGuard = new PermissiveAgentExecutionReadinessGuard(),
+                Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance,
+            });
     }
 
     private static IOptionsMonitor<IntegrationEventsOptions> CreateIntegrationEventsOptionsMonitor()

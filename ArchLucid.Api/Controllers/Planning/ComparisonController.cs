@@ -1,11 +1,9 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Models;
-using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -19,8 +17,8 @@ namespace ArchLucid.Api.Controllers.Planning;
 ///     HTTP API for structured golden-manifest comparison between two runs in the caller’s scope (base → target).
 /// </summary>
 /// <remarks>
-///     Uses <see cref="IAuthorityQueryService.GetRunDetailForManifestCompareAsync" /> for both runs, then
-///     <see cref="IComparisonService.Compare" />. For flat diff lists, see <c>api/authority/compare</c>.
+///     Uses <see cref="ICompareRunsApplicationFacade.CompareManifestsAsync" /> for scoped manifest loading and
+///     comparison. For flat diff lists, see <c>api/authority/compare</c>.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -28,11 +26,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [Route("v{version:apiVersion}/compare")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ComparisonController(
-    IAuthorityQueryService query,
-    IComparisonService comparison,
-    IScopeContextProvider scopeProvider)
-    : ControllerBase
+public sealed class ComparisonController(ICompareRunsApplicationFacade compareRunsFacade) : ControllerBase
 {
     /// <summary>Structured <see cref="ManifestDocument" /> delta between two runs (base → target).</summary>
     /// <param name="baseRunId">Earlier or baseline run.</param>
@@ -51,28 +45,24 @@ public sealed class ComparisonController(
         [FromQuery] Guid targetRunId,
         CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        Task<RunDetailDto?> baseRunTask = query.GetRunDetailForManifestCompareAsync(scope, baseRunId, ct);
-        Task<RunDetailDto?> targetRunTask = query.GetRunDetailForManifestCompareAsync(scope, targetRunId, ct);
-        await Task.WhenAll(baseRunTask, targetRunTask);
-        RunDetailDto? baseRun = await baseRunTask;
-        RunDetailDto? targetRun = await targetRunTask;
+        ManifestCompareLoadResult result = await compareRunsFacade.CompareManifestsAsync(baseRunId, targetRunId, ct);
 
-        if (baseRun is null)
-            return this.NotFoundProblem($"Run '{baseRunId}' was not found.", ProblemTypes.RunNotFound);
-
-        if (targetRun is null)
-            return this.NotFoundProblem($"Run '{targetRunId}' was not found.", ProblemTypes.RunNotFound);
-
-        if (baseRun.GoldenManifest is null)
-            return this.NotFoundProblem($"Run '{baseRunId}' does not have a committed golden manifest.",
-                ProblemTypes.ManifestNotFound);
-
-        if (targetRun.GoldenManifest is null)
-            return this.NotFoundProblem($"Run '{targetRunId}' does not have a committed golden manifest.",
-                ProblemTypes.ManifestNotFound);
-
-        ComparisonResult result = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
-        return Ok(result);
+        return result.Outcome switch
+        {
+            ManifestCompareLoadOutcome.Success => Ok(result.Comparison),
+            ManifestCompareLoadOutcome.BaseRunNotFound => this.NotFoundProblem(
+                $"Run '{result.RunId}' was not found.",
+                ProblemTypes.RunNotFound),
+            ManifestCompareLoadOutcome.TargetRunNotFound => this.NotFoundProblem(
+                $"Run '{result.RunId}' was not found.",
+                ProblemTypes.RunNotFound),
+            ManifestCompareLoadOutcome.BaseManifestNotFound => this.NotFoundProblem(
+                $"Run '{result.RunId}' does not have a committed golden manifest.",
+                ProblemTypes.ManifestNotFound),
+            ManifestCompareLoadOutcome.TargetManifestNotFound => this.NotFoundProblem(
+                $"Run '{result.RunId}' does not have a committed golden manifest.",
+                ProblemTypes.ManifestNotFound),
+            _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {result.Outcome}."),
+        };
     }
 }

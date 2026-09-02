@@ -16,6 +16,7 @@ import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageAct
 import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
 import { useReviewDetailLastVisited } from "@/hooks/use-review-detail-last-visited";
+import { useIncrementalReviewFindingsRefresh } from "@/hooks/use-incremental-review-findings-refresh";
 import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import {
   REVIEW_DETAIL_DEFAULT_TAB,
@@ -136,11 +137,12 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
       });
     }
 
-    return {
-      stage: "committed" as const,
-      visibleTabIds: Object.keys(REVIEW_DETAIL_TAB_LABELS) as ReviewDetailTabId[],
-      defaultTabId: REVIEW_DETAIL_DEFAULT_TAB,
-    };
+    const fallbackInput =
+      lifecycle === "in-review"
+        ? { manifestId: null, showProgressTracker: true, runCompleted: false }
+        : { manifestId: "fallback-manifest", showProgressTracker: false, runCompleted: false };
+
+    return resolveReviewWorkspaceVisibleTabs({ ...fallbackInput, lifecycle });
   }, [lifecycle, props.tabLifecycle]);
   const rawTabParam = searchParams.get(REVIEW_DETAIL_TAB_PARAM);
   const searchParamTab =
@@ -234,6 +236,13 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
 
   const counts = props.tabCounts ?? {};
   const inPipelineBanner = props.inPipelineBanner ?? null;
+  const pipelineInFlight =
+    props.tabLifecycle?.showProgressTracker === true && props.tabLifecycle.runCompleted !== true;
+
+  useIncrementalReviewFindingsRefresh({
+    runId: props.runId,
+    enabled: pipelineInFlight,
+  });
 
   return (
     <ReviewDetailWorkspaceTabContext.Provider value={{ navigateTab }}>
