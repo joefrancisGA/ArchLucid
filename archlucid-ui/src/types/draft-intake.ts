@@ -1,19 +1,14 @@
+import type { components } from "@/lib/openapi-schemas";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import type { ElicitationAnswerKind, ElicitationQuestionTier } from "@/types/policy-packs";
 
 /** Lifecycle state for a draft request (ADR 0048). */
-export type DraftRequestStatus =
-  | "Drafting"
-  | "Admitted"
-  | "Submitted"
-  | "RunSpawned"
-  | "Redirected"
-  | "Abandoned";
+export type DraftRequestStatus = components["schemas"]["DraftRequestStatus"];
 
-export type ActorKind = "Human" | "Machine" | "Both";
-export type TrustOrigin = "Internal" | "External" | "PublicAnonymous";
-export type InteractionContract = "Sync" | "AsyncBatch" | "Event" | "Streaming";
-export type ActorOrigin = "Asserted" | "Inferred";
+export type ActorKind = components["schemas"]["ActorKind"];
+export type TrustOrigin = components["schemas"]["TrustOrigin"];
+export type InteractionContract = components["schemas"]["InteractionContract"];
+export type ActorOrigin = components["schemas"]["ActorOrigin"];
 
 export type ActorDescriptor = {
   label?: string;
@@ -28,11 +23,7 @@ export type ActorSet = {
   actors: ActorDescriptor[];
 };
 
-export type DraftBranchOverrideKind =
-  | "QuestionAnswer"
-  | "BusinessOutcome"
-  | "FreeTextIntent"
-  | "SystemName";
+export type DraftBranchOverrideKind = components["schemas"]["DraftBranchOverrideKind"];
 
 export type DraftRequestDocument = {
   freeTextIntent: string;
@@ -61,11 +52,7 @@ export type DraftRequestDocument = {
   };
 };
 
-export type BranchDraftRequest = {
-  overrideKind: DraftBranchOverrideKind;
-  overrideKey?: string;
-  overrideValue: string;
-};
+export type BranchDraftRequest = components["schemas"]["BranchDraftRequest"];
 
 export type BranchDraftResponse = {
   parentDraftId: string;
@@ -73,14 +60,7 @@ export type BranchDraftResponse = {
   branch: DraftRequestResponse;
 };
 
-export type DraftBranchQuotaResponse = {
-  draftId: string;
-  existingBranchCount: number;
-  maxBranchesPerParent: number;
-  remainingBranches: number;
-  canBranch: boolean;
-  estimatedBranchRunCostUsd: number;
-};
+export type DraftBranchQuotaResponse = components["schemas"]["DraftBranchQuotaResponse"];
 
 export type DraftRequestSummary = {
   draftId: string;
@@ -162,3 +142,7 @@ export type DraftIntakeReasonResponse = {
   status: DraftRequestStatus;
   answer: string;
 };
+
+export type CreateDraftRequest = components["schemas"]["CreateDraftRequest"];
+export type PatchDraftRequest = components["schemas"]["PatchDraftRequest"];
+export type DraftIntakeReasonRequest = components["schemas"]["DraftIntakeReasonRequest"];

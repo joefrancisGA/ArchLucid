@@ -1,11 +1,10 @@
 using System.Data;
-using System.Security.Cryptography;
-using System.Text;
 
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Findings;
 
 namespace ArchLucid.Decisioning.Repositories;
 
@@ -21,7 +20,6 @@ namespace ArchLucid.Decisioning.Repositories;
 /// </remarks>
 public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 {
-    private const int MaxEntries = 500;
     private readonly Lock _lock = new();
 
     private readonly IScopeContextProvider? _scopeContextProvider;
@@ -50,13 +48,14 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         _ = ct;
         _ = connection;
         _ = transaction;
-        FindingsSnapshotMigrator.Apply(snapshot);
+        FindingsSnapshotRepositoryCore.PrepareSnapshotForSave(snapshot);
         string json = FindingsSerialization.SerializeSnapshot(snapshot);
-        ScopeContext? savedScope = CaptureScopeAtSave();
+        ScopeContext? savedScope = FindingsSnapshotRepositoryCore.CaptureScopeAtSave(_scopeContextProvider);
         lock (_lock)
         {
 
-            if (_store.Count >= MaxEntries && !_store.ContainsKey(snapshot.FindingsSnapshotId))
+            if (_store.Count >= FindingsSnapshotRepositoryCore.MaxInMemoryEntries
+                && !_store.ContainsKey(snapshot.FindingsSnapshotId))
             {
                 Guid evict = _store.Keys.First();
                 _store.Remove(evict);
@@ -89,7 +88,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         if (json is null)
             return Task.FromResult<FindingsSnapshot?>(null);
 
-        if (savedScope is not null && !ScopeMatches(savedScope, scope))
+        if (savedScope is not null && !FindingsSnapshotRepositoryCore.ScopeMatches(savedScope, scope))
             return Task.FromResult<FindingsSnapshot?>(null);
 
         FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json);
@@ -116,7 +115,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         if (json is null)
             return Task.FromResult<FindingsSnapshot?>(null);
 
-        if (savedScope is not null && !ScopeMatches(savedScope, scope))
+        if (savedScope is not null && !FindingsSnapshotRepositoryCore.ScopeMatches(savedScope, scope))
             return Task.FromResult<FindingsSnapshot?>(null);
 
         FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json);
@@ -161,7 +160,10 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
                 .Select(i =>
                 {
                     Finding f = snapshot.Findings[i];
-                    Guid recordId = StableFindingRecordId(findingsSnapshotId, i, f.FindingId);
+                    Guid recordId = FindingsSnapshotRepositoryCore.StableFindingRecordId(
+                        findingsSnapshotId,
+                        i,
+                        f.FindingId);
                     int? priorityRank = ResolvePriorityRank(findingsSnapshotId, f.FindingId);
 
                     return new FindingEnvelope(
@@ -171,9 +173,9 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
                         PriorityRank: priorityRank);
                 });
 
-        string? sev = NormalizeFilter(severity);
-        string? cat = NormalizeFilter(category);
-        string? ftype = NormalizeFilter(findingType);
+        string? sev = FindingsSnapshotRepositoryCore.NormalizeFilter(severity);
+        string? cat = FindingsSnapshotRepositoryCore.NormalizeFilter(category);
+        string? ftype = FindingsSnapshotRepositoryCore.NormalizeFilter(findingType);
 
         envelopes = envelopes.Where(e =>
         {
@@ -290,7 +292,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
             _scopeBySnapshotId.TryGetValue(findingsSnapshotId, out savedScope);
         }
 
-        if (savedScope is not null && !ScopeMatches(savedScope, scope))
+        if (savedScope is not null && !FindingsSnapshotRepositoryCore.ScopeMatches(savedScope, scope))
         {
             json = null;
             return false;
@@ -308,42 +310,4 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 
     /// <remarks>Stable surrogate key for deterministic in-memory paging (differs from SQL <c>NewGuid()</c> row ids).</remarks>
     private sealed record FindingEnvelope(int SortOrder, Guid RecordId, Finding Finding, int? PriorityRank);
-
-    /// <remarks>Matches SQL surrogate key stability for deterministic in-memory paging / tests.</remarks>
-    private static Guid StableFindingRecordId(Guid findingsSnapshotId, int sortOrder, string findingId)
-    {
-        byte[] utf8 = Encoding.UTF8.GetBytes($"{findingsSnapshotId:N}:{sortOrder}:{findingId}");
-        Span<byte> hash = stackalloc byte[32];
-
-        SHA256.HashData(utf8, hash);
-
-        return new Guid(hash[..16]);
-    }
-
-    private static string? NormalizeFilter(string? raw) =>
-        string.IsNullOrWhiteSpace(raw) ? null : raw.Trim();
-
-    private ScopeContext? CaptureScopeAtSave()
-    {
-        if (_scopeContextProvider is null)
-            return null;
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        if (scope.TenantId == Guid.Empty)
-            return null;
-
-        return scope;
-    }
-
-    private static bool ScopeMatches(ScopeContext saved, ScopeContext requested)
-    {
-        if (requested.TenantId == Guid.Empty)
-            return true;
-
-        return saved.TenantId == requested.TenantId
-               && saved.WorkspaceId == requested.WorkspaceId
-               && saved.ProjectId == requested.ProjectId;
-    }
 }
-
