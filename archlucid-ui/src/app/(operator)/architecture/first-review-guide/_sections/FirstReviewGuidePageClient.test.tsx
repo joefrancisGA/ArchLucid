@@ -106,6 +106,20 @@ describe("FirstReviewGuidePageClient", () => {
     expect(surface.className).not.toMatch(/mx-auto/);
   });
 
+  it("places the support panel beside the header in a two-column layout at lg+", () => {
+    mockUseFirstReviewGuideState.mockReturnValue(loadedGuideState);
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    const supportPanel = screen.getByTestId("first-review-guide-support-panel");
+    const header = screen.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE });
+    const layoutGrid = header.closest(".lg\\:grid-cols-\\[minmax\\(0\\,1fr\\)_minmax\\(260px\\,320px\\)\\]");
+
+    expect(layoutGrid).not.toBeNull();
+    expect(layoutGrid).toContainElement(header);
+    expect(layoutGrid).toContainElement(supportPanel);
+    expect(supportPanel).toHaveClass("lg:sticky", "lg:top-4");
+  });
+
   it("shows readiness, walkthrough, evaluation scope, and bounded start-review CTAs when loaded", () => {
     mockUseFirstReviewGuideState.mockReturnValue(loadedGuideState);
     render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
