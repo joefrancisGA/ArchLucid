@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace ArchLucid.ContextIngestion.Infrastructure;
@@ -10,6 +11,12 @@ internal static class BicepResourceBodyParser
     private static readonly Regex NestedBlockStartRegex = new(
         """
         ^\s*(?<block>[A-Za-z0-9_-]+)\s*:\s*\{
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ArrayAssignmentRegex = new(
+        """
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*\[
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -48,6 +55,27 @@ internal static class BicepResourceBodyParser
             if (line.Length == 0 || line.StartsWith("//", StringComparison.Ordinal))
             {
                 lineIndex++;
+                continue;
+            }
+
+            Match arrayMatch = ArrayAssignmentRegex.Match(line);
+
+            if (arrayMatch.Success)
+            {
+                string arrayKey = arrayMatch.Groups["key"].Value;
+                string fromHere = string.Join('\n', lines[lineIndex..]);
+                int bracketIndex = fromHere.IndexOf('[', StringComparison.Ordinal);
+                string arrayBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBracketBody(fromHere, bracketIndex);
+
+                if (!string.IsNullOrWhiteSpace(arrayBody)
+                    && BicepArrayLiteralConverter.TryParseToJsonElement(arrayBody, out JsonElement arrayElement))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(properties, arrayKey, arrayElement);
+                    MirrorSecurityArrayAlias(properties, arrayKey, arrayElement);
+                }
+
+                int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
+                lineIndex += consumedArrayLines;
                 continue;
             }
 
@@ -169,5 +197,22 @@ internal static class BicepResourceBodyParser
         }
 
         return string.IsNullOrWhiteSpace(line) && inBlockComment;
+    }
+
+    private static void MirrorSecurityArrayAlias(
+        Dictionary<string, string> properties,
+        string rawKey,
+        JsonElement arrayElement)
+    {
+        if (!CanonicalInfrastructurePropertyBag.IsSecurityPriorityProperty(rawKey))
+            return;
+
+        string sanitizedKey = CanonicalInfrastructurePropertyBag.SanitizePropertyKey(rawKey).ToLowerInvariant();
+        string tfKey = $"tf.{sanitizedKey}";
+
+        if (!properties.TryGetValue(tfKey, out string? serialized) || string.IsNullOrWhiteSpace(serialized))
+            return;
+
+        properties[rawKey] = serialized;
     }
 }

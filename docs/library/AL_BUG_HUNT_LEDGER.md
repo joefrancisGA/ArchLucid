@@ -1910,11 +1910,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 57
-- **bugs-found:** 117
+- **hunts:** 58
+- **bugs-found:** 119
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Bicep duplicate symbolic-name occurrence disambiguation
+- **last-bug:** 2026-09-02 — Bicep array properties leaked inner scalars; plain-text spaced prefix before colon
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2043,6 +2043,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper` / `InfrastructureDeclarationDeltaKey` / `CanonicalDeduplicator` with duplicate identical manifests — **hit 2026-08-26:** two Deployments with same kind/name shared `ObjectId`, collapsed connector delta keys, and deduped to one object; fixed with per-declaration `k8sOccurrence` suffix (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_DuplicateDeployments_EmitDistinctObjectIds`, `InfrastructureDeclarationConnectorTests.DeltaAsync_DuplicateKubernetesDeployments_CountsBothResources`, `CanonicalDeduplicatorTests.Deduplicate_KeepsDuplicateKubernetesManifestsWithOccurrence`).
 - [x] (proven) `CanonicalInfrastructurePropertyBag.MaxTfPropertyCount` dropped `ipSecurityRestrictions` before network expander — **hit 2026-08-26:** 24-property cap filled by scalar props before security JSON was copied; fixed by copying security-priority properties first and raising JSON length limit for those keys (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ManyScalarProperties_StillPreservesIpSecurityRestrictions`).
 - [x] (proven) `BicepResourceBodyParser` preserved inline `//` comments in scalar values — **hit 2026-08-27:** `publicNetworkAccess: 'Enabled' // primary region` vs un-commented value false-modified infrastructure declaration deltas; fixed with `StripTrailingSlashSlashComment` before unquoting (HCL `#` parity); regression in `BicepInfrastructureDeclarationParserTests.ParseAsync_InlineSlashSlashComment_DoesNotChangeTfPublicNetworkAccess` and `InfrastructureDeclarationConnectorTests.DeltaAsync_BicepInlineSlashSlashCommentChange_ReportsUnchanged`.
+
+- [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
+- [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
+
+2026-09-02 seed hunt #429: reseeded from exhausted zone files; proved Bicep array literal parsing and plain-text spaced-prefix extraction.
 
 - [x] (proven) `BicepInfrastructureDeclarationParser` duplicate symbolic resource names shared `ObjectId` / delta key — **hit 2026-09-02:** two `resource storage` blocks with different API versions collapsed in `InfrastructureDeclarationStableObjectIds` (terraform `terraformOccurrence` / K8s `k8sOccurrence` parity gap); fixed with per-declaration `bicepOccurrence` suffix (`BicepInfrastructureDeclarationParserTests.ParseAsync_DuplicateSymbolicNamesDifferentApiVersions_EmitDistinctObjectIds`).
 - [x] (proven) `PlainTextContextDocumentParser.CanonicalizeLineText` did not collapse internal whitespace on `REQ:`/`POL:`/`SEC:` lines — **hit 2026-09-02:** `REQ: Must  Encrypt` vs `REQ: Must Encrypt` churned document connector stable ids (`TOP:` path already used `TopologyHintStableObjectIds.CanonicalizeHintName`); fixed by canonicalizing all prefixed line types (`PlainTextContextDocumentParserTests.ParseAsync_RequirementInternalWhitespace_Reparse_ProducesStableObjectId`).
