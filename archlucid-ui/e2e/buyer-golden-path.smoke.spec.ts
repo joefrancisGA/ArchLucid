@@ -17,14 +17,14 @@ import {
   showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
 import { getAppMain } from "./helpers/app-main";
-import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
+import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface } from "./helpers/operator-journey";
 
 test.describe(
   "buyer golden path — Customer Intake spine",
   { tag: ["@founder", "@buyer-journey"] },
   () => {
 
-  test("walks five-step diligence spine and satellite surfaces without generic error @smoke @smoke-golden-path", async ({
+  test("walks four-step diligence spine and satellite surfaces without generic error @smoke @smoke-golden-path", async ({
     page,
   }) => {
     test.setTimeout(150_000);
@@ -63,13 +63,7 @@ test.describe(
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    // Step 4 — Governance decision record
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.governanceApproval);
-    await expect(governancePageMainHeading(page)).toBeVisible();
-    await expectBuyerGoldenJourneyStepper(page);
-    await expectNoGenericErrorBoundary(page);
-
-    // Step 5 — Audit trail
+    // Step 4 — Audit trail (includes recorded governance approval events)
     await page.goto(BUYER_GOLDEN_PATH_HREFS.auditTrail);
     await expect(page).toHaveURL(/\/audit\?runId=/);
     await expect(
