@@ -7,6 +7,11 @@ export const ITSM_OAUTH_CALLBACK_CANONICAL_PATH = "/integrations/itsm/oauth/call
 
 export const ITSM_OAUTH_CALLBACK_HELP_TOPIC_LABEL = "How Atlassian OAuth callback works" as const;
 
+export const ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING = "Scope of this callback" as const;
+
+export const ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE =
+  "This page finishes the Atlassian OAuth redirect and reports whether consent stored a refresh credential — it is not connector settings and does not display stored secrets.";
+
 export const ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const ITSM_OAUTH_CALLBACK_SOURCES_INTRO =
