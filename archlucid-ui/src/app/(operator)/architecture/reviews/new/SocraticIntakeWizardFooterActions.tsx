@@ -52,7 +52,7 @@ export function SocraticIntakeWizardFooterActions(
         <Button
           type="button"
           variant="primary"
-          disabled={!props.canReviewAnswers}
+          disabled={!props.canReviewAnswers || props.isSubmitBlocked}
           onClick={() => {
             if (props.isSubmitBlocked) {
               return;
