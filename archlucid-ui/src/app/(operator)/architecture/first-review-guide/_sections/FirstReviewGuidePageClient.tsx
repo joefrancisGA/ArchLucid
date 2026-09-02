@@ -303,7 +303,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
 
               {guide.headerActions.secondaryHref !== null ? (
 
-                <Button size="sm" variant="outline" asChild data-testid="first-review-guide-secondary">
+                <Button variant="outline" asChild data-testid="first-review-guide-secondary">
 
                   <Link href={guide.headerActions.secondaryHref}>{guide.headerActions.secondaryLabel}</Link>
 

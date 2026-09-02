@@ -17,7 +17,18 @@ import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 vi.mock("next/link", () => ({
-  default: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a>,
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: ReactNode;
+  } & Record<string, unknown>) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -139,6 +150,13 @@ describe("FirstReviewGuidePageClient", () => {
       "href",
       `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     );
+
+    const primaryAction = screen.getByTestId("first-review-guide-primary");
+    const secondaryAction = screen.getByTestId("first-review-guide-secondary");
+    expect(primaryAction).toHaveClass("h-9");
+    expect(secondaryAction).toHaveClass("h-9");
+    expect(secondaryAction).not.toHaveClass("h-7");
+
     expect(screen.queryByTestId("first-review-guide-next-action-card")).not.toBeInTheDocument();
     expect(screen.getByTestId("onboarding-optional-setup-section-stub")).toBeInTheDocument();
   });
