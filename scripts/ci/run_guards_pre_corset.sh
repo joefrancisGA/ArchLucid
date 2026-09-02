@@ -71,9 +71,14 @@ if [ "$rc" -gt 1 ]; then
   exit 1
 fi
 if [ "$rc" -eq 0 ]; then
-  echo "::error::ArchLucid rename guard: unexpected 'archiforge' references in .cs files:"
-  cat "${RUNNER_TEMP:-/tmp}/archiforge-cs-hits.txt"
-  exit 1
+  # CorePackageCoverageBatchRc27Tests must use the literal legacy vendor alias
+  # so MapToCanonical keeps accepting the pre-rename webhook event type.
+  HITS=$(grep -v "CorePackageCoverageBatchRc27Tests.cs" "${RUNNER_TEMP:-/tmp}/archiforge-cs-hits.txt" || true)
+  if [ -n "$HITS" ]; then
+    echo "::error::ArchLucid rename guard: unexpected 'archiforge' references in .cs files:"
+    echo "$HITS"
+    exit 1
+  fi
 fi
 
 set +e
