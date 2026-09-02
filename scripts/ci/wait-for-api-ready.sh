@@ -12,6 +12,9 @@ READY_WAIT_ATTEMPTS="${ARCHLUCID_API_READY_WAIT_ATTEMPTS:-180}"
 READY_WAIT_SLEEP_SECONDS="${ARCHLUCID_API_READY_WAIT_SLEEP_SECONDS:-2}"
 
 dump_api_ready_diagnostics() {
+  echo "---- GET ${API_URL}/health/live (last attempt) ----"
+  curl -sS "${API_URL}/health/live" || true
+  echo ""
   echo "---- GET ${API_URL}/health/ready (last attempt) ----"
   curl -sS "${API_URL}/health/ready" || true
   echo ""

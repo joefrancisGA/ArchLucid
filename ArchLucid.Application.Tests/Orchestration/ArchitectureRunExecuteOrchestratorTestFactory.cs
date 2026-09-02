@@ -74,8 +74,7 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
         IArchLucidUnitOfWorkFactory unitOfWorkFactory =
             args.UnitOfWorkFactory ?? ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory();
 
-        IArchitectureRunExecutePersistenceStage persistenceStage = new ArchitectureRunExecutePersistenceStage(
-            unitOfWorkFactory,
+        IArchitectureRunExecutePersistRowsStage persistRowsStage = new ArchitectureRunExecutePersistRowsStage(
             scopeContextProvider,
             args.AgentEvidencePackageRepository ?? Mock.Of<IAgentEvidencePackageRepository>(),
             resultRepository,
@@ -83,15 +82,23 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             runRepository,
             effectiveModeAccessor);
 
-        IArchitectureRunExecuteQualityGateStage qualityGateStage = new ArchitectureRunExecuteQualityGateStage(
+        IArchitectureRunExecutePersistenceStage persistenceStage = new ArchitectureRunExecutePersistenceStage(
+            unitOfWorkFactory,
+            persistRowsStage);
+
+        IArchitectureRunExecuteQualityGateRetryStage qualityGateRetryStage = new ArchitectureRunExecuteQualityGateRetryStage(
             args.AgentOutputQualityGateOptions ?? Options.Create(new AgentOutputQualityGateOptions()),
-            args.OutputTraceEvaluationHook ?? Mock.Of<IAgentOutputTraceEvaluationHook>(),
             agentExecutor,
             args.AgentResultPostExecutionEnricher ?? new NoOpAgentResultPostExecutionEnricher(),
             resultRepository,
             scopeContextProvider,
+            persistRowsStage);
+
+        IArchitectureRunExecuteQualityGateStage qualityGateStage = new ArchitectureRunExecuteQualityGateStage(
+            args.AgentOutputQualityGateOptions ?? Options.Create(new AgentOutputQualityGateOptions()),
+            args.OutputTraceEvaluationHook ?? Mock.Of<IAgentOutputTraceEvaluationHook>(),
             postExecuteHooks,
-            persistenceStage,
+            qualityGateRetryStage,
             NullLogger<ArchitectureRunExecuteQualityGateStage>.Instance);
 
         IArchitectureRunExecuteFailureRecorder failureRecorder = new ArchitectureRunExecuteFailureRecorder(
@@ -100,18 +107,30 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             runStateTransitionService,
             NullLogger<ArchitectureRunExecuteFailureRecorder>.Instance);
 
-        IArchitectureRunExecutePreExecuteStage preExecuteStage = new ArchitectureRunExecutePreExecuteStage(
+        IArchitectureRunExecuteIdempotencyStage idempotencyStage = new ArchitectureRunExecuteIdempotencyStage(
             scopeContextProvider,
             runRepository,
             taskRepository,
             resultRepository,
             runStateTransitionService,
             args.OperationCancellationRegistry ?? new OperationCancellationRegistry(),
-            args.RunCancellationMarker ?? new OperationRunCancellationMarker(runRepository),
             effectiveModeAccessor,
             args.ActorContext ?? Mock.Of<IActorContext>(),
             postExecuteHooks,
-            NullLogger<ArchitectureRunExecutePreExecuteStage>.Instance);
+            NullLogger<ArchitectureRunExecuteIdempotencyStage>.Instance);
+
+        IArchitectureRunExecuteCancellationGuardStage cancellationGuardStage =
+            new ArchitectureRunExecuteCancellationGuardStage(
+                scopeContextProvider,
+                runRepository,
+                args.OperationCancellationRegistry ?? new OperationCancellationRegistry(),
+                args.RunCancellationMarker ?? new OperationRunCancellationMarker(runRepository));
+
+        IArchitectureRunExecutePreExecuteStage preExecuteStage = new ArchitectureRunExecutePreExecuteStage(
+            scopeContextProvider,
+            runRepository,
+            idempotencyStage,
+            cancellationGuardStage);
 
         IAgentLoopPrepareStage prepareStage = new AgentLoopPrepareStage(
             requestRepository,

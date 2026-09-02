@@ -65,7 +65,7 @@ public sealed class DemoSeedRetailBaselineSeeder: IDemoSeedScenarioSeeder
         {
             RequestId = demo.RequestId,
             Description = "Retail modernization — migrate monolith checkout to Azure with PCI-aware boundaries.",
-            SystemName = "Retail Checkout Platform",
+            SystemName = RetailBaselineWorkspaceSeed.SystemName,
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
             Constraints = ["Minimize public ingress", "Retain existing payment processor integration"]
@@ -127,7 +127,7 @@ public sealed class DemoSeedRetailBaselineSeeder: IDemoSeedScenarioSeeder
             WorkspaceId = scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
             RunId = authorityRunId,
-            ProjectId = "Retail Checkout Platform",
+            ProjectId = RetailBaselineWorkspaceSeed.SystemName,
             Description =
                 isHardened
                     ? "Demo — Retail hardened manifest (trusted baseline seed)."
@@ -140,14 +140,14 @@ public sealed class DemoSeedRetailBaselineSeeder: IDemoSeedScenarioSeeder
         await _deps.RunRepository.SaveAsync(authorityRow, cancellationToken);
         await EnsureTopologyAgentArtifactsAsync(scope, runId, taskId, resultId, isHardened, cancellationToken);
         bool richSeed = DemoSeedSeederSupport.IsVerticalDemoSeedDepth(_deps.DemoOptions.CurrentValue.SeedDepth);
-        GoldenManifest manifest = BuildManifest(runId, manifestVersion, isHardened, richSeed);
+        GoldenManifest manifest = RetailBaselineWorkspaceSeed.BuildManifest(runId, manifestVersion, isHardened, richSeed);
         AuthorityChainKeying chainKeying = new(AuthorityDemoChainIds.Manifest(authorityRunId), AuthorityDemoChainIds.ContextSnapshot(authorityRunId),
             AuthorityDemoChainIds.GraphSnapshot(authorityRunId), AuthorityDemoChainIds.FindingsSnapshot(authorityRunId),
             AuthorityDemoChainIds.DecisionTrace(authorityRunId));
         AuthorityManifestPersistResult authorityChain = await _deps.AuthorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, authorityRunId,
-            "Retail Checkout Platform", manifest, chainKeying, DemoSeedSeederSupport.DemoUtc, richSeed, cancellationToken);
+            RetailBaselineWorkspaceSeed.SystemName, manifest, chainKeying, DemoSeedSeederSupport.DemoUtc, richSeed, cancellationToken);
         await AuthorityCommittedChainDurableAudit.TryLogAsync(_deps.AuditService, _deps.ScopeContextProvider, _deps.ActorContext, _deps.Logger, authorityRunId,
-            "Retail Checkout Platform", authorityChain, "demo-seed", richSeed, cancellationToken);
+            RetailBaselineWorkspaceSeed.SystemName, authorityChain, "demo-seed", richSeed, cancellationToken);
         // Decision-trace persistence happens inside PersistCommittedChainAsync above (AuthorityDecisionTrace
         // FK-chain row keyed by chainKeying.DecisionTraceId). The legacy second write to dbo.DecisionTraces
         // via ICoordinatorDecisionTraceRepository was removed in ADR 0030 PR A3 (2026-04-24) along with the
@@ -232,132 +232,6 @@ public sealed class DemoSeedRetailBaselineSeeder: IDemoSeedScenarioSeeder
 
         await _deps.ResultRepository.CreateAsync(result, cancellationToken);
     }
-
-
-    private static GoldenManifest BuildManifest(string runId, string manifestVersion, bool isHardened, bool richSeed)
-    {
-        ManifestGovernance gov = isHardened
-            ? new ManifestGovernance
-            {
-                ComplianceTags = ["PCI-DSS", "SOC2"],
-                PolicyConstraints = ["No public SQL endpoints", "Secrets in Key Vault only"],
-                RequiredControls = ["WAF", "PrivateLink", "DefenderForCloud"],
-                RiskClassification = "Moderate",
-                CostClassification = "Moderate"
-            }
-            : new ManifestGovernance
-            {
-                ComplianceTags = ["PCI-DSS"],
-                PolicyConstraints = ["HTTPS only"],
-                RequiredControls = ["TLS-1.2"],
-                RiskClassification = "High",
-                CostClassification = "Low"
-            };
-        // ADR 0030 owner Decision B (2026-04-23): quickstart writes one-of-each minimum (single
-        // service + datastore + relationship); vertical writes the production-realistic depth
-        // (multiple services + datastore + relationships including a service-to-service edge).
-        string checkoutServiceId = isHardened ? "svc-checkout-api-v2" : "svc-checkout-api-v1";
-        string ordersDatastoreId = isHardened ? "ds-orders-v2" : "ds-orders-v1";
-        List<ManifestService> services =
-        [
-            new()
-            {
-                ServiceId = checkoutServiceId,
-                ServiceName = "Checkout API",
-                ServiceType = ServiceType.Api,
-                RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService,
-                Purpose = "Orchestrates cart and payment initiation.",
-                Tags = isHardened ? ["edge-hardened"] : ["legacy-monolith"],
-                RequiredControls = isHardened ? ["WAF", "ManagedIdentity"] : ["BasicAuthOff"]
-            }
-        ];
-        List<ManifestDatastore> datastores =
-        [
-            new()
-            {
-                DatastoreId = ordersDatastoreId,
-                DatastoreName = "Orders DB",
-                DatastoreType = DatastoreType.Sql,
-                RuntimePlatform = RuntimePlatform.SqlServer,
-                Purpose = "Order and payment state."
-            }
-        ];
-        List<ManifestRelationship> relationships =
-        [
-            new()
-            {
-                RelationshipId = $"rel-{checkoutServiceId}-writes-{ordersDatastoreId}",
-                SourceId = checkoutServiceId,
-                TargetId = ordersDatastoreId,
-                RelationshipType = RelationshipType.WritesTo,
-                Description = "Checkout API persists order and payment state."
-            }
-        ];
-
-        if (!richSeed)
-            return new GoldenManifest
-            {
-                RunId = runId,
-                SystemName = "Retail Checkout Platform",
-                Services = services,
-                Datastores = datastores,
-                Relationships = relationships,
-                Governance = gov,
-                Metadata = new ManifestMetadata
-                {
-                    ManifestVersion = manifestVersion,
-                    ParentManifestVersion = null,
-                    ChangeDescription = isHardened ? "Hardened retail posture" : "Baseline lift-and-shift",
-                    DecisionTraceIds = [],
-                    CreatedUtc = DemoSeedSeederSupport.DemoUtc
-                }
-            };
-        string paymentServiceId = isHardened ? "svc-payment-gateway-v2" : "svc-payment-gateway-v1";
-        services.Add(new ManifestService
-        {
-            ServiceId = paymentServiceId,
-            ServiceName = "Payment Gateway",
-            ServiceType = ServiceType.Api,
-            RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService,
-            Purpose = "Tokenizes card data and brokers payment provider calls.",
-            Tags = isHardened ? ["edge-hardened", "pci-scope"] : ["pci-scope"],
-            RequiredControls = isHardened ? ["WAF", "ManagedIdentity", "PrivateLink"] : ["TLS-1.2"]
-        });
-        relationships.Add(new ManifestRelationship
-        {
-            RelationshipId = $"rel-{checkoutServiceId}-calls-{paymentServiceId}",
-            SourceId = checkoutServiceId,
-            TargetId = paymentServiceId,
-            RelationshipType = RelationshipType.Calls,
-            Description = "Checkout API invokes the Payment Gateway during order finalization."
-        });
-        relationships.Add(new ManifestRelationship
-        {
-            RelationshipId = $"rel-{paymentServiceId}-reads-{ordersDatastoreId}",
-            SourceId = paymentServiceId,
-            TargetId = ordersDatastoreId,
-            RelationshipType = RelationshipType.ReadsFrom,
-            Description = "Payment Gateway reads order context for reconciliation."
-        });
-        return new GoldenManifest
-        {
-            RunId = runId,
-            SystemName = "Retail Checkout Platform",
-            Services = services,
-            Datastores = datastores,
-            Relationships = relationships,
-            Governance = gov,
-            Metadata = new ManifestMetadata
-            {
-                ManifestVersion = manifestVersion,
-                ParentManifestVersion = null,
-                ChangeDescription = isHardened ? "Hardened retail posture" : "Baseline lift-and-shift",
-                DecisionTraceIds = [],
-                CreatedUtc = DemoSeedSeederSupport.DemoUtc
-            }
-        };
-    }
-
 
     /// <summary>
     ///     Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no

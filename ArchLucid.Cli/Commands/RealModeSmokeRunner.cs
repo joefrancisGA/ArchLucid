@@ -35,13 +35,15 @@ public sealed class RealModeSmokeRunner(HttpClient http)
         string? finalStatus = null;
         long totalTokens = 0;
 
-        RealModeSmokeStepResult healthLive = await HealthAsync("health-live", "/health/live", ct);
+        RealModeSmokeHealthProbe healthProbe = new(_http);
+
+        RealModeSmokeStepResult healthLive = await healthProbe.ProbeLiveAsync(ct);
         steps.Add(healthLive);
 
         if (!healthLive.Passed)
             return BuildReport(steps, runId, correlationId, finalStatus, totalTokens);
 
-        RealModeSmokeStepResult healthReady = await HealthAsync("health-ready", "/health/ready", ct);
+        RealModeSmokeStepResult healthReady = await healthProbe.ProbeReadyAsync(ct);
         steps.Add(healthReady);
 
         if (!healthReady.Passed)
@@ -113,42 +115,6 @@ public sealed class RealModeSmokeRunner(HttpClient http)
             FinalRunStatus = finalStatus,
             TotalLlmTokens = totalTokens
         };
-    }
-
-    private async Task<RealModeSmokeStepResult> HealthAsync(string stepName, string path, CancellationToken ct)
-    {
-        try
-        {
-            using HttpResponseMessage response = await _http.GetAsync(path, ct);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return new RealModeSmokeStepResult
-                {
-                    Name = stepName,
-                    Passed = true,
-                    Detail = $"GET {path} → {(int)response.StatusCode}."
-                };
-            }
-
-            return new RealModeSmokeStepResult
-            {
-                Name = stepName,
-                Passed = false,
-                Detail = $"GET {path} → {(int)response.StatusCode}.",
-                FailureHint = "Confirm the API host is reachable and auth headers are valid."
-            };
-        }
-        catch (Exception ex)
-        {
-            return new RealModeSmokeStepResult
-            {
-                Name = stepName,
-                Passed = false,
-                Detail = $"GET {path} failed: {ex.Message}",
-                FailureHint = "Network or TLS failure reaching the API host."
-            };
-        }
     }
 
     private async Task<(RealModeSmokeStepResult Step, string? RunId, string? CorrelationId)> CreateRunAsync(

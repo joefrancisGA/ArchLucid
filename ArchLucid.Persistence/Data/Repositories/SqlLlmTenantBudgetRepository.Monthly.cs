@@ -167,7 +167,13 @@ public sealed partial class SqlLlmTenantBudgetRepository
         if (current is null || !current.RowVersion.AsSpan().SequenceEqual(expectedRowVersion))
             return new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
 
-        return current.TotalUsdPressure + addUsd > hardCap ? new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = current } : new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
+        return LlmTenantBudgetPeriodCore.IsMonthlyHardCapBlocked(
+            current.CommittedUsd,
+            current.ReservedUsd,
+            addUsd,
+            hardCap)
+            ? new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = current }
+            : new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
     }
 
     private async Task<LlmTenantBudgetSettleResult> SettleMonthlyAsync(

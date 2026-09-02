@@ -1,99 +1,91 @@
-import type { LearningProfile } from "@/types/recommendation-learning";
+import type { components } from "@/lib/openapi-schemas";
 
 export const RECOMMENDATION_LEARNING_CANONICAL_PATH = "/internal/recommendation-learning";
 
-export type RecommendationLearningProfileState = "NotBuilt" | "InsufficientData" | "Active";
+export type RecommendationLearningProfileState = components["schemas"]["RecommendationLearningProfileState"];
 
-export type RecommendationLearningOutcomeEligibility = {
-  accepted: number;
-  rejected: number;
-  deferred: number;
-  implemented: number;
-  proposedExcluded: number;
-  truncatedByBatchCap: number;
-};
+export type RecommendationLearningOutcomeEligibility =
+  components["schemas"]["RecommendationLearningOutcomeEligibilityBreakdown"];
 
-export type RecommendationLearningProfileMetadata = {
-  profileId: string;
-  generatedUtc: string;
-  outcomeCount: number;
-  algorithmVersion: string;
-  profileChecksum: string;
-  status: string;
-  scopeLabel: string;
-  featureSchemaVersion: string;
-  createdBy?: string | null;
-  buildSource: string;
-  lastActivatedUtc?: string | null;
-  eligibleOutcomeCount: number;
-  excludedOutcomeCount: number;
-  sourceDataStartUtc?: string | null;
-  sourceDataEndUtc?: string | null;
-  buildDurationMs?: number | null;
-  storageLocation: string;
-  lastValidationResult?: string | null;
-};
+type RecommendationLearningProfileMetadataSchema =
+  components["schemas"]["RecommendationLearningProfileMetadataResponse"];
 
-export type RecommendationLearningOperationalStatus = {
-  tenantId: string;
-  workspaceId: string;
-  projectId: string;
-  environmentName: string;
-  scopeLabel: string;
-  profileState: RecommendationLearningProfileState;
-  eligibleOutcomeCount: number;
-  proposedOutcomeCount: number;
-  minimumRequiredOutcomes: number;
-  rebuildBatchCap: number;
-  oldestEligibleOutcomeUtc?: string | null;
-  newestEligibleOutcomeUtc?: string | null;
-  lastAttemptedBuildUtc?: string | null;
-  lastBuildResult?: string | null;
-  blockingReason?: string | null;
-  activeProfile?: RecommendationLearningProfileMetadata | null;
-  eligibility: RecommendationLearningOutcomeEligibility;
-};
+export type RecommendationLearningProfileMetadata = RecommendationLearningProfileMetadataSchema &
+  Required<
+    Pick<
+      RecommendationLearningProfileMetadataSchema,
+      | "profileId"
+      | "generatedUtc"
+      | "outcomeCount"
+      | "algorithmVersion"
+      | "profileChecksum"
+      | "status"
+      | "scopeLabel"
+      | "featureSchemaVersion"
+      | "buildSource"
+      | "eligibleOutcomeCount"
+      | "excludedOutcomeCount"
+      | "storageLocation"
+    >
+  >;
 
-export type RecommendationLearningValidationCheck = {
-  name: string;
-  result: string;
-  detail: string;
-};
+type RecommendationLearningOperationalStatusSchema =
+  components["schemas"]["RecommendationLearningOperationalStatusResponse"];
 
-export type RecommendationLearningWeightDelta = {
-  featureGroup: string;
-  feature: string;
-  currentWeight: number;
-  proposedWeight: number;
-  absoluteDelta: number;
-  percentageDelta: number;
-  observationCount: number;
-  confidence: number;
-  fallbackUsed: boolean;
-};
+export type RecommendationLearningOperationalStatus = Omit<
+  RecommendationLearningOperationalStatusSchema,
+  "eligibility" | "activeProfile"
+> &
+  Required<
+    Pick<
+      RecommendationLearningOperationalStatusSchema,
+      | "tenantId"
+      | "workspaceId"
+      | "projectId"
+      | "environmentName"
+      | "scopeLabel"
+      | "profileState"
+      | "eligibleOutcomeCount"
+      | "proposedOutcomeCount"
+      | "minimumRequiredOutcomes"
+      | "rebuildBatchCap"
+    >
+  > & {
+    eligibility: RecommendationLearningOutcomeEligibility;
+    activeProfile?: RecommendationLearningProfileMetadata | null;
+  };
 
-export type RecommendationLearningPreview = {
-  proposedProfile: LearningProfile;
-  weightDeltas: RecommendationLearningWeightDelta[];
-  validationChecks: RecommendationLearningValidationCheck[];
-  sourceRecordCount: number;
-  eligibleRecordCount: number;
-  sourceDataStartUtc?: string | null;
-  sourceDataEndUtc?: string | null;
-  buildDurationMs: number;
-  correlationId: string;
-};
+export type RecommendationLearningValidationCheck =
+  components["schemas"]["RecommendationLearningValidationCheck"];
 
-export type RecommendationLearningProfileHistoryItem = {
-  profileId: string;
-  generatedUtc: string;
-  outcomeCount: number;
-  algorithmVersion: string;
-  profileChecksum: string;
-  isActive: boolean;
-};
+export type RecommendationLearningWeightDelta = components["schemas"]["RecommendationLearningWeightDelta"];
 
-export type RecommendationLearningRollbackRequest = {
-  profileId: string;
-  reason: string;
-};
+export type LearningProfile = components["schemas"]["RecommendationLearningProfile"];
+
+type RecommendationLearningPreviewSchema = components["schemas"]["RecommendationLearningPreviewResponse"];
+
+export type RecommendationLearningPreview = Omit<
+  RecommendationLearningPreviewSchema,
+  "proposedProfile" | "weightDeltas" | "validationChecks"
+> &
+  Required<
+    Pick<
+      RecommendationLearningPreviewSchema,
+      | "sourceRecordCount"
+      | "eligibleRecordCount"
+      | "buildDurationMs"
+      | "correlationId"
+    >
+  > & {
+    proposedProfile: LearningProfile;
+    weightDeltas: RecommendationLearningWeightDelta[];
+    validationChecks: RecommendationLearningValidationCheck[];
+  };
+
+export type RecommendationLearningProfileHistoryItem =
+  components["schemas"]["RecommendationLearningProfileHistoryItem"];
+
+export type RecommendationLearningRollbackRequest =
+  components["schemas"]["RecommendationLearningRollbackRequest"];
+
+export type RecommendationLearningOpsPageResponse = components["schemas"]["RecommendationLearningOpsPageResponse"];

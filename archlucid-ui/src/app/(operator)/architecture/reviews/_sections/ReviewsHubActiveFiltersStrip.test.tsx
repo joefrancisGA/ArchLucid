@@ -16,7 +16,11 @@ describe("ReviewsHubActiveFiltersStrip", () => {
     );
 
     expect(screen.getByTestId("reviews-hub-active-filters-strip")).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("reviews-hub-active-filters-clear"));
+
+    const clear = screen.getByTestId("reviews-hub-active-filters-clear");
+
+    expect(clear).toHaveClass("border-neutral-300");
+    fireEvent.click(clear);
     expect(onClear).toHaveBeenCalledTimes(1);
   });
 

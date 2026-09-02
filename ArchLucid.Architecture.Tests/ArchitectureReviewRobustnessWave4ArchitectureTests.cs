@@ -76,6 +76,12 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
             .Should()
             .BeTrue();
 
+        string migration342 = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations", "342_RunPolicyPackPin.sql"));
+
+        migration342.Should().Contain("@runTable");
+        migration342.Should().NotMatchRegex(@"(?m)^\s*ALTER\s+TABLE\s+dbo\.Runs\b");
+
         string pinService = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
 
