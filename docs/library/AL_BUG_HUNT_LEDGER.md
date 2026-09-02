@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 108
-- **bugs-found:** 220
+- **hunts:** 109
+- **bugs-found:** 221
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Azure retail SKU collapsed prefix collision matched D48 to D4
+- **last-bug:** 2026-09-02 — Marketplace planId slash/colon enterprise token not recognized
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2153,6 +2153,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureRetailPricesCatalogClient.RowMatchesCollapsed` — collapsed SKU `StartsWith`/`Contains` prefix collision — **hit 2026-09-02 (#525):** `Standard_D4` matched retail row `Standard_D48s_v5` after underscore collapse (`StandardD4` prefix of `StandardD48sv5`) and picked the wrong Azure retail price; fixed with boundary-aware `HasCollapsedSkuPrefix` / `CollapsedSkuContains` (`RowMatchesSku_rejects_d4_series_prefix_collision_against_d48`).
 
 2026-09-02 seed hunt #525: reseeded from ArchLucid.Core Azure retail SKU matchers; proved collapsed SKU prefix collision (parity with GCP #522 machine-type fix).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — slash/colon-delimited `enterprise` token not recognized — **hit 2026-09-02 (#526):** `contoso/enterprise/monthly` and `contoso:enterprise:annual` returned `Standard` because `IsPlanIdDelimiter` omitted `/` and `:` after #521 delimiter-token fix; fixed by extending delimiters (`TierStorageCodeFromPlanId_maps_slash_or_colon_delimited_enterprise_token`).
+
+2026-09-02 seed hunt #526: reseeded from ArchLucid.Core marketplace webhook parser; proved slash/colon planId enterprise token gap beyond #521 delimiter fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
