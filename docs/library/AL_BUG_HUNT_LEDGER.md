@@ -1780,11 +1780,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 85
-- **bugs-found:** 197
+- **hunts:** 86
+- **bugs-found:** 198
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AwsEc2/GCP case-sensitive attributes/skus lookup
+- **last-bug:** 2026-09-02 — AwsEc2 case-sensitive root products/terms/OnDemand lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2053,6 +2053,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AwsEc2OfferIndexParser` / `GcpCloudBillingCatalogClient` — case-sensitive `attributes` / `skus` JSON property names — **hit 2026-09-02 (#498):** PascalCase `"Attributes"` and `"Skus"` skipped hourly SKUs while canonical casing matched; fixed with case-insensitive property lookup (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_attributes_property`, `TryGetComputeEngineMonthlyUsdAsync_parses_pascal_case_skus_root_property`).
 
 2026-09-02 seed hunt #498: reseeded from ArchLucid.Core costing parsers; proved case-sensitive attributes/skus property lookup after #496 priceDimensions/pricingInfo casing fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser` — case-sensitive root `products` / `terms` / `OnDemand` JSON property names — **hit 2026-09-02 (#499):** PascalCase `"Products"` / `"Terms"` and lowercase `"ondemand"` skipped the entire offer index while canonical casing matched; fixed with case-insensitive root property lookup (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_root_offer_properties`).
+
+2026-09-02 seed hunt #499: reseeded from ArchLucid.Core costing parsers; proved case-sensitive root offer-index property lookup after #498 attributes/skus casing fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

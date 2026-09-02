@@ -13,13 +13,13 @@ public static class AwsEc2OfferIndexParser
 
         using JsonDocument document = JsonDocument.Parse(offerJson);
 
-        if (!document.RootElement.TryGetProperty("products", out JsonElement products))
+        if (!TryGetPropertyCaseInsensitive(document.RootElement, "products", out JsonElement products))
             return null;
 
-        if (!document.RootElement.TryGetProperty("terms", out JsonElement terms))
+        if (!TryGetPropertyCaseInsensitive(document.RootElement, "terms", out JsonElement terms))
             return null;
 
-        if (!terms.TryGetProperty("OnDemand", out JsonElement onDemandRoot))
+        if (!TryGetPropertyCaseInsensitive(terms, "OnDemand", out JsonElement onDemandRoot))
             return null;
 
         string normalizedInstance = instanceType.Trim();

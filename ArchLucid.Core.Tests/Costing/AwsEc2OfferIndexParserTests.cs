@@ -524,4 +524,41 @@ public sealed class AwsEc2OfferIndexParserTests
 
         hourly.Should().Be(0.0104m);
     }
+
+    [Fact]
+    public void TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_root_offer_properties()
+    {
+        const string sample = """
+            {
+              "Products": {
+                "ABC": {
+                  "attributes": {
+                    "instanceType": "t3.micro",
+                    "operatingSystem": "Linux",
+                    "tenancy": "Shared",
+                    "preInstalledSw": "NA"
+                  }
+                }
+              },
+              "Terms": {
+                "ondemand": {
+                  "ABC": {
+                    "ABCTERM": {
+                      "priceDimensions": {
+                        "ABCDIM": {
+                          "unit": "Hrs",
+                          "pricePerUnit": { "USD": "0.0104" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """;
+
+        decimal? hourly = AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd(sample, "t3.micro");
+
+        hourly.Should().Be(0.0104m);
+    }
 }
