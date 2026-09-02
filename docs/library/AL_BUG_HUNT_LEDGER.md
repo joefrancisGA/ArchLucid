@@ -1780,11 +1780,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 88
-- **bugs-found:** 200
+- **hunts:** 89
+- **bugs-found:** 201
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — GCP billing catalog omitted zero nanos property
+- **last-bug:** 2026-09-02 — AWS offer index OnDemand product key casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2065,6 +2065,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — omitted zero `nanos` property rejected units-only `unitPrice` — **hit 2026-09-02 (#501):** `"unitPrice": { "units": 1 }` returned null while explicit `"nanos": 0` parsed after #500 units default; fixed by defaulting missing nanos to zero (`TryGetComputeEngineMonthlyUsdAsync_parses_unit_price_with_omitted_zero_nanos`).
 
 2026-09-02 seed hunt #501: reseeded from ArchLucid.Core costing parsers; proved GCP unitPrice omitted-zero-nanos gap (symmetric to #500 omitted-zero-units fix).
+
+- [x] (proven) `AwsEc2OfferIndexParser` — case-sensitive OnDemand product SKU key lookup — **hit 2026-09-02 (#502):** `products` key `"ABC"` with `OnDemand` key `"abc"` returned null while matching casing parsed; fixed with case-insensitive OnDemand product key lookup (`TryGetLinuxOnDemandHourlyUsd_parses_mismatched_on_demand_product_key_casing`).
+
+2026-09-02 seed hunt #502: reseeded from ArchLucid.Core costing parsers; proved AWS OnDemand product-key casing gap after #501 GCP omitted-zero-nanos fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

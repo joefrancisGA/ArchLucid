@@ -55,7 +55,7 @@ public static class AwsEc2OfferIndexParser
                 continue;
             }
 
-            if (!onDemandRoot.TryGetProperty(productEntry.Name, out JsonElement skuTerms))
+            if (!TryGetPropertyCaseInsensitive(onDemandRoot, productEntry.Name, out JsonElement skuTerms))
                 continue;
 
             foreach (JsonProperty skuTerm in skuTerms.EnumerateObject())
