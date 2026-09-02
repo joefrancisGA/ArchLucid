@@ -149,7 +149,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     : null;
 
   return (
-    <section className="mt-4" data-testid="reviews-hub-recent-packages">
+    <section data-testid="reviews-hub-recent-packages">
       {rows.length === 0 ? (
         <div className="space-y-4">
           <ReviewsHubSummaryRow summary={props.summary} />
