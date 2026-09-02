@@ -40,6 +40,9 @@ import {
   resolveEffectiveFindingJobView,
 } from "@/lib/findings/finding-job-view";
 import {
+  EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+} from "@/lib/findings/findings-natural-language-filter";
+import {
   computeGovernanceFindingsRegisterSummary,
   deriveGovernanceFindingsActiveFiltersSummary,
   extractGovernanceFindingIds,
@@ -175,6 +178,30 @@ export default function GovernanceFindingsQueueClient({
     clearFacetFilters();
     router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
   }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
+
+  const dismissActiveFilterChip = useCallback(
+    (chipId: string): void => {
+      if (chipId === "search-query") {
+        router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
+        return;
+      }
+
+      if (chipId.startsWith("register-")) {
+        setRegisterFilter("all");
+        return;
+      }
+
+      if (chipId.startsWith("job-view-")) {
+        setJobView(DEFAULT_FINDING_JOB_VIEW);
+        return;
+      }
+
+      if (chipId === "nl-facets") {
+        setNlFacets(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
+      }
+    },
+    [mode, navHref, router, searchParams, setJobView, setNlFacets, setRegisterFilter],
+  );
 
   const onPickReviewForTriage = useCallback(
     (reviewId: string) => {
@@ -355,6 +382,7 @@ export default function GovernanceFindingsQueueClient({
         onNaturalLanguageFilterApply={setNlFacets}
         nlFacets={nlFacets}
         onClearAllFilters={clearAllFilters}
+        onDismissActiveFilterChip={dismissActiveFilterChip}
         onLoadFindingsSavedView={onLoadFindingsSavedView}
         loading={loading}
         rows={rows}

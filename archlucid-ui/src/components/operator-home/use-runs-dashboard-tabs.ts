@@ -111,10 +111,15 @@ export function useRunsDashboardTabs({
   const archivedFilterDisabled = !archivedFieldSupported || archivedCount === 0;
 
   useEffect(() => {
+    // Counts are unknown until the list paints; keep `?archived=1` during first load.
+    if (phase !== "ready" && phase !== "error") {
+      return;
+    }
+
     if (archivedFilterDisabled && showArchived) {
       setShowArchived(false);
     }
-  }, [archivedFilterDisabled, showArchived]);
+  }, [archivedFilterDisabled, phase, showArchived]);
 
   const filteredItems = useMemo(() => {
     let rows = displayItems;
@@ -188,7 +193,12 @@ export function useRunsDashboardTabs({
     }
   }, [effectiveItems, loadedTotalCount, phase, reportWorkspaceReviews]);
 
-  const openAllReviewsHref = resolveRunsDashboardOpenAllReviewsHref(projectId);
+  const openAllReviewsHref = resolveRunsDashboardOpenAllReviewsHref({
+    projectId,
+    tab,
+    showArchived,
+    governanceWarningsOnly,
+  });
   const statusTabIds = resolveRunsDashboardStatusTabIds(buyerPolishedShell, statusTabCounts);
   const isRecentListTab = resolveRunsDashboardRecentListTab(tab, buyerPolishedShell);
 
@@ -243,6 +253,10 @@ export function useRunsDashboardTabs({
     setGovernanceWarningsOnlyWithUrl(false);
   }, [setGovernanceWarningsOnlyWithUrl]);
 
+  const clearStatusFilter = useCallback(() => {
+    selectDashboardTab("all");
+  }, [selectDashboardTab]);
+
   const handleRestoreArchivedRequest = useCallback(
     async (requestId: string) => {
       await restoreArchivedRequest(requestId, () => {
@@ -287,5 +301,6 @@ export function useRunsDashboardTabs({
     selectDashboardTab,
     restoreArchivedRequest: handleRestoreArchivedRequest,
     clearGovernanceWarningsFilter,
+    clearStatusFilter,
   };
 }

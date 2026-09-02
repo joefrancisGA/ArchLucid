@@ -100,8 +100,33 @@ export function runsDashboardHomeHrefFromSearch(
   return query.length === 0 ? "/" : `/?${query}`;
 }
 
-export function resolveRunsDashboardOpenAllReviewsHref(projectId: string): string {
-  return `/architecture/reviews?projectId=${encodeURIComponent(projectId)}`;
+export function resolveRunsDashboardOpenAllReviewsHref(args: {
+  readonly projectId: string;
+  readonly tab: RunsDashboardTabId;
+  readonly showArchived: boolean;
+  readonly governanceWarningsOnly: boolean;
+}): string {
+  const params = new URLSearchParams();
+  params.set("projectId", args.projectId);
+
+  if (args.showArchived) {
+    params.set("filter", "Archived");
+  } else if (args.governanceWarningsOnly || args.tab === "attention") {
+    params.set("filter", "needs-attention");
+  } else if (args.tab === "approved") {
+    params.set("filter", "finalized");
+  } else if (args.tab === "outcomes") {
+    params.set("filter", "Active");
+  }
+
+  return `/architecture/reviews?${params.toString()}`;
+}
+
+export function runsDashboardTabHrefFromSearch(
+  currentSearch: string,
+  tab: RunsDashboardTabId,
+): string {
+  return runsDashboardHomeHrefFromSearch(currentSearch, { tab, showArchived: false });
 }
 
 const BUYER_STATUS_TAB_IDS: readonly RunsDashboardTabId[] = ["all", "approved", "attention", "outcomes"];
