@@ -174,6 +174,7 @@ public sealed class AuthenticationIdentityLinkProposalService(
         // idempotent retry when the proposal is already Confirmed; re-read it and fail the
         // confirm otherwise so a terminal (cancelled/expired) proposal is not left with a
         // linked identity. The confirmed-audit is skipped for the losing transition.
+
         if (!confirmed)
         {
             AuthenticationIdentityLinkProposalRecord? current =

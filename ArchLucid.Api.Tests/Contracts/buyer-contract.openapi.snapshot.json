@@ -32678,6 +32678,13 @@
           }
         },
         "type": "object"
+      },
+      "WorkspaceSystemNameOccupancyKind": {
+        "enum": [
+          "Review",
+          "Architecture"
+        ],
+        "type": "string"
       }
     }
   },

@@ -9501,6 +9501,8 @@ export interface components {
             isAvailable?: boolean;
             systemName?: string;
         };
+        /** @enum {string} */
+        WorkspaceSystemNameOccupancyKind: "Review" | "Architecture";
     };
     responses: never;
     parameters: never;

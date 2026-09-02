@@ -32678,6 +32678,13 @@
           }
         },
         "type": "object"
+      },
+      "WorkspaceSystemNameOccupancyKind": {
+        "enum": [
+          "Review",
+          "Architecture"
+        ],
+        "type": "string"
       }
     }
   },
@@ -92221,6 +92228,14 @@
             "schema": {
               "format": "uuid",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "occupancyKind",
+            "schema": {
+              "$ref": "#/components/schemas/WorkspaceSystemNameOccupancyKind",
+              "default": 0
             }
           }
         ],
