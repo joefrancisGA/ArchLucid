@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 56
-- **bugs-found:** 145
+- **hunts:** 57
+- **bugs-found:** 147
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — policy-pack advisory string whole-number coercion
+- **last-bug:** 2026-09-02 — risk-register and quality-gate string whole-number coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1936,6 +1936,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `PolicyPackExpectationFacetParser.ParseRequireBudgetCap` — string-encoded whole-number advisory flag ignored — **hit 2026-09-02 (#468):** `policyCostRequireBudgetCap="1.0"` returned null instead of `true` while `"1"` already mapped; fixed with `TryParseWholeNumberString` (`Parse_require_budget_cap_string_encoded_whole_number_maps_true`).
 - [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` — string-encoded whole-number severity ordinal ignored — **hit 2026-09-02 (#468):** `policyCostBreachSeverity="2.0"` returned null while `"2"` already mapped; fixed with whole-number ordinal coercion (`Parse_breach_severity_string_encoded_whole_number_ordinal_maps_label`).
+
+- [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` — string-encoded whole-number review status ignored — **hit 2026-09-02 (#469):** inbound `"1.0"` defaulted to `NotRequired` while `"1"` mapped to `Pending`; fixed with `TryParseWholeNumberString` (`ParseOrDefault_string_encoded_whole_number_maps_pending`).
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — string-encoded whole-number quality-gate mode ignored — **hit 2026-09-02 (#469):** config `"0.0"` skipped WarnOnly advisory while `"0"` emitted; fixed with whole-number coercion (`ShouldEmitFinding_production_real_string_encoded_whole_number_warn_only_emits_rule`).
+
+2026-09-02 seed hunt #469: reseeded from ArchLucid.Core; proved risk-register human-review and production-like quality-gate string whole-number coercion gaps.
 
 2026-09-02 seed hunt #468: reseeded from ArchLucid.Core; proved policy-pack advisory string whole-number coercion gaps.
 

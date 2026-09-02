@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Core.Governance;
@@ -25,7 +27,7 @@ public static class ArchitectureRiskRegisterHumanReviewLabel
 
         string trimmed = raw.Trim();
 
-        if (int.TryParse(trimmed, out int numeric))
+        if (TryParseWholeNumberString(trimmed, out int numeric))
         {
             if (Enum.IsDefined(typeof(FindingHumanReviewStatus), numeric))
                 return (FindingHumanReviewStatus)numeric;
@@ -38,5 +40,27 @@ public static class ArchitectureRiskRegisterHumanReviewLabel
             return status;
 
         return FindingHumanReviewStatus.NotRequired;
+    }
+
+    private static bool TryParseWholeNumberString(string raw, out int value)
+    {
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }

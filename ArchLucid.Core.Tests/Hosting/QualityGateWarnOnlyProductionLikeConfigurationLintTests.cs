@@ -74,6 +74,18 @@ public sealed class QualityGateWarnOnlyProductionLikeConfigurationLintTests
             .BeTrue();
     }
 
+    [Fact]
+    public void ShouldEmitFinding_production_real_string_encoded_whole_number_warn_only_emits_rule()
+    {
+        IConfiguration configuration = BuildConfig("Real", "0.0");
+
+        QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding(
+                configuration,
+                Environments.Production)
+            .Should()
+            .BeTrue();
+    }
+
     private static IConfiguration BuildConfig(string agentExecutionMode, string? qualityGateMode)
     {
         List<KeyValuePair<string, string?>> pairs =

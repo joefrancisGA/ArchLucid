@@ -53,7 +53,7 @@ public static class QualityGateWarnOnlyProductionLikeConfigurationLint
         if (modeRaw.Length == 0)
             return true;
 
-        if (int.TryParse(modeRaw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numeric))
+        if (TryParseWholeNumberString(modeRaw, out int numeric))
         {
             if (!Enum.IsDefined(typeof(AgentOutputQualityGateMode), numeric))
                 return true;
@@ -65,5 +65,27 @@ public static class QualityGateWarnOnlyProductionLikeConfigurationLint
             return parsed == AgentOutputQualityGateMode.WarnOnly;
 
         return string.Equals(modeRaw, "WarnOnly", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryParseWholeNumberString(string raw, out int value)
+    {
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
