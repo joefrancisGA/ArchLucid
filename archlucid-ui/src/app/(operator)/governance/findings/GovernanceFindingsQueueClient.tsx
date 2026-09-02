@@ -67,6 +67,7 @@ import {
   resolveGovernanceFindingsSponsorHandoffHref,
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
+import { parseGovernanceFindingsSearchQuery } from "@/lib/governance/governance-findings-queue-search";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -156,6 +157,7 @@ export default function GovernanceFindingsQueueClient({
     () => filterGovernanceFindingsScopedRows(rows, scopedRunId),
     [rows, scopedRunId],
   );
+  const findingsSearchQuery = parseGovernanceFindingsSearchQuery(searchParams.get("q"));
   const displayedRows = useMemo(
     () =>
       filterGovernanceFindingsDisplayedRows(
@@ -163,8 +165,9 @@ export default function GovernanceFindingsQueueClient({
         registerFilter,
         nlFacets,
         effectiveJobView,
+        findingsSearchQuery,
       ),
-    [scopedRows, registerFilter, effectiveJobView, nlFacets],
+    [scopedRows, registerFilter, effectiveJobView, nlFacets, findingsSearchQuery],
   );
   const registerSummary = useMemo(
     () => computeGovernanceFindingsRegisterSummary(scopedRows),
@@ -369,6 +372,7 @@ export default function GovernanceFindingsQueueClient({
         onToggleGroupByResource={toggleGroupByResource}
         displayedRows={displayedRows}
         scopedRows={scopedRows}
+        registerSummary={registerSummary}
         onNaturalLanguageFilterApply={setNlFacets}
         nlFacets={nlFacets}
         onClearAllFilters={clearAllFilters}

@@ -1,4 +1,6 @@
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
@@ -53,6 +55,8 @@ public sealed partial class ReplayRunService(
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IAuditService auditService,
     IActorContext actorContext,
+    IAuthorityRunOrchestrator authorityRunOrchestrator,
+    IArchitectureRunCommandService architectureRunCommandService,
     ILogger<ReplayRunService> logger) : IReplayRunService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -79,6 +83,13 @@ public sealed partial class ReplayRunService(
         _agentEvaluationService = agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
 
     private readonly IDecisionEngineV2 _decisionEngineV2 = decisionEngineV2 ?? throw new ArgumentNullException(nameof(decisionEngineV2));
+
+    private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator =
+        authorityRunOrchestrator ?? throw new ArgumentNullException(nameof(authorityRunOrchestrator));
+
+    private readonly IArchitectureRunCommandService _architectureRunCommandService =
+        architectureRunCommandService ?? throw new ArgumentNullException(nameof(architectureRunCommandService));
+
     private readonly ILogger<ReplayRunService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <summary>

@@ -65,4 +65,10 @@ public interface IRunStateTransitionService
 
     /// <summary>Queued authority work may skip stage execution when context snapshot already exists.</summary>
     bool ShouldSkipQueuedAuthorityPipelineCompletion(Guid? contextSnapshotId);
+
+    /// <summary>
+    ///     Wave-5 suggestion 48: authority pipeline progress is tracked via stage outcomes — do not overload
+    ///     agent legacy status once context snapshot ingestion has started.
+    /// </summary>
+    bool ShouldSkipLegacyRunStatusPatchAfterAuthorityProgress(Guid? contextSnapshotId);
 }

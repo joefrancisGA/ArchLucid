@@ -220,6 +220,22 @@ internal static class RunListQueryParameters
         };
     }
 
+    public static object ForLatestCommittedRunIdByArchitectureVersionId(
+        ScopeContext scope,
+        Guid architectureVersionId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureVersionId = architectureVersionId,
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+        };
+    }
+
     /// <summary>
     ///     "Active" is defined by exclusion: any run not committed, failed, or quality-rejected still occupies the request's
     ///     concurrency allowance.

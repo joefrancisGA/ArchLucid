@@ -152,6 +152,23 @@ public partial class FindingsOrchestrator(
                         OccurredUtc = _clock.UtcNowDateTime(),
                     });
             }
+
+            IReadOnlyList<string> engineTypeViolations = PolicyPackCategoryCoverageValidator.GetMissingEngineTypeViolations(
+                analysisContext,
+                successfulEngineTypes);
+
+            foreach (string violation in engineTypeViolations)
+            {
+                engineFailures.Add(
+                    new FindingEngineFailure
+                    {
+                        EngineType = "policy-pack-engine-coverage",
+                        Category = "Policy",
+                        ErrorMessage = violation,
+                        ExceptionType = nameof(PolicyPackCategoryCoverageValidator),
+                        OccurredUtc = _clock.UtcNowDateTime(),
+                    });
+            }
         }
 
         FindingsSnapshot snapshot = new()

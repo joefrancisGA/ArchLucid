@@ -53,7 +53,9 @@ internal static class RunRecordParameters
             run.GovernanceScopeJson,
             run.ImproveLoopEvidenceJson,
             run.PackageOrigin,
-            run.CreatedByUserId
+            run.CreatedByUserId,
+            run.PinnedPolicyPackIdsJson,
+            run.PinnedPolicyPackIdsHashSha256
         };
     }
 

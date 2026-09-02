@@ -56,8 +56,12 @@ public sealed class GcpInventorySecurityBaselineFindingEngine(
         }
 
         CloudInventoryExtractorPackageDownloadRecord? download =
-            await _packageRepository.TryGetLatestDownloadInScopeAsync(scope, CloudProvider.Gcp, ct)
-                .ConfigureAwait(false);
+            await EffectfulFindingEngineEvidenceLoader.TryResolveCloudDownloadAsync(
+                _packageRepository,
+                scope,
+                CloudProvider.Gcp,
+                analysisContext,
+                ct).ConfigureAwait(false);
 
         if (download is null || download.PackageBytes.Length == 0)
         {

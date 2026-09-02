@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,18 @@ import {
 } from "@/lib/shell-header-search-label";
 import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  governanceFindingsSearchHrefFromSearch,
+  parseGovernanceFindingsSearchQuery,
+} from "@/lib/governance/governance-findings-queue-search";
+import {
+  isGovernanceFindingsQueueHeaderSearchPath,
+  isReviewsHubInventoryHeaderSearchPath,
+} from "@/lib/shell-header-route-local-search";
+import {
+  parseReviewsHubInventorySearchQuery,
+  reviewsHubInventorySearchHrefFromSearch,
+} from "@/app/(operator)/architecture/reviews/_sections/reviews-hub-inventory-filters";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
@@ -56,7 +68,32 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const inputId = useId();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const routeLocalSearchMode = useMemo(() => {
+    const path = pathname ?? "";
+
+    if (isReviewsHubInventoryHeaderSearchPath(path)) {
+      return "reviews-hub" as const;
+    }
+
+    if (isGovernanceFindingsQueueHeaderSearchPath(path)) {
+      return "findings-queue" as const;
+    }
+
+    return null;
+  }, [pathname]);
+  const routeLocalSearchQuery = useMemo(() => {
+    if (routeLocalSearchMode === "reviews-hub") {
+      return parseReviewsHubInventorySearchQuery(searchParams.get("q"));
+    }
+
+    if (routeLocalSearchMode === "findings-queue") {
+      return parseGovernanceFindingsSearchQuery(searchParams.get("q"));
+    }
+
+    return "";
+  }, [routeLocalSearchMode, searchParams]);
   const searchPlaceholder = useMemo(
     () =>
       buyerPolishedShell
@@ -75,6 +112,33 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState(false);
   const [results, setResults] = useState<GlobalSearchResponse | null>(null);
+
+  useEffect(() => {
+    if (routeLocalSearchMode !== null) {
+      setQuery(routeLocalSearchQuery);
+    }
+  }, [routeLocalSearchMode, routeLocalSearchQuery]);
+
+  const replaceRouteLocalSearchQuery = useCallback(
+    (nextQuery: string) => {
+      const path = pathname ?? "";
+
+      if (routeLocalSearchMode === "reviews-hub") {
+        router.replace(reviewsHubInventorySearchHrefFromSearch(searchParams.toString(), nextQuery), {
+          scroll: false,
+        });
+        return;
+      }
+
+      if (routeLocalSearchMode === "findings-queue") {
+        router.replace(
+          governanceFindingsSearchHrefFromSearch(searchParams.toString(), nextQuery, path),
+          { scroll: false },
+        );
+      }
+    },
+    [pathname, routeLocalSearchMode, router, searchParams],
+  );
 
   const fetchResults = useCallback(async (q: string) => {
     const trimmed = q.trim();
@@ -109,12 +173,28 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   }, []);
 
   useEffect(() => {
+    if (routeLocalSearchMode !== null) {
+      return;
+    }
+
     const timer = window.setTimeout(() => {
       void fetchResults(query);
     }, 200);
 
     return () => window.clearTimeout(timer);
-  }, [fetchResults, query]);
+  }, [fetchResults, query, routeLocalSearchMode]);
+
+  useEffect(() => {
+    if (routeLocalSearchMode === null) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      replaceRouteLocalSearchQuery(query);
+    }, 250);
+
+    return () => window.clearTimeout(timer);
+  }, [query, replaceRouteLocalSearchQuery, routeLocalSearchMode]);
 
   useEffect(() => {
     function focusInput(): void {
@@ -165,16 +245,17 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const findPageMatches = searchFindPageIndex(query, { limit: 6 });
   const helpHits = searchFindPageHelpEntries(query, { limit: 4 });
   const trimmedQuery = query.trim();
-  const showQuickActions = open && trimmedQuery.length < 2;
+  const showQuickActions = open && trimmedQuery.length < 2 && routeLocalSearchMode === null;
 
   const hasResults =
-    findPageMatches.length > 0 ||
-    (results?.runs?.length ?? 0) > 0 ||
-    (results?.findings?.length ?? 0) > 0 ||
-    (results?.policyPacks?.length ?? 0) > 0 ||
-    helpHits.length > 0;
+    routeLocalSearchMode === null &&
+    (findPageMatches.length > 0 ||
+      (results?.runs?.length ?? 0) > 0 ||
+      (results?.findings?.length ?? 0) > 0 ||
+      (results?.policyPacks?.length ?? 0) > 0 ||
+      helpHits.length > 0);
 
-  const resultsPanelOpen = open && trimmedQuery.length >= 2;
+  const resultsPanelOpen = open && trimmedQuery.length >= 2 && routeLocalSearchMode === null;
   const quickActionsPanelOpen = showQuickActions;
 
   return (
@@ -200,9 +281,9 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);
-          setOpen(true);
+          setOpen(routeLocalSearchMode === null);
         }}
-        onFocus={() => setOpen(true)}
+        onFocus={() => setOpen(routeLocalSearchMode === null ? true : open)}
         onKeyDown={(event) => {
           if (event.key?.toLowerCase() !== "k") {
             return;
