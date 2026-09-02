@@ -339,6 +339,7 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 audit.Object,
                 NullLogger<AuthorityPipelineArtifactsStage>.Instance),
             hydrator,
+            Mock.Of<ArchLucid.Application.Runs.IRunGovernanceScopePinService>(),
             stageOutcomes.Object,
             NullLogger<AuthorityPipelineStagesExecutor>.Instance);
 

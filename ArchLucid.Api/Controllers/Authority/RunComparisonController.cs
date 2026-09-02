@@ -6,7 +6,9 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -284,7 +286,10 @@ public sealed class RunComparisonController(
 
         return loadResult.Outcome switch
         {
-            ScopedRunPairLoadOutcome.Success => (null, loadResult.Left, loadResult.Right),
+            ScopedRunPairLoadOutcome.Success => ReturnPairOrError(
+                TryReturnLoadedPair(loadResult.Left!, loadResult.Right!, query),
+                loadResult.Left!,
+                loadResult.Right!),
             ScopedRunPairLoadOutcome.LeftRunNotFound => (
                 this.NotFoundProblem($"Run '{loadResult.MissingRunId}' was not found.", ProblemTypes.RunNotFound),
                 null,
@@ -295,5 +300,34 @@ public sealed class RunComparisonController(
                 null),
             _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
         };
+    }
+
+    private IActionResult? TryReturnLoadedPair(
+        ArchitectureRunDetail left,
+        ArchitectureRunDetail right,
+        RunPairQuery query)
+    {
+        try
+        {
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(left, query.LeftRunId);
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(right, query.RightRunId);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    private (IActionResult? Error, ArchitectureRunDetail? Left, ArchitectureRunDetail? Right) ReturnPairOrError(
+        IActionResult? guardError,
+        ArchitectureRunDetail left,
+        ArchitectureRunDetail right)
+    {
+        if (guardError is not null)
+            return (guardError, null, null);
+
+        return (null, left, right);
     }
 }

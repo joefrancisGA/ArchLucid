@@ -18,4 +18,22 @@ public static class CrossRunDiffFindingPriorGuard
         throw new InvalidOperationException(
             $"Cross-run engine '{engineType}' requires FindingAnalysisContext.Prior; snapshot generation is incomplete.");
     }
+
+    /// <summary>
+    ///     Wave-6 suggestion 54: when a prior graph snapshot id is present, missing Γ is incomplete — not a quiet first review.
+    /// </summary>
+    public static void EnsurePriorGraphLoadedOrThrow(
+        FindingAnalysisContext? analysisContext,
+        GraphSnapshot? priorGraph,
+        string engineType)
+    {
+        if (analysisContext?.Prior?.PriorGraphSnapshotId is not Guid priorGraphId || priorGraphId == Guid.Empty)
+            return;
+
+        if (priorGraph is not null)
+            return;
+
+        throw new InvalidOperationException(
+            $"Cross-run engine '{engineType}' requires prior graph snapshot '{priorGraphId:D}' but it could not be loaded.");
+    }
 }

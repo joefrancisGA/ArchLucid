@@ -16,6 +16,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Merge;
@@ -57,6 +58,7 @@ public sealed partial class ReplayRunService(
     IActorContext actorContext,
     IAuthorityRunOrchestrator authorityRunOrchestrator,
     IArchitectureRunCommandService architectureRunCommandService,
+    IRunStageOutcomesRepository runStageOutcomesRepository,
     ILogger<ReplayRunService> logger) : IReplayRunService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -89,6 +91,9 @@ public sealed partial class ReplayRunService(
 
     private readonly IArchitectureRunCommandService _architectureRunCommandService =
         architectureRunCommandService ?? throw new ArgumentNullException(nameof(architectureRunCommandService));
+
+    private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
+        runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
 
     private readonly ILogger<ReplayRunService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 

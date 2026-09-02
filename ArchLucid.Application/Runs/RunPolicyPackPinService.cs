@@ -74,7 +74,10 @@ public sealed class RunPolicyPackPinService(IPolicyPackAssignmentRepository poli
         ArgumentNullException.ThrowIfNull(scope);
 
         if (header.PinnedPolicyPackIdsHashSha256 is null || header.PinnedPolicyPackIdsHashSha256.Length == 0)
-            return;
+        {
+            throw new ConflictException(
+                "Commit blocked: run is missing a policy pack pin hash from create time.");
+        }
 
         (_, byte[] rebuiltHash) = await BuildPinAsync(scope, cancellationToken).ConfigureAwait(false);
 

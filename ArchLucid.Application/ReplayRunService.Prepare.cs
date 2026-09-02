@@ -25,7 +25,13 @@ public sealed partial class ReplayRunService
         cancellationToken.ThrowIfCancellationRequested();
 
         if (tasks.Count == 0 && !sourceDetail.AuthorityPipelineComplete)
-            throw new NoScheduledAgentTasksException(originalRunId);
+        {
+            bool authorityProgress = await SourceRunHasAuthorityStageProgressAsync(originalRunId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!authorityProgress)
+                throw new NoScheduledAgentTasksException(originalRunId);
+        }
 
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");

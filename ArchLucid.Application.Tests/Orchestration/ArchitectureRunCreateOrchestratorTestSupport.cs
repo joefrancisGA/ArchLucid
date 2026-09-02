@@ -98,7 +98,12 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             runRepository,
             scopeContextProvider,
             runStateTransitionService,
-            new RunPolicyPackPinService(new InMemoryPolicyPackAssignmentRepository()),
+            new RunCreatePinOrchestrator(
+                new RunPolicyPackPinService(new InMemoryPolicyPackAssignmentRepository()),
+                new RunEvidencePackagePinService(
+                    new NoOpAzureExtractorPackageRepository(),
+                    new NoOpCloudInventoryExtractorPackageRepository()),
+                new RunGovernanceScopePinService()),
             NullLogger<ArchitectureRunCreatePersistenceHelper>.Instance);
 
         ArchitectureRunCreatePostCreateHooks postCreateHooks = new(

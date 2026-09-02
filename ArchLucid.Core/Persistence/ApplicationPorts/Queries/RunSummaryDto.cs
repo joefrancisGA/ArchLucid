@@ -167,4 +167,11 @@ public class RunSummaryDto
         get;
         set;
     } = StructuralExecutionMode.Simulator;
+
+    /// <summary>Authority pipeline lifecycle phase for list/compare surfaces (wave-6 suggestion 58).</summary>
+    public AuthorityRunLifecyclePhase AuthorityLifecyclePhase
+    {
+        get;
+        set;
+    } = AuthorityRunLifecyclePhase.NotStarted;
 }

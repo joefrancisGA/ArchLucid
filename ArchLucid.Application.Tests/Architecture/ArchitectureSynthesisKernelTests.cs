@@ -90,11 +90,12 @@ public sealed class ArchitectureSynthesisKernelTests
             .Setup(r => r.GetByIdAsync(scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ScopeContext _, Guid id, CancellationToken _) => saved is null ? null : new RunRecord { RunId = id });
 
-        Mock<IRunPolicyPackPinService> packPin = new();
-        packPin
-            .Setup(s => s.ApplyToRunHeaderAsync(
+        Mock<IRunCreatePinOrchestrator> createPins = new();
+        createPins
+            .Setup(s => s.ApplyCreateTimePinsAsync(
                 It.IsAny<RunRecord>(),
                 scope,
+                request,
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -104,7 +105,7 @@ public sealed class ArchitectureSynthesisKernelTests
             runRepository: runs.Object,
             scopeProvider: scopeProvider.Object,
             contentSafety: safety.Object,
-            runPolicyPackPinService: packPin.Object,
+            runCreatePinOrchestrator: createPins.Object,
             timeProvider: time,
             architectureVersionService: CreateDefaultVersionService(runs.Object));
 
@@ -131,10 +132,11 @@ public sealed class ArchitectureSynthesisKernelTests
                 It.IsAny<System.Data.IDbConnection?>(),
                 It.IsAny<System.Data.IDbTransaction?>()),
             Times.Once);
-        packPin.Verify(
-            s => s.ApplyToRunHeaderAsync(
+        createPins.Verify(
+            s => s.ApplyCreateTimePinsAsync(
                 It.IsAny<RunRecord>(),
                 scope,
+                request,
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -317,7 +319,7 @@ public sealed class ArchitectureSynthesisKernelTests
         IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null,
         IArchitectureIdentityService? architectureIdentityService = null,
         IArchitectureVersionService? architectureVersionService = null,
-        IRunPolicyPackPinService? runPolicyPackPinService = null,
+        IRunCreatePinOrchestrator? runCreatePinOrchestrator = null,
         TechnologyLedgerRequestSeeder? technologyLedgerRequestSeeder = null,
         TechnologyLedgerEvidenceSeeder? technologyLedgerEvidenceSeeder = null,
         TimeProvider? timeProvider = null)
@@ -348,7 +350,7 @@ public sealed class ArchitectureSynthesisKernelTests
                 scopeProvider ?? defaultScope.Object),
             architectureIdentityService ?? CreateDefaultIdentityService(),
             architectureVersionService ?? CreateDefaultVersionService(runRepository),
-            runPolicyPackPinService ?? Mock.Of<IRunPolicyPackPinService>(),
+            runCreatePinOrchestrator ?? Mock.Of<IRunCreatePinOrchestrator>(),
             NullLogger<ArchitectureSynthesisKernel>.Instance,
             timeProvider ?? TimeProvider.System);
     }

@@ -22,6 +22,7 @@ public sealed class AuthorityPipelineStagesExecutor(
     IAuthorityPipelineDecisioningStage decisioningStage,
     IAuthorityPipelineArtifactsStage artifactsStage,
     AuthorityPipelineStageContextHydrator stageContextHydrator,
+    IRunGovernanceScopePinService runGovernanceScopePinService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
 {
@@ -43,6 +44,9 @@ public sealed class AuthorityPipelineStagesExecutor(
     private readonly AuthorityPipelineStageContextHydrator _stageContextHydrator =
         stageContextHydrator ?? throw new ArgumentNullException(nameof(stageContextHydrator));
 
+    private readonly IRunGovernanceScopePinService _runGovernanceScopePinService =
+        runGovernanceScopePinService ?? throw new ArgumentNullException(nameof(runGovernanceScopePinService));
+
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
         runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
 
@@ -55,6 +59,8 @@ public sealed class AuthorityPipelineStagesExecutor(
     public async Task ExecuteAfterRunPersistedAsync(AuthorityPipelineContext ctx, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(ctx);
+
+        using IDisposable restoredPilotScope = _runGovernanceScopePinService.BeginRestoredScope(ctx.Run);
 
         await ExecuteStageAsync(
             ctx,
