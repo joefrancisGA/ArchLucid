@@ -148,11 +148,11 @@ export function RunsDashboardPanelFilters({
           showArchived ? (
             <FilterChip
               href={runsDashboardHomeHrefFromSearch(currentSearch, { tab: "all", showArchived: false })}
+              scroll={false}
               className={buyerFilterChipClass(true, archivedFilterDisabled)}
               aria-current="page"
               aria-label={`Filter reviews: Archived ${archivedCount}`}
               data-testid="runs-dashboard-show-archived"
-            >
               Archived {archivedCount}
             </FilterChip>
           ) : (
