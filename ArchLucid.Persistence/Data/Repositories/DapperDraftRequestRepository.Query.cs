@@ -40,6 +40,7 @@ public sealed partial class DapperDraftRequestRepository
                                ReadModelSchemaVersion,
                                RedirectReason,
                                SpawnedRunId,
+                               SpawnedArchitectureVersionId,
                                CreatedByUserId,
                                CreatedUtc,
                                UpdatedUtc
@@ -152,6 +153,7 @@ public sealed partial class DapperDraftRequestRepository
                                DocumentJson,
                                RedirectReason,
                                SpawnedRunId,
+                               SpawnedArchitectureVersionId,
                                CreatedByUserId,
                                CreatedUtc,
                                UpdatedUtc

@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Tests.Drafts;
 public sealed class ArchitectureDraftReviewReadinessValidatorTests
 {
     [Fact]
-    public void EvaluateBlockers_WhenOnlyUnknownQualityAttribute_ReturnsEmpty()
+    public void EvaluateBlockers_WhenOnlyUnknownQualityAttribute_ReturnsStructuredBriefPlaceholderBlocker()
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief.ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
@@ -20,23 +20,23 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         IReadOnlyList<string> blockers = ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document);
 
-        blockers.Should().NotContain("constraints");
-        blockers.Should().NotContain("assumptions");
-        blockers.Should().BeEmpty();
+        blockers.Should().Contain("structured brief placeholders");
     }
 
     [Fact]
-    public void EvaluateBlockers_WhenUnknownSentinelInConstraintsAndAssumptions_ReturnsEmpty()
+    public void EvaluateBlockers_WhenUnknownSentinelInConstraintsAndAssumptions_ReturnsStructuredBriefPlaceholderBlocker()
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief.ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
         document.StructuredBrief.ConfirmedAssumptions = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
 
-        ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document).Should().BeEmpty();
+        ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document)
+            .Should()
+            .Contain("structured brief placeholders");
     }
 
     [Fact]
-    public void EnsureReviewReady_DoesNotThrowWhenConstraintsAndAssumptionsAreUnknown()
+    public void EnsureReviewReady_ThrowsWhenConstraintsAndAssumptionsAreUnknown()
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief.ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
@@ -44,7 +44,8 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         Action act = () => ArchitectureDraftReviewReadinessValidator.EnsureReviewReady(document);
 
-        act.Should().NotThrow();
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*structured brief placeholders*");
     }
 
     [Fact]
@@ -114,7 +115,23 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.WorkflowIntent = ArchitectureWorkflowIntent.StartReview;
-        document.StructuredBrief = new ArchitectureDraftStructuredBrief();
+        document.StructuredBrief = new ArchitectureDraftStructuredBrief
+        {
+            ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview],
+        };
+
+        ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void EvaluateBlockers_AllowsMixedSentinelAndConfirmedConstraint()
+    {
+        DraftRequestDocument document = CreateReadyDocument();
+        document.StructuredBrief.ConfirmedConstraints =
+        [
+            ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview,
+            "Private endpoints required",
+        ];
 
         ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document).Should().BeEmpty();
     }

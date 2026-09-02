@@ -110,6 +110,7 @@ internal static class ArchLucidReferenceDataHotPathRegistrar
             services.AddScoped<IGoldenManifestRepository, SqlGoldenManifestRepository>();
             services.AddScoped<IRunRepository, SqlRunRepository>();
             services.AddScoped<IArchitectureIdentityRepository, SqlArchitectureIdentityRepository>();
+            services.AddScoped<IArchitectureVersionRepository, SqlArchitectureVersionRepository>();
             services.AddScoped<IPolicyPackRepository, DapperPolicyPackRepository>();
             services.AddScoped<SqlCommittedArchitectureReviewFlagReader>();
             services.AddScoped<ICommittedArchitectureReviewFlagReader>(sp =>
@@ -127,6 +128,7 @@ internal static class ArchLucidReferenceDataHotPathRegistrar
 
         services.AddScoped<SqlRunRepository>();
         services.AddScoped<IArchitectureIdentityRepository, SqlArchitectureIdentityRepository>();
+        services.AddScoped<IArchitectureVersionRepository, SqlArchitectureVersionRepository>();
         services.AddScoped<IRunRepository>(sp => new CachingRunRepository(
             sp.GetRequiredService<SqlRunRepository>(),
             sp.GetRequiredService<IHotPathReadCache>()));

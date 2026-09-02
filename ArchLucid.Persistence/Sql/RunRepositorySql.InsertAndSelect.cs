@@ -9,7 +9,7 @@ internal static partial class RunRepositorySql
                                  (
                                      RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                                      ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                     GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchitectureId, ArchivedUtc,
+                                     GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchitectureId, ArchitectureVersionId, ArchivedUtc,
                                      ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                      IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                      StructuralExecutionMode,
@@ -20,7 +20,7 @@ internal static partial class RunRepositorySql
                                  (
                                      @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @ProjectId, @Description, @CreatedUtc,
                                      @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
-                                     @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchitectureId, @ArchivedUtc,
+                                     @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchitectureId, @ArchitectureVersionId, @ArchivedUtc,
                                      @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
                                      @IsDemoWelcomeRun, @IsPublicShowcase, @IsSample, @IsPinned, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
                                      @StructuralExecutionMode,
@@ -98,6 +98,7 @@ internal static partial class RunRepositorySql
                                      DecisionTraceId = @DecisionTraceId,
                                      ArtifactBundleId = @ArtifactBundleId,
                                      ArchitectureId = @ArchitectureId,
+                                     ArchitectureVersionId = @ArchitectureVersionId,
                                      ArchivedUtc = @ArchivedUtc,
                                      ArchitectureRequestId = @ArchitectureRequestId,
                                      LegacyRunStatus = @LegacyRunStatus,

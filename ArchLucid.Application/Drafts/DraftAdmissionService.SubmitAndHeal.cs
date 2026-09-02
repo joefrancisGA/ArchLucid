@@ -57,6 +57,12 @@ public sealed partial class DraftAdmissionService
 
         string spawnedRunId = DraftSubmitRunCreateResolver.ResolveRunId(createResult);
 
+        Guid? spawnedArchitectureVersionId = await TryResolveSpawnedArchitectureVersionIdAsync(
+            scope,
+            createResult,
+            spawnedRunId,
+            cancellationToken);
+
         DraftRequestResponse? spawned = await _draftRepository.UpdateAsync(
             scope.TenantId,
             scope.WorkspaceId,
@@ -66,7 +72,8 @@ public sealed partial class DraftAdmissionService
             existing.Document,
             existing.RedirectReason,
             spawnedRunId,
-            cancellationToken);
+            cancellationToken,
+            spawnedArchitectureVersionId);
 
         string? parentSpawnedRunId = await ResolveParentSpawnedRunIdAsync(
             scope,
@@ -174,5 +181,26 @@ public sealed partial class DraftAdmissionService
             cancellationToken);
 
         DraftPriorAnswerReuseApplicator.Apply(document, priorRunSpawned);
+    }
+
+    private async Task<Guid?> TryResolveSpawnedArchitectureVersionIdAsync(
+        ScopeContext scope,
+        CreateRunCommandResult createResult,
+        string spawnedRunId,
+        CancellationToken cancellationToken)
+    {
+        if (createResult.SynthesisResult?.ArchitectureVersionId is Guid synthesisVersionId
+            && synthesisVersionId != Guid.Empty)
+        {
+            return synthesisVersionId;
+        }
+
+        if (!Guid.TryParseExact(spawnedRunId, "N", out Guid runGuid) && !Guid.TryParse(spawnedRunId, out runGuid))
+            return null;
+
+        Persistence.Models.RunRecord? header =
+            await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+
+        return header?.ArchitectureVersionId;
     }
 }

@@ -72,6 +72,45 @@ export function listHasConfirmedEntry(items: readonly string[]): boolean {
   return items.some((item) => isConfirmedBriefEntry(item));
 }
 
+/** TB-2343: structured brief still contains explicit unknown placeholders. */
+export function hasUnconfirmedStructuredBriefPlaceholders(
+  brief: ArchitectureDraftStructuredBriefState,
+): boolean {
+  const listIsOnlyUnknown = (items: readonly string[]) =>
+    items.length > 0 && items.every((item) => isUnknownConfirmSentinel(item));
+
+  if (listIsOnlyUnknown(brief.confirmedConstraints)) {
+    return true;
+  }
+
+  if (listIsOnlyUnknown(brief.confirmedAssumptions)) {
+    return true;
+  }
+
+  if (listIsOnlyUnknown(brief.confirmedRequiredCapabilities)) {
+    return true;
+  }
+
+  const qualityEntries = brief.qualityAttribute
+    .split(";")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+
+  if (qualityEntries.length > 0 && qualityEntries.every((entry) => isUnknownConfirmSentinel(entry))) {
+    return true;
+  }
+
+  if (isUnknownConfirmSentinel(brief.failureModeNote)) {
+    return true;
+  }
+
+  if (isUnknownConfirmSentinel(brief.operationalOwner)) {
+    return true;
+  }
+
+  return false;
+}
+
 /**
  * Adds a stated fact and drops a legacy unknown sentinel on the same list.
  * Unknown values are ignored so Input/Add/Confirm cannot re-add the sentinel.

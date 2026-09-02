@@ -124,6 +124,48 @@ public sealed class ArchitectureDraftStructuredBrief
         return false;
     }
 
+    /// <summary>TB-2343: non-empty list whose entries are exclusively unknown sentinels.</summary>
+    public static bool ListIsOnlyUnknownPlaceholders(IReadOnlyList<string> entries)
+    {
+        ArgumentNullException.ThrowIfNull(entries);
+
+        return entries.Count > 0 && entries.All(IsUnknownConfirmSentinel);
+    }
+
+    /// <summary>TB-2343: quality attribute populated only with unknown sentinel chips.</summary>
+    public static bool QualityAttributeIsOnlyUnknownPlaceholder(string? qualityAttribute)
+    {
+        IReadOnlyList<string> entries = ParseQualityAttributeEntries(qualityAttribute);
+
+        return entries.Count > 0 && entries.All(IsUnknownConfirmSentinel);
+    }
+
+    /// <summary>TB-2343: structured brief still contains explicit unknown placeholders that must be confirmed.</summary>
+    public static bool HasUnconfirmedStructuredBriefPlaceholders(ArchitectureDraftStructuredBrief brief)
+    {
+        ArgumentNullException.ThrowIfNull(brief);
+
+        if (ListIsOnlyUnknownPlaceholders(brief.ConfirmedConstraints))
+            return true;
+
+        if (ListIsOnlyUnknownPlaceholders(brief.ConfirmedAssumptions))
+            return true;
+
+        if (ListIsOnlyUnknownPlaceholders(brief.ConfirmedRequiredCapabilities))
+            return true;
+
+        if (QualityAttributeIsOnlyUnknownPlaceholder(brief.QualityAttribute))
+            return true;
+
+        if (IsUnknownConfirmSentinel(brief.FailureModeNote))
+            return true;
+
+        if (IsUnknownConfirmSentinel(brief.OperationalOwner))
+            return true;
+
+        return false;
+    }
+
     [JsonPropertyName("failureModeNote")]
     public string? FailureModeNote
     {
