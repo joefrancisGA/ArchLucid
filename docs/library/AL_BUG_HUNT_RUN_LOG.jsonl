@@ -546,3 +546,4 @@
 {"at":"2026-09-02T06:04:25.5934291Z","zoneId":"finding-disposition","outcome":"seed-only"}
 {"at":"2026-09-02T06:12:30.2536667Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
 {"at":"2026-09-02T06:20:05.4124331Z","zoneId":"archlucid-core","outcome":"hit"}
+{"at":"2026-09-02T06:26:42.6451498Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
