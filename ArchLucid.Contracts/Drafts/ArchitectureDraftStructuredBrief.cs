@@ -107,7 +107,7 @@ public sealed class ArchitectureDraftStructuredBrief
             return [];
 
         return value
-            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(entry => entry.Length > 0)
             .ToList();
     }
@@ -115,13 +115,19 @@ public sealed class ArchitectureDraftStructuredBrief
     /// <summary>TB-2282: at least one confirmed quality-attribute chip is required for review start.</summary>
     public static bool QualityAttributeMeetsMinimum(string? qualityAttribute)
     {
-        foreach (string entry in ParseQualityAttributeEntries(qualityAttribute))
+        IReadOnlyList<string> entries = ParseQualityAttributeEntries(qualityAttribute);
+
+        if (entries.Count == 0)
+            return false;
+
+        foreach (string entry in entries)
         {
-            if (IsConfirmedBriefEntry(entry))
-                return true;
+
+            if (!IsConfirmedBriefEntry(entry))
+                return false;
         }
 
-        return false;
+        return true;
     }
 
     [JsonPropertyName("failureModeNote")]
