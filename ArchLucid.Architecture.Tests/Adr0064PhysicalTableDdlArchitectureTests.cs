@@ -136,7 +136,7 @@ public sealed class Adr0064PhysicalTableDdlArchitectureTests
             "CREATE SYNONYM dbo.Runs FOR dbo.Reviews",
             StringComparison.OrdinalIgnoreCase);
 
-        synonymIndex.Should().BeGreaterThan(0, "ArchLucid.sql must create the ADR 0064 Runs synonym");
+synonymIndex.Should().BeGreaterThanOrEqualTo(0, "ArchLucid.sql must create the ADR 0064 Runs synonym");
 
         string afterSynonym = StripSqlComments(ddl[synonymIndex..]);
 
