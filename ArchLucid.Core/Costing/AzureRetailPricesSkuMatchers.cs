@@ -115,6 +115,7 @@ public sealed partial class AzureRetailPricesCatalogClient
         return trimmed.Contains("Hour", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("hrs", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains(" hr", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains(" h", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase);
     }
