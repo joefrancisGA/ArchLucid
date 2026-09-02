@@ -47,6 +47,7 @@ internal static class DraftIntakeCompositionRegistrar
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<IGitTerraformContentFetcher, GitTerraformContentFetcher>();
         services.AddScoped<IConnectorIntakeParserService, ConnectorIntakeParserService>();
+        services.AddScoped<IArchitectureRequestIntakeFacade, ArchitectureRequestIntakeFacade>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
         services.AddScoped<ICuratedRulesDocumentValidationService, CuratedRulesDocumentValidationService>();
         services.AddScoped<IPolicyPackGeneratorService, PolicyPackGeneratorService>();

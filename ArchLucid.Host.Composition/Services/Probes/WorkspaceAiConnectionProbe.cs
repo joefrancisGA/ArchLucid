@@ -1,6 +1,7 @@
 using ArchLucid.Application.Diagnostics;
 using ArchLucid.Contracts.Diagnostics;
 using ArchLucid.Core.AiProviders;
+using ArchLucid.Core.Configuration;
 namespace ArchLucid.Host.Composition.Services.Probes;
 public static class WorkspaceAiConnectionProbe {
   public static WorkspaceAiAvailabilityCheckRow BuildManagedConfigurationCheckRow(bool configured) => new(){Name="azure_openai_configuration",Status=configured?"ok":"failed",Detail=configured?"Azure OpenAI endpoint and deployment are configured for Real agent execution.":AgentExecutionReadinessMessages.LiveCompletionUnavailable};

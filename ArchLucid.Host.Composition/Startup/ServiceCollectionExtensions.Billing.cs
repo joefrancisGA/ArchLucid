@@ -42,5 +42,6 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IMarketplaceWebhookTokenVerifier, MicrosoftMarketplaceJwtVerifier>();
         services.AddScoped<IBillingProviderRegistry, BillingProviderRegistry>();
         services.AddScoped<IBillingTrialConversionGate, BillingTrialConversionGate>();
+        services.AddScoped<IBillingCheckoutFacade, BillingCheckoutFacade>();
     }
 }

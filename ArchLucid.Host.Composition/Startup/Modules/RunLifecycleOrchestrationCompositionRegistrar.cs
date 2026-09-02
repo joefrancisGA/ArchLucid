@@ -188,6 +188,8 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IPilotsApplicationService, PilotsApplicationService>();
         services.AddScoped<IComparisonsApplicationService, ComparisonsApplicationService>();
         services.AddScoped<ICompareRunsApplicationFacade, CompareRunsApplicationFacade>();
+        services.AddScoped<IRunExportQueryFacade, RunExportQueryFacade>();
+        services.AddScoped<IAdvisoryWorkflowFacade, AdvisoryWorkflowFacade>();
         services.AddScoped<ITraceabilityBundleExportApplicationService, TraceabilityBundleExportApplicationService>();
         services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();
         services.AddScoped<IDemoReadModelClient, DemoReadModelClient>();

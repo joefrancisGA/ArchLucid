@@ -6,16 +6,14 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
-using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Advisory;
+using ArchLucid.Contracts.Advisory.Models;
+using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Comparison;
-using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Contracts.Advisory.Models;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -26,16 +24,6 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api.Controllers.Advisory;
 
-/// <summary>
-///     Advisory workflow HTTP surface: improvement plans from authority runs, persisted recommendations, and operator
-///     actions (accept/defer/etc.).
-/// </summary>
-/// <remarks>
-///     Routes are under <c>api/advisory</c> (unversioned path). Uses <see cref="IScopeContextProvider" /> for
-///     tenant/workspace/project.
-///     Plans feed learning and composite alert metrics; scheduled scans extend this path via
-///     <see cref="AdvisorySchedulingController" /> and <c>AdvisoryScanRunner</c>.
-/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -43,46 +31,23 @@ namespace ArchLucid.Api.Controllers.Advisory;
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class AdvisoryController(
-    IAuthorityQueryService authorityQueryService,
-    IComparisonService comparisonService,
-    ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService improvementAdvisorService,
+    IAdvisoryWorkflowFacade advisoryWorkflowFacade,
     IScopeContextProvider scopeProvider,
-    IRecommendationWorkflowService recommendationWorkflowService,
-    IRecommendationRepository recommendationRepository,
     IAuditService auditService,
-    ArchLucid.Persistence.Interfaces.IRunRepository runRepository,
-    ILogger<AdvisoryController> logger,
-    IRecommendationImproveLoopCoordinator? recommendationImproveLoopCoordinator = null,
-    IRecommendationImproveLoopEvidencePersister? recommendationImproveLoopEvidencePersister = null)
-    : ControllerBase
+    ILogger<AdvisoryController> logger) : ControllerBase
 {
-    private readonly IRecommendationImproveLoopCoordinator? _recommendationImproveLoopCoordinator =
-        recommendationImproveLoopCoordinator;
+    private readonly IAdvisoryWorkflowFacade _advisoryWorkflowFacade =
+        advisoryWorkflowFacade ?? throw new ArgumentNullException(nameof(advisoryWorkflowFacade));
 
-    private readonly IRecommendationImproveLoopEvidencePersister? _recommendationImproveLoopEvidencePersister =
-        recommendationImproveLoopEvidencePersister;
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
-    private readonly ArchLucid.Persistence.Interfaces.IRunRepository _runRepository =
-        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly ILogger<AdvisoryController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    /// <summary>
-    ///     Builds an <see cref="ImprovementPlan" /> from the run�s golden manifest and findings, optionally compared to
-    ///     another run, then persists recommendations for the scope.
-    /// </summary>
-    /// <param name="runId">Authority run whose golden manifest and findings drive the plan.</param>
-    /// <param name="compareToRunId">When set, manifests are compared and diff-based signals are included.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>
-    ///     <see cref="ImprovementPlanResponse" /> after persisting rows via
-    ///     <see cref="IRecommendationWorkflowService.PersistPlanAsync" />.
-    /// </returns>
-    /// <remarks>
-    ///     Audits <see cref="AuditEventTypes.RecommendationGenerated" />. Returns 404 when the run or optional baseline
-    ///     lacks a golden manifest.
-    /// </remarks>
     [HttpGet("runs/{runId:guid}/improvements")]
     [ProducesResponseType(typeof(ImprovementPlanResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -91,112 +56,32 @@ public sealed class AdvisoryController(
         [FromQuery] Guid? compareToRunId = null,
         CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? run = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (run is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        if (run.GoldenManifest is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.",
-                ProblemTypes.ManifestNotFound);
+        ImprovementsPlanLoadResult result =
+            await _advisoryWorkflowFacade.GetImprovementsAsync(runId, compareToRunId, ct);
 
-        FindingsSnapshot findings = run.FindingsSnapshot ?? CreateEmptyFindings(run.GoldenManifest);
-
-        int advisoryFindingCount = findings.Findings?.Count ?? 0;
-        FindingsListAccessTelemetry.LogFindingSnapshotExpose(
-            _logger,
-            scope,
-            runId,
-            nameof(GetImprovements),
-            advisoryFindingCount);
-
-        ArchLucid.Contracts.Advisory.Models.ImprovementPlan plan;
-        if (compareToRunId.HasValue)
+        return result.Outcome switch
         {
-            RunDetailDto? baseRun = await authorityQueryService.GetRunDetailAsync(scope, compareToRunId.Value, ct);
-            if (baseRun is null)
-                return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' was not found.",
-                    ProblemTypes.RunNotFound);
-            if (baseRun.GoldenManifest is null)
-                return this.NotFoundProblem(
-                    $"Comparison run '{compareToRunId.Value}' does not have a committed golden manifest.",
-                    ProblemTypes.ManifestNotFound);
-
-            ComparisonResult comparison = comparisonService.Compare(baseRun.GoldenManifest, run.GoldenManifest);
-
-            plan = await improvementAdvisorService.GeneratePlanAsync(
-                run.GoldenManifest,
-                findings,
-                comparison,
-                ct);
-        }
-        else
-
-            plan = await improvementAdvisorService.GeneratePlanAsync(
-                run.GoldenManifest,
-                findings,
-                ct);
-
-        await recommendationWorkflowService.PersistPlanAsync(
-            plan,
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            ct);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.RecommendationGenerated,
-                RunId = plan.RunId,
-                DataJson = JsonSerializer.Serialize(new { recommendationCount = plan.Recommendations.Count })
-            },
-            ct);
-
-        return Ok(ToResponse(plan));
+            ImprovementsPlanLoadOutcome.Success when result.Plan is not null => await CompleteImprovementsAsync(result, ct),
+            ImprovementsPlanLoadOutcome.RunNotFound => this.NotFoundProblem($"Run '{result.RunId}' was not found.", ProblemTypes.RunNotFound),
+            ImprovementsPlanLoadOutcome.ManifestNotFound => this.NotFoundProblem($"Run '{result.RunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound),
+            ImprovementsPlanLoadOutcome.ComparisonRunNotFound => this.NotFoundProblem($"Comparison run '{result.RunId}' was not found.", ProblemTypes.RunNotFound),
+            ImprovementsPlanLoadOutcome.ComparisonManifestNotFound => this.NotFoundProblem($"Comparison run '{result.RunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound),
+            _ => throw new InvalidOperationException($"Unexpected improvements load outcome: {result.Outcome}."),
+        };
     }
 
-    /// <summary>Lists recommendation rows previously stored for the given run in the current scope.</summary>
-    /// <param name="runId">Authority run id; must match persisted <see cref="RecommendationRecord.RunId" />.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Rows ordered per <see cref="IRecommendationRepository.ListByRunAsync" />.</returns>
     [HttpGet("runs/{runId:guid}/recommendations")]
     [ProducesResponseType(typeof(AdvisoryRunRecommendationsListResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<AdvisoryRunRecommendationsListResponse>> ListRecommendations(
-        Guid runId,
-        CancellationToken ct = default)
+    public async Task<ActionResult<AdvisoryRunRecommendationsListResponse>> ListRecommendations(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-
-        IReadOnlyList<RecommendationRecord> items = await recommendationRepository.ListByRunAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            runId,
-            ct);
-
-        ArchLucid.Persistence.Models.RunRecord? run =
-            await _runRepository.GetByIdAsync(scope, runId, ct).ConfigureAwait(false);
-
+        AdvisoryRecommendationsListResult result = await _advisoryWorkflowFacade.ListRecommendationsAsync(runId, ct);
         return Ok(new AdvisoryRunRecommendationsListResponse
         {
-            Recommendations = items.Select(ToRecordResponse).ToList(),
-            ImproveLoopEvidence = RecommendationImproveLoopResponseMapper.TryParsePersistedEvidence(
-                run?.ImproveLoopEvidenceJson),
+            Recommendations = result.Recommendations.Select(ToRecordResponse).ToList(),
+            ImproveLoopEvidence = RecommendationImproveLoopResponseMapper.TryParsePersistedEvidence(result.ImproveLoopEvidenceJson),
         });
     }
 
-    /// <summary>
-    ///     Applies accept/reject/defer/implemented to a recommendation; requires execute authority and audits the outcome.
-    /// </summary>
-    /// <param name="recommendationId">Primary key of the recommendation row.</param>
-    /// <param name="request">
-    ///     Must use a <see cref="RecommendationActionRequest.Action" /> value matching
-    ///     <see cref="RecommendationActionType" /> constants.
-    /// </param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Updated <see cref="RecommendationRecordResponse" />.</returns>
-    /// <remarks>400 when action is unknown; 404 when the id does not exist. Audit event type follows the action.</remarks>
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("recommendations/{recommendationId:guid}/action")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationActionResponse), StatusCodes.Status200OK)]
@@ -207,136 +92,53 @@ public sealed class AdvisoryController(
         [FromBody] RecommendationActionRequest? request,
         CancellationToken ct = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-
-        if (!IsKnownRecommendationAction(request.Action))
-            return this.BadRequestProblem("Unknown or missing action.", ProblemTypes.ValidationFailed);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (!IsKnownRecommendationAction(request.Action)) return this.BadRequestProblem("Unknown or missing action.", ProblemTypes.ValidationFailed);
 
         string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         string userName = User.Identity?.Name ?? "unknown";
+        ApplyRecommendationActionFacadeResult result = await _advisoryWorkflowFacade.ApplyRecommendationActionAsync(recommendationId, userId, userName, request, ct);
 
-        RecommendationRecord? updated = await recommendationWorkflowService.ApplyActionAsync(
-            recommendationId,
-            userId,
-            userName,
-            request,
-            ct);
+        if (result.Outcome is ApplyRecommendationActionOutcome.NotFound)
+            return this.NotFoundProblem($"Recommendation '{result.RecommendationId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        if (updated is null)
-            return this.NotFoundProblem($"Recommendation '{recommendationId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-
-        RecommendationImproveLoopResult? improveLoop = null;
-
-        if (_recommendationImproveLoopCoordinator is not null
-            && request.Action is RecommendationActionType.Accept or RecommendationActionType.MarkImplemented)
-        {
-            improveLoop = await _recommendationImproveLoopCoordinator.TryApplyAsync(updated, ct).ConfigureAwait(false);
-
-            if (_recommendationImproveLoopEvidencePersister is not null)
-            {
-                ScopeContext scope = scopeProvider.GetCurrentScope();
-                await _recommendationImproveLoopEvidencePersister
-                    .PersistAsync(scope, updated.RunId, improveLoop, improveLoop?.MergedFindingIds, ct)
-                    .ConfigureAwait(false);
-            }
-        }
-
+        RecommendationRecord updated = result.Updated ?? throw new InvalidOperationException();
         string eventType = request.Action switch
         {
             RecommendationActionType.Accept => AuditEventTypes.RecommendationAccepted,
             RecommendationActionType.Reject => AuditEventTypes.RecommendationRejected,
             RecommendationActionType.Defer => AuditEventTypes.RecommendationDeferred,
             RecommendationActionType.MarkImplemented => AuditEventTypes.RecommendationImplemented,
-            _ => "RecommendationAction"
+            _ => "RecommendationAction",
         };
 
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = eventType,
-                RunId = updated.RunId,
-                DataJson = JsonSerializer.Serialize(new { recommendationId, action = request.Action })
-            },
-            ct);
-
-        return Ok(new RecommendationActionResponse
-        {
-            Recommendation = ToRecordResponse(updated),
-            ImproveLoop = RecommendationImproveLoopResponseMapper.ToEvidenceResponse(improveLoop),
-        });
+        await _auditService.LogAsync(new AuditEvent { EventType = eventType, RunId = updated.RunId, DataJson = JsonSerializer.Serialize(new { recommendationId, action = request.Action }) }, ct);
+        return Ok(new RecommendationActionResponse { Recommendation = ToRecordResponse(updated), ImproveLoop = RecommendationImproveLoopResponseMapper.ToEvidenceResponse(result.ImproveLoop) });
     }
 
-    private static bool IsKnownRecommendationAction(string? action)
+    private async Task<IActionResult> CompleteImprovementsAsync(ImprovementsPlanLoadResult result, CancellationToken ct)
     {
-        return action is RecommendationActionType.Accept
-            or RecommendationActionType.Reject
-            or RecommendationActionType.Defer
-            or RecommendationActionType.MarkImplemented;
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        FindingsListAccessTelemetry.LogFindingSnapshotExpose(_logger, scope, result.Plan!.RunId, nameof(GetImprovements), result.AdvisoryFindingCount);
+        await _advisoryWorkflowFacade.PersistImprovementPlanAsync(result, ct);
+        await _auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.RecommendationGenerated, RunId = result.Plan.RunId, DataJson = JsonSerializer.Serialize(new { recommendationCount = result.Plan.Recommendations.Count }) }, ct);
+        return Ok(ToResponse(result.Plan));
     }
 
-    private static FindingsSnapshot CreateEmptyFindings(ManifestDocument manifest)
-    {
-        return new FindingsSnapshot
-        {
-            SchemaVersion = FindingsSchema.CurrentSnapshotVersion,
-            FindingsSnapshotId = manifest.FindingsSnapshotId,
-            RunId = manifest.RunId,
-            ContextSnapshotId = manifest.ContextSnapshotId,
-            GraphSnapshotId = manifest.GraphSnapshotId,
-            CreatedUtc = manifest.CreatedUtc,
-            Findings = []
-        };
-    }
+    private static bool IsKnownRecommendationAction(string? action) =>
+        action is RecommendationActionType.Accept or RecommendationActionType.Reject or RecommendationActionType.Defer or RecommendationActionType.MarkImplemented;
 
-    private static ImprovementPlanResponse ToResponse(ImprovementPlan plan)
+    private static ImprovementPlanResponse ToResponse(ImprovementPlan plan) => new()
     {
-        return new ImprovementPlanResponse
-        {
-            RunId = plan.RunId,
-            ComparedToRunId = plan.ComparedToRunId,
-            GeneratedUtc = plan.GeneratedUtc,
-            SummaryNotes = plan.SummaryNotes.ToList(),
-            Recommendations = plan.Recommendations.Select(x => new ImprovementRecommendationResponse
-            {
-                RecommendationId = x.RecommendationId,
-                Title = x.Title,
-                Category = x.Category,
-                Rationale = x.Rationale,
-                SuggestedAction = x.SuggestedAction,
-                Urgency = x.Urgency,
-                ExpectedImpact = x.ExpectedImpact,
-                PriorityScore = x.PriorityScore
-            }).ToList()
-        };
-    }
+        RunId = plan.RunId, ComparedToRunId = plan.ComparedToRunId, GeneratedUtc = plan.GeneratedUtc, SummaryNotes = plan.SummaryNotes.ToList(),
+        Recommendations = plan.Recommendations.Select(x => new ImprovementRecommendationResponse { RecommendationId = x.RecommendationId, Title = x.Title, Category = x.Category, Rationale = x.Rationale, SuggestedAction = x.SuggestedAction, Urgency = x.Urgency, ExpectedImpact = x.ExpectedImpact, PriorityScore = x.PriorityScore }).ToList(),
+    };
 
-    private static RecommendationRecordResponse ToRecordResponse(RecommendationRecord r)
+    private static RecommendationRecordResponse ToRecordResponse(RecommendationRecord r) => new()
     {
-        return new RecommendationRecordResponse
-        {
-            RecommendationId = r.RecommendationId,
-            TenantId = r.TenantId,
-            WorkspaceId = r.WorkspaceId,
-            ProjectId = r.ProjectId,
-            RunId = r.RunId,
-            ComparedToRunId = r.ComparedToRunId,
-            Title = r.Title,
-            Category = r.Category,
-            Rationale = r.Rationale,
-            SuggestedAction = r.SuggestedAction,
-            Urgency = r.Urgency,
-            ExpectedImpact = r.ExpectedImpact,
-            PriorityScore = r.PriorityScore,
-            Status = r.Status,
-            CreatedUtc = r.CreatedUtc,
-            LastUpdatedUtc = r.LastUpdatedUtc,
-            ReviewedByUserId = r.ReviewedByUserId,
-            ReviewedByUserName = r.ReviewedByUserName,
-            ReviewComment = r.ReviewComment,
-            ResolutionRationale = r.ResolutionRationale,
-            SourceEvidenceLinks = RecommendationSourceEvidenceLinksBuilder.Build(r).ToList()
-        };
-    }
+        RecommendationId = r.RecommendationId, TenantId = r.TenantId, WorkspaceId = r.WorkspaceId, ProjectId = r.ProjectId, RunId = r.RunId, ComparedToRunId = r.ComparedToRunId,
+        Title = r.Title, Category = r.Category, Rationale = r.Rationale, SuggestedAction = r.SuggestedAction, Urgency = r.Urgency, ExpectedImpact = r.ExpectedImpact, PriorityScore = r.PriorityScore,
+        Status = r.Status, CreatedUtc = r.CreatedUtc, LastUpdatedUtc = r.LastUpdatedUtc, ReviewedByUserId = r.ReviewedByUserId, ReviewedByUserName = r.ReviewedByUserName,
+        ReviewComment = r.ReviewComment, ResolutionRationale = r.ResolutionRationale, SourceEvidenceLinks = RecommendationSourceEvidenceLinksBuilder.Build(r).ToList(),
+    };
 }

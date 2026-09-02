@@ -1,18 +1,12 @@
-using System.Text.Json;
-
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services;
-using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
-using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
@@ -25,53 +19,43 @@ using AppReplayExportRequest = ArchLucid.Application.Analysis.ReplayExportReques
 
 namespace ArchLucid.Api.Controllers.Authority;
 
-/// <summary>
-///     Query and trigger run exports (history, diff, replay export) and audit comparisons tied to export records.
-/// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ExportsController(
-    IRunDetailQueryService runDetailQueryService,
-    IRunExportRecordRepository runExportRecordRepository,
-    IComparisonAuditService comparisonAuditService,
-    IExportReplayService exportReplayService,
-    IExportRecordDiffService exportRecordDiffService,
-    IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,
-    IAuditService auditService) : ControllerBase
+public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade) : ControllerBase
 {
+    private readonly IRunExportQueryFacade _runExportQueryFacade =
+        runExportQueryFacade ?? throw new ArgumentNullException(nameof(runExportQueryFacade));
+
     [HttpGet("review/{runId}/exports")]
     [ProducesResponseType(typeof(RunExportHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetRunExportHistory(
-        [FromRoute] string runId,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetRunExportHistory([FromRoute] string runId, CancellationToken cancellationToken)
     {
-        if (await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        IReadOnlyList<RunExportRecord> records =
-            await runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
-
-        return Ok(new RunExportHistoryResponse { Exports = records.ToList() });
+        RunExportHistoryQueryResult result = await _runExportQueryFacade.GetRunExportHistoryAsync(runId, cancellationToken);
+        return result.Outcome switch
+        {
+            ExportRecordLoadOutcome.Success => Ok(new RunExportHistoryResponse { Exports = result.Exports!.ToList() }),
+            ExportRecordLoadOutcome.RunNotFound => this.NotFoundProblem($"Run '{result.MissingRunId}' was not found.", ProblemTypes.RunNotFound),
+            _ => throw new InvalidOperationException($"Unexpected export history outcome: {result.Outcome}."),
+        };
     }
 
     [HttpGet("review/exports/{exportRecordId}")]
     [ProducesResponseType(typeof(RunExportRecordResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetExportRecord(
-        [FromRoute] string exportRecordId,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetExportRecord([FromRoute] string exportRecordId, CancellationToken cancellationToken)
     {
-        RunExportRecord? record = await LoadScopedExportRecordAsync(exportRecordId, cancellationToken);
-        if (record is null)
-            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-
-        return Ok(new RunExportRecordResponse { Record = record });
+        ScopedExportRecordLoadResult result = await _runExportQueryFacade.GetExportRecordAsync(exportRecordId, cancellationToken);
+        return result.Outcome switch
+        {
+            ExportRecordLoadOutcome.Success => Ok(new RunExportRecordResponse { Record = result.Record! }),
+            ExportRecordLoadOutcome.ExportRecordNotFound => this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound),
+            _ => throw new InvalidOperationException($"Unexpected export record outcome: {result.Outcome}."),
+        };
     }
 
     [HttpGet("review/exports/compare")]
@@ -80,21 +64,12 @@ public sealed class ExportsController(
     public async Task<IActionResult> CompareExportRecords(
         [FromQuery] string leftExportRecordId,
         [FromQuery] string rightExportRecordId,
-        CancellationToken cancellationToken)
-    {
-        LoadedExportRecordPair loaded =
-            await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
-        if (loaded.Error is not null)
-            return loaded.Error;
+        CancellationToken cancellationToken) =>
+        MapExportRecordDiffResult(await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
 
-        ExportRecordDiffResult diff = await exportRecordDiffService.CompareAsync(loaded.Left!, loaded.Right!, cancellationToken);
-
-        return Ok(new ExportRecordDiffResponse { Diff = diff });
-    }
-
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/exports/compare/summary")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Audit: IRunExportQueryFacade.CompareExportRecordsSummaryAsync logs ComparisonSummaryPersisted.")]
     [ProducesResponseType(typeof(ExportRecordDiffSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompareExportRecordsSummary(
@@ -103,45 +78,16 @@ public sealed class ExportsController(
         [FromBody] PersistComparisonRequest? request,
         CancellationToken cancellationToken)
     {
-        LoadedExportRecordPair loaded =
-            await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
-        if (loaded.Error is not null)
-            return loaded.Error;
-
         request ??= new PersistComparisonRequest();
-
-        ExportRecordDiffResult diff = await exportRecordDiffService.CompareAsync(loaded.Left!, loaded.Right!, cancellationToken);
-        string summary = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
-
-        if (!request.Persist)
-            return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = summary });
-
-        string comparisonRecordId = await comparisonAuditService.RecordExportDiffAsync(
-            diff,
-            summary,
-            cancellationToken);
-        Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = comparisonRecordId;
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ComparisonSummaryPersisted,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        comparisonId = comparisonRecordId,
-                        sourceExportRecordId = leftExportRecordId,
-                        leftExportRecordId,
-                        rightExportRecordId
-                    },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            cancellationToken);
-
-        return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = summary });
+        ExportRecordDiffSummaryQueryResult result = await _runExportQueryFacade.CompareExportRecordsSummaryAsync(
+            leftExportRecordId, rightExportRecordId, request.Persist, cancellationToken);
+        if (result.Outcome is not ExportRecordLoadOutcome.Success)
+            return MapExportRecordLoadOutcome(result.Outcome, result.MissingId);
+        if (!string.IsNullOrWhiteSpace(result.ComparisonRecordId))
+            Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = result.ComparisonRecordId;
+        return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = result.SummaryMarkdown! });
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/exports/{exportRecordId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
@@ -152,25 +98,16 @@ public sealed class ExportsController(
         [FromBody] ApiReplayExportRequest? request,
         CancellationToken cancellationToken)
     {
-        request ??= new ApiReplayExportRequest(); // body is optional; defaults apply when omitted
-
-        if (await LoadScopedExportRecordAsync(exportRecordId, cancellationToken) is null)
-            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-
-        ReplayExportResult result = await exportReplayService.ReplayAsync(
-            new AppReplayExportRequest
-            {
-                ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport
-            },
+        request ??= new ApiReplayExportRequest();
+        ExportReplayQueryResult result = await _runExportQueryFacade.ReplayExportAsync(
+            exportRecordId,
+            new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
             cancellationToken);
-
-        await TryLogReplayExportRecordedAsync(result, request.RecordReplayExport, cancellationToken);
-
-        return ReplayArtifactResponseFactory.FromExportReplay(Request, result);
+        if (result.Outcome is not ExportRecordLoadOutcome.Success)
+            return this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound);
+        return ReplayArtifactResponseFactory.FromExportReplay(Request, result.Replay!);
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/exports/{exportRecordId}/replay/metadata")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayExportMetadataResponse), StatusCodes.Status200OK)]
@@ -182,135 +119,27 @@ public sealed class ExportsController(
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayExportRequest();
-
-        if (await LoadScopedExportRecordAsync(exportRecordId, cancellationToken) is null)
-            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-
-        ReplayExportResult result = await exportReplayService.ReplayAsync(
-            new AppReplayExportRequest
-            {
-                ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport
-            },
+        ExportReplayQueryResult result = await _runExportQueryFacade.ReplayExportAsync(
+            exportRecordId,
+            new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
             cancellationToken);
-
-        await TryLogReplayExportRecordedAsync(result, request.RecordReplayExport, cancellationToken);
-
-        return Ok(new ReplayExportMetadataResponse
-        {
-            ExportRecordId = result.ExportRecordId, Format = result.Format, FileName = result.FileName
-        });
+        if (result.Outcome is not ExportRecordLoadOutcome.Success)
+            return this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound);
+        ReplayExportResult replay = result.Replay!;
+        return Ok(new ReplayExportMetadataResponse { ExportRecordId = replay.ExportRecordId, Format = replay.Format, FileName = replay.FileName });
     }
 
-    // ── Private helpers ──────────────────────────────────────────────────────
+    private IActionResult MapExportRecordDiffResult(ExportRecordDiffQueryResult result) =>
+        result.Outcome is ExportRecordLoadOutcome.Success
+            ? Ok(new ExportRecordDiffResponse { Diff = result.Diff! })
+            : MapExportRecordLoadOutcome(result.Outcome, result.MissingId);
 
-    /// <summary>
-    ///     Durable audit when replay persisted a new export row (
-    ///     <see cref="ArchLucid.Application.Analysis.ReplayExportRequest.RecordReplayExport" />).
-    /// </summary>
-    private async Task TryLogReplayExportRecordedAsync(
-        ReplayExportResult result,
-        bool recordReplayExport,
-        CancellationToken cancellationToken)
+    private IActionResult MapExportRecordLoadOutcome(ExportRecordLoadOutcome outcome, string? missingId) => outcome switch
     {
-        if (!recordReplayExport || string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId))
-            return;
-
-        Guid? auditRunId = Guid.TryParse(result.RunId, out Guid parsedRunId) ? parsedRunId : null;
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ReplayExportRecorded,
-                RunId = auditRunId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        sourceExportRecordId = result.ExportRecordId,
-                        recordedReplayExportRecordId = result.RecordedReplayExportRecordId,
-                        runId = result.RunId
-                    },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            cancellationToken);
-    }
-
-    /// <summary>
-    ///     Loads an export record only when its linked run is visible in the caller's tenant/workspace scope.
-    ///     Returns <see langword="null" /> when the record is missing or out of scope (same 404 surface).
-    /// </summary>
-    private async Task<RunExportRecord?> LoadScopedExportRecordAsync(
-        string exportRecordId,
-        CancellationToken cancellationToken)
-    {
-        RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
-        if (record is null)
-            return null;
-
-        if (await runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken) is null)
-            return null;
-
-        return record;
-    }
-
-    /// <summary>
-    ///     Validates query parameters and loads both export records.
-    ///     Returns a non-null <see cref="LoadedExportRecordPair.Error" /> on any validation or 404 failure.
-    /// </summary>
-    private async Task<LoadedExportRecordPair> LoadExportRecordPairAsync(
-        string leftExportRecordId,
-        string rightExportRecordId,
-        CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(leftExportRecordId))
-            return new LoadedExportRecordPair
-            {
-                Error = this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed)
-            };
-
-        if (string.IsNullOrWhiteSpace(rightExportRecordId))
-            return new LoadedExportRecordPair
-            {
-                Error = this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed)
-            };
-
-        RunExportRecord? left = await LoadScopedExportRecordAsync(leftExportRecordId, cancellationToken);
-        if (left is null)
-            return new LoadedExportRecordPair
-            {
-                Error = this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.",
-                    ProblemTypes.ResourceNotFound)
-            };
-
-        RunExportRecord? right = await LoadScopedExportRecordAsync(rightExportRecordId, cancellationToken);
-
-        return right is null
-            ? new LoadedExportRecordPair
-            {
-                Error = this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.",
-                    ProblemTypes.ResourceNotFound)
-            }
-            : new LoadedExportRecordPair { Left = left, Right = right };
-    }
-
-    private sealed class LoadedExportRecordPair
-    {
-        public IActionResult? Error
-        {
-            get;
-            init;
-        }
-
-        public RunExportRecord? Left
-        {
-            get;
-            init;
-        }
-
-        public RunExportRecord? Right
-        {
-            get;
-            init;
-        }
-    }
+        ExportRecordLoadOutcome.LeftIdRequired => this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed),
+        ExportRecordLoadOutcome.RightIdRequired => this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed),
+        ExportRecordLoadOutcome.LeftNotFound or ExportRecordLoadOutcome.ExportRecordNotFound => this.NotFoundProblem($"Export record '{missingId}' was not found.", ProblemTypes.ResourceNotFound),
+        ExportRecordLoadOutcome.RightNotFound => this.NotFoundProblem($"Export record '{missingId}' was not found.", ProblemTypes.ResourceNotFound),
+        _ => throw new InvalidOperationException($"Unexpected export record load outcome: {outcome}."),
+    };
 }

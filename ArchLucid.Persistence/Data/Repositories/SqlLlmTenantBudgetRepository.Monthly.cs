@@ -2,6 +2,7 @@ using System.Data;
 using System.Globalization;
 
 using ArchLucid.Core.Budgeting;
+using ArchLucid.Persistence.Budgeting;
 using ArchLucid.Persistence.Sql;
 
 using Dapper;
@@ -20,7 +21,7 @@ public sealed partial class SqlLlmTenantBudgetRepository
 
         (int utcYear, int utcMonth) = await ReadSqlUtcYearMonthAsync(connection, cancellationToken).ConfigureAwait(false);
 
-        return FormatUtcYearMonth(utcYear, utcMonth);
+        return LlmTenantBudgetPeriodCore.FormatUtcYearMonth(utcYear, utcMonth);
     }
 
     private async Task<LlmTenantBudgetStateReadModel> GetOrCreateMonthlyAsync(
@@ -28,8 +29,8 @@ public sealed partial class SqlLlmTenantBudgetRepository
         string periodKey,
         CancellationToken cancellationToken)
     {
-        (int utcYear, int utcMonth) = ParseUtcYearMonth(periodKey);
-        ValidateUtcYearMonth(utcYear, utcMonth);
+        (int utcYear, int utcMonth) = LlmTenantBudgetPeriodCore.ParseUtcYearMonth(periodKey);
+        LlmTenantBudgetPeriodCore.ValidateUtcYearMonth(utcYear, utcMonth);
 
         using IDbConnection connection = await _connectionFactory
             .CreateOpenConnectionAsync(cancellationToken)
@@ -72,7 +73,7 @@ public sealed partial class SqlLlmTenantBudgetRepository
         if (request.ReserveUsd <= 0m)
         {
             using IDbConnection c = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            (int y, int m) = ParseUtcYearMonth(request.PeriodKey);
+            (int y, int m) = LlmTenantBudgetPeriodCore.ParseUtcYearMonth(request.PeriodKey);
             LlmTenantBudgetStateReadModel? cur = await SelectMonthlyAsync(c, request.TenantId, y, m, cancellationToken).ConfigureAwait(false);
 
             return cur is null
@@ -87,9 +88,9 @@ public sealed partial class SqlLlmTenantBudgetRepository
             await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         (int sqlYear, int sqlMonth) = await ReadSqlUtcYearMonthAsync(connection, cancellationToken).ConfigureAwait(false);
-        (int requestYear, int requestMonth) = ParseUtcYearMonth(request.PeriodKey);
+        (int requestYear, int requestMonth) = LlmTenantBudgetPeriodCore.ParseUtcYearMonth(request.PeriodKey);
         bool periodKeyMismatch = requestYear != sqlYear || requestMonth != sqlMonth;
-        string authoritativePeriodKey = FormatUtcYearMonth(sqlYear, sqlMonth);
+        string authoritativePeriodKey = LlmTenantBudgetPeriodCore.FormatUtcYearMonth(sqlYear, sqlMonth);
 
         await EnsureMonthlyRowAsync(connection, request.TenantId, sqlYear, sqlMonth, cancellationToken).ConfigureAwait(false);
 
@@ -177,10 +178,10 @@ public sealed partial class SqlLlmTenantBudgetRepository
             await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         (int sqlYear, int sqlMonth) = await ReadSqlUtcYearMonthAsync(connection, cancellationToken).ConfigureAwait(false);
-        (int mintedYear, int mintedMonth) = ParseUtcYearMonth(request.PeriodKey);
-        ValidateUtcYearMonth(mintedYear, mintedMonth);
+        (int mintedYear, int mintedMonth) = LlmTenantBudgetPeriodCore.ParseUtcYearMonth(request.PeriodKey);
+        LlmTenantBudgetPeriodCore.ValidateUtcYearMonth(mintedYear, mintedMonth);
         bool periodKeyMismatch = mintedYear != sqlYear || mintedMonth != sqlMonth;
-        string authoritativePeriodKey = FormatUtcYearMonth(sqlYear, sqlMonth);
+        string authoritativePeriodKey = LlmTenantBudgetPeriodCore.FormatUtcYearMonth(sqlYear, sqlMonth);
 
         if (request is { ActualUsd: 0m, ReleaseReservedUsd: 0m })
         {
@@ -254,22 +255,6 @@ public sealed partial class SqlLlmTenantBudgetRepository
                 cancellationToken: cancellationToken));
     }
 
-    private static (int Year, int Month) ParseUtcYearMonth(string periodKey)
-    {
-        string[] parts = periodKey.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        if (parts.Length != 2)
-            throw new FormatException("Monthly period key must be yyyy-MM.");
-
-        int y = int.Parse(parts[0], CultureInfo.InvariantCulture);
-        int m = int.Parse(parts[1], CultureInfo.InvariantCulture);
-
-        return (y, m);
-    }
-
-    private static string FormatUtcYearMonth(int utcYear, int utcMonth) =>
-        string.Format(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", utcYear, utcMonth);
-
     private static async Task<(int Year, int Month)> ReadSqlUtcYearMonthAsync(
         IDbConnection connection,
         CancellationToken cancellationToken)
@@ -279,7 +264,7 @@ public sealed partial class SqlLlmTenantBudgetRepository
                 new CommandDefinition(LlmTenantBudgetSql.SelectSqlUtcYearMonth, cancellationToken: cancellationToken))
             .ConfigureAwait(false);
 
-        ValidateUtcYearMonth(row.Year, row.Month);
+        LlmTenantBudgetPeriodCore.ValidateUtcYearMonth(row.Year, row.Month);
 
         return row;
     }
@@ -315,15 +300,6 @@ public sealed partial class SqlLlmTenantBudgetRepository
         catch (SqlException ex) when (ex.Number is 2601 or 2627)
         {
         }
-    }
-
-    private static void ValidateUtcYearMonth(int utcYear, int utcMonth)
-    {
-        if (utcYear is < 2000 or > 2100)
-            throw new ArgumentOutOfRangeException(nameof(utcYear));
-
-        if (utcMonth is < 1 or > 12)
-            throw new ArgumentOutOfRangeException(nameof(utcMonth));
     }
 
     private sealed class MonthlySettleOutput
