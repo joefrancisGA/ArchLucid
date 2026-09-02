@@ -48,14 +48,23 @@ using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Reads;
 using ArchLucid.Persistence.Repositories;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup.Modules;
 
-public static partial class ServiceCollectionExtensions
+/// <summary>Authority decision engine, repositories, and artifact synthesis DI registrations.</summary>
+public static class CoordinatorArtifactsCompositionModule
 {
+    /// <summary>Registers coordinator repositories and artifact synthesis services.</summary>
+    public static void Register(IServiceCollection services, IConfiguration configuration)
+    {
+        RegisterAuthorityDecisionEngineAndRepositories(services, configuration);
+        RegisterArtifactSynthesis(services);
+    }
+
     // TB-305 / ADR 0042 (decision D): DecisionEngineV2, IDecisionNodeRepository, and DecisionNodeManifestMerger are LIVE
     // authority-pipeline components (consumed by AuthorityDrivenArchitectureRunCommitOrchestrator), not vestigial coordinator
     // primitives. The legacy coordinator repository family was deleted in ADR 0030 PR A3; this registration is authority-side.
@@ -303,4 +312,3 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IInfrastructureCostArtifactAugmentationProvider,
             MultiCloudInfrastructureCostArtifactAugmentationProvider>();
     }
-}

@@ -85,6 +85,8 @@ using ArchLucid.Retrieval.FineTuning.Redaction;
 using ArchLucid.Retrieval.FineTuning.Registry;
 using ArchLucid.AgentRuntime.FineTuning;
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
@@ -92,11 +94,13 @@ using Microsoft.Extensions.Options;
 
 using Polly;
 
-namespace ArchLucid.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup.Modules;
 
-public static partial class ServiceCollectionExtensions
+/// <summary>Retrieval, embedding, vector index, and fine-tuning DI registrations.</summary>
+public static class RetrievalCompositionModule
 {
-    private static void RegisterRetrieval(IServiceCollection services, IConfiguration configuration)
+    /// <summary>Registers retrieval indexing, embedding, and fine-tuning services.</summary>
+    public static void Register(IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<RetrievalEmbeddingCapOptions>(
             configuration.GetSection(RetrievalEmbeddingCapOptions.SectionName));
