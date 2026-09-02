@@ -76,6 +76,7 @@ function RunsDashboardStatusTabLinks(props: {
           <FilterChip
             key={id}
             href={runsDashboardTabHrefFromSearch(props.currentSearch, id)}
+            scroll={false}
             className={buyerFilterChipClass(selected, false)}
             aria-current={selected ? "page" : undefined}
             data-testid={`${props.testIdPrefix}-${id}`}
