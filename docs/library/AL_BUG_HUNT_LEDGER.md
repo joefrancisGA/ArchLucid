@@ -1786,11 +1786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 101
-- **bugs-found:** 213
+- **hunts:** 102
+- **bugs-found:** 214
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Azure retail prices slash-mo monthly unit-of-measure synonym
+- **last-bug:** 2026-09-02 — Azure retail prices slash-hr hourly unit-of-measure synonym
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2123,6 +2123,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — `1/mo` monthly unit-of-measure synonym rejected — **hit 2026-09-02 (#516):** `"UnitOfMeasure": "1/mo"` failed `TryMonthlyUsdFromRow` while `"1 Month"` and `"1 Mo"` already matched after #515; fixed by accepting `/mo` token (`AzureRetailPricesSkuMatchersTests.TryMonthlyUsdFromRow_accepts_slash_mo_unit_of_measure_synonym`).
 
 2026-09-02 seed hunt #516: reseeded from ArchLucid.Core Azure retail SKU matchers; proved slash-mo monthly UOM synonym gap (symmetric to #515 Mo fix).
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — `1/hr` hourly unit-of-measure synonym rejected — **hit 2026-09-02 (#517):** `"UnitOfMeasure": "1/hr"` failed `TryMonthlyUsdFromRow` while `"1 Hr"` and `"1 h"` already matched after #513–#514; fixed by accepting `/hr` token (`AzureRetailPricesSkuMatchersTests.TryMonthlyUsdFromRow_accepts_slash_hr_unit_of_measure_synonym`).
+
+2026-09-02 seed hunt #517: reseeded from ArchLucid.Core Azure retail SKU matchers; proved slash-hr hourly UOM synonym gap (symmetric to #516 slash-mo fix).
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
