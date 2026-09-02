@@ -1,16 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
-import { runsDashboardTabLabel } from "@/components/operator-home/runs-dashboard-helpers";
 import {
+  homeGovernanceWarningsClearHrefFromSearch,
+  homeGovernanceWarningsHrefFromSearch,
   runsDashboardHomeHrefFromSearch,
-  runsDashboardTabHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { RunsDashboardStatusTabLinks } from "@/components/operator-home/RunsDashboardStatusTabLinks";
 import {
   BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
@@ -20,6 +20,7 @@ import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export type RunsDashboardPanelFiltersProps = {
   readonly buyerPolishedShell: boolean;
@@ -34,59 +35,6 @@ export type RunsDashboardPanelFiltersProps = {
   readonly showArchived: boolean;
   readonly openAllReviewsHref: string;
 };
-
-function RunsDashboardStatusTabLinks(props: {
-  readonly buyerPolishedShell: boolean;
-  readonly tab: RunsDashboardTabId;
-  readonly statusTabIds: readonly RunsDashboardTabId[];
-  readonly statusTabCounts: Readonly<Record<RunsDashboardTabId, number>>;
-  readonly currentSearch: string;
-  readonly testIdPrefix: string;
-}): React.JSX.Element {
-  return (
-    <div
-      role="group"
-      aria-label={props.buyerPolishedShell ? "Filter reviews" : "Review views"}
-      data-testid="runs-dashboard-status-filters"
-      className={cn(
-        "flex flex-wrap gap-1.5",
-        props.buyerPolishedShell ? "" : "-mb-px overflow-x-auto border-b border-neutral-200 pb-0 dark:border-neutral-800",
-      )}
-    >
-      {props.statusTabIds.map((id) => {
-        const selected = props.tab === id;
-        const disabled = props.statusTabCounts[id] === 0 && id !== "all";
-        const label = runsDashboardTabLabel(id, props.buyerPolishedShell, props.statusTabCounts[id]);
-
-        if (disabled) {
-          return (
-            <FilterChip
-              key={id}
-              className={buyerFilterChipClass(false, true)}
-              aria-label={label}
-              disabled
-              data-testid={`${props.testIdPrefix}-${id}`}
-            >
-              {label}
-            </FilterChip>
-          );
-        }
-
-        return (
-          <FilterChip
-            key={id}
-            href={runsDashboardTabHrefFromSearch(props.currentSearch, id)}
-            className={buyerFilterChipClass(selected, false)}
-            aria-current={selected ? "page" : undefined}
-            data-testid={`${props.testIdPrefix}-${id}`}
-          >
-            {label}
-          </FilterChip>
-        );
-      })}
-    </div>
-  );
-}
 
 export function RunsDashboardPanelFilters({
   buyerPolishedShell,

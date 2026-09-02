@@ -1,18 +1,29 @@
-import { cn } from "@/lib/utils";
+"use client";
 
-import { Label } from "@/components/ui/label";
+import { useSearchParams } from "next/navigation";
+
+import { FilterChip } from "@/components/ui/filter-chip";
+import {
+  homeGovernanceWarningsClearHrefFromSearch,
+  homeGovernanceWarningsHrefFromSearch,
+  runsDashboardHomeHrefFromSearch,
+} from "@/components/operator-home/runs-dashboard-panel-presentation";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type RunsDashboardFiltersProps = {
   readonly buyerPolishedShell: boolean;
   readonly governanceWarningsOnly: boolean;
   readonly showArchived: boolean;
-  readonly onGovernanceWarningsOnlyChange: (value: boolean) => void;
-  readonly onShowArchivedChange: (value: boolean) => void;
+  readonly archivedFieldSupported: boolean;
+  readonly archivedCount: number;
+  readonly archivedFilterDisabled: boolean;
 };
 
 export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+
   if (props.buyerPolishedShell) {
     return null;
   }
@@ -24,36 +35,49 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
       role="group"
       aria-label="Filter reviews"
     >
-      <div className="flex items-center gap-2">
-        <input
-          id="runs-dashboard-governance-warnings-only"
-          type="checkbox"
-          className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
-          checked={props.governanceWarningsOnly}
-          onChange={(e) => {
-            props.onGovernanceWarningsOnlyChange(e.target.checked);
-          }}
+      {props.governanceWarningsOnly ? (
+        <FilterChip
+          href={homeGovernanceWarningsClearHrefFromSearch(currentSearch)}
+          className={buyerFilterChipClass(true, false)}
+          aria-current={true}
+          aria-label={RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
           data-testid="runs-dashboard-governance-warnings-only"
-        />
-        <Label htmlFor="runs-dashboard-governance-warnings-only" className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}>
+        >
           {RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
-        </Label>
-      </div>
-      <div className="flex items-center gap-2">
-        <input
-          id="runs-dashboard-show-archived"
-          type="checkbox"
-          className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
-          checked={props.showArchived}
-          onChange={(e) => {
-            props.onShowArchivedChange(e.target.checked);
-          }}
-          data-testid="runs-dashboard-show-archived"
-        />
-        <Label htmlFor="runs-dashboard-show-archived" className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}>
-          {RUNS_DASHBOARD_LABELS.showArchived}
-        </Label>
-      </div>
+        </FilterChip>
+      ) : (
+        <FilterChip
+          href={homeGovernanceWarningsHrefFromSearch(currentSearch)}
+          className={buyerFilterChipClass(false, false)}
+          aria-label={RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
+          data-testid="runs-dashboard-governance-warnings-only"
+        >
+          {RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
+        </FilterChip>
+      )}
+      {props.archivedFieldSupported ? (
+        props.showArchived ? (
+          <FilterChip
+            href={runsDashboardHomeHrefFromSearch(currentSearch, { showArchived: false })}
+            className={buyerFilterChipClass(true, props.archivedFilterDisabled)}
+            aria-current={true}
+            aria-label={RUNS_DASHBOARD_LABELS.showArchived}
+            data-testid="runs-dashboard-show-archived"
+          >
+            {RUNS_DASHBOARD_LABELS.showArchived}
+          </FilterChip>
+        ) : (
+          <FilterChip
+            href={props.archivedFilterDisabled ? undefined : runsDashboardHomeHrefFromSearch(currentSearch, { showArchived: true })}
+            className={buyerFilterChipClass(false, props.archivedFilterDisabled)}
+            aria-label={RUNS_DASHBOARD_LABELS.showArchived}
+            disabled={props.archivedFilterDisabled}
+            data-testid="runs-dashboard-show-archived"
+          >
+            {RUNS_DASHBOARD_LABELS.showArchived}
+          </FilterChip>
+        )
+      ) : null}
     </div>
   );
 }
