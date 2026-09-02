@@ -1,8 +1,8 @@
 // stryker disable all
 using System.Data;
-using System.Text.Json;
 
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Repositories;
 
 using Dapper;
 
@@ -101,7 +101,7 @@ public sealed partial class ComparisonRecordRepository
                            """;
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        string? tagsJson = tags is null || tags.Count == 0 ? null : JsonSerializer.Serialize(tags);
+        string? tagsJson = ComparisonRecordRepositoryCore.SerializeTagsForUpdate(tags);
         int rows = await connection.ExecuteAsync(new CommandDefinition(
             sql,
             new { ComparisonRecordId = comparisonRecordId, Label = label ?? (object)DBNull.Value, Tags = tagsJson ?? (object)DBNull.Value },
