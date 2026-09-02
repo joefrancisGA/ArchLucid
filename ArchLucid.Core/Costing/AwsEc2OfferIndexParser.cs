@@ -191,7 +191,7 @@ public static class AwsEc2OfferIndexParser
     {
         value = null;
 
-        if (!attributes.TryGetProperty(name, out JsonElement element))
+        if (!TryGetPropertyCaseInsensitive(attributes, name, out JsonElement element))
             return false;
 
         if (element.ValueKind is not JsonValueKind.String)

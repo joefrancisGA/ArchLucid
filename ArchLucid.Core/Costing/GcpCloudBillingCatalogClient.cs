@@ -128,7 +128,7 @@ public sealed class GcpCloudBillingCatalogClient
 
             foreach (JsonElement sku in skus.EnumerateArray())
             {
-                if (!sku.TryGetProperty("description", out JsonElement descriptionElement))
+                if (!TryGetPropertyCaseInsensitive(sku, "description", out JsonElement descriptionElement))
                     continue;
 
                 string? description = descriptionElement.GetString();
