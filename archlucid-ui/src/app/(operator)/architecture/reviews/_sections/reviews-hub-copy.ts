@@ -18,6 +18,15 @@ export const REVIEWS_HUB_MORE_WAYS_TITLE = "Samples and what a review includes";
 export const REVIEWS_HUB_MORE_WAYS_SUMMARY =
   "Load a sample workspace, open the showcase review, compare finalized reviews, or scan deliverables.";
 
+export const REVIEWS_HUB_MEDIAN_DELTA_TITLE = "Recent finalized reviews — median delta";
+
+export const REVIEWS_HUB_MEDIAN_DELTA_SUMMARY =
+  "Median findings, time to finalize, and LLM calls across recent reviews.";
+
+export const REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE = "Review-cycle delta (before vs measured)";
+
+export const REVIEWS_HUB_REVIEW_CYCLE_DELTA_SUMMARY =
+  "Compare baseline review cycle time and estimated savings for finalized reviews.";
 
 export const REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL = "Active";
 

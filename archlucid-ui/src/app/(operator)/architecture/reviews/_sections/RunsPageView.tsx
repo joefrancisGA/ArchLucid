@@ -22,10 +22,14 @@ import {
   REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE,
   REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT,
   REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT,
+  REVIEWS_HUB_MEDIAN_DELTA_SUMMARY,
+  REVIEWS_HUB_MEDIAN_DELTA_TITLE,
   REVIEWS_HUB_MORE_WAYS_SUMMARY,
   REVIEWS_HUB_MORE_WAYS_TITLE,
   REVIEWS_HUB_PAGE_SUBTITLE,
   REVIEWS_HUB_PAGE_TITLE,
+  REVIEWS_HUB_REVIEW_CYCLE_DELTA_SUMMARY,
+  REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE,
 } from "./reviews-hub-copy";
 import { ReviewsHubHeaderActions } from "./ReviewsHubHeaderActions";
 import {
@@ -136,9 +140,28 @@ export function RunsPageView(props: Props) {
 
         {hubLoadOk && hasReviews ? (
           <div className={REVIEWS_HUB_ANALYTICS_STACK_CLASS} data-testid="reviews-hub-analytics">
-            <ReviewsHubBeforeAfterDeltaPanelDeferred />
+            <CollapsibleSection
+              title={REVIEWS_HUB_MEDIAN_DELTA_TITLE}
+              summaryLine={REVIEWS_HUB_MEDIAN_DELTA_SUMMARY}
+              defaultOpen={false}
+              sectionTestId="reviews-hub-median-delta"
+              className="mb-0"
+            >
+              <ReviewsHubBeforeAfterDeltaPanelDeferred embeddedInCollapsible />
+            </CollapsibleSection>
             {m.firstCommittedRunId !== null ? (
-              <RunsIndexBeforeAfterPanelDeferred committedRunId={m.firstCommittedRunId} />
+              <CollapsibleSection
+                title={REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE}
+                summaryLine={REVIEWS_HUB_REVIEW_CYCLE_DELTA_SUMMARY}
+                defaultOpen={false}
+                sectionTestId="reviews-hub-review-cycle-delta"
+                className="mb-0"
+              >
+                <RunsIndexBeforeAfterPanelDeferred
+                  committedRunId={m.firstCommittedRunId}
+                  embeddedInCollapsible
+                />
+              </CollapsibleSection>
             ) : null}
           </div>
         ) : null}
