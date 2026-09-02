@@ -8,7 +8,7 @@
 
 - Scope ids, manifest/run/snapshot/trace/rule-set ids, **`ArchitectureVersionId`**
 - **Create-time policy pack pins** (`CreateTimePolicyPackPins`: id + version rows)
-- **Create-time evidence package pins** (`CreateTimeEvidencePackagePins`: provider + package id)
+- **Create-time evidence package pins** (`CreateTimeEvidencePackagePins`: provider + package id + collection timestamp when available)
 - **Create-time evidence pin hash** (`CreateTimeEvidencePackagePinsHashSha256`: uppercase hex over canonical pin JSON)
 - Structural sections: requirements, topology, security, compliance, cost, constraints, unresolved issues
 - Sorted decisions (with sorted supporting finding ids / related node ids)
