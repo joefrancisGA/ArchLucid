@@ -4,6 +4,7 @@ using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Decisioning.Services;
 
@@ -13,7 +14,8 @@ public sealed class RequirementCrossRunDiffFindingEngine : IFindingEngine
 
     public string Category => "Requirement";
 
-    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+        CancellationToken ct)
     {
         RequirementNameDiffResult diff = GraphSnapshotRequirementDiffAnalyzer.AnalyzeNameDelta(graphSnapshot);
         List<Finding> findings = [];

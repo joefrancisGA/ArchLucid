@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucidFindingEngine;
 
@@ -16,7 +17,8 @@ public sealed class PluginSampleFindingEngine : IFindingEngine
 
     public string Category => "Sample";
 
-    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 

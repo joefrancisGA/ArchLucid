@@ -4,6 +4,7 @@ using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Decisioning.Services;
 
@@ -13,7 +14,8 @@ public sealed class SecurityBaselineExpectationFindingEngine(IGraphCoverageAnaly
 
     public string Category => "Security";
 
-    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
+    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+        CancellationToken ct)
     {
         SecurityBaselineCategoryExpectationResult result =
             analyzer.AnalyzeSecurityBaselineExpectations(graphSnapshot);

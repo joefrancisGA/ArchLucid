@@ -23,6 +23,7 @@ import type { ReviewPackageDoThisNext } from "./resolve-review-package-do-this-n
 export type ReviewPackageDoThisNextStripProps = {
   readonly next: ReviewPackageDoThisNext;
   readonly runId: string;
+  readonly retryCount?: number | null;
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
   readonly sessionAiReadiness: SessionAiReadinessState;
@@ -246,6 +247,7 @@ export function ReviewPackageDoThisNextStrip(
   const {
     next,
     runId,
+    retryCount = null,
     hasGoldenManifest,
     commitBlockedReason,
     sessionAiReadiness,
@@ -285,6 +287,7 @@ export function ReviewPackageDoThisNextStrip(
           ) : next.kind === "rerun-review" && !blockRerun ? (
             <ReRunReviewButton
               runId={runId}
+              retryCount={retryCount}
               variant={buttonVariant}
               size="sm"
               data-testid="review-package-re-run-review"

@@ -141,8 +141,8 @@ public sealed class ArchitectureRunExecuteAgentLoopStage(
             {
                 // Deferred authority-pipeline reviews never persist AgentTasks until the worker
                 // finishes. Re-run must resume that pipeline (IIncompleteAuthorityPipelineExecuteHandler)
-                // rather than reaching this throw, which persisted failureClass=invalidOperation.
-                throw new InvalidOperationException($"No tasks found for run '{runId}'.");
+                // rather than reaching this throw, which persisted a bare failureClass=invalidOperation.
+                throw new NoScheduledAgentTasksException(runId);
             }
 
             AgentEvidencePackage evidence = await _evidenceBuilder.BuildAsync(runId, request, cancellationToken);

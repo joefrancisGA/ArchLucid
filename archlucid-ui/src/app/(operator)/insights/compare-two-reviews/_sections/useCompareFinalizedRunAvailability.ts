@@ -1,6 +1,7 @@
 "use client";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
+import { filterTenantOverviewRuns } from "@/lib/operator/operator-home-recent-reviews-outcome";
 
 export type CompareFinalizedRunAvailability = {
   readonly loading: boolean;
@@ -22,7 +23,7 @@ export function useCompareFinalizedRunAvailability(): CompareFinalizedRunAvailab
     mergeDemoOnEmpty: false,
   });
 
-  const finalizedCount = data?.items.length ?? 0;
+  const finalizedCount = filterTenantOverviewRuns(data?.items ?? []).length;
 
   return {
     loading: isPending,

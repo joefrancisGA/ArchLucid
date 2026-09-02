@@ -113,6 +113,26 @@ internal static class BundledPolicyPackTestCatalog
             (DecisioningCompliance.ComplianceRulePack)filtered);
     }
 
+    /// <summary>
+    ///     Filtered file pack for golden sibling engines. Does not inject
+    ///     <c>IEffectiveGovernanceLoader</c> into <see cref="GoldenCorpusHarness"/>.
+    /// </summary>
+    public static async Task<DecisioningCompliance.ComplianceRulePack> LoadFilteredFilePackAsync(
+        PolicyPackContentDocument content,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+
+        DecisioningCompliance.ComplianceRulePack filePack = await LoadMergedFilePackAsync(ct);
+        ContractsCompliance.ComplianceRulePack merged =
+            TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(
+                (ContractsCompliance.ComplianceRulePack)filePack,
+                content);
+        ContractsCompliance.ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(merged, content);
+
+        return (DecisioningCompliance.ComplianceRulePack)filtered;
+    }
+
     /// <summary>Returns a copy of <paramref name="content" /> whose priority floor is widened or narrowed.</summary>
     public static PolicyPackContentDocument WithPriorityFloor(PolicyPackContentDocument content, string priorityFloor)
     {

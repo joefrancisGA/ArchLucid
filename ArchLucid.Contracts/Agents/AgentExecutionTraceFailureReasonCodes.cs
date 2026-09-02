@@ -29,4 +29,16 @@ public static class AgentExecutionTraceFailureReasonCodes
     ///     succeed.
     /// </summary>
     public const string SchemaRemediationParseFailed = nameof(SchemaRemediationParseFailed);
+
+    /// <summary>
+    ///     Execute ran before any <c>AgentTask</c> rows existed (deferred authority pipeline not resumed).
+    ///     Persisted on <c>LastFailureReason.reasonCode</c> so operators are not left with a bare
+    ///     <c>failureClass=invalidOperation</c>.
+    /// </summary>
+    public const string NoScheduledAgentTasks = nameof(NoScheduledAgentTasks);
+
+    /// <summary>
+    ///     Re-run/resume could not load the architecture request needed to restart the deferred pipeline.
+    /// </summary>
+    public const string MissingArchitectureRequest = nameof(MissingArchitectureRequest);
 }

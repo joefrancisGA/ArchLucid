@@ -9,6 +9,7 @@ import {
   globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
+import { OPEN_COMMAND_PALETTE_EVENT } from "@/lib/shortcut-registry";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -154,6 +155,22 @@ describe("GlobalSearchBar", () => {
     expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
     expect(screen.queryByText("No matches.")).not.toBeInTheDocument();
     expect(screen.queryByText(/No pages, reviews, or findings matched/)).not.toBeInTheDocument();
+  });
+
+  it("dispatches the command palette with the current query on Ctrl+K", () => {
+    render(<GlobalSearchBar />);
+
+    const listener = vi.fn();
+    window.addEventListener(OPEN_COMMAND_PALETTE_EVENT, listener);
+
+    const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+    fireEvent.change(input, { target: { value: "claims" } });
+    fireEvent.keyDown(input, { key: "k", ctrlKey: true });
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect((listener.mock.calls[0]?.[0] as CustomEvent).detail).toEqual({ initialQuery: "claims" });
+
+    window.removeEventListener(OPEN_COMMAND_PALETTE_EVENT, listener);
   });
 
   it("shows actionable guidance when search returns no matches", async () => {

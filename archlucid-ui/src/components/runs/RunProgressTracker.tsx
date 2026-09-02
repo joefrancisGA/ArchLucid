@@ -120,7 +120,11 @@ export function RunProgressTracker({
 
       {tracker.pipelineTerminalFailure ? (
         <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
-          <ReRunReviewButton runId={runId} data-testid="run-progress-re-run-review" />
+          <ReRunReviewButton
+            runId={runId}
+            retryCount={diagnosticContext?.retryCount ?? initialSummary?.retryCount ?? null}
+            data-testid="run-progress-re-run-review"
+          />
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Re-invokes agent execution for this review with the same intake.
           </p>

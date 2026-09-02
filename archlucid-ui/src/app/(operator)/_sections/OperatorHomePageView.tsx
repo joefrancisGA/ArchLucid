@@ -4,9 +4,9 @@ import Link from "next/link";
 
 import { OperatorHomeDeferredOnboarding } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
 import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRail";
-import { OperatorHomeRecommendedNextCard } from "@/components/operator-home/OperatorHomeRecommendedNextCard";
 import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
+import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
@@ -105,13 +105,6 @@ type RenderOperatorHomeSectionInput = {
 
 function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React.JSX.Element | null {
   switch (input.section.id) {
-    case "recommended-next":
-      return (
-        <div key={input.section.id} data-testid={input.section.testId}>
-          <OperatorHomeRecommendedNextCard runsDashboard={input.model.runsDashboard} />
-        </div>
-      );
-
     case "metrics-strip":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>
@@ -119,10 +112,19 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
         </div>
       );
 
+    case "attention-taxonomy":
+      return (
+        <div key={input.section.id} data-testid={input.section.testId}>
+          <OperatorAttentionKindStrip variant="compact" />
+        </div>
+      );
+
     case "start-something":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>
-          <OperatorHomeCompactStartingActionsSection />
+          <OperatorHomeCompactStartingActionsSection
+            hasCommittedManifest={input.workspaceMetrics.reviewPackagesCommitted > 0}
+          />
         </div>
       );
 

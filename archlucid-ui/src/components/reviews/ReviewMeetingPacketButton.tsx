@@ -59,17 +59,23 @@ function buildMeetingPacketSteps(props: ReviewMeetingPacketButtonProps): readonl
     {
       id: "board-pack",
       label: "Review board package (PDF)",
-      description: "Finalized review board PDF when the review is committed.",
+      description: "Finalized review board PDF when the review is finalized.",
       href: getRunPackageExportUrl(runId, "pdf"),
       downloadLabel: "Download PDF",
     },
     {
       id: "sponsor-synopsis",
-      label: "Sponsor synopsis",
+      label: "Sponsor briefing export",
       description: "Executive bottom-line summary for non-architect attendees.",
       href: props.sponsorSynopsisHref ?? `/architecture/reviews/${encodeURIComponent(runId)}#sponsor-briefing`,
     },
   ];
+}
+
+export function buildReviewMeetingPacketSteps(
+  props: ReviewMeetingPacketButtonProps,
+): readonly ReviewMeetingPacketStep[] {
+  return buildMeetingPacketSteps(props);
 }
 
 /** One-click CAB / meeting packet launcher with ordered exports and deep links. */

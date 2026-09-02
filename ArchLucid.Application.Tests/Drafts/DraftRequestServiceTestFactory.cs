@@ -11,6 +11,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Options;
 
@@ -51,7 +52,8 @@ internal static class DraftRequestServiceTestFactory
             architectureRunCommandService,
             contentSafetyPrecheck,
             feasibilityVerdictBuilder,
-            workspaceSystemNameCollisionGuard);
+            workspaceSystemNameCollisionGuard,
+            Mock.Of<IRunRepository>());
 
         DraftBranchingService branchingService = new(
             repository,

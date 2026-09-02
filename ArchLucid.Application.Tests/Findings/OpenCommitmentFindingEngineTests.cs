@@ -26,7 +26,7 @@ public sealed class OpenCommitmentFindingEngineTests
             trailRepo,
             enabled: false);
 
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
         trailRepo.Verify(
@@ -52,7 +52,7 @@ public sealed class OpenCommitmentFindingEngineTests
             ]);
 
         OpenCommitmentFindingEngine engine = CreateEngine(trailRepo, now: now);
-        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().NotBeEmpty();
         findings.Should().OnlyContain(f => !string.IsNullOrWhiteSpace(f.DecisionConsequence));

@@ -202,4 +202,42 @@ public sealed class AgentExecutionFailureSummaryFactoryTests
 
         summary.TriageScenarioId.Should().Be(RealAgentFailureTriageScenarioIds.FallbackToSimulator);
     }
+
+    [Fact]
+    public void FromException_when_no_scheduled_agent_tasks_sets_reason_code()
+    {
+        NoScheduledAgentTasksException inner = new("run-1");
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner);
+
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.InvalidOperation);
+        summary.ReasonCode.Should().Be(AgentExecutionTraceFailureReasonCodes.NoScheduledAgentTasks);
+        summary.AgentTypeKey.Should().BeNull();
+
+        string json = AgentExecutionFailureSummaryJson.Serialize(summary);
+
+        json.Should().Contain("\"failureClass\": \"invalidOperation\"");
+        json.Should().Contain("\"reasonCode\": \"NoScheduledAgentTasks\"");
+        json.Should().NotContain("\"agentType\"");
+    }
+
+    [Fact]
+    public void FromException_when_no_tasks_found_message_sets_reason_code()
+    {
+        InvalidOperationException inner = new("No tasks found for run 'abc'.");
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner);
+
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.InvalidOperation);
+        summary.ReasonCode.Should().Be(AgentExecutionTraceFailureReasonCodes.NoScheduledAgentTasks);
+    }
+
+    [Fact]
+    public void FromException_when_deferred_resume_missing_request_sets_reason_code()
+    {
+        InvalidOperationException inner = new(
+            "Request 'req-1' not found; cannot resume the deferred authority pipeline.");
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner);
+
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.InvalidOperation);
+        summary.ReasonCode.Should().Be(AgentExecutionTraceFailureReasonCodes.MissingArchitectureRequest);
+    }
 }

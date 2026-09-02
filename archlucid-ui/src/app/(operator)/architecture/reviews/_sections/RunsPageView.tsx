@@ -156,10 +156,10 @@ export function RunsPageView(props: Props) {
       ) : null}
 
       {showAdvancedList ? (
-        <details className="mt-8 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800">
-          <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+        <section className="mt-8" data-testid="reviews-hub-paginated-inventory">
+          <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE}
-          </summary>
+          </h2>
           <div className="mt-4">
             <RunsListAggregateErrorBoundaryDeferred
               runs={m.runs}
@@ -170,7 +170,7 @@ export function RunsPageView(props: Props) {
               nextCursor={m.nextCursorForClient}
             />
           </div>
-        </details>
+        </section>
       ) : null}
     </OperatorPageContainer>
   );

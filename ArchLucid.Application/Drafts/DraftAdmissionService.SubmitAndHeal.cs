@@ -21,7 +21,11 @@ public sealed partial class DraftAdmissionService
             return null;
 
         if (DraftRequestStateMachine.AllowsSubmitReplay(existing.Status))
+        {
+            EnsureSpawnedDocumentHashMatches(draftId, existing);
+
             return await ReplaySpawnedSubmitAsync(scope, draftId, existing, cancellationToken);
+        }
 
         if (existing.Status == DraftRequestStatus.Submitted)
             return await HealOrRejectSubmittedSubmitAsync(scope, draftId, existing, cancellationToken);
@@ -57,6 +61,14 @@ public sealed partial class DraftAdmissionService
 
         string spawnedRunId = DraftSubmitRunCreateResolver.ResolveRunId(createResult);
 
+        Guid? spawnedArchitectureVersionId = await TryResolveSpawnedArchitectureVersionIdAsync(
+            scope,
+            createResult,
+            spawnedRunId,
+            cancellationToken);
+
+        byte[] spawnedDocumentContentHashSha256 = DraftDocumentContentFingerprint.Compute(existing.Document);
+
         DraftRequestResponse? spawned = await _draftRepository.UpdateAsync(
             scope.TenantId,
             scope.WorkspaceId,
@@ -66,7 +78,9 @@ public sealed partial class DraftAdmissionService
             existing.Document,
             existing.RedirectReason,
             spawnedRunId,
-            cancellationToken);
+            cancellationToken,
+            spawnedArchitectureVersionId,
+            spawnedDocumentContentHashSha256);
 
         string? parentSpawnedRunId = await ResolveParentSpawnedRunIdAsync(
             scope,
@@ -174,5 +188,40 @@ public sealed partial class DraftAdmissionService
             cancellationToken);
 
         DraftPriorAnswerReuseApplicator.Apply(document, priorRunSpawned);
+    }
+
+    private async Task<Guid?> TryResolveSpawnedArchitectureVersionIdAsync(
+        ScopeContext scope,
+        CreateRunCommandResult createResult,
+        string spawnedRunId,
+        CancellationToken cancellationToken)
+    {
+        if (createResult.SynthesisResult?.ArchitectureVersionId is Guid synthesisVersionId
+            && synthesisVersionId != Guid.Empty)
+        {
+            return synthesisVersionId;
+        }
+
+        if (!Guid.TryParseExact(spawnedRunId, "N", out Guid runGuid) && !Guid.TryParse(spawnedRunId, out runGuid))
+            return null;
+
+        Persistence.Models.RunRecord? header =
+            await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+
+        return header?.ArchitectureVersionId;
+    }
+
+    private static void EnsureSpawnedDocumentHashMatches(Guid draftId, DraftRequestResponse existing)
+    {
+        if (existing.SpawnedDocumentContentHashSha256 is null)
+            return;
+
+        byte[] currentHash = DraftDocumentContentFingerprint.Compute(existing.Document);
+
+        if (DraftDocumentContentFingerprint.SequenceEqual(currentHash, existing.SpawnedDocumentContentHashSha256))
+            return;
+
+        throw new ConflictException(
+            $"Draft '{draftId}' document changed after spawn; resubmit requires a new draft revision.");
     }
 }

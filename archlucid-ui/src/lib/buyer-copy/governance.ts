@@ -32,12 +32,12 @@ export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_AUDIT = "View audit trail";
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Findings";
 
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =
-  "Track architecture risks created from findings, waivers, exceptions, and approval decisions for this review.";
+  "Track open findings, waivers, exceptions, and approval decisions across reviews in this workspace.";
 
-export const BUYER_RISK_REGISTER_EMPTY_TITLE = "No risks recorded for this review";
+export const BUYER_RISK_REGISTER_EMPTY_TITLE = "No findings in this workspace yet";
 
 export const BUYER_RISK_REGISTER_EMPTY_BODY =
-  "Risks appear here when accepted findings, waivers, exceptions, or approval decisions create follow-up risk items.";
+  "Findings from architecture reviews appear here as they are recorded. Start or open a review to capture assessment results.";
 
 export const BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION = "View governance approval";
 

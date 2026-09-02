@@ -21,7 +21,7 @@
             "context": "Security: gitleaks (secret scan)"
           },
           {
-            "context": ".NET: push corset (build + fast core Core/Decisioning)"
+            "context": ".NET: fast core (corset)"
           },
           {
             "context": "Operator UI: typecheck (blocking)"
