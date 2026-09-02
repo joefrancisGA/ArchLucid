@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 104
-- **bugs-found:** 216
+- **hunts:** 105
+- **bugs-found:** 217
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Marketplace webhook quantity above int.MaxValue silently clamped
+- **last-bug:** 2026-09-02 — Marketplace planId NonEnterprise substring false-positive tier map
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2137,6 +2137,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MarketplaceWebhookPayloadParser.TryReadQuantity` — quantity above `int.MaxValue` silently clamped to `2147483647` — **hit 2026-09-02 (#519):** `"quantity":2147483648` and `"quantity":5000000000` returned `true` with clamped seat count via unchecked `(int)` double cast; fixed with `numeric <= int.MaxValue` guard (`TryReadQuantity_rejects_quantity_above_int_max`, `ReadQuantity_uses_fallback_when_quantity_above_int_max`, `TryReadQuantity_rejects_string_encoded_quantity_above_int_max`).
 
 2026-09-02 seed hunt #519: reseeded from ArchLucid.Core marketplace webhook parser; proved quantity overflow clamp gap beyond Azure UOM synonym sweep.
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — embedded `enterprise` substring false-positive — **hit 2026-09-02 (#521):** `NonEnterpriseStandard` mapped to `Enterprise` via bare `Contains("enterprise")`; fixed with delimiter-token matching (`TierStorageCodeFromPlanId_does_not_false_positive_on_non_enterprise_substring`, `TierStorageCodeFromPlanId_maps_delimited_enterprise_token`).
+
+2026-09-02 seed hunt #521: reseeded from ArchLucid.Core marketplace billing parser; proved planId tier substring false-positive beyond quantity overflow fix.
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

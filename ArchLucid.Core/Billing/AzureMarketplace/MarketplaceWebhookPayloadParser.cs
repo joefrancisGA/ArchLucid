@@ -22,12 +22,34 @@ public static class MarketplaceWebhookPayloadParser
 
         string p = planId.Trim();
 
-        // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (p.Contains("enterprise", StringComparison.OrdinalIgnoreCase))
+        if (PlanIdContainsEnterpriseTierToken(p))
             return nameof(TenantTier.Enterprise);
 
         return nameof(TenantTier.Standard);
     }
+
+    private static bool PlanIdContainsEnterpriseTierToken(string planId)
+    {
+        int start = 0;
+
+        for (int i = 0; i <= planId.Length; i++)
+        {
+            if (i != planId.Length && !IsPlanIdDelimiter(planId[i]))
+                continue;
+
+            ReadOnlySpan<char> token = planId.AsSpan(start, i - start);
+
+            if (token.Equals("enterprise", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            start = i + 1;
+        }
+
+        return false;
+    }
+
+    private static bool IsPlanIdDelimiter(char value) =>
+        value is '-' or '_' or ' ' or '.';
 
     /// <summary>Reads <c>planId</c> when present (string or number, coerced to invariant string).</summary>
     public static bool TryGetPlanId(JsonElement root, out string? planId)

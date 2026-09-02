@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Billing.AzureMarketplace;
+using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
@@ -174,5 +175,21 @@ public sealed class MarketplaceWebhookPayloadParserTests
 
         ok.Should().BeFalse();
         quantity.Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData("Contoso-Enterprise-Plan", nameof(TenantTier.Enterprise))]
+    [InlineData("contoso-enterprise", nameof(TenantTier.Enterprise))]
+    [InlineData("team", nameof(TenantTier.Standard))]
+    public void TierStorageCodeFromPlanId_maps_delimited_enterprise_token(string planId, string expectedTier)
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId).Should().Be(expectedTier);
+    }
+
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_non_enterprise_substring()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("NonEnterpriseStandard")
+            .Should().Be(nameof(TenantTier.Standard));
     }
 }
