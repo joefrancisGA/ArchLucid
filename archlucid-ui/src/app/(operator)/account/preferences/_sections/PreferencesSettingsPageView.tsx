@@ -14,6 +14,7 @@ import { PreferencesSettingsEvidenceOrientationStrip } from "@/components/eviden
 import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 import { PREFERENCES_CLOUD_PLATFORMS_HEADING } from "@/lib/cloud-platform-scope-copy";
 import { PREFERENCES_TIME_ZONE_HEADING } from "@/lib/iana-time-zone-preference-copy";
+import { PREFERENCES_DISPLAY_ON_OPERATOR_PAGES_HEADING } from "@/lib/preferences-display-on-operator-pages-copy";
 import {
   PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID,
   PREFERENCES_WHERE_TO_GO_NEXT_HEADING,
@@ -97,7 +98,8 @@ export function PreferencesSettingsPageView() {
         actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
       />
       <PreferencesSaveChecklist
-        title="Save preferences checklist"
+        title="Your preferences"
+        description="Changes save to your account automatically."
         steps={preferencesSaveSteps}
         emphasizedStepId={preferencesSaveEmphasizedStepId}
         testIdPrefix="preferences-save"
@@ -156,53 +158,54 @@ export function PreferencesSettingsPageView() {
           )}
         </CardContent>
       </Card>
-      <Card
-        id={PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID}
-        data-testid="preferences-sample-reviews-on-overview-card"
-      >
+      <Card data-testid="preferences-display-on-operator-pages-card">
         <CardHeader>
-          <CardTitle
-            id="preferences-sample-reviews-on-overview-heading"
-            as="h2"
-            className={OPERATOR_TYPOGRAPHY.cardTitle}
-          >
-            {PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING}
+          <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {PREFERENCES_DISPLAY_ON_OPERATOR_PAGES_HEADING}
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          {sampleReviewsOnOverviewMounted ? (
-            <SampleReviewsOnOverviewPreferencePanel
-              enabled={sampleReviewsOnOverviewEnabled}
-              onEnabledChange={setSampleReviewsOnOverviewAndPersist}
-              accountSyncState={sampleReviewsOnOverviewAccountSyncState}
-              labelledById="preferences-sample-reviews-on-overview-heading"
-            />
-          ) : (
-            <div
-              aria-hidden="true"
-              className="h-16 w-full"
-              data-testid="sample-reviews-on-overview-preference-loading"
-            />
-          )}
-        </CardContent>
-      </Card>
-      <Card id={PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID} data-testid="preferences-follow-up-link-strips-card">
-        <CardHeader>
-          <CardTitle id="preferences-follow-up-strips-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {whereToGoNextMounted ? (
-            <WhereToGoNextPreferencePanel
-              enabled={whereToGoNextEnabled}
-              onEnabledChange={setWhereToGoNextAndPersist}
-              accountSyncState={whereToGoNextAccountSyncState}
-              labelledById="preferences-follow-up-strips-heading"
-            />
-          ) : (
-            <div aria-hidden="true" className="h-16 w-full" data-testid="where-to-go-next-preference-loading" />
-          )}
+        <CardContent className="space-y-6">
+          <div id={PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID} data-testid="preferences-sample-reviews-on-overview-card">
+            <h3
+              id="preferences-sample-reviews-on-overview-heading"
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+            >
+              {PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING}
+            </h3>
+            <div className="mt-3">
+              {sampleReviewsOnOverviewMounted ? (
+                <SampleReviewsOnOverviewPreferencePanel
+                  enabled={sampleReviewsOnOverviewEnabled}
+                  onEnabledChange={setSampleReviewsOnOverviewAndPersist}
+                  accountSyncState={sampleReviewsOnOverviewAccountSyncState}
+                  labelledById="preferences-sample-reviews-on-overview-heading"
+                />
+              ) : (
+                <div
+                  aria-hidden="true"
+                  className="h-16 w-full"
+                  data-testid="sample-reviews-on-overview-preference-loading"
+                />
+              )}
+            </div>
+          </div>
+          <div id={PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID} data-testid="preferences-follow-up-link-strips-card">
+            <h3 id="preferences-follow-up-strips-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
+            </h3>
+            <div className="mt-3">
+              {whereToGoNextMounted ? (
+                <WhereToGoNextPreferencePanel
+                  enabled={whereToGoNextEnabled}
+                  onEnabledChange={setWhereToGoNextAndPersist}
+                  accountSyncState={whereToGoNextAccountSyncState}
+                  labelledById="preferences-follow-up-strips-heading"
+                />
+              ) : (
+                <div aria-hidden="true" className="h-16 w-full" data-testid="where-to-go-next-preference-loading" />
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
       <PreferencesSettingsEvidenceOrientationStrip />
