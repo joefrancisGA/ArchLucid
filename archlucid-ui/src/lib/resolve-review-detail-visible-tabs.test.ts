@@ -62,7 +62,7 @@ describe("resolveReviewDetailTabLifecycleStage", () => {
 });
 
 describe("resolveReviewDetailVisibleTabs", () => {
-  it("shows every tab in the primary strip across lifecycle stages", () => {
+  it("splits primary and more tabs across lifecycle stages", () => {
     for (const input of [
       { manifestId: null, showProgressTracker: false, runCompleted: false },
       { manifestId: null, showProgressTracker: true, runCompleted: false },
@@ -70,9 +70,12 @@ describe("resolveReviewDetailVisibleTabs", () => {
       { manifestId: "m-1", showProgressTracker: false, runCompleted: true },
     ] as const) {
       const resolved = resolveReviewDetailVisibleTabs(input);
+      const combined = [...resolved.visibleTabIds, ...resolved.moreTabIds];
 
-      expect(new Set(resolved.visibleTabIds).size).toBe(resolved.visibleTabIds.length);
-      expect([...resolved.visibleTabIds].sort()).toEqual([...REVIEW_DETAIL_TAB_IDS].sort());
+      expect(new Set(combined).size).toBe(combined.length);
+      expect([...combined].sort()).toEqual([...REVIEW_DETAIL_TAB_IDS].sort());
+      expect(resolved.visibleTabIds.length).toBeGreaterThan(0);
+      expect(resolved.moreTabIds.length).toBeGreaterThan(0);
     }
   });
 
@@ -84,7 +87,8 @@ describe("resolveReviewDetailVisibleTabs", () => {
     });
 
     expect(resolved.stage).toBe("draft");
-    expect(resolved.visibleTabIds).toEqual(REVIEW_DETAIL_TAB_IDS);
+    expect(resolved.visibleTabIds).toContain("overview");
+    expect(resolved.moreTabIds.length).toBeGreaterThan(0);
     expect(resolved.defaultTabId).toBe("overview");
   });
 
@@ -108,7 +112,7 @@ describe("resolveReviewDetailVisibleTabs", () => {
     });
 
     expect(resolved.stage).toBe("committed");
-    expect(resolved.visibleTabIds).toEqual(REVIEW_DETAIL_TAB_IDS);
+    expect(resolved.visibleTabIds).toContain("review-package");
     expect(resolved.defaultTabId).toBe("review-package");
   });
 });

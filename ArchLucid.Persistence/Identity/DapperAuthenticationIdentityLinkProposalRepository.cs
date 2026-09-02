@@ -104,7 +104,7 @@ public sealed class DapperAuthenticationIdentityLinkProposalRepository(ISqlConne
             new CommandDefinition(sql, new { Id = proposalId }, cancellationToken: cancellationToken));
     }
 
-    public async Task UpdateStatusAsync(
+    public async Task<bool> TryUpdateStatusAsync(
         Guid proposalId,
         AuthenticationIdentityLinkProposalStatus status,
         DateTimeOffset statusUtc,
@@ -113,17 +113,28 @@ public sealed class DapperAuthenticationIdentityLinkProposalRepository(ISqlConne
         const string sql = """
                            UPDATE dbo.AuthenticationIdentityLinkProposals
                            SET Status = @Status,
-                               ConfirmedUtc = CASE WHEN @Status = 1 THEN @StatusUtc ELSE ConfirmedUtc END,
-                               CancelledUtc = CASE WHEN @Status = 2 THEN @StatusUtc ELSE CancelledUtc END
-                           WHERE Id = @Id;
+                               ConfirmedUtc = CASE WHEN @Status = @ConfirmedStatus THEN @StatusUtc ELSE ConfirmedUtc END,
+                               CancelledUtc = CASE WHEN @Status = @CancelledStatus THEN @StatusUtc ELSE CancelledUtc END
+                           WHERE Id = @Id
+                             AND Status = @PendingStatus;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await connection.ExecuteAsync(
+        int rows = await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { Id = proposalId, Status = status, StatusUtc = statusUtc },
+                new
+                {
+                    Id = proposalId,
+                    Status = status,
+                    StatusUtc = statusUtc,
+                    ConfirmedStatus = AuthenticationIdentityLinkProposalStatus.Confirmed,
+                    CancelledStatus = AuthenticationIdentityLinkProposalStatus.Cancelled,
+                    PendingStatus = AuthenticationIdentityLinkProposalStatus.PendingConfirmation
+                },
                 cancellationToken: cancellationToken));
+
+        return rows > 0;
     }
 }

@@ -19,6 +19,7 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
         ApplyArchitectureRequest(document);
         ApplyContextDocumentRequest(document);
         ApplyProductFeedbackRequest(document);
+        ApplyCorePilotChecklistPutRequest(document);
 
         return Task.CompletedTask;
     }
@@ -101,18 +102,33 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
 
     private static void ApplyProductFeedbackRequest(OpenApiDocument document)
     {
-        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, "ProductFeedbackRequest", out OpenApiSchema schema))
+        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, "ProductFeedbackRequest", out OpenApiSchema feedbackSchema))
             return;
 
-        OpenApiSchemaContractMutator.EnsureRequired(schema, "score");
+        OpenApiSchemaContractMutator.EnsureRequired(feedbackSchema, "score");
+        RemoveNullFromPropertySchema(feedbackSchema, "score");
+    }
 
-        if (schema.Properties is not null
-            && schema.Properties.TryGetValue("score", out IOpenApiSchema? scoreSchema)
-            && scoreSchema is OpenApiSchema mutableScore
-            && mutableScore.Type.HasValue
-            && mutableScore.Type.Value.HasFlag(JsonSchemaType.Null))
+    private static void ApplyCorePilotChecklistPutRequest(OpenApiDocument document)
+    {
+        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, "CorePilotChecklistPutRequest", out OpenApiSchema checklistSchema))
+            return;
+
+        OpenApiSchemaContractMutator.EnsureRequired(checklistSchema, "isCompleted");
+        RemoveNullFromPropertySchema(checklistSchema, "isCompleted");
+    }
+
+    private static void RemoveNullFromPropertySchema(OpenApiSchema schema, string propertyName)
+    {
+        if (schema.Properties is null
+            || !schema.Properties.TryGetValue(propertyName, out IOpenApiSchema? propertySchema)
+            || propertySchema is not OpenApiSchema mutableProperty
+            || !mutableProperty.Type.HasValue
+            || !mutableProperty.Type.Value.HasFlag(JsonSchemaType.Null))
         {
-            mutableScore.Type = mutableScore.Type.Value & ~JsonSchemaType.Null;
+            return;
         }
+
+        mutableProperty.Type = mutableProperty.Type.Value & ~JsonSchemaType.Null;
     }
 }

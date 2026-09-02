@@ -2367,7 +2367,7 @@ export interface components {
             workspaceId?: string;
         };
         CorePilotChecklistPutRequest: {
-            isCompleted: null | boolean;
+            isCompleted: boolean;
             /** Format: int32 */
             stepIndex?: number;
         };
@@ -9501,6 +9501,8 @@ export interface components {
             isAvailable?: boolean;
             systemName?: string;
         };
+        /** @enum {string} */
+        WorkspaceSystemNameOccupancyKind: "Review" | "Architecture";
     };
     responses: never;
     parameters: never;

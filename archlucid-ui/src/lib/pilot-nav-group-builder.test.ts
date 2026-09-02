@@ -1,7 +1,6 @@
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
-import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { describe, expect, it, vi, afterEach } from "vitest";
 
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator/operator-admin-nav-group-builder";
@@ -80,24 +79,21 @@ describe("PilotNavGroupBuilder", () => {
 
     expect(group.links.map((link) => link.label)).toEqual([
       "Home",
-      ARCHITECTURE_DRAFTS_LIST_LABEL,
-      "Reviews",
+      "Packages",
       "Sponsor dashboard",
-      "First review guide",
+      "Getting started",
       "Digests",
     ]);
     expect(group.links.some((link) => link.href === "/insights/evidence-graph")).toBe(false);
   });
 
-  it("lists Architectures and Reviews as peer object nav destinations", () => {
+  it("lists Packages as the unified reviews and drafts destination", () => {
     const group = new PilotNavGroupBuilder().build();
-    const architecturesLink = group.links.find((link) => link.href === ARCHITECTURES_LIST_PATH);
-    const reviewsListLink = group.links.find((link) => link.href === "/architecture/reviews");
+    const packagesLink = group.links.find((link) => link.label === "Packages");
 
-    expect(architecturesLink?.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
-    expect(reviewsListLink?.label).toBe("Reviews");
-    expect(group.links.some((link) => link.href === `${ARCHITECTURES_LIST_PATH}/new`)).toBe(false);
-    expect(group.links.some((link) => link.href === "/architecture/reviews/new")).toBe(false);
+    expect(packagesLink?.href).toBe("/architecture/reviews");
+    expect(group.links.some((link) => link.href === ARCHITECTURES_LIST_PATH)).toBe(false);
+    expect(group.links.some((link) => link.label === "Reviews")).toBe(false);
   });
 
   it("keeps Architecture intelligence out of nav so it stays a run-scoped deep-link target", () => {
