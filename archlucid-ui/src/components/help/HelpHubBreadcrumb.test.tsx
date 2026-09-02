@@ -9,11 +9,12 @@ import {
 import { HelpHubBreadcrumb } from "./HelpHubBreadcrumb";
 
 describe("HelpHubBreadcrumb", () => {
-  it("renders Welcome → Help trail", () => {
-    render(<HelpHubBreadcrumb />);
+  it("renders nothing (TB-2090 system-wide breadcrumb removal)", () => {
+    const { container } = render(<HelpHubBreadcrumb />);
 
-    const breadcrumb = screen.getByTestId("help-hub-breadcrumb");
-    expect(breadcrumb).toHaveTextContent(HELP_HUB_BREADCRUMB_HUB_LABEL);
-    expect(breadcrumb).toHaveTextContent(HELP_HUB_BREADCRUMB_TOPIC_TITLE);
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByTestId("help-hub-breadcrumb")).toBeNull();
+    expect(HELP_HUB_BREADCRUMB_HUB_LABEL).toBeTruthy();
+    expect(HELP_HUB_BREADCRUMB_TOPIC_TITLE).toBeTruthy();
   });
 });
