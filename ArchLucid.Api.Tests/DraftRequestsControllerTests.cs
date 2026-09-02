@@ -180,6 +180,35 @@ public sealed class DraftRequestsControllerTests
     }
 
     [Fact]
+    public async Task ListDrafts_MineNull_ReturnsPagedSummaries()
+    {
+        PagedResponse<DraftRequestSummaryResponse> page = new()
+        {
+            Items = [],
+            TotalCount = 0,
+            Page = 1,
+            PageSize = 50,
+        };
+
+        _service
+            .Setup(static s => s.ListAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<DraftRequestStatus>>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(page);
+
+        DraftRequestsController sut = BuildSut();
+
+        IActionResult result = await sut.ListDrafts(mine: null, cancellationToken: CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(page);
+    }
+
+    [Fact]
     public async Task GetDraft_NotFound_ReturnsNotFoundProblem()
     {
         _service

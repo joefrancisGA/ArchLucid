@@ -556,6 +556,58 @@ describe("SocraticIntakeWizard", () => {
     expect(createDraftRequest).not.toHaveBeenCalled();
   });
 
+  it("auto-submits guided intake when rerun= reaches the create review step", async () => {
+    searchParamsGet.mockImplementation((key: string) => (key === "rerun" ? "run-failed-1" : null));
+    mockAdmittedDraftWithoutClarifications();
+    submitDraftRequest.mockResolvedValue({
+      draftId: "draft-1",
+      status: "RunSpawned",
+      runId: "rerun-spawned-run",
+      requestId: "req-rerun",
+      parentSpawnedRunId: "run-failed-1",
+    });
+    getDraftRequest
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        status: "Admitted",
+        document: {
+          freeTextIntent: VALID_GUIDED_INTENT,
+          businessOutcome: "Reduce manual triage time by thirty percent.",
+          actorSet: { actors: [] },
+          requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+        },
+        createdUtc: "2026-08-05T12:00:00Z",
+        updatedUtc: "2026-08-05T12:00:00Z",
+      })
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        status: "RunSpawned",
+        spawnedRunId: "rerun-spawned-run",
+        document: {
+          freeTextIntent: VALID_GUIDED_INTENT,
+          businessOutcome: "Reduce manual triage time by thirty percent.",
+          actorSet: { actors: [] },
+        },
+        createdUtc: "2026-08-05T12:00:00Z",
+        updatedUtc: "2026-08-05T12:00:00Z",
+      });
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1");
+    });
+  });
+
   it("shows guided placeholders and Continue to clarifications on step 1", () => {
     render(<SocraticIntakeWizard />);
 
@@ -648,7 +700,7 @@ describe("SocraticIntakeWizard", () => {
 
     const wizardColumn = screen.getByTestId("socratic-intake-wizard").firstElementChild;
     const stepperIndex = Array.from(wizardColumn?.children ?? []).findIndex(
-      (child) => child.getAttribute("data-testid") === WIZARD_STICKY_PROGRESS_TEST_ID,
+      (child) => child.getAttribute("data-testid") === "socratic-intake-stepper-row",
     );
     const advancedOptionsIndex = Array.from(wizardColumn?.children ?? []).findIndex(
       (child) => child.getAttribute("data-testid") === "socratic-intake-advanced-options",
@@ -777,8 +829,8 @@ describe("SocraticIntakeWizard", () => {
     const clarificationsStep = screen.getByTestId("socratic-clarifications-step");
     const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
 
-    expect(clarificationsStep.className).not.toContain("pb-24");
-    expect(primaryPanel.className).not.toContain("pb-24");
+    expect(clarificationsStep.getElementsByClassName("pb-24").length).toBe(0);
+    expect(primaryPanel.getElementsByClassName("pb-24").length).toBe(0);
 
     const wizard = screen.getByTestId("socratic-intake-wizard");
     const mainColumn = wizard.firstElementChild as HTMLElement;
@@ -1059,6 +1111,66 @@ describe("SocraticIntakeWizard", () => {
     expect(
       screen.queryByText(/your answers will be included when you review and submit/i),
     ).not.toBeInTheDocument();
+
+    const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
+    expect(primaryPanel.getElementsByClassName("pb-24").length).toBe(0);
+    expect(screen.queryByTestId("socratic-view-all-clarifications")).not.toBeInTheDocument();
+  });
+
+  it("drops sticky-footer scroll clearance after all clarifications are handled in show-all mode", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [sampleQuestion, secondQuestion],
+      requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        status: "Admitted",
+        selection: {
+          allQuestions: [sampleQuestion, secondQuestion],
+          requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+          pendingMustQuestions: [sampleQuestion, secondQuestion],
+        },
+      })
+      .mockResolvedValue({
+        draftId: "draft-1",
+        status: "Admitted",
+        selection: {
+          allQuestions: [sampleQuestion, secondQuestion],
+          requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+          pendingMustQuestions: [],
+        },
+      });
+    skipDraftQuestion.mockResolvedValue({ draftId: "draft-1", status: "Admitted" });
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-view-all-clarifications")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("socratic-view-all-clarifications"));
+
+    const skipButtons = await screen.findAllByRole("button", { name: "Skip this clarification" });
+    for (const skipButton of skipButtons) {
+      fireEvent.click(skipButton);
+    }
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-questions-done")).toBeEnabled();
+    });
+
+    const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
+    expect(primaryPanel.getElementsByClassName("pb-24").length).toBe(0);
+    expect(screen.queryByTestId("socratic-view-all-clarifications")).not.toBeInTheDocument();
   });
 
   it("opens the create-review step when a saved admitted architecture has no pending clarifications", async () => {
@@ -1261,7 +1373,7 @@ describe("SocraticIntakeWizard", () => {
     fetchWorkspaceSystemNameAvailability.mockResolvedValue({
       systemName: "ArchLucid",
       isAvailable: false,
-      conflictMessage: "A review or architecture named 'ArchLucid' already exists in this workspace.",
+      conflictMessage: "A review named 'ArchLucid' already exists in this workspace.",
     });
 
     render(<SocraticIntakeWizard />);
@@ -1280,7 +1392,7 @@ describe("SocraticIntakeWizard", () => {
   it("shows a failed admission inline above the CTA instead of a toast", async () => {
     createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
     patchDraftRequest.mockRejectedValue(
-      new ApiRequestError("A review or architecture named 'ArchLucid' already exists in this workspace.", {
+      new ApiRequestError("A review named 'ArchLucid' already exists in this workspace.", {
         problem: null,
         correlationId: "corr-1",
         httpStatus: 409,

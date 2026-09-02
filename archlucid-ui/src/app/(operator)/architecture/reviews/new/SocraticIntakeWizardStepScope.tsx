@@ -7,7 +7,7 @@ import { WorkspaceSystemNameAvailabilityFeedback } from "@/components/intake/Wor
 import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { WorkspaceSystemNameAvailabilityState } from "@/hooks/use-workspace-system-name-availability";
@@ -41,6 +41,9 @@ import type { Dispatch, SetStateAction } from "react";
 
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
 import { INTAKE_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
+
+const GUIDED_INTAKE_STEP_SCOPE_SECTION_DIVIDER_CLASS =
+  "border-t border-neutral-200 pt-4 dark:border-neutral-800";
 
 export type SocraticIntakeWizardStepScopeProps = {
   readonly isCreateArchitectureFlow: boolean;
@@ -107,12 +110,13 @@ export function SocraticIntakeWizardStepScope({
   return (
     <Card data-testid="guided-intake-primary-panel">
       {!isCreateArchitectureFlow ? (
-        <CardHeader>
+        <CardHeader className={OPERATOR_LAYOUT.sectionHeadingStack}>
           <CardTitle>{INTAKE_STEPS[0].cardTitle}</CardTitle>
           <CardDescription>{INTAKE_STEPS[0].description}</CardDescription>
         </CardHeader>
       ) : null}
       <CardContent className={cn(OPERATOR_LAYOUT.sectionStack, isCreateArchitectureFlow && "pt-4")}>
+        <div className={OPERATOR_LAYOUT.sectionStack}>
         {isCreateArchitectureFlow ? (
           <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
             <IntakeFieldLabel
@@ -233,7 +237,9 @@ export function SocraticIntakeWizardStepScope({
             </div>
           </>
         )}
+        </div>
 
+        <div className={GUIDED_INTAKE_STEP_SCOPE_SECTION_DIVIDER_CLASS}>
         <DraftIntakeActorEditor
           actorSet={actorSet}
           intentText={freeTextIntent}
@@ -241,15 +247,20 @@ export function SocraticIntakeWizardStepScope({
           creationFlow={isCreateArchitectureFlow}
           onChange={setActorSet}
         />
+        </div>
 
+        <div className={GUIDED_INTAKE_STEP_SCOPE_SECTION_DIVIDER_CLASS}>
         <ReviewAssuranceCoverageSection
           focusedPilotModeEnabled={focusedPilotModeEnabled}
           onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
           togglePresentation={isCreateArchitectureFlow ? "scope-card" : "checkbox"}
           className={isCreateArchitectureFlow ? "max-w-md" : undefined}
         />
+        </div>
 
+        <div className={GUIDED_INTAKE_STEP_SCOPE_SECTION_DIVIDER_CLASS}>
         <ArchitectureScopeUnderstandingCheckPanel
+          embedded
           input={scopeUnderstandingInput}
           contextSourceLabel={`${intentFieldLabel} above`}
           showReadyHint={false}
@@ -258,7 +269,10 @@ export function SocraticIntakeWizardStepScope({
           onBulletsChange={setScopeBullets}
           onGateChange={setScopeGateOpen}
         />
+        </div>
+      </CardContent>
 
+      <CardFooter className="flex flex-col items-start gap-3 border-t border-neutral-200 pt-4 dark:border-neutral-800">
         {!canAdvanceIntent && advanceHint.length > 0 ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
@@ -292,7 +306,7 @@ export function SocraticIntakeWizardStepScope({
               ? GUIDED_INTAKE_CONTINUE_TO_DISCOVERY
               : GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS}
         </Button>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 }

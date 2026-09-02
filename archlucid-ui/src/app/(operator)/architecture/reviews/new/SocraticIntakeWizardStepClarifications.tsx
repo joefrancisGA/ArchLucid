@@ -134,7 +134,9 @@ export function SocraticIntakeWizardStepClarifications(
         <CardContent
           className={cn(
             OPERATOR_LAYOUT.sectionStack,
-            props.viewAllClarifications ? WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS : undefined,
+            props.viewAllClarifications && props.activePendingQuestions.length > 1
+              ? WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS
+              : undefined,
           )}
         >
           {props.primaryPendingQuestion !== null
@@ -205,7 +207,7 @@ export function SocraticIntakeWizardStepClarifications(
             </p>
           ) : null}
 
-          {props.pendingQuestions.length > 1 ? (
+          {props.activePendingQuestions.length > 1 ? (
             <Button
               type="button"
               variant="outline"
