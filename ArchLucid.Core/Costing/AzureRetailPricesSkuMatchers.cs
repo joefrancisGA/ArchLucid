@@ -106,10 +106,18 @@ public sealed partial class AzureRetailPricesCatalogClient
                 dto.RetailPrice ?? 0m;
 
     internal static bool IsHourMeter(string uom)
-        =>
-            uom.Contains("Hour", StringComparison.OrdinalIgnoreCase)
-            ||
-            uom.Contains("hrs", StringComparison.OrdinalIgnoreCase);
+    {
+        if (string.IsNullOrWhiteSpace(uom))
+            return false;
+
+        string trimmed = uom.Trim();
+
+        return trimmed.Contains("Hour", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("hrs", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains(" hr", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase);
+    }
 
     internal static bool IsMonthlyMeter(string uom)
         =>
