@@ -113,6 +113,7 @@ public sealed class RetrievalIndexingService(
 
 
         List<RetrievalChunk> chunks = [];
+        List<(RetrievalDocument Doc, string Fingerprint)> pendingCatalogRecords = [];
 
         foreach ((RetrievalDocument doc, IReadOnlyList<string> split, string fingerprint) in work)
         {
@@ -168,12 +169,17 @@ public sealed class RetrievalIndexingService(
                 LastIndexedUtc = indexedUtc.UtcDateTime,
             }));
 
-            _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc);
-            ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
+            pendingCatalogRecords.Add((doc, fingerprint));
         }
 
         if (chunks.Count > 0)
             await _vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
+
+        foreach ((RetrievalDocument doc, string fingerprint) in pendingCatalogRecords)
+        {
+            _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc);
+            ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
+        }
     }
 
     private bool ShouldSkipUnchangedDocument(RetrievalDocument doc, string fingerprint)
