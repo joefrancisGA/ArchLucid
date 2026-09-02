@@ -30,10 +30,12 @@ namespace ArchLucid.Application.Bootstrap.Seeders;
 public sealed class DemoSeedTrialWelcomeSeeder
 {
     private readonly DemoSeedSeederDependencies _deps;
+    private readonly DemoSeedPersistenceChain _persistence;
 
-    public DemoSeedTrialWelcomeSeeder(DemoSeedSeederDependencies deps)
+    public DemoSeedTrialWelcomeSeeder(DemoSeedSeederDependencies deps, DemoSeedPersistenceChain persistence)
     {
         _deps = deps ?? throw new ArgumentNullException(nameof(deps));
+        _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
     }
 
 
@@ -70,7 +72,7 @@ public sealed class DemoSeedTrialWelcomeSeeder
             IsDemoWelcomeRun = true,
             IsSample = true
         };
-        await _deps.RunRepository.SaveAsync(authorityRow, cancellationToken);
+        await _persistence.SaveRunAsync(authorityRow, cancellationToken);
         AgentTask topoTask = new()
         {
             TaskId = topoTaskId,
@@ -113,7 +115,7 @@ public sealed class DemoSeedTrialWelcomeSeeder
             AllowedTools = DemoSeedSeederSupport.SeedAllowedTools(AgentType.Compliance),
             AllowedSources = []
         };
-        await _deps.TaskRepository.CreateManyAsync([topoTask, costTask, compTask], cancellationToken);
+        await _persistence.SaveTasksAsync([topoTask, costTask, compTask], cancellationToken);
         AgentResult topoResult = new()
         {
             ResultId = topoResultId,
@@ -163,17 +165,22 @@ public sealed class DemoSeedTrialWelcomeSeeder
             ProposedChanges = null,
             CreatedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc
         };
-        await _deps.ResultRepository.CreateManyAsync([topoResult, costResult, compResult], cancellationToken);
+        await _persistence.SaveResultsAsync([topoResult, costResult, compResult], cancellationToken);
         GoldenManifest manifest = BuildTrialWelcomeManifest(runId, manifestVersion);
         IReadOnlyList<Finding> findings = BuildTrialWelcomeFindings(welcomeRunGuid);
         AuthorityChainKeying chainKeying = new(AuthorityDemoChainIds.Manifest(welcomeRunGuid), AuthorityDemoChainIds.ContextSnapshot(welcomeRunGuid),
             AuthorityDemoChainIds.GraphSnapshot(welcomeRunGuid), AuthorityDemoChainIds.FindingsSnapshot(welcomeRunGuid),
             AuthorityDemoChainIds.DecisionTrace(welcomeRunGuid));
-        AuthorityManifestPersistResult authorityChain = await _deps.AuthorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, welcomeRunGuid, systemName, manifest,
-            chainKeying, DemoSeedSeederSupport.TrialWelcomeSeedUtc, richFindingsAndGraph: true, cancellationToken, connection: null, transaction: null,
-            committedFindingsOverride: findings);
-        await AuthorityCommittedChainDurableAudit.TryLogAsync(_deps.AuditService, _deps.ScopeContextProvider, _deps.ActorContext, _deps.Logger, welcomeRunGuid, systemName, authorityChain,
-            "trial-welcome-seed", richFindingsAndGraph: true, cancellationToken);
+        AuthorityManifestPersistResult authorityChain = await _persistence.PersistCommittedChainAsync(
+            scope,
+            welcomeRunGuid,
+            systemName,
+            manifest,
+            chainKeying,
+            DemoSeedSeederSupport.TrialWelcomeSeedUtc,
+            findings,
+            "trial-welcome-seed",
+            cancellationToken);
 
         Guid bundleId = TrialWelcomeSeedIds.ArtifactBundleId(welcomeRunGuid);
         Guid manifestKey = authorityChain.GoldenManifestId;
@@ -209,22 +216,18 @@ public sealed class DemoSeedTrialWelcomeSeeder
             ],
             Trace = new SynthesisTrace()
         };
-        await _deps.ArtifactBundleRepository.SaveAsync(bundle, cancellationToken);
-        RunRecord? authorityCommitted = await _deps.RunRepository.GetByIdAsync(scope, welcomeRunGuid, cancellationToken);
-
-        if (authorityCommitted is not null)
-        {
-            authorityCommitted.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
-            authorityCommitted.CurrentManifestVersion = manifestVersion;
-            authorityCommitted.CompletedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc;
-            authorityCommitted.ContextSnapshotId = authorityChain.ContextSnapshotId;
-            authorityCommitted.GraphSnapshotId = authorityChain.GraphSnapshotId;
-            authorityCommitted.FindingsSnapshotId = authorityChain.FindingsSnapshotId;
-            authorityCommitted.GoldenManifestId = authorityChain.GoldenManifestId;
-            authorityCommitted.DecisionTraceId = authorityChain.DecisionTraceId;
-            authorityCommitted.ArtifactBundleId = bundleId;
-            await _deps.RunRepository.UpdateAsync(authorityCommitted, cancellationToken);
-        }
+        await _persistence.SaveArtifactBundleAsync(bundle, cancellationToken);
+        await _persistence.CommitRunAsync(
+            scope,
+            welcomeRunGuid,
+            authorityChain,
+            new DemoSeedRunCommitOptions
+            {
+                ManifestVersion = manifestVersion,
+                CompletedUtc = DemoSeedSeederSupport.TrialWelcomeSeedUtc,
+                ArtifactBundleId = bundleId,
+            },
+            cancellationToken);
 
         if (_deps.Logger.IsEnabled(LogLevel.Information))
             _deps.Logger.LogInformation("Trial welcome run seeded ({RunId}).", welcomeRunGuid);
@@ -249,7 +252,7 @@ public sealed class DemoSeedTrialWelcomeSeeder
                 "RTO under four hours for transactional order path"
             ]
         };
-        await _deps.RequestRepository.CreateAsync(request, cancellationToken);
+        await _persistence.EnsureRequestAsync(request, cancellationToken);
     }
 
     private static GoldenManifest BuildTrialWelcomeManifest(string runId, string manifestVersion)

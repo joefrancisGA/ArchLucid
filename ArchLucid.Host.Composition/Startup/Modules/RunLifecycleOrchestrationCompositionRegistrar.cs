@@ -36,6 +36,8 @@ using ArchLucid.Application.Planning;
 using ArchLucid.Application.Reports;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async;
+using ArchLucid.Application.Runs.Async.Workers;
+using ArchLucid.Application.Runs.Enrichment;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
@@ -120,6 +122,7 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         // Scoped, not singleton: unlike pure correlation this reads the tenant's finding review trail (TB-2194).
         services.AddScoped<ICrossReviewFindingLifecycleService, CrossReviewFindingLifecycleService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.AddAuthorityRunDetailEnrichment();
         services.AddScoped<IAuthorityRunDetailOperatorEnricher, AuthorityRunDetailOperatorEnricher>();
         services.AddScoped<IAgentOutputQualityGateOptionsResolver, AgentOutputQualityGateOptionsResolver>();
         services.AddScoped<IInsightDensityGateOptionsResolver, InsightDensityGateOptionsResolver>();
@@ -204,6 +207,7 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddSingleton<IArchitectureRunAsyncOperationRegistrar, ArchitectureRunAsyncOperationRegistrar>();
         services.AddScoped<IArchitectureRunAsyncCreateAdmitter, ArchitectureRunAsyncCreateAdmitter>();
         services.AddScoped<IArchitectureRunAsyncOperationAcceptor, ArchitectureRunAsyncOperationAcceptor>();
+        services.AddArchitectureRunAsyncOperationWorkers();
         services.AddHostedService<ArchitectureRunAsyncOperationHostedService>();
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
