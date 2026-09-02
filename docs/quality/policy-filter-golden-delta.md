@@ -11,7 +11,7 @@ Regression instrument for `ComplianceRulePackGovernanceFilter` — not evidence 
 | Storage-only | `storage-must-have-policy-applicability` | `storage-must-have-policy-applicability` |
 | Network-only | `network-must-have-security-baseline` | `network-must-have-security-baseline` |
 
-**claimBoundary:** proves tenant rule-key filtering changes compliance findings on a fixed graph. The fourteen-engine `GoldenCorpusHarness` path still uses `FileComplianceRulePackProvider` unchanged.
+**claimBoundary:** proves tenant rule-key filtering changes compliance findings on a fixed graph. The sixteen-engine `GoldenCorpusHarness` path still uses `FileComplianceRulePackProvider` unchanged.
 
 ## Declaration-security sibling (`PolicyFilteredDeclarationGoldenCorpusTests`)
 
@@ -23,6 +23,17 @@ Regression instrument for `ComplianceRulePackGovernanceFilter` — not evidence 
 | CIS Azure public access | `cis-az-006` | Public network / data-protection only (`cis-az-006`) |
 
 **claimBoundary:** proves tenant rule keys change **declaration-security-baseline** findings on a fixed graph. Coverage, topology, cost, and inventory engines remain pack-inert; this is not evidence that all 39 engines are policy-aware.
+
+## Bundled P1 toggle sibling (`PolicyPackP1ToggleGoldenCorpusTests`)
+
+**Graph:** same public-access + HTTPS-disabled declaration graph as the declaration-security sibling.
+
+| Posture | Pack | Floor | Cited rule |
+| --- | --- | --- | --- |
+| SOC 2 TSC architecture | `soc2-tsc-architecture.json` | **P1** | `soc2-004` |
+| CIS Azure foundations | `cis-azure-foundations.json` | **P1** | `cis-az-006` |
+
+**claimBoundary:** proves the buyer-visible **P1 SOC 2 vs CIS Azure** demo arm moves declaration findings on real bundled packs. Filter injection stays in this sibling — `GoldenCorpusHarness` keeps `FileComplianceRulePackProvider` (WK-22).
 
 ## Expectation-coverage sibling (`PolicyExpectationCoverageGoldenCorpusTests`)
 

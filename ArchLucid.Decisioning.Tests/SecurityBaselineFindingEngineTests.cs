@@ -71,7 +71,7 @@ public sealed class SecurityBaselineFindingEngineTests
     [Fact]
     public async Task AnalyzeAsync_EmptyGraph_ReturnsNoFindings()
     {
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(EmptySnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(EmptySnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -86,7 +86,7 @@ public sealed class SecurityBaselineFindingEngineTests
         GraphNode node = SecurityNode("sec-1", "MFA Enforcement", controlId: "ctrl-01", status: "present");
         GraphSnapshot snapshot = SnapshotWith([node], []);
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
         findings.Should().HaveCount(1);
         Finding f = findings[0];
@@ -109,7 +109,7 @@ public sealed class SecurityBaselineFindingEngineTests
         GraphNode node = SecurityNode("sec-2", "Encryption at Rest", controlId: "ctrl-02", status: "missing");
         GraphSnapshot snapshot = SnapshotWith([node], []);
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
         findings.Should().HaveCount(1);
         Finding f = findings[0];
@@ -132,7 +132,7 @@ public sealed class SecurityBaselineFindingEngineTests
         GraphNode node = SecurityNode("sec-3", "RBAC", controlId: "ctrl-03", status: "Present");
         GraphSnapshot snapshot = SnapshotWith([node], []);
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
         findings[0].Severity.Should().Be(FindingSeverity.Info);
         findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
@@ -158,7 +158,7 @@ public sealed class SecurityBaselineFindingEngineTests
 
         GraphSnapshot snapshot = SnapshotWith([secNode, resNode], [edge]);
 
-        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
         Finding f = findings[0];
         f.RelatedNodeIds.Should().Contain("sec-4");

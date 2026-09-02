@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useRouter } from "next/navigation";
 import { useState, type ReactElement } from "react";
@@ -8,6 +8,7 @@ import { useState, type ReactElement } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { executeArchitectureRunSelectiveInFlight } from "@/lib/api/architecture-runs";
+import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { resolveFailedAgentTypesForSelectiveRetry } from "@/lib/runs/run-detail-selective-agent-retry";
 import type { RunDetailAgentResult, RunRetrievalGroundingSummary } from "@/types/authority";
 
@@ -53,6 +54,7 @@ export function RunAgentResultsSummaryCard(props: {
   const router = useRouter();
   const [retryBusy, setRetryBusy] = useState(false);
   const [retryError, setRetryError] = useState<string | null>(null);
+  const [retryAcceptedMessage, setRetryAcceptedMessage] = useState<string | null>(null);
 
   const outcomes = props.agentExecutionOutcomes?.filter((row) => row !== null && row !== undefined) ?? [];
   const rows = props.results?.filter((row) => row !== null && row !== undefined) ?? [];
@@ -71,12 +73,18 @@ export function RunAgentResultsSummaryCard(props: {
 
     setRetryBusy(true);
     setRetryError(null);
+    setRetryAcceptedMessage(null);
+    const startedAtMs = Date.now();
 
     try {
       await executeArchitectureRunSelectiveInFlight(runId, {
         agentTypes: failedAgentTypes,
         includeDependents: true,
       });
+      await awaitMinimumVisibleDuration(startedAtMs);
+      setRetryAcceptedMessage(
+        `Selective retry started for ${failedAgentTypes.length} failed agent${failedAgentTypes.length === 1 ? "" : "s"}. This page updates when the attempt finishes.`,
+      );
       router.refresh();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Selective retry failed.";
@@ -177,6 +185,16 @@ export function RunAgentResultsSummaryCard(props: {
             >
               {retryBusy ? "Retrying failed agents…" : "Retry failed agents"}
             </button>
+            {retryAcceptedMessage !== null ? (
+              <div
+                className={cn(DESIGN_TOKENS.callout.info, "p-3")}
+                data-testid="run-agent-selective-retry-outcome"
+                role="status"
+                aria-live="polite"
+              >
+                <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{retryAcceptedMessage}</p>
+              </div>
+            ) : null}
             {retryError ? (
               <p className="m-0 text-sm text-red-700 dark:text-red-400" data-testid="run-agent-selective-retry-error">
                 {retryError}

@@ -14,6 +14,10 @@ const belowFoldSource = readRegisteredSource("run-detail-below-fold");
 // markup a reviewer sees is now split across two modules. Scan both for mount assertions.
 const workspaceSource = `${pageViewSource}\n${tabbedWorkspaceSource}`;
 
+// Evidence deliverables mount via composeRunDetailEvidenceTab (not inline in tabbed workspace).
+const evidenceTabCompositionSource = readRegisteredSource("run-detail-evidence-tab-composition");
+const tabOwnedSectionSource = `${workspaceSource}\n${evidenceTabCompositionSource}`;
+
 describe("run-detail-architect-section-order (TB-620)", () => {
   it("documents finalized architect section order", () => {
     expect(RUN_DETAIL_FINALIZED_ARCHITECT_SECTION_ORDER.indexOf("findings")).toBeLessThan(
@@ -41,7 +45,7 @@ describe("run-detail-architect-section-order (TB-620)", () => {
     ] as const;
 
     for (const marker of sectionsOwnedByOneTab) {
-      expect(workspaceSource, `${marker} must stay mounted on its owning tab`).toContain(marker);
+      expect(tabOwnedSectionSource, `${marker} must stay mounted on its owning tab`).toContain(marker);
     }
   });
 
@@ -57,7 +61,7 @@ describe("run-detail-architect-section-order (TB-620)", () => {
     expect(belowFoldSource).toContain("{!ownedByAnotherTab && !m.buyerPolishedArtifactTable && m.manifestId ? (");
     expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab && !m.buyerPolishedArtifactTable ? (");
     expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab ? (");
-    expect(workspaceSource).not.toContain("RunDetailTabbedSectionNavDeferred");
+    expect(pageViewSource).not.toContain("RunDetailTabbedSectionNavDeferred");
     expect(tabbedWorkspaceSource).toContain("ReviewDetailWorkspaceDeferred");
   });
 

@@ -28,6 +28,14 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
 }));
 
+vi.mock("@/components/reviews/ReviewHeaderShareMenu", () => ({
+  ReviewHeaderShareMenu: () => <div data-testid="review-header-share-menu" />,
+}));
+
+vi.mock("@/components/reviews/ReviewAskDock", () => ({
+  ReviewAskDock: () => <div data-testid="review-ask-dock" />,
+}));
+
 vi.mock("@/components/CopyIdButton", () => ({
   CopyIdButton: () => <button type="button">Copy</button>,
 }));
@@ -90,6 +98,8 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Claims API" })).toBeInTheDocument();
     expect(screen.getByText("Claims platform review")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-copy-identifiers-disclosure")).toBeInTheDocument();
+    expect(screen.getByText("Copy identifiers")).toBeInTheDocument();
     expect(screen.getByText("Review ID")).toBeInTheDocument();
     expect(screen.getByText("Finalized review record ID")).toBeInTheDocument();
     expect(screen.getByText("run-1")).toBeInTheDocument();
@@ -100,7 +110,9 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("Jan 1, 2026, 12:00 PM")).toBeInTheDocument();
     expect(screen.getByText("v2")).toBeInTheDocument();
     expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("review-header-share-menu")).toBeInTheDocument();
+    expect(screen.getByTestId("review-ask-dock")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-object-map-strip")).toBeInTheDocument();
   });
 
@@ -127,7 +139,7 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("Not recorded — rule set version missing")).toBeInTheDocument();
   });
 
-  it("labels sparse metadata as finalization metadata when execution failed pre-stage", () => {
+  it("hides finalization metadata when execution failed before review completes", () => {
     render(
       <RunDetailWorkspaceHeader
         runId="run-1"
@@ -144,20 +156,20 @@ describe("RunDetailWorkspaceHeader", () => {
       />,
     );
 
-    expect(screen.getByTestId("run-detail-record-metadata-disclosure")).toBeInTheDocument();
-    expect(screen.getByText("Finalization metadata (available after review completes)")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-detail-record-metadata-disclosure")).not.toBeInTheDocument();
+    expect(screen.queryByText("Finalization metadata (available after review completes)")).toBeNull();
     expect(screen.queryByText(/fields not recorded/i)).toBeNull();
     expect(
-      screen.getByText("Not applicable — review template is recorded when the review finalizes"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Not applicable — review has not been finalized")).toBeInTheDocument();
+      screen.queryByText("Not applicable — review template is recorded when the review finalizes"),
+    ).toBeNull();
+    expect(screen.queryByText("Not applicable — review has not been finalized")).toBeNull();
     expect(
-      screen.getByText("Not applicable — package version is recorded when the review finalizes"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Not applicable — no finalized review record yet")).toBeInTheDocument();
+      screen.queryByText("Not applicable — package version is recorded when the review finalizes"),
+    ).toBeNull();
+    expect(screen.queryByText("Not applicable — no finalized review record yet")).toBeNull();
     expect(
-      screen.getByText("Not applicable — no approval decision until the review is finalized"),
-    ).toBeInTheDocument();
+      screen.queryByText("Not applicable — no approval decision until the review is finalized"),
+    ).toBeNull();
   });
 
   it("clamps an oversized h1 title to one line without markdown", () => {

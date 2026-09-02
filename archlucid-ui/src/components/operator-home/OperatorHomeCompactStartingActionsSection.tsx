@@ -7,8 +7,17 @@ import { OperationalMetricsGate } from "@/components/operator-home/OperationalMe
 import { OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
+export type OperatorHomeCompactStartingActionsSectionProps = {
+  /** When true, hide dual-path cards — returning tenants already chose a starting path. */
+  readonly hasCommittedManifest?: boolean;
+};
+
 /** Reduced-emphasis starting actions when workspace reviews already exist. */
-export function OperatorHomeCompactStartingActionsSection(): React.JSX.Element {
+export function OperatorHomeCompactStartingActionsSection(
+  props: OperatorHomeCompactStartingActionsSectionProps,
+): React.JSX.Element {
+  const hideDualPathCards = props.hasCommittedManifest === true;
+
   return (
     <section
       aria-labelledby="operator-home-compact-starting-actions-heading"
@@ -19,7 +28,9 @@ export function OperatorHomeCompactStartingActionsSection(): React.JSX.Element {
         <OperatorHomeCardSectionTitle id="operator-home-compact-starting-actions-heading">
           {OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING}
         </OperatorHomeCardSectionTitle>
-        <OperatorHomeDualPathCards variant="compact" pagePrimaryOwnedElsewhere hideExplorePath />
+        {hideDualPathCards ? null : (
+          <OperatorHomeDualPathCards variant="compact" pagePrimaryOwnedElsewhere hideExplorePath />
+        )}
       </div>
       <OperationalMetricsGate>
         <AcceleratorChooserCard />

@@ -31,8 +31,15 @@ public sealed class ArchitectureSynthesisGenerateResult
         init;
     }
 
-    /// <summary>Stable tenant-scoped architecture identity for cross-run recurrence.</summary>
+    /// <summary>Stable cross-run architecture identity for cross-run recurrence.</summary>
     public Guid? ArchitectureId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Pinned content-addressed architecture revision for this created run.</summary>
+    public Guid? ArchitectureVersionId
     {
         get;
         init;

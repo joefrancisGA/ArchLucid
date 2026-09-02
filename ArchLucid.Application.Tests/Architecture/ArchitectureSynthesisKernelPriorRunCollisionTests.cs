@@ -5,6 +5,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Tests.Orchestration;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
@@ -91,7 +92,8 @@ public sealed class ArchitectureSynthesisKernelPriorRunCollisionTests
             TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
                 Mock.Of<ITechnologyLedgerRepository>(),
                 scopeProvider.Object),
-            null,
+            CreateIdentityService(),
+            CreateVersionService(runs),
             NullLogger<ArchitectureSynthesisKernel>.Instance,
             TimeProvider.System);
 
@@ -106,5 +108,44 @@ public sealed class ArchitectureSynthesisKernelPriorRunCollisionTests
                 priorRunId,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    private static IArchitectureIdentityService CreateIdentityService()
+    {
+        Mock<IArchitectureIdentityService> identity = new();
+        identity
+            .Setup(s => s.EnsureCreatedRunIdentityAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureIdentityRecord { ArchitectureId = Guid.NewGuid() });
+
+        return identity.Object;
+    }
+
+    private static IArchitectureVersionService CreateVersionService(Mock<IRunRepository> runs)
+    {
+        Mock<IArchitectureVersionService> version = new();
+        version
+            .Setup(s => s.EnsureRunVersionPinnedAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<ArchitectureKnowledgeModel?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Contracts.Architecture.ArchitectureVersionRecord
+            {
+                ArchitectureVersionId = Guid.NewGuid(),
+                ArchitectureId = Guid.NewGuid(),
+                VersionNumber = 1,
+            });
+
+        runs
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { ArchitectureVersionId = Guid.NewGuid() });
+
+        return version.Object;
     }
 }

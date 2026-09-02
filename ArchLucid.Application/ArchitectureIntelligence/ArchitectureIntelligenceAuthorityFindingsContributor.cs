@@ -61,8 +61,11 @@ public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
             .SubstantiateAsync(specialistFindings, cancellationToken)
             .ConfigureAwait(false);
 
-        List<Finding> findings = ArchitectureIntelligenceProductBridge.ToFindings(substantiation.SubstantiatedFindings);
-        findings.AddRange(ArchitectureIntelligenceProductBridge.ToHypothesisLaneFindings(substantiation.Challenges));
+        List<Finding> findings = SpecialistFindingAuthorityEmbedding.Embed(
+            ArchitectureIntelligenceProductBridge.ToFindings(substantiation.SubstantiatedFindings));
+        findings.AddRange(
+            SpecialistFindingAuthorityEmbedding.Embed(
+                ArchitectureIntelligenceProductBridge.ToHypothesisLaneFindings(substantiation.Challenges)));
 
         return findings;
     }

@@ -36,7 +36,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             finding.SourceAgent = agentType;
         }
 
-        if (root.TryGetProperty("severity", out JsonElement severityElement))
+        if (TryGetPropertyIgnoreCase(root, "severity", out JsonElement severityElement))
             finding.Severity = ReadSeverity(severityElement);
 
         if (root.TryGetProperty("category", out JsonElement category) && category.ValueKind == JsonValueKind.String)
@@ -109,16 +109,14 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             finding.InsightDensityScore = insightDensityScore;
         }
 
-        if (root.TryGetProperty("treatment", out JsonElement treatmentElement) &&
-            treatmentElement.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(treatmentElement.GetString(), ignoreCase: true, out FindingTreatment treatment))
+        if (TryGetPropertyIgnoreCase(root, "treatment", out JsonElement treatmentElement) &&
+            TryReadFindingTreatment(treatmentElement, out FindingTreatment treatment))
         {
             finding.Treatment = treatment;
         }
 
-        if (root.TryGetProperty("classification", out JsonElement classificationElement) &&
-            classificationElement.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(classificationElement.GetString(), ignoreCase: true, out FindingClassification classification))
+        if (TryGetPropertyIgnoreCase(root, "classification", out JsonElement classificationElement) &&
+            TryReadFindingClassification(classificationElement, out FindingClassification classification))
         {
             finding.Classification = classification;
         }
@@ -142,6 +140,52 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         WriteOptionalStringProperty(writer, "whyThisIsNotGeneric", value.WhyThisIsNotGeneric);
         WriteOptionalStringProperty(writer, "principalArchitectValue", value.PrincipalArchitectValue);
         WriteOptionalStringProperty(writer, "decisionConsequence", value.DecisionConsequence);
+    }
+
+    private static bool TryReadFindingTreatment(JsonElement element, out FindingTreatment treatment)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+
+            if (!Enum.IsDefined(typeof(FindingTreatment), numeric))
+                throw new JsonException($"Unknown finding treatment value '{numeric}'.");
+
+            treatment = (FindingTreatment)numeric;
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(element.GetString(), ignoreCase: true, out FindingTreatment parsed))
+        {
+            treatment = parsed;
+            return true;
+        }
+
+        treatment = default;
+        return false;
+    }
+
+    private static bool TryReadFindingClassification(JsonElement element, out FindingClassification classification)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+
+            if (!Enum.IsDefined(typeof(FindingClassification), numeric))
+                throw new JsonException($"Unknown finding classification value '{numeric}'.");
+
+            classification = (FindingClassification)numeric;
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(element.GetString(), ignoreCase: true, out FindingClassification parsed))
+        {
+            classification = parsed;
+            return true;
+        }
+
+        classification = default;
+        return false;
     }
 
     /// <summary>
@@ -271,7 +315,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             "low" => FindingSeverity.Info,
             "medium" => FindingSeverity.Warning,
             "high" => FindingSeverity.Error,
-            _ => FindingSeverity.Info,
+            _ => throw new JsonException($"Unknown finding severity value '{raw}'."),
         };
     }
 }

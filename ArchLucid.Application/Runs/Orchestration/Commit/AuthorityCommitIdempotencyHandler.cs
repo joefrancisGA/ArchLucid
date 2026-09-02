@@ -102,7 +102,7 @@ public sealed class AuthorityCommitIdempotencyHandler(
 
         if (Guid.TryParseExact(runId, "N", out Guid runGuid) || Guid.TryParse(runId, out runGuid))
         {
-            await _postCommitProjectionEnqueuer.EnqueueDecisionEngineV2NodeMaterializationAsync(runGuid, scope, cancellationToken);
+            _ = runGuid;
         }
 
         return new CommitRunResult

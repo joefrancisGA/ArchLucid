@@ -239,9 +239,9 @@ describe("GovernanceFindingsQueueClient", () => {
     renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
-    expect(screen.getByText("No risks recorded for this review")).toBeInTheDocument();
+    expect(screen.getByText("No findings in this workspace yet")).toBeInTheDocument();
     expect(
-      screen.getByText(/Risks appear here when accepted findings, waivers, exceptions, or approval decisions/),
+      screen.getByText(/Findings from architecture reviews appear here as they are recorded/),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute(
       "href",
@@ -280,7 +280,7 @@ describe("GovernanceFindingsQueueClient", () => {
 
     const failure = await screen.findByTestId("governance-findings-load-failed");
     expect(failure).toHaveAttribute("role", "alert");
-    expect(screen.getByRole("heading", { name: "Could not load architecture risk register" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Could not load findings queue" })).toBeInTheDocument();
     expect(screen.getByTestId("governance-findings-retry-load")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-findings-empty-state")).not.toBeInTheDocument();
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
@@ -383,7 +383,7 @@ describe("GovernanceFindingsQueueClient", () => {
 
     const banner = await screen.findByTestId("governance-findings-run-scope-banner");
 
-    expect(banner).toHaveTextContent("Showing findings for review");
+    expect(banner).toHaveTextContent("Showing findings for");
     expect(banner.textContent ?? "").not.toContain("Showing risks");
   });
 });

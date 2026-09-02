@@ -1845,11 +1845,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 11
-- **bugs-found:** 15
+- **hunts:** 12
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-31
-- **last-bug:** 2026-08-31 — `AgentResultJsonConverter.MergeClaimEvidenceRefs` ignored object-shaped claim `evidenceRefs` entries
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — finding JSON treatment/classification ordinal + PascalCase parity; confidence-level ordinal guard; comma-delimited unknown quality-attribute chip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1873,11 +1873,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureFindingJsonConverter` evidenceRefs loop keeps only `JsonValueKind.String` items, so `{"evidenceRefs":[{"id":"pol-123"}]}` yields an empty list while eval-corpus payloads use object refs — **hit 2026-08-26:** fixed with `ReadEvidenceRef` extracting `id` from object entries (`Deserialize_object_evidence_refs_extracts_id_property`).
 - [x] (invalid) `RequestStatus` has no defined-value `[JsonConverter]` unlike sibling `ArchitectureRunStatusJsonConverter`, so numeric `99` can deserialize through `ContractJson.Default` / `JsonStringEnumConverter` and reach request-lifecycle switches — enum is forward-looking vocabulary only (`docs/library/STATE_MACHINES.md` §1); no DTO or persistence column references `RequestStatus`, so no JSON deserialization path exists in zone `paths`.
 - [x] (proven) `AgentResultJsonConverter.MergeClaimEvidenceRefs` — object-shaped claim `evidenceRefs` (`{"id":"pol-123"}`) dropped at parse while finding-level `ReadEvidenceRef` already extracts `id` — **hit 2026-08-31 (#332):** loop accepted only `JsonValueKind.String`; fixed with shared `ReadEvidenceRef` object `id` extraction; regression in `AgentResultClaimListJsonConverterEvidenceRefsTests.Deserialize_merges_object_shaped_claim_evidence_refs_into_result_evidence_refs`.
+- [x] (proven) `ArchitectureFindingJsonConverter.ReadInsightDensityFields` ignored numeric `treatment` / `classification` ordinals — **hit 2026-09-02 (#426):** string-only `Enum.TryParse` while `enforcementTier` accepted ordinals; fixed with `TryReadFindingTreatment` / `TryReadFindingClassification`; regression in `Deserialize_numeric_treatment_maps_promote_ordinal` and `Deserialize_integer_treatment_out_of_range_throws`.
+- [x] (proven) `ArchitectureFindingJsonConverter.ReadInsightDensityFields` ignored PascalCase `Severity` / `Treatment` / `Classification` — **hit 2026-09-02 (#426):** case-sensitive `TryGetProperty` while `enforcementTier` used `TryGetPropertyIgnoreCase`; fixed with ignore-case lookup for severity/treatment/classification; regression in `Deserialize_pascal_case_treatment_maps_promote`.
+- [x] (proven) `FindingConfidenceLevel` accepted out-of-range integer ordinals via global `JsonStringEnumConverter` — **hit 2026-09-02 (#426):** ordinal `99` deserialized silently; fixed with `FindingConfidenceLevelJsonConverter` + `Enum.IsDefined`; regression in `FindingConfidenceLevelJsonConverterTests.Deserialize_integer_out_of_range_throws`.
+- [x] (proven) `ArchitectureDraftStructuredBrief.ParseQualityAttributeEntries` treated comma-delimited unknown sentinel as one confirmed chip — **hit 2026-09-02 (#426):** `"defense in depth, Unknown - confirm before review"` satisfied minimum because chips split only on `;`; fixed by splitting on `,` and requiring every chip to be confirmed; regression in `QualityAttributeMeetsMinimum_rejects_comma_delimited_unknown_sentinel_chip`.
+- [x] (proven) `ArchitectureFindingJsonConverter.ReadSeverity` still downgraded unknown labels to `Info` in default switch arm — **hit 2026-09-02 (#426):** regression against 2026-08-24 fix; `_ => FindingSeverity.Info` restored silent downgrade for labels like `"blocker"`; fixed to throw like `EvalCorpusFindingSeverityJsonConverter`.
 
-- [ ] (candidate) `ArchitectureFindingJsonConverter.ReadInsightDensityFields` — numeric `treatment` / `classification` ordinals ignored (string-only `Enum.TryParse`) while sibling `enforcementTier` accepts ordinals via `TryReadEnforcementTier` — **repro test:** `ArchitectureFindingJsonConverterTests.Deserialize_numeric_treatment_maps_promote_ordinal`.
-- [ ] (candidate) `ArchitectureFindingJsonConverter.ReadInsightDensityFields` — PascalCase `Severity` / `Treatment` / `Classification` property names ignored (case-sensitive `TryGetProperty`) while `enforcementTier` uses `TryGetPropertyIgnoreCase` — **repro test:** `ArchitectureFindingJsonConverterTests.Deserialize_pascal_case_treatment_maps_promote`.
-- [ ] (candidate) `FindingConfidenceLevel` — out-of-range integer ordinals deserialize via global `JsonStringEnumConverter` without `Enum.IsDefined` guard (unlike `FindingTreatmentJsonConverter` siblings) — **repro test:** `FindingConfidenceLevelJsonConverterTests.Deserialize_integer_out_of_range_throws`.
-- [ ] (candidate) `ArchitectureDraftStructuredBrief.ParseQualityAttributeEntries` — comma-delimited quality-attribute text with embedded unknown sentinel (`"defense in depth, Unknown - confirm before review"`) counts as confirmed chip because chips split only on `;` — **repro test:** `ArchitectureDraftStructuredBriefTests.QualityAttributeMeetsMinimum_rejects_comma_delimited_unknown_sentinel_chip`.
+2026-09-02 thorough hunt #426: proved treatment/classification ordinal + PascalCase parity, confidence-level ordinal guard, comma-delimited unknown quality-attribute chip, and severity unknown-label regression.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 
@@ -2573,7 +2575,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceEnvironmentCatalogController.Get` / `Replace` — scope JWT carried a tenant id with no backing `TenantRecord` → HTTP 200 catalog payload instead of HTTP 404 — **hit 2026-08-31 (#343):** `ITenantRepository.GetByIdAsync` preflight on both actions; regression in `GovernanceEnvironmentCatalogControllerTests.Get_returns_not_found_when_tenant_missing` and `Replace_returns_not_found_when_tenant_missing`.
 - [x] (proven) `GovernancePostureController.GetPosture` / `GovernanceStickinessController` register reads — optional `projectId=00000000-0000-0000-0000-000000000000` returned HTTP 200 empty payload instead of HTTP 400 — **hit 2026-08-31 (#343):** `GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId` + `BadRequestWhenProjectQueryIdEmpty` on posture and stickiness register endpoints; regression in `GovernancePostureControllerTests.GetPosture_returns_bad_request_when_project_id_is_empty_guid` and `GovernanceStickinessControllerTests.GetRiskRegister_returns_bad_request_when_project_id_is_empty_guid`.
-- [x] (proven) `CorePilotTeamChecklistController.PutAsync` — JSON body omitted `isCompleted` (e.g. `{ "stepIndex": 1 }`) → HTTP 204 and persisted `false` instead of HTTP 400 — **hit 2026-08-31 (#343):** `CorePilotChecklistPutRequest.IsCompleted` required; regression in `CorePilotTeamChecklistControllerTests.PutAsync_returns_bad_request_when_is_completed_omitted`.
+- [x] (proven) `CorePilotTeamChecklistController.PutAsync` — JSON body omitted `isCompleted` (e.g. `{ "stepIndex": 1 }`) → HTTP 204 and persisted `false` instead of HTTP 400 — **hit 2026-08-31 (#343 / #383):** `CorePilotChecklistPutRequest.IsCompleted` is `required bool` (missing/null rejected during JSON deserialization); regression in `CorePilotTeamChecklistControllerTests.PutRequest_deserialization_rejects_missing_or_null_is_completed`.
 
 - [x] (valid-no-repro) `GovernancePostureController.GetPosture` — valid tenant + foreign workspace id in scope JWT → HTTP 200 posture summary instead of HTTP 404 — **mechanism:** tenant-only `GetByIdAsync` preflight; siblings `GovernanceResolutionController` / `GovernanceSetupController` use `TenantWorkspaceScopePreflight` — **repro test:** `GovernancePostureControllerTests.GetPosture_returns_not_found_when_workspace_missing`.
 - [x] (valid-no-repro) `GovernanceCoverageController.GetScopeCoverage` / `PreviewCoverage` — same ghost-workspace gap — **repro test:** `GovernanceCoverageControllerScopeTests.GetScopeCoverage_returns_not_found_when_workspace_missing` and `PreviewCoverage_returns_not_found_when_workspace_missing`.
@@ -2636,6 +2638,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-31 thorough hunt #354 (hit): proved ghost-workspace preflight on posture/coverage reads and product-feedback omitted score default on master.
 
 2026-08-31 combined PR #1021–#1028: integrated seed hunts #377–#382 on master — environment-catalog ghost tenant, empty `projectId` query validation, checklist `isCompleted` omission (#381), ghost-workspace posture/coverage preflight, and product-feedback score omission (#382).
+
+2026-08-31 seed hunt #383 (hit): proved environment-catalog ghost tenant, empty `projectId` query validation, and checklist `isCompleted` omission on master; seeded ghost-workspace posture/coverage and product-feedback score candidates.
 2026-08-31 combined PR #892–#930: integrated governance/tenancy scope-gate fixes from hunts #271–#308 on master (core hunt #279 already merged as #900).
 
 2026-08-31 thorough hunt #308: re-proved on master the four #281 scope/dedupe defects (prior branches unmerged); cheap-disproved manifest-compare padded-version and batch silent-dedupe candidates again.

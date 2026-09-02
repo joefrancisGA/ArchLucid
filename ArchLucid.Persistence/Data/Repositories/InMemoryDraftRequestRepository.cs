@@ -53,6 +53,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             CreatedByUserId = createdByUserId,
             Status = DraftRequestStatus.Drafting,
             Document = CloneDocument(document),
+            DocumentContentHashSha256 = DraftDocumentContentFingerprint.Compute(document),
             CreatedUtc = now,
             UpdatedUtc = now,
         };
@@ -71,7 +72,9 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         DraftRequestDocument document,
         string? redirectReason,
         string? spawnedRunId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? spawnedArchitectureVersionId = null,
+        byte[]? spawnedDocumentContentHashSha256 = null)
     {
         ArgumentNullException.ThrowIfNull(document);
 
@@ -85,6 +88,12 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         stored.Document = CloneDocument(document);
         stored.RedirectReason = redirectReason;
         stored.SpawnedRunId = spawnedRunId;
+        stored.SpawnedArchitectureVersionId = spawnedArchitectureVersionId;
+        stored.DocumentContentHashSha256 = DraftDocumentContentFingerprint.Compute(document);
+
+        if (spawnedDocumentContentHashSha256 is not null)
+            stored.SpawnedDocumentContentHashSha256 = spawnedDocumentContentHashSha256.ToArray();
+
         stored.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         return Task.FromResult<DraftRequestResponse?>(Map(stored));
@@ -233,6 +242,9 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             Document = CloneDocument(stored.Document),
             RedirectReason = stored.RedirectReason,
             SpawnedRunId = stored.SpawnedRunId,
+            SpawnedArchitectureVersionId = stored.SpawnedArchitectureVersionId,
+            DocumentContentHashSha256 = stored.DocumentContentHashSha256,
+            SpawnedDocumentContentHashSha256 = stored.SpawnedDocumentContentHashSha256,
             CreatedByUserId = stored.CreatedByUserId,
             CreatedUtc = stored.CreatedUtc,
             UpdatedUtc = stored.UpdatedUtc,
@@ -297,6 +309,24 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         }
 
         public string? SpawnedRunId
+        {
+            get;
+            set;
+        }
+
+        public Guid? SpawnedArchitectureVersionId
+        {
+            get;
+            set;
+        }
+
+        public byte[]? DocumentContentHashSha256
+        {
+            get;
+            set;
+        }
+
+        public byte[]? SpawnedDocumentContentHashSha256
         {
             get;
             set;

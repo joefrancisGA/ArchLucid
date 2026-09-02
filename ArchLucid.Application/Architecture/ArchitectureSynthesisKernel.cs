@@ -32,6 +32,7 @@ public sealed class ArchitectureSynthesisKernel(
     TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
     TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
     IArchitectureIdentityService? architectureIdentityService,
+    IArchitectureVersionService? architectureVersionService,
     ILogger<ArchitectureSynthesisKernel> logger,
     TimeProvider timeProvider) : IArchitectureSynthesisKernel
 {
@@ -66,6 +67,8 @@ public sealed class ArchitectureSynthesisKernel(
         technologyLedgerEvidenceSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerEvidenceSeeder));
 
     private readonly IArchitectureIdentityService? _architectureIdentityService = architectureIdentityService;
+
+    private readonly IArchitectureVersionService? _architectureVersionService = architectureVersionService;
 
     private readonly ILogger<ArchitectureSynthesisKernel> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -140,9 +143,26 @@ public sealed class ArchitectureSynthesisKernel(
         await _runRepository.SaveAsync(header, cancellationToken);
 
         string runId = runGuid.ToString("N");
-        string? knowledgeModelId = await TryPersistKnowledgeModelAsync(scope, request, runId, cancellationToken);
+        ArchitectureKnowledgeModel knowledgeModel = _knowledgeModelIntakeBuilder.Build(scope, request, runId);
+        string? knowledgeModelId = await TryPersistKnowledgeModelAsync(scope, knowledgeModel, cancellationToken)
+            ?? knowledgeModel.ModelId;
 
-        Guid? architectureId = await TryEnsureArchitectureIdentityAsync(scope, runGuid, knowledgeModelId, cancellationToken);
+        Guid architectureId = await EnsureArchitectureIdentityAsync(
+            scope,
+            runGuid,
+            knowledgeModelId,
+            cancellationToken);
+
+        await EnsureArchitectureVersionAsync(
+            scope,
+            runGuid,
+            architectureId,
+            request,
+            knowledgeModel,
+            cancellationToken);
+
+        Guid? architectureVersionId = await TryReadPinnedVersionIdAsync(scope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
 
         await TechnologyLedgerRunCreateSeeding.TrySeedIntakeAsync(
             runId,
@@ -158,44 +178,81 @@ public sealed class ArchitectureSynthesisKernel(
             PackageOrigin = ArchitecturePackageOrigin.Created,
             KnowledgeModelId = knowledgeModelId,
             ArchitectureId = architectureId,
+            ArchitectureVersionId = architectureVersionId,
         };
     }
 
-    private async Task<Guid?> TryEnsureArchitectureIdentityAsync(
+    private async Task<Guid?> TryReadPinnedVersionIdAsync(
+        ScopeContext scope,
+        Guid runGuid,
+        CancellationToken cancellationToken)
+    {
+        Persistence.Models.RunRecord? header =
+            await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+
+        return header?.ArchitectureVersionId;
+    }
+
+    private async Task<Guid> EnsureArchitectureIdentityAsync(
         ScopeContext scope,
         Guid runGuid,
         string? knowledgeModelId,
         CancellationToken cancellationToken)
     {
         if (_architectureIdentityService is null)
-            return null;
+        {
+            throw new ArchitecturePinningFailedException(
+                "Architecture identity service is not registered; synthesis cannot proceed.");
+        }
+
+        ArchitectureIdentityRecord? identity = await _architectureIdentityService
+            .EnsureCreatedRunIdentityAsync(scope, runGuid, knowledgeModelId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (identity?.ArchitectureId is not Guid architectureId || architectureId == Guid.Empty)
+        {
+            throw new ArchitecturePinningFailedException(
+                $"Architecture identity pin failed for RunId={runGuid:D}.");
+        }
+
+        return architectureId;
+    }
+
+    private async Task EnsureArchitectureVersionAsync(
+        ScopeContext scope,
+        Guid runGuid,
+        Guid architectureId,
+        ArchitectureRequest request,
+        ArchitectureKnowledgeModel knowledgeModel,
+        CancellationToken cancellationToken)
+    {
+        if (_architectureVersionService is null)
+        {
+            throw new ArchitecturePinningFailedException(
+                "Architecture version service is not registered; synthesis cannot proceed.");
+        }
 
         try
         {
-            ArchitectureIdentityRecord? identity = await _architectureIdentityService
-                .EnsureCreatedRunIdentityAsync(scope, runGuid, knowledgeModelId, cancellationToken)
+            await _architectureVersionService
+                .EnsureRunVersionPinnedAsync(scope, runGuid, architectureId, request, knowledgeModel, cancellationToken)
                 .ConfigureAwait(false);
-
-            return identity?.ArchitectureId;
+        }
+        catch (ArchitecturePinningFailedException)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    ex,
-                    "Architecture identity persistence failed for RunId={RunId}; synthesis continues.",
-                    runGuid);
-            }
-
-            return null;
+            throw new ArchitecturePinningFailedException(
+                $"Architecture version pin failed for RunId={runGuid:D}.",
+                ex);
         }
     }
 
     private async Task<string?> TryPersistKnowledgeModelAsync(
         ScopeContext scope,
-        ArchitectureRequest request,
-        string runId,
+        ArchitectureKnowledgeModel model,
         CancellationToken cancellationToken)
     {
         if (_architectureIntelligencePersistence is null)
@@ -203,7 +260,6 @@ public sealed class ArchitectureSynthesisKernel(
 
         try
         {
-            ArchitectureKnowledgeModel model = _knowledgeModelIntakeBuilder.Build(scope, request, runId);
             await _architectureIntelligencePersistence.SaveModelAsync(model, cancellationToken);
             return model.ModelId;
         }
@@ -213,8 +269,8 @@ public sealed class ArchitectureSynthesisKernel(
             {
                 _logger.LogWarning(
                     ex,
-                    "Architecture knowledge model persistence failed for RunId={RunId}; synthesis continues.",
-                    runId);
+                    "Architecture knowledge model persistence failed for RunId={RunId}; version fingerprint uses in-memory κ.",
+                    model.RunId);
             }
 
             return null;

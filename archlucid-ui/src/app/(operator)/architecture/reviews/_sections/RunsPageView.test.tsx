@@ -26,6 +26,7 @@ import {
 } from "./reviews-hub-copy";
 import { RunsPageView } from "./RunsPageView";
 import type { RunsPageModel } from "./runs-page-model";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 
 beforeAll(() => {
   globalThis.ResizeObserver = class {
@@ -119,7 +120,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     ...actual,
     isBuyerPolishedOperatorShellEnv: () => true,
     isBuyerSafeDemoMarketingChromeEnv: () => false,
-    isOperatorExperienceFullShellEnv: () => false,
+    isOperatorExperienceFullShellEnv: vi.fn(() => false),
   };
 });
 
@@ -213,6 +214,31 @@ describe("RunsPageView page chrome", () => {
     expect(screen.getByTestId("reviews-hub-more-ways")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-more-ways")).toHaveClass("mt-4");
     expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
+  });
+
+  it("promotes the paginated inventory when the hub exceeds one page in full-operator shell", () => {
+    vi.mocked(isOperatorExperienceFullShellEnv).mockReturnValue(true);
+
+    render(
+      <RunsPageView
+        model={baseModel({
+          totalCount: 30,
+          pageSize: 25,
+          runs: Array.from({ length: 25 }, (_, index) => ({
+            runId: `review-${index + 1}`,
+            projectId: "default",
+            createdUtc: "2026-01-15T12:00:00.000Z",
+            hasFindingsSnapshot: true,
+            findingCount: 2,
+          })) as RunsPageModel["runs"],
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("reviews-hub-paginated-inventory")).toBeInTheDocument();
+    expect(screen.getByTestId("runs-list-advanced")).toBeInTheDocument();
+
+    vi.mocked(isOperatorExperienceFullShellEnv).mockReturnValue(false);
   });
 });
 

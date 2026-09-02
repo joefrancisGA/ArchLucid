@@ -48,7 +48,7 @@ public sealed class AzureInventorySecurityBaselineFindingEngineTests
 
         AzureInventorySecurityBaselineFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("AzureInventorySecurityBaseline");
@@ -92,7 +92,7 @@ public sealed class AzureInventorySecurityBaselineFindingEngineTests
 
         AzureInventorySecurityBaselineFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].RelatedNodeIds.Should().ContainSingle().Which.Should().Be("topology-storage-1");
@@ -103,7 +103,7 @@ public sealed class AzureInventorySecurityBaselineFindingEngineTests
     {
         AzureInventorySecurityBaselineFindingEngine sut = CreateSut(null);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }

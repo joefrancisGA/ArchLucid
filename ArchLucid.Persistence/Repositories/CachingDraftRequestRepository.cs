@@ -93,7 +93,9 @@ public sealed class CachingDraftRequestRepository(
         DraftRequestDocument document,
         string? redirectReason,
         string? spawnedRunId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? spawnedArchitectureVersionId = null,
+        byte[]? spawnedDocumentContentHashSha256 = null)
     {
         DraftRequestResponse? updated = await _inner.UpdateAsync(
             tenantId,
@@ -104,7 +106,9 @@ public sealed class CachingDraftRequestRepository(
             document,
             redirectReason,
             spawnedRunId,
-            cancellationToken);
+            cancellationToken,
+            spawnedArchitectureVersionId,
+            spawnedDocumentContentHashSha256);
 
         if (updated is not null)
         {

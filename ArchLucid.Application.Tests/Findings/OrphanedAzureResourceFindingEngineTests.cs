@@ -47,7 +47,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
 
         OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("OrphanedAzureResource");
@@ -93,7 +93,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
 
         OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].RelatedNodeIds.Should().ContainSingle().Which.Should().Be("topology-disk-1");
@@ -118,7 +118,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
 
         OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(3);
@@ -157,7 +157,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
         OrphanedAzureResourceFindingEngine sut = CreateSut(
             CreatePackageWithOrphanCandidates(orphanCandidatesJson, resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Payload.Should().BeOfType<ExtractorOrphanCandidateFindingPayload>();
@@ -182,7 +182,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
         OrphanedAzureResourceFindingEngine sut = CreateSut(
             CreatePackageWithOrphanCandidates("[]", resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Payload.Should().BeOfType<RequirementFindingPayload>();
@@ -205,7 +205,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
 
         OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -227,7 +227,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
         packageRepository.Verify(
@@ -252,7 +252,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -262,7 +262,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
     {
         OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackageWithoutResourcesJson());
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -279,7 +279,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
 
         OrphanedAzureResourceFindingEngine sut = CreateSut(package);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }

@@ -97,6 +97,13 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>Immutable content-addressed architecture revision evaluated by this run.</summary>
+    public Guid? ArchitectureVersionId
+    {
+        get;
+        set;
+    }
+
     /// <summary>Pinned κ <see cref="ArchitectureKnowledgeModel.ModelId" /> for as-of-this-run reads.</summary>
     public string? KnowledgeModelId
     {

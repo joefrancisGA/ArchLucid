@@ -15,6 +15,7 @@ import type { ArchitectureReviewReadinessBlockerId } from "./architecture-review
 import type { ArchitectureDraftStructuredBriefState } from "./architecture-draft-structured-brief";
 import {
   hasConfirmedActor,
+  hasUnconfirmedStructuredBriefPlaceholders,
   structuredBriefFromDocument,
   structuredBriefToPatchPayload,
 } from "./architecture-draft-structured-brief";
@@ -151,6 +152,10 @@ export function validateArchitectureReviewReadiness(
 
   if (!hasConfirmedActor(actors)) {
     blockers.push("confirmed-actor");
+  }
+
+  if (hasUnconfirmedStructuredBriefPlaceholders(fields.structuredBrief)) {
+    blockers.push("structured-brief-placeholders");
   }
 
   return {

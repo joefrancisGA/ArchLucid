@@ -18,7 +18,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
     [Fact]
     public void Constants_document_harness_and_catalog_sizes()
     {
-        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(14);
+        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(16);
         InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(39);
     }
 
@@ -34,7 +34,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Advisory-only measurement — scores do **not** demote typed-engine findings in production.
             DeterministicInsightDensityGate returns Promote / DecisionGradeFinding for non-agent findings
             (penalty reason `typed-engine-protected`); the computed score is visible here but is not a control.
-            The golden corpus harness registers **14** engines; **0** appear in this table (≥1 finding across case-01..case-34). **39** built-in product engines are absent from this corpus-derived slice.
+            The golden corpus harness registers **16** engines; **0** appear in this table (≥1 finding across case-01..case-35). **39** built-in product engines are absent from this corpus-derived slice.
             `WouldDemoteIfUnprotectedCount` is a counterfactual (score below DemotionThreshold) — not production demotion behavior.
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
@@ -61,7 +61,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Advisory-only measurement — scores do **not** demote typed-engine findings in production.
             DeterministicInsightDensityGate returns Promote / DecisionGradeFinding for non-agent findings
             (penalty reason `typed-engine-protected`); the computed score is visible here but is not a control.
-            The golden corpus harness registers **14** engines; **1** appear in this table (≥1 finding across case-01..case-34). **38** built-in product engines are absent from this corpus-derived slice.
+            The golden corpus harness registers **16** engines; **1** appear in this table (≥1 finding across case-01..case-35). **38** built-in product engines are absent from this corpus-derived slice.
             `WouldDemoteIfUnprotectedCount` is a counterfactual (score below DemotionThreshold) — not production demotion behavior.
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.

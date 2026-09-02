@@ -42,7 +42,11 @@ import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPa
 import { COMMAND_PALETTE_SIDEBAR_COMPACT_LINE } from "@/lib/vocabulary/command-palette-sidebar-vocabulary";
 import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
-import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
+import {
+  OPEN_COMMAND_PALETTE_EVENT,
+  SHORTCUTS,
+  type OpenCommandPaletteEventDetail,
+} from "@/lib/shortcut-registry";
 import { CommandPaletteActions } from "@/components/CommandPaletteActions";
 import { CommandPaletteAdminNavGroups } from "@/components/CommandPaletteAdminNavGroups";
 import { CommandPaletteCuratedTasks } from "@/components/CommandPaletteCuratedTasks";
@@ -70,6 +74,10 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
 
   if (path.startsWith("/insights/compare-two-reviews")) {
     return "Search review change comparison";
+  }
+
+  if (path.startsWith("/governance/findings")) {
+    return "Search findings";
   }
 
   if (path.startsWith("/governance")) {
@@ -132,6 +140,7 @@ export type CommandPaletteProps = {
 
 export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const [open, setOpen] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState("");
   const router = useRouter();
   const pathname = usePathname();
   const auditRunId = useOperatorShellAuditRunId();
@@ -204,7 +213,14 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   }, [open]);
 
   useEffect(() => {
-    const onOpenRequest = (): void => {
+    const onOpenRequest = (event: Event): void => {
+      const detail = (event as CustomEvent<OpenCommandPaletteEventDetail>).detail;
+      const initialQuery = detail?.initialQuery?.trim() ?? "";
+
+      if (initialQuery.length > 0) {
+        setPaletteQuery(initialQuery);
+      }
+
       setOpen(true);
     };
 
@@ -214,6 +230,12 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       window.removeEventListener(OPEN_COMMAND_PALETTE_EVENT, onOpenRequest);
     };
   }, []);
+
+  useEffect(() => {
+    if (!open) {
+      setPaletteQuery("");
+    }
+  }, [open]);
 
   const navigate = useCallback(
     (href: string) => {
@@ -295,8 +317,10 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           )}
         </Button>
       ) : null}
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
+      <CommandDialog open={open} onOpenChange={setOpen} searchValue={paletteQuery} onSearchValueChange={setPaletteQuery}>
+        <CommandInput
+          placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"}
+        />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
