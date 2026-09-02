@@ -1347,11 +1347,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — Integration event DLQ retry used wall clock instead of injected TimeProvider
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — durable background job processor overwrote `Canceled` with `Succeeded` after late executor completion
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

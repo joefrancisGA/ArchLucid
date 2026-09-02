@@ -161,6 +161,16 @@ public sealed class BackgroundJobQueueProcessorHostedService(
             BackgroundJobFile file = await executor.ExecuteAsync(workUnit, stoppingToken);
             string blobName = await blobs.UploadAsync(jobId, file, stoppingToken);
 
+            BackgroundJobRow? current = await repository.GetAsync(jobId, stoppingToken);
+
+            if (current is not null
+                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
+
             await repository.MarkSucceededAsync(jobId, blobName, file.FileName, file.ContentType, stoppingToken);
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
         }
@@ -195,6 +205,16 @@ public sealed class BackgroundJobQueueProcessorHostedService(
             int jitterSpan = baseDelayMs * 20 / 100;
             int delayMs = baseDelayMs + Random.Shared.Next(-jitterSpan, jitterSpan + 1);
             await Task.Delay(delayMs, stoppingToken);
+
+            BackgroundJobRow? current = await repository.GetAsync(jobId, stoppingToken);
+
+            if (current is not null
+                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
 
             int pending = await repository.CountNonTerminalAsync(stoppingToken);
 

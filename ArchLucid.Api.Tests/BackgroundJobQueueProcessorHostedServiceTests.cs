@@ -349,6 +349,114 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         await sut.StopAsync(CancellationToken.None);
     }
 
+    [Fact]
+    public async Task ProcessOneMessageAsync_does_not_mark_succeeded_when_job_canceled_during_execution()
+    {
+        TaskCompletionSource<bool> started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<bool> release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<QueueClient> queueClient = new();
+        Mock<IBackgroundJobRepository> repo = new();
+        Mock<IBackgroundJobWorkUnitExecutor> executor = new();
+        string workJson = BackgroundJobWorkUnitJson.Serialize(
+            new AnalysisReportDocxWorkUnit(
+                new AnalysisReportDocxJobPayload { RunId = "run-cancel", IncludeDiagram = false },
+                "report.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+        string jobState = "Running";
+
+        BackgroundJobRow BuildRow()
+        {
+            return new BackgroundJobRow
+            {
+                JobId = "job-cancel",
+                WorkUnitJson = workJson,
+                RetryCount = 0,
+                MaxRetries = 0,
+                State = jobState,
+            };
+        }
+
+        executor
+            .Setup(e => e.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+            .Returns(async (BackgroundJobWorkUnit _, CancellationToken ct) =>
+            {
+                started.TrySetResult(true);
+                jobState = "Canceled";
+                await release.Task.WaitAsync(ct);
+
+                return new BackgroundJobFile("report.docx", "application/octet-stream", []);
+            });
+
+        ServiceCollection serviceCollection = new();
+        serviceCollection.AddSingleton<IBackgroundJobWorkUnitExecutor>(executor.Object);
+        serviceCollection.AddSingleton(Mock.Of<IBackgroundJobResultBlobAccessor>());
+        using ServiceProvider provider = serviceCollection.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        BackgroundJobsOptions backgroundJobsOptions = new()
+        {
+            ProcessorReceiveBatchSize = 1,
+            ProcessorIdlePollMilliseconds = 10,
+        };
+
+        BackgroundJobQueueProcessorHostedService sut = new(
+            NullLogger<BackgroundJobQueueProcessorHostedService>.Instance,
+            queueClient.Object,
+            repo.Object,
+            scopeFactory,
+            new OperationCancellationRegistry(),
+            Options.Create(backgroundJobsOptions));
+
+        using CancellationTokenSource cts = new();
+        int pulls = 0;
+        QueueMessage queueMessage = QueuesModelFactory.QueueMessage("msg-cancel", "rcpt-cancel", "job-cancel", 1);
+
+        queueClient.Setup(q => q.CreateIfNotExistsAsync(It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        queueClient.Setup(q => q.ReceiveMessagesAsync(It.IsAny<int>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                pulls++;
+
+                if (pulls == 1)
+                {
+                    return Azure.Response.FromValue(new[] { queueMessage }, Mock.Of<Azure.Response>());
+                }
+
+                cts.Cancel();
+
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        repo.Setup(r => r.TryPrepareQueuedJobAsync("job-cancel", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueuedBackgroundJobPrepareResult(true, false, false, BuildRow()));
+
+        repo.Setup(r => r.GetAsync("job-cancel", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => BuildRow());
+
+        queueClient.Setup(q => q.DeleteMessageAsync("msg-cancel", "rcpt-cancel", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        await sut.StartAsync(CancellationToken.None);
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        release.TrySetResult(true);
+        await Task.Delay(300, CancellationToken.None);
+
+        repo.Verify(
+            r => r.MarkSucceededAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        queueClient.Verify(q => q.DeleteMessageAsync("msg-cancel", "rcpt-cancel", It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+
+        await sut.StopAsync(CancellationToken.None);
+    }
+
     [Theory]
     [InlineData(null, 750, 10_000)]
     [InlineData(5_000, 750, 5_000)]
