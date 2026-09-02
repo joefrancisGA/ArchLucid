@@ -123,6 +123,22 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_on_synonym_schemaVersion_succeeds()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 1,
+            includeResources: true,
+            stringOnSchemaVersion: true);
+
+        using MemoryStream stream = new(zipBytes);
+
+        CloudInventoryExtractorZipValidationResult result = CloudInventoryExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public void Validate_malformed_manifest_json_is_schema_rejection()
     {
         byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 1, includeResources: true, malformedManifest: true);
@@ -143,7 +159,8 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
         bool malformedManifest = false,
         bool stringSchemaVersion = false,
         bool booleanSchemaVersion = false,
-        bool stringBooleanSchemaVersion = false)
+        bool stringBooleanSchemaVersion = false,
+        bool stringOnSchemaVersion = false)
     {
         using MemoryStream ms = new();
 
@@ -161,7 +178,9 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
                 }
                 else
                 {
-                    string schemaValue = stringBooleanSchemaVersion
+                    string schemaValue = stringOnSchemaVersion
+                        ? "\"on\""
+                        : stringBooleanSchemaVersion
                         ? "\"true\""
                         : booleanSchemaVersion
                             ? "true"

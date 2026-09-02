@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 69
-- **bugs-found:** 174
+- **hunts:** 70
+- **bugs-found:** 177
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — boolean on/off synonym coercion across five Core parsers
+- **last-bug:** 2026-09-02 — boolean on/off synonym coercion in citation reader, finding JSON, and cloud-inventory extractor
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1986,6 +1986,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RealLlmOutputStructuralValidator.TryParseBooleanString` — `on` agentType synonym ignored — **hit 2026-09-02 (#481):** `"agentType":"on"` failed structural validation while `"True"` accepted; fixed with boolean synonym coercion (`ValidateAgentResultStructure_accepts_on_synonym_agentType`).
 
 - [x] (proven) `AzureExtractorPackageZipValidator.TryParseBooleanString` — `on` schemaVersion synonym ignored — **hit 2026-09-02 (#481):** `"schemaVersion":"on"` failed manifest validation while `"True"` accepted; fixed with boolean synonym coercion (`Validate_on_synonym_schemaVersion_succeeds`).
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryParseBooleanString` — `on` citation-count synonym ignored — **hit 2026-09-02 (#482):** `"citations":"on"` left `CitationCount` null while `"true"` coerced to `1`; fixed with boolean synonym coercion (`FromAggregateJson_maps_string_encoded_on_citation_count`).
+
+- [x] (proven) `FindingJsonConverter.TryParseBooleanString` — `on` finding-field synonym ignored — **hit 2026-09-02 (#482):** `severity:"on"` threw and `properties.enabled:"on"` stayed raw while `"True"` already coerced; fixed with boolean synonym coercion (`Deserialize_string_encoded_on_severity_maps_warning`, `Deserialize_properties_string_encoded_on_boolean_values_coerce_to_lowercase_strings`).
+
+- [x] (proven) `CloudInventoryExtractorPackageZipValidator.TryParseBooleanString` — `on` schemaVersion synonym ignored — **hit 2026-09-02 (#482):** parity gap after #481 Azure fix; `"schemaVersion":"on"` failed manifest validation; fixed with boolean synonym coercion (`Validate_on_synonym_schemaVersion_succeeds`).
+
+2026-09-02 seed hunt #482: reseeded from ArchLucid.Core; proved citation-count, finding JSON, and cloud-inventory extractor on/off boolean synonym gaps.
 
 2026-09-02 seed hunt #481: reseeded from ArchLucid.Core; proved execution-profile, risk-register, breach-severity, golden-corpus agentType, and extractor schemaVersion on/off boolean synonym gaps.
 
