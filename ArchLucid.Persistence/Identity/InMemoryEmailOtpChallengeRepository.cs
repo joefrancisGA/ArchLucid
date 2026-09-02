@@ -151,18 +151,24 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
 
         lock (_completionLock)
         {
+            List<Guid> activeIds = [];
+
             foreach (KeyValuePair<Guid, EmailOtpChallengeRecord> entry in _byId)
             {
                 EmailOtpChallengeRecord row = entry.Value;
 
-                if (row.NormalizedEmail != insert.NormalizedEmail
-                    || row.CompletedUtc is not null
-                    || row.InvalidatedUtc is not null)
+                if (row.NormalizedEmail == insert.NormalizedEmail
+                    && row.CompletedUtc is null
+                    && row.InvalidatedUtc is null)
                 {
-                    continue;
+                    activeIds.Add(entry.Key);
                 }
+            }
 
-                _byId[entry.Key] = Clone(row, invalidatedUtc: invalidatedUtc);
+            foreach (Guid id in activeIds)
+            {
+                EmailOtpChallengeRecord row = _byId[id];
+                _byId[id] = Clone(row, invalidatedUtc: invalidatedUtc);
             }
 
             DateTimeOffset now = TimeProvider.System.GetUtcNow();
