@@ -99,7 +99,6 @@ internal static class MvcExtensions
             options.AddDocumentTransformer<MicrosoftOpenApiQualityDimensionDocumentTransformer>();
             options.AddDocumentTransformer<MicrosoftOpenApiAudienceSchemaDocumentTransformer>();
             options.AddSchemaTransformer<MicrosoftOpenApiJsonStringEnumSchemaTransformer>();
-            options.AddOperationTransformer<MicrosoftOpenApiEnumParameterDefaultOperationTransformer>();
             options.AddSchemaTransformer<MicrosoftOpenApiRequiredRequestPropertiesSchemaTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiStandardProblemDetailsOperationTransformer>();
         });
