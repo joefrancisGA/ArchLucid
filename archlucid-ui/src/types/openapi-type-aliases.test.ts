@@ -99,6 +99,50 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
   ThresholdRecommendationResult: "ThresholdRecommendationResult",
   CompositeAlertRuleCondition: "AlertRuleCondition",
   CompositeAlertRule: "CompositeAlertRule",
+  TenantTrialStatusPayload: "TenantTrialStatusResponse",
+  TenantHomepageSettingsResponse: "TenantHomepageSettingsGetResponse",
+  FeaturedCompletedSampleCandidate: "FeaturedCompletedSampleCandidateResponse",
+  TenantHomepageSettingsPutRequest: "TenantHomepageSettingsPutRequest",
+  TenantCostSettingsResponse: "TenantCostSettingsGetResponse",
+  TenantCostSettingsPutRequest: "TenantCostSettingsPutRequest",
+  TenantCostEstimateResponse: "TenantCostEstimateResponse",
+  GovernanceResolutionCandidate: "GovernanceResolutionCandidate",
+  GovernanceResolutionDecision: "GovernanceResolutionDecision",
+  GovernanceConflictRecord: "GovernanceConflictRecord",
+  EffectiveGovernanceResolutionResult: "EffectiveGovernanceResolutionResult",
+  PolicyPackDryRunSeverityCount: "PolicyPackDryRunSeverityCount",
+  PolicyPackDryRunThresholdOutcome: "PolicyPackDryRunThresholdOutcome",
+  PolicyPackDryRunRunItem: "PolicyPackDryRunRunItem",
+  PolicyPackDryRunDeltaCounts: "PolicyPackDryRunDeltaCounts",
+  PolicyPackDryRunResponse: "PolicyPackDryRunResponse",
+  PolicyPackDryRunRequest: "PolicyPackDryRunRequest",
+  PreFinalizeChecklistItemStatus: "PreFinalizeChecklistItemStatus",
+  PreFinalizeChecklistItem: "PreFinalizeChecklistItem",
+  PreFinalizeChecklistResult: "PreFinalizeChecklistResult",
+  ProductLearningDashboardSummaryResponse: "ProductLearningDashboardSummaryResponse",
+  ArtifactOutcomeTrend: "ArtifactOutcomeTrend",
+  ImprovementOpportunity: "ImprovementOpportunity",
+  TriageQueueItem: "TriageQueueItem",
+  ProductLearningImprovementOpportunitiesResponse: "ProductLearningImprovementOpportunitiesResponse",
+  ProductLearningArtifactOutcomeTrendsResponse: "ProductLearningArtifactOutcomeTrendsResponse",
+  ProductLearningTriageQueueResponse: "ProductLearningTriageQueueResponse",
+  ProductLearningDashboardBundle: "ProductLearningDashboardBundleResponse",
+  PilotValueReportSeverityJson: "PilotValueReportSeverityBreakdown",
+  PilotValueReportTimelineRow: "PilotValueReportRunTimelinePoint",
+  PilotValueReportJson: "PilotValueReport",
+  PolicyPackChangeLogEntry: "PolicyPackChangeLogEntry",
+  GovernanceDashboardSummary: "GovernanceDashboardSummary",
+  FeasibilityVerdictKind: "FeasibilityVerdictKind",
+  AssertedTrailEntry: "AssertedTrailEntry",
+  InferredTrailEntry: "InferredTrailEntry",
+  SkippedQuestionTrailEntry: "SkippedQuestionTrailEntry",
+  TransparencyTrail: "TransparencyTrail",
+  SoftInfeasibilityEnvelope: "SoftInfeasibilityEnvelope",
+  ManifestFeasibilityVerdict: "FeasibilityVerdict",
+  GovernanceEnvironmentDefinition: "GovernanceEnvironmentDefinition",
+  GovernanceEnvironmentTransition: "GovernanceEnvironmentTransition",
+  GovernanceEnvironmentCatalog: "GovernanceEnvironmentCatalog",
+  ReplaceGovernanceEnvironmentCatalogRequest: "ReplaceGovernanceEnvironmentCatalogRequest",
 } as const satisfies Record<string, keyof components["schemas"]>;
 
 type AssertExtends<Base, Derived extends Base> = Derived;
@@ -405,6 +449,6 @@ describe("openapi type alias schema keys", () => {
   });
 
   it("keeps the mapping table in sync with the number of guarded aliases", () => {
-    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(91);
+    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(135);
   });
 });

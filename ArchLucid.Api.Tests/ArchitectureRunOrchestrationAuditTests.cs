@@ -126,16 +126,12 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             {
                 ActorContext = actorContext,
                 BaselineMutationAuditService = baselineMutationAudit,
-                PostExecuteHooks = new ArchitectureRunExecutePostExecuteHooks(
-                    auditService,
-                    scopeContextProvider,
-                    baselineMutationAudit,
-                    runRepository,
-                    new RunStateTransitionService(),
-                    Mock.Of<IIntegrationEventOutboxRepository>(),
-                    Mock.Of<IIntegrationEventPublisher>(),
-                    integrationEventsOptions.Object,
-                    NullLogger<ArchitectureRunExecutePostExecuteHooks>.Instance),
+                PostExecuteHooks = ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                    auditService: auditService,
+                    scopeContextProvider: scopeContextProvider,
+                    baselineMutationAudit: baselineMutationAudit,
+                    runRepository: runRepository,
+                    integrationEventsOptions: integrationEventsOptions.Object),
                 UnitOfWorkFactory = ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 OutputTraceEvaluationHook = new NoOpAgentOutputTraceEvaluationHook(),
                 AgentResultPostExecutionEnricher = new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),

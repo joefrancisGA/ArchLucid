@@ -13,26 +13,9 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
 
     public Task InsertAsync(ProductLearningPilotSignalRecord record, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(record);
-
-        if (string.IsNullOrWhiteSpace(record.SubjectType))
-            throw new ArgumentException("SubjectType is required.", nameof(record));
-
-        if (string.IsNullOrWhiteSpace(record.Disposition))
-            throw new ArgumentException("Disposition is required.", nameof(record));
-
-        Guid signalId = record.SignalId == Guid.Empty ? Guid.NewGuid() : record.SignalId;
-        DateTime recordedUtc = record.RecordedUtc == default ? TimeProvider.System.UtcNowDateTime() : record.RecordedUtc;
-        string triage = string.IsNullOrWhiteSpace(record.TriageStatus)
-            ? ProductLearningTriageStatusValues.Open
-            : record.TriageStatus;
-
-        ProductLearningPilotSignalRecord stored = record with
-        {
-            SignalId = signalId,
-            RecordedUtc = recordedUtc,
-            TriageStatus = triage
-        };
+        ProductLearningPilotSignalRecord stored = ProductLearningPilotSignalRepositoryCore.NormalizeInsert(
+            record,
+            static () => TimeProvider.System.UtcNowDateTime());
 
         lock (_sync)
             _rows.Add(stored);
@@ -47,7 +30,7 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         int take,
         CancellationToken cancellationToken)
     {
-        int capped = take < 1 ? 1 : Math.Min(take, 500);
+        int capped = ProductLearningPilotSignalRepositoryCore.ClampListTake(take);
 
         List<ProductLearningPilotSignalRecord> list;
 

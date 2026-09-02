@@ -1,23 +1,16 @@
-using System.Text.Json;
-
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application.Identity;
 using ArchLucid.Application.Tenancy;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Billing;
-using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Identity;
-using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Tenancy;
 
@@ -26,35 +19,10 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [Authorize]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/tenant")]
-public sealed class TenantTrialController(
-    ITenantRepository tenantRepository,
-    IScopeContextProvider scopeProvider,
-    IAuditService auditService,
-    IBillingTrialConversionGate billingTrialConversionGate,
-    ITrialIdentityUserRepository trialIdentityUsers,
-    ISelfServiceTrialAbuseRepository trialAbuseRepository,
-    IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleSchedulerOptions) : ControllerBase
+public sealed class TenantTrialController(ITenantTrialFacade trialFacade) : ControllerBase
 {
-    private readonly IAuditService
-        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly IBillingTrialConversionGate _billingTrialConversionGate =
-        billingTrialConversionGate ?? throw new ArgumentNullException(nameof(billingTrialConversionGate));
-
-    private readonly IScopeContextProvider _scopeProvider =
-        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
-    private readonly ITrialIdentityUserRepository _trialIdentityUsers =
-        trialIdentityUsers ?? throw new ArgumentNullException(nameof(trialIdentityUsers));
-
-    private readonly ISelfServiceTrialAbuseRepository _trialAbuseRepository =
-        trialAbuseRepository ?? throw new ArgumentNullException(nameof(trialAbuseRepository));
-
-    private readonly IOptionsMonitor<TrialLifecycleSchedulerOptions> _trialLifecycleSchedulerOptions =
-        trialLifecycleSchedulerOptions ?? throw new ArgumentNullException(nameof(trialLifecycleSchedulerOptions));
+    private readonly ITenantTrialFacade _trialFacade =
+        trialFacade ?? throw new ArgumentNullException(nameof(trialFacade));
 
     /// <summary>Returns trial window metadata when the tenant row was provisioned via self-service bootstrap.</summary>
     [HttpGet("trial-status")]
@@ -62,58 +30,15 @@ public sealed class TenantTrialController(
     [ProducesResponseType(typeof(TenantTrialStatusResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTrialStatusAsync(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+        TenantTrialStatusQueryResult result = await _trialFacade.GetTrialStatusAsync(cancellationToken)
+            .ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
-        if (string.IsNullOrWhiteSpace(tenant.TrialStatus))
-            return Ok(
-                new TenantTrialStatusResponse
-                {
-                    Status = "None",
-                    TrialRunsUsed = tenant.TrialRunsUsed,
-                    TrialSeatsUsed = tenant.TrialSeatsUsed,
-                    TrialWelcomeRunId = tenant.TrialWelcomeRunId,
-                    FirstCommitUtc = tenant.TrialFirstManifestCommittedUtc,
-                    TimeToFirstCommittedManifestTotalSeconds =
-                        ComputeTimeToFirstCommittedManifestTotalSeconds(tenant),
-                    BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
-                    BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
-                    BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
-                    IdentityHandoffPending = ComputeIdentityHandoffPending(tenant)
-                });
-
-        int? daysRemaining = null;
-
-        if (!string.IsNullOrWhiteSpace(tenant.TrialStatus) && tenant.TrialExpiresUtc is not null)
-            daysRemaining = TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay(
-                tenant,
-                TimeProvider.System.GetUtcNow(),
-                _trialLifecycleSchedulerOptions.CurrentValue);
-
-        return Ok(
-            new TenantTrialStatusResponse
-            {
-                Status = tenant.TrialStatus,
-                TrialStartUtc = tenant.TrialStartUtc,
-                TrialExpiresUtc = tenant.TrialExpiresUtc,
-                DaysRemaining = daysRemaining,
-                TrialRunsUsed = tenant.TrialRunsUsed,
-                TrialRunsLimit = tenant.TrialRunsLimit,
-                TrialSeatsUsed = tenant.TrialSeatsUsed,
-                TrialSeatsLimit = tenant.TrialSeatsLimit,
-                TrialSampleRunId = tenant.TrialSampleRunId,
-                TrialWelcomeRunId = tenant.TrialWelcomeRunId,
-                FirstCommitUtc = tenant.TrialFirstManifestCommittedUtc,
-                TimeToFirstCommittedManifestTotalSeconds =
-                    ComputeTimeToFirstCommittedManifestTotalSeconds(tenant),
-                BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
-                BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
-                BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
-                IdentityHandoffPending = ComputeIdentityHandoffPending(tenant)
-            });
+        return result.Outcome switch
+        {
+            TenantTrialHttpOutcome.Success => Ok(TenantTrialHttpMapper.MapStatus(result.Status!)),
+            TenantTrialHttpOutcome.TenantNotFound => this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound),
+            _ => throw new InvalidOperationException($"Unexpected trial status outcome: {result.Outcome}."),
+        };
     }
 
     /// <summary>
@@ -125,6 +50,7 @@ public sealed class TenantTrialController(
     [HttpPost("link-entra")]
     [SkipTrialWriteLimit]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+    [MutatingAuditExcluded("Audit: ITenantTrialFacade.LinkEntraAsync logs TenantEntraDirectoryBound and TrialLocalIdentityLinkedToEntra.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> LinkEntraAsync(
         [FromBody] TenantLinkEntraRequest? body,
@@ -133,104 +59,24 @@ public sealed class TenantTrialController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (body.EntraTenantId == Guid.Empty)
-            return this.BadRequestProblem("EntraTenantId is required.", ProblemTypes.ValidationFailed);
+        TenantTrialLinkEntraResult result = await _trialFacade.LinkEntraAsync(
+                TenantTrialHttpMapper.MapLinkEntraBody(body),
+                User.Identity?.Name ?? "admin",
+                cancellationToken)
+            .ConfigureAwait(false);
 
-        bool hasEmail = !string.IsNullOrWhiteSpace(body.LocalEmail);
-        bool hasOid = !string.IsNullOrWhiteSpace(body.EntraOid);
-
-        if (hasEmail != hasOid)
-            return this.BadRequestProblem(
-                "LocalEmail and EntraOid must both be supplied together, or both omitted.",
-                ProblemTypes.ValidationFailed);
-
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
-
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
-        string? normalizedLocal = null;
-
-        if (hasEmail && hasOid)
+        return result.Outcome switch
         {
-            normalizedLocal = TrialEmailNormalizer.Normalize(body.LocalEmail!);
-            TrialIdentityUserRecord? localRow =
-                await _trialIdentityUsers.GetByNormalizedEmailAsync(normalizedLocal, cancellationToken);
-
-            if (localRow is null)
-                return this.BadRequestProblem("No local trial identity exists for that email.",
-                    ProblemTypes.ValidationFailed);
-
-            bool emailClaimedForTenant = await _trialAbuseRepository.HasEmailClaimForTenantAsync(
-                normalizedLocal,
-                scope.TenantId,
-                cancellationToken).ConfigureAwait(false);
-
-            if (!emailClaimedForTenant)
-                return this.BadRequestProblem(
-                    "No local trial identity exists for that email.",
-                    ProblemTypes.ValidationFailed);
-
-            string requestedOid = body.EntraOid!.Trim();
-
-            if (localRow.LinkedEntraOid is { } linked && linked != requestedOid)
-                return this.ConflictProblem(
-                    "That local identity is already linked to a different Entra user id.",
-                    ProblemTypes.Conflict);
-        }
-
-        bool bound =
-            await _tenantRepository.UpdateEntraTenantIdAsync(scope.TenantId, body.EntraTenantId, cancellationToken);
-
-        if (!bound)
-            return this.ConflictProblem(
-                "Entra directory could not be bound (already bound to a different directory, or directory id is held by another tenant).",
-                ProblemTypes.Conflict);
-
-        string actor = User.Identity?.Name ?? "admin";
-
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.TenantEntraDirectoryBound,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = tenant.Id,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(new { entraTenantId = body.EntraTenantId })
-            },
-            cancellationToken);
-
-        if (normalizedLocal is null || !hasOid) return NoContent();
-
-        {
-            bool linked = await _trialIdentityUsers.TryLinkLocalIdentityToEntraAsync(
-                normalizedLocal,
-                body.EntraOid!.Trim(),
-                cancellationToken);
-
-            if (!linked)
-                return this.ConflictProblem(
-                    "Entra directory was bound, but updating the local identity row failed (retry or contact support).",
-                    ProblemTypes.Conflict);
-
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.TrialLocalIdentityLinkedToEntra,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
-                    TenantId = tenant.Id,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    DataJson = JsonSerializer.Serialize(new { normalizedEmail = normalizedLocal })
-                },
-                cancellationToken);
-        }
-
-        return NoContent();
+            TenantTrialHttpOutcome.Success => NoContent(),
+            TenantTrialHttpOutcome.TenantNotFound => this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound),
+            TenantTrialHttpOutcome.ValidationFailed => this.BadRequestProblem(
+                result.Message ?? "Validation failed.",
+                ProblemTypes.ValidationFailed),
+            TenantTrialHttpOutcome.Conflict => this.ConflictProblem(
+                result.Message ?? "Conflict.",
+                ProblemTypes.Conflict),
+            _ => throw new InvalidOperationException($"Unexpected link-entra outcome: {result.Outcome}."),
+        };
     }
 
     /// <summary>Marks an active trial as converted after billing rules pass (paid row or Noop provider).</summary>
@@ -238,103 +84,30 @@ public sealed class TenantTrialController(
     [HttpPost("convert")]
     [SkipTrialWriteLimit]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+    [MutatingAuditExcluded("Audit: ITenantTrialFacade.ConvertTrialAsync logs TenantTrialConverted.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ConvertTrialAsync(
         [FromBody] TenantTrialConvertRequest? body,
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+        TenantTrialConvertResult result = await _trialFacade.ConvertTrialAsync(
+                TenantTrialHttpMapper.MapConvertBody(body),
+                User.Identity?.Name ?? "admin",
+                cancellationToken)
+            .ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
-        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
-            return this.ConflictProblem("Tenant is not on an active self-service trial.", ProblemTypes.Conflict);
-
-        try
+        return result.Outcome switch
         {
-            await _billingTrialConversionGate.EnsureManualConversionAllowedAsync(tenant.Id, cancellationToken);
-        }
-        catch (BillingConversionBlockedException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-
-        TenantTier? tier;
-
-        if (!TryMapRequestTier(body?.TargetTier, out tier, out string? tierError))
-            return this.BadRequestProblem(tierError!, ProblemTypes.ValidationFailed);
-
-        ArchLucidInstrumentation.RecordTrialConversion(
-            TrialLifecycleStatus.Active,
-            tier?.ToString() ?? "unspecified");
-
-        await _tenantRepository.MarkTrialConvertedAsync(tenant.Id, tier, cancellationToken);
-
-        string actor = User.Identity?.Name ?? "admin";
-
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.TenantTrialConverted,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = tenant.Id,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(
-                    new { targetTier = body?.TargetTier })
-            },
-            cancellationToken);
-
-        return NoContent();
-    }
-
-    private static bool ComputeIdentityHandoffPending(TenantRecord tenant)
-    {
-        return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal)
-               && tenant.EntraTenantId is null;
-    }
-
-    private static double? ComputeTimeToFirstCommittedManifestTotalSeconds(TenantRecord tenant)
-    {
-        if (tenant.TrialFirstManifestCommittedUtc is not { } committedUtc)
-            return null;
-
-        DateTimeOffset anchor = tenant.TrialStartUtc ?? tenant.CreatedUtc;
-
-        return (committedUtc - anchor).TotalSeconds;
-    }
-
-    private static bool TryMapRequestTier(string? label, out TenantTier? tier, out string? errorMessage)
-    {
-        tier = null;
-        errorMessage = null;
-
-        if (string.IsNullOrWhiteSpace(label))
-            return true;
-
-        string trimmed = label.Trim();
-
-        if (string.Equals(trimmed, nameof(TenantTier.Enterprise), StringComparison.OrdinalIgnoreCase))
-        {
-            tier = TenantTier.Enterprise;
-
-            return true;
-        }
-
-        if (string.Equals(trimmed, nameof(TenantTier.Standard), StringComparison.OrdinalIgnoreCase))
-        {
-            tier = TenantTier.Standard;
-
-            return true;
-        }
-
-        errorMessage =
-            $"TargetTier must be '{nameof(TenantTier.Standard)}' or '{nameof(TenantTier.Enterprise)}'.";
-
-        return false;
+            TenantTrialHttpOutcome.Success => NoContent(),
+            TenantTrialHttpOutcome.TenantNotFound => this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound),
+            TenantTrialHttpOutcome.ValidationFailed => this.BadRequestProblem(
+                result.Message ?? "Validation failed.",
+                ProblemTypes.ValidationFailed),
+            TenantTrialHttpOutcome.Conflict => this.ConflictProblem(
+                result.Message ?? "Conflict.",
+                ProblemTypes.Conflict),
+            _ => throw new InvalidOperationException($"Unexpected convert outcome: {result.Outcome}."),
+        };
     }
 }

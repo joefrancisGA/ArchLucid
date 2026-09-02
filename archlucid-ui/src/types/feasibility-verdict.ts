@@ -1,43 +1,39 @@
+import type { components } from "@/lib/openapi-schemas";
 import type { ElicitationQuestionTier } from "@/types/policy-packs";
 
-export type FeasibilityVerdictKind = "Feasible" | "SoftInfeasible" | "HardInfeasible";
+export type FeasibilityVerdictKind = components["schemas"]["FeasibilityVerdictKind"];
 
-export type AssertedTrailEntry = {
-  key: string;
-  value: string;
-};
+type AssertedTrailEntrySchema = components["schemas"]["AssertedTrailEntry"];
 
-export type InferredTrailEntry = {
-  key: string;
-  value: string;
-  confidence: number;
-};
+export type AssertedTrailEntry = AssertedTrailEntrySchema &
+  Required<Pick<AssertedTrailEntrySchema, "key" | "value">>;
 
-export type SkippedQuestionTrailEntry = {
-  questionKey: string;
-  tier: ElicitationQuestionTier;
-};
+type InferredTrailEntrySchema = components["schemas"]["InferredTrailEntry"];
 
-export type TransparencyTrail = {
+export type InferredTrailEntry = InferredTrailEntrySchema &
+  Required<Pick<InferredTrailEntrySchema, "key" | "value" | "confidence">>;
+
+type SkippedQuestionTrailEntrySchema = components["schemas"]["SkippedQuestionTrailEntry"];
+
+export type SkippedQuestionTrailEntry = SkippedQuestionTrailEntrySchema &
+  Required<Pick<SkippedQuestionTrailEntrySchema, "questionKey" | "tier">> & {
+    tier: ElicitationQuestionTier;
+  };
+
+type TransparencyTrailSchema = components["schemas"]["TransparencyTrail"];
+
+export type TransparencyTrail = Omit<TransparencyTrailSchema, "asserted" | "inferred" | "skipped"> & {
   asserted: AssertedTrailEntry[];
   inferred: InferredTrailEntry[];
   skipped: SkippedQuestionTrailEntry[];
 };
 
-export type SoftInfeasibilityEnvelope = {
-  confidenceLow: number;
-  confidenceHigh: number;
-  envelopeDescription: string;
-  softAssumption: string;
-  costOfBeingWrong: string;
-};
+export type SoftInfeasibilityEnvelope = components["schemas"]["SoftInfeasibilityEnvelope"];
+
+type FeasibilityVerdictSchema = components["schemas"]["FeasibilityVerdict"];
 
 /** Authority manifest or admission feasibility outcome (ADR 0050). */
-export type ManifestFeasibilityVerdict = {
-  kind: FeasibilityVerdictKind;
-  summary: string;
-  transparencyTrail?: TransparencyTrail;
-  confidence?: number | null;
-  softEnvelope?: SoftInfeasibilityEnvelope | null;
-  unsatCoreInvariantKeys?: string[];
-};
+export type ManifestFeasibilityVerdict = Omit<FeasibilityVerdictSchema, "transparencyTrail"> &
+  Required<Pick<FeasibilityVerdictSchema, "kind" | "summary">> & {
+    transparencyTrail?: TransparencyTrail | null;
+  };

@@ -58,10 +58,9 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         ArgumentNullException.ThrowIfNull(audit);
 
         IFindingEngine[] engines = CreateEngines();
-        FindingsOrchestrator orchestrator = new(
+        FindingsOrchestrator orchestrator = FindingsOrchestratorComposer.Compose(
             engines,
             new FindingPayloadValidator(),
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             DeterministicInsightDensityGate.CreateDefault(),
             _timeProvider);
@@ -114,10 +113,9 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         ArgumentNullException.ThrowIfNull(graph);
 
         IFindingEngine[] engines = CreateEngines();
-        FindingsOrchestrator orchestrator = new(
+        FindingsOrchestrator orchestrator = FindingsOrchestratorComposer.Compose(
             engines,
             new FindingPayloadValidator(),
-            NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             DeterministicInsightDensityGate.CreateDefault(),
             _timeProvider);

@@ -1,37 +1,42 @@
-/** JSON from `GET /v1/tenant/pilot-value-report` (camelCase). */
+import type { components } from "@/lib/openapi-schemas";
 
-export type PilotValueReportSeverityJson = {
-  critical: number;
-  high: number;
-  medium: number;
-  low: number;
-  info: number;
-};
+type PilotValueReportSeveritySchema = components["schemas"]["PilotValueReportSeverityBreakdown"];
 
-export type PilotValueReportTimelineRow = {
-  runId: string;
-  createdUtc: string;
-  committedUtc: string | null;
-  systemName: string;
-};
+export type PilotValueReportSeverityJson = PilotValueReportSeveritySchema &
+  Required<Pick<PilotValueReportSeveritySchema, "critical" | "high" | "medium" | "low" | "info">>;
 
-export type PilotValueReportJson = {
-  tenantId: string;
-  fromUtc: string;
-  toUtc: string;
-  totalRunsCommitted: number;
-  runDetailsTruncated: boolean;
-  runDetailCap: number;
-  totalFindings: number;
-  findingsBySeverity: PilotValueReportSeverityJson;
-  totalRecommendationsProduced: number;
-  averagePipelineCompletionSeconds: number | null;
-  governanceApprovals: number;
-  governanceRejections: number;
-  policyPackAssignments: number;
-  comparisonOrDriftDetections: number;
-  uniqueAgentTypes: string[];
-  committedRunsTimeline: PilotValueReportTimelineRow[];
-  governancePendingApprovalsNow: number;
-  auditExportTruncated: boolean;
-};
+type PilotValueReportTimelineRowSchema = components["schemas"]["PilotValueReportRunTimelinePoint"];
+
+export type PilotValueReportTimelineRow = PilotValueReportTimelineRowSchema &
+  Required<Pick<PilotValueReportTimelineRowSchema, "runId" | "createdUtc" | "systemName" | "committedUtc">>;
+
+type PilotValueReportSchema = components["schemas"]["PilotValueReport"];
+
+export type PilotValueReportJson = Omit<
+  PilotValueReportSchema,
+  "findingsBySeverity" | "committedRunsTimeline"
+> &
+  Required<
+    Pick<
+      PilotValueReportSchema,
+      | "tenantId"
+      | "fromUtc"
+      | "toUtc"
+      | "totalRunsCommitted"
+      | "runDetailsTruncated"
+      | "runDetailCap"
+      | "totalFindings"
+      | "governanceApprovals"
+      | "governanceRejections"
+      | "governancePendingApprovalsNow"
+      | "policyPackAssignments"
+      | "comparisonOrDriftDetections"
+      | "totalRecommendationsProduced"
+      | "uniqueAgentTypes"
+      | "auditExportTruncated"
+    >
+  > & {
+    findingsBySeverity: PilotValueReportSeverityJson;
+    committedRunsTimeline: PilotValueReportTimelineRow[];
+    averagePipelineCompletionSeconds: number | null;
+  };

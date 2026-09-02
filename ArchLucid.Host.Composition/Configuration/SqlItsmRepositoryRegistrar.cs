@@ -29,5 +29,6 @@ internal static class SqlItsmRepositoryRegistrar
         services.AddScoped<ItsmInboundJiraWebhookProcessor>();
         services.AddScoped<ItsmInboundServiceNowWebhookProcessor>();
         services.AddScoped<ItsmInboundWebhookSyncService>();
+        services.AddScoped<IItsmInboundWebhookFacade, ItsmInboundWebhookFacade>();
     }
 }

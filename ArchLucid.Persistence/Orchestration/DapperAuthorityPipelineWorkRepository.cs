@@ -76,8 +76,8 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
         int leaseDurationSeconds,
         CancellationToken cancellationToken = default)
     {
-        int take = Math.Clamp(maxBatch, 1, 100);
-        int lease = Math.Clamp(leaseDurationSeconds, 60, 7200);
+        int take = AuthorityPipelineWorkRepositoryCore.ClampDequeueBatch(maxBatch);
+        int lease = AuthorityPipelineWorkRepositoryCore.ClampLeaseDurationSeconds(leaseDurationSeconds);
 
         // Fair dequeue: ROW_NUMBER per TenantId (FIFO within tenant); global sort takes round k from each tenant before any k+1.
         const string sql = """
