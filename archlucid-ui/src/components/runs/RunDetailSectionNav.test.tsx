@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -103,5 +103,29 @@ describe("RunDetailSectionNav", () => {
 
     expect(nav.className).toContain("top-40");
     expect(nav.className).toContain("lg:top-44");
+  });
+
+  it("scrolls to in-page section anchors on click", () => {
+    const scrollIntoView = vi.fn();
+    const target = document.createElement("section");
+    target.id = "submitted-evidence-inventory";
+    target.scrollIntoView = scrollIntoView;
+    document.body.appendChild(target);
+
+    render(
+      <RunDetailSectionNav
+        runId="run-abc"
+        sections={[
+          { id: "submitted-evidence-inventory", label: "Submitted evidence", available: true },
+          { id: "artifacts-exports", label: "Deliverables", available: true },
+          { id: "trust-evidence", label: "Evidence basis", available: true },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("link", { name: "Submitted evidence" }));
+
+    expect(scrollIntoView).toHaveBeenCalled();
+    target.remove();
   });
 });

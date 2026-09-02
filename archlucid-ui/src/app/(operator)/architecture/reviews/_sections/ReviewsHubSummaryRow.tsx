@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { countArchitectureDraftsReadyForReview } from "@/lib/architecture/architecture-draft-ready-for-review";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 
 import {
@@ -18,6 +20,13 @@ import {
   REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL,
   REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL,
 } from "./reviews-hub-copy";
+import {
+  REVIEWS_HUB_SUMMARY_ACTIVE_HREF,
+  REVIEWS_HUB_SUMMARY_AWAITING_APPROVAL_HREF,
+  REVIEWS_HUB_SUMMARY_FINALIZED_HREF,
+  REVIEWS_HUB_SUMMARY_FINDINGS_HREF,
+  REVIEWS_HUB_SUMMARY_OPEN_RISKS_HREF,
+} from "./reviews-hub-summary-destinations";
 import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
 type ReviewsHubSummaryRowProps = {
@@ -29,6 +38,7 @@ const REVIEWS_HUB_RESUME_DRAFTS_SECTION_ID = "reviews-hub-resume-drafts";
 type SummaryMetricProps = {
   readonly label: string;
   readonly value: number;
+  readonly href?: string;
   readonly onClick?: () => void;
   readonly testId?: string;
 };
@@ -41,6 +51,24 @@ function SummaryMetric(props: SummaryMetricProps): React.JSX.Element {
       <span>{props.label}</span>
     </>
   );
+
+  if (props.href !== undefined && props.href.length > 0) {
+    return (
+      <Link
+        href={props.href}
+        className={cn(
+          "m-0 inline-flex items-baseline gap-1 no-underline hover:underline",
+          OPERATOR_LINK.inline,
+          OPERATOR_TYPOGRAPHY.helper,
+          "text-al-text-secondary hover:text-al-text-primary",
+        )}
+        data-testid={props.testId}
+        aria-label={`${valueLabel}. Open ${props.label}.`}
+      >
+        {content}
+      </Link>
+    );
+  }
 
   if (props.onClick !== undefined) {
     return (
@@ -94,25 +122,38 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
     summary.findings === 0 && summary.openRisks === 0 && summary.readyForGovernance === 0;
 
   const metrics: SummaryMetricProps[] = [
-    { label: REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL, value: summary.inProgress },
+    { label: REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL, value: summary.inProgress, href: REVIEWS_HUB_SUMMARY_ACTIVE_HREF },
   ];
 
   if (summary.committed > 0) {
-    metrics.push({ label: REVIEWS_HUB_SUMMARY_COMMITTED_LABEL, value: summary.committed });
+    metrics.push({
+      label: REVIEWS_HUB_SUMMARY_COMMITTED_LABEL,
+      value: summary.committed,
+      href: REVIEWS_HUB_SUMMARY_FINALIZED_HREF,
+    });
   }
 
   if (summary.findings > 0) {
-    metrics.push({ label: REVIEWS_HUB_SUMMARY_FINDINGS_LABEL, value: summary.findings });
+    metrics.push({
+      label: REVIEWS_HUB_SUMMARY_FINDINGS_LABEL,
+      value: summary.findings,
+      href: REVIEWS_HUB_SUMMARY_FINDINGS_HREF,
+    });
   }
 
   if (summary.openRisks > 0) {
-    metrics.push({ label: REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL, value: summary.openRisks });
+    metrics.push({
+      label: REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL,
+      value: summary.openRisks,
+      href: REVIEWS_HUB_SUMMARY_OPEN_RISKS_HREF,
+    });
   }
 
   if (summary.readyForGovernance > 0) {
     metrics.push({
       label: REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL,
       value: summary.readyForGovernance,
+      href: REVIEWS_HUB_SUMMARY_AWAITING_APPROVAL_HREF,
     });
   }
 

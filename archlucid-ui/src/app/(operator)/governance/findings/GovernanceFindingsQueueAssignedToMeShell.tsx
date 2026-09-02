@@ -88,6 +88,7 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly scopeRecordProjectId: string | undefined;
   readonly filterBarVisible: boolean;
   readonly compactRegisterFilterVisible: boolean;
+  readonly advancedFiltersDisclosureVisible: boolean;
   readonly registerFilter: RiskRegisterFilter;
   readonly onRegisterFilterChange: (next: RiskRegisterFilter) => void;
   readonly onJobViewChange: (next: FindingJobView) => void;
@@ -161,6 +162,7 @@ export function GovernanceFindingsQueueAssignedToMeShell(
     scopeRecordProjectId,
     filterBarVisible,
     compactRegisterFilterVisible,
+    advancedFiltersDisclosureVisible,
     registerFilter,
     onRegisterFilterChange,
     onJobViewChange,
@@ -200,6 +202,40 @@ export function GovernanceFindingsQueueAssignedToMeShell(
     assignedToMeFetchBasis,
     currentJobId,
   } = props;
+
+  const advancedFiltersEl = (
+    <>
+      <GovernanceFindingsFilterBar
+        registerFilter={registerFilter}
+        onRegisterFilterChange={onRegisterFilterChange}
+        jobView={jobView}
+        onJobViewChange={onJobViewChange}
+        savedPresets={savedPresets}
+        onSaveCurrentFilterAsPreset={onSaveCurrentFilterAsPreset}
+        onRemovePreset={onRemovePreset}
+        groupByResource={groupByResource}
+        onToggleGroupByResource={onToggleGroupByResource}
+        displayedRows={displayedRows}
+        filterableRows={scopedRows}
+        onNaturalLanguageFilterApply={onNaturalLanguageFilterApply}
+      />
+      <GovernanceFindingsQueueActiveFilterChips
+        registerFilter={registerFilter}
+        jobView={jobView}
+        nlFacets={nlFacets}
+        jobViewFilterActive={jobViewFilterActive}
+        onClearAll={onClearAllFilters}
+      />
+      <GovernanceFindingsSavedViewsBar
+        registerFilter={registerFilter}
+        jobView={jobView}
+        nlFacets={nlFacets}
+        groupByResource={groupByResource}
+        scopedRunId={scopedRunId}
+        onLoadView={onLoadFindingsSavedView}
+      />
+    </>
+  );
 
   return (
     <div
@@ -293,39 +329,19 @@ export function GovernanceFindingsQueueAssignedToMeShell(
         />
       ) : null}
 
-      {filterBarVisible ? (
-        <>
-          <GovernanceFindingsFilterBar
-            registerFilter={registerFilter}
-            onRegisterFilterChange={onRegisterFilterChange}
-            jobView={jobView}
-            onJobViewChange={onJobViewChange}
-            savedPresets={savedPresets}
-            onSaveCurrentFilterAsPreset={onSaveCurrentFilterAsPreset}
-            onRemovePreset={onRemovePreset}
-            groupByResource={groupByResource}
-            onToggleGroupByResource={onToggleGroupByResource}
-            displayedRows={displayedRows}
-            filterableRows={scopedRows}
-            onNaturalLanguageFilterApply={onNaturalLanguageFilterApply}
-          />
-          <GovernanceFindingsQueueActiveFilterChips
-            registerFilter={registerFilter}
-            jobView={jobView}
-            nlFacets={nlFacets}
-            jobViewFilterActive={jobViewFilterActive}
-            onClearAll={onClearAllFilters}
-          />
-          <GovernanceFindingsSavedViewsBar
-            registerFilter={registerFilter}
-            jobView={jobView}
-            nlFacets={nlFacets}
-            groupByResource={groupByResource}
-            scopedRunId={scopedRunId}
-            onLoadView={onLoadFindingsSavedView}
-          />
-        </>
+      {advancedFiltersDisclosureVisible ? (
+        <details
+          className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+          data-testid="governance-findings-more-filters"
+        >
+          <summary className={cn("cursor-pointer font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            More filters
+          </summary>
+          <div className="mt-3 space-y-3">{advancedFiltersEl}</div>
+        </details>
       ) : null}
+
+      {filterBarVisible ? advancedFiltersEl : null}
 
       {loading ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading findings…</p>

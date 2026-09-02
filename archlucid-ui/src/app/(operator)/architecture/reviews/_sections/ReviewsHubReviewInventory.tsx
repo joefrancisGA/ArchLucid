@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
@@ -44,11 +44,12 @@ import {
   matchesFilter,
   matchesSearch,
   mergeRunsWithArchivedCache,
+  parseReviewsHubInventoryFilter,
+  reviewsHubInventoryHrefFromSearch,
   INVENTORY_FILTER_OPTIONS,
   sortRunsForInventory,
   type ReviewFilterId,
 } from "./reviews-hub-inventory-filters";
-import { REVIEWS_HUB_NEEDS_ATTENTION_FILTER } from "@/lib/reviews-hub-unfinished-work-href";
 import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
 type ReviewsHubReviewInventoryProps = {
@@ -89,23 +90,26 @@ function ReviewFilterChip(props: {
   );
 }
 
-function resolveInitialInventoryFilter(searchParams: URLSearchParams): ReviewFilterId {
-  const filter = searchParams.get("filter");
-
-  if (filter === REVIEWS_HUB_NEEDS_ATTENTION_FILTER) {
-    return REVIEWS_HUB_NEEDS_ATTENTION_FILTER;
-  }
-
-  return "all";
-}
-
 /** Filterable review inventory for `/architecture/reviews`. */
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(() =>
-    resolveInitialInventoryFilter(searchParams),
+  const urlFilter = parseReviewsHubInventoryFilter(searchParams.get("filter"));
+  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(urlFilter);
+
+  useEffect(() => {
+    setActiveFilter(urlFilter);
+  }, [urlFilter]);
+
+  const selectInventoryFilter = useCallback(
+    (filter: ReviewFilterId) => {
+      setActiveFilter(filter);
+      router.replace(reviewsHubInventoryHrefFromSearch(searchParams.toString(), filter), { scroll: false });
+    },
+    [router, searchParams],
   );
+
   const { isFavorite } = useFavoriteReviews();
   const { archivedRuns } = useArchivedReviewsClientCache();
   const draftEntries = useArchitectureDraftRegistryEntries();
@@ -219,7 +223,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                     key={option.id}
                     option={option}
                     selected={activeFilter === option.id}
-                    onSelect={setActiveFilter}
+                    onSelect={selectInventoryFilter}
                   />
                 ))}
               </div>

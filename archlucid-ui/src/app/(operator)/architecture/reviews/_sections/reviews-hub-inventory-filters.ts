@@ -30,6 +30,50 @@ export const INVENTORY_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label
   { id: "Archived", label: "Archived" },
 ];
 
+const INVENTORY_FILTER_IDS = new Set<string>(INVENTORY_FILTER_OPTIONS.map((option) => option.id));
+
+/** Parses `?filter=` from the reviews hub URL; unknown values fall back to All. */
+export function parseReviewsHubInventoryFilter(raw: string | null | undefined): ReviewFilterId {
+  if (raw === null || raw === undefined) {
+    return "all";
+  }
+
+  const trimmed = raw.trim();
+
+  if (!INVENTORY_FILTER_IDS.has(trimmed)) {
+    return "all";
+  }
+
+  return trimmed as ReviewFilterId;
+}
+
+/** Shareable reviews-hub inventory href for a filter chip. */
+export function reviewsHubInventoryFilterHref(filter: ReviewFilterId): string {
+  if (filter === "all") {
+    return "/architecture/reviews";
+  }
+
+  return `/architecture/reviews?filter=${encodeURIComponent(filter)}`;
+}
+
+export function reviewsHubInventoryHrefFromSearch(
+  currentSearch: string,
+  filter: ReviewFilterId,
+  pathname: string = "/architecture/reviews",
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (filter === "all") {
+    params.delete("filter");
+  } else {
+    params.set("filter", filter);
+  }
+
+  const query = params.toString();
+
+  return query.length === 0 ? pathname : `${pathname}?${query}`;
+}
+
 export function matchesSearch(
   run: RunSummary,
   query: string,

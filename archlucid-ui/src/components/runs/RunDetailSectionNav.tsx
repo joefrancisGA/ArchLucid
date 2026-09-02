@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 import {
   buildReviewDetailTabHref,
   isReviewDetailTabId,
@@ -89,8 +90,15 @@ export function RunDetailSectionNav({ runId, sections }: RunDetailSectionNavProp
                     : "rounded-md px-2 py-1 text-neutral-800 underline decoration-neutral-400 decoration-1 underline-offset-2 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
                 }
                 aria-current={active ? "page" : undefined}
-                onClick={() => {
+                onClick={(event) => {
                   setActiveId(section.id);
+
+                  if (isReviewDetailTabId(section.id)) {
+                    return;
+                  }
+
+                  event.preventDefault();
+                  scheduleScrollToReviewDetailSection(section.id);
                 }}
               >
                 {section.label}

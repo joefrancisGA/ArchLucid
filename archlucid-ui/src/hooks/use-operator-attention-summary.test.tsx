@@ -50,6 +50,7 @@ function AttentionSummaryProbe(): React.JSX.Element {
         projectId: "default",
         hasFindingsSnapshot: true,
         hasGoldenManifest: false,
+        findingCount: 2,
       },
     ],
   });
@@ -90,6 +91,6 @@ describe("useOperatorAttentionSummary (TB-2369)", () => {
       expect(screen.getByTestId("assigned-count")).toHaveTextContent("4");
     });
 
-    expect(screen.getByTestId("unfinished-summary")).toHaveTextContent("3");
+    expect(screen.getByTestId("unfinished-summary")).toHaveTextContent("1");
   });
 });
