@@ -25,7 +25,7 @@ export const WIZARD_STICKY_PROGRESS_TEST_ID = "wizard-sticky-progress";
  * Keeps the single page primary visible while long clarification stacks scroll.
  */
 export const WIZARD_STICKY_FOOTER_CLASS = cn(
-  "sticky bottom-0 z-20 mt-0 bg-neutral-50/95 py-3 backdrop-blur",
+  "sticky bottom-0 z-20 bg-neutral-50/95 backdrop-blur",
   "supports-[backdrop-filter]:bg-neutral-50/85",
   "dark:bg-neutral-950/95",
   "dark:supports-[backdrop-filter]:bg-neutral-950/85",
