@@ -42,7 +42,7 @@ export function GovernanceFindingsRegisterFilterCompact(
         type="button"
         size="sm"
         variant={props.registerFilter === "all" ? "default" : "outline"}
-        aria-current={props.registerFilter === "all" ? "true" : undefined}
+        aria-pressed={props.registerFilter === "all"}
         onClick={() => props.onRegisterFilterChange("all")}
       >
         {renderFilterLabel("all", RISK_REGISTER_FILTER_LABELS.all, props.allCount)}
