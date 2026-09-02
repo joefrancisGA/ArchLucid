@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Alerts;
+using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Core.Agents;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Agents;
@@ -106,7 +108,7 @@ public sealed class CoverageAssignmentRepositoryCoreTests
             PolicyPackId = Guid.NewGuid(),
             PolicyPackVersion = "1",
             CoverageType = ArchLucid.Contracts.Governance.Coverage.CoverageType.ProviderNeutralBaseline,
-            SelectionState = ArchLucid.Contracts.Governance.Coverage.CoverageSelectionState.Selected,
+            SelectionState = CoverageSelectionState.OptionalAndSelected,
             ActorUserId = "user",
             CreatedUtc = DateTime.UtcNow,
             EvaluationVersion = "v1",
@@ -128,12 +130,14 @@ public sealed class AgentModelCatalogRepositoryCoreTests
         {
             AliasId = "alias-1",
             ProviderConnectionKind = "azure-openai",
+            CapabilityTags = [],
+            ApprovedTaskTypes = [],
             Evaluations =
             [
                 new AgentModelCatalogEvaluationRow
                 {
                     TaskType = "summarize",
-                    EvaluationState = AgentModelEvaluationStateKind.Passed,
+                    EvaluationState = AgentModelEvaluationStateKind.Evaluated,
                 },
             ],
         };

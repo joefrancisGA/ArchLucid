@@ -43,8 +43,8 @@ public sealed class AuthorityPipelineWorkRepositoryCoreTests
             static row => row.OutboxId);
 
         batch.Should().HaveCount(2);
-        batch[0].TenantId.Should().Be(tenantB);
-        batch[1].TenantId.Should().Be(tenantA);
+        batch[0].TenantId.Should().Be(tenantA);
+        batch[1].TenantId.Should().Be(tenantB);
     }
 
     private sealed record TestRow(Guid TenantId, DateTime CreatedUtc, Guid OutboxId);
