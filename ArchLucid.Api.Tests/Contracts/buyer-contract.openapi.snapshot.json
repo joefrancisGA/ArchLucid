@@ -4963,6 +4963,9 @@
           "agentTaskLoopComplete": {
             "type": "boolean"
           },
+          "authorityLifecyclePhase": {
+            "$ref": "#/components/schemas/AuthorityRunLifecyclePhase"
+          },
           "authorityPipelineComplete": {
             "type": "boolean"
           },
@@ -5630,6 +5633,15 @@
           }
         },
         "type": "object"
+      },
+      "AuthorityRunLifecyclePhase": {
+        "enum": [
+          "NotStarted",
+          "InProgress",
+          "Complete",
+          "Failed"
+        ],
+        "type": "string"
       },
       "AwsTier2ConnectionConfigureBody": {
         "properties": {
@@ -10671,6 +10683,13 @@
           "document": {
             "$ref": "#/components/schemas/DraftRequestDocument"
           },
+          "documentContentHashSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "draftId": {
             "format": "uuid",
             "type": "string"
@@ -10680,6 +10699,20 @@
             "type": "string"
           },
           "redirectReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "spawnedArchitectureVersionId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "spawnedDocumentContentHashSha256": {
+            "format": "byte",
             "type": [
               "null",
               "string"
@@ -20577,6 +20610,12 @@
               "type": "string"
             },
             "type": "object"
+          },
+          "requiredEngineTypes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -25763,6 +25802,9 @@
           "agentTaskLoopComplete": {
             "type": "boolean"
           },
+          "authorityLifecyclePhase": {
+            "$ref": "#/components/schemas/AuthorityRunLifecyclePhase"
+          },
           "authorityPipelineComplete": {
             "type": "boolean"
           },
@@ -26590,6 +26632,13 @@
               "string"
             ]
           },
+          "architectureVersionId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "archivedUtc": {
             "format": "date-time",
             "type": [
@@ -26763,6 +26812,19 @@
             ]
           },
           "pilotAoaiDeploymentSnapshot": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pinnedPolicyPackIdsHashSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pinnedPolicyPackIdsJson": {
             "type": [
               "null",
               "string"
