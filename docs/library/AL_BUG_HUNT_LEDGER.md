@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 35
-- **bugs-found:** 73
+- **hunts:** 36
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — alert routing whole-number double severity ordinals; golden-corpus boolean trace source id
+- **last-bug:** 2026-09-02 — Service Bus whole-number double tokens; finding whole-number double severity and relatedNodeIds
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1868,6 +1868,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IntegrationEventServiceBusCorrelationId.TryReadCorrelationIdToken` — boolean `correlationId` ignored (string/number JSON only) — **hit 2026-09-02 (#445):** `"correlationId":true` returned null and dropped Service Bus publish correlation fallback; fixed by coercing boolean tokens (`TryResolveForPublish_reads_boolean_correlationId_from_payload_when_activity_unset`).
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadSeverityArrayItem` — whole-number double severity ordinals silently dropped — **hit 2026-09-02 (#446):** `"severities":[2.0,3.0]` omitted ordinals because `TryGetInt32` failed on `2.0`; fixed with `TryReadWholeNumberSeverityOrdinal` (`AlertRoutingCriteriaMetadata_Parse_whole_number_double_severity_ordinals_map_alert_labels`).
 - [x] (proven) `RealLlmOutputStructuralValidator` — boolean `trace.sourceAgentExecutionTraceId` rejected (string/number/null only) — **hit 2026-09-02 (#446):** `"sourceAgentExecutionTraceId":true` failed structural validation; fixed by accepting boolean tokens (`ValidateAgentResultStructure_accepts_boolean_source_agent_execution_trace_id`).
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryReadCorrelationIdToken` — whole-number double `correlationId` ignored (string/int64 JSON only) — **hit 2026-09-02 (#447):** `"correlationId":42424242.0` returned null and dropped Service Bus publish correlation fallback; fixed with whole-number double coercion (`TryResolveForPublish_reads_whole_number_double_correlationId_from_payload_when_activity_unset`).
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryReadStringOrNumberToken` — whole-number double `deduplicationKey` / `severity` ignored — **hit 2026-09-02 (#447):** `"deduplicationKey":42424242.0` returned null; `"severity":2.0` omitted user properties; fixed with whole-number double coercion (`TryResolveForPublish_alert_resolved_maps_whole_number_double_deduplication_key`, `TryResolveForPublish_alert_fired_maps_whole_number_double_severity`).
+- [x] (proven) `FindingJsonConverter.ReadSeverity` — whole-number double severity ordinals throw — **hit 2026-09-02 (#447):** `"severity":2.0` threw `JsonException` on snapshot reload; fixed with `TryReadWholeNumberInt32` (`Deserialize_whole_number_double_severity_maps_error`).
+- [x] (proven) `FindingJsonConverter.ReadStringDictValue` — whole-number double list/property entries silently dropped — **hit 2026-09-02 (#447):** `"relatedNodeIds":[42.0]` hydrated as empty list; fixed with whole-number double coercion (`Deserialize_relatedNodeIds_whole_number_double_entries_coerce_to_strings`).
+
+2026-09-02 seed hunt #447: reseeded from ArchLucid.Core; proved Service Bus whole-number double token gaps and finding whole-number double severity/relatedNodeIds coercion gaps.
 
 2026-09-02 seed hunt #446: reseeded from ArchLucid.Core; proved alert routing whole-number double severity ordinals and golden-corpus boolean trace source id gaps.
 

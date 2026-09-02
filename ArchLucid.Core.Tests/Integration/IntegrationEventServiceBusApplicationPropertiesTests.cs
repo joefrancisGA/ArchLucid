@@ -153,4 +153,39 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
         props.Should().NotBeNull();
         props[IntegrationEventServiceBusApplicationProperties.DeduplicationKeyPropertyName].Should().Be("true");
     }
+
+    [Fact]
+    public void TryResolveForPublish_alert_resolved_maps_whole_number_double_deduplication_key()
+    {
+        byte[] utf8 = "{\"schemaVersion\":1,\"deduplicationKey\":42424242.0}"u8.ToArray();
+
+        IReadOnlyDictionary<string, object>? props =
+            IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
+                IntegrationEventTypes.AlertResolvedV1,
+                utf8);
+
+        props.Should().NotBeNull();
+        props[IntegrationEventServiceBusApplicationProperties.DeduplicationKeyPropertyName].Should().Be("42424242");
+    }
+
+    [Fact]
+    public void TryResolveForPublish_alert_fired_maps_whole_number_double_severity()
+    {
+        byte[] utf8 =
+            """
+            {
+              "schemaVersion": 1,
+              "severity": 2.0,
+              "deduplicationKey": "rule:1:run:a"
+            }
+            """u8.ToArray();
+
+        IReadOnlyDictionary<string, object>? props =
+            IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
+                IntegrationEventTypes.AlertFiredV1,
+                utf8);
+
+        props.Should().NotBeNull();
+        props[IntegrationEventServiceBusApplicationProperties.SeverityPropertyName].Should().Be("2");
+    }
 }

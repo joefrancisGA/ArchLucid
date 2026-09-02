@@ -12,7 +12,7 @@ public sealed partial class FindingJsonConverter
         if (!TryGetPropertyCaseInsensitive(root, propertyName, out JsonElement severityElement))
             return FindingSeverity.Info;
 
-        if (severityElement.ValueKind == JsonValueKind.Number && severityElement.TryGetInt32(out int numeric))
+        if (severityElement.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(severityElement, out int numeric))
         {
             if (!Enum.IsDefined(typeof(FindingSeverity), numeric))
                 throw new JsonException($"Unknown finding severity value '{numeric}'.");

@@ -159,6 +159,17 @@ public static class IntegrationEventServiceBusApplicationProperties
             return true;
         }
 
+        if (element.ValueKind == JsonValueKind.Number
+            && element.TryGetDouble(out double wholeNumber)
+            && double.IsFinite(wholeNumber)
+            && wholeNumber >= 0
+            && wholeNumber == Math.Floor(wholeNumber))
+        {
+            value = ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
+
+            return true;
+        }
+
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
             value = element.GetRawText();

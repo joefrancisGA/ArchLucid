@@ -110,7 +110,36 @@ public sealed partial class FindingJsonConverter
         if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numeric))
             return numeric.ToString(CultureInfo.InvariantCulture);
 
+        if (element.ValueKind == JsonValueKind.Number
+            && element.TryGetDouble(out double wholeNumber)
+            && double.IsFinite(wholeNumber)
+            && wholeNumber >= 0
+            && wholeNumber == Math.Floor(wholeNumber))
+            return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
+
         return "";
+    }
+
+    private static bool TryReadWholeNumberInt32(JsonElement element, out int value)
+    {
+        if (element.TryGetInt32(out value))
+        {
+            return true;
+        }
+
+        if (element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static bool TryReadFiniteDouble(JsonElement element, out double value)
