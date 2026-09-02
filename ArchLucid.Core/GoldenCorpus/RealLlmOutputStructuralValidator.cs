@@ -148,7 +148,12 @@ public static class RealLlmOutputStructuralValidator
                 }
 
                 if (TryGetPropertyCaseInsensitive(trace, "sourceAgentExecutionTraceId", out JsonElement sid)
-                    && sid.ValueKind is not (JsonValueKind.String or JsonValueKind.Null or JsonValueKind.Number))
+                    && sid.ValueKind is not (
+                        JsonValueKind.String
+                        or JsonValueKind.Null
+                        or JsonValueKind.Number
+                        or JsonValueKind.True
+                        or JsonValueKind.False))
                 {
                     checks.Add(
                         new RealLlmStructuralCheckItem(

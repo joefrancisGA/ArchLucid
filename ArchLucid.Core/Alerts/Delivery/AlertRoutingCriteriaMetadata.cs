@@ -148,7 +148,7 @@ public static class AlertRoutingCriteriaMetadata
             return raw;
         }
 
-        if (item.ValueKind == JsonValueKind.Number && item.TryGetInt32(out int numeric))
+        if (item.ValueKind == JsonValueKind.Number && TryReadWholeNumberSeverityOrdinal(item, out int numeric))
         {
             return MapFindingSeverityOrdinalToAlertLabel(numeric);
         }
@@ -159,6 +159,28 @@ public static class AlertRoutingCriteriaMetadata
         }
 
         return null;
+    }
+
+    private static bool TryReadWholeNumberSeverityOrdinal(JsonElement element, out int value)
+    {
+        if (element.TryGetInt32(out value))
+        {
+            return true;
+        }
+
+        if (element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static string? MapFindingSeverityOrdinalToAlertLabel(int ordinal)

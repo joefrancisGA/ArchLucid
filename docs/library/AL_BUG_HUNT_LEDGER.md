@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 33
-- **bugs-found:** 69
+- **hunts:** 35
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — alert routing boolean severity coercion; Service Bus boolean deduplication key
+- **last-bug:** 2026-09-02 — alert routing whole-number double severity ordinals; golden-corpus boolean trace source id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1864,6 +1864,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AlertRoutingCriteriaMetadata.TryReadStringArrayItem` — boolean `tags` array entries silently dropped — **hit 2026-09-02 (#443):** `"tags":[true,"ops"]` omitted boolean token and broke matcher filters; fixed by coercing true/false tokens to strings (`AlertRoutingCriteriaMetadata_Parse_boolean_tags_coerce_to_strings`).
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadSeverityArrayItem` — boolean `severities` array entries silently dropped — **hit 2026-09-02 (#444):** `"severities":[true,"High"]` omitted boolean token and broke matcher filters; fixed by coercing true/false tokens to strings (`AlertRoutingCriteriaMetadata_Parse_boolean_severities_coerce_to_strings`).
 - [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryReadStringOrNumberToken` — boolean `deduplicationKey` ignored (string/number JSON only) — **hit 2026-09-02 (#444):** `"deduplicationKey":true` returned null and dropped Service Bus subscription filter properties; fixed by coercing boolean tokens (`TryResolveForPublish_alert_resolved_maps_boolean_deduplication_key`).
+- [x] (proven) `AlertRoutingCriteriaMetadata.ReadSeverityArrayItem` — string-encoded whole-number severity ordinals pass through literally — **hit 2026-09-02 (#445):** `"severities":["2.0"]` stored `"2.0"` instead of `High` and broke matcher filters; fixed with decimal-string ordinal coercion (`AlertRoutingCriteriaMetadata_Parse_string_encoded_whole_number_severity_ordinals_map_alert_labels`).
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryReadCorrelationIdToken` — boolean `correlationId` ignored (string/number JSON only) — **hit 2026-09-02 (#445):** `"correlationId":true` returned null and dropped Service Bus publish correlation fallback; fixed by coercing boolean tokens (`TryResolveForPublish_reads_boolean_correlationId_from_payload_when_activity_unset`).
+- [x] (proven) `AlertRoutingCriteriaMetadata.ReadSeverityArrayItem` — whole-number double severity ordinals silently dropped — **hit 2026-09-02 (#446):** `"severities":[2.0,3.0]` omitted ordinals because `TryGetInt32` failed on `2.0`; fixed with `TryReadWholeNumberSeverityOrdinal` (`AlertRoutingCriteriaMetadata_Parse_whole_number_double_severity_ordinals_map_alert_labels`).
+- [x] (proven) `RealLlmOutputStructuralValidator` — boolean `trace.sourceAgentExecutionTraceId` rejected (string/number/null only) — **hit 2026-09-02 (#446):** `"sourceAgentExecutionTraceId":true` failed structural validation; fixed by accepting boolean tokens (`ValidateAgentResultStructure_accepts_boolean_source_agent_execution_trace_id`).
+
+2026-09-02 seed hunt #446: reseeded from ArchLucid.Core; proved alert routing whole-number double severity ordinals and golden-corpus boolean trace source id gaps.
+
+2026-09-02 seed hunt #445: reseeded from ArchLucid.Core; proved alert routing string-encoded whole-number severity ordinals and Service Bus boolean correlation id gaps.
 
 2026-09-02 seed hunt #444: reseeded from ArchLucid.Core; proved alert routing boolean severity coercion and Service Bus boolean deduplication key gaps.
 
