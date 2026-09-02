@@ -40,6 +40,7 @@ import type { ActorSet } from "@/types/draft-intake";
 import type { Dispatch, SetStateAction } from "react";
 
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
+import { GuidedIntakeEvidenceSection } from "./GuidedIntakeEvidenceSection";
 import { INTAKE_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
 
 const GUIDED_INTAKE_STEP_SCOPE_SECTION_DIVIDER_CLASS =
@@ -70,6 +71,8 @@ export type SocraticIntakeWizardStepScopeProps = {
   readonly advanceHint: string;
   readonly submitError: unknown;
   readonly systemNameAvailability: WorkspaceSystemNameAvailabilityState;
+  readonly priorAttachedFileNames: readonly string[];
+  readonly onEvidenceFilesChange: (files: File[]) => void;
   readonly onCreateArchitectureContinuation: () => void | Promise<void>;
   readonly onAdmission: () => void | Promise<void>;
 };
@@ -99,6 +102,8 @@ export function SocraticIntakeWizardStepScope({
   advanceHint,
   submitError,
   systemNameAvailability,
+  priorAttachedFileNames,
+  onEvidenceFilesChange,
   onCreateArchitectureContinuation,
   onAdmission,
 }: SocraticIntakeWizardStepScopeProps) {
@@ -239,6 +244,11 @@ export function SocraticIntakeWizardStepScope({
         )}
         </div>
 
+        <GuidedIntakeEvidenceSection
+          priorAttachedFileNames={priorAttachedFileNames}
+          disabled={busy}
+          onEvidenceFilesChange={onEvidenceFilesChange}
+        />
         <div className={GUIDED_INTAKE_STEP_SCOPE_SECTION_DIVIDER_CLASS}>
         <DraftIntakeActorEditor
           actorSet={actorSet}

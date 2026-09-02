@@ -78,6 +78,12 @@ export const GUIDED_INTAKE_ACTORS_SECTION_HEADING = "People, systems, and integr
 export const GUIDED_INTAKE_TRUST_BOUNDARY_HINT =
   "Add the people, systems, services, tenants, jobs, or APIs that interact with this architecture. Bicep, Terraform, and Helm uploads build topology but do not create Actor nodes — trust-boundary, privileged-access, and external-exposure findings need actors from this step.";
 
+export const GUIDED_INTAKE_PRIOR_ATTACHED_FILES_LEAD =
+  "These files were attached on the prior package. Re-upload them below — a new review does not copy evidence automatically.";
+
+export const GUIDED_INTAKE_EVIDENCE_UPLOAD_DESCRIPTION =
+  "Attach diagrams, documents, IaC (.tf, .bicep, YAML/JSON), or Azure/AWS/GCP inventory ZIPs. Uploads are stored on the evidence trail when you start the review.";
+
 export const GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT =
   "Add people and systems manually, or enter an architecture overview to generate suggestions.";
 
