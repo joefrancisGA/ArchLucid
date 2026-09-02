@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 19
-- **bugs-found:** 38
+- **hunts:** 20
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — `FindingJsonConverter` PascalCase required scalars (`FindingId`, `FindingType`, `EngineType`, `Title`, `Rationale`) threw on snapshot reload
+- **last-bug:** 2026-09-02 — extractor manifest PascalCase schemaVersion; finding JSON string-encoded numeric scalars
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1833,6 +1833,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — string-encoded `faithfulnessSupportRatio` and `deterministicFallbackUsed` ignored (number/boolean JSON tokens only) so `ResolveDisposition` returned PASS instead of WARN/HOLD — **hit 2026-09-02 (#419):** `TryReadFiniteDouble` / `TryReadBoolean` coerce string tokens; regression in `RunExplanationConfidenceCalloutBuilderTests.FromAggregateJson_maps_string_encoded_faithfulness_support_ratio` and `FromAggregateJson_maps_string_encoded_deterministic_fallback_flag`.
 - [x] (proven) `FindingJsonConverter.Read` — case-sensitive `GetProperty` on required scalars (`findingId`, `findingType`, `engineType`, `title`, `rationale`) threw `KeyNotFoundException` on PascalCase snapshot reload while sibling fields already used case-insensitive lookup — **hit 2026-09-02 (#422):** `ReadRequiredString` with `TryGetPropertyCaseInsensitive`; regression in `Deserialize_pascal_case_required_scalar_fields_maps_values`.
 - [x] (invalid) `DecisionConfidenceSourceMapper.ToBuyerLabel` undefined enum numeric-string maps to wrong buyer label — undefined ordinals fall through switch default to `Unknown`; no mislabel risk.
+
+- [x] (proven) `FindingJsonConverter.Read` — string-encoded `confidenceScore` / `evaluationConfidenceScore` / `projectedImpactUsd` / `insightDensityScore` ignored (number JSON tokens only) — **hit 2026-09-02 (#431):** exporter string numerics left nullable scores null on snapshot reload; fixed with shared `TryReadFiniteDouble` / `TryReadInt32` / `TryReadDecimal` coercion (`FindingJsonConverterTests.Deserialize_string_encoded_confidenceScore_maps_value`).
+- [x] (proven) `AzureExtractorPackageZipValidator.TryReadManifestSchemaError` — case-sensitive `schemaVersion` lookup — **hit 2026-09-02 (#431):** PascalCase `"SchemaVersion":1` rejected valid customer ZIP manifests; fixed with case-insensitive property lookup (`AzureExtractorPackageZipValidatorTests.Validate_pascal_case_schemaVersion_succeeds`); same fix in `CloudInventoryExtractorPackageZipValidator`.
+
+2026-09-02 seed hunt #431: reseeded from ArchLucid.Core; proved finding string-encoded numeric scalars and extractor manifest PascalCase schemaVersion gaps.
 
 2026-09-02 seed hunt #422 (hit): promoted required-scalar PascalCase gap after #417/#419 sibling fixes; proved with failing repro.
 
