@@ -118,8 +118,6 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
 
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.Retrying);
         header.RetryCount += 1;
-        header.CompletedUtc = null;
-        header.LastFailureReason = null;
         await _runRepository.UpdateAsync(header, cancellationToken);
     }
 
