@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Alerts;
 using ArchLucid.Contracts.Alerts.Delivery;
+using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Core.Alerts.Delivery;
 
@@ -30,7 +31,7 @@ public static class AlertRoutingCriteriaMetadata
 
             return new AlertRoutingCriteria
             {
-                Severities = ReadStringArray(criteriaElement, "severities"),
+                Severities = ReadSeverityArray(criteriaElement, "severities"),
                 FindingTypes = ReadStringArray(criteriaElement, "findingTypes"),
                 Tags = ReadStringArray(criteriaElement, "tags"),
             };
@@ -98,6 +99,61 @@ public static class AlertRoutingCriteriaMetadata
         {
             return new Dictionary<string, JsonElement>(StringComparer.Ordinal);
         }
+    }
+
+    private static IReadOnlyList<string> ReadSeverityArray(JsonElement parent, string propertyName)
+    {
+        if (!TryGetPropertyCaseInsensitive(parent, propertyName, out JsonElement arrayElement) ||
+            arrayElement.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        List<string> values = [];
+
+        foreach (JsonElement item in arrayElement.EnumerateArray())
+        {
+            string? value = ReadSeverityArrayItem(item);
+
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                values.Add(value.Trim());
+            }
+        }
+
+        return values;
+    }
+
+    private static string? ReadSeverityArrayItem(JsonElement item)
+    {
+        if (item.ValueKind == JsonValueKind.String)
+        {
+            return item.GetString();
+        }
+
+        if (item.ValueKind == JsonValueKind.Number && item.TryGetInt32(out int numeric))
+        {
+            return MapFindingSeverityOrdinalToAlertLabel(numeric);
+        }
+
+        return null;
+    }
+
+    private static string? MapFindingSeverityOrdinalToAlertLabel(int ordinal)
+    {
+        if (!Enum.IsDefined(typeof(FindingSeverity), ordinal))
+        {
+            return null;
+        }
+
+        return (FindingSeverity)ordinal switch
+        {
+            FindingSeverity.Info => AlertSeverity.Info,
+            FindingSeverity.Warning => AlertSeverity.Warning,
+            FindingSeverity.Error => AlertSeverity.High,
+            FindingSeverity.Critical => AlertSeverity.Critical,
+            _ => null,
+        };
     }
 
     private static IReadOnlyList<string> ReadStringArray(JsonElement parent, string propertyName)

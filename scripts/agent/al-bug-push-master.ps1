@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Commits scoped paths on an isolated worktree and pushes to a target branch (default: master).
+  Commits scoped paths on an isolated worktree and pushes to a target branch (default: bugsmash).
 
 .DESCRIPTION
   Used by /al-bug when the main ArchLucid working tree has unrelated dirty files.
@@ -15,7 +15,7 @@
   Commit message body (required).
 
 .PARAMETER TargetBranch
-  Remote branch to push to. Default: master.
+  Remote branch to push to. Default: bugsmash.
 
 .PARAMETER DryRun
   Preview actions without commit or push.
@@ -33,7 +33,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string] $CommitMessage,
 
-    [string] $TargetBranch = 'master',
+    [string] $TargetBranch = 'bugsmash',
 
     [switch] $DryRun
 )
