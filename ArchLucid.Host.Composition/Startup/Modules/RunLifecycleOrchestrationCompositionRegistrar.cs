@@ -85,6 +85,7 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitecturePostureService, ArchitecturePostureService>();
         services.AddSingleton<CoverageAssignmentValidator>();
         services.AddScoped<IArchitectureRunCommandService, ArchitectureRunCommandService>();
+        services.AddScoped<IExecuteEvidenceReadinessGate, ExecuteEvidenceReadinessGate>();
         services.AddScoped<Application.Runs.Query.IRunLifecycleCommandService, Application.Runs.Query.RunLifecycleCommandService>();
         services.AddScoped<Application.Runs.Query.IRunFindingsQueryService, Application.Runs.Query.RunFindingsQueryService>();
         services.AddScoped<ArchitectureRunCreateIdempotencyHelper>();

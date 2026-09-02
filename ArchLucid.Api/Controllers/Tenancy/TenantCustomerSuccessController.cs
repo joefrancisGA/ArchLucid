@@ -58,6 +58,7 @@ public sealed class TenantCustomerSuccessController(
     [HttpGet("health-score")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(TenantHealthScoreResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetHealthScoreAsync(CancellationToken cancellationToken)
     {
         (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(

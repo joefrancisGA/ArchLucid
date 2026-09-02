@@ -14,6 +14,7 @@ using ArchLucid.Application.Integrations.Itsm.OAuth;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Intake;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Templates;
 using ArchLucid.Core.Configuration;
@@ -254,6 +255,12 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ZipEvidenceExpanderOptions.SectionName));
         services.AddSingleton<IZipEvidenceExpanderService, ZipEvidenceExpanderService>();
         services.AddScoped<IBulkEvidenceUploadService, BulkEvidenceUploadService>();
+        services.AddSingleton<IEvidenceAddedIncrementalReReviewQueue, EvidenceAddedIncrementalReReviewQueue>();
+        services.AddScoped<IEvidenceAddedIncrementalReReviewCoordinator, EvidenceAddedIncrementalReReviewCoordinator>();
+        services.AddHostedService<EvidenceAddedIncrementalReReviewHostedService>();
+        services.Configure<IncrementalReReviewOnEvidenceAddedOptions>(
+            configuration.GetSection(IncrementalReReviewOnEvidenceAddedOptions.SectionName));
+        services.AddScoped<IWizardIntakeDraftService, WizardIntakeDraftService>();
         RegisterScimProvisioning(services, configuration, hostingRole);
         RegisterCorePersistencePortCompatibilityServices(services);
 
