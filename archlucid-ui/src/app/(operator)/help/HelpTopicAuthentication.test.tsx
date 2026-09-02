@@ -92,7 +92,7 @@ describe("HelpAuthenticationSignInGuideView", () => {
     expect(within(headerActions).queryByTestId("help-topic-download-pdf")).toBeNull();
   });
 
-  it("keeps eval/invite CTAs above the fold and demotes SSO/recovery depth to disclosures", () => {
+  it("keeps eval/invite CTAs above the fold with SSO/recovery depth in static sections", () => {
     if (loaded === null) {
       throw new Error("Expected authentication documentation to load.");
     }
@@ -119,17 +119,6 @@ describe("HelpAuthenticationSignInGuideView", () => {
       AUTHENTICATION_SIGN_IN_HELP_COLLAPSIBLE_SECTIONS.commonIssues.testId,
     );
 
-    expect(commonIssues).not.toHaveAttribute("open");
-
-    const summary = commonIssues.querySelector("summary");
-
-    if (summary === null) {
-      throw new Error("Expected common issues disclosure summary.");
-    }
-
-    fireEvent.click(summary);
-
-    expect(commonIssues).toHaveAttribute("open");
     expect(within(commonIssues).getByText(/Organization sign-in required/i)).toBeInTheDocument();
   });
 

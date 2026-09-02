@@ -67,7 +67,6 @@ export function HelpEvidenceIntakeFindingCoverageTable(): React.ReactElement {
               </tbody>
             </table>
           </div>
-        </div>
       </div>
     </section>
   );

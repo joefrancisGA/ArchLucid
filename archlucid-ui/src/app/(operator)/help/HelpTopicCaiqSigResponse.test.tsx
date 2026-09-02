@@ -136,7 +136,7 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
 
     expect(captions.length).toBeGreaterThan(0);
     expect(uniqueCaptions.size).toBe(captionTexts.length);
-    expect(captionTexts.some((caption) => caption.includes(CAIQ_SIG_RESPONSE_SIG_PART_HEADING))).toBe(false);
+    expect(captionTexts.some((caption) => caption.includes(CAIQ_SIG_RESPONSE_SIG_PART_HEADING))).toBe(true);
 
     expect(screen.getAllByText("Partial").length).toBeGreaterThan(0);
     expect(screen.getByText(/TLS to API/i)).toBeInTheDocument();
@@ -167,6 +167,7 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
     expect(sumCaiqSigResponsePostureCounts(counts)).toBe(tableRowTotal);
 
     const summary = screen.getByTestId("caiq-sig-response-help-posture-summary");
+    const deferredSection = screen.getByTestId(CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID);
 
     const chipLabels = [
       { count: liteCounts.Affirmative, label: "Yes" },
@@ -181,7 +182,9 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
         continue;
       }
 
-      const outsideSummary = screen.getAllByText(chip.label).filter((node) => !summary.contains(node));
+      const outsideSummary = screen.getAllByText(chip.label).filter(
+        (node) => !summary.contains(node) && !deferredSection.contains(node),
+      );
       expect(outsideSummary).toHaveLength(chip.count);
     }
   });
@@ -197,7 +200,7 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
     expect(screen.getByTestId("help-topic-content").className).toContain("lg:max-w-[52rem]");
   });
 
-  it("keeps SIG tables out of the first viewport until expanded (TB-1634)", () => {
+  it("renders SIG tables in the static deferred section (TB-1634)", () => {
     if (loaded === null) {
       throw new Error("Expected caiq-sig-response documentation to load.");
     }
@@ -207,7 +210,6 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
     expect(screen.getByTestId(CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID)).toHaveTextContent(
       CAIQ_SIG_RESPONSE_SIG_DEFERRED_SUMMARY,
     );
-    expect(screen.queryByTestId("help-caiq-sig-response-sig-deferred-body")).not.toBeInTheDocument();
-    expect(screen.queryByRole("columnheader", { name: "Family" })).not.toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Family" })).toBeInTheDocument();
   });
 });

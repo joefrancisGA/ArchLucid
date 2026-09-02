@@ -7,6 +7,7 @@ import { SlackIntegrationHelpEvidenceOrientationStrip } from "@/components/help/
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import {
   OPERATOR_LAYOUT,
