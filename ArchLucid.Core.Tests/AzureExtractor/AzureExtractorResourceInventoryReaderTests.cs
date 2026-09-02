@@ -115,6 +115,31 @@ public sealed class AzureExtractorResourceInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_whole_number_double_name_coerces_to_string()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "name": 42.0,
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "location": "eastus"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        error.Should().BeNull();
+        lines.Should().NotBeNull();
+        lines!.Should().ContainSingle();
+        lines[0].Name.Should().Be("42");
+    }
+
+    [Fact]
     public void TryReadFromZip_numeric_sku_name_coerces_to_string()
     {
         byte[] zipBytes = BuildZip(

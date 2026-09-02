@@ -88,7 +88,8 @@ internal static class GraphJsonElementReaders
 
                 if (property.Value.ValueKind == JsonValueKind.Number)
                 {
-                    result[property.Name] = property.Value.GetRawText();
+                    result[property.Name] = TryReadWholeNumberLongToken(property.Value)
+                        ?? property.Value.GetRawText();
                 }
 
                 if (property.Value.ValueKind is JsonValueKind.True or JsonValueKind.False)
@@ -185,9 +186,9 @@ internal static class GraphJsonElementReaders
 
         if (element.ValueKind == JsonValueKind.Number)
         {
-            value = element.GetRawText();
+            value = TryReadWholeNumberLongToken(element);
 
-            return true;
+            return value is not null;
         }
 
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
@@ -200,6 +201,29 @@ internal static class GraphJsonElementReaders
         value = null;
 
         return false;
+    }
+
+    private static string? TryReadWholeNumberLongToken(JsonElement element)
+    {
+        if (element.ValueKind != JsonValueKind.Number)
+        {
+            return null;
+        }
+
+        if (element.TryGetInt64(out long numeric))
+        {
+            return numeric.ToString(CultureInfo.InvariantCulture);
+        }
+
+        if (element.TryGetDouble(out double wholeNumber)
+            && double.IsFinite(wholeNumber)
+            && wholeNumber >= 0
+            && wholeNumber == Math.Floor(wholeNumber))
+        {
+            return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
+        }
+
+        return element.GetRawText();
     }
 
     private static bool TryNormalizeBooleanString(string? raw, out string? value)

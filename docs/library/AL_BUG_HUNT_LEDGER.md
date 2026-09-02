@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 52
-- **bugs-found:** 132
+- **hunts:** 53
+- **bugs-found:** 138
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — graph/azure/marketplace/explanation string whole-number and boolean case coercion
+- **last-bug:** 2026-09-02 — graph/azure/marketplace/alert-routing whole-number double JSON token coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1921,6 +1921,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — string-encoded whole-number `name` / `resourceType` not normalized — **hit 2026-09-02 (#464):** `"name":"42.0"` kept decimal while numeric whole-number doubles normalized in finding readers #448; fixed with shared long whole-number string coercion (`TryReadFromZip_string_encoded_whole_number_double_name_coerces_to_string`).
 - [x] (proven) `GraphJsonElementReaders.TryReadStringToken` / `ReadProperties` — string-encoded whole-number graph tokens not normalized — **hit 2026-09-02 (#464):** `"nodeId":"42.0"` and `"properties":{"resourceId":"42.0"}` kept decimal strings; fixed with shared long whole-number string coercion (`Read_string_encoded_whole_number_double_nodeId_coerces_to_string`, `ReadProperties_string_encoded_whole_number_double_values_coerce_to_strings`).
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadNonEmptyTextToken` — string-encoded boolean `faithfulnessWarning` case not normalized — **hit 2026-09-02 (#464):** `"faithfulnessWarning":"True"` kept PascalCase while boolean JSON used lowercase `GetRawText()`; fixed with `TryParseBooleanString` coercion (`FromAggregateJson_maps_string_encoded_boolean_faithfulness_warning`).
+
+- [x] (proven) `AlertRoutingCriteriaMetadata.TryReadStringArrayItem` — whole-number double / string-encoded `findingTypes` not normalized — **hit 2026-09-02 (#465):** `[42.0]` and `["42.0"]` kept decimal while integer JSON normalized to `"42"`; fixed with `TryReadWholeNumberLongToken` / `TryParseWholeNumberLongString` (`AlertRoutingCriteriaMetadata_Parse_whole_number_double_findingTypes_coerce_to_strings`, `AlertRoutingCriteriaMetadata_Parse_string_encoded_whole_number_double_findingTypes_coerce_to_strings`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryGetStringPropertyCaseInsensitive` — whole-number double `planId` JSON token not normalized — **hit 2026-09-02 (#465):** `42424242.0` kept decimal while string-encoded whole-number path normalized in #464; fixed with `TryReadWholeNumberLongToken` (`TryGetPlanId_reads_whole_number_double_planId`).
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — whole-number double `name` JSON token not normalized — **hit 2026-09-02 (#465):** `42.0` kept decimal while string-encoded whole-number path normalized in #464; fixed with `TryReadWholeNumberLongToken` (`TryReadFromZip_whole_number_double_name_coerces_to_string`).
+- [x] (proven) `GraphJsonElementReaders.TryReadStringToken` / `ReadProperties` — whole-number double graph token JSON not normalized — **hit 2026-09-02 (#465):** `nodeId:42.0` and `properties.resourceId:42.0` kept decimal; fixed with shared whole-number token coercion (`Read_whole_number_double_nodeId_coerces_to_string`, `ReadProperties_whole_number_double_values_coerce_to_strings`).
+
+2026-09-02 seed hunt #465: reseeded from ArchLucid.Core; proved graph/azure/marketplace/alert-routing whole-number double JSON token coercion gaps.
 
 2026-09-02 seed hunt #464: reseeded from ArchLucid.Core; proved graph/azure/marketplace/explanation string whole-number and boolean case coercion gaps.
 

@@ -178,6 +178,36 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_whole_number_double_findingTypes_coerce_to_strings()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "findingTypes": [42.0, "Security"]
+              }
+            }
+            """);
+
+        parsed.FindingTypes.Should().Equal("42", "Security");
+    }
+
+    [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_string_encoded_whole_number_double_findingTypes_coerce_to_strings()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "findingTypes": ["42.0", "Security"]
+              }
+            }
+            """);
+
+        parsed.FindingTypes.Should().Equal("42", "Security");
+    }
+
+    [Fact]
     public void AlertRoutingCriteriaMetadata_Parse_boolean_tags_coerce_to_strings()
     {
         AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(

@@ -135,9 +135,9 @@ public static class AzureExtractorResourceInventoryReader
 
         if (element.ValueKind is JsonValueKind.Number)
         {
-            value = element.GetRawText();
+            value = TryReadWholeNumberLongToken(element);
 
-            return true;
+            return value is not null;
         }
 
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
@@ -150,6 +150,29 @@ public static class AzureExtractorResourceInventoryReader
         value = null;
 
         return false;
+    }
+
+    private static string? TryReadWholeNumberLongToken(JsonElement element)
+    {
+        if (element.ValueKind != JsonValueKind.Number)
+        {
+            return null;
+        }
+
+        if (element.TryGetInt64(out long numeric))
+        {
+            return numeric.ToString(CultureInfo.InvariantCulture);
+        }
+
+        if (element.TryGetDouble(out double wholeNumber)
+            && double.IsFinite(wholeNumber)
+            && wholeNumber >= 0
+            && wholeNumber == Math.Floor(wholeNumber))
+        {
+            return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
+        }
+
+        return element.GetRawText();
     }
 
     private static string? ExtractSku(JsonElement row)
