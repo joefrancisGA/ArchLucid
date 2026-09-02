@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Governance.PolicyPacks;
 
@@ -28,7 +29,7 @@ public sealed class PolicyPackExpectationFacetParserCoercionTests
             AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "2.0" },
         };
 
-        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be("2.0");
+        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be(nameof(FindingSeverity.Error));
     }
 
     [Fact]
@@ -39,6 +40,6 @@ public sealed class PolicyPackExpectationFacetParserCoercionTests
             AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "True" },
         };
 
-        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be("True");
+        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be(nameof(FindingSeverity.Warning));
     }
 }

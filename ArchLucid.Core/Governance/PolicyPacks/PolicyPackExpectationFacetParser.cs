@@ -140,19 +140,19 @@ public static class PolicyPackExpectationFacetParser
     if (Enum.TryParse<FindingSeverity>(trimmed, ignoreCase: true, out FindingSeverity parsed)
         && Enum.IsDefined(parsed))
     {
-      return trimmed;
+      return parsed.ToString();
     }
 
     if (TryParseWholeNumberString(trimmed, out int ordinal)
         && Enum.IsDefined(typeof(FindingSeverity), ordinal))
     {
-      return trimmed;
+      return ((FindingSeverity)ordinal).ToString();
     }
 
     if (TryParseBooleanOrdinalString(trimmed, out int booleanOrdinal)
         && Enum.IsDefined(typeof(FindingSeverity), booleanOrdinal))
     {
-      return trimmed;
+      return ((FindingSeverity)booleanOrdinal).ToString();
     }
 
     return null;
