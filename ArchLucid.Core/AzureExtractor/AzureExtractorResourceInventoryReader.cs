@@ -209,14 +209,22 @@ public static class AzureExtractorResourceInventoryReader
             return false;
         }
 
-        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase))
+        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
         {
             value = "true";
 
             return true;
         }
 
-        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase))
+        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
         {
             value = "false";
 

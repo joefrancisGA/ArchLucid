@@ -124,6 +124,17 @@ public sealed class MarketplaceWebhookPayloadParserTests
     }
 
     [Fact]
+    public void TryGetPlanId_reads_string_encoded_on_planId()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"planId":"on"}""");
+
+        bool found = MarketplaceWebhookPayloadParser.TryGetPlanId(document.RootElement, out string? planId);
+
+        found.Should().BeTrue();
+        planId.Should().Be("true");
+    }
+
+    [Fact]
     public void ReadQuantity_reads_on_synonym_quantity_instead_of_fallback()
     {
         using JsonDocument document = JsonDocument.Parse("""{"quantity":"on"}""");

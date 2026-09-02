@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 71
-- **bugs-found:** 183
+- **hunts:** 72
+- **bugs-found:** 185
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — boolean on/off synonym coercion in routing metadata, graph readers, integration bus, and faithfulness ratio
+- **last-bug:** 2026-09-02 — final TryNormalizeBooleanString on/off gaps in marketplace webhook and Azure inventory reader
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2004,6 +2004,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryNormalizeBooleanString` — `on` deduplication-key synonym ignored — **hit 2026-09-02 (#483):** `"deduplicationKey":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryResolveForPublish_alert_resolved_maps_string_encoded_on_deduplication_key`).
 
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.TryReadDouble` — `on` faithfulness-ratio synonym ignored — **hit 2026-09-02 (#483):** `"faithfulnessSupportRatio":"on"` returned null while `"false"` coerced to `0.0`; fixed with boolean synonym coercion (`FromAggregateJson_maps_string_encoded_on_faithfulness_support_ratio`).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryNormalizeBooleanString` — `on` planId synonym ignored — **hit 2026-09-02 (#484):** `"planId":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryGetPlanId_reads_string_encoded_on_planId`).
+
+- [x] (proven) `AzureExtractorResourceInventoryReader.TryNormalizeBooleanString` — `on` inventory name synonym ignored — **hit 2026-09-02 (#484):** `"name":"on"` passed through raw while `"True"` normalized to `"true"`; fixed with boolean synonym coercion (`TryReadFromZip_string_encoded_on_name_coerces_to_lowercase_string`).
+
+2026-09-02 seed hunt #484: reseeded from ArchLucid.Core; proved final TryNormalizeBooleanString on/off gaps in marketplace webhook planId and Azure inventory name readers.
 
 2026-09-02 seed hunt #483: reseeded from ArchLucid.Core; proved routing metadata, graph readers, Service Bus property normalization, and faithfulness-ratio on/off boolean synonym gaps.
 
