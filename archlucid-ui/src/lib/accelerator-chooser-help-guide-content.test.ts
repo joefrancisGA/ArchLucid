@@ -17,7 +17,7 @@ const BANNED_PRODUCT_VOCAB_PATTERNS = [
 
 describe("accelerator-chooser-help-guide-content", () => {
   it("uses buyer-facing page title", () => {
-    expect(ACCELERATOR_CHOOSER_HELP_PAGE_TITLE).toBe("Starter proof packs");
+    expect(ACCELERATOR_CHOOSER_HELP_PAGE_TITLE).toBe("Starter packs");
   });
 
   it("defines workflow steps with pack selection first", () => {
