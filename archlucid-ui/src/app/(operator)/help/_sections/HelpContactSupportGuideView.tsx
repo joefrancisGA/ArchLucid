@@ -26,6 +26,7 @@ import { CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID } from "@/lib/contact-support-hel
 import {
   CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID,
   CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL,
+  CONTACT_SUPPORT_HELP_SKIP_TARGET_ID,
 } from "@/lib/contact-support-help-page-copy";
 import {
   OPERATOR_LAYOUT,
@@ -69,10 +70,7 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-contact-support-guide"
     >
-      <a
-        href={`#${CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID}`}
-        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-      >
+      <a href={`#${CONTACT_SUPPORT_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
         {CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL}
       </a>
 
@@ -94,20 +92,17 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
         className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
         data-testid="help-contact-support-primary-content"
       >
-        <ContactSupportHelpEvidenceOrientationStrip />
-
-        <p className={readingBodyClass} data-testid="help-contact-support-overview">
-          {CONTACT_SUPPORT_HELP_OVERVIEW}
-        </p>
-
         <section
           aria-labelledby="contact-support-actions"
-          className="space-y-3"
+          className="space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700"
           data-testid="help-contact-support-actions-section"
         >
           <HelpSectionHeading id="contact-support-actions">
             {CONTACT_SUPPORT_HELP_ACTIONS_SECTION_TITLE}
           </HelpSectionHeading>
+          <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-contact-support-overview">
+            {CONTACT_SUPPORT_HELP_OVERVIEW}
+          </p>
           <ContactSupportHelpOrientationStack />
         </section>
 
@@ -173,6 +168,8 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
 
           <HelpTopicTableOfContents headings={headings} />
         </div>
+
+        <ContactSupportHelpEvidenceOrientationStrip />
       </div>
     </article>
   );
