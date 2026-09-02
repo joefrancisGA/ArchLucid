@@ -4,7 +4,6 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
-using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;
 
@@ -28,38 +27,39 @@ public sealed partial class SqlGraphSnapshotRepository
         ArgumentNullException.ThrowIfNull(connection);
 
         Guid graphSnapshotId = snapshot.GraphSnapshotId;
+        object countParam = new { GraphSnapshotId = graphSnapshotId };
 
-        int nodesCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int nodesCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GraphSnapshotNodes WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
+            countParam,
             ct);
 
-        int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int warningsCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GraphSnapshotWarnings WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
+            countParam,
             ct);
 
-        int edgesCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int edgesCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GraphSnapshotEdges WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
+            countParam,
             ct);
 
-        int edgePropsCount = await SqlRelationalScalarCount.ExecuteAsync(
+        int edgePropsCount = await SqlRelationalSliceBackfillCore.CountSliceRowsAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GraphSnapshotEdgeProperties WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
+            countParam,
             ct);
 
-        bool needsRelationalSlices = (nodesCount == 0 && snapshot.Nodes.Count > 0)
-                                     || (warningsCount == 0 && snapshot.Warnings.Count > 0)
-                                     || (edgesCount == 0 && snapshot.Edges.Count > 0)
+        bool needsRelationalSlices = SqlRelationalSliceBackfillCore.SliceNeedsBackfill(nodesCount, snapshot.Nodes.Count)
+                                     || SqlRelationalSliceBackfillCore.SliceNeedsBackfill(warningsCount, snapshot.Warnings.Count)
+                                     || SqlRelationalSliceBackfillCore.SliceNeedsBackfill(edgesCount, snapshot.Edges.Count)
                                      || (edgesCount > 0 && edgePropsCount == 0 && snapshot.Edges.Count > 0);
 
         if (!needsRelationalSlices)
@@ -90,13 +90,13 @@ public sealed partial class SqlGraphSnapshotRepository
             TenantId = scopeHdr.TenantId!.Value, WorkspaceId = scopeHdr.WorkspaceId!.Value, ProjectId = scopeHdr.ScopeProjectId!.Value
         };
 
-        if (nodesCount == 0 && snapshot.Nodes.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(nodesCount, snapshot.Nodes.Count))
             await InsertNodesAndPropertiesAsync(snapshot, connection, transaction, scopeFill, ct);
 
-        if (warningsCount == 0 && snapshot.Warnings.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(warningsCount, snapshot.Warnings.Count))
             await InsertWarningsAsync(snapshot, connection, transaction, scopeFill, ct);
 
-        if (edgesCount == 0 && snapshot.Edges.Count > 0)
+        if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(edgesCount, snapshot.Edges.Count))
         {
             await InsertIndexedEdgesAsync(connection, transaction, snapshot, scopeFill, ct);
             await InsertEdgePropertiesAsync(snapshot, connection, transaction, scopeFill, ct);

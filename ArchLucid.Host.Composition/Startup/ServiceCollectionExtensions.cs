@@ -4,6 +4,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
 using ArchLucid.Application.Billing;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Bootstrap.Seeders;
 using ArchLucid.Application.Integrations;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.AzureBoards;
@@ -111,6 +112,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<DatabaseLivenessHealthCheckOptions>(
             configuration.GetSection(DatabaseLivenessHealthCheckOptions.SectionName));
         services.Configure<HostLeaderElectionOptions>(configuration.GetSection(HostLeaderElectionOptions.SectionName));
+        services.AddDemoSeedScenarioSeeders();
         services.AddScoped<IDemoSeedService, DemoSeedService>();
         services.AddKeyedScoped<IArchitectureRunExecuteOrchestrator>(
             ArchitectureRunExecuteOrchestrationKeys.QuickStartForcedSimulator,
@@ -124,22 +126,12 @@ public static partial class ServiceCollectionExtensions
         RegisterTenancyMeteringAndSecrets(services, configuration);
         services.RegisterBilling(configuration);
         RegisterAdvisoryScheduling(services, configuration, hostingRole);
-        RegisterExecDigestServices(services);
-        RegisterWeeklySponsorReportServices(services, configuration);
-        RegisterWeeklySponsorSummaryServices(services, configuration);
-        RegisterWeeklyArchitectureDigest(services, configuration);
-        RegisterTrialLifecycleEmailHostedServices(services, configuration, hostingRole);
-        RegisterExecDigestWorkerInfrastructure(services, configuration, hostingRole);
-        RegisterWeeklySponsorReportWorkerInfrastructure(services, configuration, hostingRole);
-        RegisterWeeklySponsorSummaryWorkerInfrastructure(services, configuration, hostingRole);
-        RegisterWeeklyArchitectureDigestWorkerInfrastructure(services, configuration, hostingRole);
-        RegisterTrialLifecycleScheduler(services, configuration, hostingRole);
-        RegisterTrialArchitecturePreseed(services, configuration, hostingRole);
+        WeeklyDigestCompositionModule.Register(services, configuration, hostingRole);
+        TrialLifecycleCompositionModule.Register(services, configuration, hostingRole);
         RegisterTenantHealthScoring(services, configuration, hostingRole);
         RegisterInternalCrossTenantAnalytics(services, configuration, hostingRole);
         RegisterDigestDelivery(services, configuration);
         RegisterIntegrationEventPublishing(services, configuration);
-        RegisterTrialLifecycleAuditEmailPublishing(services);
         AlertsCompositionModule.Register(services, configuration);
         RegisterBackgroundJobs(services, configuration, hostingRole);
         PipelineCompositionModule.Register(services, configuration);

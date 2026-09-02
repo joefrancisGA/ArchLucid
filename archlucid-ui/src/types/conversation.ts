@@ -1,36 +1,37 @@
+import type { components } from "@/lib/openapi-schemas";
+
+type ConversationThreadSchema = components["schemas"]["ConversationThread"];
+
 /** A conversation thread in the ArchLucid Ask system (scoped to tenant/workspace/project). */
-export type ConversationThread = {
-  threadId: string;
-  tenantId: string;
-  workspaceId: string;
-  projectId: string;
-  runId?: string | null;
-  baseRunId?: string | null;
-  targetRunId?: string | null;
-  title: string;
-  createdUtc: string;
-  lastUpdatedUtc: string;
-};
+export type ConversationThread = ConversationThreadSchema &
+  Required<
+    Pick<
+      ConversationThreadSchema,
+      | "threadId"
+      | "tenantId"
+      | "workspaceId"
+      | "projectId"
+      | "title"
+      | "createdUtc"
+      | "lastUpdatedUtc"
+    >
+  >;
+
+type ConversationMessageSchema = components["schemas"]["ConversationMessage"];
 
 /** A single message in a conversation thread (user question or AI response). */
-export type ConversationMessage = {
-  messageId: string;
-  threadId: string;
-  role: string;
-  content: string;
-  createdUtc: string;
-  metadataJson: string;
-};
+export type ConversationMessage = ConversationMessageSchema &
+  Required<
+    Pick<ConversationMessageSchema, "messageId" | "threadId" | "role" | "content" | "createdUtc" | "metadataJson">
+  >;
+
+type AskResponseSchema = components["schemas"]["AskResponse"];
 
 /** Response from the /api/ask endpoint: answer text plus referenced decisions/findings/artifacts. */
-export type AskResponse = {
-  threadId: string;
-  answer: string;
-  referencedDecisions: string[];
-  referencedFindings: string[];
-  referencedArtifacts: string[];
-  /** Present when the ask request compared baseRunId and targetRunId. */
-  comparisonNarrative?: string | null;
-  /** True when vector retrieval failed and SQL text fallback was used. */
-  retrievalDegraded?: boolean;
-};
+export type AskResponse = AskResponseSchema &
+  Required<
+    Pick<
+      AskResponseSchema,
+      "threadId" | "answer" | "referencedDecisions" | "referencedFindings" | "referencedArtifacts"
+    >
+  >;
