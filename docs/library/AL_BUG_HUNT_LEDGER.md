@@ -2107,11 +2107,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — finding remediation assignment email resent on idempotent retry
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — digest subscription trim/unknown channel validation; multi-recipient ledger replay success
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2140,10 +2140,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Marketing and support notifiers swallow send failures without surfacing to callers — `MarketingEarlyAccessSalesNotifier` and `SupportProblemReportNotifier` log and return after durable capture (`AppendAsync` / `InsertAsync`); callers are fire-and-forget notification side-effects with provider idempotency keys, not ledger-guarded multi-recipient dispatch.
 - [x] (invalid) Digest webhook delivery omits digest attempt persistence on channel failure — `DigestDeliveryDispatcher` (caller) creates and updates `DigestDeliveryAttempt` rows for every channel including Slack webhook; channel delegates delivery only (`DigestDeliveryDispatcherTests.DeliverAsync_WhenChannelFails_AuditsFailureWithoutThrowing`).
 - [x] (proven) `FindingRemediationAssignmentEmailDispatcher` resent assignment mail on idempotent retry — **hit 2026-08-26:** dispatcher skipped `IsRecordedAsync` before send, so safe retries duplicated mail and returned `false`; fixed with ledger short-circuit before render (`FindingRemediationAssignmentEmailDispatcherTests.TryDispatchAsync_skips_duplicate_send_when_ledger_already_recorded`).
-- [ ] (candidate) `DigestSubscriptionsController.Create` persists whitespace-padded destinations without trimming — `" user@example.com "` may be stored and passed to digest email delivery
-- [ ] (candidate) Advisory digest email subscriptions route through `FakeEmailSender` only — `DigestEmailDeliveryChannel` never uses `IEmailProvider` / ACS in production composition
-- [ ] (candidate) `DigestSubscriptionsController.Create` accepts unknown channel types — invalid `channelType` persists until dispatch fails each scan
-- [ ] (candidate) `RecurrenceCompletionNotificationService` records `emailSent: false` on replay when ledger already recorded all recipients
+- [x] (proven) `DigestSubscriptionsController.Create` persisted whitespace-padded destinations without trimming — **hit 2026-09-02 (#425):** trimmed `ChannelType`/`Destination` before persistence like alert routing; regression in `DigestSubscriptionsControllerTests.Create_trims_channel_type_and_destination_before_persisting`.
+- [x] (invalid) Advisory digest email subscriptions route through `FakeEmailSender` only — digest and alert email channels share `IEmailSender` abstraction wired to `FakeEmailSender` in composition; transactional mail uses separate `IEmailProvider` path by design until production digest/alert email integration ships.
+- [x] (proven) `DigestSubscriptionsController.Create` accepted unknown channel types — **hit 2026-09-02 (#425):** invalid `channelType` persisted until dispatch failed each scan; fixed with supported-channel validation at create; regression in `DigestSubscriptionsControllerTests.Create_rejects_unknown_channel_types`.
+- [x] (proven) `RecurrenceCompletionNotificationService` recorded `emailSent: false` on replay when ledger already recorded all recipients — **hit 2026-09-02 (#425):** `MultiRecipientEmailDispatch` returned `false` when every mailbox was skipped via `IsRecordedAsync`; fixed idempotent replay to return `true` (parity with `FindingRemediationAssignmentEmailDispatcher`); regression in `RecurrenceCompletionEmailDispatcherTests.TryDispatchAsync_returns_true_when_all_mailboxes_already_recorded`.
+
+2026-09-02 thorough hunt #425: proved digest subscription trim + unknown-channel validation; multi-recipient ledger replay success; cheap-disproved FakeEmailSender as shared digest/alert composition design.
 
 ## Zone: artifact-synthesis
 
