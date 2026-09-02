@@ -1780,11 +1780,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 87
-- **bugs-found:** 199
+- **hunts:** 88
+- **bugs-found:** 200
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — GCP billing catalog omitted zero units property
+- **last-bug:** 2026-09-02 — GCP billing catalog omitted zero nanos property
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2061,6 +2061,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — omitted zero `units` property rejected nanos-only `unitPrice` — **hit 2026-09-02 (#500):** `"unitPrice": { "nanos": 10400000 }` returned null while explicit `"units": 0` parsed; fixed by defaulting missing units to zero (`TryGetComputeEngineMonthlyUsdAsync_parses_unit_price_with_omitted_zero_units`).
 
 2026-09-02 seed hunt #500: reseeded from ArchLucid.Core costing parsers; proved GCP unitPrice omitted-zero-units gap after #499 AWS root casing fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — omitted zero `nanos` property rejected units-only `unitPrice` — **hit 2026-09-02 (#501):** `"unitPrice": { "units": 1 }` returned null while explicit `"nanos": 0` parsed after #500 units default; fixed by defaulting missing nanos to zero (`TryGetComputeEngineMonthlyUsdAsync_parses_unit_price_with_omitted_zero_nanos`).
+
+2026-09-02 seed hunt #501: reseeded from ArchLucid.Core costing parsers; proved GCP unitPrice omitted-zero-nanos gap (symmetric to #500 omitted-zero-units fix).
 
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 

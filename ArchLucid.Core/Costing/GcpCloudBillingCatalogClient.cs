@@ -197,11 +197,13 @@ public sealed class GcpCloudBillingCatalogClient
             units = 0;
         }
 
-        if (!TryGetPropertyCaseInsensitive(unitPrice, "nanos", out JsonElement nanosElement))
-            return false;
+        int nanos = 0;
 
-        if (!TryReadInt32Token(nanosElement, out int nanos))
+        if (TryGetPropertyCaseInsensitive(unitPrice, "nanos", out JsonElement nanosElement)
+            && !TryReadInt32Token(nanosElement, out nanos))
+        {
             nanos = 0;
+        }
 
         hourlyUsd = units + nanos / 1_000_000_000m;
 
