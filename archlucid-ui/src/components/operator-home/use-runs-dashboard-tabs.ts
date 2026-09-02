@@ -78,12 +78,16 @@ export function useRunsDashboardTabs({
   const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
 
   useEffect(() => {
-    if (homeGovernanceWarningsQueryEnabled(searchParams)) {
-      setGovernanceWarningsOnly(true);
+    const warningsOnly = homeGovernanceWarningsQueryEnabled(searchParams);
+
+    setGovernanceWarningsOnly(warningsOnly);
+
+    if (warningsOnly) {
       setTab("all");
+    } else {
+      setTab(parseRunsDashboardTabFromSearch(searchParams.get("tab")));
     }
 
-    setTab(parseRunsDashboardTabFromSearch(searchParams.get("tab")));
     setShowArchived(parseRunsDashboardShowArchivedFromSearch(searchParams.get("archived")));
   }, [searchParams]);
 
