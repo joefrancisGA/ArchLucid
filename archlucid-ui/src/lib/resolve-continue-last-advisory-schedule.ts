@@ -37,8 +37,14 @@ export function writeAdvisoryScheduleLastViewedId(scheduleId: string): void {
 }
 
 function toTarget(schedule: AdvisoryScanSchedule): AdvisorySchedulesContinueLastTarget {
+  const scheduleId = schedule.scheduleId?.trim() ?? "";
+
+  if (scheduleId.length === 0) {
+    throw new Error("Advisory scan schedule is missing scheduleId.");
+  }
+
   return {
-    scheduleId: schedule.scheduleId ?? "",
+    scheduleId,
     name: (schedule.name ?? "").trim().length > 0 ? (schedule.name ?? "") : "Advisory scan schedule",
   };
 }
