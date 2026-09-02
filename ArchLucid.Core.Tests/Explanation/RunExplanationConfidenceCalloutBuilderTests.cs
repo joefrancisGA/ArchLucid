@@ -9,6 +9,22 @@ namespace ArchLucid.Core.Tests.Explanation;
 public sealed class RunExplanationConfidenceCalloutBuilderTests
 {
     [Fact]
+    public void FromAggregateJson_maps_numeric_citation_count()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 2
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(2);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
+
+    [Fact]
     public void FromAggregateJson_maps_string_encoded_faithfulness_support_ratio()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(

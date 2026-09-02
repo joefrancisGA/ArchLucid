@@ -188,10 +188,9 @@ public static class RealLlmOutputStructuralValidator
                 }
 
                 // At least one content field must be non-empty so hollow findings (all keys present, all blank) are caught.
-                bool hasContent = FindingContentFields.Any(f =>
-                    TryGetPropertyCaseInsensitive(finding, f, out JsonElement el)
-                    && el.ValueKind == JsonValueKind.String
-                    && !string.IsNullOrWhiteSpace(el.GetString()));
+        bool hasContent = FindingContentFields.Any(f =>
+            TryGetPropertyCaseInsensitive(finding, f, out JsonElement el)
+            && TryReadNonEmptyTextToken(el, out _));
 
                 if (!hasContent)
                 {

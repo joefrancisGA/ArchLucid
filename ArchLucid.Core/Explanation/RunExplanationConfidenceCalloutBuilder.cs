@@ -47,8 +47,17 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         int? citationCount = null;
 
-        if (TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl) && citationsEl.ValueKind == JsonValueKind.Array)
-            citationCount = citationsEl.GetArrayLength();
+        if (TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl))
+        {
+            if (citationsEl.ValueKind == JsonValueKind.Array)
+            {
+                citationCount = citationsEl.GetArrayLength();
+            }
+            else if (citationsEl.ValueKind == JsonValueKind.Number && citationsEl.TryGetInt32(out int numericCount))
+            {
+                citationCount = numericCount;
+            }
+        }
 
         return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);
     }

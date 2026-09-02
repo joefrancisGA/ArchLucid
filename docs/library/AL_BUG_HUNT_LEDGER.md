@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 26
-- **bugs-found:** 54
+- **hunts:** 27
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — golden corpus numeric finding severity and trace id validation
+- **last-bug:** 2026-09-02 — golden corpus numeric finding content; explanation aggregate numeric citation count
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1849,6 +1849,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.TryReadReviewedAtUtc` — string-encoded unix-millisecond `reviewedAtUtc` ignored — **hit 2026-09-02 (#436):** `"reviewedAtUtc":"1735689600000"` left null after #435 number-token fix; fixed with numeric-string unix coercion (`Deserialize_string_encoded_unix_millisecond_reviewedAtUtc_maps_value`).
 - [x] (proven) `RealLlmOutputStructuralValidator` — numeric `findings[].severity` JSON tokens rejected while top-level numeric `agentType` already accepted — **hit 2026-09-02 (#437):** `"severity":2` failed structural validation for external LLM envelopes; fixed with `TryReadNonEmptyTextToken` (`ValidateAgentResultStructure_accepts_numeric_finding_severity`).
 - [x] (proven) `RealLlmOutputStructuralValidator` — numeric `trace.sourceAgentExecutionTraceId` rejected (string/null only) — **hit 2026-09-02 (#437):** `"sourceAgentExecutionTraceId":9001` failed validation; fixed by accepting number tokens (`ValidateAgentResultStructure_accepts_numeric_source_agent_execution_trace_id`).
+- [x] (proven) `RealLlmOutputStructuralValidator` — numeric finding content fields (`description` / `title` / etc.) rejected while numeric `severity` already accepted — **hit 2026-09-02 (#438):** `"description":42` failed `findingContent` validation; fixed by reusing `TryReadNonEmptyTextToken` (`ValidateAgentResultStructure_accepts_numeric_finding_content_field`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — numeric `citations` count ignored (array JSON only) — **hit 2026-09-02 (#438):** `"citations":2` left `CitationCount` null so WARN disposition was skipped; fixed with numeric token coercion (`FromAggregateJson_maps_numeric_citation_count`).
+
+2026-09-02 seed hunt #438: reseeded from ArchLucid.Core; proved golden-corpus numeric finding content and explanation aggregate numeric citation count gaps.
 
 2026-09-02 seed hunt #437: reseeded from ArchLucid.Core; proved golden-corpus numeric finding severity and trace id validation gaps.
 
