@@ -138,7 +138,7 @@ describe("HelpCorePilotGuideView", () => {
       .getAllByRole("link")
       .filter((link) => link.getAttribute("href") === "/architecture/reviews/new");
 
-    expect(newReviewLinks).toHaveLength(5);
+    expect(newReviewLinks).toHaveLength(4);
     expect(newReviewLinks.map((link) => link.textContent)).toEqual(
       expect.arrayContaining([
         BUYER_START_ARCHITECTURE_REVIEW_CTA,
@@ -149,7 +149,7 @@ describe("HelpCorePilotGuideView", () => {
     );
     expect(
       newReviewLinks.filter((link) => link.textContent === "Start evidence-only review"),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
   });
 
   it("does not link recursively to View pilot guide in the hero path (TB-1040)", () => {
@@ -381,7 +381,7 @@ describe("HelpCorePilotGuideView", () => {
     );
   });
 
-  it("TB-1684: optional cloud cards do not promote extract-upload as the buyer start path", () => {
+  it("TB-1684: optional cloud section links cloud connections without promoting extract-upload", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
@@ -397,9 +397,12 @@ describe("HelpCorePilotGuideView", () => {
 
     const disclosure = screen.getByTestId("core-pilot-optional-paths-disclosure");
     const cloudActions = within(disclosure).getByTestId("core-pilot-cloud-actions");
-    const evidenceOnlyCard = within(cloudActions).getByRole("link", { name: "Start evidence-only review" });
+    const cloudConnectionsLink = within(cloudActions).getByRole("link", { name: "Cloud connections" });
 
-    expect(evidenceOnlyCard).toHaveAttribute("href", "/architecture/reviews/new");
+    expect(cloudConnectionsLink).toHaveAttribute("href", "/integrations/cloud-connections");
+    expect(within(cloudActions).queryByRole("heading", { name: "Security intake checklist" })).toBeNull();
+    expect(within(cloudActions).queryByRole("heading", { name: "Evidence-only review" })).toBeNull();
+    expect(within(cloudActions).queryByRole("link", { name: "Start evidence-only review" })).toBeNull();
     expect(within(disclosure).queryByRole("link", { name: /upload settings/i })).toBeNull();
     expect(
       within(disclosure)
