@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 53
-- **bugs-found:** 138
+- **hunts:** 54
+- **bugs-found:** 141
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — graph/azure/marketplace/alert-routing whole-number double JSON token coercion
+- **last-bug:** 2026-09-02 — golden-corpus boolean agentType coercion parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1926,6 +1926,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MarketplaceWebhookPayloadParser.TryGetStringPropertyCaseInsensitive` — whole-number double `planId` JSON token not normalized — **hit 2026-09-02 (#465):** `42424242.0` kept decimal while string-encoded whole-number path normalized in #464; fixed with `TryReadWholeNumberLongToken` (`TryGetPlanId_reads_whole_number_double_planId`).
 - [x] (proven) `AzureExtractorResourceInventoryReader.TryReadStringToken` — whole-number double `name` JSON token not normalized — **hit 2026-09-02 (#465):** `42.0` kept decimal while string-encoded whole-number path normalized in #464; fixed with `TryReadWholeNumberLongToken` (`TryReadFromZip_whole_number_double_name_coerces_to_string`).
 - [x] (proven) `GraphJsonElementReaders.TryReadStringToken` / `ReadProperties` — whole-number double graph token JSON not normalized — **hit 2026-09-02 (#465):** `nodeId:42.0` and `properties.resourceId:42.0` kept decimal; fixed with shared whole-number token coercion (`Read_whole_number_double_nodeId_coerces_to_string`, `ReadProperties_whole_number_double_values_coerce_to_strings`).
+
+- [x] (proven) `RealLlmOutputStructuralValidator.JsonAgentTypeMatchesExpected` — boolean `agentType` JSON rejected — **hit 2026-09-02 (#466):** `"agentType":true` failed structural validation while sibling finding fields already accepted boolean tokens; fixed with `TryReadBooleanOrdinalAgentType` (`ValidateAgentResultStructure_accepts_boolean_agentType`).
+- [x] (proven) `RealLlmOutputStructuralValidator.EnumTryParseLenient` — string-encoded boolean `agentType` rejected — **hit 2026-09-02 (#466):** `"agentType":"True"` failed validation while numeric/string whole-number ordinals already accepted; fixed with `TryParseBooleanOrdinalString` (`ValidateAgentResultStructure_accepts_string_encoded_boolean_agentType`).
+- [x] (proven) `RealLlmOutputStructuralValidator.TryResolveAgentType` — string-encoded boolean parameter rejected — **hit 2026-09-02 (#466):** `ValidateAgentResultStructure("True", …)` failed while JSON `"agentType":"True"` parity was missing; fixed with shared boolean ordinal coercion (`ValidateAgentResultStructure_accepts_string_encoded_boolean_agentType_parameter`).
+
+2026-09-02 seed hunt #466: reseeded from ArchLucid.Core; proved golden-corpus boolean agentType coercion gaps.
 
 2026-09-02 seed hunt #465: reseeded from ArchLucid.Core; proved graph/azure/marketplace/alert-routing whole-number double JSON token coercion gaps.
 

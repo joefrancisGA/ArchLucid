@@ -255,6 +255,14 @@ public static class RealLlmOutputStructuralValidator
             return true;
         }
 
+        if (TryParseBooleanOrdinalString(input.Trim(), out int booleanOrdinal)
+            && Enum.IsDefined(typeof(AgentType), booleanOrdinal))
+        {
+            type = (AgentType)booleanOrdinal;
+
+            return true;
+        }
+
         error = $"Parameter agentType '{input}' is not a valid AgentType name or integer.";
 
         return false;
@@ -268,8 +276,28 @@ public static class RealLlmOutputStructuralValidator
         {
             JsonValueKind.String => EnumTryParseLenient(agentTypeEl.GetString(), expected, out message),
             JsonValueKind.Number => TryReadWholeNumberAgentType(agentTypeEl, expected, out message),
-            _ => SetFalse(out message, "agentType must be a string or number.")
+            JsonValueKind.True or JsonValueKind.False => TryReadBooleanOrdinalAgentType(agentTypeEl, expected, out message),
+            _ => SetFalse(out message, "agentType must be a string, number, or boolean.")
         };
+    }
+
+    private static bool TryReadBooleanOrdinalAgentType(JsonElement agentTypeEl, AgentType expected, out string? message)
+    {
+        message = null;
+
+        int agentTypeOrdinal = agentTypeEl.ValueKind == JsonValueKind.True ? 1 : 0;
+
+        if (!Enum.IsDefined(typeof(AgentType), agentTypeOrdinal))
+        {
+            return SetMsg(out message, "agentType boolean ordinal does not match the expected type.");
+        }
+
+        if ((AgentType)agentTypeOrdinal == expected)
+        {
+            return true;
+        }
+
+        return SetMsg(out message, "agentType boolean ordinal does not match the expected type.");
     }
 
     private static bool TryReadWholeNumberAgentType(JsonElement agentTypeEl, AgentType expected, out string? message)
@@ -376,6 +404,17 @@ public static class RealLlmOutputStructuralValidator
             return SetMsg(out message, "agentType number does not match the expected type.");
         }
 
+        if (TryParseBooleanOrdinalString(text, out int booleanOrdinal)
+            && Enum.IsDefined(typeof(AgentType), booleanOrdinal))
+        {
+            if ((AgentType)booleanOrdinal == expected)
+            {
+                return true;
+            }
+
+            return SetMsg(out message, "agentType number does not match the expected type.");
+        }
+
         if (Enum.TryParse(text, true, out AgentType t) && t == expected)
             return true;
 
@@ -394,6 +433,50 @@ public static class RealLlmOutputStructuralValidator
     private static bool SetFalse(out string? m, string text)
     {
         m = text;
+
+        return false;
+    }
+
+    private static bool TryParseBooleanOrdinalString(string? raw, out int ordinal)
+    {
+        if (TryParseBooleanString(raw, out bool boolean))
+        {
+            ordinal = boolean ? 1 : 0;
+
+            return true;
+        }
+
+        ordinal = default;
+
+        return false;
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
+
+            return true;
+        }
+
+        value = default;
 
         return false;
     }
