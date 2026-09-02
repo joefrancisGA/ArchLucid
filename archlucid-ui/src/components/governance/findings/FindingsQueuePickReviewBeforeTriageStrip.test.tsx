@@ -1,23 +1,36 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { FindingsQueuePickReviewBeforeTriageStrip } from "./FindingsQueuePickReviewBeforeTriageStrip";
-
-vi.mock("@/components/WorkspaceActiveRunContext", () => ({
-  useWorkspaceActiveRun: () => ({ activeRunId: "run-findings-1", runId: "run-findings-1" }),
-}));
+import {
+  FindingsQueuePickReviewBeforeTriageStrip,
+  FindingsQueueScopeDisclosure,
+} from "./FindingsQueuePickReviewBeforeTriageStrip";
 
 vi.mock("@/components/AskRunIdPicker", () => ({
-  AskRunIdPicker: (props: { value: string }) => <div data-testid="ask-run-id-picker">{props.value}</div>,
+  AskRunIdPicker: (props: { value: string; label: string }) => (
+    <div data-testid="ask-run-id-picker" data-label={props.label}>
+      {props.value}
+    </div>
+  ),
 }));
 
 describe("FindingsQueuePickReviewBeforeTriageStrip", () => {
-  it("renders pick review strip", () => {
+  it("renders optional review picker with review label", () => {
     render(
       <FindingsQueuePickReviewBeforeTriageStrip selectedReviewId="" onSelectReview={vi.fn()} />,
     );
 
-    expect(screen.getByTestId("findings-queue-pick-review-before-triage-strip")).toBeInTheDocument();
-    expect(screen.getByText("Pick a review before triage")).toBeInTheDocument();
+    expect(screen.getByTestId("ask-run-id-picker")).toHaveAttribute("data-label", "Review");
+  });
+});
+
+describe("FindingsQueueScopeDisclosure", () => {
+  it("renders collapsed optional scope control", () => {
+    render(
+      <FindingsQueueScopeDisclosure selectedReviewId="" onSelectReview={vi.fn()} />,
+    );
+
+    expect(screen.getByTestId("findings-queue-scope-disclosure")).toBeInTheDocument();
+    expect(screen.getByText("Filter to one review")).toBeInTheDocument();
   });
 });

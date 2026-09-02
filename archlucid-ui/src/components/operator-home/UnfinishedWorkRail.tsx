@@ -7,7 +7,7 @@ import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/ope
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_HUB_UNFINISHED_WORK_HREF } from "@/lib/reviews-hub-unfinished-work-href";
 import {
   OPERATOR_TYPOGRAPHY,
   OPERATOR_LINK,
@@ -239,7 +239,7 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
       {railSummary.truncated ? (
         <p className="m-0">
           <Link
-            href={REVIEWS_LIST_PATH}
+            href={REVIEWS_HUB_UNFINISHED_WORK_HREF}
             className={cn("font-medium", OPERATOR_LINK.nav)}
             data-testid="unfinished-work-rail-view-all"
           >
