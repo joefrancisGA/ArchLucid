@@ -7,6 +7,7 @@ import { PreferenceCheckbox } from "@/components/preferences/PreferenceCheckbox"
 import {
   PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE,
   PREFERENCES_CLOUD_PLATFORMS_LEAD,
+  PREFERENCES_CLOUD_PLATFORMS_MINIMUM_VISIBLE_RULE,
   PREFERENCES_CLOUD_PLATFORMS_SCOPE_TAG,
 } from "@/lib/cloud-platform-scope-copy";
 import {
@@ -23,7 +24,7 @@ import { cn } from "@/lib/utils";
 const PROVIDER_LABELS: Readonly<Record<CloudProviderId, string>> = {
   azure: "Azure",
   aws: "AWS",
-  gcp: "GCP",
+  gcp: "Google Cloud",
 };
 
 export type CloudPlatformScopePanelProps = {
@@ -61,23 +62,29 @@ export function CloudPlatformScopePanel({
         <span className="font-medium text-al-text-primary">{PREFERENCES_CLOUD_PLATFORMS_SCOPE_TAG}.</span>{" "}
         {PREFERENCES_CLOUD_PLATFORMS_LEAD}
       </p>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {PREFERENCES_CLOUD_PLATFORMS_MINIMUM_VISIBLE_RULE}
+      </p>
       <div className="flex flex-wrap gap-x-6 gap-y-3" role="group" aria-labelledby={labelledById}>
         {CLOUD_PROVIDER_NEUTRAL_ORDER.map((providerId) => {
           const checkboxId = `cloud-platform-scope-${providerId}`;
+          const isLastVisibleProvider = scope[providerId] && wouldLeaveNoVisibleCloudProviders(scope, providerId);
 
           return (
             <label
               key={providerId}
               htmlFor={checkboxId}
               className={cn(
-                "flex min-h-6 min-w-[8.5rem] cursor-pointer items-center gap-3",
+                "flex min-h-6 min-w-[8.5rem] items-center gap-3",
                 OPERATOR_TYPOGRAPHY.body,
                 "text-al-text-primary",
+                isLastVisibleProvider ? "cursor-not-allowed opacity-70" : "cursor-pointer",
               )}
             >
               <PreferenceCheckbox
                 id={checkboxId}
                 checked={scope[providerId]}
+                disabled={isLastVisibleProvider}
                 onCheckedChange={() => toggleProvider(providerId)}
                 data-testid={`cloud-platform-scope-${providerId}`}
               />

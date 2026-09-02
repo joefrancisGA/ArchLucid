@@ -250,24 +250,18 @@ describe("HelpGovernanceApprovalGuideView", () => {
     const { container } = render(<HelpGovernanceApprovalGuideView entry={entry} />);
     const troubleshooting = screen.getByTestId("help-governance-approval-troubleshooting");
 
-    expect(troubleshooting.querySelectorAll("details").length).toBeGreaterThan(0);
+    expect(troubleshooting.querySelectorAll("details").length).toBe(0);
     expect(container.querySelectorAll('[class*="border-amber-200"]').length).toBeLessThanOrEqual(1);
   });
 
-  it("keeps technical reference collapsed by default and mounts API detail only after expand", async () => {
+  it("renders technical reference body without a collapsible wrapper", async () => {
     if (entry === undefined) {
       throw new Error("Expected governance-approval documentation entry.");
     }
 
     render(<HelpGovernanceApprovalGuideView entry={entry} />);
 
-    const technicalReference = screen.getByTestId("help-governance-approval-technical-reference");
-    expect(technicalReference).not.toHaveAttribute("open");
-    expect(screen.queryByTestId("help-governance-approval-technical-reference-body")).toBeNull();
-
-    fireEvent.click(within(technicalReference).getByText("Technical reference"));
-
-    const technicalBody = await screen.findByTestId("help-governance-approval-technical-reference-body");
+    const technicalBody = screen.getByTestId("help-governance-approval-technical-reference-body");
     expect(
       within(technicalBody).getAllByText(/POST \/v1\/governance\/approval-requests/i).length,
     ).toBeGreaterThan(0);

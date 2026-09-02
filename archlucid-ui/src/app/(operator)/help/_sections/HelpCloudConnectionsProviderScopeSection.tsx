@@ -62,10 +62,8 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {CLOUD_CONNECTIONS_HELP_TIER_1.useWhen}
           </p>
-          <details className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30">
-            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>
-              Packaging scripts
-            </summary>
+          <div className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30">
+            <h4 className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>Packaging scripts</h4>
             <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
               {CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS.map((script) => (
                 <li key={script}>
@@ -83,7 +81,7 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
               </Link>
               .
             </p>
-          </details>
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="primary" data-testid="help-cloud-connections-primary-cta">
               <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.href}>

@@ -2,31 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useMemo, useState } from "react";
 
-import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
-import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
 import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
 import { ExtractUploadConstraintsPanel } from "@/components/usability/ExtractUploadConstraintsPanel";
-import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUploadFileProgressList";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
-import { useExtractUploadBaselineQuery, EXTRACTOR_SCRIPT_CDN_URL } from "@/hooks/use-extract-upload-baseline-query";
-import type { ApiProblemDetails } from "@/lib/api-problem";
-import { buildApiRequestErrorFromParts } from "@/lib/api-error";
-import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
+import { EXTRACTOR_SCRIPT_CDN_URL } from "@/hooks/use-extract-upload-baseline-query";
 import { buildAdvancedGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
-import {
-  DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
-  getAzureExtractorDemoScenario,
-  getAzureExtractorDemoZipBytes,
-  type AzureExtractorDemoScenarioId,
-} from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
-import { buildArchLucidAzurePackageZipFromFileList, type FolderPackageFileStatus } from "@/lib/read-arch-lucid-azure-folder-package";
-import { readArchLucidAzurePackageZipFromBytes, readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
@@ -38,14 +22,11 @@ import {
   EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY,
   EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION,
   EXTRACT_UPLOAD_DEMO_ASIDE_TITLE,
-  EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
   EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL,
   EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_COLLECT_TITLE,
-  EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
-  EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
   EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
@@ -61,160 +42,28 @@ import {
   EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID,
   EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
 } from "@/lib/extract-upload-settings-page-copy";
-import {
-  resolveExtractUploadPackageEmphasizedStepId,
-  resolveExtractUploadPackageSteps,
-} from "@/lib/extract-upload-package-checklist";
+import { ExtractUploadZipDropShell } from "./ExtractUploadZipDropShell";
+import { useExtractUploadSettings } from "./use-extract-upload-settings";
 
 /**
  * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
  */
 export function ExtractUploadSettingsPageClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const baselineQuery = useExtractUploadBaselineQuery();
-  const [busy, setBusy] = useState(false);
-  const [selectedFileLabel, setSelectedFileLabel] = useState<string | null>(null);
-  const [uploadError, setUploadError] = useState<{
-    message: string;
-    problem: ApiProblemDetails | null;
-    correlationId: string | null;
-  } | null>(null);
-  const [packageId, setPackageId] = useState<string | null>(null);
-  const [fileStatuses, setFileStatuses] = useState<FolderPackageFileStatus[]>([]);
-  const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
-    DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
-  );
-  const baselineLoading = baselineQuery.isPending;
-  const hasBaselineArtifacts = baselineQuery.data?.hasBaselineArtifacts ?? null;
-  const extractorScriptVersion = baselineQuery.data?.extractorScriptVersion ?? null;
-  const extractorUpdateBanner = baselineQuery.data?.extractorUpdateBanner ?? null;
-  const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
-  const extractUploadSteps = useMemo(
-    () =>
-      resolveExtractUploadPackageSteps({
-        scenarioSelected: selectedDemoScenarioId.trim().length > 0,
-        packageUploaded: packageId !== null || selectedFileLabel !== null,
-        inventoryParsed: hasBaselineArtifacts === true || packageId !== null,
-      }),
-    [hasBaselineArtifacts, packageId, selectedDemoScenarioId, selectedFileLabel],
-  );
-  const extractUploadEmphasizedStepId = useMemo(
-    () =>
-      resolveExtractUploadPackageEmphasizedStepId({
-        scenarioSelected: selectedDemoScenarioId.trim().length > 0,
-        packageUploaded: packageId !== null || selectedFileLabel !== null,
-        inventoryParsed: hasBaselineArtifacts === true || packageId !== null,
-      }),
-    [hasBaselineArtifacts, packageId, selectedDemoScenarioId, selectedFileLabel],
-  );
-
-  async function onFolderSelected(files: FileList): Promise<void> {
-    setUploadError(null);
-    setPackageId(null);
-    setFileStatuses([]);
-
-    const built = await buildArchLucidAzurePackageZipFromFileList(files);
-    setFileStatuses(built.fileStatuses);
-
-    if (!built.ok) {
-      setUploadError({
-        message: built.message,
-        problem: null,
-        correlationId: null,
-      });
-
-      return;
-    }
-
-    setSelectedFileLabel(`${built.zipFile.name} (folder packaged)`);
-    await onUpload(built.zipFile);
-  }
-
-  async function onZipSelected(file: File): Promise<void> {
-    setUploadError(null);
-    setPackageId(null);
-    setSelectedFileLabel(`${file.name} (${Math.max(1, Math.round(file.size / 1024))} KB)`);
-
-    const validation = await readArchLucidAzurePackageZipFromFile(file);
-
-    if (!validation.ok) {
-      setUploadError({
-        message: validation.message,
-        problem: null,
-        correlationId: null,
-      });
-
-      return;
-    }
-
-    await onUpload(file);
-  }
-
-  async function onTryDemoData(): Promise<void> {
-    setUploadError(null);
-    setPackageId(null);
-    setFileStatuses([]);
-
-    const scenario = getAzureExtractorDemoScenario(selectedDemoScenarioId);
-    const bytes = getAzureExtractorDemoZipBytes(selectedDemoScenarioId);
-    const validation = readArchLucidAzurePackageZipFromBytes(bytes);
-
-    if (!validation.ok) {
-      setUploadError({
-        message: validation.message,
-        problem: null,
-        correlationId: null,
-      });
-
-      return;
-    }
-
-    const demoFile = new File([new Uint8Array(bytes)], scenario.zipFilename, {
-      type: "application/zip",
-    });
-    setSelectedFileLabel(`${demoFile.name} (bundled demo)`);
-    await onUpload(demoFile);
-  }
-
-  async function onUpload(file: File) {
-    setBusy(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch(
-        "/api/proxy/v1/azure-extractor/upload",
-        mergeRegistrationScopeForProxy({
-          method: "POST",
-          body: formData,
-        }),
-      );
-
-      const bodyText = await response.text();
-      const correlationId = response.headers.get("X-Correlation-ID");
-
-      if (!response.ok) {
-        const apiError = buildApiRequestErrorFromParts(response, bodyText);
-        setUploadError({
-          message: apiError.message,
-          problem: apiError.problem,
-          correlationId: apiError.correlationId ?? correlationId,
-        });
-
-        return;
-      }
-
-      try {
-        const payload = JSON.parse(bodyText) as { packageId?: string };
-        setPackageId(payload.packageId ?? null);
-      } catch {
-        setPackageId(null);
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
+  const model = useExtractUploadSettings();
+  const {
+    baselineLoading,
+    hasBaselineArtifacts,
+    extractorScriptVersion,
+    extractorUpdateBanner,
+    extractUploadSteps,
+    extractUploadEmphasizedStepId,
+    selectedDemoScenarioId,
+    setSelectedDemoScenarioId,
+    busy,
+    onTryDemoData,
+    ...zipDropProps
+  } = model;
 
   return (
     <div
@@ -308,54 +157,7 @@ export function ExtractUploadSettingsPageClient() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{EXTRACT_UPLOAD_STEP_UPLOAD_TITLE}</CardTitle>
-              <CardDescription>
-                {EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION} (max {maxMb} MB).
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <AzureExtractorZipDropZone
-                ariaLabel={EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL}
-                busy={busy}
-                testId="extract-upload-drop-zone"
-                hint={
-                  selectedFileLabel !== null ? (
-                    <p
-                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
-                      data-testid="extract-upload-file-meta"
-                    >
-                      Selected: {selectedFileLabel}
-                    </p>
-                  ) : null
-                }
-                onZipSelected={onZipSelected}
-                onFolderSelected={onFolderSelected}
-              />
-              <ExtractUploadFileProgressList fileStatuses={fileStatuses} />
-              {uploadError !== null ? (
-                <AzureExtractorUploadFailureCallout
-                  fallbackMessage={uploadError.message}
-                  problem={uploadError.problem}
-                  correlationId={uploadError.correlationId}
-                />
-              ) : null}
-              {packageId !== null ? (
-                <p
-                  className={cn("m-0 text-emerald-800 dark:text-emerald-300", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid="extract-upload-success"
-                >
-                  Package accepted (<span className="font-mono">{packageId}</span>).
-                </p>
-              ) : null}
-              <Button asChild type="button" variant="outline" size="sm">
-                <Link href="/architecture/reviews" data-testid="extract-upload-go-reviews">
-                  Go to Reviews
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <ExtractUploadZipDropShell {...zipDropProps} />
         </div>
 
         <aside

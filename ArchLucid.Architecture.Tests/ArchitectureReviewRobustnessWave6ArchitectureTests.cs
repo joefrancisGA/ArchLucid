@@ -25,6 +25,12 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
         sql.Should().Contain("PinnedEvidencePackagePinsJson");
         sql.Should().Contain("@runTable");
         sql.Should().NotMatchRegex(@"(?m)^\s*ALTER\s+TABLE\s+dbo\.Runs\b");
+
+        string bootstrapSql = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
+
+        bootstrapSql.Should().Contain("PinnedEvidencePackagePinsJson");
+        bootstrapSql.Should().Contain("@wave6PinRunTable");
     }
 
     [Fact]

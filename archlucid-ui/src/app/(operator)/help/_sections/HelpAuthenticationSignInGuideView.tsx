@@ -5,7 +5,7 @@ import { HelpAuthenticationSignInRelatedTopics } from "@/app/(operator)/help/_se
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { HelpStaticSection } from "@/components/help/HelpStaticSection";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
@@ -107,37 +107,33 @@ export function HelpAuthenticationSignInGuideView(
           </div>
 
           <div data-testid="help-authentication-sign-in-content" className="space-y-4">
-            <CollapsibleSection
+            <HelpStaticSection
               title={collapsibleSections.commonIssues.title}
-              sectionTestId={collapsibleSections.commonIssues.testId}
-              defaultOpen={false}
+              testId={collapsibleSections.commonIssues.testId}
             >
               {renderHelpMarkdownSection(sections.commonIssuesMarkdown, entry, sourceDocPath)}
-            </CollapsibleSection>
+            </HelpStaticSection>
 
-            <CollapsibleSection
+            <HelpStaticSection
               title={collapsibleSections.accountRecovery.title}
-              sectionTestId={collapsibleSections.accountRecovery.testId}
-              defaultOpen={false}
+              testId={collapsibleSections.accountRecovery.testId}
             >
               {renderHelpMarkdownSection(sections.accountRecoveryMarkdown, entry, sourceDocPath)}
-            </CollapsibleSection>
+            </HelpStaticSection>
 
-            <CollapsibleSection
+            <HelpStaticSection
               title={collapsibleSections.acceptingInvitation.title}
-              sectionTestId={collapsibleSections.acceptingInvitation.testId}
-              defaultOpen={false}
+              testId={collapsibleSections.acceptingInvitation.testId}
             >
               {renderHelpMarkdownSection(sections.acceptingInvitationMarkdown, entry, sourceDocPath)}
-            </CollapsibleSection>
+            </HelpStaticSection>
 
-            <CollapsibleSection
+            <HelpStaticSection
               title={collapsibleSections.enterpriseSso.title}
-              sectionTestId={collapsibleSections.enterpriseSso.testId}
-              defaultOpen={false}
+              testId={collapsibleSections.enterpriseSso.testId}
             >
               {renderHelpMarkdownSection(sections.enterpriseSsoMarkdown, entry, sourceDocPath)}
-            </CollapsibleSection>
+            </HelpStaticSection>
 
             {renderHelpMarkdownSection(sections.securityPrivacyMarkdown, entry, sourceDocPath)}
             <HelpAuthenticationSignInRelatedTopics />

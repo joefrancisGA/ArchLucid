@@ -8,16 +8,20 @@ import { provenanceViewPanelProps } from "@/components/provenance/ProvenanceView
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PROVENANCE_SECTION_GRAPH_LABEL } from "@/lib/provenance-evidence-copy";
 import type { ProvenanceNodeFilterCategory } from "@/lib/provenance-node-presentation";
-import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
+import type {
+  ArchitectureLinkageEdges,
+  ArchitectureLinkageNodes,
+  NormalizedArchitectureRunProvenanceGraph,
+} from "@/types/architecture-provenance";
 
 import { ProvenancePageWorkspaceNodeAside } from "./ProvenancePageWorkspaceNodeAside";
 
-type ProvenanceGraphNode = ArchitectureRunProvenanceGraph["nodes"][number];
-type ProvenanceGraphEdge = ArchitectureRunProvenanceGraph["edges"][number];
+type ProvenanceGraphNode = ArchitectureLinkageNodes[number];
+type ProvenanceGraphEdge = ArchitectureLinkageEdges[number];
 
 export type ProvenancePageWorkspaceGraphSectionProps = {
   readonly runId: string;
-  readonly graph: ArchitectureRunProvenanceGraph;
+  readonly graph: NormalizedArchitectureRunProvenanceGraph;
   readonly layoutSeed: number;
   readonly selectedNodeId: string | null;
   readonly highlightedEdgeId: string | null;

@@ -35,6 +35,12 @@ public sealed class ArchitecturesPhysicalTableMigrationSqlIntegrationTests
             AssertColumnExists(connection, "dbo.Reviews", "ArchitectureId");
             AssertColumnExists(connection, "dbo.Reviews", "ImproveLoopEvidenceJson");
             AssertColumnExists(connection, "dbo.Reviews", "KnowledgeModelId");
+            AssertColumnExists(connection, "dbo.Reviews", "PinnedPolicyPackIdsJson");
+            AssertColumnExists(connection, "dbo.Reviews", "PinnedPolicyPackIdsHashSha256");
+            AssertColumnExists(connection, "dbo.Reviews", "PinnedEvidencePackagePinsJson");
+            AssertColumnExists(connection, "dbo.Reviews", "PinnedEvidencePackagePinsHashSha256");
+            AssertColumnExists(connection, "dbo.Reviews", "PinnedFocusedPilotModeEnabled");
+            AssertColumnExists(connection, "dbo.Reviews", "PinnedFocusedPilotCloudProvider");
             AssertIndexExists(connection, "dbo.Reviews", "IX_Runs_ArchitectureId");
             AssertColumnExists(connection, "dbo.ArchitectureReviewRecurrenceSchedules", "ArchitectureId");
         }

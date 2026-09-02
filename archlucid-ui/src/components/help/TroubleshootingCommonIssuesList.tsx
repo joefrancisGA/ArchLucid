@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { StatusTag } from "@/components/StatusTag";
@@ -28,27 +27,18 @@ function TroubleshootingIssueCard(props: { readonly issue: TroubleshootingIssue 
   const kindStatus = resolveTroubleshootingIssueKindStatus(issue.kind);
 
   return (
-    <details
+    <div
       id={issue.id}
       className={cn(
-        "group rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm open:shadow-md dark:border-neutral-800 dark:bg-neutral-950",
+        "rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950",
         OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
       )}
       data-testid={`troubleshooting-issue-${issue.id}`}
     >
-      <summary
-        className={cn(
-          "flex cursor-pointer list-none flex-wrap items-center gap-2 rounded-md px-1 py-1 marker:content-none hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:hover:bg-neutral-900 [&::-webkit-details-marker]:hidden",
-          OPERATOR_TYPOGRAPHY.cardTitle,
-        )}
-      >
-        <ChevronDown
-          className="h-4 w-4 shrink-0 text-neutral-500 transition-transform group-open:rotate-180 dark:text-neutral-400"
-          aria-hidden
-        />
-        <span className="font-medium text-al-text-primary">{issue.title}</span>
+      <div className="flex flex-wrap items-center gap-2">
+        <h4 className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{issue.title}</h4>
         <StatusTag kind={kindStatus.kind} label={kindStatus.label} />
-      </summary>
+      </div>
       <dl className={cn("m-0 mt-3 space-y-3", OPERATOR_TYPOGRAPHY.body)}>
         <div>
           <dt className="font-medium text-al-text-primary">What you see</dt>
@@ -74,7 +64,7 @@ function TroubleshootingIssueCard(props: { readonly issue: TroubleshootingIssue 
           </Button>
         ))}
       </div>
-    </details>
+    </div>
   );
 }
 

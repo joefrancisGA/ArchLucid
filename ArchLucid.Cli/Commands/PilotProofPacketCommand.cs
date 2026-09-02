@@ -11,59 +11,11 @@ internal static class PilotProofPacketCommand
 {
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
-        if (args is null)
-            throw new ArgumentNullException(nameof(args));
+        PilotProofPacketCommandOptions? options = PilotProofPacketCommandArgParser.Parse(args, out string? parseError);
 
-        string? runId = null;
-        string? outputDirectory = null;
-        bool skipClaimLint = false;
-
-        for (int i = 0; i < args.Length; i++)
+        if (options is null)
         {
-            string token = args[i];
-
-            if (string.Equals(token, "--skip-claim-lint", StringComparison.OrdinalIgnoreCase))
-            {
-                skipClaimLint = true;
-
-                continue;
-            }
-
-            if (string.Equals(token, "--out", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(token, "-o", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length)
-                {
-                    await Console.Error.WriteLineAsync("Missing value for --out.");
-
-                    return CliExitCode.UsageError;
-                }
-
-                outputDirectory = args[++i];
-
-                continue;
-            }
-
-            if (token.StartsWith('-'))
-            {
-                await Console.Error.WriteLineAsync($"Unexpected flag: {token}");
-
-                return CliExitCode.UsageError;
-            }
-
-            if (runId is not null)
-            {
-                await Console.Error.WriteLineAsync("Only one run id is supported.");
-
-                return CliExitCode.UsageError;
-            }
-
-            runId = token;
-        }
-
-        if (string.IsNullOrWhiteSpace(runId))
-        {
-            await Console.Error.WriteLineAsync("Usage: archlucid pilot proof-packet <runId> [--out <dir>]");
+            await Console.Error.WriteLineAsync(parseError);
 
             return CliExitCode.UsageError;
         }
@@ -76,17 +28,17 @@ internal static class PilotProofPacketCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        string resolvedOutputDirectory = outputDirectory
-                                         ?? Path.Combine(Directory.GetCurrentDirectory(), "proof-packet", runId);
+        string resolvedOutputDirectory = options.OutputDirectory
+                                         ?? Path.Combine(Directory.GetCurrentDirectory(), "proof-packet", options.RunId);
 
         PilotProofPacketWriteOutcome writeOutcome = await WriteFolderAsync(
-            runId,
+            options.RunId,
             normalized,
             resolvedOutputDirectory,
             config,
             Console.Error,
             cancellationToken,
-            skipClaimLint);
+            options.SkipClaimLint);
 
         if (writeOutcome.ExitCode == CliExitCode.Success)
             await Console.Out.WriteLineAsync($"Wrote buyer proof packet folder: {writeOutcome.OutputDirectory}");

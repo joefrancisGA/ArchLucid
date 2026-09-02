@@ -2,6 +2,7 @@ import {
   isBuyerPolishedOperatorShellEnv,
   isNextPublicDemoMode,
 } from "@/lib/demo-ui-env";
+import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isOperatorDemoStaticMode } from "@/lib/operator/operator-static-demo";
 
 /**
@@ -29,6 +30,26 @@ export function shouldShowOperatorDemoMarketingChrome(
   }
 
   return isExplicitStaticDemoMarketingBuild();
+}
+
+/**
+ * Standalone sample-data badge in run-detail marketing chrome — suppressed when the curated
+ * showcase review banner already renders the chip.
+ */
+export function shouldShowRunDetailStandaloneSampleBadge(
+  usedStaticDemoRun: boolean,
+  showDemoMarketingChrome: boolean,
+  runId: string,
+): boolean {
+  if (!usedStaticDemoRun || showDemoMarketingChrome) {
+    return false;
+  }
+
+  if (isShowcaseStaticDemoRunId(runId)) {
+    return false;
+  }
+
+  return true;
 }
 
 /**

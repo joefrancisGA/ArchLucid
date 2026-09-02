@@ -31,7 +31,7 @@ export function AlertSimulationSummaryBlock({
         </ul>
       ) : null}
       <h4 className="mb-2 mt-4">Outcomes</h4>
-      <AlertSimulationOutcomeTable outcomes={result.outcomes} />
+      <AlertSimulationOutcomeTable outcomes={result.outcomes ?? []} />
     </div>
   );
 }
