@@ -41,7 +41,6 @@ import {
   resolveRunsDashboardStatusTabIds,
   runsDashboardHomeHrefFromSearch,
   RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID,
-  runsDashboardHomeHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 import { fetchPagedReviewsInventory, restoreArchitectureRequest } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
