@@ -1776,11 +1776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 47
-- **bugs-found:** 113
+- **hunts:** 48
+- **bugs-found:** 116
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — finding enum boolean coercion; golden-corpus string whole-number agentType parameter
+- **last-bug:** 2026-09-02 — finding string whole-number scalar and properties-bag coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1904,6 +1904,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` enum readers — boolean / string-encoded boolean `severity` rejected — **hit 2026-09-02 (#459):** `"severity":true` and `"severity":"true"` threw while sibling numeric/score readers already coerced booleans to ordinals; fixed with `TryReadBooleanOrdinal` / `TryParseBooleanOrdinalString` (`Deserialize_boolean_severity_maps_warning`, `Deserialize_string_encoded_boolean_severity_maps_warning`).
 - [x] (proven) `FindingJsonConverter.ReadHumanReviewStatus` — boolean / string-encoded boolean review status rejected — **hit 2026-09-02 (#459):** `"humanReviewStatus":true` and `"humanReviewStatus":"true"` threw on snapshot reload; fixed with shared boolean ordinal coercion (`Deserialize_boolean_humanReviewStatus_maps_pending`, `Deserialize_string_encoded_boolean_humanReviewStatus_maps_pending`).
 - [x] (proven) `RealLlmOutputStructuralValidator.TryResolveAgentType` — string-encoded whole-number parameter rejected — **hit 2026-09-02 (#459):** `ValidateAgentResultStructure("1.0", …)` failed while JSON `"agentType":"1.0"` already accepted in #457; fixed with `TryParseWholeNumberString` (`ValidateAgentResultStructure_accepts_string_encoded_whole_number_double_agentType_parameter`).
+- [x] (proven) `FindingJsonConverter.ReadOptionalString` — string-encoded whole-number `runIdRef` not normalized — **hit 2026-09-02 (#460):** `"runIdRef":"42.0"` stayed decimal while numeric `42.0` normalized to `"42"` in #448; fixed with `TryParseWholeNumberLongString` (`Deserialize_string_encoded_whole_number_double_runIdRef_coerces_to_string`).
+- [x] (proven) `FindingJsonConverter.ReadStringDictValue` — string-encoded whole-number `relatedNodeIds` / `properties` entries not normalized — **hit 2026-09-02 (#460):** `"relatedNodeIds":["42.0"]` and `"properties":{"resourceId":"42.0"}` kept decimal strings while numeric whole-number doubles normalized in #447; fixed with shared long whole-number string coercion (`Deserialize_relatedNodeIds_string_encoded_whole_number_double_entries_coerce_to_strings`, `Deserialize_properties_string_encoded_whole_number_double_values_coerce_to_strings`).
+
+2026-09-02 seed hunt #460: reseeded from ArchLucid.Core; proved finding string whole-number scalar and properties-bag coercion gaps.
 
 2026-09-02 seed hunt #459: reseeded from ArchLucid.Core; proved finding enum boolean coercion gaps and golden-corpus string whole-number agentType parameter parity.
 

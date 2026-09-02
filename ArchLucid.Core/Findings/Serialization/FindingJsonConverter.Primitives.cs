@@ -37,7 +37,15 @@ public sealed partial class FindingJsonConverter
             return null;
 
         if (el.ValueKind == JsonValueKind.String)
-            return el.GetString();
+        {
+            string? raw = el.GetString();
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryParseWholeNumberLongString(raw, out long numericFromString))
+                return numericFromString.ToString(CultureInfo.InvariantCulture);
+
+            return raw;
+        }
 
         if (el.ValueKind == JsonValueKind.Number && el.TryGetInt64(out long numeric))
             return numeric.ToString(CultureInfo.InvariantCulture);
@@ -115,7 +123,15 @@ public sealed partial class FindingJsonConverter
     private static string ReadStringDictValue(JsonElement element)
     {
         if (element.ValueKind == JsonValueKind.String)
-            return element.GetString() ?? "";
+        {
+            string? raw = element.GetString() ?? "";
+
+            if (!string.IsNullOrWhiteSpace(raw)
+                && TryParseWholeNumberLongString(raw, out long numericFromString))
+                return numericFromString.ToString(CultureInfo.InvariantCulture);
+
+            return raw;
+        }
 
         if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numeric))
             return numeric.ToString(CultureInfo.InvariantCulture);
@@ -259,6 +275,37 @@ public sealed partial class FindingJsonConverter
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberLongString(string? raw, out long value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (long.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (long)numeric;
 
             return true;
         }
