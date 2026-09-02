@@ -166,7 +166,9 @@ public sealed class RunsControllerTests
             SuggestionText = OverLimitIntakeText.Value,
         };
 
-        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, CancellationToken.None);
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, intakeFacade.Object, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);

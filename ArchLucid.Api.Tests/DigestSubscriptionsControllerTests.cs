@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Advisory;
+using ArchLucid.Application.Advisory;
 using ArchLucid.Contracts.Advisory.Delivery;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Persistence.Ports;
@@ -124,21 +125,22 @@ public sealed class DigestSubscriptionsControllerTests
     private static DigestSubscriptionsController CreateController(
         IDigestSubscriptionRepository subscriptions)
     {
-        ScopeContext scope = new()
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
         {
             TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-        };
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(scope);
+        });
 
-        return new DigestSubscriptionsController(
+        IDigestSubscriptionFacade facade = new DigestSubscriptionFacade(
             scopeProvider.Object,
             subscriptions,
             Mock.Of<IDigestDeliveryAttemptRepository>(),
             Mock.Of<IArchitectureDigestRepository>(),
-            Mock.Of<IAuditService>())
+            Mock.Of<IAuditService>());
+
+        return new DigestSubscriptionsController(facade)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

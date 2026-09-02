@@ -33,80 +33,32 @@ public sealed class PolicyPacksControllerListScopeTests
     [Fact]
     public async Task List_returns_not_found_when_workspace_missing()
     {
-        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.ListVisiblePacksAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PolicyPackHttpResult<IReadOnlyList<PolicyPack>>.ScopeNotFound());
 
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
-
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
-        {
-            TenantId = Scope.TenantId,
-            WorkspaceId = foreignWorkspaceId,
-            ProjectId = Scope.ProjectId,
-        });
-
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
-        tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
-
-        PolicyPacksController sut = new(
-            workflow.Object,
-            new CreatePolicyPackRequestValidator(),
-            new PublishPolicyPackVersionRequestValidator(),
-            new AssignPolicyPackRequestValidator(),
-            scopeProvider.Object,
-            tenants.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
 
         IActionResult result = await sut.List(CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyAll();
     }
 
     [Fact]
     public async Task List_returns_not_found_when_tenant_missing()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksControllerTestSupport.SetupScopeNotFoundDefaults(httpFacade);
 
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
-
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((TenantRecord?)null);
-
-        PolicyPacksController sut = new(
-            workflow.Object,
-            new CreatePolicyPackRequestValidator(),
-            new PublishPolicyPackVersionRequestValidator(),
-            new AssignPolicyPackRequestValidator(),
-            scopeProvider.Object,
-            tenants.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
 
         IActionResult result = await sut.List(CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        workflow.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -118,39 +70,12 @@ public sealed class PolicyPacksControllerListScopeTests
             Name = "baseline",
         };
 
-        Mock<IPolicyPackWorkflowFacade> workflow = new();
-        workflow
+        Mock<IPolicyPackHttpFacade> httpFacade = new();
+        httpFacade
             .Setup(f => f.ListVisiblePacksAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<PolicyPack> { pack });
+            .ReturnsAsync(PolicyPackHttpResult<IReadOnlyList<PolicyPack>>.Success(new List<PolicyPack> { pack }));
 
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
-
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
-        tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
-
-        PolicyPacksController sut = new(
-            workflow.Object,
-            new CreatePolicyPackRequestValidator(),
-            new PublishPolicyPackVersionRequestValidator(),
-            new AssignPolicyPackRequestValidator(),
-            scopeProvider.Object,
-            tenants.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
 
         IActionResult result = await sut.List(CancellationToken.None);
 
@@ -162,7 +87,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task GetPageBundle_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.GetPageBundle(CancellationToken.None);
@@ -175,7 +100,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task GetEffective_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.GetEffective(CancellationToken.None);
@@ -188,7 +113,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task ListCatalog_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.ListCatalog(CancellationToken.None);
@@ -201,7 +126,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task GetCatalogEntry_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.GetCatalogEntry(
@@ -215,21 +140,21 @@ public sealed class PolicyPacksControllerListScopeTests
     [Fact]
     public async Task GetCatalogEntry_returns_bad_request_when_route_id_empty()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
-        PolicyPacksController sut = CreateSut(workflow, tenantExists: true);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
 
         IActionResult result = await sut.GetCatalogEntry(Guid.Empty, CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task ListWorkspaceSelection_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.ListWorkspaceSelection(CancellationToken.None);
@@ -242,7 +167,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task ExplainPack_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.ExplainPack(
@@ -257,7 +182,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task Create_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.Create(
@@ -278,7 +203,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task Simulate_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.Simulate(
@@ -297,7 +222,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task SimulateBulk_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -315,7 +240,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task Validate_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         JsonElement body = JsonDocument.Parse("""{"name":"baseline"}""").RootElement;
@@ -330,7 +255,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task Publish_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.Publish(
@@ -350,7 +275,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task Assign_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.Assign(
@@ -371,7 +296,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task ArchiveAssignment_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.ArchiveAssignment(
@@ -386,7 +311,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task DeletePack_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.DeletePack(
@@ -401,7 +326,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task DuplicatePack_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.DuplicatePack(
@@ -416,7 +341,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task SetAssignmentEnabled_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.SetAssignmentEnabled(
@@ -432,7 +357,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task PromoteCatalogEntry_returns_bad_request_when_source_policy_pack_id_is_empty()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: true);
 
         IActionResult result = await sut.PromoteCatalogEntry(
@@ -451,7 +376,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task PromoteCatalogEntry_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.PromoteCatalogEntry(
@@ -470,7 +395,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task DemoteCatalogEntry_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.DemoteCatalogEntry(
@@ -488,7 +413,7 @@ public sealed class PolicyPacksControllerListScopeTests
     public async Task ListVersions_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.ListVersions(
@@ -502,21 +427,21 @@ public sealed class PolicyPacksControllerListScopeTests
     [Fact]
     public async Task ListVersions_returns_bad_request_when_route_id_empty()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
-        PolicyPacksController sut = CreateSut(workflow, tenantExists: true);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
 
         IActionResult result = await sut.ListVersions(Guid.Empty, CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task GetVersion_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
-            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
             tenantExists: false);
 
         IActionResult result = await sut.GetVersion(
@@ -531,67 +456,36 @@ public sealed class PolicyPacksControllerListScopeTests
     [Fact]
     public async Task GetVersion_returns_bad_request_when_route_id_empty()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
-        PolicyPacksController sut = CreateSut(workflow, tenantExists: true);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
 
         IActionResult result = await sut.GetVersion(Guid.Empty, "1.0.0", CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task ExplainPack_returns_bad_request_when_route_id_empty()
     {
-        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
-        PolicyPacksController sut = CreateSut(workflow, tenantExists: true);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
 
         IActionResult result = await sut.ExplainPack(Guid.Empty, CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        workflow.VerifyNoOtherCalls();
+        httpFacade.VerifyNoOtherCalls();
     }
 
     private static PolicyPacksController CreateSut(
-        Mock<IPolicyPackWorkflowFacade> workflow,
+        Mock<IPolicyPackHttpFacade> httpFacade,
         bool tenantExists)
     {
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+        if (!tenantExists)
+            PolicyPacksControllerTestSupport.SetupScopeNotFoundDefaults(httpFacade);
 
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                tenantExists
-                    ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" }
-                    : null);
-
-        if (tenantExists)
-        {
-            tenants
-                .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(
-                [
-                    new TenantWorkspaceListItem
-                    {
-                        WorkspaceId = Scope.WorkspaceId,
-                        Name = "primary",
-                    },
-                ]);
-        }
-
-        return new PolicyPacksController(
-            workflow.Object,
-            new CreatePolicyPackRequestValidator(),
-            new PublishPolicyPackVersionRequestValidator(),
-            new AssignPolicyPackRequestValidator(),
-            scopeProvider.Object,
-            tenants.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        return PolicyPacksControllerTestSupport.CreateController(httpFacade);
     }
 }
