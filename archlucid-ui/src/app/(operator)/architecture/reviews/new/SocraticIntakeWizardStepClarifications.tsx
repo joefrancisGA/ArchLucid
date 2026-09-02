@@ -116,7 +116,7 @@ export function SocraticIntakeWizardStepClarifications(
   return (
     <div data-testid="socratic-clarifications-step">
       <Card data-testid="guided-intake-primary-panel">
-        <CardHeader className="pb-2">
+        <CardHeader className="space-y-0 pb-2">
           <CardTitle as="h2" className="sr-only">
             {INTAKE_STEPS[1].cardTitle}
           </CardTitle>
