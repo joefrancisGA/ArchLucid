@@ -1,17 +1,18 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 
-namespace ArchLucid.Application;
+namespace ArchLucid.Application.Replay;
 
-public sealed partial class ReplayRunService
+/// <inheritdoc cref="IReplayRunCloneStage" />
+public sealed class ReplayRunCloneStage : IReplayRunCloneStage
 {
-    /// <summary>
-    ///     Creates a deep copy of <paramref name = "original"/> bound to <paramref name = "replayRunId"/>.
-    ///     A clone is required so the replay run's evidence is isolated from the original run's mutable
-    ///     collections — shared references would corrupt both runs if either were mutated.
-    /// </summary>
-    private static AgentEvidencePackage CloneEvidenceForReplay(AgentEvidencePackage original, string replayRunId)
+    /// <inheritdoc />
+    public AgentEvidencePackage CloneEvidenceForReplay(AgentEvidencePackage original, string replayRunId)
     {
+        ArgumentNullException.ThrowIfNull(original);
+        ArgumentException.ThrowIfNullOrWhiteSpace(replayRunId);
+
         return new AgentEvidencePackage
         {
             EvidencePackageId = Guid.NewGuid().ToString("N"),
@@ -71,11 +72,29 @@ public sealed partial class ReplayRunService
         };
     }
 
-    /// <summary>
-    ///     Derives a replay manifest version by appending <c>-replay</c> to the current version,
-    ///     or returns <c>v1-replay</c> when no current version exists.
-    /// </summary>
-    private static string BuildReplayManifestVersion(string? currentManifestVersion)
+    /// <inheritdoc />
+    public List<AgentTask> CloneTasksForReplay(IReadOnlyList<AgentTask> tasks, string replayRunId)
+    {
+        ArgumentNullException.ThrowIfNull(tasks);
+        ArgumentException.ThrowIfNullOrWhiteSpace(replayRunId);
+
+        return tasks.Select(t => new AgentTask
+        {
+            TaskId = Guid.NewGuid().ToString("N"),
+            RunId = replayRunId,
+            AgentType = t.AgentType,
+            Objective = t.Objective,
+            Status = AgentTaskStatus.Created,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            CompletedUtc = null,
+            EvidenceBundleRef = t.EvidenceBundleRef,
+            AllowedTools = t.AllowedTools.ToList(),
+            AllowedSources = t.AllowedSources.ToList()
+        }).ToList();
+    }
+
+    /// <inheritdoc />
+    public string BuildReplayManifestVersion(string? currentManifestVersion)
     {
         return string.IsNullOrWhiteSpace(currentManifestVersion) ? "v1-replay" : $"{currentManifestVersion}-replay";
     }

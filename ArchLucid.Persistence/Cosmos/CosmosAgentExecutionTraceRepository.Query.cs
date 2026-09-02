@@ -98,43 +98,14 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
-        int clampedOffset = AgentExecutionTraceQueryPatchCore.ClampPageOffset(offset);
-        int clampedLimit = AgentExecutionTraceQueryPatchCore.ClampPageLimit(limit);
+        int total = await ReadRunIdCountAsync(container, runId, cancellationToken);
 
-        QueryDefinition countQuery = new QueryDefinition("SELECT VALUE COUNT(1) FROM c WHERE c.runId = @runId")
-            .WithParameter("@runId", runId);
-
-        int total = 0;
-        using FeedIterator<int> countIt = container.GetItemQueryIterator<int>(
-            countQuery,
-            requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
-
-        if (countIt.HasMoreResults)
-        {
-            FeedResponse<int> countPage = await countIt.ReadNextAsync(cancellationToken);
-            total = countPage.Resource.FirstOrDefault();
-        }
-
-        // Project denormalized summary scalars only — do not SELECT TraceJson on the list path.
-        QueryDefinition pageQuery = new QueryDefinition(
-                """
-                SELECT c.id, c.runId, c.taskId, c.createdUtc, c.agentType, c.parseSucceeded,
-                       c.inputTokenCount, c.outputTokenCount, c.estimatedCostUsd,
-                       c.modelDeploymentName, c.modelAlias, c.qualityWarning, c.qualityRejected,
-                       c.blobUploadFailed
-                FROM c
-                WHERE c.runId = @runId
-                ORDER BY c.createdUtc
-                OFFSET @off LIMIT @lim
-                """)
-            .WithParameter("@runId", runId)
-            .WithParameter("@off", clampedOffset)
-            .WithParameter("@lim", clampedLimit);
+        QueryDefinition pageQuery = CosmosAgentTraceQueryCore.RunIdSummaryPageQuery(runId, offset, limit);
 
         using FeedIterator<AgentTraceSummaryProjection> iterator =
             container.GetItemQueryIterator<AgentTraceSummaryProjection>(
                 pageQuery,
-                requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
+                requestOptions: CosmosAgentTraceQueryCore.PartitionedByRunId(runId));
 
         List<AgentExecutionTraceSummary> summaries = [];
 
@@ -159,19 +130,7 @@ public sealed partial class CosmosAgentExecutionTraceRepository
 
         Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
 
-        QueryDefinition countQuery = new QueryDefinition("SELECT VALUE COUNT(1) FROM c WHERE c.runId = @runId")
-            .WithParameter("@runId", runId);
-
-        using FeedIterator<int> countIt = container.GetItemQueryIterator<int>(
-            countQuery,
-            requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
-
-        if (!countIt.HasMoreResults)
-            return 0;
-
-        FeedResponse<int> countPage = await countIt.ReadNextAsync(cancellationToken);
-
-        return countPage.Resource.FirstOrDefault();
+        return await ReadRunIdCountAsync(container, runId, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -182,8 +141,7 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
 
         Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
-        QueryDefinition query = new QueryDefinition("SELECT * FROM c WHERE c.taskId = @taskId ORDER BY c.createdUtc")
-            .WithParameter("@taskId", taskId);
+        QueryDefinition query = CosmosAgentTraceQueryCore.TaskIdQuery(taskId);
 
         using FeedIterator<AgentTraceDocument> iterator = container.GetItemQueryIterator<AgentTraceDocument>(query);
         List<AgentExecutionTrace> list = [];
@@ -253,18 +211,12 @@ public sealed partial class CosmosAgentExecutionTraceRepository
 
         Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
 
-        QueryDefinition query = new QueryDefinition(
-                """
-                SELECT c.agentType, c.modelDeploymentName
-                FROM c
-                WHERE c.runId = @runId
-                """)
-            .WithParameter("@runId", runId);
+        QueryDefinition query = CosmosAgentTraceQueryCore.RunIdAgentTypeDeploymentQuery(runId);
 
         using FeedIterator<AgentTypeDeploymentProjection> iterator =
             container.GetItemQueryIterator<AgentTypeDeploymentProjection>(
                 query,
-                requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
+                requestOptions: CosmosAgentTraceQueryCore.PartitionedByRunId(runId));
 
         List<AgentTypeDeploymentProjection> rows = [];
 
@@ -300,37 +252,13 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         CancellationToken ct)
     {
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
-        int clampedOffset = AgentExecutionTraceQueryPatchCore.ClampPageOffset(offset);
-        int clampedLimit = AgentExecutionTraceQueryPatchCore.ClampPageLimit(limit);
+        int total = await ReadRunIdCountAsync(container, runId, ct);
 
-        QueryDefinition countQuery = new QueryDefinition("SELECT VALUE COUNT(1) FROM c WHERE c.runId = @runId")
-            .WithParameter("@runId", runId);
-
-        int total = 0;
-        using FeedIterator<int> countIt = container.GetItemQueryIterator<int>(
-            countQuery,
-            requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
-
-        if (countIt.HasMoreResults)
-        {
-            FeedResponse<int> countPage = await countIt.ReadNextAsync(ct);
-            total = countPage.Resource.FirstOrDefault();
-        }
-
-        QueryDefinition pageQuery = new QueryDefinition(
-                """
-                SELECT * FROM c
-                WHERE c.runId = @runId
-                ORDER BY c.createdUtc
-                OFFSET @off LIMIT @lim
-                """)
-            .WithParameter("@runId", runId)
-            .WithParameter("@off", clampedOffset)
-            .WithParameter("@lim", clampedLimit);
+        QueryDefinition pageQuery = CosmosAgentTraceQueryCore.RunIdFullDocumentPageQuery(runId, offset, limit);
 
         using FeedIterator<AgentTraceDocument> iterator = container.GetItemQueryIterator<AgentTraceDocument>(
             pageQuery,
-            requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
+            requestOptions: CosmosAgentTraceQueryCore.PartitionedByRunId(runId));
 
         List<AgentExecutionTrace> traces = [];
 
@@ -352,18 +280,12 @@ public sealed partial class CosmosAgentExecutionTraceRepository
 
         Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
 
-        QueryDefinition query = new QueryDefinition(
-                """
-                SELECT c.inputTokenCount, c.outputTokenCount, c.modelDeploymentName
-                FROM c
-                WHERE c.runId = @runId
-                """)
-            .WithParameter("@runId", runId);
+        QueryDefinition query = CosmosAgentTraceQueryCore.RunIdLlmCostSliceQuery(runId);
 
         using FeedIterator<AgentTraceLlmCostProjection> iterator =
             container.GetItemQueryIterator<AgentTraceLlmCostProjection>(
                 query,
-                requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
+                requestOptions: CosmosAgentTraceQueryCore.PartitionedByRunId(runId));
 
         List<AgentExecutionTraceLlmCostSlice> slices = [];
 
@@ -373,14 +295,7 @@ public sealed partial class CosmosAgentExecutionTraceRepository
 
             foreach (AgentTraceLlmCostProjection row in page.Resource)
             {
-                slices.Add(
-                    new AgentExecutionTraceLlmCostSlice
-                    {
-                        ModelDeploymentName = row.ModelDeploymentName,
-                        InputTokenCount = row.InputTokenCount,
-                        OutputTokenCount = row.OutputTokenCount,
-                        ReasoningTokenCount = null,
-                    });
+                slices.Add(CosmosAgentTraceQueryCore.MapLlmCostProjection(row));
             }
         }
 
@@ -390,7 +305,7 @@ public sealed partial class CosmosAgentExecutionTraceRepository
     private async Task<AgentTraceDocument?> FindDocumentByTraceIdAsync(string traceId, CancellationToken ct)
     {
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
-        QueryDefinition query = new QueryDefinition("SELECT * FROM c WHERE c.id = @id").WithParameter("@id", traceId);
+        QueryDefinition query = CosmosAgentTraceQueryCore.TraceIdQuery(traceId);
 
         using FeedIterator<AgentTraceDocument> iterator = container.GetItemQueryIterator<AgentTraceDocument>(query);
 
@@ -404,5 +319,24 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         }
 
         return null;
+    }
+
+    private static async Task<int> ReadRunIdCountAsync(
+        Container container,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        QueryDefinition countQuery = CosmosAgentTraceQueryCore.RunIdCountQuery(runId);
+
+        using FeedIterator<int> countIt = container.GetItemQueryIterator<int>(
+            countQuery,
+            requestOptions: CosmosAgentTraceQueryCore.PartitionedByRunId(runId));
+
+        if (!countIt.HasMoreResults)
+            return 0;
+
+        FeedResponse<int> countPage = await countIt.ReadNextAsync(cancellationToken);
+
+        return countPage.Resource.FirstOrDefault();
     }
 }

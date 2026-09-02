@@ -1,44 +1,29 @@
-using ArchLucid.Application.Diffs;
-using ArchLucid.Application.Findings;
-using ArchLucid.Contracts.Agents;
-using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Analysis.ReplayComparison;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Findings;
-using ArchLucid.Contracts.Runs;
-using ArchLucid.Core.AgentEvaluation;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Contracts.Runs;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-///     Builds a full <see cref = "EndToEndReplayComparisonReport"/> by loading both runs through
-///     <see cref = "IRunDetailQueryService"/>, diffing agent results, manifests, and export records
-///     side-by-side, and appending human-readable interpretation notes.
+///     Thin coordinator that loads run inputs and delegates report assembly to diff slices.
 /// </summary>
-/// <remarks>
-///     Warnings are added to <see cref = "EndToEndReplayComparisonReport.Warnings"/> rather than
-///     thrown when optional data (manifests, exports) is missing for one or both runs.
-///     Throws <see cref = "RunNotFoundException"/> when either run cannot be resolved.
-/// </remarks>
-public sealed partial class EndToEndReplayComparisonService(
+public sealed class EndToEndReplayComparisonService(
     IRunDetailQueryService runDetailQueryService,
     IRunRepository runRepository,
     IRunExportRecordRepository runExportRecordRepository,
-    IAgentResultDiffService agentResultDiffService,
-    IManifestDiffService manifestDiffService,
-    IExportRecordDiffService exportRecordDiffService,
-    ICrossReviewFindingCorrelationService crossReviewFindingCorrelationService,
-    ICrossReviewFindingLifecycleService crossReviewFindingLifecycleService,
-    IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
-    IScopeContextProvider scopeContextProvider) : IEndToEndReplayComparisonService
+    IScopeContextProvider scopeContextProvider,
+    EndToEndReplayComparisonReportComposer reportComposer) : IEndToEndReplayComparisonService
 {
-    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -46,32 +31,22 @@ public sealed partial class EndToEndReplayComparisonService(
     private readonly IRunExportRecordRepository _runExportRecordRepository =
         runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
 
-    private readonly IExportRecordDiffService _exportRecordDiffService =
-        exportRecordDiffService ?? throw new ArgumentNullException(nameof(exportRecordDiffService));
-
-    private readonly IAgentResultDiffService
-        _agentResultDiffService = agentResultDiffService ?? throw new ArgumentNullException(nameof(agentResultDiffService));
-
-    private readonly IManifestDiffService _manifestDiffService = manifestDiffService ?? throw new ArgumentNullException(nameof(manifestDiffService));
-
-    private readonly ICrossReviewFindingCorrelationService _crossReviewFindingCorrelationService =
-        crossReviewFindingCorrelationService ?? throw new ArgumentNullException(nameof(crossReviewFindingCorrelationService));
-
-    private readonly ICrossReviewFindingLifecycleService _crossReviewFindingLifecycleService =
-        crossReviewFindingLifecycleService ?? throw new ArgumentNullException(nameof(crossReviewFindingLifecycleService));
-
-    private readonly IArchitectureKnowledgeModelAccess _architectureKnowledgeModelAccess =
-        architectureKnowledgeModelAccess ?? throw new ArgumentNullException(nameof(architectureKnowledgeModelAccess));
-
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
-    public async Task<EndToEndReplayComparisonReport> BuildAsync(string leftRunId, string rightRunId, CancellationToken cancellationToken = default)
+    private readonly EndToEndReplayComparisonReportComposer _reportComposer =
+        reportComposer ?? throw new ArgumentNullException(nameof(reportComposer));
+
+    public async Task<EndToEndReplayComparisonReport> BuildAsync(
+        string leftRunId,
+        string rightRunId,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(leftRunId);
         ArgumentNullException.ThrowIfNull(rightRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(leftRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(rightRunId);
+
         Task<ArchitectureRunDetail> leftDetailTask = LoadRunDetailForRollupOrThrow(leftRunId, cancellationToken);
         Task<ArchitectureRunDetail> rightDetailTask = LoadRunDetailForRollupOrThrow(rightRunId, cancellationToken);
         await Task.WhenAll(leftDetailTask, rightDetailTask);
@@ -83,41 +58,33 @@ public sealed partial class EndToEndReplayComparisonService(
             await TryLoadEngineProvenanceAsync(leftRunId, cancellationToken).ConfigureAwait(false);
         ReviewRunEngineProvenance? rightEngineProvenance =
             await TryLoadEngineProvenanceAsync(rightRunId, cancellationToken).ConfigureAwait(false);
+
         EndToEndReplayComparisonReport report = new()
         {
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
             RunDiff = BuildRunDiff(leftRun, rightRun, leftEngineProvenance, rightEngineProvenance)
         };
-        List<AgentResult> leftResults = leftDetail.Results;
-        List<AgentResult> rightResults = rightDetail.Results;
-        if (leftResults.Count > 0 || rightResults.Count > 0)
-            report.AgentResultDiff = agentResultDiffService.Compare(leftRunId, leftResults, rightRunId, rightResults);
-        else
-            report.Warnings.Add("Neither run contained agent results.");
-        if (leftDetail.Manifest is not null && rightDetail.Manifest is not null)
-            report.ManifestDiff = manifestDiffService.Compare(leftDetail.Manifest, rightDetail.Manifest);
-        else if (!string.IsNullOrWhiteSpace(leftRun.CurrentManifestVersion) || !string.IsNullOrWhiteSpace(rightRun.CurrentManifestVersion))
-            report.Warnings.Add("One or both manifests were unavailable for manifest comparison.");
-        IReadOnlyList<RunExportRecord> leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
-        IReadOnlyList<RunExportRecord> rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
-        await AddExportDiffsAsync(report, leftExports, rightExports, cancellationToken);
 
-        AddInterpretationNotes(report, leftEngineProvenance, rightEngineProvenance);
-        List<ArchitectureFinding> leftFindings = CollectFindings(leftDetail);
-        List<ArchitectureFinding> rightFindings = CollectFindings(rightDetail);
-        CrossReviewFindingCorrelationResult correlation = _crossReviewFindingCorrelationService.Correlate(
-            leftFindings,
-            rightFindings);
-        report.FindingCorrelation = ComparisonFindingCorrelationMetadataBuilder.Build(correlation);
-        await AddFindingLifecycleAsync(report, leftRun, leftFindings, rightFindings, leftResults, rightResults, correlation, cancellationToken);
-        await AddCompareQualityDeltaAsync(
-            report,
-            leftRunId,
-            rightRunId,
-            leftFindings,
-            rightFindings,
-            cancellationToken);
+        IReadOnlyList<RunExportRecord> leftExports =
+            await _runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
+        IReadOnlyList<RunExportRecord> rightExports =
+            await _runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+
+        ReplayComparisonBuildContext context = new()
+        {
+            LeftRunId = leftRunId,
+            RightRunId = rightRunId,
+            LeftDetail = leftDetail,
+            RightDetail = rightDetail,
+            LeftEngineProvenance = leftEngineProvenance,
+            RightEngineProvenance = rightEngineProvenance,
+            LeftExports = leftExports,
+            RightExports = rightExports,
+            Report = report,
+        };
+
+        await _reportComposer.ComposeAsync(context, cancellationToken).ConfigureAwait(false);
 
         return report;
     }
@@ -137,19 +104,6 @@ public sealed partial class EndToEndReplayComparisonService(
         return ReviewRunEngineProvenanceJson.TryDeserialize(header?.EngineProvenanceJson);
     }
 
-    private async Task<ArchitectureKnowledgeModel?> TryLoadModelForRunAsync(
-        ScopeContext scope,
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        if (!TryParseRunGuid(runId, out Guid runGuid))
-            return null;
-
-        return await _architectureKnowledgeModelAccess
-            .GetForRunAsync(scope, runGuid, cancellationToken)
-            .ConfigureAwait(false);
-    }
-
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
         return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
@@ -161,5 +115,43 @@ public sealed partial class EndToEndReplayComparisonService(
             await _runDetailQueryService.GetRunDetailForRollupAsync(runId, cancellationToken);
 
         return detail ?? throw new RunNotFoundException(runId);
+    }
+
+    private static RunMetadataDiffResult BuildRunDiff(
+        ArchitectureRun leftRun,
+        ArchitectureRun rightRun,
+        ReviewRunEngineProvenance? leftEngineProvenance,
+        ReviewRunEngineProvenance? rightEngineProvenance)
+    {
+        RunMetadataDiffResult result = new();
+        AddIfChanged(result.ChangedFields, "RequestId", leftRun.RequestId, rightRun.RequestId);
+        AddIfChanged(result.ChangedFields, "Status", leftRun.Status, rightRun.Status);
+        AddIfChanged(result.ChangedFields, "CurrentManifestVersion", leftRun.CurrentManifestVersion, rightRun.CurrentManifestVersion);
+        AddIfChanged(result.ChangedFields, "CompletedUtc", leftRun.CompletedUtc, rightRun.CompletedUtc);
+        AddIfChanged(result.ChangedFields, "StructuralExecutionMode", leftRun.StructuralExecutionMode, rightRun.StructuralExecutionMode);
+        AddIfChanged(
+            result.ChangedFields,
+            "ModelAliasId",
+            leftEngineProvenance?.ModelAliasId,
+            rightEngineProvenance?.ModelAliasId);
+        result.RequestIdsDiffer = !string.Equals(leftRun.RequestId, rightRun.RequestId, StringComparison.OrdinalIgnoreCase);
+        result.ManifestVersionsDiffer = !string.Equals(leftRun.CurrentManifestVersion, rightRun.CurrentManifestVersion, StringComparison.OrdinalIgnoreCase);
+        result.StatusDiffers = !Equals(leftRun.Status, rightRun.Status);
+        result.CompletionStateDiffers = !EqualityComparer<DateTime?>.Default.Equals(leftRun.CompletedUtc, rightRun.CompletedUtc);
+        result.ExecutionModesDiffer = leftRun.StructuralExecutionMode != rightRun.StructuralExecutionMode;
+        result.ModelAliasIdsDiffer = !string.Equals(
+            leftEngineProvenance?.ModelAliasId,
+            rightEngineProvenance?.ModelAliasId,
+            StringComparison.OrdinalIgnoreCase);
+        result.SharedNonRealExecutionMode =
+            !result.ExecutionModesDiffer
+            && leftRun.StructuralExecutionMode != StructuralExecutionMode.Real;
+        return result;
+    }
+
+    private static void AddIfChanged<T>(List<string> target, string fieldName, T left, T right)
+    {
+        if (!EqualityComparer<T>.Default.Equals(left, right))
+            target.Add(fieldName);
     }
 }
