@@ -1516,13 +1516,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 7
-- **bugs-found:** 10
+- **hunts:** 8
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — export record pairing by template profile
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — GCP Cloud Asset full URI reconciliation; HTML sponsor interpretation-notes fallback; manifest warnings materiality
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1537,6 +1537,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `EndToEndReplayComparisonService.BuildAsync` paired export diffs by `ExportType` only — **hit 2026-09-02:** sponsor vs internal consulting DOCX exports with the same type mispaired when creation order differed; fixed by pairing on `ExportType|TemplateProfile|Format` with occurrence indexing (`EndToEndReplayComparisonServiceRunDiffTests.BuildAsync_pairs_export_records_by_template_profile_not_creation_order`).
 - [x] (proven) `ComparisonDriftAnalyzer.CompareElement` compared JSON arrays positionally — **hit 2026-09-02:** reordering `["a","b"]` to `["b","a"]` reported value drift at each index; fixed by sorting array elements canonically before compare (`ComparisonDriftAnalyzerTests.Analyze_ReorderedPrimitiveArray_DoesNotReportDrift`).
 - [x] (proven) `EndToEndReplayComparisonService.AddInterpretationNotes` skipped agent/manifest synergy notes when `ManifestDiff` was null — **hit 2026-09-02:** material `AgentResultDiff` with unavailable manifest bodies produced no interpretation note; fixed with agent-only and manifest-only branches (`EndToEndReplayComparisonServiceRunDiffTests.BuildAsync_when_manifest_missing_but_agent_changed_adds_interpretation_note`).
+- [x] (proven) GCP Cloud Asset inventory `//*.googleapis.com/projects/...` names fail reconciliation against graph `projects/...` paths — **hit 2026-09-03:** `NormalizeGcpResourceId` lowercased full URIs without stripping the service prefix; fixed canonicalization in `GraphGcpInventoryReconciliationAnalyzer` (`GraphGcpInventoryReconciliationAnalyzerTests.Analyze_treats_cloud_asset_full_name_as_same_resource_as_projects_path`, `InventoryTopologyResourceNodeIndexTests.Resolve_returns_matching_gcp_topology_node_ids_for_cloud_asset_inventory_name`).
+- [x] (proven) HTML sponsor export omits Interpretation Notes when summary formatter stub omits `## Interpretation Notes` — **hit 2026-09-03:** markdown export already had fallback append; HTML executive path did not (`EndToEndReplayComparisonExportServiceSponsorAndRelationshipDiffTests.GenerateHtml_executive_profile_appends_interpretation_notes_when_summary_formatter_omits_them`).
+- [x] (proven) `ManifestChangedMaterially` ignored `ManifestDiffResult.Warnings` — **hit 2026-09-03:** warnings-only manifest diffs skipped synergy interpretation notes (`EndToEndReplayComparisonServiceRunDiffTests.BuildAsync_when_manifest_warnings_only_adds_material_manifest_interpretation_note`).
+- [ ] (candidate) PDF detailed profile may omit detailed appendices when summary formatter is minimal — compare `EndToEndReplayComparisonPdfExportFormatter` against markdown/HTML fallback paths.
+- [ ] (candidate) DOCX interpretation-notes fallback may diverge from markdown/HTML when summary formatter omits `## Interpretation Notes` — compare `EndToEndReplayComparisonDocxExportFormatter`.
+
+2026-09-03 seed hunt #547: proved GCP Cloud Asset URI normalization, HTML sponsor interpretation-notes fallback, and manifest-warnings materiality; reseeded PDF/DOCX export parity candidates.
 
 2026-09-02 thorough hunt #430: proved export mispairing, array reorder drift, and agent-only interpretation-note gaps.
 
