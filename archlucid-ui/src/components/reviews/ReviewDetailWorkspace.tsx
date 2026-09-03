@@ -37,7 +37,10 @@ import {
   resolveReviewWorkspaceVisibleTabs,
 } from "@/lib/resolve-review-workspace-visible-tabs";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
+import { ReviewWorkbenchLayout, type ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
+import { useReviewWorkbenchShortcuts } from "@/hooks/use-review-workbench-shortcuts";
+import { useProfessionalWorkbenchEnabled } from "@/lib/workspace-mode/use-professional-workbench-enabled";
 
 export type ReviewDetailTabCounts = {
   readonly findings?: number | null;
@@ -68,6 +71,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly tabLifecycle?: ResolveReviewDetailVisibleTabsInput;
   /** Tab-scoped "On this page" anchor nav rendered below the tab strip. */
   readonly tabSectionNav?: ReactNode | null;
+  /** Asserted / inferred / skipped summary above workspace chrome. */
+  readonly defensibilityStrip?: ReactNode | null;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {
@@ -124,6 +129,12 @@ function resolveWorkspaceLifecycle(props: ReviewDetailWorkspaceProps): ReviewWor
 
 function panelHidden(activeTab: ReviewDetailTabId, tabId: ReviewDetailTabId): boolean {
   return activeTab !== tabId;
+}
+
+const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
+
+function isWorkbenchTab(tabId: ReviewDetailTabId): tabId is ReviewWorkbenchColumnId {
+  return (WORKBENCH_TAB_IDS as readonly string[]).includes(tabId);
 }
 
 /** Tabbed review workspace with URL-backed `reviewTab` selection. */
@@ -246,9 +257,24 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     enabled: pipelineInFlight,
   });
 
+  const workbench = useProfessionalWorkbenchEnabled();
+  const workbenchVisible =
+    workbench.mounted
+    && workbench.enabled
+    && WORKBENCH_TAB_IDS.every(
+      (tabId) => resolved.visibleTabIds.includes(tabId) || resolved.moreTabIds.includes(tabId),
+    );
+  const workbenchFocusColumn: ReviewWorkbenchColumnId | null = isWorkbenchTab(activeTab) ? activeTab : null;
+
+  useReviewWorkbenchShortcuts({
+    enabled: workbenchVisible,
+    onFocusColumn: (column) => navigateTab(column),
+  });
+
   return (
     <ReviewDetailWorkspaceTabContext.Provider value={{ navigateTab }}>
       <div className="min-w-0 space-y-4" data-testid="review-detail-workspace">
+        {props.defensibilityStrip ?? null}
         <ReviewWorkspaceTabStrip
           lifecycle={lifecycle}
           activeTab={activeTab}
@@ -264,6 +290,28 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
 
         {props.tabSectionNav ?? null}
 
+        {workbenchVisible ? (
+          <ReviewWorkbenchLayout
+            architecture={panelWithInPipelineBanner(
+              "architecture",
+              props.panels.architecture,
+              inPipelineBanner,
+            )}
+            findings={panelWithInPipelineBanner("findings", props.panels.findings, inPipelineBanner)}
+            evidence={panelWithVocabularyRail(
+              "evidence",
+              <PackageEvidenceEvidenceGraphVocabularyRail
+                runId={props.runId}
+                currentSurfaceId="package-evidence"
+              />,
+              panelWithInPipelineBanner("evidence", props.panels.evidence, inPipelineBanner),
+            )}
+            focusColumn={workbenchFocusColumn}
+            onFocusColumn={(column) => navigateTab(column)}
+            onExitWorkbench={() => workbench.setEnabled(false)}
+          />
+        ) : null}
+
         <div
           className="min-w-0 overflow-visible"
           hidden={panelHidden(activeTab, "overview")}
@@ -273,14 +321,14 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
         </div>
         <div
           className="min-w-0 overflow-visible"
-          hidden={panelHidden(activeTab, "findings")}
+          hidden={workbenchVisible || panelHidden(activeTab, "findings")}
           data-testid="review-detail-workspace-panel-findings"
         >
           {panelWithInPipelineBanner("findings", props.panels.findings, inPipelineBanner)}
         </div>
         <div
           className="min-w-0 overflow-visible"
-          hidden={panelHidden(activeTab, "evidence")}
+          hidden={workbenchVisible || panelHidden(activeTab, "evidence")}
           data-testid="review-detail-workspace-panel-evidence"
         >
           {panelWithVocabularyRail(
@@ -326,7 +374,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
         </div>
         <div
           className="min-w-0 overflow-visible"
-          hidden={panelHidden(activeTab, "architecture")}
+          hidden={workbenchVisible || panelHidden(activeTab, "architecture")}
           data-testid="review-detail-workspace-panel-architecture"
         >
           {panelWithInPipelineBanner("architecture", props.panels.architecture, inPipelineBanner)}

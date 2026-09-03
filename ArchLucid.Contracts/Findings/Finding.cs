@@ -118,6 +118,13 @@ public class Finding
         set;
     }
 
+    /// <summary>Wave-15 suggestion 144: pinned evidence package id when the finding engine declares one.</summary>
+    public Guid? EvidencePackageId
+    {
+        get;
+        set;
+    }
+
     public string? ModelDeploymentName
     {
         get;
