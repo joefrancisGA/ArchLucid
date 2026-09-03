@@ -200,7 +200,7 @@ public sealed partial class InMemoryRunRepository
         [
             .. _store.Values.Where(r =>
                 RunRepositoryCore.IsActiveInScope(r, scope) &&
-                string.Equals(r.ArchitectureRequestId, key, StringComparison.OrdinalIgnoreCase)),
+                RunRepositoryCore.ArchitectureRequestIdMatches(r.ArchitectureRequestId, key)),
         ];
 
         return Task.FromResult(matches.Count(r => RunRepositoryCore.LegacyRunStatusIsNonTerminal(r.LegacyRunStatus)));
@@ -219,7 +219,7 @@ public sealed partial class InMemoryRunRepository
 
         bool exists = _store.Values.Any(r =>
             RunRepositoryCore.MatchesScope(r, scope) &&
-            string.Equals(r.ArchitectureRequestId, key, StringComparison.OrdinalIgnoreCase));
+            RunRepositoryCore.ArchitectureRequestIdMatches(r.ArchitectureRequestId, key));
 
         return Task.FromResult(exists);
     }

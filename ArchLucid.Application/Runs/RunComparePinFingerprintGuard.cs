@@ -1,3 +1,4 @@
+using ArchLucid.Core.Comparison;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Runs;
@@ -48,6 +49,31 @@ public static class RunComparePinFingerprintGuard
             throw new ConflictException(
                 "Compare blocked: focused-pilot cloud provider pin differs between the selected runs.");
         }
+    }
+
+    public static CompareInputFingerprints BuildCompareInputFingerprints(
+        RunRecord? baseHeader,
+        RunRecord? targetHeader,
+        string? baseManifestHash,
+        string? targetManifestHash)
+    {
+        return new CompareInputFingerprints
+        {
+            BasePolicyPackPinHashSha256 = RunHeaderPinFingerprint.ToHexOrNull(baseHeader?.PinnedPolicyPackIdsHashSha256),
+            TargetPolicyPackPinHashSha256 = RunHeaderPinFingerprint.ToHexOrNull(targetHeader?.PinnedPolicyPackIdsHashSha256),
+            BaseEvidencePackagePinHashSha256 = RunHeaderPinFingerprint.ToHexOrNull(baseHeader?.PinnedEvidencePackagePinsHashSha256),
+            TargetEvidencePackagePinHashSha256 = RunHeaderPinFingerprint.ToHexOrNull(targetHeader?.PinnedEvidencePackagePinsHashSha256),
+            BaseArchitectureVersionContentHashSha256 =
+                RunHeaderPinFingerprint.ToHexOrNull(baseHeader?.PinnedArchitectureVersionContentHashSha256),
+            TargetArchitectureVersionContentHashSha256 =
+                RunHeaderPinFingerprint.ToHexOrNull(targetHeader?.PinnedArchitectureVersionContentHashSha256),
+            BaseKnowledgeModelContentHashSha256 =
+                RunHeaderPinFingerprint.ToHexOrNull(baseHeader?.PinnedKnowledgeModelContentHashSha256),
+            TargetKnowledgeModelContentHashSha256 =
+                RunHeaderPinFingerprint.ToHexOrNull(targetHeader?.PinnedKnowledgeModelContentHashSha256),
+            BaseManifestHashSha256 = baseManifestHash,
+            TargetManifestHashSha256 = targetManifestHash,
+        };
     }
 
     private static void EnsureBytesMatchOrThrow(byte[]? left, byte[]? right, string label)

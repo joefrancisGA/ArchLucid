@@ -8,7 +8,7 @@ import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorSto
 import { AssignedToMeContinueOldestFindingStrip } from "@/components/usability/AssignedToMeContinueOldestFindingStrip";
 import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
 import { WorkingFindingsKeyboardHint } from "@/components/governance/findings/WorkingFindingsKeyboardHint";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { INSIGHT_DENSITY_GENERIC_THRESHOLD } from "@/lib/governance/governance-findings-density-sort";
 import { cn } from "@/lib/utils";
 
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
@@ -62,6 +62,24 @@ export function GovernanceFindingsQueueResultsSection(
               href={props.firstFindingTriageTarget.href}
             />
           ) : null}
+          {props.showInsightDensityScore ? (
+            <label
+              className={cn(
+                "mb-3 flex items-center gap-2 text-al-text-secondary",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+              data-testid="governance-findings-hide-generic-control"
+            >
+              <input
+                type="checkbox"
+                checked={props.hideGenericLowDensity}
+                onChange={(event) => {
+                  props.onHideGenericLowDensityChange(event.target.checked);
+                }}
+              />
+              Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
+            </label>
+          ) : null}
           <WorkingFindingsKeyboardHint />
           <GovernanceFindingsList
             displayedRows={props.displayedRows}
@@ -71,6 +89,7 @@ export function GovernanceFindingsQueueResultsSection(
             selectedFindingIds={props.selectedFindingIds}
             onSelectionChange={props.onSelectionChange}
             onBulkApplied={props.onBulkApplied}
+            showInsightDensityScore={props.showInsightDensityScore}
           />
         </>
       ) : null}

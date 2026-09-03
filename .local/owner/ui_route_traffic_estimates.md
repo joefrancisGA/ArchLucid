@@ -53,6 +53,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Done | Notes |
 |----|------|------|--------|--------|---------|---------|------|-------|
+| AC | `/accessibility` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| ACS | `/account/security` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| ADB | `/administration/baseline` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | GOD | `/governance/dashboard` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
 | GOE | `/governance/environments` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
 | GNE | `/governance/needs-attention` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |

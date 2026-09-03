@@ -22,7 +22,7 @@ public static class CommercialPackagingTierResolver
         if ((int)tenant.Tier < (int)TenantTier.Standard)
             return null;
 
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.OrdinalIgnoreCase))
             return null;
 
         if (subscription is not null)

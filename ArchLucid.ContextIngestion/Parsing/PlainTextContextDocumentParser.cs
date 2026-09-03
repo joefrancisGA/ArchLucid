@@ -32,7 +32,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 
         foreach (string line in lines)
 
-            if (TryGetPrefixedBody(line, "REQ", out string requirementText))
+            if (PlainTextDocumentPrefixedLine.TryGetPrefixedBody(line, "REQ", out string requirementText))
             {
                 if (string.IsNullOrWhiteSpace(requirementText))
                     continue;
@@ -49,7 +49,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                     Properties = new Dictionary<string, string> { ["text"] = canonicalText }
                 });
             }
-            else if (TryGetPrefixedBody(line, "POL", out string policyText))
+            else if (PlainTextDocumentPrefixedLine.TryGetPrefixedBody(line, "POL", out string policyText))
             {
                 if (string.IsNullOrWhiteSpace(policyText))
                     continue;
@@ -66,7 +66,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                     Properties = new Dictionary<string, string> { ["text"] = canonicalText }
                 });
             }
-            else if (TryGetPrefixedBody(line, "TOP", out string topologyText))
+            else if (PlainTextDocumentPrefixedLine.TryGetPrefixedBody(line, "TOP", out string topologyText))
             {
                 if (string.IsNullOrWhiteSpace(topologyText))
                     continue;
@@ -75,7 +75,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 
                 results.Add(PlainTextDocumentTopologyResourceBuilder.Create(document.DocumentId, canonicalText));
             }
-            else if (TryGetPrefixedBody(line, "SEC", out string securityText))
+            else if (PlainTextDocumentPrefixedLine.TryGetPrefixedBody(line, "SEC", out string securityText))
             {
                 if (string.IsNullOrWhiteSpace(securityText))
                     continue;
@@ -95,30 +95,6 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
-    }
-
-    private static bool TryGetPrefixedBody(string line, string prefix, out string body)
-    {
-        body = string.Empty;
-
-        if (line.Length < prefix.Length)
-            return false;
-
-        if (!line.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        int index = prefix.Length;
-
-        while (index < line.Length && char.IsWhiteSpace(line[index]))
-            index++;
-
-        if (index >= line.Length || line[index] != ':')
-            return false;
-
-        index++;
-        body = line[index..].Trim();
-
-        return true;
     }
 
     private static string CanonicalizeLineText(string text, string objectType)

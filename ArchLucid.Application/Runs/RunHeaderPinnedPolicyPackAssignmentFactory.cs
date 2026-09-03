@@ -49,6 +49,8 @@ public static class RunHeaderPinnedPolicyPackAssignmentFactory
                     IsEnabled = true,
                     IsPinned = true,
                     ScopeLevel = GovernanceScopeLevel.Project,
+                    BlockCommitOnCritical = row.BlockCommitOnCritical,
+                    BlockCommitMinimumSeverity = row.BlockCommitMinimumSeverity,
                 });
         }
 
@@ -147,8 +149,8 @@ public static class RunHeaderPinnedPolicyPackAssignmentFactory
                     IsPinned = pinned.IsPinned,
                     ScopeLevel = pinned.ScopeLevel,
                     AssignedUtc = scopeAssignment.AssignedUtc,
-                    BlockCommitOnCritical = scopeAssignment.BlockCommitOnCritical,
-                    BlockCommitMinimumSeverity = scopeAssignment.BlockCommitMinimumSeverity,
+                    BlockCommitOnCritical = pinned.BlockCommitOnCritical,
+                    BlockCommitMinimumSeverity = pinned.BlockCommitMinimumSeverity,
                 });
         }
 

@@ -9,6 +9,9 @@ export function isAnonymousMarketingProxyPath(proxyPath: string): boolean {
   return (
     normalized === "v1/marketing/quick-scan" ||
     normalized.startsWith("v1/marketing/quick-scan/") ||
-    normalized === "v1/marketing/pricing/quote-request"
+    normalized === "v1/marketing/pricing/quote-request" ||
+    normalized === "v1/marketing/early-access" ||
+    normalized === "v1/marketing/trust-center/evidence-pack.zip" ||
+    normalized.startsWith("v1/marketing/trust-center/")
   );
 }

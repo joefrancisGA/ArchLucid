@@ -45,6 +45,49 @@ describe("proxy route anonymous marketing paths", () => {
     expect(headers.get("authorization")).toBe("Bearer configured-proxy-bearer");
   });
 
+  it("does not attach server bearer for marketing early-access POST", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": "12" },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
+  it("does not attach server bearer for trust-center evidence pack download", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("zip-bytes", {
+        status: 200,
+        headers: { "Content-Type": "application/zip" },
+      }),
+    );
+
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/trust-center/evidence-pack.zip",
+    );
+
+    await GET(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "trust-center", "evidence-pack.zip"],
+      }),
+    });
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
   it("forwards pricing quote-request 204 with a null body (no NextResponse throw)", async () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
 

@@ -3,6 +3,8 @@ import type { ProvenanceNodeFilterCategory } from "@/lib/provenance-node-present
 
 export const PROVENANCE_VIEW_PARAM = "view";
 export const PROVENANCE_CATEGORY_PARAM = "category";
+export const PROVENANCE_TABLE_SEARCH_PARAM = "q";
+export const PROVENANCE_TABLE_NODE_TYPE_PARAM = "nodeType";
 
 const PROVENANCE_VIEW_IDS = new Set<string>(["graph", "timeline", "table"]);
 
@@ -76,6 +78,60 @@ export function provenanceCategoryHrefFromSearch(
     params.delete(PROVENANCE_CATEGORY_PARAM);
   } else {
     params.set(PROVENANCE_CATEGORY_PARAM, category);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function parseProvenanceTableSearchQueryFromSearch(raw: string | null | undefined): string {
+  if (raw === null || raw === undefined) {
+    return "";
+  }
+
+  return raw;
+}
+
+export function parseProvenanceTableNodeTypeFromSearch(raw: string | null | undefined): string {
+  if (raw === null || raw === undefined) {
+    return "";
+  }
+
+  return raw;
+}
+
+export function provenanceTableSearchHrefFromSearch(
+  currentSearch: string,
+  query: string,
+  pathname: string,
+): string {
+  const params = new URLSearchParams(currentSearch);
+  const trimmed = query.trim();
+
+  if (trimmed.length === 0) {
+    params.delete(PROVENANCE_TABLE_SEARCH_PARAM);
+  } else {
+    params.set(PROVENANCE_TABLE_SEARCH_PARAM, trimmed);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function provenanceTableNodeTypeHrefFromSearch(
+  currentSearch: string,
+  nodeType: string,
+  pathname: string,
+): string {
+  const params = new URLSearchParams(currentSearch);
+  const trimmed = nodeType.trim();
+
+  if (trimmed.length === 0) {
+    params.delete(PROVENANCE_TABLE_NODE_TYPE_PARAM);
+  } else {
+    params.set(PROVENANCE_TABLE_NODE_TYPE_PARAM, trimmed);
   }
 
   const nextQuery = params.toString();

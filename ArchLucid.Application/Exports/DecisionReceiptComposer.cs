@@ -27,7 +27,11 @@ public static class DecisionReceiptComposer
         };
     }
 
-    public static DecisionReceiptDocument BuildForRun(Guid runId, FeasibilityVerdict verdict)
+    public static DecisionReceiptDocument BuildForRun(
+        Guid runId,
+        FeasibilityVerdict verdict,
+        string? manifestHashSha256,
+        string? manifestVersion)
     {
         ArgumentNullException.ThrowIfNull(verdict);
 
@@ -37,6 +41,8 @@ public static class DecisionReceiptComposer
             Source = DecisionReceiptSource.CommittedRun,
             RunId = runId,
             Verdict = verdict,
+            ManifestHashSha256 = manifestHashSha256,
+            ManifestVersion = manifestVersion,
             CostStory = BuildCostStory(),
         };
     }

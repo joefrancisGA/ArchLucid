@@ -12,6 +12,10 @@ internal static class TenantScopedQuerySqlInspector
         @"--[^\r\n]*",
         RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
 
+    private static readonly Regex HashLineCommentRegex = new(
+        @"^\s*#[^\r\n]*",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
+
     private static readonly Regex TopLevelFromJoinRegex = new(
         @"(?:(?:FROM|JOIN)\s+(?:\[?dbo\]?\.)?\[?(?<table>[A-Za-z_][A-Za-z0-9_]*)\]?)",
         RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -151,7 +155,8 @@ internal static class TenantScopedQuerySqlInspector
             return sqlText;
 
         string withoutBlock = BlockCommentRegex.Replace(sqlText, " ");
-        return LineCommentRegex.Replace(withoutBlock, " ");
+        string withoutLine = LineCommentRegex.Replace(withoutBlock, " ");
+        return HashLineCommentRegex.Replace(withoutLine, " ");
     }
 
     internal static bool MergeIncludesTenantIdOnClause(string sqlText, string normalizedTableName)

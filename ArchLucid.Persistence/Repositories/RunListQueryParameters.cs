@@ -249,7 +249,7 @@ internal static class RunListQueryParameters
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
-            ArchitectureRequestId = architectureRequestId.Trim(),
+            NormalizedArchitectureRequestId = NormalizeArchitectureRequestId(architectureRequestId),
             CommittedStatus = nameof(ArchitectureRunStatus.Committed),
             FailedStatus = nameof(ArchitectureRunStatus.Failed),
             QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
@@ -265,7 +265,7 @@ internal static class RunListQueryParameters
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
-            ArchitectureRequestId = architectureRequestId.Trim(),
+            NormalizedArchitectureRequestId = NormalizeArchitectureRequestId(architectureRequestId),
         };
     }
 
@@ -299,4 +299,7 @@ internal static class RunListQueryParameters
 
     private static string NormalizeProjectSlug(string projectSlug) =>
         projectSlug.Trim().ToUpperInvariant();
+
+    private static string NormalizeArchitectureRequestId(string architectureRequestId) =>
+        architectureRequestId.Trim().ToUpperInvariant();
 }

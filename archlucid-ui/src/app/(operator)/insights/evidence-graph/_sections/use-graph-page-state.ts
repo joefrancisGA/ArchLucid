@@ -81,6 +81,8 @@ export function useGraphPageState() {
     setMode,
     setTypeFilter,
     setDepth,
+    setNodeId,
+    setDecisionId,
   });
   const canMutateEnterpriseShell = useOperateCapability();
   const graphMainColumnMaxClass = buyerPolishedShell
