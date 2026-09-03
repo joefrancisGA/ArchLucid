@@ -35,10 +35,6 @@ vi.mock("@/components/help/TroubleshootingStartHerePlatformStatus", () => ({
 
 import { HelpTroubleshootingGuideView } from "@/app/(operator)/help/_sections/HelpTroubleshootingGuideView";
 import {
-  expectClaimDisciplineBandContent,
-} from "@/lib/claim-discipline-test-helpers";
-import {
-  TROUBLESHOOTING_HELP_SUBTITLE,
   TROUBLESHOOTING_PRIMARY_ACTIONS,
 } from "@/lib/troubleshooting-help-guide-content";
 import {
@@ -74,17 +70,11 @@ describe("HelpTroubleshootingGuideView", () => {
     render(<HelpTroubleshootingGuideView entry={entry} />);
 
     expect(screen.getByRole("heading", { level: 1, name: "Troubleshooting" })).toBeInTheDocument();
-    expect(screen.getByText(TROUBLESHOOTING_HELP_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("troubleshooting-help-orientation")).toBeInTheDocument();
-    expect(screen.getByTestId("help-troubleshooting-claim-discipline-strip")).toHaveTextContent(
-      TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
-    );
-    expectClaimDisciplineBandContent(
-      screen,
-      "troubleshooting-help",
-      "troubleshooting-help-claim-discipline",
+    expect(screen.getByTestId("help-troubleshooting-header-claim-discipline")).toHaveTextContent(
       TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.queryByTestId("help-troubleshooting-claim-discipline-strip")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-troubleshooting-sources")).toBeInTheDocument();
 
     const startHere = screen.getByTestId("troubleshooting-start-here-card");
     expect(within(startHere).getByTestId("troubleshooting-platform-status")).toBeInTheDocument();

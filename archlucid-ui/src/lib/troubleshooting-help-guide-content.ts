@@ -33,6 +33,18 @@ function supportEscalationLinks(
 export const TROUBLESHOOTING_HELP_SUBTITLE =
   "Find common issues, try the first fix, and collect support details when needed.";
 
+export const TROUBLESHOOTING_HELP_PAGE_TITLE = "Troubleshooting" as const;
+
+export const TROUBLESHOOTING_HELP_OVERVIEW = TROUBLESHOOTING_HELP_SUBTITLE;
+
+export const TROUBLESHOOTING_HELP_START_HERE_CARD_TITLE = "Start here" as const;
+
+export const TROUBLESHOOTING_HELP_PRIMARY_ACTION = {
+  href: ADMINISTRATION_SYSTEM_HEALTH_PATH,
+  label: "Open System health",
+  testId: "help-troubleshooting-open-system-health",
+} as const;
+
 export type TroubleshootingIssueKind =
   | "user-fixable"
   | "workspace-admin"
