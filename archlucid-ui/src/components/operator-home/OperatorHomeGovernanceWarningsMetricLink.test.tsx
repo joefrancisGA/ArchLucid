@@ -39,6 +39,10 @@ describe("OperatorHomeGovernanceWarningsMetricLink", () => {
       "data-active",
       "false",
     );
+    expect(screen.getByTestId("operator-home-governance-warnings-metric").className).toMatch(/underline/);
+    expect(screen.getByTestId("operator-home-governance-warnings-metric").className).not.toMatch(
+      /no-underline/,
+    );
   });
 
   it("links to clear warnings when already active", () => {
