@@ -19,7 +19,7 @@ export function HelpApiContractsHeaderMetadata(
   return (
     <div className="space-y-2" data-testid="help-api-contracts-header-metadata">
       {sourcePath !== undefined ? (
-        <div data-testid="help-api-contracts-sources">
+        <div data-testid="help-api-contracts-source-disclosure">
           <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>
             {API_CONTRACTS_HELP_SOURCES_DISCLOSURE_TITLE}
           </p>
