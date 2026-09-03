@@ -139,7 +139,7 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
     }
 
     [Fact]
-    public void Validate_zip_slip_entry_path_is_invalid_archive()
+    public void Validate_zip_slip_non_manifest_entry_path_is_invalid_archive()
     {
         using MemoryStream ms = new();
 
