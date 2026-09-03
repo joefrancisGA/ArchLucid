@@ -203,6 +203,16 @@ public static class AzureExtractorManifestSchemaUpgrader
             return true;
         }
 
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
         value = default;
 
         return false;

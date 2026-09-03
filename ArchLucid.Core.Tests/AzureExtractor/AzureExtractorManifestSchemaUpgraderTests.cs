@@ -33,7 +33,18 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
     }
 
     [Fact]
-    public void TryUpgradeManifestJson_upgrades_off_synonym_schema_version()
+    public void TryUpgradeManifestJson_accepts_on_synonym_for_current_schema_version()
+    {
+        string manifestJson = """{"schemaVersion":"on","tenantId":"contoso"}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeTrue();
+        error.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryUpgradeManifestJson_upgrades_off_synonym_for_legacy_zero_schema_version()
     {
         string manifestJson = """{"schemaVersion":"off","tenantId":"contoso"}""";
 
@@ -45,9 +56,9 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
     }
 
     [Fact]
-    public void TryUpgradeManifestJson_accepts_on_synonym_current_schema_version()
+    public void TryUpgradeManifestJson_accepts_string_whole_number_double_schema_version()
     {
-        string manifestJson = """{"schemaVersion":"on","tenantId":"contoso"}""";
+        string manifestJson = """{"schemaVersion":"1.0","tenantId":"contoso"}""";
 
         bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
 
