@@ -183,6 +183,21 @@ export function SessionIdleTimeoutGuard() {
                 const meetingExtensionMs = 45 * 60 * 1000;
                 writeSharedSessionLastActivityAt(Date.now() - idleTimeoutMs + meetingExtensionMs);
                 setWarningVisible(false);
+
+                if (timerRef.current !== null) {
+                  window.clearTimeout(timerRef.current);
+                }
+
+                const warningLeadMs = Math.max(0, meetingExtensionMs - SESSION_IDLE_WARNING_MS);
+
+                timerRef.current = window.setTimeout(() => {
+                  setWarningVisible(true);
+                  setWarningSecondsRemaining(Math.ceil(SESSION_IDLE_WARNING_MS / 1000));
+
+                  timerRef.current = window.setTimeout(() => {
+                    clearSessionAndRedirect(router);
+                  }, SESSION_IDLE_WARNING_MS);
+                }, warningLeadMs);
               }}
             >
               Extend for meeting
