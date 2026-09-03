@@ -1881,11 +1881,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 131
-- **bugs-found:** 248
+- **hunts:** 132
+- **bugs-found:** 250
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `reproduce` environment names misclassified as production-like
+- **last-bug:** 2026-09-03 — `product` environment names misclassified as production-like; `Non-Reservation` retail type rejected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1962,6 +1962,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — `reproduce` environment names misclassified as production-like — **hit 2026-09-03 (#646):** unbounded `Contains("prod")` matched `Reproduce` / `reproduce-bug-*` bug-repro environment names after non-production exclusions; production-like config lint and bypass-auth guards applied incorrectly; fixed by excluding reproduce-like environment name prefixes (`EnvironmentNameImpliesProductionLike_rejects_reproduce_environment_names`).
 
 2026-09-03 seed hunt #646: reseeded from `HostingEnvironmentNamePatterns`; proved `prod` substring false positive on reproduce environment names.
+
+- [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — `product` environment names misclassified as production-like — **hit 2026-09-03 (#647):** after #646 reproduce exclusion, unbounded `Contains("prod")` still matched `Product` / `product-dev` team environment names; production-like config lint and bypass-auth guards applied incorrectly; fixed by excluding product-like environment name prefixes (`EnvironmentNameImpliesProductionLike_rejects_product_team_environment_names`).
+
+- [x] (proven) `AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd` — `Non-Reservation` retail `Type` rejected as reservation — **hit 2026-09-03 (#647):** unbounded `Contains("Reservation")` matched `Non-Reservation` consumption rows and excluded valid hourly/monthly SKUs from cost estimates; fixed with non-reservation exclusions before reservation rejection (`LooksLikeConsumptionUsd_accepts_non_reservation_type_with_hourly_unit`).
+
+2026-09-03 seed hunt #647: reseeded from `HostingEnvironmentNamePatterns` and `AzureRetailPricesSkuMatchers`; proved product environment `prod` false positive and `Non-Reservation` retail type rejection after #646 reproduce fix.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
