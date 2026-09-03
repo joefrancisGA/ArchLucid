@@ -26,6 +26,7 @@ import {
   ALERTS_CONFIGURATION_LAST_REFRESHED_PREFIX,
   ALERTS_CONFIGURATION_PAGE_TITLE,
 } from "@/lib/alerts-page-copy";
+import { ALERT_RULES_CLAIM_DISCIPLINE } from "@/lib/alert-rules-evidence-copy";
 import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export type AlertRulesPageHeaderProps = {
@@ -155,6 +156,8 @@ export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JS
       title={ALERTS_CONFIGURATION_PAGE_TITLE}
       titleTestId="alert-rules-page-title"
       subtitle={props.subtitle}
+      claimDiscipline={ALERT_RULES_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="alert-rules-hub-claim-discipline"
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />

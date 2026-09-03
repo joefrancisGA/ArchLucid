@@ -270,10 +270,11 @@ describe("ReviewsHubReviewInventory", () => {
     );
 
     expect(screen.queryByTestId("reviews-hub-more-filters")).toBeNull();
-    expect(screen.getByRole("link", { name: /Filter reviews: Draft/ })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Filter reviews: Active/ })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Filter reviews: Awaiting approval/ })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Filter reviews: Archived/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Filter reviews: All/ })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Filter reviews: Draft/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Filter reviews: Active/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Filter reviews: Awaiting approval/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Filter reviews: Archived/)).toBeInTheDocument();
   });
 
   it("filters to finalized reviews from the primary FilterChip row", () => {

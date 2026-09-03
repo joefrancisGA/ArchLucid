@@ -1,6 +1,16 @@
-IF COL_LENGTH(N'dbo.Runs', N'PinnedArchitectureVersionContentHashSha256') IS NOT NULL
+DECLARE @runTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @sql NVARCHAR(MAX);
+
+IF @runTable IS NOT NULL
+   AND COL_LENGTH(@runTable, N'PinnedArchitectureVersionContentHashSha256') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.Runs
-        DROP COLUMN PinnedArchitectureVersionContentHashSha256;
-END;
+    SET @sql = N'ALTER TABLE ' + @runTable + N' DROP COLUMN PinnedArchitectureVersionContentHashSha256;';
+
+    EXEC sp_executesql @sql;
+END
 GO

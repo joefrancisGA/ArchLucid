@@ -70,4 +70,32 @@ public sealed class UserPreferencesResponse
         get;
         set;
     }
+
+    /// <summary>Operator workspace mode: guided (default) or working.</summary>
+    public string WorkspaceMode
+    {
+        get;
+        set;
+    } = WorkspaceModeValues.Default;
+
+    /// <summary>True when the user has an explicit stored workspace mode row.</summary>
+    public bool WorkspaceModeIsExplicit
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Graduation offer state after the user's first sealed review.</summary>
+    public string WorkspaceModeGraduationOffer
+    {
+        get;
+        set;
+    } = WorkspaceModeGraduationOfferValues.Default;
+
+    /// <summary>True when the user has an explicit stored graduation-offer row.</summary>
+    public bool WorkspaceModeGraduationOfferIsExplicit
+    {
+        get;
+        set;
+    }
 }

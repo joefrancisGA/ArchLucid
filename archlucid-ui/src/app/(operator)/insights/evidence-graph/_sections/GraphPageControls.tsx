@@ -1,14 +1,15 @@
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 
 import { GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
 
 import { Button } from "@/components/ui/button";
-
-import { Label } from "@/components/ui/label";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -28,11 +29,14 @@ import {
   OPERATOR_GRAPH_SCOPE_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
 
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
-
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import {
+  graphScopeModeHrefFromSearch,
+  OPERATOR_GRAPH_SCOPE_MODE_OPTIONS,
+} from "@/lib/insights/graph-scope-mode-url";
 
 import type { GraphReviewPickerState } from "@/lib/graph-page-state";
 
@@ -117,6 +121,9 @@ export function GraphPageControls(props: GraphPageControlsProps) {
     compactEmptyWorkspace = false,
   } = props;
 
+  const pathname = usePathname() ?? EVIDENCE_GRAPH_PATH;
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
   const runTrim = runId.trim();
   const scopedRunFilterActive = runTrim.length > 0;
   const graphClearScopeHref = EVIDENCE_GRAPH_PATH;
@@ -311,57 +318,29 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
         <div className="min-w-[10rem] lg:w-auto">
 
-          <Label htmlFor="graph-mode-select" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)} id="graph-mode-select-label">
 
             {OPERATOR_GRAPH_SCOPE_LABEL}
 
-          </Label>
+          </p>
 
-          <select
-
-            id="graph-mode-select"
-
-            value={mode}
-
-            onChange={(e) => onModeChange(e.target.value as GraphMode)}
-
-            className={cn(
-
-              "mt-1.5 block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 shadow-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
-
-              OPERATOR_TYPOGRAPHY.body,
-
-              "lg:w-[220px]",
-
-            )}
-
+          <FilterChipGroup
+            aria-labelledby="graph-mode-select-label"
+            className="mt-1.5 flex max-w-md flex-wrap gap-2"
+            data-testid="graph-mode-select"
           >
-
-            <option value="provenance-full">
-
-              {BUYER_SURFACE_VOCABULARY.evidenceGraph} (provenance)
-
-            </option>
-
-            <option value="decision-subgraph">
-
-              Decision focus
-
-            </option>
-
-            <option value="node-neighborhood">
-
-              Node connections
-
-            </option>
-
-            <option value="architecture">
-
-              Architecture graph
-
-            </option>
-
-          </select>
+            {OPERATOR_GRAPH_SCOPE_MODE_OPTIONS.map((option) => (
+              <FilterChip
+                key={option.mode}
+                href={graphScopeModeHrefFromSearch(currentSearch, option.mode, pathname)}
+                scroll={false}
+                className={buyerFilterChipClass(mode === option.mode, false)}
+                aria-current={mode === option.mode ? "page" : undefined}
+              >
+                {option.label}
+              </FilterChip>
+            ))}
+          </FilterChipGroup>
 
           <p className={cn("mt-1.5 max-w-md text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
 

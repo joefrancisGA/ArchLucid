@@ -3,9 +3,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const committedReviewMock = vi.hoisted(() => ({ value: false }));
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
+const workingModeMock = vi.hoisted(() => ({ value: false }));
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => committedReviewMock.value,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: workingModeMock.value ? "working" : "guided",
+    mounted: true,
+    accountSyncState: "synced",
+    isWorkingMode: workingModeMock.value,
+    setAndPersist: vi.fn(),
+  }),
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -23,6 +34,7 @@ describe("useEffectiveNavCommittedArchitectureReview", () => {
   beforeEach(() => {
     committedReviewMock.value = false;
     buyerPolishedMock.value = false;
+    workingModeMock.value = false;
   });
 
   it("is false only when the tenant has no committed review outside the buyer-polished shell", () => {
@@ -51,6 +63,14 @@ describe("useEffectiveNavCommittedArchitectureReview", () => {
   it("is true when both inputs hold", () => {
     committedReviewMock.value = true;
     buyerPolishedMock.value = true;
+
+    const { result } = renderHook(() => useEffectiveNavCommittedArchitectureReview());
+
+    expect(result.current).toBe(true);
+  });
+
+  it("is true in Working mode without a committed review", () => {
+    workingModeMock.value = true;
 
     const { result } = renderHook(() => useEffectiveNavCommittedArchitectureReview());
 

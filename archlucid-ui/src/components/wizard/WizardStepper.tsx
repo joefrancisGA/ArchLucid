@@ -90,7 +90,7 @@ export function WizardStepper({
               >
                 {step.label}
               </span>
-              {step.description ? (
+              {isActive && step.description ? (
                 <span
                   className={cn(
                     "hidden max-w-[12rem] text-neutral-500 dark:text-neutral-300 md:block",

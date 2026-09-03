@@ -16,7 +16,7 @@ import type { BuyerAuditGovernanceSummary } from "@/lib/audit-trail-page-helpers
 export type AuditPageViewProps = {
   readonly buyerPolishedShell: boolean;
   readonly viewMode: AuditTrailViewMode;
-  readonly onViewModeChange: (mode: AuditTrailViewMode) => void;
+  readonly currentSearch: string;
   readonly runId: string;
   readonly buyerAuditTrailSummaryLine: string | null;
   readonly buyerAuditTrailMetrics: BuyerAuditGovernanceSummary | null;
