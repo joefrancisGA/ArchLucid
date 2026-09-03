@@ -16,6 +16,7 @@ import type { ArchitectureRiskRegisterSummary } from "@/lib/architecture/archite
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
 import type { FindingJobView } from "@/lib/findings/finding-job-view";
 import { GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID } from "@/lib/governance-findings-page-copy";
+import { GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID } from "@/lib/governance/governance-assigned-to-me-page-copy";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import type { GovernanceAssignedToMeFetchBasis } from "@/lib/governance/governance-assigned-to-me-fetch-basis";
@@ -101,9 +102,16 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
 export function GovernanceFindingsQueueAssignedToMeShell(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
+  const primaryContentId =
+    props.isAssignedToMe && props.buyerPolishedShell
+      ? GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID
+      : !props.isAssignedToMe
+        ? GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID
+        : undefined;
+
   return (
     <div
-      id={!props.isAssignedToMe ? GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID : undefined}
+      id={primaryContentId}
       className={cn("mt-4 scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
       data-testid="governance-findings-queue-body"
     >

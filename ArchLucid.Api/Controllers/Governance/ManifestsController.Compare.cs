@@ -1,13 +1,10 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
-using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Manifest;
-using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -138,76 +135,73 @@ public sealed partial class ManifestsController
         if (tenantProblem is not null)
             return new LoadedManifestPair { Error = tenantProblem };
 
-        GoldenManifest? left = await GetManifestInScopeAsync(leftVersion, cancellationToken);
+        VersionManifestCompareLoadResult result;
 
-        if (left is null)
-            return new LoadedManifestPair
-            {
-                Error = this.NotFoundProblem($"Manifest '{leftVersion}' was not found.",
-                    ProblemTypes.ManifestNotFound)
-            };
-
-        GoldenManifest? right = await GetManifestInScopeAsync(rightVersion, cancellationToken);
-
-        if (right is null)
+        try
+        {
+            result = await _compareRunsFacade.CompareManifestVersionsAsync(
+                leftVersion,
+                rightVersion,
+                cancellationToken);
+        }
+        catch (ArgumentException ex)
         {
             return new LoadedManifestPair
             {
-                Error = this.NotFoundProblem($"Manifest '{rightVersion}' was not found.",
-                    ProblemTypes.ManifestNotFound)
+                Error = this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed)
             };
         }
 
-        await EnsureManifestCompareFingerprintsMatchOrThrowAsync(left, right, cancellationToken);
+        IActionResult? mappedProblem = MapVersionManifestCompareOutcome(result);
 
-        return new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };
+        if (mappedProblem is not null)
+            return new LoadedManifestPair { Error = mappedProblem };
+
+        return new LoadedManifestPair
+        {
+            Left = result.Left!,
+            Right = result.Right!,
+            Diff = BuildVersionCompareDiff(result),
+        };
     }
 
-    private async Task EnsureManifestCompareFingerprintsMatchOrThrowAsync(
-        GoldenManifest left,
-        GoldenManifest right,
-        CancellationToken cancellationToken)
+    private ManifestDiffResult BuildVersionCompareDiff(VersionManifestCompareLoadResult result)
     {
-        if (!AuthorityRunIdentifier.TryParse(left.RunId, out Guid leftRunGuid)
-            || !AuthorityRunIdentifier.TryParse(right.RunId, out Guid rightRunGuid))
-        {
-            throw new ConflictException(
-                "Compare blocked: both manifests must reference resolvable run ids with create-time pin headers.");
-        }
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunRecord? leftHeader = await _runRepository.GetByIdAsync(scope, leftRunGuid, cancellationToken);
-        RunRecord? rightHeader = await _runRepository.GetByIdAsync(scope, rightRunGuid, cancellationToken);
-
-        if (leftHeader is null || rightHeader is null)
-        {
-            throw new ConflictException(
-                "Compare blocked: one or both manifest runs are missing persisted headers for pin fingerprint verification.");
-        }
-
-        RunComparePinFingerprintGuard.EnsureCreateTimePinFingerprintsMatchOrThrow(leftHeader, rightHeader);
-
-        Task<RunDetailDto?> leftDetailTask =
-            _authorityQueryService.GetRunDetailForManifestCompareAsync(scope, leftRunGuid, cancellationToken);
-        Task<RunDetailDto?> rightDetailTask =
-            _authorityQueryService.GetRunDetailForManifestCompareAsync(scope, rightRunGuid, cancellationToken);
-        await Task.WhenAll(leftDetailTask, rightDetailTask);
-
-        RunDetailDto? leftDetail = await leftDetailTask;
-        RunDetailDto? rightDetail = await rightDetailTask;
-
-        if (leftDetail?.GoldenManifest is null || rightDetail?.GoldenManifest is null)
-        {
-            throw new ConflictException(
-                "Compare blocked: committed artifact inventory requires hydrated golden manifests for both runs.");
-        }
-
-        RunComparePinFingerprintGuard.EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow(
-            CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
-                leftDetail.GoldenManifest.CommittedArtifactInventory),
-            CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
-                rightDetail.GoldenManifest.CommittedArtifactInventory));
+        ManifestDiffResult diff = manifestDiffService.Compare(result.Left!, result.Right!);
+        diff.InputFingerprints = result.InputFingerprints;
+        return diff;
     }
+
+    private IActionResult? MapVersionManifestCompareOutcome(VersionManifestCompareLoadResult result) =>
+        result.Outcome switch
+        {
+            ManifestCompareLoadOutcome.Success => null,
+            ManifestCompareLoadOutcome.BaseManifestNotFound => this.NotFoundProblem(
+                $"Manifest '{result.VersionLabel}' was not found.",
+                ProblemTypes.ManifestNotFound),
+            ManifestCompareLoadOutcome.TargetManifestNotFound => this.NotFoundProblem(
+                $"Manifest '{result.VersionLabel}' was not found.",
+                ProblemTypes.ManifestNotFound),
+            ManifestCompareLoadOutcome.BaseRunNotFound => this.NotFoundProblem(
+                $"Run '{result.RunId}' was not found.",
+                ProblemTypes.RunNotFound),
+            ManifestCompareLoadOutcome.TargetRunNotFound => this.NotFoundProblem(
+                $"Run '{result.RunId}' was not found.",
+                ProblemTypes.RunNotFound),
+            ManifestCompareLoadOutcome.BaseLifecycleIncomplete => this.ConflictProblem(
+                $"Run '{result.RunId}' authority lifecycle must be Complete before compare.",
+                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.TargetLifecycleIncomplete => this.ConflictProblem(
+                $"Run '{result.RunId}' authority lifecycle must be Complete before compare.",
+                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.PinFingerprintMismatch => this.ConflictProblem(
+                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
+                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
+                "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
+                ProblemTypes.CommittedArtifactInventoryMismatch),
+            _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {result.Outcome}."),
+        };
 
     private sealed class LoadedManifestPair
     {

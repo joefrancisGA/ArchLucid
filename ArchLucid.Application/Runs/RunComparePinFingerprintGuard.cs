@@ -36,15 +36,23 @@ public static class RunComparePinFingerprintGuard
         EnsureFocusedPilotMatchOrThrow(left, right);
     }
 
-    /// <summary>Wave-16 suggestion 156: manifest compare requires matching committed artifact inventory fingerprints.</summary>
+    /// <summary>Wave-16 suggestion 156 / wave-18 suggestion 175: manifest compare requires matching committed artifact inventory fingerprints.</summary>
     public static void EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow(
         string? leftInventoryHashSha256,
         string? rightInventoryHashSha256)
     {
-        EnsureOptionalHexMatchOrThrow(
-            leftInventoryHashSha256,
-            rightInventoryHashSha256,
-            "committed artifact inventory hash");
+        if (string.IsNullOrWhiteSpace(leftInventoryHashSha256)
+            || string.IsNullOrWhiteSpace(rightInventoryHashSha256))
+        {
+            throw new ConflictException(
+                "Compare blocked: committed artifact inventory hash is required for both runs.");
+        }
+
+        if (!string.Equals(leftInventoryHashSha256, rightInventoryHashSha256, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ConflictException(
+                "Compare blocked: committed artifact inventory hash differs between the selected runs.");
+        }
     }
 
     private static void EnsureOptionalHexMatchOrThrow(string? left, string? right, string label)
@@ -111,10 +119,13 @@ public static class RunComparePinFingerprintGuard
         bool leftEmpty = left is null || left.Length == 0;
         bool rightEmpty = right is null || right.Length == 0;
 
-        if (leftEmpty && rightEmpty)
-            return;
+        if (leftEmpty || rightEmpty)
+        {
+            throw new ConflictException(
+                $"Compare blocked: create-time {label} is required for both runs.");
+        }
 
-        if (leftEmpty || rightEmpty || !left.AsSpan().SequenceEqual(right))
+        if (!left.AsSpan().SequenceEqual(right))
         {
             throw new ConflictException(
                 $"Compare blocked: create-time {label} differs between the selected runs.");

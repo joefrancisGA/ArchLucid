@@ -60,8 +60,8 @@ export function IdentityProvidersSamlPageClient(): React.JSX.Element {
           <LivelihoodDocumentGuardDialog
             open={documentGuards.dialogOpen}
             message={documentGuards.dialogMessage}
-            onConfirm={documentGuards.confirmLeave}
-            onCancel={documentGuards.cancelLeave}
+            onConfirmLeave={documentGuards.confirmLeave}
+            onCancelLeave={documentGuards.cancelLeave}
           />
         </IdentityProvidersSettingsShell>
       )}

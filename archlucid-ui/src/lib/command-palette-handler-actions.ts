@@ -2,6 +2,8 @@ export const COMMAND_PALETTE_SAVE_DRAFT_EVENT = "archlucid-command-palette-save-
 export const COMMAND_PALETTE_UNDO_MUTATION_EVENT = "archlucid-command-palette-undo-mutation";
 export const COMMAND_PALETTE_FINDING_NEXT_EVENT = "archlucid-command-palette-finding-next";
 export const COMMAND_PALETTE_FINDING_PREV_EVENT = "archlucid-command-palette-finding-prev";
+/** Alias for WD-05 listeners that used the longer event name. */
+export const COMMAND_PALETTE_FINDING_PREVIOUS_EVENT = COMMAND_PALETTE_FINDING_PREV_EVENT;
 export const COMMAND_PALETTE_FINDING_ACCEPT_EVENT = "archlucid-command-palette-finding-accept";
 export const COMMAND_PALETTE_FINDING_REMEDIATE_EVENT = "archlucid-command-palette-finding-remediate";
 export const COMMAND_PALETTE_FINDING_REJECT_EVENT = "archlucid-command-palette-finding-reject";
@@ -53,7 +55,7 @@ export function isAlertsWorkPath(pathname: string): boolean {
   return alertsPathPattern.test(pathname);
 }
 
-/** True when a reversible-mutation Undo control is on the page (LI-07). */
+/** True when a reversible-mutation Undo control is on the page (LI-07 / WD-05). */
 export function isCommandPaletteReversibleUndoAvailable(): boolean {
   if (typeof document === "undefined") {
     return false;
@@ -73,18 +75,19 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
     id: "action-undo-mutation",
     label: "Undo last reversible change",
     searchValue: "action undo disposition mutation reversible",
-    isAvailable: (_pathname, context) => context?.reversibleUndoAvailable === true,
+    isAvailable: (_pathname, context) =>
+      context?.reversibleUndoAvailable === true || isCommandPaletteReversibleUndoAvailable(),
   },
   {
     id: "action-finding-next",
     label: "Focus next finding",
-    searchValue: "action finding next alt+j triage",
+    searchValue: "action finding next alt+j triage card",
     isAvailable: (pathname) => isFindingsWorkPath(pathname),
   },
   {
     id: "action-finding-prev",
     label: "Focus previous finding",
-    searchValue: "action finding previous alt+k triage",
+    searchValue: "action finding previous alt+k triage card",
     isAvailable: (pathname) => isFindingsWorkPath(pathname),
   },
   {

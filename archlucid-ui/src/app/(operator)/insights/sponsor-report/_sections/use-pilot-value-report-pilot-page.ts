@@ -13,6 +13,10 @@ import {
   sponsorReportPeriodHrefFromSearch,
 } from "@/lib/insights/sponsor-report-period-url";
 import {
+  parseSponsorReportCustomDateFromSearch,
+  sponsorReportCustomDateHrefFromSearch,
+} from "@/lib/insights/sponsor-report-custom-date-url";
+import {
   type PilotOutcomesPeriodPresetId,
   resolvePilotOutcomesPeriodPreset,
 } from "@/lib/pilot-outcomes-period-presets";
@@ -59,8 +63,14 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlPeriodPreset = parseSponsorReportPeriodFromSearch(searchParams.get("range"));
-  const [fromUtc, setFromUtc] = useState(loaded.initialFromUtc);
-  const [toUtc, setToUtc] = useState(loaded.initialToUtc);
+  const urlFromUtc = parseSponsorReportCustomDateFromSearch(searchParams.get("from"));
+  const urlToUtc = parseSponsorReportCustomDateFromSearch(searchParams.get("to"));
+  const [fromUtc, setFromUtc] = useState(
+    urlPeriodPreset === "custom" && urlFromUtc.length > 0 ? urlFromUtc : loaded.initialFromUtc,
+  );
+  const [toUtc, setToUtc] = useState(
+    urlPeriodPreset === "custom" && urlToUtc.length > 0 ? urlToUtc : loaded.initialToUtc,
+  );
   const [periodPreset, setPeriodPreset] = useState<PilotOutcomesPeriodPresetId>(urlPeriodPreset);
   const [data, setData] = useState<PilotValueReportJson | null>(loaded.data);
   const canMutate = useOperateCapability();
@@ -79,6 +89,14 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
     setPeriodPreset(urlPeriodPreset);
 
     if (urlPeriodPreset === "custom") {
+      if (urlFromUtc.length > 0) {
+        setFromUtc(urlFromUtc);
+      }
+
+      if (urlToUtc.length > 0) {
+        setToUtc(urlToUtc);
+      }
+
       return;
     }
 
@@ -86,7 +104,25 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
 
     setFromUtc(resolved.fromUtc);
     setToUtc(resolved.toUtc);
-  }, [urlPeriodPreset]);
+  }, [urlFromUtc, urlPeriodPreset, urlToUtc]);
+
+  useEffect(() => {
+    if (periodPreset !== "custom") {
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      const nextHref = sponsorReportCustomDateHrefFromSearch(searchParams.toString(), fromUtc, toUtc);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [fromUtc, periodPreset, router, searchParams, toUtc]);
 
   const load = useCallback(async () => {
     setBusy(true);

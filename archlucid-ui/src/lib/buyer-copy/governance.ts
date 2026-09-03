@@ -34,6 +34,9 @@ export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Findings";
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =
   "Track open findings, waivers, exceptions, and approval decisions across reviews in this workspace.";
 
+export const BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD =
+  "Personal remediation queue — open findings assigned to you across reviews in this workspace.";
+
 export const BUYER_RISK_REGISTER_EMPTY_TITLE = "No findings in this workspace yet";
 
 export const BUYER_RISK_REGISTER_EMPTY_BODY =

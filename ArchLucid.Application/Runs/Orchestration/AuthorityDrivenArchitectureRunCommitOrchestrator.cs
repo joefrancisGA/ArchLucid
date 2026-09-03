@@ -2,6 +2,7 @@
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration.Commit;
 using ArchLucid.Core.Persistence.Ports;
@@ -17,6 +18,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
@@ -42,6 +44,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IDecisionTraceRepository decisionTraceRepository,
     IArtifactBundleRepository artifactBundleRepository,
     IAuthorityCommitProjectionBuilder projectionBuilder,
+    IManifestHashService manifestHashService,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -78,6 +81,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
         projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -214,6 +220,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         if (runRecord is null)
             throw new RunNotFoundException(runId);
+
+        RunScopeAssertionGuard.EnsureCallerScopeMatchesRunOrThrow(scope, runRecord, runId, "Commit");
+
         ArchitectureRun? run =
             await ArchitectureRunAuthorityReader.TryGetArchitectureRunFromRecordAsync(_scopeContextProvider, _taskRepository, runId, runRecord,
                 cancellationToken);
@@ -254,6 +263,22 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 runRecord,
                 runId,
                 recomputedMaterial);
+
+            AuthorityCommitRecoveryVerifier.EnsureSealedManifestHashMatchesOrThrow(
+                persistedManifest,
+                runId,
+                _manifestHashService);
+
+            string manifestVersion = !string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+                ? run.CurrentManifestVersion
+                : persistedManifest.Metadata.Version;
+
+            AuthorityCommitRecoveryVerifier.EnsureDecisionReceiptHashConsistentOrThrow(
+                persistedManifest,
+                runGuid,
+                manifestVersion,
+                runId,
+                _manifestHashService);
         }
 
         CommitRunResult? idempotent = await _idempotencyHandler.TryReturnCommittedAsync(run, runId, cancellationToken);

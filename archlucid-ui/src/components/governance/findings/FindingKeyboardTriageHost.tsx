@@ -193,51 +193,54 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
   }
 
   if (pending === null) {
-    return null;
+    return <span hidden data-finding-keyboard-triage-host="" />;
   }
 
   return (
-    <ConfirmationDialog
-      open
-      onOpenChange={(open) => {
-        if (!open) {
-          setPending(null);
-          setInlineErrorMessage(null);
-          setRationale("");
-        }
-      }}
-      title="Confirm finding disposition"
-      description={`${CONFIRM_LABELS[pending.disposition]} (${findingDispositionKindLabel(pending.disposition)}).`}
-      confirmLabel="Apply disposition"
-      variant="default"
-      busy={busy}
-      extraContent={
-        <div className="mt-2 space-y-3">
-          {inlineErrorMessage !== null ? (
-            <OperatorMutationInlineError
-              message={inlineErrorMessage}
-              testId="finding-keyboard-disposition-inline-error"
-            />
-          ) : null}
-          <div>
-            <Label htmlFor="finding-keyboard-disposition-reason">Reason</Label>
-            <Input
-              id="finding-keyboard-disposition-reason"
-              value={rationale}
-              onChange={(event) => setRationale(event.target.value)}
-              placeholder="Required for disposition audit trail"
-              disabled={busy}
-              data-testid="finding-keyboard-disposition-reason"
-            />
+    <>
+      <span hidden data-finding-keyboard-triage-host="" />
+      <ConfirmationDialog
+        open
+        onOpenChange={(open) => {
+          if (!open) {
+            setPending(null);
+            setInlineErrorMessage(null);
+            setRationale("");
+          }
+        }}
+        title="Confirm finding disposition"
+        description={`${CONFIRM_LABELS[pending.disposition]} (${findingDispositionKindLabel(pending.disposition)}).`}
+        confirmLabel="Apply disposition"
+        variant="default"
+        busy={busy}
+        extraContent={
+          <div className="mt-2 space-y-3">
+            {inlineErrorMessage !== null ? (
+              <OperatorMutationInlineError
+                message={inlineErrorMessage}
+                testId="finding-keyboard-disposition-inline-error"
+              />
+            ) : null}
+            <div>
+              <Label htmlFor="finding-keyboard-disposition-reason">Reason</Label>
+              <Input
+                id="finding-keyboard-disposition-reason"
+                value={rationale}
+                onChange={(event) => setRationale(event.target.value)}
+                placeholder="Required for disposition audit trail"
+                disabled={busy}
+                data-testid="finding-keyboard-disposition-reason"
+              />
+            </div>
+            <DispositionExportBeforeAfterPreview disposition={pending.disposition} />
+            <DispositionExportImpactNotice disposition={pending.disposition} />
           </div>
-          <DispositionExportBeforeAfterPreview disposition={pending.disposition} />
-          <DispositionExportImpactNotice disposition={pending.disposition} />
-        </div>
-      }
-      reversibilityMutationId="governance_keyboard_finding_disposition"
-      onConfirm={() => {
-        void applyPending();
-      }}
-    />
+        }
+        reversibilityMutationId="governance_keyboard_finding_disposition"
+        onConfirm={() => {
+          void applyPending();
+        }}
+      />
+    </>
   );
 }

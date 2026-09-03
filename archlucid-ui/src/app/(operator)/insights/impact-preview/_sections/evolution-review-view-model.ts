@@ -14,8 +14,10 @@ export type EvolutionReviewPageViewModel = {
   readonly candidates: EvolutionCandidateChangeSetResponse[];
   readonly selectedId: string | null;
   readonly setSelectedId: Dispatch<SetStateAction<string | null>>;
+  readonly selectCandidate: (candidateId: string) => void;
   readonly selectedBaselineId: string | null;
   readonly setSelectedBaselineId: Dispatch<SetStateAction<string | null>>;
+  readonly selectBaseline: (baselineId: string) => void;
   readonly baselineOptions: readonly ImpactPreviewBaselineOption[];
   readonly comparisonScope: ImpactPreviewComparisonScope;
   readonly toggleComparisonScope: (key: keyof ImpactPreviewComparisonScope) => void;

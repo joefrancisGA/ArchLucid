@@ -578,6 +578,170 @@ type _AiUsageDashboardModelWave14BarrelAliases = [
   >,
 ];
 
+/** Wave 15 — health-dashboard summary tiles and severity-helper modules. */
+type _HealthDashboardSummaryWave15ModuleAliases = [
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-tiles").HealthSummaryTile,
+    import("@/lib/health-dashboard-summary").HealthSummaryTile
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-severity-helpers").humanizeCircuitGateName,
+    typeof import("@/lib/health-dashboard-summary").humanizeCircuitGateName
+  >,
+];
+
+/** Wave 15 — health-dashboard summary barrel re-exports tiles and severity-helper slices. */
+type _HealthDashboardSummaryWave15BarrelAliases = [
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-tiles").buildHealthSummaryTiles,
+    typeof import("@/lib/health-dashboard-summary").buildHealthSummaryTiles
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-severity-helpers").circuitSeverity,
+    typeof import("@/lib/health-dashboard-summary").circuitSeverity
+  >,
+];
+
+/** Wave 15 — governance-dashboard summary, lineage, and batch-review modules. */
+type _GovernanceDashboardWave15ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["GovernanceDashboardSummary"],
+    import("@/types/governance-dashboard-summary").GovernanceDashboardSummary
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceLineageResult"],
+    import("@/types/governance-dashboard-lineage").GovernanceLineageResult
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceBatchReviewResponse"],
+    import("@/types/governance-dashboard-batch-review").GovernanceBatchReviewResponse
+  >,
+];
+
+/** Wave 15 — governance-dashboard barrel re-exports summary, lineage, and batch-review slices. */
+type _GovernanceDashboardWave15BarrelAliases = [
+  AssertExtends<
+    import("@/types/governance-dashboard-summary").ComplianceDriftTrendPoint,
+    import("@/types/governance-dashboard").ComplianceDriftTrendPoint
+  >,
+  AssertExtends<
+    import("@/types/governance-dashboard-lineage").GovernanceRationaleResult,
+    import("@/types/governance-dashboard").GovernanceRationaleResult
+  >,
+  AssertExtends<
+    import("@/types/governance-dashboard-batch-review").GovernanceBatchReviewItemResult,
+    import("@/types/governance-dashboard").GovernanceBatchReviewItemResult
+  >,
+];
+
+/** Wave 15 — operate-rhythm pilot-stickiness, integrations, and alerts modules. */
+type _OperateRhythmWave15ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["OperatorStickinessSnapshotResponse"],
+    import("@/types/operate-rhythm-pilot-stickiness").OperatorStickinessSnapshotDto
+  >,
+  AssertExtends<
+    components["schemas"]["TenantIntegrationsOperationsResponse"],
+    import("@/types/operate-rhythm-integrations").TenantIntegrationsOperationsDto
+  >,
+  AssertExtends<
+    components["schemas"]["AlertActionLoopResponse"],
+    import("@/types/operate-rhythm-alerts").AlertActionLoopDto
+  >,
+];
+
+/** Wave 15 — operate-rhythm barrel re-exports pilot-stickiness, integrations, and alerts slices. */
+type _OperateRhythmWave15BarrelAliases = [
+  AssertExtends<
+    import("@/types/operate-rhythm-pilot-stickiness").PilotFunnelSnapshotDto,
+    import("@/types/operate-rhythm").PilotFunnelSnapshotDto
+  >,
+  AssertExtends<
+    import("@/types/operate-rhythm-integrations").normalizeConnectorSurfaceStatus,
+    typeof import("@/types/operate-rhythm").normalizeConnectorSurfaceStatus
+  >,
+  AssertExtends<
+    import("@/types/operate-rhythm-alerts").WeeklyDigestHealthDto,
+    import("@/types/operate-rhythm").WeeklyDigestHealthDto
+  >,
+];
+
+/** Wave 16 — page-help-topic-rows-admin integrations, security, and compose partials. */
+type _PageHelpTopicRowsAdminWave16ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/usability/page-help-topic-rows-admin-integrations").PAGE_HELP_TOPIC_ROWS_ADMIN_INTEGRATIONS,
+    readonly { prefix: string; topic: import("@/lib/usability/page-help-topic-rows-operator").PageHelpTopic }[]
+  >,
+  AssertExtends<
+    typeof import("@/lib/usability/page-help-topic-rows-admin-security").PAGE_HELP_TOPIC_ROWS_ADMIN_SECURITY,
+    readonly { prefix: string; topic: import("@/lib/usability/page-help-topic-rows-operator").PageHelpTopic }[]
+  >,
+  AssertExtends<
+    typeof import("@/lib/usability/page-help-topic-rows-admin-compose").PAGE_HELP_TOPIC_ROWS_ADMIN_COMPOSE,
+    readonly { prefix: string; topic: import("@/lib/usability/page-help-topic-rows-operator").PageHelpTopic }[]
+  >,
+];
+
+/** Wave 16 — page-help-topic-rows-admin barrel composes integrations, security, and compose slices. */
+type _PageHelpTopicRowsAdminWave16BarrelAliases = [
+  AssertExtends<
+    (typeof import("@/lib/usability/page-help-topic-rows-admin-integrations").PAGE_HELP_TOPIC_ROWS_ADMIN_INTEGRATIONS)[number],
+    (typeof import("@/lib/usability/page-help-topic-rows-admin").PAGE_HELP_TOPIC_ROWS_ADMIN)[number]
+  >,
+  AssertExtends<
+    (typeof import("@/lib/usability/page-help-topic-rows-admin-security").PAGE_HELP_TOPIC_ROWS_ADMIN_SECURITY)[number],
+    (typeof import("@/lib/usability/page-help-topic-rows-admin").PAGE_HELP_TOPIC_ROWS_ADMIN)[number]
+  >,
+];
+
+/** Wave 16 — first-review-guide state and persistence modules. */
+type _FirstReviewGuideWave16ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-persistence").hasSealedReviewRecord,
+    (input: import("@/lib/core-pilot-commit-context").CorePilotCommitContext) => boolean
+  >,
+  AssertExtends<
+    import("@/lib/first-review-guide-state").FirstReviewGuideReadiness,
+    import("@/lib/first-review-guide-state").FirstReviewGuideReadiness
+  >,
+];
+
+/** Wave 16 — first-review-guide-state exports persistence-backed readiness helpers. */
+type _FirstReviewGuideWave16BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-state").resolveFirstReviewGuideReadiness,
+    typeof import("@/lib/first-review-guide-state").resolveFirstReviewGuideReadiness
+  >,
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-persistence").hasSealedReviewRecord,
+    (input: import("@/lib/core-pilot-commit-context").CorePilotCommitContext) => boolean
+  >,
+];
+
+/** Wave 16 — connector-operations status and present modules. */
+type _ConnectorOperationsWave16ModuleAliases = [
+  AssertExtends<
+    import("@/lib/connector-operations-status").ConnectorHumanStatus,
+    import("@/lib/connector-operations-present").ConnectorHumanStatus
+  >,
+  AssertExtends<
+    typeof import("@/lib/connector-operations-present").resolveConnectorGuidance,
+    (connector: import("@/types/operate-rhythm").ConnectorSurfaceStatusDto, humanStatus: import("@/lib/connector-operations-status").ConnectorHumanStatus) => string
+  >,
+];
+
+/** Wave 16 — connector-operations-present barrel re-exports status slice helpers. */
+type _ConnectorOperationsWave16BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/connector-operations-status").resolveConnectorHumanStatus,
+    typeof import("@/lib/connector-operations-present").resolveConnectorHumanStatus
+  >,
+  AssertExtends<
+    typeof import("@/lib/connector-operations-present").groupConnectorsByPurpose,
+    typeof import("@/lib/connector-operations-present").groupConnectorsByPurpose
+  >,
+];
+
 /** Wave 12 — authority run-detail trust-evidence module. */
 type _AuthorityRunDetailWave12TrustModuleAliases = [
   AssertExtends<
@@ -1314,6 +1478,18 @@ const _compileTimeAliasGuards: [
   _HealthDashboardWave14BarrelAliases,
   _AiUsageDashboardModelWave14ModuleAliases,
   _AiUsageDashboardModelWave14BarrelAliases,
+  _HealthDashboardSummaryWave15ModuleAliases,
+  _HealthDashboardSummaryWave15BarrelAliases,
+  _GovernanceDashboardWave15ModuleAliases,
+  _GovernanceDashboardWave15BarrelAliases,
+  _OperateRhythmWave15ModuleAliases,
+  _OperateRhythmWave15BarrelAliases,
+  _PageHelpTopicRowsAdminWave16ModuleAliases,
+  _PageHelpTopicRowsAdminWave16BarrelAliases,
+  _FirstReviewGuideWave16ModuleAliases,
+  _FirstReviewGuideWave16BarrelAliases,
+  _ConnectorOperationsWave16ModuleAliases,
+  _ConnectorOperationsWave16BarrelAliases,
   _AuthorityRunDetailWave12TrustModuleAliases,
   _AuthorityRunDetailWave12ProvenanceModuleAliases,
   _AuthorityRunDetailWave12BarrelAliases,
@@ -1375,6 +1551,18 @@ const _compileTimeAliasGuards: [
   [] as unknown as _HealthDashboardWave14BarrelAliases,
   [] as unknown as _AiUsageDashboardModelWave14ModuleAliases,
   [] as unknown as _AiUsageDashboardModelWave14BarrelAliases,
+  [] as unknown as _HealthDashboardSummaryWave15ModuleAliases,
+  [] as unknown as _HealthDashboardSummaryWave15BarrelAliases,
+  [] as unknown as _GovernanceDashboardWave15ModuleAliases,
+  [] as unknown as _GovernanceDashboardWave15BarrelAliases,
+  [] as unknown as _OperateRhythmWave15ModuleAliases,
+  [] as unknown as _OperateRhythmWave15BarrelAliases,
+  [] as unknown as _PageHelpTopicRowsAdminWave16ModuleAliases,
+  [] as unknown as _PageHelpTopicRowsAdminWave16BarrelAliases,
+  [] as unknown as _FirstReviewGuideWave16ModuleAliases,
+  [] as unknown as _FirstReviewGuideWave16BarrelAliases,
+  [] as unknown as _ConnectorOperationsWave16ModuleAliases,
+  [] as unknown as _ConnectorOperationsWave16BarrelAliases,
   [] as unknown as _AuthorityRunDetailWave12TrustModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12ProvenanceModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12BarrelAliases,

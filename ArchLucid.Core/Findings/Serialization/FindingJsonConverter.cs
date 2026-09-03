@@ -25,7 +25,7 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
                     : 0,
             FindingId = ReadRequiredString(root, "findingId") is { Length: > 0 } findingId
                 ? findingId
-                : Guid.NewGuid().ToString("N"),
+                : throw new JsonException("findingId is required."),
             FindingType = ReadRequiredString(root, "findingType"),
             Category = ReadOptionalString(root, "category") ?? "",
             EngineType = ReadRequiredString(root, "engineType"),
@@ -72,6 +72,8 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         {
             finding.EnforcementTier = ReadEnforcementTierFromString(tierFromProps);
         }
+
+        finding.Properties[FindingPropertyKeys.EnforcementTier] = finding.EnforcementTier.ToString();
 
         if (TryGetPropertyCaseInsensitive(root, "confidenceScore", out JsonElement confEl)
             && TryReadFiniteDouble(confEl, out double conf))
@@ -137,9 +139,18 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         Dictionary<string, string> properties = new(value.Properties);
 
         if (value.EvidencePackageId is Guid syncedPackageId)
+        {
             properties[FindingPropertyKeys.EvidencePackageId] = syncedPackageId.ToString("D");
+            value.Properties[FindingPropertyKeys.EvidencePackageId] = syncedPackageId.ToString("D");
+        }
         else
+        {
             properties.Remove(FindingPropertyKeys.EvidencePackageId);
+            value.Properties.Remove(FindingPropertyKeys.EvidencePackageId);
+        }
+
+        properties[FindingPropertyKeys.EnforcementTier] = value.EnforcementTier.ToString();
+        value.Properties[FindingPropertyKeys.EnforcementTier] = value.EnforcementTier.ToString();
 
         writer.WritePropertyName("properties");
         JsonSerializer.Serialize(writer, properties, options);

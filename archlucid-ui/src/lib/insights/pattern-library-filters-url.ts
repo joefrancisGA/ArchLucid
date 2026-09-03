@@ -1,7 +1,9 @@
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import type {
   PatternAdoptionSignal,
+  PatternDataSourceFilter,
   PatternDomainFilter,
+  PatternGovernanceSignal,
   PatternPlatformFilter,
   PatternRiskSignal,
   PatternTimeRangeFilter,
@@ -15,6 +17,8 @@ export const PATTERN_LIBRARY_TYPE_PARAM = "type";
 export const PATTERN_LIBRARY_RISK_PARAM = "risk";
 export const PATTERN_LIBRARY_ADOPTION_PARAM = "adoption";
 export const PATTERN_LIBRARY_TIME_PARAM = "time";
+export const PATTERN_LIBRARY_GOVERNANCE_PARAM = "governance";
+export const PATTERN_LIBRARY_SOURCE_PARAM = "source";
 
 const PATTERN_DOMAIN_IDS = new Set<string>([
   "All domains",
@@ -53,6 +57,16 @@ const PATTERN_RISK_IDS = new Set<string>(["All risks", "Low", "Moderate", "High"
 const PATTERN_ADOPTION_IDS = new Set<string>(["All adoption", "Common", "Emerging", "Rare", "Declining"]);
 
 const PATTERN_TIME_IDS = new Set<string>(["All time", "Last 90 days", "Last 12 months"]);
+
+const PATTERN_GOVERNANCE_IDS = new Set<string>([
+  "All governance",
+  "Usually approved",
+  "Often requires exception",
+  "Needs evidence",
+  "Frequently flagged",
+]);
+
+const PATTERN_SOURCE_IDS = new Set<string>(["All sources", "Sample data", "Anonymized aggregate"]);
 
 export function parsePatternLibrarySearchQuery(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
@@ -277,6 +291,72 @@ export function patternLibraryTimeRangeHrefFromSearch(
     params.delete(PATTERN_LIBRARY_TIME_PARAM);
   } else {
     params.set(PATTERN_LIBRARY_TIME_PARAM, timeRange);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function parsePatternLibraryGovernanceFromSearch(
+  raw: string | null | undefined,
+): PatternGovernanceSignal | "All governance" {
+  if (raw === null || raw === undefined) {
+    return "All governance";
+  }
+
+  const trimmed = raw.trim();
+
+  if (!PATTERN_GOVERNANCE_IDS.has(trimmed)) {
+    return "All governance";
+  }
+
+  return trimmed as PatternGovernanceSignal | "All governance";
+}
+
+export function parsePatternLibraryDataSourceFromSearch(raw: string | null | undefined): PatternDataSourceFilter {
+  if (raw === null || raw === undefined) {
+    return "All sources";
+  }
+
+  const trimmed = raw.trim();
+
+  if (!PATTERN_SOURCE_IDS.has(trimmed)) {
+    return "All sources";
+  }
+
+  return trimmed as PatternDataSourceFilter;
+}
+
+export function patternLibraryGovernanceHrefFromSearch(
+  currentSearch: string,
+  governance: PatternGovernanceSignal | "All governance",
+  pathname: string = PATTERN_LIBRARY_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (governance === "All governance") {
+    params.delete(PATTERN_LIBRARY_GOVERNANCE_PARAM);
+  } else {
+    params.set(PATTERN_LIBRARY_GOVERNANCE_PARAM, governance);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function patternLibraryDataSourceHrefFromSearch(
+  currentSearch: string,
+  dataSource: PatternDataSourceFilter,
+  pathname: string = PATTERN_LIBRARY_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (dataSource === "All sources") {
+    params.delete(PATTERN_LIBRARY_SOURCE_PARAM);
+  } else {
+    params.set(PATTERN_LIBRARY_SOURCE_PARAM, dataSource);
   }
 
   const nextQuery = params.toString();

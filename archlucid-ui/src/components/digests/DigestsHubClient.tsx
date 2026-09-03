@@ -45,6 +45,7 @@ import { DigestsAdvisoryScansVocabularyRail } from "@/components/DigestsAdvisory
 import { DigestsBrowseScheduleSubscriptionsVocabularyRail } from "@/components/DigestsBrowseScheduleSubscriptionsVocabularyRail";
 
 import { DigestsBrowseContent } from "./DigestsBrowseContent";
+import { DigestsBrowseBuyerChrome } from "./DigestsBrowseBuyerChrome";
 import { DigestsRelatedSurfacesRail } from "./DigestsRelatedSurfacesRail";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
 import { ExecDigestScheduleContent } from "./ExecDigestScheduleContent";
@@ -292,7 +293,7 @@ export function DigestsHubClient(): ReactElement {
           buyerPolishedShell ? null : <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
         ) : activeTab === "subscriptions" ? (
           <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
-        ) : (
+        ) : buyerPolishedShell ? null : (
           <DigestsRelatedSurfacesRail />
         )}
 
@@ -333,6 +334,7 @@ export function DigestsHubClient(): ReactElement {
             scopedRunId={scopedRunId}
             onPickReview={onPickReview}
           />
+          {buyerPolishedShell ? <DigestsBrowseBuyerChrome /> : null}
         </TabsContent>
         <TabsContent value="subscriptions" className="mt-4">
           <DigestSubscriptionsContent

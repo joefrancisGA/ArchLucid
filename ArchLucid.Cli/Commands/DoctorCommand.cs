@@ -1,14 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text.Json;
 
 using ArchLucid.Cli.Diagnostics;
-using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Support;
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 
 namespace ArchLucid.Cli.Commands;
 
@@ -21,10 +16,8 @@ namespace ArchLucid.Cli.Commands;
 /// </summary>
 [ExcludeFromCodeCoverage(Justification =
     "CLI doctor orchestrates HTTP probes via ArchLucidApiClient (excluded from coverage); exercised manually against a running API.")]
-internal static class DoctorCommand
+internal static partial class DoctorCommand
 {
-    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
-
     public static async Task<int> RunAsync(ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
         CancellationToken ct = default)
     {
@@ -113,181 +106,5 @@ internal static class DoctorCommand
             " (from repository root, or your deployment doc mirror).");
 
         return CliExitCode.Success;
-    }
-
-    private static void PrintCliBuildInfo()
-    {
-        Console.WriteLine("--- CLI build info ---");
-
-        Assembly cliAssembly = typeof(DoctorCommand).Assembly;
-        AssemblyName name = cliAssembly.GetName();
-        string assemblyVersion = name.Version?.ToString() ?? "unknown";
-
-        string informational = cliAssembly
-                                   .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-                               ?? assemblyVersion;
-
-        Console.WriteLine($"CLI version:    {informational}");
-        Console.WriteLine($"Assembly:       {assemblyVersion}");
-        Console.WriteLine($"Runtime:        {RuntimeInformation.FrameworkDescription}");
-        Console.WriteLine();
-    }
-
-    private static async Task PrintApiVersionAsync(ArchLucidApiClient client, CancellationToken ct)
-    {
-        string? versionJson = await client.GetVersionJsonAsync(ct);
-
-        if (versionJson is null)
-        {
-            Console.WriteLine();
-            Console.WriteLine("API version: (unavailable — GET /version failed or not supported)");
-
-            return;
-        }
-
-        Console.WriteLine();
-        Console.WriteLine("API version (GET /version):");
-
-        try
-        {
-            using JsonDocument doc = JsonDocument.Parse(versionJson);
-            Console.WriteLine(JsonSerializer.Serialize(doc, IndentedJson));
-        }
-        catch (JsonException)
-        {
-            Console.WriteLine(versionJson);
-        }
-    }
-
-    private static void RunLocalProjectChecks(ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
-    {
-        Console.WriteLine("--- Local project ---");
-        string cwd = Directory.GetCurrentDirectory();
-
-        if (config is null)
-        {
-            Console.WriteLine(
-                $"No archlucid.json in '{cwd}' (skipped local outputs/brief checks). API checks still run.");
-
-            Console.WriteLine();
-
-            return;
-        }
-
-        Console.WriteLine($"Project: {config.ProjectName} (schema {config.SchemaVersion})");
-
-        string briefPath = Path.Combine(cwd, config.Inputs.Brief);
-        Console.WriteLine(File.Exists(briefPath)
-            ? $"Brief: OK — {config.Inputs.Brief}"
-            : $"Brief: MISSING — expected file at {config.Inputs.Brief} (needed for 'archlucid run').");
-
-        string outputsDir = Path.Combine(cwd, config.Outputs.LocalCacheDir);
-
-        try
-        {
-            Directory.CreateDirectory(outputsDir);
-            string probe = Path.Combine(outputsDir, ".archlucid-write-probe");
-            File.WriteAllText(probe, "ok");
-            File.Delete(probe);
-            Console.WriteLine($"Outputs dir: OK — {config.Outputs.LocalCacheDir} is writable");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Outputs dir: FAIL — cannot use '{config.Outputs.LocalCacheDir}': {ex.Message}");
-        }
-
-        Console.WriteLine();
-    }
-
-    private static void PrintSaaSProfileHints()
-    {
-        Console.WriteLine("--- SaaS profile hints (operator checklist) ---");
-        Console.WriteLine(
-            "These rows are **not** fetched from the API host process; they inspect local environment variables " +
-            "the SaaS profile expects. See `ArchLucid.Api/appsettings.SaaS.json` and `docs/engineering/FIRST_30_MINUTES.md`.");
-
-        string apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY") ?? string.Empty;
-        string sql =
-            Environment.GetEnvironmentVariable("ConnectionStrings__ArchLucid")
-            ?? Environment.GetEnvironmentVariable("ARCHLUCID__ConnectionStrings__ArchLucid")
-            ?? string.Empty;
-
-        Console.WriteLine();
-        Console.WriteLine("| Check | Status | How to fix |");
-        Console.WriteLine("| --- | --- | --- |");
-        Console.WriteLine(
-            $"| `ARCHLUCID_API_KEY` for `/health/diagnostics` aggregate | {Cell(apiKey)} | Export a read-capable API key (see `docs/runbooks/API_KEY_ROTATION.md`). |");
-        Console.WriteLine(
-            $"| SQL connection string | {Cell(sql)} | Set `ConnectionStrings__ArchLucid` or `ARCHLUCID__ConnectionStrings__ArchLucid` (see `docs/engineering/FIRST_30_MINUTES.md`). |");
-        Console.WriteLine(
-            "| `Authentication:ApiKey:DevelopmentBypassAll` | MANUAL | Must be **false** in SaaS; see `ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`. |");
-        Console.WriteLine(
-            "| SQL tenancy | N/A | Per-tenant catalogs + request scope; database RLS was removed (DbUp 148). |");
-        Console.WriteLine();
-
-        static string Cell(string value)
-        {
-            return string.IsNullOrWhiteSpace(value) ? "MISSING" : "OK";
-        }
-    }
-
-    /// <summary>
-    ///     After the API responds to liveness, replay <see cref="ProductionLikeHostingMisconfigurationAdvisor" /> against
-    ///     this process environment (same inputs the API host typically receives via env vars).
-    /// </summary>
-    private static void PrintHostingMisconfigurationHintsFromLocalEnvironment(bool apiHostLiveResponded)
-    {
-        if (!apiHostLiveResponded)
-            return;
-
-        IConfiguration configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build();
-
-        string envName =
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-            ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
-            ?? Environments.Production;
-
-        IReadOnlyList<string> hints =
-            ProductionLikeHostingMisconfigurationAdvisor.DescribeWarnings(configuration, envName);
-
-        if (hints.Count == 0)
-            return;
-
-        Console.WriteLine();
-        Console.WriteLine("--- Hosting misconfiguration hints (local env; mirrors ArchLucid.Api startup warnings) ---");
-        Console.WriteLine(
-            "Derived from this shell's environment variables — align with the API process/container. "
-            + "See docs/engineering/BUILD.md (Hosting misconfiguration warnings).");
-
-        foreach (string hint in hints)
-            Console.WriteLine($" • {hint}");
-
-        Console.WriteLine();
-    }
-
-    private static async Task<bool> PrintProbeAsync(
-        ArchLucidApiClient client,
-        string path,
-        string label,
-        CancellationToken ct)
-    {
-        (int code, string body) = await client.GetHealthProbeAsync(path, ct);
-
-        Console.WriteLine();
-        Console.WriteLine($"{label} — HTTP {code}");
-        Console.WriteLine(TruncateForDisplay(body, 4000));
-
-        return code is >= 200 and < 300;
-    }
-
-    private static string TruncateForDisplay(string body, int maxChars)
-    {
-        if (string.IsNullOrEmpty(body))
-            return "(empty body)";
-
-        if (body.Length <= maxChars)
-            return body;
-
-        return body[..maxChars] + "\n... (truncated)";
     }
 }

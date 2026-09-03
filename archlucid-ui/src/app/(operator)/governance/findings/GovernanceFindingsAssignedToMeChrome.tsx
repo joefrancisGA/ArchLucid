@@ -4,6 +4,7 @@ import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPag
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_LAST_CHECKED_PREFIX,
@@ -56,9 +57,11 @@ export function GovernanceFindingsAssignedToMeHeaderActions({
   assignedToMeRefreshing,
   onRefresh,
 }: Pick<GovernanceFindingsAssignedToMeChromeProps, "assignedToMeRefreshing" | "onRefresh">) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="governance-assigned-to-me-header-actions">
-      <PageContextualHelpButton />
+      {!buyerPolishedShell ? <PageContextualHelpButton /> : null}
       <RefreshButton
         variant="outline"
         busy={assignedToMeRefreshing}

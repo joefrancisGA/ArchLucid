@@ -62,7 +62,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
         string tests = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Application.Tests", "Exports", "DecisionReceiptServiceTests.cs"));
 
-        tests.Should().Contain("BuildForRunAsync_FeasibleManifest_ReturnsReceipt");
+        tests.Should().Contain("BuildForRunAsync_FeasibleManifest_ReturnsReceiptMatchingSealedHash");
     }
 
     [Fact]
@@ -71,8 +71,13 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
         string compare = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Compare.cs"));
 
-        compare.Should().Contain("EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow");
-        compare.Should().Contain("GetRunDetailForManifestCompareAsync");
+        compare.Should().Contain("CompareManifestVersionsAsync");
+
+        string facade = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
+
+        facade.Should().Contain("EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow");
+        facade.Should().Contain("GetRunDetailForManifestCompareAsync");
     }
 
     [Fact]

@@ -268,13 +268,13 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
               candidates={m.candidates}
               selectedCandidateId={m.selectedId}
               onSelectCandidate={(candidateId) => {
-                m.setSelectedId(candidateId);
+                m.selectCandidate(candidateId);
                 m.rememberBaselinePair(m.selectedBaselineId, candidateId);
               }}
               baselineOptions={m.baselineOptions}
               selectedBaselineId={m.selectedBaselineId}
               onSelectBaseline={(baselineId) => {
-                m.setSelectedBaselineId(baselineId);
+                m.selectBaseline(baselineId);
                 m.rememberBaselinePair(baselineId, m.selectedId);
               }}
               comparisonScope={m.comparisonScope}

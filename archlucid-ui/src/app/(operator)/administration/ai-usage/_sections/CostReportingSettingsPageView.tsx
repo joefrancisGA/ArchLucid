@@ -251,6 +251,7 @@ export function CostReportingSettingsPageView(props: Props) {
                 rows={derived.breakdownRows}
                 currency={derived.kpi.currency}
                 groupBy={m.filters.groupBy}
+                currentSearch={m.currentSearch}
                 state={derived.costReportingState === "empty" && derived.breakdownRows.length === 0 ? "empty" : derived.costReportingState}
                 onGroupByChange={(groupBy) => m.setFilters({ ...m.filters, groupBy })}
               />

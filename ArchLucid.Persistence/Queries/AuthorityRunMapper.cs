@@ -57,7 +57,8 @@ internal static class AuthorityRunMapper
             TopDecisionSynopses = ManifestDecisionSynopsisFormatter.FormatTopSynopses(manifest.Decisions),
             FeasibilityVerdict = manifest.FeasibilityVerdict,
             EffectiveGovernanceAtCommit = manifest.EffectiveGovernanceAtCommit,
-            ReviewStandardsAtCommit = manifest.ReviewStandardsAtCommit
+            ReviewStandardsAtCommit = manifest.ReviewStandardsAtCommit,
+            CommittedDecisionReceiptHashSha256 = manifest.CommittedDecisionReceiptHashSha256,
         };
     }
 }

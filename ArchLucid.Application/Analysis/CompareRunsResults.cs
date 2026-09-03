@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Comparison;
 
 namespace ArchLucid.Application.Analysis;
@@ -9,6 +10,8 @@ public enum ScopedRunPairLoadOutcome
     Success,
     LeftRunNotFound,
     RightRunNotFound,
+    PinFingerprintMismatch,
+    CommittedArtifactInventoryMismatch,
 }
 
 /// <summary>Loaded scoped run pair for agent-result comparison.</summary>
@@ -21,6 +24,8 @@ public sealed record ScopedRunPairLoadResult
     public ArchitectureRunDetail? Right { get; init; }
 
     public string? MissingRunId { get; init; }
+
+    public Guid? RunId { get; init; }
 }
 
 /// <summary>Outcome of loading runs and golden manifests for manifest comparison.</summary>
@@ -45,4 +50,22 @@ public sealed record ManifestCompareLoadResult
     public ComparisonResult? Comparison { get; init; }
 
     public Guid? RunId { get; init; }
+
+    public string? VersionLabel { get; init; }
+}
+
+/// <summary>Version-string manifest compare load result for governance compare routes.</summary>
+public sealed record VersionManifestCompareLoadResult
+{
+    public required ManifestCompareLoadOutcome Outcome { get; init; }
+
+    public GoldenManifest? Left { get; init; }
+
+    public GoldenManifest? Right { get; init; }
+
+    public Guid? RunId { get; init; }
+
+    public string? VersionLabel { get; init; }
+
+    public CompareInputFingerprints? InputFingerprints { get; init; }
 }

@@ -260,8 +260,8 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
       <LivelihoodDocumentGuardDialog
         open={documentGuards.dialogOpen}
         message={documentGuards.dialogMessage}
-        onConfirm={documentGuards.confirmLeave}
-        onCancel={documentGuards.cancelLeave}
+        onConfirmLeave={documentGuards.confirmLeave}
+        onCancelLeave={documentGuards.cancelLeave}
       />
     </div>
   );

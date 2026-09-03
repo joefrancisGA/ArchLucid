@@ -1,4 +1,8 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  AUDIT_TRAIL_FROM_PARAM,
+  AUDIT_TRAIL_TO_PARAM,
+} from "@/lib/governance/audit-trail-custom-date-url";
 
 export const AUDIT_TRAIL_DATE_RANGE_PARAM = "range";
 
@@ -33,6 +37,8 @@ export function auditTrailDateRangePresetHrefFromSearch(
     params.delete(AUDIT_TRAIL_DATE_RANGE_PARAM);
   } else {
     params.set(AUDIT_TRAIL_DATE_RANGE_PARAM, preset);
+    params.delete(AUDIT_TRAIL_FROM_PARAM);
+    params.delete(AUDIT_TRAIL_TO_PARAM);
   }
 
   const nextQuery = params.toString();

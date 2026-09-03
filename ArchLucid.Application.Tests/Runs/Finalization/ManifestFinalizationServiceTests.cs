@@ -4,6 +4,7 @@ using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Decisioning.DecisionTraces;
 using PersistenceDecisionTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.DecisionTraceDto;
@@ -511,7 +512,7 @@ public sealed class ManifestFinalizationServiceTests
         result.ManifestId.Should().Be(existingManifest.ManifestId);
         traces.Verify(
             t => t.SaveAsync(It.IsAny<PersistenceDecisionTraceDto>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.Once);
         golden.Verify(
             g => g.SaveAsync(
                 It.IsAny<GoldenManifest>(),
@@ -608,7 +609,12 @@ public sealed class ManifestFinalizationServiceTests
                 CreatedUtc = model.CreatedUtc,
             },
             Trace = trace,
-            SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts
+            SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts,
+            PreloadedArchitectureRequest = new ArchitectureRequest
+            {
+                SystemName = "Sys",
+                CloudProvider = CloudProvider.Azure,
+            },
         };
     }
 

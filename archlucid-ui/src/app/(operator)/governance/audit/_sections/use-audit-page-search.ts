@@ -18,6 +18,11 @@ import {
   parseAuditTrailActorFromSearch,
   parseAuditTrailSearchQueryFromSearch,
 } from "@/lib/governance/audit-trail-filters-url";
+import {
+  auditTrailCustomDateHrefFromSearch,
+  parseAuditTrailCustomDateFromSearch,
+} from "@/lib/governance/audit-trail-custom-date-url";
+import { parseAuditTrailDateRangePresetFromSearch } from "@/lib/governance/audit-trail-date-range-url";
 
 import type { AuditPageServerLoad } from "./load-audit-page-data";
 import type { AuditFilterFields } from "./audit-page-helpers";
@@ -80,13 +85,16 @@ export function useAuditPageSearch(
   const urlAction = parseAuditTrailActionFromSearch(searchParams.get("action"));
   const urlActor = parseAuditTrailActorFromSearch(searchParams.get("actor"));
   const urlSearchQuery = parseAuditTrailSearchQueryFromSearch(searchParams.get("q"));
+  const urlDatePreset = parseAuditTrailDateRangePresetFromSearch(searchParams.get("range"));
+  const urlFromUtc = parseAuditTrailCustomDateFromSearch(searchParams.get("from"));
+  const urlToUtc = parseAuditTrailCustomDateFromSearch(searchParams.get("to"));
 
   const [advancedAuditFiltersOpen, setAdvancedAuditFiltersOpen] = useState(!buyerPolishedShell);
   const [buyerPrimaryFiltersOpen, setBuyerPrimaryFiltersOpen] = useState(false);
   const [eventTypes, setEventTypes] = useState<string[]>(serverLoad.eventTypes);
   const [eventType, setEventType] = useState<string>(urlAction);
-  const [fromUtc, setFromUtc] = useState<string>("");
-  const [toUtc, setToUtc] = useState<string>("");
+  const [fromUtc, setFromUtc] = useState<string>(urlDatePreset === null ? urlFromUtc : "");
+  const [toUtc, setToUtc] = useState<string>(urlDatePreset === null ? urlToUtc : "");
   const [correlationId, setCorrelationId] = useState<string>(urlSearchQuery);
   const [actorUserId, setActorUserId] = useState<string>(urlActor);
   const [runId, setRunId] = useState<string>(() => searchParams.get("runId")?.trim() ?? "");
@@ -108,6 +116,38 @@ export function useAuditPageSearch(
   useEffect(() => {
     setCorrelationId(urlSearchQuery);
   }, [urlSearchQuery]);
+
+  useEffect(() => {
+    if (urlDatePreset !== null) {
+      return;
+    }
+
+    setFromUtc(urlFromUtc);
+    setToUtc(urlToUtc);
+  }, [urlDatePreset, urlFromUtc, urlToUtc]);
+
+  useEffect(() => {
+    if (urlDatePreset !== null) {
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      const nextHref = auditTrailCustomDateHrefFromSearch(
+        searchParams.toString(),
+        fromUtc,
+        toUtc,
+        pathname ?? GOVERNANCE_AUDIT_PATH,
+      );
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [fromUtc, pathname, router, searchParams, toUtc, urlDatePreset]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
