@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
 import { GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED } from "@/lib/governance/governance-mutation-outcome-copy";
+import { DISPOSITION_RATIONALE_REQUIRED_MESSAGE } from "@/lib/review-quality/finding-governance-gates";
 
 const recordBulkFindingDisposition = vi.fn();
 const refresh = vi.fn();
@@ -41,6 +42,25 @@ describe("GovernanceFindingsBulkActions", () => {
     expect(screen.getByRole("button", { name: "Defer all" })).toBeDisabled();
     expect(screen.getByText(GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED)).toBeInTheDocument();
     expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("keeps accept and waive disabled until rationale meets minimum length", () => {
+    render(
+      <GovernanceFindingsBulkActions
+        selectedFindingIds={["f1"]}
+        onApplied={vi.fn()}
+        onDispositionSucceeded={vi.fn()}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Shared reason"), {
+      target: { value: "too short" },
+    });
+
+    expect(screen.getByRole("button", { name: "Accept all" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Waive all" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Defer all" })).toBeEnabled();
+    expect(screen.getByText(DISPOSITION_RATIONALE_REQUIRED_MESSAGE)).toBeInTheDocument();
   });
 
   it("notifies parent with durable success message after bulk disposition succeeds", async () => {

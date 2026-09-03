@@ -2880,11 +2880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 117
-- **bugs-found:** 272
+- **hunts:** 118
+- **bugs-found:** 274
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — CreateRiskException null runId validation parity
+- **last-bug:** 2026-09-03 — product feedback findingRef max length + bulk waive rationale UI gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3416,8 +3416,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #563: promoted and proved CreateRiskException null runId validation parity; seeded product-feedback findingRef and bulk waive rationale candidates.
 
-- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `findingRef` longer than `NVARCHAR(512)` may reach SQL without HTTP 400 while `comment` is capped at 2000 (inspect gate may return 404 first).
-- [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — bulk `RejectedAsNotApplicable` with shared `rationale` shorter than 10 characters returns HTTP 400 while operator bulk UI only requires non-empty reason (Accepted trade-off fixed in #562).
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `findingRef` longer than `NVARCHAR(512)` reached SQL without HTTP 400 while `comment` was capped at 2000 — **hit 2026-09-03 (#565):** reject overlong `FindingRef` before inspect/insert; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_finding_ref_exceeds_max_length`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceFindingsBulkActions` — bulk `RejectedAsNotApplicable` with shared `rationale` shorter than 10 characters returned HTTP 400 while operator bulk UI only required non-empty reason — **hit 2026-09-03 (#565):** align bulk accept/waive UI with `DISPOSITION_RATIONALE_MIN_CHARS` (defer still non-empty only); API regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_waive_rationale_shorter_than_minimum`; UI regression in `GovernanceFindingsBulkActions.test.tsx`.
+
+2026-09-03 thorough hunt #565: proved product-feedback `findingRef` max-length validation and bulk waive rationale UI/API contract alignment.
 
 ---
 

@@ -272,6 +272,42 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
+    public async Task PostProductFeedbackAsync_returns_bad_request_when_finding_ref_exceeds_max_length()
+    {
+        string overlongFindingRef = new string('f', 513);
+
+        Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            findingInspect: findingInspect.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            FindingRef = overlongFindingRef,
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.Verify(
+            r => r.GetInspectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()),
+            Times.Never);
+        repo.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task PostProductFeedbackAsync_returns_bad_request_when_comment_exceeds_max_length()
     {
         Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);

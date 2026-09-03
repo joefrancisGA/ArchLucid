@@ -56,6 +56,8 @@ public sealed class TenantCustomerSuccessController(
 
     private const int ProductFeedbackCommentMaxLength = 2000;
 
+    private const int ProductFeedbackFindingRefMaxLength = 512;
+
     /// <summary>Returns the latest materialized health score row when the worker has populated it.</summary>
     [HttpGet("health-score")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -259,6 +261,13 @@ public sealed class TenantCustomerSuccessController(
         string? findingRef = string.IsNullOrWhiteSpace(request.FindingRef)
             ? null
             : request.FindingRef.Trim();
+
+        if (findingRef is { Length: > ProductFeedbackFindingRefMaxLength })
+        {
+            return this.BadRequestProblem(
+                $"FindingRef exceeds maximum length ({ProductFeedbackFindingRefMaxLength}).",
+                ProblemTypes.ValidationFailed);
+        }
 
         if (findingRef is not null)
         {
