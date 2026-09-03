@@ -134,7 +134,7 @@
 
 ## Active items (remaining)
 
-**2026-09-03 pass 9 — suggestions only; do not treat this list as in-progress implementation.** Evidence from current line counts after PR **#1231** (pass-8 items 1–10). Same constraints as prior passes: keep HTTP routes, OpenAPI wire shapes, and tenant isolation unchanged unless a follow-up explicitly says otherwise.
+**2026-09-03 pass-9 — suggestions only; do not treat this list as in-progress implementation.** Evidence from current line counts after PR **#1231** (pass-8 items 1–10). Same constraints as prior passes: keep HTTP routes, OpenAPI wire shapes, and tenant isolation unchanged unless a follow-up explicitly says otherwise.
 
 1. **Split leftover `PolicyPacksController` CRUD vs assignment and `RunComparisonController` route families** — Pass-8 split catalog into `Catalog.Read` / `Catalog.Mutate`; HTTP leftovers: `PolicyPacksController` **330** (create/publish/assign/archive/delete/duplicate/list/enabled still one file) and `RunComparisonController` **333** (agent compare, summary, end-to-end replay compare, export — no partials). Split PolicyPacks into `Crud` / `Assignment` partials; split RunComparison into `Agents` / `Replay` partials; keep facade delegation; routes and auth stay equivalent. **Impact:** High (policy-pack + compare buyer APIs) · **Effort:** Low–Medium · **Paths:** `ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs`, `ArchLucid.Api/Controllers/Authority/RunComparisonController.cs`
 
