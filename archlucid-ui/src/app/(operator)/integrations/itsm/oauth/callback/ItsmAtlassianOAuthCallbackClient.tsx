@@ -6,10 +6,9 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { ItsmAtlassianOAuthCallbackLoadingView } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackLoadingView";
-import { ItsmAtlassianOAuthCallbackBuyerChrome } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackBuyerChrome";
 import { ItsmAtlassianOAuthCallbackHeaderActions } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackHeaderActions";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { ItsmOAuthCallbackEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { ItsmOAuthCallbackEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-integration-strips";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,6 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { completeItsmAtlassianOAuthConsent } from "@/lib/api/itsm-outbound-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { DESIGN_TOKENS, OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
 import {
@@ -32,10 +30,12 @@ import {
   ITSM_ATLASSIAN_OAUTH_CALLBACK_CONNECTOR_STATE_CONSENT_WITHOUT_CREDENTIAL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_CONNECTOR_STATE_UNCHANGED,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_FAILURE_TITLE,
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL,
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_TARGET_ID,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SUCCESS_MESSAGE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SUCCESS_TITLE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SUPPORT_DISCLOSURE_SUMMARY,
@@ -180,7 +180,6 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
 
   const connectorStateLine = resolveConnectorStateLine(failureKind);
   const pageTitle = resolvePageTitle(phase);
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const supportMailtoHref =
     phase === "failure" && supportTimestampUtc !== null && supportReferenceId !== null
       ? buildItsmAtlassianOAuthCallbackSupportMailtoHref({
@@ -198,7 +197,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
       data-testid="itsm-oauth-callback-page"
     >
       <a
-        href={`#${ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID}`}
+        href={`#${ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_TARGET_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
         {ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL}
@@ -207,125 +206,132 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
       <div
         id={ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID}
         data-testid="itsm-oauth-callback-primary-content"
-        className={cn("scroll-mt-24 space-y-4", OPERATOR_LAYOUT.sectionStack)}
+        className={cn("space-y-4", OPERATOR_LAYOUT.sectionStack)}
       >
         <OperatorPageHeader
           title={pageTitle}
           titleTestId="itsm-oauth-callback-page-title"
           navHref={INTEGRATIONS_JIRA_PATH}
           headingLevel="h1"
-          actions={<ItsmAtlassianOAuthCallbackHeaderActions />}
+          actions={<ItsmAtlassianOAuthCallbackHeaderActions phase={phase} />}
         />
 
-        <ItsmAtlassianOAuthCallbackBuyerChrome />
+        <div
+          id={ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID}
+          data-testid={ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID}
+          className="scroll-mt-24"
+        >
+          <Card className="max-w-[40rem] border-neutral-200/80 bg-al-surface-raised dark:border-neutral-800">
+            <CardContent className={cn(OPERATOR_CARD.body, "space-y-4")}>
+              <div
+                ref={outcomeRef}
+                tabIndex={-1}
+                className="space-y-4 outline-none"
+                data-testid="itsm-oauth-callback-outcome"
+              >
+                {phase === "loading" ? <ItsmAtlassianOAuthCallbackLoadingView /> : null}
 
-        {buyerPolishedShell ? null : <ItsmOAuthCallbackEvidenceOrientationStrip />}
-
-        <Card className="max-w-[40rem] border-neutral-200/80 bg-al-surface-raised dark:border-neutral-800">
-        <CardContent className={cn(OPERATOR_CARD.body, "space-y-4")}>
-          <div
-            ref={outcomeRef}
-            tabIndex={-1}
-            className="space-y-4 outline-none"
-            data-testid="itsm-oauth-callback-outcome"
-          >
-            {phase === "loading" ? <ItsmAtlassianOAuthCallbackLoadingView /> : null}
-
-            {phase === "success" ? (
-              <>
-                <StatusTag kind="ready" label="Connected" data-testid="itsm-oauth-callback-success-status" />
-                <p
-                  role="status"
-                  aria-live="polite"
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid="itsm-oauth-callback-message"
-                >
-                  {message}
-                </p>
-                <Button asChild variant="primary" data-testid="itsm-oauth-callback-open-jira">
-                  <Link href={INTEGRATIONS_JIRA_PATH}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL}</Link>
-                </Button>
-              </>
-            ) : null}
-
-            {phase === "failure" ? (
-              <>
-                <StatusTag kind="blocked" label="Consent failed" data-testid="itsm-oauth-callback-failure-status" />
-
-                <div
-                  role="alert"
-                  className={cn(DESIGN_TOKENS.callout.blockedShell)}
-                  data-testid="itsm-oauth-callback-failure-callout"
-                >
-                  <Ban
-                    className={cn("mt-0.5 h-4 w-4 shrink-0", DESIGN_TOKENS.calloutSeverity.blocked.iconClass)}
-                    aria-hidden
-                  />
-                  <div className="min-w-0 space-y-2">
-                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="itsm-oauth-callback-message">
+                {phase === "success" ? (
+                  <>
+                    <StatusTag kind="ready" label="Connected" data-testid="itsm-oauth-callback-success-status" />
+                    <p
+                      role="status"
+                      aria-live="polite"
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                      data-testid="itsm-oauth-callback-message"
+                    >
                       {message}
                     </p>
-                    {connectorStateLine !== null ? (
-                      <p
-                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                        data-testid="itsm-oauth-callback-connector-state"
-                      >
-                        {connectorStateLine}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
+                    <Button asChild variant="primary" data-testid="itsm-oauth-callback-open-jira">
+                      <Link href={INTEGRATIONS_JIRA_PATH}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL}</Link>
+                    </Button>
+                  </>
+                ) : null}
 
-                <div
-                  className="flex flex-wrap items-center gap-3"
-                  data-testid="itsm-oauth-callback-failure-actions"
-                >
-                  <Button asChild variant="primary" data-testid="itsm-oauth-callback-retry">
-                    <Link href={INTEGRATIONS_JIRA_PATH}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_RETRY_LABEL}</Link>
-                  </Button>
-                  {supportMailtoHref !== null ? (
-                    <Link
-                      href={supportMailtoHref}
-                      className={OPERATOR_LINK.nav}
-                      data-testid="itsm-oauth-callback-contact-support"
+                {phase === "failure" ? (
+                  <>
+                    <StatusTag kind="blocked" label="Consent failed" data-testid="itsm-oauth-callback-failure-status" />
+
+                    <div
+                      role="alert"
+                      className={cn(DESIGN_TOKENS.callout.blockedShell)}
+                      data-testid="itsm-oauth-callback-failure-callout"
                     >
-                      {itsmAtlassianOAuthCallbackSupportLinkLabel()}
-                    </Link>
-                  ) : null}
-                </div>
+                      <Ban
+                        className={cn("mt-0.5 h-4 w-4 shrink-0", DESIGN_TOKENS.calloutSeverity.blocked.iconClass)}
+                        aria-hidden
+                      />
+                      <div className="min-w-0 space-y-2">
+                        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="itsm-oauth-callback-message">
+                          {message}
+                        </p>
+                        {connectorStateLine !== null ? (
+                          <p
+                            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="itsm-oauth-callback-connector-state"
+                          >
+                            {connectorStateLine}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
 
-                <details
-                  className={cn("text-left", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="itsm-oauth-callback-support-details"
-                >
-                  <summary className="cursor-pointer select-none text-al-text-secondary hover:text-al-text-primary">
-                    {ITSM_ATLASSIAN_OAUTH_CALLBACK_SUPPORT_DISCLOSURE_SUMMARY}
-                  </summary>
-                  <div className="mt-3 space-y-2 text-al-text-secondary">
-                    {workspaceLabel !== null ? (
-                      <p className="m-0">
-                        <span className="font-medium text-al-text-primary">Workspace:</span> {workspaceLabel}
-                      </p>
-                    ) : null}
-                    <p className="m-0 flex flex-wrap items-center gap-2">
-                      <span className="font-medium text-al-text-primary">Reference ID:</span>
-                      <code className="break-all rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">
-                        {supportReferenceId}
-                      </code>
-                      <CopyIdButton value={supportReferenceId ?? ""} aria-label="Copy reference ID" />
-                    </p>
-                    {supportTimestampUtc !== null ? (
-                      <p className="m-0">
-                        <span className="font-medium text-al-text-primary">Timestamp (UTC):</span> {supportTimestampUtc}
-                      </p>
-                    ) : null}
-                  </div>
-                </details>
-              </>
-            ) : null}
-          </div>
-        </CardContent>
-      </Card>
+                    <div
+                      className="flex flex-wrap items-center gap-3"
+                      data-testid="itsm-oauth-callback-failure-actions"
+                    >
+                      <Button asChild variant="primary" data-testid="itsm-oauth-callback-retry">
+                        <Link href={INTEGRATIONS_JIRA_PATH}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_RETRY_LABEL}</Link>
+                      </Button>
+                      {supportMailtoHref !== null ? (
+                        <Link
+                          href={supportMailtoHref}
+                          className={OPERATOR_LINK.nav}
+                          data-testid="itsm-oauth-callback-contact-support"
+                        >
+                          {itsmAtlassianOAuthCallbackSupportLinkLabel()}
+                        </Link>
+                      ) : null}
+                    </div>
+
+                    <details
+                      className={cn("text-left", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="itsm-oauth-callback-support-details"
+                    >
+                      <summary className="cursor-pointer select-none text-al-text-secondary hover:text-al-text-primary">
+                        {ITSM_ATLASSIAN_OAUTH_CALLBACK_SUPPORT_DISCLOSURE_SUMMARY}
+                      </summary>
+                      <div className="mt-3 space-y-2 text-al-text-secondary">
+                        {workspaceLabel !== null ? (
+                          <p className="m-0">
+                            <span className="font-medium text-al-text-primary">Workspace:</span> {workspaceLabel}
+                          </p>
+                        ) : null}
+                        <p className="m-0 flex flex-wrap items-center gap-2">
+                          <span className="font-medium text-al-text-primary">Reference ID:</span>
+                          <code className="break-all rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">
+                            {supportReferenceId}
+                          </code>
+                          <CopyIdButton value={supportReferenceId ?? ""} aria-label="Copy reference ID" />
+                        </p>
+                        {supportTimestampUtc !== null ? (
+                          <p className="m-0">
+                            <span className="font-medium text-al-text-primary">Timestamp (UTC):</span>{" "}
+                            {supportTimestampUtc}
+                          </p>
+                        ) : null}
+                      </div>
+                    </details>
+                  </>
+                ) : null}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div data-testid="itsm-oauth-callback-orientation-bottom">
+          <ItsmOAuthCallbackEvidenceOrientationStrip />
+        </div>
       </div>
     </OperatorPageContainer>
   );
