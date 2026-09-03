@@ -123,6 +123,25 @@ public sealed class TeamsNotificationTriggerCatalogTests
     }
 
     [Fact]
+    public void IsKnown_returns_true_for_uppercase_canonical_trigger_names()
+    {
+        string uppercase = IntegrationEventTypes.AuthorityRunCompletedV1.ToUpperInvariant();
+
+        TeamsNotificationTriggerCatalog.IsKnown(uppercase).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ParseOrDefault_preserves_uppercase_canonical_trigger_names()
+    {
+        string uppercase = IntegrationEventTypes.AlertFiredV1.ToUpperInvariant();
+        string json = JsonSerializer.Serialize(new[] { uppercase });
+
+        IReadOnlyList<string> parsed = TeamsNotificationTriggerCatalog.ParseOrDefault(json);
+
+        parsed.Should().Equal(IntegrationEventTypes.AlertFiredV1);
+    }
+
+    [Fact]
     public void Unknown_returns_empty_for_null()
     {
         TeamsNotificationTriggerCatalog.Unknown(null).Should().BeEmpty();

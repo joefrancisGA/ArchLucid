@@ -40,7 +40,7 @@ public static class TeamsNotificationTriggerCatalog
 
     /// <summary>O(1) membership test backing <see cref="IsKnown" />.</summary>
     private static readonly FrozenSet<string> AllSet =
-        All.ToFrozenSet(StringComparer.Ordinal);
+        All.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Default JSON payload for the SQL column when a tenant has not explicitly chosen \u2014 mirrors the migration
@@ -50,14 +50,31 @@ public static class TeamsNotificationTriggerCatalog
         JsonSerializer.Serialize(All);
 
     /// <summary>True when <paramref name="eventType" /> is one of the v1 catalog triggers.</summary>
-    public static bool IsKnown(string eventType)
+    public static bool IsKnown(string eventType) => TryResolveCatalogTrigger(eventType, out _);
+
+    private static bool TryResolveCatalogTrigger(string eventType, out string catalogTrigger)
     {
+        catalogTrigger = string.Empty;
+
         if (string.IsNullOrWhiteSpace(eventType))
             return false;
 
         string canonical = IntegrationEventTypes.MapToCanonical(eventType);
 
-        return AllSet.Contains(canonical);
+        if (!AllSet.Contains(canonical))
+            return false;
+
+        foreach (string trigger in All)
+        {
+            if (!string.Equals(trigger, canonical, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            catalogTrigger = trigger;
+
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -82,8 +99,9 @@ public static class TeamsNotificationTriggerCatalog
                 return All;
 
             string[] filtered = parsed
-                .Select(IntegrationEventTypes.MapToCanonical)
-                .Where(IsKnown)
+                .Select(static trigger => TryResolveCatalogTrigger(trigger, out string catalogTrigger) ? catalogTrigger : null)
+                .Where(static trigger => trigger is not null)
+                .Cast<string>()
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
 
@@ -108,7 +126,9 @@ public static class TeamsNotificationTriggerCatalog
             return DefaultEnabledTriggersJson;
 
         FrozenSet<string> requested = enabledTriggers
-            .Where(IsKnown)
+            .Select(static trigger => TryResolveCatalogTrigger(trigger, out string catalogTrigger) ? catalogTrigger : null)
+            .Where(static trigger => trigger is not null)
+            .Cast<string>()
             .ToFrozenSet(StringComparer.Ordinal);
 
         if (requested.Count == 0)
@@ -126,7 +146,7 @@ public static class TeamsNotificationTriggerCatalog
 
         return enabledTriggers
             .Where(t => !string.IsNullOrWhiteSpace(t) && !IsKnown(t))
-            .Distinct(StringComparer.Ordinal)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
     }
 }
