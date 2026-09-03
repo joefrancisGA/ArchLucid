@@ -146,7 +146,7 @@ internal static class BicepArrayLiteralConverter
             values.Add(CanonicalInfrastructurePropertyBag.CanonicalizeScalarValue(scalarValue));
         }
 
-        return values.Count > 0 ? values : null;
+        return values;
     }
 
     private static Dictionary<string, string> ParseObjectScalars(string objectBody)

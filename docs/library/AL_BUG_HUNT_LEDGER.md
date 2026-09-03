@@ -1881,11 +1881,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 137
-- **bugs-found:** 257
+- **hunts:** 138
+- **bugs-found:** 258
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — embedded `reproduction` environment names misclassified as production-like (#651 regression)
+- **last-bug:** 2026-09-03 — mixed-delimiter `reproduction` environment names misclassified as production-like (#653 regression)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1996,6 +1996,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — embedded `reproduction` environment names misclassified as production-like — **hit 2026-09-03 (#653):** #651 prefix-only exclusion missed `my-reproduction-bug` (`-reproduction-` embedded) and `reproductions` (plural); `production` substring scan still matched; fixed with delimiter-bounded embedded reproduction tokens and plural exact/prefix/suffix parity (`EnvironmentNameImpliesProductionLike_rejects_embedded_reproduction_environment_names`).
 
 2026-09-03 seed hunt #653: reseeded from `HostingEnvironmentNamePatterns` after #651 reproduction prefix fix; proved embedded reproduction and plural reproduction environment gaps.
+
+- [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — mixed-delimiter `reproduction` environment names misclassified as production-like — **hit 2026-09-03 (#654):** #653 embedded-token check only matched homogeneous `-reproduction-` / `_reproduction_` pairs; `my-reproduction_bug` and `my_reproduction-bug` still hit the `production` substring scan; fixed with mixed `-reproduction_` / `_reproduction-` embedded tokens (`EnvironmentNameImpliesProductionLike_rejects_mixed_delimiter_reproduction_environment_names`).
+
+2026-09-03 seed hunt #654: reseeded from `HostingEnvironmentNamePatterns` after #653 homogeneous embedded reproduction fix; proved mixed-delimiter reproduction environment gap.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
@@ -2588,11 +2592,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 72
-- **bugs-found:** 134
+- **hunts:** 73
+- **bugs-found:** 135
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — empty primitive `list(string)` array literals silently dropped
+- **last-bug:** 2026-09-03 — whitespace-only primitive `list(string)` array literals silently dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2785,6 +2789,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `BicepArrayLiteralConverter.TryParseToJsonElement` — multiline primitive `list(string)` arrays silently dropped — multiline `address_prefixes = [ "10.0.1.0/24", "10.0.2.0/24" ]` already preserves `tf.address_prefixes` via existing comma-segment parser (cheap-disproof hunt #652).
 
 2026-09-03 seed hunt #652: reseeded from `BicepArrayLiteralConverter` after #643 primitive-array fallback; proved empty primitive array gap; disproved multiline primitive-array candidate.
+
+- [x] (proven) `BicepArrayLiteralConverter.TryParseToJsonElement` — whitespace-only primitive `list(string)` array literals silently dropped — **hit 2026-09-03 (#655):** `address_prefixes = ["  ", ""]` skipped blank segments then `TryParsePrimitiveStrings` returned `null` for `Count == 0` so no `tf.address_prefixes` emitted (#652 empty-array parity gap); fixed by returning the collected list even when all elements are blank (`ParseAsync_WhitespaceOnlyPrimitiveStringAddressPrefixesArray_PreservesEmptyTfProperty`).
+
+- [x] (invalid) `BicepArrayLiteralConverter.TryParsePrimitiveStrings` — single-quoted HCL primitive `list(string)` arrays silently dropped — `address_prefixes = ['10.0.1.0/24']` already preserves `tf.address_prefixes` via `UnquoteInfrastructureScalar` (cheap-disproof hunt #655).
+
+- [x] (invalid) `BicepArrayLiteralConverter.TryParsePrimitiveStrings` — trailing-comma primitive `list(string)` arrays silently dropped — `address_prefixes = ["10.0.1.0/24",]` already preserves `tf.address_prefixes` via comma-segment parser (cheap-disproof hunt #655).
+
+2026-09-03 seed hunt #655: reseeded from `BicepArrayLiteralConverter` after #652 empty-array fix; proved whitespace-only primitive array gap; disproved single-quoted and trailing-comma candidates.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
