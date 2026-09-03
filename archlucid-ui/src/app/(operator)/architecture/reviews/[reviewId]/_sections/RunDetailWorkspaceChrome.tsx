@@ -12,6 +12,7 @@ import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle"
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { ReviewAskDock } from "@/components/reviews/ReviewAskDock";
 import { ReviewHeaderShareMenu } from "@/components/reviews/ReviewHeaderShareMenu";
+import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
@@ -155,6 +156,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   return (
     <div data-testid="run-detail-workspace-header">
       <SampleReviewDemoBanner runId={props.runId} />
+      <ReviewWorkspaceStaleBanner runId={props.runId} />
       <OperatorPageHeader
         navHref={reviewsListNavHref}
         title={h1Title}
