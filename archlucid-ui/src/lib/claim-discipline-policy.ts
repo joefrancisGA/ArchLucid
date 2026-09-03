@@ -73,6 +73,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "help-dpa-template",
   "help-impact-preview",
   "help-improvement-planning",
+  "help-integration-readiness",
   "help-evidence-graph",
   "help-evidence-intake",
   "help-engineering-troubleshooting",

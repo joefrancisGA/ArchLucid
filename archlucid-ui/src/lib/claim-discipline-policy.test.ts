@@ -53,6 +53,7 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-decision-register", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-impact-preview", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-improvement-planning", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-integration-readiness", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-structured-brief", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-pilot-feedback", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-azure-boards", "not a package.")).toBeUndefined();
@@ -73,6 +74,7 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-decision-register")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-impact-preview")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-improvement-planning")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-integration-readiness")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-structured-brief")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-pilot-feedback")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-azure-boards")).toBe(false);
