@@ -9,13 +9,6 @@ import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   ALERTS_INBOX_ALL_STATUSES_VALUE,
 } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
@@ -27,6 +20,11 @@ import {
   alertsInboxSeverityHrefFromSearch,
   ALERTS_INBOX_SEVERITY_CHIP_OPTIONS,
 } from "@/lib/governance/alerts-inbox-severity-url";
+import {
+  ALERTS_INBOX_STATUS_CHIP_OPTIONS,
+  ALERTS_INBOX_STATUS_CHIP_LABELS,
+  alertsInboxStatusHrefFromSearch,
+} from "@/lib/governance/alerts-inbox-status-url";
 
 export type AlertsInboxControlsProps = {
   readonly status: string;
@@ -90,20 +88,31 @@ export function AlertsInboxControls(props: AlertsInboxControlsProps) {
         data-testid="alerts-inbox-controls"
       >
         <div className="flex flex-wrap items-end gap-3">
-          <div className="grid gap-2">
-            <Label htmlFor="alerts-status-filter">Status</Label>
-            <Select value={props.status} onValueChange={props.onStatusChange}>
-              <SelectTrigger id="alerts-status-filter" className="w-[200px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALERTS_INBOX_ALL_STATUSES_VALUE}>All</SelectItem>
-                <SelectItem value="Open">Open</SelectItem>
-                <SelectItem value="Acknowledged">Acknowledged</SelectItem>
-                <SelectItem value="Resolved">Resolved</SelectItem>
-                <SelectItem value="Suppressed">Suppressed</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="space-y-2">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)} id="alerts-status-filter-label">
+              Status
+            </p>
+            <FilterChipGroup
+              aria-labelledby="alerts-status-filter-label"
+              className="flex flex-wrap gap-2"
+              data-testid="alerts-inbox-status-chips"
+            >
+              {ALERTS_INBOX_STATUS_CHIP_OPTIONS.map((option) => (
+                <FilterChip
+                  key={option}
+                  href={alertsInboxStatusHrefFromSearch(currentSearch, option)}
+                  scroll={false}
+                  className={buyerFilterChipClass(props.status === option, false)}
+                  aria-current={props.status === option ? "page" : undefined}
+                  data-testid={`alerts-inbox-status-${option.toLowerCase()}`}
+                  onClick={() => {
+                    props.onStatusChange(option);
+                  }}
+                >
+                  {ALERTS_INBOX_STATUS_CHIP_LABELS[option]}
+                </FilterChip>
+              ))}
+            </FilterChipGroup>
           </div>
           <RefreshButton busy={props.loading} size="default" onClick={props.onRefresh} />
           {props.canMutateAlertInbox && props.visibleAlertCount > 0 ? (

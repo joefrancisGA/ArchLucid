@@ -47,7 +47,7 @@ describe("AlertsInboxControls", () => {
 
     expect(container).toBeEmptyDOMElement();
     expect(screen.queryByTestId("alerts-inbox-controls")).toBeNull();
-    expect(screen.queryByLabelText("Status")).toBeNull();
+    expect(screen.queryByTestId("alerts-inbox-status-chips")).toBeNull();
     expect(screen.queryByRole("button", { name: "Refresh" })).toBeNull();
     expect(screen.queryByTestId("alerts-inbox-last-updated")).toBeNull();
     expect(screen.queryByTestId("alerts-inbox-bulk-select")).toBeNull();
@@ -57,7 +57,7 @@ describe("AlertsInboxControls", () => {
     render(<AlertsInboxControls {...baseProps} hasAlertRules={true} workspaceContextLoading={false} />);
 
     expect(screen.getByTestId("alerts-inbox-controls")).toBeInTheDocument();
-    expect(screen.getByLabelText("Status")).toBeInTheDocument();
+    expect(screen.getByTestId("alerts-inbox-status-chips")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.getByTestId("alerts-inbox-last-updated")).toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
   });

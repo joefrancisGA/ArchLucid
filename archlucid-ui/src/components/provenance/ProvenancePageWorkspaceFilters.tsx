@@ -4,7 +4,11 @@ import {
   ProvenanceViewModeSwitcher,
   type ProvenanceViewMode,
 } from "@/components/provenance/ProvenanceViewModeSwitcher";
-import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { provenanceCategoryHrefFromSearch } from "@/lib/provenance/provenance-workspace-filters-url";
+import type { ProvenanceNodeFilterCategory } from "@/lib/provenance-node-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +17,8 @@ import { PROVENANCE_PAGE_WORKSPACE_VIEW_MODE_OPTIONS } from "./provenance-page-w
 export type ProvenancePageWorkspaceFiltersProps = {
   readonly viewMode: ProvenanceViewMode;
   readonly onViewModeChange: (mode: ProvenanceViewMode) => void;
+  readonly pathname: string;
+  readonly currentSearch: string;
   readonly filterOptions: ReadonlyArray<{ id: string; label: string }>;
   readonly activeFilters: ReadonlySet<string>;
   readonly filterCounts: ReadonlyMap<string, number>;
@@ -24,6 +30,8 @@ export type ProvenancePageWorkspaceFiltersProps = {
 export function ProvenancePageWorkspaceFilters({
   viewMode,
   onViewModeChange,
+  pathname,
+  currentSearch,
   filterOptions,
   activeFilters,
   filterCounts,
@@ -41,29 +49,42 @@ export function ProvenancePageWorkspaceFilters({
         />
 
         {viewMode === "graph" ? (
-          <div className="flex flex-wrap gap-1.5" data-testid="provenance-graph-filters">
+          <FilterChipGroup aria-label="Provenance graph category filters" className="flex flex-wrap gap-1.5" data-testid="provenance-graph-filters">
             {filterOptions.map((option) => {
               const active = activeFilters.has(option.id);
               const count = filterCounts.get(option.id) ?? 0;
               const zeroCount = count === 0;
+              const category = option.id as ProvenanceNodeFilterCategory;
 
               return (
-                <Button
+                <FilterChip
                   key={option.id}
-                  type="button"
-                  size="sm"
-                  variant={active ? "default" : "outline"}
-                  className="h-8"
+                  href={provenanceCategoryHrefFromSearch(
+                    currentSearch,
+                    active ? null : category,
+                    pathname,
+                  )}
+                  scroll={false}
+                  className={buyerFilterChipClass(active, zeroCount)}
                   aria-pressed={active}
                   aria-disabled={zeroCount}
                   tabIndex={zeroCount ? -1 : undefined}
-                  onClick={() => onToggleFilter(option.id)}
+                  data-testid={`provenance-category-${option.id}`}
+                  onClick={(event) => {
+                    if (zeroCount) {
+                      event.preventDefault();
+
+                      return;
+                    }
+
+                    onToggleFilter(option.id);
+                  }}
                 >
                   {option.label} ({count})
-                </Button>
+                </FilterChip>
               );
             })}
-          </div>
+          </FilterChipGroup>
         ) : null}
       </div>
 

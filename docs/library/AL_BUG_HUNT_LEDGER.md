@@ -1486,11 +1486,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — AL0003 ignored inherited `[MutatingAuditExcluded]` on base controller classes
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — AL0003 inherited base `[MutatingAuditExcluded]` when override declared its own HTTP verb
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1504,6 +1504,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) AL0001 reported controller when every public action had `[AllowAnonymous]` — type-level fallback fired after all actions were skipped; regression in `Does_not_report_controller_when_all_public_actions_have_AllowAnonymous`
 - [x] (proven) AL0001 ignores `[Authorize]` on implemented interface methods — **hit 2026-08-24:** controller actions implementing interface methods with interface-level or method-level `[Authorize]` were flagged (or controller type reported when all actions were interface-authorized); fixed by walking `AllInterfaces` / `FindImplementationForInterfaceMember`; regressions in `Does_not_report_when_interface_method_has_Authorize` / `Does_not_report_when_implemented_interface_has_Authorize`
 - [x] (proven) AL0003 ignores inherited `[MutatingAuditExcluded]` on base controller — **hit 2026-08-25:** `MutatingAuditExcludeApplies` walked only `ContainingType` nesting, not `BaseType` inheritance; derived controller actions false-positive AL0003; fixed by walking base types per nested declaring type; regression in `Mutating_audit_excluded_on_base_controller_suppresses_AL0003_on_derived_action`
+- [x] (proven) AL0001 ignores `[NonAction]` on overridden base helper — **hit 2026-09-03:** `RequireAuthorizationAnalyzer` checked `NonActionAttribute` only on the derived `IMethodSymbol`, not `OverriddenMethod` chain; `public override IActionResult Helper()` false-positive AL0001; fixed by walking override chain; regression in `Does_not_report_NonAction_helper_inherited_from_base_method`
+- [x] (proven) AL0003 ignores `[MutatingAuditExcluded]` on overridden base mutating action — **hit 2026-09-03:** `MutatingAuditExcludeApplies` skipped method-level exclusion on `OverriddenMethod` when derived action re-declared `[HttpPost]`; false-positive AL0003; fixed by walking override chain; regression in `Mutating_audit_excluded_on_base_method_suppresses_AL0003_on_override`
+- [x] (valid-no-repro) `HttpContext? ctx = default` in inner layer — type name in declaration is intentional ARCH001 signal, not a `default` expression false positive
+- [x] (proven) ARCH001 emitted duplicate diagnostics when a generic had multiple banned type arguments — **hit 2026-09-03:** `AnalyzeGenericName` reported once per matching `TypeArguments` entry; fixed to emit a single diagnostic per generic; regression in `Reports_single_diagnostic_when_generic_has_multiple_banned_type_arguments`
+- [x] (proven) ARCH001 missed nested banned types inside generic type arguments — **hit 2026-09-03:** `IsOrUsesBannedType` did not recurse into `INamedTypeSymbol.TypeArguments`, so `Dictionary<string, List<IHttpContextAccessor>>` slipped through; fixed with recursive type-argument walk; regression in `Reports_nested_generic_type_argument_in_inner_layer_assembly`
+- [x] (proven) AL0001 ignored `[AllowAnonymous]` on overridden base helper — **hit 2026-09-03:** `RequireAuthorizationAnalyzer` checked auth attributes only on the derived `IMethodSymbol`, not `OverriddenMethod`; false-positive AL0001 on overrides; fixed by walking override chain; regression in `Does_not_report_AllowAnonymous_helper_inherited_from_base_method`
+- [x] (proven) AL0003 missed tracked HTTP verbs on overridden mutating actions — **hit 2026-09-03:** `MethodSpecifiesTrackedVerb` read only derived `IMethodSymbol` attributes, so `[HttpPost]` on a virtual base with an unaudited override skipped AL0003; fixed by walking `OverriddenMethod` and suppressing shadowed virtual bases; regressions in `AL0003_reports_when_overridden_action_inherits_HttpPost_from_base` and `AL0003_reports_when_override_adds_HttpPost_to_base_NonAction_helper`
+- [x] (valid-no-repro) `IHttpContextAccessor[]` array parameters — element-type `IdentifierName` already triggers ARCH001; no separate array-type gap
+- [x] (valid-no-repro) AL0001 `[Authorize]` on overridden base helper — already covered by `MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain`; regression in `Does_not_report_Authorize_helper_inherited_from_base_method`
+- [x] (proven) AL0003 inherited base `[MutatingAuditExcluded]` when override declared its own HTTP verb — **hit 2026-09-03:** `MutatingAuditExcludeApplies` walked `OverriddenMethod` without checking whether the derived action re-declared `[HttpPost]`/`[HttpPut]`/etc., so a derived mutating override skipped AL0003; fixed by skipping method-level exclusion inheritance when `MethodHasTrackedVerbAttribute` is true on the override; regression in `AL0003_reports_when_override_adds_HttpPost_despite_base_MutatingAuditExcluded`
+- [x] (valid-no-repro) ARCH001 `Action<HttpContext>` delegate parameters — recursive `IsOrUsesBannedType` already flags nested generic arguments; regression in `Reports_delegate_type_argument_with_banned_type_in_inner_layer_assembly`
+- [x] (valid-no-repro) AL0003 `LogAsync` inside local functions — `DescendantNodesAndSelf` already finds nested invocations; regression in `AL0003_is_absent_when_LogAsync_is_in_local_function`
 
 ---
 

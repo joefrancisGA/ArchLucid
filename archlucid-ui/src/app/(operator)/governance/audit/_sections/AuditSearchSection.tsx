@@ -5,6 +5,7 @@ import type { OperatorSavedViewPayload } from "@/lib/operator/operator-saved-vie
 
 import { AuditSearchBuyerChrome } from "./AuditSearchBuyerChrome";
 import { AuditSearchDatePresetButtons } from "./AuditSearchDateRangeFields";
+import { AuditSearchEventTypeChips } from "./AuditSearchEventTypeChips";
 import { AuditSearchFiltersForm } from "./AuditSearchFiltersForm";
 
 type AuditSearchSectionProps = {
@@ -101,7 +102,14 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
         loadAuditSavedView={loadAuditSavedView}
       />
       {!buyerPolishedShell ? (
-        <div className="mb-3 flex flex-wrap gap-2">
+        <div className="mb-3 space-y-2">
+          <AuditSearchEventTypeChips
+            eventTypes={eventTypes}
+            eventType={eventType}
+            setEventType={setEventType}
+            buyerPolishedShell={buyerPolishedShell}
+            disabled={searching || loadingTypes}
+          />
           <AuditSearchDatePresetButtons
             searching={searching}
             loadingTypes={loadingTypes}

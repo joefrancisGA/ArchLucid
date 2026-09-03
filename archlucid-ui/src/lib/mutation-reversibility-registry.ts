@@ -20,7 +20,7 @@ export type MutationReversibilityEntry = {
   readonly undoWindowSeconds?: number;
 };
 
-export const MUTATION_UNDO_WINDOW_SECONDS = 10;
+export const MUTATION_UNDO_WINDOW_SECONDS = 300;
 
 export const FINDING_DISPOSITION_REVISIT_WINDOW_HOURS = 24;
 
@@ -31,7 +31,7 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     id: "governance_quick_approve",
     classification: "permanent",
     confirmationLead:
-      "This records governance approval on the finalized review record. It cannot be undone from this workspace.",
+      "This records governance approval on the finalized review record. Prior approval remains on the audit trail; record a correction there if approval was mistaken.",
   },
   governance_workflow_approve: {
     id: "governance_workflow_approve",
@@ -61,14 +61,14 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     id: "governance_bulk_disposition",
     classification: "reversible",
     confirmationLead:
-      "Disposition changes are recorded on the evidence trail. You can undo within 10 seconds after confirming, or revisit deferred findings for 24 hours.",
+      "Disposition changes are recorded on the evidence trail. You can undo for several minutes after confirming, or revisit deferred findings for 24 hours.",
     undoWindowSeconds: MUTATION_UNDO_WINDOW_SECONDS,
   },
   governance_keyboard_finding_disposition: {
     id: "governance_keyboard_finding_disposition",
     classification: "reversible",
     confirmationLead:
-      "This disposition is recorded on the evidence trail. You can undo within 10 seconds after confirming, or revisit deferred findings for 24 hours.",
+      "This disposition is recorded on the evidence trail. You can undo for several minutes after confirming, or revisit deferred findings for 24 hours.",
     undoWindowSeconds: MUTATION_UNDO_WINDOW_SECONDS,
   },
   governance_policy_pack_publish: {
