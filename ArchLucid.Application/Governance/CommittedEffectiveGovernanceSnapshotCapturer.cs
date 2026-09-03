@@ -1,3 +1,5 @@
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.Resolution;
@@ -51,15 +53,15 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
             scope.ProjectId,
             cancellationToken);
 
-        IReadOnlyList<ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment> assignments =
-            options?.PreloadedScopePolicyPackAssignments
-            ?? await _policyPackAssignmentRepository.ListByScopeAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                cancellationToken);
+        IReadOnlyList<PolicyPackAssignment> assignments = options?.PreloadedScopePolicyPackAssignments
+            ?? throw new ConflictException(
+                "Commit blocked: effective governance snapshot requires pin-derived policy pack assignments.");
 
-        bool focusedPilotMode = PilotModeGovernanceScope.IsActive;
+        bool focusedPilotMode = options?.PinnedFocusedPilotModeEnabled == true
+            || (options?.PinnedFocusedPilotModeEnabled is null && PilotModeGovernanceScope.IsActive);
+        CloudProvider focusedPilotCloudProvider = options?.PinnedFocusedPilotCloudProvider is int raw
+            ? (CloudProvider)raw
+            : PilotModeGovernanceScope.ActiveCloudProvider;
         List<CommittedGovernancePackAssignmentSnapshot> packRows = [];
         List<ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment> applicableAssignments = [];
 
@@ -93,7 +95,7 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
                     assignment.IsPinned,
                     PlatformOverlayPolicyPacks.IsOverlayDisplayName(
                         pack.Name,
-                        PilotModeGovernanceScope.ActiveCloudProvider)))
+                        focusedPilotCloudProvider)))
                 continue;
 
             packRows.Add(

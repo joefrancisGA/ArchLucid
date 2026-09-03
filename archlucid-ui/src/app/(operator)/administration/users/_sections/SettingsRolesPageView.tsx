@@ -31,6 +31,10 @@ import {
   SETTINGS_USERS_USERS_TAB_PATH,
   type SettingsUsersTabId,
 } from "@/lib/settings-admin-route-paths";
+import {
+  parseSettingsRolesMemberRoleFromSearch,
+  parseSettingsRolesMemberStatusFromSearch,
+} from "@/lib/administration/settings-roles-member-filters-url";
 
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 
@@ -79,6 +83,9 @@ export function SettingsRolesPageView(props: Props) {
   const tabs = visibleTabs(canManageApiKeys);
   const hubPathname = settingsUsersNavigationPathname(pathname);
   const urlTab = settingsUsersTabFromLocation(pathname, searchParams.get("tab"), canManageApiKeys);
+  const activeMemberRole = parseSettingsRolesMemberRoleFromSearch(searchParams.get("role"));
+  const activeMemberStatus = parseSettingsRolesMemberStatusFromSearch(searchParams.get("status"));
+  const currentSearch = searchParams.toString();
   const [activeTab, setActiveTab] = useState<SettingsUsersTabId>(urlTab);
   const [invitationsRefreshKey, setInvitationsRefreshKey] = useState(0);
   const [seededInvitations, setSeededInvitations] = useState<AdminUserInvitationRow[]>([]);
@@ -91,6 +98,19 @@ export function SettingsRolesPageView(props: Props) {
     && directoryNoteReliableForAssignmentCounts(m.usersNote)
     && (canManageApiKeys ? directoryNoteReliableForAssignmentCounts(m.keysNote) : true);
   const userRows = useMemo(() => m.sortedRows.filter((r) => r.kind === "user"), [m.sortedRows]);
+  const filteredUserRows = useMemo(() => {
+    return userRows.filter((row) => {
+      if (activeMemberRole !== null && row.role !== activeMemberRole) {
+        return false;
+      }
+
+      if (activeMemberStatus !== null && row.kind !== activeMemberStatus) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [activeMemberRole, activeMemberStatus, userRows]);
   const apiKeyRows = useMemo(() => m.sortedRows.filter((r) => r.kind === "api_key"), [m.sortedRows]);
   const continueLastPrincipal = useMemo(
     () => resolveContinueLastSettingsPrincipal(userRows),
@@ -289,7 +309,11 @@ export function SettingsRolesPageView(props: Props) {
 
         <SettingsRolesUsersTab
           model={m}
-          userRows={userRows}
+          userRows={filteredUserRows}
+          memberRoleFilter={activeMemberRole}
+          memberStatusFilter={activeMemberStatus}
+          membersFilterSearch={currentSearch}
+          membersFilterPathname={hubPathname}
           usersTabInviteFirstLayout={usersTabInviteFirstLayout}
           usersTabEmptyWorkspace={usersTabEmptyWorkspace}
           usersSectionTitle={usersSectionTitle}

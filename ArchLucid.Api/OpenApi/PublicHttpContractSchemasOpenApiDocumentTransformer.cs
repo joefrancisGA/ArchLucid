@@ -49,6 +49,51 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
             "projectId",
             "createdUtc",
             "structuralExecutionMode");
+
+        if (schema.Properties is not null)
+        {
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "pinnedArchitectureVersionContentHashSha256",
+                "Read-only SHA-256 κ artifact content hash pinned at run create (wave-9/10).");
+
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "pinnedKnowledgeModelContentHashSha256",
+                "Read-only SHA-256 κ model content hash pinned at run create (wave-10).");
+
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "pinnedPolicyPackIdsJson",
+                "Read-only create-time policy pack pin rows (JSON array) frozen at run create (wave-6+).");
+
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "pinnedEvidencePackagePinsJson",
+                "Read-only create-time evidence package pin rows (JSON array) frozen at run create (wave-6+).");
+
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "pinnedFocusedPilotModeEnabled",
+                "Read-only focused-pilot mode pin frozen at run create (wave-11).");
+
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "pinnedFocusedPilotCloudProvider",
+                "Read-only focused-pilot cloud provider pin frozen at run create (wave-11).");
+        }
+    }
+
+    private static void SetPinHashDescriptionIfPresent(
+        IDictionary<string, IOpenApiSchema> properties,
+        string jsonName,
+        string description)
+    {
+        if (properties.TryGetValue(jsonName, out IOpenApiSchema? propertySchema)
+            && propertySchema is OpenApiSchema mutableProperty)
+        {
+            OpenApiSchemaContractMutator.SetDescriptionIfMissing(mutableProperty, description);
+        }
     }
 
     private static void ApplyManifestSummaryResponse(OpenApiDocument document)

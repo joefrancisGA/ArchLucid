@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import {
@@ -14,7 +15,10 @@ import {
 } from "@/components/integrations/IntegrationReadinessSections";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { fetchTenantIntegrationsOperations } from "@/lib/api";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
   CONNECTOR_PURPOSE_GROUPS,
   connectorCardTitle,
@@ -33,6 +37,10 @@ import {
   resolveIntegrationReadinessHeadline,
 } from "@/lib/connector-readiness-summary";
 import {
+  connectorOperationsCategoryHrefFromSearch,
+  parseConnectorOperationsCategoryFromSearch,
+} from "@/lib/integrations/connector-operations-category-url";
+import {
   isConnectorDisabledForDeployment,
   resolveConnectorDetailsLabel,
   resolveConnectorRowActionLabel,
@@ -47,6 +55,10 @@ const CONNECTION_STATUS_EMPTY_STATE = {
 } as const;
 
 export function ConnectorOperationsDashboard(): ReactElement {
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const activeCategory = parseConnectorOperationsCategoryFromSearch(searchParams.get("category"));
   const [data, setData] = useState<TenantIntegrationsOperationsDto | null>(null);
   const [configurationReadAt, setConfigurationReadAt] = useState<Date | null>(null);
   const [loadFailureMessage, setLoadFailureMessage] = useState<string | null>(null);
@@ -186,6 +198,31 @@ export function ConnectorOperationsDashboard(): ReactElement {
 
   return (
     <div className="space-y-4">
+      <FilterChipGroup
+        aria-label="Filter integrations by category"
+        className="flex flex-wrap gap-2"
+        data-testid="connection-status-category-chips"
+      >
+        <FilterChip
+          href={connectorOperationsCategoryHrefFromSearch(currentSearch, null, pathname)}
+          scroll={false}
+          className={buyerFilterChipClass(activeCategory === null, false)}
+          aria-current={activeCategory === null ? "page" : undefined}
+        >
+          All categories
+        </FilterChip>
+        {CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical").map((group) => (
+          <FilterChip
+            key={group.id}
+            href={connectorOperationsCategoryHrefFromSearch(currentSearch, group.id, pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(activeCategory === group.id, false)}
+            aria-current={activeCategory === group.id ? "page" : undefined}
+          >
+            {group.title}
+          </FilterChip>
+        ))}
+      </FilterChipGroup>
       <IntegrationReadinessSummaryStrip
         headline={headline}
         tiles={summaryTiles}
@@ -194,6 +231,10 @@ export function ConnectorOperationsDashboard(): ReactElement {
       {recommendedFirstSetup ? <IntegrationRecommendedFirstSetupCard setup={recommendedFirstSetup} /> : null}
 
       {CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical").map((group) => {
+        if (activeCategory !== null && activeCategory !== group.id) {
+          return null;
+        }
+
         const connectors = groupedConnectors.get(group.id) ?? [];
 
         if (connectors.length === 0) {
@@ -232,6 +273,7 @@ export function ConnectorOperationsDashboard(): ReactElement {
         );
       })}
 
+      {activeCategory === null || activeCategory === "technical" ? (
       <section className="space-y-4" data-testid="integration-readiness-group-technical">
         <div>
           <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -258,6 +300,7 @@ export function ConnectorOperationsDashboard(): ReactElement {
           ]}
         />
       </section>
+      ) : null}
     </div>
   );
 }

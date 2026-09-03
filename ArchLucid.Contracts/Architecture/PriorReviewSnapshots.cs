@@ -56,4 +56,18 @@ public sealed class PriorReviewSnapshots
         get;
         set;
     }
+
+    /// <summary>Wave-11 suggestion 106: prior run focused-pilot mode pin stamped on prior Γ.</summary>
+    public string? PriorPinnedFocusedPilotModeEnabled
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-11 suggestion 106: prior run focused-pilot cloud provider pin stamped on prior Γ.</summary>
+    public string? PriorPinnedFocusedPilotCloudProvider
+    {
+        get;
+        set;
+    }
 }

@@ -6,7 +6,8 @@ import { handleFilterChipGroupKeyDown } from "@/components/ui/filter-chip-group-
 
 export type FilterChipGroupProps = {
   readonly children: ReactNode;
-  readonly "aria-label": string;
+  readonly "aria-label"?: string;
+  readonly "aria-labelledby"?: string;
   readonly className?: string;
   readonly "data-testid"?: string;
 };
@@ -28,6 +29,7 @@ export function FilterChipGroup(props: FilterChipGroupProps): React.JSX.Element 
       ref={groupRef}
       role="group"
       aria-label={props["aria-label"]}
+      aria-labelledby={props["aria-labelledby"]}
       className={props.className}
       data-testid={props["data-testid"]}
       onKeyDown={onGroupKeyDown}

@@ -92,6 +92,20 @@ public sealed class ManifestFinalizationRequest
         init;
     }
 
+    /// <summary>Wave-11 suggestion 109: focused pilot mode pinned at run create.</summary>
+    public bool? PinnedFocusedPilotModeEnabled
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Wave-11 suggestion 109: focused pilot cloud provider pinned at run create.</summary>
+    public int? PinnedFocusedPilotCloudProvider
+    {
+        get;
+        init;
+    }
+
     /// <summary>When set, review standards snapshot capture skips reloading the architecture request (TB-2345).</summary>
     public ArchitectureRequest? PreloadedArchitectureRequest
     {

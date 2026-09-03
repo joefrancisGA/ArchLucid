@@ -10,9 +10,9 @@ const sectionsDir = dirname(fileURLToPath(import.meta.url));
 
 const deferredChunkFamilyFiles = [
   "run-detail-page-view-deferred-chunks.tsx",
-  "run-detail-page-view-deferred-chunks-workspace.ts",
-  "run-detail-page-view-deferred-chunks-governance.ts",
-  "run-detail-page-view-deferred-chunks-evidence.ts",
+  "run-detail-page-view-deferred-chunks-workspace.tsx",
+  "run-detail-page-view-deferred-chunks-governance.tsx",
+  "run-detail-page-view-deferred-chunks-evidence.tsx",
   "run-detail-page-view-deferred-chunks-review-package.ts",
   "run-detail-page-view-deferred-chunks-diagnostics.ts",
   "run-detail-page-view-deferred-chunks-compare.ts",

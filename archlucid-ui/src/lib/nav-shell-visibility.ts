@@ -3,6 +3,7 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-committed-architecture-review-gate";
 import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committed-architecture-review-promotion";
+import { filterNavLinksByWorkspaceMode } from "@/lib/nav-workspace-mode-gate";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import {
@@ -68,11 +69,13 @@ export function filterNavLinksForOperatorShell(
   links: ReadonlyArray<NavLinkItem>,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview = true,
+  hideGettingStartedFromMainNav = false,
 ): NavLinkItem[] {
   const gated = filterNavLinksByCommittedArchitectureReviewGate(links, hasCommittedArchitectureReview);
   const promoted = applyCommittedArchitectureReviewNavPromotions(gated, hasCommittedArchitectureReview);
+  const workspaceFiltered = filterNavLinksByWorkspaceMode(promoted, hideGettingStartedFromMainNav);
 
-  let visible: NavLinkItem[] = filterNavLinksByAuthority(promoted, callerAuthorityRank);
+  let visible: NavLinkItem[] = filterNavLinksByAuthority(workspaceFiltered, callerAuthorityRank);
 
   visible = applyNavShellPresetPackagingFilter(visible, resolveNavShellPresetId());
   visible = omitApiKeysSettingsWhenSurfaceDisabled(visible);
@@ -89,6 +92,7 @@ export function listNavGroupsVisibleInOperatorShell(
   callerAuthorityRank: number,
   surfaceFilter: "all" | NavShellSurface = "all",
   hasCommittedArchitectureReview = true,
+  hideGettingStartedFromMainNav = false,
 ): NavGroupWithVisibleLinks[] {
   const presetId = resolveNavShellPresetId();
   const out: NavGroupWithVisibleLinks[] = [];
@@ -105,7 +109,12 @@ export function listNavGroupsVisibleInOperatorShell(
     }
 
     const visibleLinks = filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(group.links, callerAuthorityRank, hasCommittedArchitectureReview),
+      filterNavLinksForOperatorShell(
+        group.links,
+        callerAuthorityRank,
+        hasCommittedArchitectureReview,
+        hideGettingStartedFromMainNav,
+      ),
     );
 
     if (visibleLinks.length === 0) {

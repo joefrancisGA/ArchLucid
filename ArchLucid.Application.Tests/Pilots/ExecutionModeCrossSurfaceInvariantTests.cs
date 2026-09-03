@@ -238,6 +238,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
             Manifest = manifest,
             Results = [],
             DecisionTraces = [],
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
         };
     }
 

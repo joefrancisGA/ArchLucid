@@ -121,6 +121,8 @@ public sealed class AuthorityCommitPersistenceStage(
                     Trace = materialization.Trace,
                     PreloadedFindingsSnapshot = materialization.FindingsForFinalization,
                     PreloadedScopePolicyPackAssignments = materialization.ScopePolicyPackAssignments,
+                    PinnedFocusedPilotModeEnabled = runRecord.PinnedFocusedPilotModeEnabled,
+                    PinnedFocusedPilotCloudProvider = runRecord.PinnedFocusedPilotCloudProvider,
                     PreloadedArchitectureRequest = request,
                     SkipPersistingPipelineArtifacts = materialization.SkipPersistingPipelineArtifacts,
                     ReadyForCommitHandle = readyForCommitRun
