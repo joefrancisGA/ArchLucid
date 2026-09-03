@@ -192,6 +192,12 @@ public sealed class CompareRunsApplicationFacade(
         }
 
         ComparisonResult comparison = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
+        comparison.InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints(
+            baseHeader,
+            targetHeader,
+            baseRun.GoldenManifest.ManifestHash,
+            targetRun.GoldenManifest.ManifestHash);
+
         return new ManifestCompareLoadResult
         {
             Outcome = ManifestCompareLoadOutcome.Success,

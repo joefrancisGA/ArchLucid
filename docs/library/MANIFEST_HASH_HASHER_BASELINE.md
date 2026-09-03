@@ -18,10 +18,10 @@ Any change to the production canonical projection (`ManifestHashService`) requir
 
 | Field | Value |
 | --- | --- |
-| **Hasher schema version** | `v7` (`ManifestHashService.HasherSchemaVersion`; wave-12 create-time provenance binding) |
+| **Hasher schema version** | `v8` (`ManifestHashService.HasherSchemaVersion`; wave-13 committed artifact inventory binding) |
 | **Fixture** | `BaseManifest` in `ArchLucid.Decisioning.Tests/ManifestHashServiceTests.cs` |
-| **Committed artifact** | [`tests/manifest-hash/hasher-baseline-v7.json`](../../tests/manifest-hash/hasher-baseline-v7.json) |
-| **Pinned SHA-256** | `8D09773301D63365D55F6C25B069042684C57854139CA428024E1CCF9866428B` |
+| **Committed artifact** | [`tests/manifest-hash/hasher-baseline-v8.json`](../../tests/manifest-hash/hasher-baseline-v8.json) |
+| **Pinned SHA-256** | `AC4AC658E29E8D4497B66FC7AC04AB8C3B579D7BF75C86186B0EAE65B67E0E97` |
 
 Recompute locally:
 
@@ -36,7 +36,7 @@ dotnet run --project scripts/ci/manifest-hash-baseline-probe/ManifestHashBaselin
 1. **Owner approval** — set `ARCHLUCID_MANIFEST_HASH_BASELINE_LOCK_APPROVED=true` for the shell running the re-lock (single-shot; same semantics as golden-cohort lock).
 2. **Implement** projection / `HasherSchemaVersion` change in `ManifestHashService.cs`.
 3. **Update** `tests/manifest-hash/hasher-baseline-v2.json` (or add `hasher-baseline-v3.json` when bumping version) and this document in the **same commit**.
-4. **Run** `ManifestHashServiceTests.ComputeHash_MatchesPinnedBaseline_v7` (or successor) and export verify / replay tests as applicable.
+4. **Run** `ManifestHashServiceTests.ComputeHash_MatchesPinnedBaseline_v8` (or successor) and export verify / replay tests as applicable.
 5. **Document** migration: historical rows verify under prior version; new commits use bumped version after re-lock.
 
 CI: `scripts/ci/assert_manifest_hash_hasher_baseline_locked.py` fails when `ManifestHashService.cs` changes without baseline artifact updates unless step 1 approval is set in CI env (local/owner only).
@@ -58,8 +58,8 @@ CI: `scripts/ci/assert_manifest_hash_hasher_baseline_locked.py` fails when `Mani
 | Anchor | Purpose |
 | --- | --- |
 | `ArchLucid.Decisioning/Services/ManifestHashService.cs` | Primary diff trigger |
-| `tests/manifest-hash/hasher-baseline-v7.json` | Committed golden hash |
-| `ManifestHashServiceTests.ComputeHash_MatchesPinnedBaseline_v7` | Regression proof |
+| `tests/manifest-hash/hasher-baseline-v8.json` | Committed golden hash |
+| `ManifestHashServiceTests.ComputeHash_MatchesPinnedBaseline_v8` | Regression proof |
 | `assert_manifest_hash_hasher_baseline_locked.py` | Pair service diff with baseline update |
 | `ARCHLUCID_MANIFEST_HASH_BASELINE_LOCK_APPROVED` | Single-shot operator approval |
 

@@ -15,7 +15,7 @@ public static class TenantTrialSeatPolicy
         if (tenant is null)
             return false;
 
-        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.OrdinalIgnoreCase))
             return false;
 
         if (tenant.TrialSeatsLimit is not { } seatLimit || seatLimit < 1)

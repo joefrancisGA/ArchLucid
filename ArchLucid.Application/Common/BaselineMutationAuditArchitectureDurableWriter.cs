@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -207,6 +209,18 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     commitCompleted.RunId = runGuid;
 
                     await auditService.LogAsync(commitCompleted, ct);
+
+                    if (runGuid is Guid committedRunGuid)
+                    {
+                        AuditEvent lifecycleTransition = AuthorityRunLifecycleTransitionAuditor.BuildTransitionEvent(
+                            scope,
+                            committedRunGuid,
+                            AuthorityRunLifecyclePhase.InProgress,
+                            AuthorityRunLifecyclePhase.Complete,
+                            "commit-completed",
+                            actor);
+                        await auditService.LogAsync(lifecycleTransition, ct);
+                    }
                 },
                 logger,
                 $"Run.CommitCompleted:{LogSanitizer.Sanitize(entityId)}",

@@ -25,10 +25,7 @@ using ArchLucid.Host.Composition.Services;
 using ArchLucid.Host.Composition.Startup.Modules;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Diagnostics;
-using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
-using ArchLucid.Host.Core.Http;
-using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Integrations;
 
@@ -48,10 +45,7 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
-        services.AddHostedService<ConfigurationValidationHostedService>();
-        services.AddHostedService<OidcAuthorityStartupProbeHostedService>();
-        services.AddHostedService<SamlSigningCertificateStartupWarningHostedService>();
-        services.AddSingleton<StartupMigrationHealthState>();
+        RegisterHostedStartupProbes(services, configuration);
         services.AddSingleton<ExportFormatterService>();
         services.AddSingleton<TemplateProvider>();
         services.AddSingleton(TimeProvider.System);
@@ -59,16 +53,6 @@ public static partial class ServiceCollectionExtensions
         services.Configure<OutboundExternalHttpResilienceOptions>(
             configuration.GetSection(OutboundExternalHttpResilienceOptions.SectionName));
         services.PostConfigure<OutboundExternalHttpResilienceOptions>(static o => o.Normalize());
-        services.AddHttpClient(nameof(ConfigurationHealthProbe), static client =>
-        {
-            client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.InternalLoopbackProbe);
-        })
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.InternalLoopback);
-        services.AddScoped<IConfigurationHealthProbe>(sp =>
-            new ConfigurationHealthProbe(
-                sp.GetRequiredService<IConfiguration>(),
-                sp.GetService<Persistence.Connections.ISqlConnectionFactory>(),
-                sp.GetRequiredService<IHttpClientFactory>()));
         RegisterAzureArmAndRetailPricesHttpClients(services);
         RegisterMultiCloudPublicPricingHttpClients(services);
         services.Configure<GcpBillingCatalogOptions>(configuration.GetSection(GcpBillingCatalogOptions.SectionName));
@@ -191,15 +175,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<ItsmNativeIntegrationGate>();
         services.Configure<ConfluencePublishingOptions>(
             configuration.GetSection(ConfluencePublishingOptions.SectionName));
-        services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
-            .AddOutboundExternalHttpResilience();
-        services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
-            .AddOutboundExternalHttpResilience();
-        services.AddHttpClient<AzureBoardsOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
-            .AddOutboundExternalHttpResilience();
+        RegisterIntegrationsOutboundHttpClients(services);
         services.AddScoped<JiraExternalTicketConnector>();
         services.AddScoped<ServiceNowExternalTicketConnector>();
         services.AddScoped<AzureBoardsExternalTicketConnector>();
@@ -210,34 +186,17 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<ServiceNowExternalTicketConnector>(),
                 sp.GetRequiredService<AzureBoardsExternalTicketConnector>()
             ]));
-        services
-            .AddHttpClient(
-                ItsmOutboundIntegrationHealthLimits.HttpClientName,
-                static client => client.Timeout = TimeSpan.FromSeconds(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
-            .AddOutboundExternalHttpResilience();
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ITenantItsmOutboundSettingsService, TenantItsmOutboundSettingsService>();
         services.AddScoped<ITenantAzureOpenAiConnectionService, TenantAzureOpenAiConnectionService>();
         services.AddScoped<ITenantAzureOpenAiConnectionProbeService, TenantAzureOpenAiConnectionProbeService>();
         services.AddScoped<Application.Diagnostics.IWorkspaceAiAvailabilityService, WorkspaceAiAvailabilityService>();
         services.AddScoped<Application.Diagnostics.IAgentExecutionReadinessGuard, AgentExecutionReadinessGuard>();
-        services
-            .AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
-            {
-                client.Timeout = TimeSpan.FromSeconds(30);
-            })
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<ITeamsIncomingWebhookConnectionProbeService, TeamsIncomingWebhookConnectionProbeService>();
         services.AddScoped<IMarketplaceWebhookConnectivityService, MarketplaceWebhookConnectivityService>();
         services.AddScoped<IItsmTenantConnectorCredentialResolver, ItsmTenantConnectorCredentialResolver>();
         services.AddSingleton<IItsmInboundWebhookReplayGuard, MemoryCacheItsmInboundWebhookReplayGuard>();
         services.AddSingleton<ItsmConnectorOAuthAccessTokenCache>();
-        services
-            .AddHttpClient<IItsmConnectorOAuthTokenExchanger, ItsmConnectorOAuthTokenExchanger>(
-                static client => client.Timeout = TimeSpan.FromSeconds(30))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
-            .AddOutboundExternalHttpResilience();
         services.AddScoped<IItsmAtlassianOAuthConsentService, ItsmAtlassianOAuthConsentService>();
         services.AddScoped<IItsmOutboundHttpAuthenticator, ItsmOutboundHttpAuthenticator>();
         services.AddScoped<IItsmOutboundIssueCreationService, ItsmOutboundIssueCreationService>();

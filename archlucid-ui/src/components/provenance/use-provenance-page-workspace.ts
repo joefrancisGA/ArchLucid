@@ -9,8 +9,12 @@ import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import {
   parseProvenanceCategoryFromSearch,
   parseProvenanceViewModeFromSearch,
+  parseProvenanceTableSearchQueryFromSearch,
+  parseProvenanceTableNodeTypeFromSearch,
   provenanceCategoryHrefFromSearch,
   provenanceViewModeHrefFromSearch,
+  provenanceTableSearchHrefFromSearch,
+  provenanceTableNodeTypeHrefFromSearch,
 } from "@/lib/provenance/provenance-workspace-filters-url";
 import {
   PROVENANCE_SECTION_GRAPH_LABEL,
@@ -60,6 +64,8 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   const searchParams = useSearchParams();
   const urlViewMode = parseProvenanceViewModeFromSearch(searchParams.get("view"));
   const urlCategory = parseProvenanceCategoryFromSearch(searchParams.get("category"));
+  const urlNodeSearch = parseProvenanceTableSearchQueryFromSearch(searchParams.get("q"));
+  const urlNodeTypeFilter = parseProvenanceTableNodeTypeFromSearch(searchParams.get("nodeType"));
   // OpenAPI may omit optional arrays; normalize before .length / .map so SSR/demo payloads cannot crash.
   const graph: ArchitectureRunProvenanceGraph = {
     ...props.graph,
@@ -76,8 +82,8 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   );
   const [layoutSeed, setLayoutSeed] = useState(0);
   const [edgesExpanded, setEdgesExpanded] = useState(() => graph.edges.length < SEARCH_THRESHOLD);
-  const [nodeSearch, setNodeSearch] = useState("");
-  const [nodeTypeFilter, setNodeTypeFilter] = useState("");
+  const [nodeSearch, setNodeSearch] = useState(urlNodeSearch);
+  const [nodeTypeFilter, setNodeTypeFilter] = useState(urlNodeTypeFilter);
   const [edgeSearch, setEdgeSearch] = useState("");
 
   const nodeById = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node])), [graph.nodes]);
@@ -89,6 +95,33 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   useEffect(() => {
     setActiveFilters(urlCategory === null ? new Set() : new Set([urlCategory]));
   }, [urlCategory]);
+
+  useEffect(() => {
+    setNodeSearch(urlNodeSearch);
+  }, [urlNodeSearch]);
+
+  useEffect(() => {
+    setNodeTypeFilter(urlNodeTypeFilter);
+  }, [urlNodeTypeFilter]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = provenanceTableSearchHrefFromSearch(searchParams.toString(), nodeSearch, pathname);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [nodeSearch, pathname, router, searchParams]);
+
+  const setNodeTypeFilterWithUrl = useCallback((value: string): void => {
+    setNodeTypeFilter(value);
+    router.replace(provenanceTableNodeTypeHrefFromSearch(searchParams.toString(), value, pathname), { scroll: false });
+  }, [pathname, router, searchParams]);
 
   const setViewMode = useCallback((mode: ProvenanceViewMode): void => {
     setViewModeState(mode);
@@ -288,7 +321,7 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
     nodeSearch,
     setNodeSearch,
     nodeTypeFilter,
-    setNodeTypeFilter,
+    setNodeTypeFilter: setNodeTypeFilterWithUrl,
     edgeSearch,
     setEdgeSearch,
     nodeById,

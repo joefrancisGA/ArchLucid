@@ -78,6 +78,16 @@ public sealed class ReplayRunExecutePreparedStage(
 
         ArchitectureRunDetail sourceDetail = await _runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken) ??
                                              throw new RunNotFoundException(originalRunId);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (Guid.TryParse(originalRunId, out Guid originalGuid))
+        {
+            RunRecord? sourceHeader = await _runRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
+
+            if (sourceHeader is not null)
+                ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(scope, sourceHeader, originalRunId);
+        }
+
         ArchitectureRun originalRun = sourceDetail.Run;
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");

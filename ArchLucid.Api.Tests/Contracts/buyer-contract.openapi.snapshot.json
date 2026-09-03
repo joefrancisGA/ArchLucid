@@ -17375,6 +17375,12 @@
           "cost": {
             "$ref": "#/components/schemas/CostSection"
           },
+          "createTimeArchitectureRequestId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createTimeArchitectureVersionContentHashSha256": {
             "type": [
               "null",
@@ -17412,11 +17418,30 @@
               "string"
             ]
           },
+          "createTimePackageOrigin": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createTimePilotAoaiDeploymentSnapshot": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createTimePolicyPackPins": {
             "items": {
               "$ref": "#/components/schemas/PinnedPolicyPackRow"
             },
             "type": "array"
+          },
+          "createTimeStructuralExecutionMode": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "createdUtc": {
             "format": "date-time",
@@ -23588,6 +23613,12 @@
           "disposition": {
             "$ref": "#/components/schemas/FindingDisposition"
           },
+          "evidenceRequestText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingIds": {
             "items": {
               "type": "string"
@@ -23599,6 +23630,12 @@
           },
           "revisitDueUtc": {
             "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tradeOffAcknowledgment": {
             "type": [
               "null",
               "string"
@@ -26873,12 +26910,14 @@
             ]
           },
           "pinnedEvidencePackagePinsJson": {
+            "description": "Read-only create-time evidence package pin rows (JSON array) frozen at run create (wave-6\u002B).",
             "type": [
               "null",
               "string"
             ]
           },
           "pinnedFocusedPilotCloudProvider": {
+            "description": "Read-only focused-pilot cloud provider pin frozen at run create (wave-11).",
             "format": "int32",
             "type": [
               "null",
@@ -26886,6 +26925,7 @@
             ]
           },
           "pinnedFocusedPilotModeEnabled": {
+            "description": "Read-only focused-pilot mode pin frozen at run create (wave-11).",
             "type": [
               "null",
               "boolean"
@@ -26907,6 +26947,7 @@
             ]
           },
           "pinnedPolicyPackIdsJson": {
+            "description": "Read-only create-time policy pack pin rows (JSON array) frozen at run create (wave-6\u002B).",
             "type": [
               "null",
               "string"

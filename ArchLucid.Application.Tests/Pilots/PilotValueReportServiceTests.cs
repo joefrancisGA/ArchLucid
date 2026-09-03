@@ -107,6 +107,54 @@ public sealed class PilotValueReportServiceTests
     }
 
     [SkippableFact]
+    public async Task BuildAsync_excludes_muted_findings_from_severity_totals()
+    {
+        DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 4, 20, 0, 0, 0, DateTimeKind.Utc);
+        TenantRecord tenant = Tenant(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+
+        Mock<IRunDetailQueryService> runs = new();
+        runs.SetupSequence(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([Summary(RunA, from.AddDays(1), committed: true)], false, null));
+
+        runs.Setup(r => r.GetRunDetailForRoiAsync(RunA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                Detail(
+                    RunA,
+                    from.AddDays(1),
+                    from.AddDays(1).AddMinutes(30),
+                    findings:
+                    [
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Critical,
+                            SourceAgent = AgentType.Topology,
+                            Message = "muted",
+                            IsMuted = true,
+                        },
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Warning,
+                            SourceAgent = AgentType.Compliance,
+                            Message = "active",
+                        },
+                    ]));
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.GetExportAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, from, to, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, ApprovalsPending(0).Object);
+
+        PilotValueReport? report = await sut.BuildAsync(from, to, CancellationToken.None);
+
+        report.Should().NotBeNull();
+        report!.TotalFindings.Should().Be(1);
+        report.FindingsBySeverity.Critical.Should().Be(0);
+        report.FindingsBySeverity.Medium.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task BuildAsync_counts_committed_runs_in_range_and_aggregates_findings()
     {
         DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);

@@ -4,16 +4,16 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { WorkspaceModeGraduationOffer } from "@/components/workspace-mode/WorkspaceModeGraduationOffer";
+import { WorkspaceModeGuidedTeachingOffer } from "@/components/workspace-mode/WorkspaceModeGuidedTeachingOffer";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import {
   fetchUserPreferencesFromApi,
   USER_PREFERENCES_STALE_MS,
 } from "@/lib/api/user-preferences";
-import { isGuidedWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
-/** Shows the post-seal Working-mode offer when Guided mode is active and the offer is pending. */
+/** Offers Guided teaching mode when Working mode is active and the user has a sealed review. */
 export function WorkspaceModeGraduationOfferHost() {
   const { mode, setAndPersist } = useWorkspaceMode();
   const commitQuery = useCorePilotCommitContextQuery();
@@ -28,7 +28,7 @@ export function WorkspaceModeGraduationOfferHost() {
     return null;
   }
 
-  if (!isGuidedWorkspaceMode(mode)) {
+  if (!isWorkingWorkspaceMode(mode)) {
     return null;
   }
 
@@ -46,9 +46,9 @@ export function WorkspaceModeGraduationOfferHost() {
 
   return (
     <div className="mb-4" data-testid="workspace-mode-graduation-offer-host">
-      <WorkspaceModeGraduationOffer
-        onSwitchToWorking={() => {
-          setAndPersist("working");
+      <WorkspaceModeGuidedTeachingOffer
+        onSwitchToGuided={() => {
+          setAndPersist("guided");
           setDismissedLocally(true);
         }}
         onDismiss={() => {

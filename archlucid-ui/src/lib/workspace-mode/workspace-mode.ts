@@ -2,7 +2,7 @@ export const WORKSPACE_MODE_IDS = ["guided", "working"] as const;
 
 export type WorkspaceModeId = (typeof WORKSPACE_MODE_IDS)[number];
 
-export const DEFAULT_WORKSPACE_MODE: WorkspaceModeId = "guided";
+export const DEFAULT_WORKSPACE_MODE: WorkspaceModeId = "working";
 
 export function parseWorkspaceMode(value: string | null | undefined): WorkspaceModeId {
   if (value === null || value === undefined) {
