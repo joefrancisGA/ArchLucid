@@ -11,7 +11,7 @@ import {
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import {
   RunDetailCaptureEvidenceSectionDeferred,
-  RunDetailCompareToBaselineCta,
+  RunDetailCompareToBaselineCtaDeferred,
   RunDetailExplanationConfidenceBannerDeferred,
   RunDetailGenerateAdrFromRunModal,
   RunDetailHolisticCriticPanelDeferred,
@@ -197,7 +197,7 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (
-        <RunDetailCompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
+        <RunDetailCompareToBaselineCtaDeferred currentRunId={m.resolvedDetail.run.runId} />
       ) : null}
 
       {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}

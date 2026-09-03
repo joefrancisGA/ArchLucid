@@ -78,7 +78,7 @@ export function useGraphPageState() {
     setRunId,
     setGraphLoadRequested,
     setPresentationView,
-    setMode: loadController.setMode,
+    setMode,
   });
   const canMutateEnterpriseShell = useOperateCapability();
   const graphMainColumnMaxClass = buyerPolishedShell
