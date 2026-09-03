@@ -3119,11 +3119,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 128
-- **bugs-found:** 284
-- **consecutive-dry-hunts:** 1
+- **hunts:** 129
+- **bugs-found:** 285
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — renew MarkExpired parity before sibling guard
+- **last-bug:** 2026-09-03 — revoke waiver skipped MarkExpired sweep before active-status guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3716,9 +3716,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `GovernanceStickinessController.RenewRiskException` — sibling active waiver `ConflictException` from service #573 maps to HTTP 409 at controller; **repro test:** `RenewRiskException_returns_conflict_when_another_active_waiver_exists_for_same_finding`.
 
-- [ ] (candidate) `GovernanceStickinessController.RevokeRiskException` / `RenewRiskException` — OpenAPI metadata omits HTTP 404 for out-of-scope `riskExceptionId` while handlers map `InvalidOperationException` → 404 (swagger drift only).
+- [x] (invalid) `GovernanceStickinessController.RevokeRiskException` / `RenewRiskException` — OpenAPI metadata omits HTTP 404 for out-of-scope `riskExceptionId` while handlers map `InvalidOperationException` → 404 (swagger drift only).
 
-2026-09-03 thorough hunt #575 (dry): cheap-disproved OpenAPI 409 drift and duplicate ListRiskExceptions project-scope candidate; valid-no-repro on renew remediated-disposition and sibling-active-waiver controller mapping.
+- [x] (proven) `RiskExceptionService.RevokeAsync` / `GovernanceStickinessController.RevokeRiskException` — past-expiry `Status=Active` waivers revoked without `MarkExpiredAsync` sweep — **hit 2026-09-03 (#656):** create #573 and renew #574 call `MarkExpiredAsync` before lifecycle guards; revoke checked stale `Active` rows past `ExpiresAtUtc` and returned HTTP 204 instead of HTTP 409; fixed with sweep + re-read before revoke (create/renew parity); regression in `RevokeAsync_marks_expired_before_revoke_when_waiver_is_past_expiry`.
+
+2026-09-03 thorough hunt #656: cheap-disproved OpenAPI 404 swagger drift candidate; proved revoke MarkExpired sweep parity gap.
 
 ---
 

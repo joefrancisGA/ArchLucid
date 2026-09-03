@@ -143,12 +143,25 @@ public sealed class RiskExceptionService(
         if (existing is null)
             throw new InvalidOperationException("Risk exception was not found.");
 
+        if (existing.Status == RiskExceptionStatus.Revoked)
+        {
+            throw new ConflictException("Revoked risk exceptions cannot be revoked again.");
+        }
+
+        DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
+        IReadOnlyList<RiskExceptionRecord> expired =
+            await _repository.MarkExpiredAsync(tenantId, now, cancellationToken);
+
+        await AuditExpiredAsync(expired, cancellationToken);
+
+        existing = await _repository.GetByIdAsync(tenantId, riskExceptionId, cancellationToken);
+
+        if (existing is null)
+            throw new InvalidOperationException("Risk exception was not found.");
+
         if (existing.Status != RiskExceptionStatus.Active)
         {
-            throw new ConflictException(
-                existing.Status == RiskExceptionStatus.Revoked
-                    ? "Revoked risk exceptions cannot be revoked again."
-                    : "Only active risk exceptions can be revoked.");
+            throw new ConflictException("Only active risk exceptions can be revoked.");
         }
 
         await _repository.RevokeAsync(

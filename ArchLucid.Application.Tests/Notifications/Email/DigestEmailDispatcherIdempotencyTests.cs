@@ -651,6 +651,7 @@ recordedInvalid.Should().BeFalse("invalid recipient mailboxes must not reserve t
 provider.Verify(
     p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
     Times.Never);
+    }
 
     [Fact]
     public async Task ExecDigestEmailDispatcher_delivers_only_to_valid_recipients_when_list_is_mixed()
