@@ -62,7 +62,6 @@ public static class CloudInventoryExtractorPackageZipValidator
             }
 
             int fileEntryCount = safety.FileEntryCount;
-
             ZipArchiveEntry? manifestEntry = FindEntry(archive, ManifestEntryName);
 
             if (manifestEntry is null)

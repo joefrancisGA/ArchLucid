@@ -25,16 +25,22 @@ Local `next dev` sets this in **`archlucid-ui/.env.development`** so engineers k
 
 **`NEXT_PUBLIC_DEMO_MODE`** and **`NEXT_PUBLIC_DEMO_STATIC_OPERATOR`** still force **buyer-polished** chrome and curated static payloads where documented. They are independent of `NEXT_PUBLIC_OPERATOR_EXPERIENCE`: demo builds stay buyer-safe, and production operator builds no longer need demo flags for buyer-default language (TB-643).
 
+## Working-mode architect chrome (production default)
+
+**Working** workspace mode unlocks dense architect-workspace chrome on production builds without setting `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`: shortcut chips, denser nav metadata, and technical identifiers behind existing disclosures. Guided mode and all demo / trial / static-showcase flags keep buyer-polished chrome.
+
+Implementation: `resolveArchitectWorkspaceChrome()` / `useArchitectWorkspaceChrome()` in `archlucid-ui/src/lib/architect-workspace-chrome.ts`.
+
 ## Guided vs Working workspace mode
 
-Personal preference stored in `dbo.UserSettings` (`WorkspaceMode`):
+Personal preference stored in `dbo.UserSettings` (`WorkspaceMode`). **Missing/null server values default to Working** (repeat-professional default).
 
 | Mode | Behavior |
 |------|----------|
-| **Guided** (default) | Teaching chrome on — tours, first-finding strips, shortcut coaches, Where to go next strips, sample reviews on Overview. Live architecture packages only. |
-| **Working** | Teaching chrome off — Overview leads with the work queue; full authorized nav unlocks even before first commit; Getting started demoted from main nav. |
+| **Working** (default) | Teaching chrome off — Overview leads with the work queue; full authorized nav unlocks even before first commit; dense architect chrome on production builds; Getting started demoted from main nav. |
+| **Guided** | Teaching chrome on — tours, first-finding strips, shortcut coaches, Where to go next strips, sample reviews on Overview when enabled. Live architecture packages only. |
 
-Users switch modes in **Account → Preferences → Workspace mode**. After the user's first sealed review, a dismissible graduation offer suggests Working mode but never auto-switches.
+Users switch modes in **Account → Preferences → Workspace mode**. After the user's first sealed review, Working-mode users may see a dismissible offer to switch to Guided for teaching chrome — never an auto-switch.
 
 API: `GET /v1/user/preferences` returns `workspaceMode` and `workspaceModeGraduationOffer`; `PUT /v1/user/preferences/workspace-mode` and `PUT /v1/user/preferences/workspace-mode-graduation-offer` persist changes.
 

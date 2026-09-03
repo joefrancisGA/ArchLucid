@@ -100,10 +100,11 @@ export function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buye
 
 export type GovernanceFindingsQueueOperationalRowCellsProps = {
   readonly row: GovernanceFindingQueueRow;
+  readonly showInsightDensityScore?: boolean;
 };
 
 export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFindingsQueueOperationalRowCellsProps): ReactElement {
-  const { row } = props;
+  const { row, showInsightDensityScore = false } = props;
   const graphHref = governanceQueueGraphEvidenceHref(row);
   const evidenceChipHref =
     graphHref ??
@@ -146,6 +147,18 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
                 className="mt-2"
               />
           </div>
+        ) : null}
+        {showInsightDensityScore &&
+        row.recordKind === "finding" &&
+        row.insightDensityScore !== null &&
+        row.insightDensityScore !== undefined &&
+        Number.isFinite(row.insightDensityScore) ? (
+          <p
+            className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+            data-testid={`governance-row-insight-density-${row.findingId}`}
+          >
+            Density {Math.trunc(row.insightDensityScore)} (advisory — typed engines are not hidden)
+          </p>
         ) : null}
         <div
           className={cn(

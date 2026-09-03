@@ -153,13 +153,9 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
     }
 
     [Fact]
-    public void Validate_rejects_zip_slip_entry_paths()
+    public void Validate_zip_slip_entry_path_is_invalid_archive()
     {
-        byte[] zipBytes = BuildZip(
-            includeManifest: true,
-            schemaVersion: 1,
-            includeResources: true,
-            extraEntryPath: "../outside/evil.txt");
+        byte[] zipBytes = BuildZipWithZipSlipEntry();
 
         using MemoryStream stream = new(zipBytes);
 
@@ -170,6 +166,37 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
         result.ErrorDetail.Should().Contain("Unsafe ZIP entry path");
     }
 
+    private static byte[] BuildZipWithZipSlipEntry()
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry slip = zip.CreateEntry("../manifest.json");
+
+            using (StreamWriter writer = new(slip.Open()))
+            {
+                writer.Write("""{"schemaVersion":1,"cloudProvider":"Aws","accountId":"123456789012"}""");
+            }
+
+            ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
+
+            using (StreamWriter writer = new(manifest.Open()))
+            {
+                writer.Write("""{"schemaVersion":1,"cloudProvider":"Aws","accountId":"123456789012"}""");
+            }
+
+            ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+            using (StreamWriter writer = new(resources.Open()))
+            {
+                writer.Write("[]");
+            }
+        }
+
+        return ms.ToArray();
+    }
+
     private static byte[] BuildZip(
         bool includeManifest,
         int schemaVersion,
@@ -178,8 +205,7 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
         bool stringSchemaVersion = false,
         bool booleanSchemaVersion = false,
         bool stringBooleanSchemaVersion = false,
-        bool stringOnSchemaVersion = false,
-        string? extraEntryPath = null)
+        bool stringOnSchemaVersion = false)
     {
         using MemoryStream ms = new();
 
@@ -216,15 +242,6 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
                 using StreamWriter writer = new(resources.Open());
 
                 writer.Write("[]");
-            }
-
-            if (!string.IsNullOrWhiteSpace(extraEntryPath))
-            {
-                ZipArchiveEntry extra = zip.CreateEntry(extraEntryPath);
-
-                using StreamWriter writer = new(extra.Open());
-
-                writer.Write("x");
             }
         }
 
