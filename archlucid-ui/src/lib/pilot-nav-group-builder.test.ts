@@ -4,7 +4,7 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { describe, expect, it, vi, afterEach } from "vitest";
 
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator/operator-admin-nav-group-builder";
-import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
+import { OperatePolicyNavGroupBuilder } from "@/lib/operate-policy-nav-group-builder";
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 
 describe("PilotNavGroupBuilder", () => {
@@ -42,8 +42,8 @@ describe("PilotNavGroupBuilder", () => {
     expect(dashboardLink?.href).toBe(SPONSOR_DASHBOARD_HREF);
   });
 
-  it("includes recurrence schedules in the governance nav group (TB-406)", () => {
-    const group = new OperateGovernanceNavGroupBuilder().build();
+  it("includes recurrence schedules in the policy nav group (TB-406)", () => {
+    const group = new OperatePolicyNavGroupBuilder().build();
     const recurrenceLink = group.links.find((link) => link.href === "/governance/recurrence-schedules");
 
     expect(recurrenceLink).toBeDefined();
