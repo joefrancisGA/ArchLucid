@@ -64,7 +64,7 @@ describe("HelpEvidenceTrailGuideView buyer-polished shell (EV)", () => {
       `#${EVIDENCE_TRAIL_HELP_SKIP_TARGET_ID}`,
     );
     expect(screen.getByTestId("help-evidence-trail-header-claim-discipline")).toHaveTextContent(
-      EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+      EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE,
     );
     expect(screen.queryByTestId("evidence-trail-help-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
