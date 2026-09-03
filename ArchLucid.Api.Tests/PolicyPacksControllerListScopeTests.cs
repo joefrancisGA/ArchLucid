@@ -373,6 +373,38 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task PromoteCatalogEntry_returns_bad_request_when_snapshot_exceeds_catalog_limits()
+    {
+        Guid sourcePackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.PromoteCatalogEntryAsync(
+                It.Is<PolicyPackPromoteCatalogBody>(body => body.SourcePolicyPackId == sourcePackId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackHttpResult<PolicyPackCatalogEntryDetail>
+                {
+                    Outcome = PolicyPackHttpOutcome.ValidationFailed,
+                    Message =
+                        $"Policy pack name must be at most {PolicyPackCatalogEntryLimits.DisplayNameMaxLength} characters for catalog promotion.",
+                });
+
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
+
+        IActionResult result = await sut.PromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = sourcePackId,
+                Version = "1.0.0",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task PromoteCatalogEntry_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(

@@ -2871,11 +2871,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 109
-- **bugs-found:** 263
+- **hunts:** 110
+- **bugs-found:** 264
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — workflow environment slug SQL column width parity
+- **last-bug:** 2026-09-03 — policy pack catalog promote snapshot SQL column width parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3372,6 +3372,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceEnvironmentCatalogController.Replace` / `GovernanceController.SubmitApprovalRequest` / `Promote` — custom catalog slugs validated to 64 chars but `dbo.GovernanceApprovalRequests.SourceEnvironment` / `TargetEnvironment` and promotion records remained `NVARCHAR(32)`, so 33–64 char slugs passed validation then failed SQL on workflow persist — **hit 2026-09-03 (#554):** DbUp 344 widens workflow environment columns to `NVARCHAR(64)`; shared `GovernanceEnvironmentSlug.MaxLength`; regression in `GovernanceWorkflowFacadeTests.SubmitApprovalRequestAsync_persists_forty_character_custom_environment_slugs`, `CreateGovernanceApprovalRequestValidatorTests`, `GovernanceEnvironmentCatalogServiceTests`, and `SqlGovernanceApprovalRequestRepositoryFreshTenantPrimingSqlIntegrationTests.CreateAsync_persists_environment_slugs_up_to_sixty_four_characters`.
 
 2026-09-03 thorough hunt #554: proved workflow environment slug SQL column width parity with custom catalog slugs.
+
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPackCatalogAdminService.TryPromoteFromSourcePackAsync` — tenant `PolicyPacks.Name` (`NVARCHAR(300)`) and `Description` (`NVARCHAR(MAX)`) lacked catalog snapshot guards before `PolicyPackCatalogEntry.DisplayName` (`NVARCHAR(256)`) / `Description` (`NVARCHAR(2000)`) upsert, so 257–300 char names or >2000 char descriptions passed promote and failed SQL (HTTP 500) — **hit 2026-09-03 (#555):** `PolicyPackCatalogPromotionValidation.ValidateSnapshotOrThrow` before catalog upsert; facade maps `ArgumentException` to HTTP 400; regression in `PolicyPackCatalogPromotionValidationTests`, `PolicyPackCatalogAdminServiceTests`, and `PolicyPacksControllerListScopeTests.PromoteCatalogEntry_returns_bad_request_when_snapshot_exceeds_catalog_limits`.
+
+2026-09-03 seed hunt #555: proved policy pack catalog promote snapshot name/description max-length validation before SQL insert; seeded recurrence-schedule name/cron max-length candidate.
+
+- [ ] (candidate) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` — `Name` (`NVARCHAR(300)`) and `CronExpression` (`NVARCHAR(100)`) lack max-length guards before SQL insert.
 
 ---
 
