@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentSimulation;
@@ -75,9 +76,36 @@ public sealed class GoldenCohortContentBaselineGeneratorTests
         }
     }
 
+    [Fact]
+    public async Task Content_sha_changes_when_create_time_pins_present()
+    {
+        GoldenCohortDocument document = LoadCohort();
+        GoldenCohortItem item = document.Items[0];
+        string withoutPins = await ComputeAuthorityContentShaAsync(item);
+
+        ArchitectureRequest request = GoldenCohortArchitectureRequestFactory.FromCohortItem(item);
+        GoldenManifest contract = await BuildGoldenManifestContractAsync(request);
+        GoldenManifestCreateTimePinCommitment pins = new(
+            [new PinnedPolicyPackRow(Guid.NewGuid().ToString("D"), "1.0.0")],
+            [],
+            "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF");
+
+        string withPins = GoldenManifestFingerprint.ComputeContentSha256Hex(contract, pins);
+
+        withPins.Should().NotBe(withoutPins);
+        withPins.Length.Should().Be(64);
+    }
+
     private static async Task<string> ComputeAuthorityContentShaAsync(GoldenCohortItem item)
     {
         ArchitectureRequest request = GoldenCohortArchitectureRequestFactory.FromCohortItem(item);
+        GoldenManifest contract = await BuildGoldenManifestContractAsync(request);
+
+        return GoldenManifestFingerprint.ComputeContentSha256Hex(contract, createTimePins: null);
+    }
+
+    private static async Task<GoldenManifest> BuildGoldenManifestContractAsync(ArchitectureRequest request)
+    {
         const string runId = "golden-cohort-content-baseline";
         const string topologyTaskId = "task-topology";
         const string complianceTaskId = "task-compliance";
@@ -129,12 +157,11 @@ public sealed class GoldenCohortContentBaselineGeneratorTests
         }
 
         IAuthorityCommitProjectionBuilder projection = new AuthorityCommitProjectionBuilder();
-        Cm.GoldenManifest contract = await projection.BuildAsync(
+
+        return await projection.BuildAsync(
             model,
             new AuthorityCommitProjectionInput { SystemName = request.SystemName },
             CancellationToken.None);
-
-        return GoldenManifestFingerprint.ComputeContentSha256Hex(contract);
     }
 
     private static GoldenCohortDocument LoadCohort()

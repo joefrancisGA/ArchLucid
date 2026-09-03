@@ -7,6 +7,7 @@
  */
 export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "access-denied",
+  "accessibility",
   "account-security-settings",
   "admin-configuration",
   "admin-health",
@@ -42,6 +43,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "deployment-status",
   "digest-sponsor",
   "digests-schedule",
+  "developer-settings",
   "evidence-graph",
   "evidence-proposals",
   "enterprise-onboarding-help",

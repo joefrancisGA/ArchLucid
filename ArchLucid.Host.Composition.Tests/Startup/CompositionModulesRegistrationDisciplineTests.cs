@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.Explanation.Stages;
 using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application;
 using ArchLucid.Application.AwsExtractor;
@@ -14,6 +15,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application.ExecDigest;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Application.WeeklyArchitectureDigest;
 using ArchLucid.Application.WeeklySponsorReport;
 using ArchLucid.Application.WeeklySponsorSummary;
@@ -394,6 +396,10 @@ public sealed class CompositionModulesRegistrationDisciplineTests
 
         services.Should().Contain(static d => d.ServiceType == typeof(IDecisionEngineV2));
         services.Should().Contain(static d => d.ServiceType == typeof(IArtifactSynthesisService));
+        services.Should().Contain(static d => d.ServiceType == typeof(IExplanationSignalStage));
+        services.Should().Contain(static d => d.ServiceType == typeof(IExplanationLlmNarrativeStage));
+        services.Should().Contain(static d => d.ServiceType == typeof(IExplanationFallbackStage));
+        services.Should().Contain(static d => d.ServiceType == typeof(IExplanationService));
     }
 
     [Fact]
