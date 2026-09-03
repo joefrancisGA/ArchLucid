@@ -10965,9 +10965,19 @@ END;
 
 GO
 
-IF COL_LENGTH(N'dbo.Runs', N'PinnedArchitectureVersionContentHashSha256') IS NULL
+DECLARE @runTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @sql NVARCHAR(MAX);
+
+IF @runTable IS NOT NULL
+   AND COL_LENGTH(@runTable, N'PinnedArchitectureVersionContentHashSha256') IS NULL
 BEGIN
-    ALTER TABLE dbo.Runs
-        ADD PinnedArchitectureVersionContentHashSha256 VARBINARY(32) NULL;
-END;
+    SET @sql = N'ALTER TABLE ' + @runTable + N' ADD PinnedArchitectureVersionContentHashSha256 VARBINARY(32) NULL;';
+
+    EXEC sp_executesql @sql;
+END
 GO
