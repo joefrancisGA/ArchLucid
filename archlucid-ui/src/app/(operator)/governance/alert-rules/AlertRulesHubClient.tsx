@@ -19,6 +19,9 @@ import { ALERT_RULES_TAB_LABEL } from "@/lib/alert-rule-conditions-copy";
 import { COMPOSITE_RULES_TAB_LABEL } from "@/lib/enterprise-controls-context-copy";
 import { alertsConfigurationPageSubtitle } from "@/lib/alerts-page-copy";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import {
@@ -27,8 +30,15 @@ import {
   AlertSimulationTuningSectionDeferred,
   CompositeAlertRulesContentDeferred,
 } from "./_sections/alert-rules-hub-deferred-chunks";
+import { AlertRulesClaimOrientationStrip } from "./AlertRulesClaimOrientationStrip";
 import { AlertRulesPageHeader } from "./AlertRulesPageHeader";
 import { AlertRulesHubTabCountsBootstrap } from "./AlertRulesHubTabCountsBootstrap";
+import {
+  ALERT_RULES_HUB_FIRST_VIEWPORT_ID,
+  ALERT_RULES_HUB_PRIMARY_CONTENT_ID,
+  ALERT_RULES_HUB_SKIP_LINK_LABEL,
+  ALERT_RULES_HUB_SKIP_TARGET_ID,
+} from "./alert-rules-hub-page-copy";
 
 type AlertRulesHubTabConfig = {
   label: string;
@@ -66,35 +76,6 @@ function alertRulesHubTabLabel(tabId: AlertRulesHubTabId, count: number | undefi
  */
 function alertRulesHubActiveTabLabel(tabId: AlertRulesHubTabId): string {
   return TAB_CONFIG[tabId].label;
-}
-
-function AlertRulesHubChrome(props: { readonly activeTab: AlertRulesHubTabId }): React.JSX.Element {
-  const {
-    refreshing,
-    lastRefreshedAt,
-    requestRefresh,
-    tabCounts,
-    rulesConfigChange,
-    compositeRulesConfigChange,
-  } = useAlertRulesHubRefresh();
-
-  return (
-    <>
-      <AlertRulesPageHeader
-        subtitle={alertsConfigurationPageSubtitle(isBuyerPolishedOperatorShellEnv())}
-        activeTab={props.activeTab}
-        activeTabLabel={alertRulesHubActiveTabLabel(props.activeTab)}
-        rulesTabCount={tabCounts.rules}
-        rulesConfigChange={rulesConfigChange}
-        advancedRulesTabCount={tabCounts["advanced-rules"]}
-        compositeRulesConfigChange={compositeRulesConfigChange}
-        refreshing={refreshing}
-        lastRefreshedAt={lastRefreshedAt}
-        onRefresh={requestRefresh}
-      />
-      <AlertRulesAlertsInboxVocabularyRail currentSurfaceId="alert-rules" />
-    </>
-  );
 }
 
 function AlertRulesHubTabPanel(props: {
@@ -192,7 +173,15 @@ function AlertRulesHubTabShell(props: {
   readonly onActiveTabChange: (tab: AlertRulesHubTabId) => void;
   readonly scopedRunId: string;
 }): React.JSX.Element {
-  const { tabCounts } = useAlertRulesHubRefresh();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const {
+    refreshing,
+    lastRefreshedAt,
+    requestRefresh,
+    tabCounts,
+    rulesConfigChange,
+    compositeRulesConfigChange,
+  } = useAlertRulesHubRefresh();
   const rulesCount = tabCounts.rules ?? 0;
 
   useEffect(() => {
@@ -218,22 +207,63 @@ function AlertRulesHubTabShell(props: {
 
   return (
     <div className="px-0">
-      <AlertRulesHubChrome activeTab={props.activeTab} />
+      <a
+        href={`#${ALERT_RULES_HUB_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {ALERT_RULES_HUB_SKIP_LINK_LABEL}
+      </a>
 
-      <Tabs value={props.activeTab} onValueChange={onSelectTab} variant="line">
-          <AlertRulesHubTabsList />
+      <div
+        id={ALERT_RULES_HUB_PRIMARY_CONTENT_ID}
+        data-testid="alert-rules-hub-primary-content"
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <AlertRulesPageHeader
+          subtitle={alertsConfigurationPageSubtitle(buyerPolishedShell)}
+          activeTab={props.activeTab}
+          activeTabLabel={alertRulesHubActiveTabLabel(props.activeTab)}
+          rulesTabCount={tabCounts.rules}
+          rulesConfigChange={rulesConfigChange}
+          advancedRulesTabCount={tabCounts["advanced-rules"]}
+          compositeRulesConfigChange={compositeRulesConfigChange}
+          refreshing={refreshing}
+          lastRefreshedAt={lastRefreshedAt}
+          onRefresh={requestRefresh}
+        />
 
-          {ALERT_RULES_HUB_TAB_IDS.map((id) => (
-            <TabsContent
-              key={id}
-              value={id}
-              className="min-w-0 pt-0"
-              data-testid="alert-rules-hub-panel"
-            >
-              <AlertRulesHubTabPanel tabId={id} />
-            </TabsContent>
-          ))}
-        </Tabs>
+        <div
+          id={ALERT_RULES_HUB_FIRST_VIEWPORT_ID}
+          data-testid={ALERT_RULES_HUB_FIRST_VIEWPORT_ID}
+          className={cn(
+            "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          <Tabs value={props.activeTab} onValueChange={onSelectTab} variant="line">
+            <AlertRulesHubTabsList />
+
+            {ALERT_RULES_HUB_TAB_IDS.map((id) => (
+              <TabsContent
+                key={id}
+                value={id}
+                className="min-w-0 pt-0"
+                data-testid="alert-rules-hub-panel"
+              >
+                <AlertRulesHubTabPanel tabId={id} />
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+
+        {buyerPolishedShell ? null : (
+          <AlertRulesAlertsInboxVocabularyRail currentSurfaceId="alert-rules" />
+        )}
+
+        <div data-testid="alert-rules-hub-orientation-bottom">
+          <AlertRulesClaimOrientationStrip />
+        </div>
+      </div>
     </div>
   );
 }

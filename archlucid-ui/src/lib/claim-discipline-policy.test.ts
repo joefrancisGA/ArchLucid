@@ -26,6 +26,7 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("pilot-outcomes")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("roi-summary")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("architecture-scorecard")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("alert-rules-hub")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("architecture-sponsor-dashboard")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("audit-trail")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("help-hub")).toBe(true);
