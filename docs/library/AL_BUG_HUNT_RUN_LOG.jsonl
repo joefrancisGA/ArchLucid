@@ -700,3 +700,4 @@
 {"at":"2026-09-03T06:31:48.5737156Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-03T06:39:30.3708329Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-03T06:48:28.6791448Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
+{"at":"2026-09-03T06:59:04.2631419Z","zoneId":"decisioning","outcome":"hit"}
