@@ -359,6 +359,225 @@ type _DraftIntakeActorsWave12BarrelAliases = [
   AssertExtends<import("@/types/draft-intake-actors").ActorSet, import("@/types/draft-intake").ActorSet>,
 ];
 
+/** Wave 13 — draft-intake document, lifecycle/status, branch, workflow, and request modules. */
+type _DraftIntakeWave13ModuleAliases = [
+  AssertExtends<components["schemas"]["DraftRequestStatus"], import("@/types/draft-intake-status").DraftRequestStatus>,
+  AssertExtends<
+    components["schemas"]["DraftBranchOverrideKind"],
+    import("@/types/draft-intake-status").DraftBranchOverrideKind
+  >,
+  AssertExtends<components["schemas"]["BranchDraftRequest"], import("@/types/draft-intake-branch").BranchDraftRequest>,
+  AssertExtends<
+    components["schemas"]["DraftBranchQuotaResponse"],
+    import("@/types/draft-intake-branch").DraftBranchQuotaResponse
+  >,
+  AssertExtends<
+    components["schemas"]["DraftRequestDocument"],
+    import("@/types/draft-intake-document").DraftRequestDocument
+  >,
+  AssertExtends<
+    components["schemas"]["DraftRequestResponse"],
+    import("@/types/draft-intake-workflow").DraftRequestResponse
+  >,
+  AssertExtends<
+    components["schemas"]["DraftRequestSummaryResponse"],
+    import("@/types/draft-intake-workflow").DraftRequestSummary
+  >,
+  AssertExtends<
+    components["schemas"]["CreateDraftRequest"],
+    import("@/types/draft-intake-requests").CreateDraftRequest
+  >,
+  AssertExtends<
+    components["schemas"]["PatchDraftRequest"],
+    import("@/types/draft-intake-requests").PatchDraftRequest
+  >,
+  AssertExtends<
+    components["schemas"]["DraftIntakeReasonRequest"],
+    import("@/types/draft-intake-requests").DraftIntakeReasonRequest
+  >,
+];
+
+/** Wave 13 — draft-intake barrel re-exports document, lifecycle, and workflow slices. */
+type _DraftIntakeWave13BarrelAliases = [
+  AssertExtends<
+    import("@/types/draft-intake-document").DraftRequestDocument,
+    import("@/types/draft-intake").DraftRequestDocument
+  >,
+  AssertExtends<import("@/types/draft-intake-status").DraftRequestStatus, import("@/types/draft-intake").DraftRequestStatus>,
+  AssertExtends<
+    import("@/types/draft-intake-branch").BranchDraftResponse,
+    import("@/types/draft-intake").BranchDraftResponse
+  >,
+  AssertExtends<
+    import("@/types/draft-intake-workflow").DraftAdmissionResponse,
+    import("@/types/draft-intake").DraftAdmissionResponse
+  >,
+  AssertExtends<
+    import("@/types/draft-intake-requests").CreateDraftRequest,
+    import("@/types/draft-intake").CreateDraftRequest
+  >,
+];
+
+/** Wave 13 — agent-forensics trace and evaluation score modules. */
+type _AgentForensicsWave13ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["AgentExecutionTraceSummary"],
+    import("@/types/agent-forensics-traces").AgentExecutionTraceRow
+  >,
+  AssertExtends<
+    components["schemas"]["AgentExecutionTraceResponse"],
+    import("@/types/agent-forensics-traces").AgentExecutionTraceListPayload
+  >,
+  AssertExtends<
+    components["schemas"]["AgentOutputSemanticScore"],
+    import("@/types/agent-forensics-scores").AgentOutputSemanticScoreRow
+  >,
+  AssertExtends<
+    components["schemas"]["AgentOutputEvaluationScore"],
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationScoreRow
+  >,
+  AssertExtends<
+    components["schemas"]["RunRetrievalGroundingResponse"],
+    import("@/types/agent-forensics-scores").RunRetrievalGroundingPayload
+  >,
+];
+
+/** Wave 13 — agent-forensics barrel re-exports trace and score slices. */
+type _AgentForensicsWave13BarrelAliases = [
+  AssertExtends<
+    import("@/types/agent-forensics-traces").AgentExecutionTraceRow,
+    import("@/types/agent-forensics").AgentExecutionTraceRow
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationSummaryPayload,
+    import("@/types/agent-forensics").AgentOutputEvaluationSummaryPayload
+  >,
+];
+
+/** Wave 13 — explanation confidence helpers and structured envelope modules. */
+type _ExplanationWave13ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["StructuredExplanation"],
+    import("@/types/explanation-structured-envelope").StructuredExplanation
+  >,
+  AssertExtends<
+    components["schemas"]["FindingExplainabilityResult"],
+    import("@/types/explanation-structured-envelope").FindingExplainability
+  >,
+  AssertExtends<
+    NonNullable<components["schemas"]["FindingConfidenceLevel"]>,
+    import("@/types/explanation-confidence").FindingConfidenceLevel
+  >,
+];
+
+/** Wave 13 — explanation-structured barrel re-exports confidence and envelope slices. */
+type _ExplanationWave13BarrelAliases = [
+  AssertExtends<
+    import("@/types/explanation-confidence").FindingConfidenceLevel,
+    import("@/types/explanation-structured").FindingConfidenceLevel
+  >,
+  AssertExtends<
+    import("@/types/explanation-structured-envelope").StructuredExplanation,
+    import("@/types/explanation-structured").StructuredExplanation
+  >,
+  AssertExtends<
+    import("@/types/explanation-confidence").normalizeFindingConfidenceLevel,
+    typeof import("@/types/explanation-structured").normalizeFindingConfidenceLevel
+  >,
+];
+
+/** Wave 14 — governance-stickiness register, disposition, and posture modules. */
+type _GovernanceStickinessWave14ModuleAliases = [
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-register-types").ArchitectureRiskRegisterEntry,
+    import("@/lib/api/governance-stickiness-api-types").ArchitectureRiskRegisterEntry
+  >,
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-disposition-types").FindingDispositionKind,
+    import("@/lib/api/governance-stickiness-api-types").FindingDispositionKind
+  >,
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-posture-types").ArchitecturePostureSummary,
+    import("@/lib/api/governance-stickiness-api-types").ArchitecturePostureSummary
+  >,
+];
+
+/** Wave 14 — governance-stickiness barrel re-exports register, disposition, and posture slices. */
+type _GovernanceStickinessWave14BarrelAliases = [
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-register-types").ArchitectureDecisionRegisterEntry,
+    import("@/lib/api/governance-stickiness-api-types").ArchitectureDecisionRegisterEntry
+  >,
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-disposition-types").RiskExceptionRecord,
+    import("@/lib/api/governance-stickiness-api-types").RiskExceptionRecord
+  >,
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-posture-types").ArchitectureReviewRecurrenceSchedule,
+    import("@/lib/api/governance-stickiness-api-types").ArchitectureReviewRecurrenceSchedule
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/governance-stickiness-register-types").governanceStickinessBase,
+    typeof import("@/lib/api/governance-stickiness-api-types").governanceStickinessBase
+  >,
+];
+
+/** Wave 14 — health-dashboard ready, detailed, and version modules. */
+type _HealthDashboardWave14ModuleAliases = [
+  AssertExtends<
+    import("@/lib/health-dashboard-ready").HealthReadyResponse,
+    import("@/lib/health-dashboard-types").HealthReadyResponse
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-detailed").HealthDetailedResponse,
+    import("@/lib/health-dashboard-types").HealthDetailedResponse
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-version").VersionInfoResponse,
+    import("@/lib/health-dashboard-types").VersionInfoResponse
+  >,
+];
+
+/** Wave 14 — health-dashboard barrel re-exports ready, detailed, and version slices. */
+type _HealthDashboardWave14BarrelAliases = [
+  AssertExtends<
+    import("@/lib/health-dashboard-ready").findHealthReadyEntryByName,
+    typeof import("@/lib/health-dashboard-types").findHealthReadyEntryByName
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-detailed").parseCircuitGatesFromHealthEntry,
+    typeof import("@/lib/health-dashboard-types").parseCircuitGatesFromHealthEntry
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-ready").isAzureServiceBusHealthUnhealthy,
+    typeof import("@/lib/health-dashboard-types").isAzureServiceBusHealthUnhealthy
+  >,
+];
+
+/** Wave 14 — AI usage dashboard model-row vs aggregate modules. */
+type _AiUsageDashboardModelWave14ModuleAliases = [
+  AssertExtends<
+    import("@/lib/ai-usage-dashboard-model-row-types").AiUsageActivityRow,
+    import("@/lib/ai-usage-dashboard-model-types").AiUsageActivityRow
+  >,
+  AssertExtends<
+    import("@/lib/ai-usage-dashboard-model-aggregate-types").AiUsageDashboardDerived,
+    import("@/lib/ai-usage-dashboard-model-types").AiUsageDashboardDerived
+  >,
+];
+
+/** Wave 14 — AI usage dashboard model barrel re-exports row and aggregate slices. */
+type _AiUsageDashboardModelWave14BarrelAliases = [
+  AssertExtends<
+    import("@/lib/ai-usage-dashboard-model-row-types").AiUsageKpiSummary,
+    import("@/lib/ai-usage-dashboard-model-types").AiUsageKpiSummary
+  >,
+  AssertExtends<
+    import("@/lib/ai-usage-dashboard-model-aggregate-types").BuildAiUsageDashboardDerivedInput,
+    import("@/lib/ai-usage-dashboard-model-types").BuildAiUsageDashboardDerivedInput
+  >,
+];
+
 /** Wave 12 — authority run-detail trust-evidence module. */
 type _AuthorityRunDetailWave12TrustModuleAliases = [
   AssertExtends<
@@ -1083,6 +1302,18 @@ const _compileTimeAliasGuards: [
   _ExplanationWave12BarrelAliases,
   _DraftIntakeActorsWave12ModuleAliases,
   _DraftIntakeActorsWave12BarrelAliases,
+  _DraftIntakeWave13ModuleAliases,
+  _DraftIntakeWave13BarrelAliases,
+  _AgentForensicsWave13ModuleAliases,
+  _AgentForensicsWave13BarrelAliases,
+  _ExplanationWave13ModuleAliases,
+  _ExplanationWave13BarrelAliases,
+  _GovernanceStickinessWave14ModuleAliases,
+  _GovernanceStickinessWave14BarrelAliases,
+  _HealthDashboardWave14ModuleAliases,
+  _HealthDashboardWave14BarrelAliases,
+  _AiUsageDashboardModelWave14ModuleAliases,
+  _AiUsageDashboardModelWave14BarrelAliases,
   _AuthorityRunDetailWave12TrustModuleAliases,
   _AuthorityRunDetailWave12ProvenanceModuleAliases,
   _AuthorityRunDetailWave12BarrelAliases,
@@ -1132,6 +1363,18 @@ const _compileTimeAliasGuards: [
   [] as unknown as _ExplanationWave12BarrelAliases,
   [] as unknown as _DraftIntakeActorsWave12ModuleAliases,
   [] as unknown as _DraftIntakeActorsWave12BarrelAliases,
+  [] as unknown as _DraftIntakeWave13ModuleAliases,
+  [] as unknown as _DraftIntakeWave13BarrelAliases,
+  [] as unknown as _AgentForensicsWave13ModuleAliases,
+  [] as unknown as _AgentForensicsWave13BarrelAliases,
+  [] as unknown as _ExplanationWave13ModuleAliases,
+  [] as unknown as _ExplanationWave13BarrelAliases,
+  [] as unknown as _GovernanceStickinessWave14ModuleAliases,
+  [] as unknown as _GovernanceStickinessWave14BarrelAliases,
+  [] as unknown as _HealthDashboardWave14ModuleAliases,
+  [] as unknown as _HealthDashboardWave14BarrelAliases,
+  [] as unknown as _AiUsageDashboardModelWave14ModuleAliases,
+  [] as unknown as _AiUsageDashboardModelWave14BarrelAliases,
   [] as unknown as _AuthorityRunDetailWave12TrustModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12ProvenanceModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12BarrelAliases,

@@ -14,6 +14,7 @@ export type CostReportingSettingsPageViewModel = {
   readonly adminDashboard: AdminAiUsageDashboard | null;
   readonly derived: AiUsageDashboardDerived;
   readonly filters: AiUsageDashboardFilters;
+  readonly currentSearch: string;
   readonly canViewBudgetDetails: boolean;
   readonly canManageBudget: boolean;
   readonly showDetailedActivityLink: boolean;

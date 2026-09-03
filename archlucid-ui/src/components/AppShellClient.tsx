@@ -30,12 +30,14 @@ import {
   OperatorShellTopBarDeferred,
   RegistrationOnboardingTourAutoStartDeferred,
   RouteAnnouncerDeferred,
-  SessionIdleTimeoutGuardDeferred,
   ShellThemePreferencesAppearanceVocabularyRailDeferred,
   SidebarNavDeferred,
   SyncActiveRunFromPathnameDeferred,
   TrialLimitModalHostDeferred,
 } from "@/components/shell/app-shell-deferred-chunks";
+import { AppShellSyncKeyboardShortcutListener } from "@/components/shell/AppShellSyncKeyboardShortcutListener";
+import { AppShellSyncSessionIdleGuard } from "@/components/shell/AppShellSyncSessionIdleGuard";
+import { CommandPaletteWorkActionBridge } from "@/components/shell/CommandPaletteWorkActionBridge";
 import {
   OperatorChromeModeProvider,
   useOperatorChromeMode,
@@ -228,7 +230,9 @@ function AppShellInner({ children }: AppShellClientProps) {
         <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
           {!deferChrome ? <OperatorShellAccessRedirectsHostDeferred /> : null}
           <AppShellTelemetryBundleDeferred />
-          <SessionIdleTimeoutGuardDeferred />
+          <AppShellSyncSessionIdleGuard />
+          <CommandPaletteWorkActionBridge />
+          <AppShellSyncKeyboardShortcutListener onHelpRequested={openHelpSearch} />
           <TooltipProvider delayDuration={200}>
             <a href="#main-content" className="skip-to-main">
               Skip to main content
@@ -332,7 +336,9 @@ function AppShellInner({ children }: AppShellClientProps) {
       {!deferChrome ? <OperatorShellAccessRedirectsHostDeferred /> : null}
       <AppShellTelemetryBundleDeferred />
       <DevTestingShellShortcutsDeferred />
-      <SessionIdleTimeoutGuardDeferred />
+      <AppShellSyncSessionIdleGuard />
+      <CommandPaletteWorkActionBridge />
+      <AppShellSyncKeyboardShortcutListener onHelpRequested={openHelpSearch} />
       <TooltipProvider delayDuration={200}>
         <a href="#main-content" className="skip-to-main">
           Skip to main content

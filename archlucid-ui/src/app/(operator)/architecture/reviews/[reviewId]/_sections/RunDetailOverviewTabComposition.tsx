@@ -12,6 +12,7 @@ import {
   RunDetailWorkspaceSummaryStripDeferred,
 } from "./RunDetailTabbedWorkspaceDeferredImports";
 import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
+import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { Suspense } from "react";
 
 export type RunDetailOverviewTabCompositionInput = {

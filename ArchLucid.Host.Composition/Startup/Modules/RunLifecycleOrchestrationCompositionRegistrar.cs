@@ -42,6 +42,7 @@ using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
+using ArchLucid.Application.Runs.Query.Stages;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Application.Search;
@@ -89,6 +90,9 @@ internal static partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<TechnologyLedgerTopologyProposalSeeder>();
         services.AddScoped<ITechnologyLedgerRunCommandService, TechnologyLedgerRunCommandService>();
         services.AddScoped<Application.Runs.Query.IRunLifecycleCommandService, Application.Runs.Query.RunLifecycleCommandService>();
+        services.AddScoped<IRunFindingsListStage, RunFindingsListStage>();
+        services.AddScoped<IRunFindingsCsvExportStage, RunFindingsCsvExportStage>();
+        services.AddScoped<IRunFindingsInspectStage, RunFindingsInspectStage>();
         services.AddScoped<Application.Runs.Query.IRunFindingsQueryService, Application.Runs.Query.RunFindingsQueryService>();
         services.AddScoped<Application.Runs.Query.Stages.IRunFindingsListStage, Application.Runs.Query.Stages.RunFindingsListStage>();
         services.AddScoped<Application.Runs.Query.Stages.IRunFindingsCsvExportStage, Application.Runs.Query.Stages.RunFindingsCsvExportStage>();

@@ -10,7 +10,7 @@ import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { standardsRulesSeverityHrefFromSearch, standardsRulesLinkedFindingsHrefFromSearch, standardsRulesEvidenceCoverageHrefFromSearch, standardsRulesEnforcementHrefFromSearch } from "@/lib/governance/standards-rules-filters-url";
+import { standardsRulesSeverityHrefFromSearch, standardsRulesLinkedFindingsHrefFromSearch, standardsRulesEvidenceCoverageHrefFromSearch, standardsRulesEnforcementHrefFromSearch, standardsRulesFrameworkHrefFromSearch, standardsRulesPackHrefFromSearch } from "@/lib/governance/standards-rules-filters-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -34,33 +34,6 @@ export type StandardsRulesFiltersProps = {
   readonly onRefresh: () => void;
   readonly refreshing: boolean;
 };
-
-function FilterSelect(props: {
-  readonly label: string;
-  readonly value: string;
-  readonly options: readonly string[];
-  readonly onChange: (value: string) => void;
-}) {
-  return (
-    <label className={cn("flex min-w-[10rem] flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-      <span className="text-al-text-secondary">{props.label}</span>
-      <select
-        className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900"
-        value={props.value}
-        onChange={(event) => {
-          props.onChange(event.target.value);
-        }}
-      >
-        <option value="all">All</option>
-        {props.options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
 
 export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
   const { filters, visibleCount, totalCount, options, onChange, onReset, onRefresh, refreshing } = props;
@@ -227,15 +200,39 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
           </FilterChip>
         </FilterChipGroup>
       </div>
+      <div className="space-y-2">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Standard / Framework</p>
+        <FilterChipGroup aria-label="Filter rules by standard or framework" className="flex flex-wrap gap-2">
+          <FilterChip
+            href={standardsRulesFrameworkHrefFromSearch(props.currentSearch, "all", props.pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(filters.standardFramework === "all", false)}
+            aria-current={filters.standardFramework === "all" ? "page" : undefined}
+            data-testid="standards-rules-framework-all"
+            onClick={() => {
+              onChange({ ...filters, standardFramework: "all" });
+            }}
+          >
+            All
+          </FilterChip>
+          {options.standards.map((standard) => (
+            <FilterChip
+              key={standard}
+              href={standardsRulesFrameworkHrefFromSearch(props.currentSearch, standard, props.pathname)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.standardFramework === standard, false)}
+              aria-current={filters.standardFramework === standard ? "page" : undefined}
+              data-testid={`standards-rules-framework-${standard.toLowerCase().replace(/\s+/g, "-")}`}
+              onClick={() => {
+                onChange({ ...filters, standardFramework: standard });
+              }}
+            >
+              {standard}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      </div>
       <div className="flex flex-wrap gap-3">
-        <FilterSelect
-          label="Standard / Framework"
-          value={filters.standardFramework}
-          options={options.standards}
-          onChange={(value) => {
-            onChange({ ...filters, standardFramework: value });
-          }}
-        />
         <div className="space-y-2">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Enforcement mode</p>
           <FilterChipGroup aria-label="Filter rules by enforcement mode" className="flex flex-wrap gap-2">
@@ -268,14 +265,38 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
             ))}
           </FilterChipGroup>
         </div>
-        <FilterSelect
-          label="Source policy pack"
-          value={filters.sourcePolicyPack}
-          options={options.policyPacks}
-          onChange={(value) => {
-            onChange({ ...filters, sourcePolicyPack: value });
-          }}
-        />
+        <div className="space-y-2">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Source policy pack</p>
+          <FilterChipGroup aria-label="Filter rules by source policy pack" className="flex flex-wrap gap-2">
+            <FilterChip
+              href={standardsRulesPackHrefFromSearch(props.currentSearch, "all", props.pathname)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.sourcePolicyPack === "all", false)}
+              aria-current={filters.sourcePolicyPack === "all" ? "page" : undefined}
+              data-testid="standards-rules-pack-all"
+              onClick={() => {
+                onChange({ ...filters, sourcePolicyPack: "all" });
+              }}
+            >
+              All
+            </FilterChip>
+            {options.policyPacks.map((pack) => (
+              <FilterChip
+                key={pack}
+                href={standardsRulesPackHrefFromSearch(props.currentSearch, pack, props.pathname)}
+                scroll={false}
+                className={buyerFilterChipClass(filters.sourcePolicyPack === pack, false)}
+                aria-current={filters.sourcePolicyPack === pack ? "page" : undefined}
+                data-testid={`standards-rules-pack-${pack.toLowerCase().replace(/\s+/g, "-")}`}
+                onClick={() => {
+                  onChange({ ...filters, sourcePolicyPack: pack });
+                }}
+              >
+                {pack}
+              </FilterChip>
+            ))}
+          </FilterChipGroup>
+        </div>
       </div>
     </div>
   );

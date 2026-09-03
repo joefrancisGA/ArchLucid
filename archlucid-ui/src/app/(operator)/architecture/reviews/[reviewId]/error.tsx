@@ -12,8 +12,7 @@ import { RunDetailMinimalChromeMount } from "@/components/runs/RunDetailMinimalC
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reportClientError } from "@/lib/error-telemetry";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
@@ -34,19 +33,16 @@ export default function RunDetailSegmentError({
 
   const digest = error.digest?.trim() ?? "";
   const isDev = process.env.NODE_ENV === "development";
-  const isStaticFallback = isStaticDemoPayloadFallbackEnabled();
-  const isBuyerPolished = isBuyerPolishedOperatorShellEnv();
+  const showSampleRecovery = !isLiveOperatorShellRecoveryContext();
 
-  if (isStaticFallback || isBuyerPolished) {
+  if (showSampleRecovery) {
     return (
       <RunDetailMinimalChromeMount>
         <div className="mx-auto max-w-lg space-y-4 px-4 py-6">
         <OperatorErrorCallout>
           <strong className={OPERATOR_TYPOGRAPHY.cardTitle}>Sample review unavailable</strong>
           <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {isBuyerPolished
-              ? "Open the Finalized review record first, or use the read-only walkthrough below, to explore the Claims Intake outputs."
-              : "Open the sample review or the public walkthrough below to explore the Claims Intake review outputs."}
+            Open the sample review or the public walkthrough below to explore the Claims Intake review outputs.
           </p>
           {isDev ? (
             <pre

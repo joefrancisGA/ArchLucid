@@ -16,3 +16,5 @@ Copy-paste prompts for livelihood-grade workspace mitigations. Branch template: 
 | DD-10 Review stale banner | Shipped — `ReviewWorkspaceStaleBanner` on review header |
 
 See conversation transcript for full paste-ready prompt text.
+
+**Successor set (2026-09-03):** livelihood-grade residuals live in [`.cursor/prompts/professional-tool-00-index.md`](../../.cursor/prompts/professional-tool-00-index.md). **PT-01–10** are the first residual rewrite; **PT-11–20** are the second wave (workbench, cross-device drafts, restore, presenter, infeasible package, skipped-MUST finalize, dirty guards, meeting token keep-alive, compare-from-review). Do not re-run DD-01–10.

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { governanceFindingsGroupByHrefFromSearch } from "@/lib/governance/governance-findings-group-by-url";
+import { governanceFindingsRegisterFilterHrefFromSearch } from "@/lib/governance/governance-findings-register-filter-url";
 import {
   governanceFindingsNlSeverityHrefFromSearch,
   governanceFindingsNlStatusHrefFromSearch,
@@ -84,33 +85,41 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
         data-testid="architecture-risk-register-filters"
         aria-label="Findings filters"
       >
-        <Button
-          type="button"
-          size="sm"
-          variant={registerFilter === "all" ? "default" : "outline"}
+      <FilterChipGroup aria-label="Register filter" className="flex flex-wrap gap-2">
+        <FilterChip
+          href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, "all", pathname)}
+          scroll={false}
+          className={buyerFilterChipClass(registerFilter === "all", false)}
+          aria-current={registerFilter === "all" ? "page" : undefined}
+          data-testid="governance-findings-register-filter-all"
           onClick={() => onRegisterFilterChange("all")}
         >
           {RISK_REGISTER_FILTER_LABELS.all}
-        </Button>
+        </FilterChip>
         {RISK_REGISTER_QUICK_FILTERS.map((filter) => (
-          <Button
+          <FilterChip
             key={filter}
-            type="button"
-            size="sm"
-            variant={registerFilter === filter ? "default" : "outline"}
+            href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, filter, pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(registerFilter === filter, false)}
+            aria-current={registerFilter === filter ? "page" : undefined}
+            data-testid={`governance-findings-register-filter-${filter}`}
             onClick={() => onRegisterFilterChange(filter)}
           >
             {RISK_REGISTER_FILTER_LABELS[filter]}
-          </Button>
+          </FilterChip>
         ))}
-        <Button
-          type="button"
-          size="sm"
-          variant={registerFilter === "stale" ? "default" : "outline"}
+        <FilterChip
+          href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, "stale", pathname)}
+          scroll={false}
+          className={buyerFilterChipClass(registerFilter === "stale", false)}
+          aria-current={registerFilter === "stale" ? "page" : undefined}
+          data-testid="governance-findings-register-filter-stale"
           onClick={() => onRegisterFilterChange("stale")}
         >
           {RISK_REGISTER_FILTER_LABELS.stale}
-        </Button>
+        </FilterChip>
+      </FilterChipGroup>
         {registerFilter !== "all" && !savedPresets.some((preset) => preset.filter === registerFilter) ? (
           <Button
             type="button"

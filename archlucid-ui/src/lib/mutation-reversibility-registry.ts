@@ -35,27 +35,27 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
   },
   governance_workflow_approve: {
     id: "governance_workflow_approve",
-    classification: "permanent",
+    classification: "reversible_with_audit",
     confirmationLead:
-      "Approving this request updates the approval workflow state. It cannot be undone from this workspace.",
+      "Approving this request updates the approval workflow state. Prior approval remains on the audit trail; record a correction there if approval was mistaken.",
   },
   governance_workflow_reject: {
     id: "governance_workflow_reject",
-    classification: "permanent",
+    classification: "reversible_with_audit",
     confirmationLead:
-      "Rejecting this request updates the approval workflow state. It cannot be undone from this workspace.",
+      "Rejecting this request updates the approval workflow state. Prior rejection remains on the audit trail; record a correction there if rejection was mistaken.",
   },
   governance_workflow_promote: {
     id: "governance_workflow_promote",
-    classification: "permanent",
+    classification: "reversible_with_audit",
     confirmationLead:
-      "Promoting this pack applies it to the target environment for future approved changes. It cannot be undone from this workspace.",
+      "Promoting this pack applies it to the target environment for future approved changes. Prior promotion remains on the audit trail; record a correction there if promotion was mistaken.",
   },
   governance_workflow_activate: {
     id: "governance_workflow_activate",
-    classification: "permanent",
+    classification: "reversible_with_audit",
     confirmationLead:
-      "Activating this pack applies its rules to future approved changes in this environment. It cannot be undone from this workspace.",
+      "Activating this pack applies its rules to future approved changes in this environment. Prior activation remains on the audit trail; record a correction there if activation was mistaken.",
   },
   governance_bulk_disposition: {
     id: "governance_bulk_disposition",
