@@ -1881,11 +1881,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 134
-- **bugs-found:** 254
+- **hunts:** 135
+- **bugs-found:** 255
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `prodigy` / `prodigal` environment names misclassified as production-like
+- **last-bug:** 2026-09-03 — bounded `prod` token matching for environment names (`prodding` false positive)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1984,6 +1984,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd` — `Rsv` substring false-positive on `Cursive` meter names — `Cursive` contains `rsi` at the embedded substring, not contiguous `Rsv`; cheap-disproof on hunt #649.
 
 2026-09-03 seed hunt #649: reseeded from `HostingEnvironmentNamePatterns`; proved prodigy and prodigal environment `prod` false positives; disproved `Cursive`/`Rsv` meter-name false positive.
+
+- [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — unbounded `Contains("prod")` false positives on unrelated environment names — **hit 2026-09-03 (#650):** after #646–#649 per-word exclusions, `prodding` / `prodding-dev` still matched; replaced substring scan with `production` substring plus standalone delimiter-bounded `prod` tokens so reproduce/product/produce/prodigy/prodigal/prodding no longer match while `PreProduction` / `staging-prod` still do (`EnvironmentNameImpliesProductionLike_rejects_prodding_environment_names`).
+
+2026-09-03 seed hunt #650: reseeded from `HostingEnvironmentNamePatterns`; proved prodding `prod` false positive; replaced whack-a-mole exclusions with bounded prod-token matching.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
