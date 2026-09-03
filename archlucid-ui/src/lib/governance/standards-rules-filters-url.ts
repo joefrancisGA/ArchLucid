@@ -5,6 +5,8 @@ export const STANDARDS_RULES_SEVERITY_PARAM = "severity";
 export const STANDARDS_RULES_LINKED_FINDINGS_PARAM = "linkedFindings";
 export const STANDARDS_RULES_EVIDENCE_COVERAGE_PARAM = "evidenceCoverage";
 export const STANDARDS_RULES_ENFORCEMENT_PARAM = "enforcement";
+export const STANDARDS_RULES_FRAMEWORK_PARAM = "framework";
+export const STANDARDS_RULES_PACK_PARAM = "pack";
 
 export type StandardsRulesLinkedFindingsFilter = "all" | "linked" | "unlinked";
 export type StandardsRulesEvidenceCoverageFilter = "all" | "evidenced" | "unevidenced";
@@ -173,6 +175,72 @@ export function standardsRulesEnforcementHrefFromSearch(
     params.delete(STANDARDS_RULES_ENFORCEMENT_PARAM);
   } else {
     params.set(STANDARDS_RULES_ENFORCEMENT_PARAM, trimmed);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function parseStandardsRulesFrameworkFromSearch(raw: string | null | undefined): string {
+  if (raw === null || raw === undefined) {
+    return "all";
+  }
+
+  const trimmed = raw.trim();
+
+  if (trimmed.length === 0) {
+    return "all";
+  }
+
+  return trimmed;
+}
+
+export function parseStandardsRulesPackFromSearch(raw: string | null | undefined): string {
+  if (raw === null || raw === undefined) {
+    return "all";
+  }
+
+  const trimmed = raw.trim();
+
+  if (trimmed.length === 0) {
+    return "all";
+  }
+
+  return trimmed;
+}
+
+export function standardsRulesFrameworkHrefFromSearch(
+  currentSearch: string,
+  framework: string,
+  pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+  const trimmed = framework.trim();
+
+  if (trimmed.length === 0 || trimmed === "all") {
+    params.delete(STANDARDS_RULES_FRAMEWORK_PARAM);
+  } else {
+    params.set(STANDARDS_RULES_FRAMEWORK_PARAM, trimmed);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function standardsRulesPackHrefFromSearch(
+  currentSearch: string,
+  pack: string,
+  pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+  const trimmed = pack.trim();
+
+  if (trimmed.length === 0 || trimmed === "all") {
+    params.delete(STANDARDS_RULES_PACK_PARAM);
+  } else {
+    params.set(STANDARDS_RULES_PACK_PARAM, trimmed);
   }
 
   const nextQuery = params.toString();

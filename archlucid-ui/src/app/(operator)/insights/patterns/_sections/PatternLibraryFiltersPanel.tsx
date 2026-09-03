@@ -18,9 +18,19 @@ import {
   patternLibraryPlatformHrefFromSearch,
   patternLibraryTypeHrefFromSearch,
   patternLibraryRiskHrefFromSearch,
+  patternLibraryAdoptionHrefFromSearch,
+  patternLibraryTimeRangeHrefFromSearch,
 } from "@/lib/insights/pattern-library-filters-url";
 import { PATTERN_LIBRARY_SEARCH_PLACEHOLDER } from "@/lib/pattern-library-copy";
-import type { PatternDomainFilter, PatternLibraryFiltersState, PatternPlatformFilter, PatternRiskSignal, PatternTypeFilter } from "@/lib/pattern-library-types";
+import type {
+  PatternAdoptionSignal,
+  PatternDomainFilter,
+  PatternLibraryFiltersState,
+  PatternPlatformFilter,
+  PatternRiskSignal,
+  PatternTimeRangeFilter,
+  PatternTypeFilter,
+} from "@/lib/pattern-library-types";
 
 const DOMAIN_CHIP_OPTIONS: readonly PatternDomainFilter[] = [
   "All domains",
@@ -50,6 +60,20 @@ const RISK_CHIP_OPTIONS: readonly (PatternRiskSignal | "All risks")[] = [
   "Low",
   "Moderate",
   "High",
+];
+
+const TIME_CHIP_OPTIONS: readonly PatternTimeRangeFilter[] = [
+  "All time",
+  "Last 90 days",
+  "Last 12 months",
+];
+
+const ADOPTION_CHIP_OPTIONS: readonly (PatternAdoptionSignal | "All adoption")[] = [
+  "All adoption",
+  "Common",
+  "Emerging",
+  "Rare",
+  "Declining",
 ];
 
 const PLATFORM_CHIP_OPTIONS: readonly PatternPlatformFilter[] = [
@@ -186,16 +210,28 @@ export function PatternLibraryFiltersPanel(props: PatternLibraryFiltersPanelProp
         </FilterChipGroup>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <FilterSelect
-          id="pattern-filter-adoption"
-          label="Adoption"
-          value={filters.adoption}
-          options={["All adoption", "Common", "Emerging", "Rare", "Declining"]}
-          onChange={(value) => {
-            onChange(updateFilter(filters, "adoption", value as PatternLibraryFiltersState["adoption"]));
-          }}
-        />
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Adoption</p>
+        <FilterChipGroup aria-label="Filter patterns by adoption" className="flex flex-wrap gap-2">
+          {ADOPTION_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option}
+              href={patternLibraryAdoptionHrefFromSearch(props.currentSearch, option)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.adoption === option, false)}
+              aria-current={filters.adoption === option ? "page" : undefined}
+              data-testid={`pattern-library-adoption-${option.toLowerCase().replace(/\s+/g, "-")}`}
+              onClick={() => {
+                onChange(updateFilter(filters, "adoption", option));
+              }}
+            >
+              {option}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
         <FilterSelect
           id="pattern-filter-governance"
           label="Approval impact"
@@ -220,15 +256,27 @@ export function PatternLibraryFiltersPanel(props: PatternLibraryFiltersPanelProp
             onChange(updateFilter(filters, "dataSource", value as PatternLibraryFiltersState["dataSource"]));
           }}
         />
-        <FilterSelect
-          id="pattern-filter-time"
-          label="Time range"
-          value={filters.timeRange}
-          options={["All time", "Last 90 days", "Last 12 months"]}
-          onChange={(value) => {
-            onChange(updateFilter(filters, "timeRange", value as PatternLibraryFiltersState["timeRange"]));
-          }}
-        />
+      </div>
+
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Time range</p>
+        <FilterChipGroup aria-label="Filter patterns by time range" className="flex flex-wrap gap-2">
+          {TIME_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option}
+              href={patternLibraryTimeRangeHrefFromSearch(props.currentSearch, option)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.timeRange === option, false)}
+              aria-current={filters.timeRange === option ? "page" : undefined}
+              data-testid={`pattern-library-time-${option.toLowerCase().replace(/\s+/g, "-")}`}
+              onClick={() => {
+                onChange(updateFilter(filters, "timeRange", option));
+              }}
+            >
+              {option}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
       </div>
     </section>
   );

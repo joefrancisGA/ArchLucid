@@ -1,18 +1,41 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Label } from "@/components/ui/label";
+import {
+  aiUsageStatusHrefFromSearch,
+  aiUsageTriggerHrefFromSearch,
+} from "@/lib/administration/ai-usage-dashboard-filter-url";
 import type { AiUsageDashboardFilters } from "@/lib/ai-usage-dashboard-filters";
 import { formatAiUsageFeatureLabel } from "@/lib/ai-usage-dashboard-model";
 import type { AdminAiUsageDashboard } from "@/lib/admin-ai-usage-dashboard";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type Props = {
   readonly filters: AiUsageDashboardFilters;
+  readonly currentSearch: string;
   readonly adminDashboard: AdminAiUsageDashboard | null;
   readonly onFiltersChange: (filters: AiUsageDashboardFilters) => void;
 };
+
+const TRIGGER_CHIP_OPTIONS = [
+  { value: "all" as const, label: "All triggers" },
+  { value: "manual" as const, label: "Manual" },
+  { value: "scheduled" as const, label: "Scheduled" },
+];
+
+const STATUS_CHIP_OPTIONS = [
+  { value: "all" as const, label: "All statuses" },
+  { value: "completed" as const, label: "Completed" },
+  { value: "skipped" as const, label: "Skipped" },
+  { value: "budget_blocked" as const, label: "Budget blocked" },
+];
 
 function SelectField(props: {
   readonly id: string;
@@ -46,6 +69,7 @@ function SelectField(props: {
 }
 
 export function AiUsageFiltersBar(props: Props) {
+  const pathname = usePathname() ?? "/administration/ai-usage";
   const features = Object.keys(props.adminDashboard?.usageByFeatureUsd ?? {});
   const users = Array.from(
     new Set((props.adminDashboard?.recentEvents ?? []).map((event) => event.userId ?? "system")),
@@ -107,39 +131,46 @@ export function AiUsageFiltersBar(props: Props) {
             ...models.map((model) => ({ value: model, label: model })),
           ]}
         />
-        <SelectField
-          id="ai-usage-filter-trigger"
-          label="Manual vs scheduled"
-          value={props.filters.trigger}
-          onChange={(value) =>
-            props.onFiltersChange({
-              ...props.filters,
-              trigger: value as AiUsageDashboardFilters["trigger"],
-            })
-          }
-          options={[
-            { value: "all", label: "All triggers" },
-            { value: "manual", label: "Manual" },
-            { value: "scheduled", label: "Scheduled" },
-          ]}
-        />
-        <SelectField
-          id="ai-usage-filter-status"
-          label="Status"
-          value={props.filters.status}
-          onChange={(value) =>
-            props.onFiltersChange({
-              ...props.filters,
-              status: value as AiUsageDashboardFilters["status"],
-            })
-          }
-          options={[
-            { value: "all", label: "All statuses" },
-            { value: "completed", label: "Completed" },
-            { value: "skipped", label: "Skipped" },
-            { value: "budget_blocked", label: "Budget blocked" },
-          ]}
-        />
+      </div>
+      <div className="mt-3 space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Manual vs scheduled</p>
+        <FilterChipGroup aria-label="Filter AI usage by trigger" className="flex flex-wrap gap-2">
+          {TRIGGER_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option.value}
+              href={aiUsageTriggerHrefFromSearch(props.currentSearch, option.value, pathname)}
+              scroll={false}
+              className={buyerFilterChipClass(props.filters.trigger === option.value, false)}
+              aria-current={props.filters.trigger === option.value ? "page" : undefined}
+              data-testid={`ai-usage-trigger-${option.value}`}
+              onClick={() => {
+                props.onFiltersChange({ ...props.filters, trigger: option.value });
+              }}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      </div>
+      <div className="mt-3 space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Status</p>
+        <FilterChipGroup aria-label="Filter AI usage by status" className="flex flex-wrap gap-2">
+          {STATUS_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option.value}
+              href={aiUsageStatusHrefFromSearch(props.currentSearch, option.value, pathname)}
+              scroll={false}
+              className={buyerFilterChipClass(props.filters.status === option.value, false)}
+              aria-current={props.filters.status === option.value ? "page" : undefined}
+              data-testid={`ai-usage-status-${option.value}`}
+              onClick={() => {
+                props.onFiltersChange({ ...props.filters, status: option.value });
+              }}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
       </div>
     </section>
   );

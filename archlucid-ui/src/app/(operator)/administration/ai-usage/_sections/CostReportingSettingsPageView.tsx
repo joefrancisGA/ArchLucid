@@ -221,6 +221,7 @@ export function CostReportingSettingsPageView(props: Props) {
               {m.canViewBudgetDetails ? (
                 <AiUsageFiltersBar
                   filters={m.filters}
+                  currentSearch={m.currentSearch}
                   adminDashboard={m.adminDashboard}
                   onFiltersChange={(nextFilters) => {
                     m.setFilters({ ...nextFilters, groupBy: m.filters.groupBy });

@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -14,6 +17,8 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import { PILOT_OUTCOMES_PERIOD_PRESETS } from "@/lib/pilot-outcomes-period-presets";
+import { sponsorReportPeriodHrefFromSearch } from "@/lib/insights/sponsor-report-period-url";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { pilotOutcomesReportingPeriodHelper } from "@/lib/pilot-outcomes-page-copy";
 import { firstWhyDisabledCtaReason, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
@@ -56,6 +61,8 @@ type Props = {
 
 export function PilotValueReportExportControls(props: Props) {
   const { hasFinalizedReviews, model: m, periodControlsRef } = props;
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
   const exportsDisabledReason = exportDisabledReason(m.canMutate, hasFinalizedReviews, m.busy);
   const canExport = m.canMutate && hasFinalizedReviews && !m.busy;
   const exportDisabledHintId = "value-report-export-disabled-reason";
@@ -68,19 +75,22 @@ export function PilotValueReportExportControls(props: Props) {
           {pilotOutcomesReportingPeriodHelper(m.reportingTimezoneLabel)}
         </p>
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Reporting period presets">
+        <FilterChipGroup aria-label="Reporting period presets" className="flex flex-wrap gap-2">
           {PILOT_OUTCOMES_PERIOD_PRESETS.map((preset) => (
-            <Button
+            <FilterChip
               key={preset.id}
-              type="button"
-              size="sm"
-              variant={m.periodPreset === preset.id ? "default" : "outline"}
+              href={sponsorReportPeriodHrefFromSearch(currentSearch, preset.id)}
+              scroll={false}
+              className={buyerFilterChipClass(m.periodPreset === preset.id, m.busy)}
+              aria-current={m.periodPreset === preset.id ? "page" : undefined}
+              disabled={m.busy}
+              data-testid={`sponsor-report-period-${preset.id}`}
               onClick={() => m.applyPeriodPreset(preset.id)}
             >
               {preset.label}
-            </Button>
+            </FilterChip>
           ))}
-        </div>
+        </FilterChipGroup>
 
         <div className="flex flex-wrap items-end gap-3">
           <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
@@ -93,7 +103,7 @@ export function PilotValueReportExportControls(props: Props) {
               )}
               value={m.fromUtc}
               onChange={(e) => {
-                m.setPeriodPreset("custom");
+                m.applyPeriodPreset("custom");
                 m.setFromUtc(e.target.value);
               }}
             />
@@ -108,7 +118,7 @@ export function PilotValueReportExportControls(props: Props) {
               )}
               value={m.toUtc}
               onChange={(e) => {
-                m.setPeriodPreset("custom");
+                m.applyPeriodPreset("custom");
                 m.setToUtc(e.target.value);
               }}
             />
