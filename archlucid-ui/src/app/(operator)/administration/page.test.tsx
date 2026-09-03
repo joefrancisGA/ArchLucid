@@ -76,8 +76,16 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
   };
 });
 
+const routerReplace = vi.hoisted(() => vi.fn());
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/administration",
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: routerReplace,
+    back: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -87,6 +95,7 @@ import { SettingsPageView } from "./_sections/SettingsPageView";
 
 describe("SettingsPageView", () => {
   beforeEach(() => {
+    routerReplace.mockClear();
     navAuth.callerAuthorityRank = AUTHORITY_RANK.ReadAuthority;
     navAuth.isAuthorityLoading = false;
     internalShell.enabled = false;

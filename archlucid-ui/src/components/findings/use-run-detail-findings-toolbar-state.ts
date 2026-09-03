@@ -20,6 +20,15 @@ import {
   parseFindingsGroundingFilterFromSearch,
   parseFindingsOriginFilterFromSearch,
 } from "@/lib/findings/findings-provenance-url";
+import {
+  parseReviewFindingsDomainFilterFromSearch,
+  parseReviewFindingsOwnerFilterFromSearch,
+  reviewFindingsDomainFilterHrefFromSearch,
+  reviewFindingsOwnerFilterHrefFromSearch,
+  reviewFindingsToolbarClearDomainHrefFromSearch,
+  reviewFindingsToolbarClearOwnerHrefFromSearch,
+} from "@/lib/findings/review-findings-toolbar-field-filters-url";
+import { parseReviewFindingsToolbarSortFromSearch } from "@/lib/findings/review-findings-toolbar-sort-url";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
 import type {
   RunDetailFindingsFilterKind,
@@ -36,8 +45,10 @@ export function useRunDetailFindingsToolbarState(options?: {
   readonly setJobView: (jobView: FindingJobView) => void;
   readonly ownerFilter: string;
   readonly setOwnerFilter: (value: string) => void;
+  readonly clearOwnerFilter: () => void;
   readonly domainFilter: string;
   readonly setDomainFilter: (value: string) => void;
+  readonly clearDomainFilter: () => void;
   readonly searchQuery: string;
   readonly setSearchQuery: (value: string) => void;
   readonly sort: RunDetailFindingsSortKind;
@@ -56,6 +67,9 @@ export function useRunDetailFindingsToolbarState(options?: {
   const urlSearchQuery = parseReviewFindingsToolbarSearchQuery(searchParams?.get("q"));
   const urlOriginFilter = parseFindingsOriginFilterFromSearch(searchParams?.get("origin"));
   const urlGroundingFilter = parseFindingsGroundingFilterFromSearch(searchParams?.get("grounding"));
+  const urlOwnerFilter = parseReviewFindingsOwnerFilterFromSearch(searchParams?.get("owner"));
+  const urlDomainFilter = parseReviewFindingsDomainFilterFromSearch(searchParams?.get("domain"));
+  const urlSort = parseReviewFindingsToolbarSortFromSearch(searchParams?.get("findingsSort"));
   const [filter, setFilterState] = useState<RunDetailFindingsFilterKind>(initialFilter);
   const setFilter = useCallback((next: RunDetailFindingsFilterKind): void => {
     setFilterState(next);
@@ -68,10 +82,10 @@ export function useRunDetailFindingsToolbarState(options?: {
     setJobViewState(next);
     writeFindingJobViewToUrl(next);
   }, []);
-  const [ownerFilter, setOwnerFilter] = useState("");
-  const [domainFilter, setDomainFilter] = useState("");
+  const [ownerFilter, setOwnerFilterState] = useState(urlOwnerFilter);
+  const [domainFilter, setDomainFilterState] = useState(urlDomainFilter);
   const [searchQuery, setSearchQueryState] = useState(urlSearchQuery);
-  const [sort, setSort] = useState<RunDetailFindingsSortKind>("trust-then-severity");
+  const [sort, setSortState] = useState<RunDetailFindingsSortKind>(urlSort);
   const [originFilter, setOriginFilterState] = useState<FindingOriginFilter>(urlOriginFilter);
   const [groundingFilter, setGroundingFilterState] = useState<FindingGroundingFilter>(urlGroundingFilter);
 
@@ -86,6 +100,18 @@ export function useRunDetailFindingsToolbarState(options?: {
   useEffect(() => {
     setGroundingFilterState(urlGroundingFilter);
   }, [urlGroundingFilter]);
+
+  useEffect(() => {
+    setOwnerFilterState(urlOwnerFilter);
+  }, [urlOwnerFilter]);
+
+  useEffect(() => {
+    setDomainFilterState(urlDomainFilter);
+  }, [urlDomainFilter]);
+
+  useEffect(() => {
+    setSortState(urlSort);
+  }, [urlSort]);
 
   useEffect(() => {
     if (pathname.length === 0) {
@@ -105,8 +131,66 @@ export function useRunDetailFindingsToolbarState(options?: {
     };
   }, [pathname, router, searchParams, searchQuery]);
 
+  useEffect(() => {
+    if (pathname.length === 0) {
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      const nextHref = reviewFindingsOwnerFilterHrefFromSearch(searchParams.toString(), pathname, ownerFilter);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [ownerFilter, pathname, router, searchParams]);
+
+  useEffect(() => {
+    if (pathname.length === 0) {
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      const nextHref = reviewFindingsDomainFilterHrefFromSearch(searchParams.toString(), pathname, domainFilter);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [domainFilter, pathname, router, searchParams]);
+
   const setSearchQuery = useCallback((value: string): void => {
     setSearchQueryState(value);
+  }, []);
+
+  const setOwnerFilter = useCallback((value: string): void => {
+    setOwnerFilterState(value);
+  }, []);
+
+  const clearOwnerFilter = useCallback((): void => {
+    setOwnerFilterState("");
+    router.replace(reviewFindingsToolbarClearOwnerHrefFromSearch(searchParams.toString(), pathname), { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const setDomainFilter = useCallback((value: string): void => {
+    setDomainFilterState(value);
+  }, []);
+
+  const clearDomainFilter = useCallback((): void => {
+    setDomainFilterState("");
+    router.replace(reviewFindingsToolbarClearDomainHrefFromSearch(searchParams.toString(), pathname), { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const setSort = useCallback((value: RunDetailFindingsSortKind): void => {
+    setSortState(value);
   }, []);
 
   const setOriginFilter = useCallback((value: FindingOriginFilter): void => {
@@ -124,8 +208,10 @@ export function useRunDetailFindingsToolbarState(options?: {
     setJobView,
     ownerFilter,
     setOwnerFilter,
+    clearOwnerFilter,
     domainFilter,
     setDomainFilter,
+    clearDomainFilter,
     searchQuery,
     setSearchQuery,
     sort,

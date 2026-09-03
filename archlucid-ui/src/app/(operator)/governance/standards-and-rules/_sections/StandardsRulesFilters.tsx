@@ -6,12 +6,21 @@ import {
 } from "@/lib/standards-rules-page";
 import { standardsRulesFiltersAreActive } from "@/lib/standards-rules-table-presentation";
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { RefreshButton } from "@/components/ui/refresh-button";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { standardsRulesSeverityHrefFromSearch } from "@/lib/governance/standards-rules-filters-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type StandardsRulesFiltersProps = {
   readonly filters: StandardsRulesFilterState;
+  readonly currentSearch: string;
+  readonly pathname: string;
+  readonly searchQuery: string;
+  readonly onSearchQueryChange: (value: string) => void;
+  readonly onClearSearch: () => void;
   readonly visibleCount: number;
   readonly totalCount: number;
   readonly options: {
@@ -78,9 +87,16 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
             type="search"
             className="max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900"
             placeholder="Search by rule, standard, category, or pack"
-            value={filters.searchQuery}
+            value={props.searchQuery}
             onChange={(event) => {
+              props.onSearchQueryChange(event.target.value);
               onChange({ ...filters, searchQuery: event.target.value });
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && props.searchQuery.trim().length > 0) {
+                event.preventDefault();
+                props.onClearSearch();
+              }
             }}
           />
         </label>
@@ -103,6 +119,32 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
           />
         </div>
       </div>
+      <div className="space-y-2">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Severity</p>
+        <FilterChipGroup aria-label="Filter rules by severity" className="flex flex-wrap gap-2">
+          <FilterChip
+            href={standardsRulesSeverityHrefFromSearch(props.currentSearch, "all", props.pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(filters.severity === "all", false)}
+            aria-current={filters.severity === "all" ? "page" : undefined}
+            data-testid="standards-rules-severity-all"
+          >
+            All
+          </FilterChip>
+          {options.severities.map((severity) => (
+            <FilterChip
+              key={severity}
+              href={standardsRulesSeverityHrefFromSearch(props.currentSearch, severity, props.pathname)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.severity === severity, false)}
+              aria-current={filters.severity === severity ? "page" : undefined}
+              data-testid={`standards-rules-severity-${severity.toLowerCase()}`}
+            >
+              {severity}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      </div>
       <div className="flex flex-wrap gap-3">
         <FilterSelect
           label="Standard / Framework"
@@ -110,14 +152,6 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
           options={options.standards}
           onChange={(value) => {
             onChange({ ...filters, standardFramework: value });
-          }}
-        />
-        <FilterSelect
-          label="Severity"
-          value={filters.severity}
-          options={options.severities}
-          onChange={(value) => {
-            onChange({ ...filters, severity: value });
           }}
         />
         <FilterSelect

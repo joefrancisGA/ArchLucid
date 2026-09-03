@@ -205,3 +205,118 @@ describe("wave13 filter url helpers", () => {
   });
 });
 
+describe("wave14 filter url helpers", () => {
+  it("runs list sort param", async () => {
+    const { parseRunsListSortFromSearch, runsListSortHrefFromSearch } = await import("@/lib/runs/runs-list-sort-url");
+
+    expect(parseRunsListSortFromSearch("created-asc")).toBe("created-asc");
+    expect(parseRunsListSortFromSearch("bogus")).toBe("created-desc");
+    expect(runsListSortHrefFromSearch("q=vpc", "created-asc", "/architecture/reviews")).toBe(
+      "/architecture/reviews?q=vpc&sort=created-asc",
+    );
+    expect(runsListSortHrefFromSearch("sort=created-asc", "created-desc", "/architecture/reviews")).toBe(
+      "/architecture/reviews",
+    );
+  });
+
+  it("review findings toolbar sort and field filters", async () => {
+    const { parseReviewFindingsToolbarSortFromSearch, reviewFindingsToolbarSortHrefFromSearch } = await import(
+      "@/lib/findings/review-findings-toolbar-sort-url"
+    );
+    const {
+      parseReviewFindingsOwnerFilterFromSearch,
+      reviewFindingsOwnerFilterHrefFromSearch,
+      parseReviewFindingsDomainFilterFromSearch,
+      reviewFindingsDomainFilterHrefFromSearch,
+    } = await import("@/lib/findings/review-findings-toolbar-field-filters-url");
+
+    expect(parseReviewFindingsToolbarSortFromSearch("severity-desc")).toBe("severity-desc");
+    expect(
+      reviewFindingsToolbarSortHrefFromSearch("tab=findings", "/architecture/reviews/r1", "severity-desc"),
+    ).toBe("/architecture/reviews/r1?tab=findings&findingsSort=severity-desc");
+    expect(parseReviewFindingsOwnerFilterFromSearch("platform")).toBe("platform");
+    expect(reviewFindingsOwnerFilterHrefFromSearch("tab=findings", "/architecture/reviews/r1", "platform")).toBe(
+      "/architecture/reviews/r1?tab=findings&owner=platform",
+    );
+    expect(parseReviewFindingsDomainFilterFromSearch("security")).toBe("security");
+    expect(reviewFindingsDomainFilterHrefFromSearch("tab=findings", "/architecture/reviews/r1", "security")).toBe(
+      "/architecture/reviews/r1?tab=findings&domain=security",
+    );
+  });
+
+  it("governance findings group-by and audit date range params", async () => {
+    const { parseGovernanceFindingsGroupByResourceFromSearch, governanceFindingsGroupByHrefFromSearch } =
+      await import("@/lib/governance/governance-findings-group-by-url");
+    const { parseAuditTrailDateRangePresetFromSearch, auditTrailDateRangePresetHrefFromSearch } = await import(
+      "@/lib/governance/audit-trail-date-range-url"
+    );
+
+    expect(parseGovernanceFindingsGroupByResourceFromSearch("resource")).toBe(true);
+    expect(governanceFindingsGroupByHrefFromSearch("runId=r1", true)).toBe(
+      "/governance/findings?runId=r1&groupBy=resource",
+    );
+    expect(parseAuditTrailDateRangePresetFromSearch("7d")).toBe("7d");
+    expect(auditTrailDateRangePresetHrefFromSearch("runId=r1", "24h")).toBe("/governance/audit?runId=r1&range=24h");
+  });
+
+  it("decision register category and confidence basis params", async () => {
+    const {
+      parseDecisionRegisterCategoryFromSearch,
+      decisionRegisterCategoryHrefFromSearch,
+      parseDecisionRegisterConfidenceBasisFromSearch,
+      decisionRegisterConfidenceBasisHrefFromSearch,
+    } = await import("@/lib/governance/decision-register-advanced-filters-url");
+
+    expect(parseDecisionRegisterCategoryFromSearch("security")).toBe("security");
+    expect(decisionRegisterCategoryHrefFromSearch("runId=r1", "security")).toBe(
+      "/governance/decision-register?runId=r1&category=security",
+    );
+    expect(parseDecisionRegisterConfidenceBasisFromSearch("Evidence-backed")).toBe("Evidence-backed");
+    expect(decisionRegisterConfidenceBasisHrefFromSearch("runId=r1", "Evidence-backed")).toBe(
+      "/governance/decision-register?runId=r1&basis=Evidence-backed",
+    );
+  });
+
+  it("pattern library, standards rules, settings, and help search params", async () => {
+    const {
+      parsePatternLibrarySearchQuery,
+      patternLibrarySearchHrefFromSearch,
+      parsePatternLibraryDomainFromSearch,
+      patternLibraryDomainHrefFromSearch,
+      parsePatternLibraryPlatformFromSearch,
+      patternLibraryPlatformHrefFromSearch,
+    } = await import("@/lib/insights/pattern-library-filters-url");
+    const {
+      parseStandardsRulesSearchQuery,
+      standardsRulesSearchHrefFromSearch,
+      parseStandardsRulesSeverityFromSearch,
+      standardsRulesSeverityHrefFromSearch,
+    } = await import("@/lib/governance/standards-rules-filters-url");
+    const { parseSettingsMasterSearchQuery, settingsMasterSearchHrefFromSearch } = await import(
+      "@/lib/administration/settings-master-search-url"
+    );
+    const { parseHelpHubSearchQuery, helpHubSearchHrefFromSearch } = await import("@/lib/help/help-hub-search-url");
+
+    expect(parsePatternLibrarySearchQuery("vpc")).toBe("vpc");
+    expect(patternLibrarySearchHrefFromSearch("runId=r1", "vpc")).toBe("/insights/patterns?runId=r1&q=vpc");
+    expect(parsePatternLibraryDomainFromSearch("Healthcare")).toBe("Healthcare");
+    expect(patternLibraryDomainHrefFromSearch("q=vpc", "Healthcare")).toBe("/insights/patterns?q=vpc&domain=Healthcare");
+    expect(parsePatternLibraryPlatformFromSearch("AWS")).toBe("AWS");
+    expect(patternLibraryPlatformHrefFromSearch("domain=Healthcare", "AWS")).toBe(
+      "/insights/patterns?domain=Healthcare&platform=AWS",
+    );
+    expect(parseStandardsRulesSearchQuery("encryption")).toBe("encryption");
+    expect(standardsRulesSearchHrefFromSearch("runId=r1", "encryption")).toBe(
+      "/governance/standards-and-rules?runId=r1&q=encryption",
+    );
+    expect(parseStandardsRulesSeverityFromSearch("high")).toBe("high");
+    expect(standardsRulesSeverityHrefFromSearch("q=encryption", "high")).toBe(
+      "/governance/standards-and-rules?q=encryption&severity=high",
+    );
+    expect(parseSettingsMasterSearchQuery("billing")).toBe("billing");
+    expect(settingsMasterSearchHrefFromSearch("runId=r1", "billing")).toBe("/administration?runId=r1&q=billing");
+    expect(parseHelpHubSearchQuery("export")).toBe("export");
+    expect(helpHubSearchHrefFromSearch("tab=guides", "export")).toBe("/help?tab=guides&q=export");
+  });
+});
+

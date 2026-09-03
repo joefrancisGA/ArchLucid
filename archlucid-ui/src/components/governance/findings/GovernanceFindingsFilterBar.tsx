@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { governanceFindingsGroupByHrefFromSearch } from "@/lib/governance/governance-findings-group-by-url";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture/architecture-risk-register-csv";
 import {
@@ -53,7 +54,7 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
     onSaveCurrentFilterAsPreset,
     onRemovePreset,
     groupByResource,
-    onToggleGroupByResource,
+    onToggleGroupByResource: _onToggleGroupByResource,
     displayedRows,
   } = props;
   const pathname = usePathname() ?? "";
@@ -140,15 +141,16 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
         >
           Export JSON (work items)
         </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={groupByResource ? "default" : "outline"}
+        <FilterChip
+          href={governanceFindingsGroupByHrefFromSearch(currentSearch, !groupByResource, pathname)}
+          scroll={false}
+          className={buyerFilterChipClass(groupByResource, false)}
           aria-pressed={groupByResource}
-          onClick={onToggleGroupByResource}
+          aria-current={groupByResource ? "page" : undefined}
+          data-testid="governance-findings-group-by-resource"
         >
           Group by resource
-        </Button>
+        </FilterChip>
       </div>
 
       {props.onNaturalLanguageFilterApply !== undefined ? (

@@ -9,6 +9,7 @@ import {
   CTO_DEMO_AUDIT_FILTER_QUERY_PARAM,
   isCtoDemoAuditFilterActive,
 } from "@/lib/cto-demo-audit-filter";
+import { parseAuditTrailDateRangePresetFromSearch } from "@/lib/governance/audit-trail-date-range-url";
 
 import type { AuditPageServerLoad } from "./load-audit-page-data";
 import { type AuditFilterFields, toDatetimeLocalInputValue } from "./audit-page-helpers";
@@ -59,10 +60,25 @@ export function useAuditPageFilters(
   const [actorUserId, setActorUserId] = useState<string>("");
   const [runId, setRunId] = useState<string>(() => searchParams.get("runId")?.trim() ?? "");
   const [loadingTypes, setLoadingTypes] = useState(serverLoad.typesLoadFailure !== null);
-  const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(null);
+  const urlDatePreset = parseAuditTrailDateRangePresetFromSearch(searchParams.get("range"));
+  const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(urlDatePreset);
   const ctoDemoAuditFilterActive = isCtoDemoAuditFilterActive(searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM));
 
   useAuditPageUrlState({ runId, setRunId });
+
+  useEffect(() => {
+    setAuditDatePreset(urlDatePreset);
+
+    if (urlDatePreset === null) {
+      return;
+    }
+
+    const hours = urlDatePreset === "24h" ? 24 : 168;
+    const fromStr = toDatetimeLocalInputValue(new Date(Date.now() - hours * 3600 * 1000));
+
+    setFromUtc(fromStr);
+    setToUtc("");
+  }, [urlDatePreset]);
 
   const onClearCtoDemoAuditFilter = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());

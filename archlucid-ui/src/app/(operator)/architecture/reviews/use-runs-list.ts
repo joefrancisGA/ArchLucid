@@ -23,6 +23,11 @@ import {
   runsListClearSearchHrefFromSearch,
   runsListSearchHrefFromSearch,
 } from "@/lib/runs/runs-list-search-url";
+import {
+  parseRunsListSortFromSearch,
+  runsListSortFromSortOrder,
+  sortOrderFromRunsListSort,
+} from "@/lib/runs/runs-list-sort-url";
 
 function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
@@ -72,6 +77,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const listContextFilter = searchParams.get("filter");
   const urlBuyerPackageScope = parseBuyerPackageScopeFilter(searchParams.get("scope"));
   const urlFilterText = parseRunsListSearchQuery(searchParams.get("q"));
+  const urlSortOrder = sortOrderFromRunsListSort(parseRunsListSortFromSearch(searchParams.get("sort")));
   const safeRuns = useMemo(() => {
     const filtered = runs.filter((run) => {
       if (typeof run.runId !== "string" || run.runId.trim().length === 0) {
@@ -94,7 +100,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
   const [filterText, setFilterTextState] = useState(urlFilterText);
   const buyerPackageScope = urlBuyerPackageScope;
-  const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
+  const [sortOrder, setSortOrderState] = useState<SortOrder>(urlSortOrder);
   const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
   const [compareSelection, setCompareSelection] = useState<string[]>([]);
   const [compareSelectionNotice, setCompareSelectionNotice] = useState<string | null>(null);
@@ -108,6 +114,10 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   useEffect(() => {
     setFilterTextState(urlFilterText);
   }, [urlFilterText]);
+
+  useEffect(() => {
+    setSortOrderState(urlSortOrder);
+  }, [urlSortOrder]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -131,6 +141,10 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setFilterTextState("");
     router.replace(runsListClearSearchHrefFromSearch(searchParams.toString(), pathname), { scroll: false });
   }, [pathname, router, searchParams]);
+
+  const setSortOrder = useCallback((order: SortOrder): void => {
+    setSortOrderState(order);
+  }, []);
 
   useEffect(() => {
     if (safeRuns.length === 0) {

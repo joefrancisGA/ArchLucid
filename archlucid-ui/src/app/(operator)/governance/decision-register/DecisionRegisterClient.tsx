@@ -63,6 +63,11 @@ import {
 } from "./decision-register-date-range";
 import { parseDecisionRegisterDatePresetFromSearch } from "@/lib/governance/decision-register-date-range-url";
 import { parseDecisionRegisterViewModeFromSearch } from "@/lib/governance/decision-register-view-url";
+import {
+  decisionRegisterCategoryHrefFromSearch,
+  parseDecisionRegisterCategoryFromSearch,
+  parseDecisionRegisterConfidenceBasisFromSearch,
+} from "@/lib/governance/decision-register-advanced-filters-url";
 import { deriveDecisionRegisterSummary } from "./decision-register-summary";
 import { resolveContinueLastDecisionRegisterEntry } from "@/lib/resolve-continue-last-decision-register-entry";
 
@@ -86,6 +91,8 @@ export default function DecisionRegisterClient() {
   const scopedRunFilterActive = scopedRunId.length > 0;
   const datePreset = parseDecisionRegisterDatePresetFromSearch(searchParams.get("range"));
   const viewMode = parseDecisionRegisterViewModeFromSearch(searchParams.get("view"));
+  const urlCategory = parseDecisionRegisterCategoryFromSearch(searchParams.get("category"));
+  const urlConfidenceBasis = parseDecisionRegisterConfidenceBasisFromSearch(searchParams.get("basis"));
   const initialDateRange = useMemo(
     () => resolveDecisionRegisterDateRange(datePreset),
     [datePreset],
@@ -94,13 +101,35 @@ export default function DecisionRegisterClient() {
     () => projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders()),
     [],
   );
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(urlCategory);
   const [recordedAfter, setRecordedAfter] = useState(initialDateRange.recordedAfter);
   const [recordedBefore, setRecordedBefore] = useState(initialDateRange.recordedBefore);
   const [minConfidence, setMinConfidence] = useState("");
   const [maxConfidence, setMaxConfidence] = useState("");
-  const [confidenceBasis, setConfidenceBasis] = useState("");
+  const [confidenceBasis, setConfidenceBasis] = useState(urlConfidenceBasis);
   const [reloadToken, setReloadToken] = useState(0);
+
+  useEffect(() => {
+    setCategory(urlCategory);
+  }, [urlCategory]);
+
+  useEffect(() => {
+    setConfidenceBasis(urlConfidenceBasis);
+  }, [urlConfidenceBasis]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = decisionRegisterCategoryHrefFromSearch(searchParams.toString(), category);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [category, router, searchParams]);
 
   useEffect(() => {
     const range = resolveDecisionRegisterDateRange(datePreset);
@@ -231,6 +260,8 @@ export default function DecisionRegisterClient() {
 
     const params = new URLSearchParams(searchParams.toString());
     params.delete("range");
+    params.delete("category");
+    params.delete("basis");
     const nextQuery = params.toString();
     router.replace(
       nextQuery.length === 0 ? GOVERNANCE_DECISION_REGISTER_PATH : `${GOVERNANCE_DECISION_REGISTER_PATH}?${nextQuery}`,

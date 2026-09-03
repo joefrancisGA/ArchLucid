@@ -3,7 +3,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -13,6 +13,9 @@ import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_QUERY_GC_MS } from "@/lib/query/operator-query-stale-time";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  auditTrailDateRangePresetHrefFromSearch,
+} from "@/lib/governance/audit-trail-date-range-url";
 import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
@@ -47,6 +50,7 @@ export type UseAuditPageQueryResult = {
 export function useAuditPageQuery(filters: UseAuditPageFiltersResult): UseAuditPageQueryResult {
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const workspaceRun = useWorkspaceActiveRun();
@@ -127,6 +131,10 @@ export function useAuditPageQuery(filters: UseAuditPageFiltersResult): UseAuditP
       filters.setAuditDatePreset(preset);
       filters.setFromUtc(fromStr);
       filters.setToUtc("");
+      router.replace(
+        auditTrailDateRangePresetHrefFromSearch(searchParams.toString(), preset, pathname ?? GOVERNANCE_AUDIT_PATH),
+        { scroll: false },
+      );
       setFailure(null);
       setSearching(true);
 
@@ -153,13 +161,17 @@ export function useAuditPageQuery(filters: UseAuditPageFiltersResult): UseAuditP
         setSearching(false);
       }
     },
-    [applyDemoAuditFallback, applySearchPageToState, executeSearch, filters],
+    [applyDemoAuditFallback, applySearchPageToState, executeSearch, filters, pathname, router, searchParams],
   );
 
   const clearDateRangeAndSearch = useCallback(async () => {
     filters.setAuditDatePreset(null);
     filters.setFromUtc("");
     filters.setToUtc("");
+    router.replace(
+      auditTrailDateRangePresetHrefFromSearch(searchParams.toString(), null, pathname ?? GOVERNANCE_AUDIT_PATH),
+      { scroll: false },
+    );
     setFailure(null);
     setSearching(true);
 
@@ -185,7 +197,7 @@ export function useAuditPageQuery(filters: UseAuditPageFiltersResult): UseAuditP
     } finally {
       setSearching(false);
     }
-  }, [applyDemoAuditFallback, applySearchPageToState, executeSearch, filters]);
+  }, [applyDemoAuditFallback, applySearchPageToState, executeSearch, filters, pathname, router, searchParams]);
 
   const clearFiltersAndSearch = useCallback(async () => {
     filters.resetFilterFields();
