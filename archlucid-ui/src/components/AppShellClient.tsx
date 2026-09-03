@@ -35,6 +35,7 @@ import {
   SyncActiveRunFromPathnameDeferred,
   TrialLimitModalHostDeferred,
 } from "@/components/shell/app-shell-deferred-chunks";
+import { AppShellSyncCommandPaletteHost } from "@/components/shell/AppShellSyncCommandPaletteHost";
 import { AppShellSyncKeyboardShortcutListener } from "@/components/shell/AppShellSyncKeyboardShortcutListener";
 import { AppShellSyncSessionIdleGuard } from "@/components/shell/AppShellSyncSessionIdleGuard";
 import { CommandPaletteWorkActionBridge } from "@/components/shell/CommandPaletteWorkActionBridge";
@@ -232,6 +233,7 @@ function AppShellInner({ children }: AppShellClientProps) {
           <AppShellTelemetryBundleDeferred />
           <AppShellSyncSessionIdleGuard />
           <CommandPaletteWorkActionBridge />
+          <AppShellSyncCommandPaletteHost />
           <AppShellSyncKeyboardShortcutListener onHelpRequested={openHelpSearch} />
           <TooltipProvider delayDuration={200}>
             <a href="#main-content" className="skip-to-main">
@@ -338,6 +340,7 @@ function AppShellInner({ children }: AppShellClientProps) {
       <DevTestingShellShortcutsDeferred />
       <AppShellSyncSessionIdleGuard />
       <CommandPaletteWorkActionBridge />
+      <AppShellSyncCommandPaletteHost />
       <AppShellSyncKeyboardShortcutListener onHelpRequested={openHelpSearch} />
       <TooltipProvider delayDuration={200}>
         <a href="#main-content" className="skip-to-main">
