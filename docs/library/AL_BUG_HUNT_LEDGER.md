@@ -2871,11 +2871,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 110
-- **bugs-found:** 264
+- **hunts:** 111
+- **bugs-found:** 265
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — policy pack catalog promote snapshot SQL column width parity
+- **last-bug:** 2026-09-03 — recurrence schedule name/cron max-length validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3377,7 +3377,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #555: proved policy pack catalog promote snapshot name/description max-length validation before SQL insert; seeded recurrence-schedule name/cron max-length candidate.
 
-- [ ] (candidate) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` — `Name` (`NVARCHAR(300)`) and `CronExpression` (`NVARCHAR(100)`) lack max-length guards before SQL insert.
+2026-09-03 seed hunt #555: proved policy pack catalog promote snapshot name/description max-length validation before SQL insert; seeded recurrence-schedule name/cron max-length candidate.
+
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` / `RecurrenceScheduleValidation` — `Name` (`NVARCHAR(300)`) and `CronExpression` (`NVARCHAR(100)`) lacked max-length guards before `ArchitectureReviewRecurrenceSchedules` insert/update (cron format only) — **hit 2026-09-03 (#556):** `RecurrenceScheduleValidation` rejects over-length after trim in create/update facade paths; update controller maps `ArgumentException` to HTTP 400; regression in `RecurrenceScheduleValidationTests`, `GovernanceStickinessFacadeScopeTests.CreateRecurrenceScheduleAsync_throws_when_name_exceeds_sql_max_length`, and `GovernanceStickinessControllerTests` create/update bad-request cases.
+
+2026-09-03 thorough hunt #556: proved recurrence schedule name and cron expression max-length validation before SQL persist.
 
 ---
 
