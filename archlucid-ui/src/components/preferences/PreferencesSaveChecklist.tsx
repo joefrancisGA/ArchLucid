@@ -58,7 +58,7 @@ export function PreferencesSaveChecklist(props: PreferencesSaveChecklistProps): 
                 href={`#${step.anchorId}`}
                 className={cn(
                   OPERATOR_LINK.inline,
-                  "min-h-6 flex-1 text-left no-underline hover:underline",
+                  "min-h-6 flex-1 text-left",
                   step.status === "done" ? "text-al-text-primary" : "text-al-text-secondary",
                   step.id === props.emphasizedStepId ? "font-medium text-al-text-primary" : undefined,
                 )}

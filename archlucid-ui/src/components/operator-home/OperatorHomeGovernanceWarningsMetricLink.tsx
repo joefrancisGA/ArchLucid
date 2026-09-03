@@ -32,7 +32,6 @@ export function OperatorHomeGovernanceWarningsMetricLink(
       scroll={false}
       className={cn(
         OPERATOR_LINK.inline,
-        "no-underline hover:underline",
         warningsFilterActive ? "font-semibold text-al-text-primary" : undefined,
         props.className,
       )}
