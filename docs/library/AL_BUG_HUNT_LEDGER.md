@@ -1862,11 +1862,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 125
-- **bugs-found:** 240
+- **hunts:** 126
+- **bugs-found:** 241
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — null failure-summary `schemaVersion` JSON token rejected dead-letter detection
+- **last-bug:** 2026-09-03 — boolean / synonym-string `schemaVersion` rejected dead-letter detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1895,6 +1895,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — null JSON `schemaVersion` token rejected — **hit 2026-09-03 (#604):** `{"schemaVersion":null,"failureClass":"PipelineDeadLetter"}` failed after #602 omitted-property fix; null token now defaults to supported v1 (`IsDeadLettered_returns_true_when_schema_version_property_is_null`).
 
 2026-09-03 thorough hunt #604: proved null failure-summary schemaVersion gap; re-disproved Application-layer candidate.
+
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — boolean / synonym-string `schemaVersion` rejected — **hit 2026-09-03 (#614):** `{"schemaVersion":true,...}` and `"schemaVersion":"on"` failed after #600–#604 numeric/string/null coercion while sibling extractor validators accept boolean tokens; pipeline dead-letter runs showed not dead-lettered; fixed with validator-parity boolean coercion (`IsDeadLettered_returns_true_for_boolean_true_schema_version`, `IsDeadLettered_returns_true_for_on_synonym_string_schema_version`).
+- [x] (invalid) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — decimal IPv4 literals bypass host-literal guard — `IPAddress.TryParse("3232235777")` maps to `192.168.1.1` and existing RFC1918 checks already forbid it.
+
+2026-09-03 seed hunt #614: reseeded dead-letter JSON coercion; proved boolean/synonym schemaVersion gap; cheap-disproved decimal IPv4 literal candidate.
 
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
