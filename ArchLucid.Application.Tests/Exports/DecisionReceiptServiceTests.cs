@@ -82,6 +82,22 @@ public sealed class DecisionReceiptServiceTests
     }
 
     [Fact]
+    public async Task BuildForRunAsync_FeasibleManifest_ReturnsReceipt()
+    {
+        SetupCommittedRunDetail();
+        SetupFeasibleManifestSummary();
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptDocument? receipt = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        receipt.Should().NotBeNull();
+        receipt!.RunId.Should().Be(RunId);
+        receipt.Source.Should().Be(DecisionReceiptSource.CommittedRun);
+        receipt.Verdict.Kind.Should().Be(FeasibilityVerdictKind.Feasible);
+    }
+
+    [Fact]
     public async Task BuildForRunAsync_InfeasibleManifest_ReturnsReceipt()
     {
         SetupCommittedRunDetail();
@@ -230,6 +246,32 @@ public sealed class DecisionReceiptServiceTests
                         SoftAssumption = "Operator intent matches asserted inputs.",
                         CostOfBeingWrong = "Shipping policy gaps to production.",
                     },
+                },
+            });
+    }
+
+    private void SetupFeasibleManifestSummary()
+    {
+        _authority
+            .Setup(static s => s.GetRunSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunSummaryDto
+            {
+                RunId = RunId,
+                GoldenManifestId = ManifestId,
+            });
+
+        _authority
+            .Setup(static s => s.GetManifestSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ManifestSummaryDto
+            {
+                ManifestId = ManifestId,
+                RunId = RunId,
+                ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+                FeasibilityVerdict = new FeasibilityVerdict
+                {
+                    Kind = FeasibilityVerdictKind.Feasible,
+                    Summary = "Architecture satisfies policy controls.",
+                    TransparencyTrail = new TransparencyTrail(),
                 },
             });
     }

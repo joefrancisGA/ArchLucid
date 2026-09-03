@@ -175,37 +175,52 @@ public sealed class CompareRunsApplicationFacade(
         RunRecord? baseHeader = await _authorityRunRepository.GetByIdAsync(scope, baseRunId, ct);
         RunRecord? targetHeader = await _authorityRunRepository.GetByIdAsync(scope, targetRunId, ct);
 
-        if (baseHeader is not null && targetHeader is not null)
+        if (baseHeader is null)
         {
-            try
+            return new ManifestCompareLoadResult
             {
-                RunComparePinFingerprintGuard.EnsureCreateTimePinFingerprintsMatchOrThrow(baseHeader, targetHeader);
-            }
-            catch (ConflictException)
-            {
-                return new ManifestCompareLoadResult
-                {
-                    Outcome = ManifestCompareLoadOutcome.PinFingerprintMismatch,
-                    RunId = baseRunId,
-                };
-            }
+                Outcome = ManifestCompareLoadOutcome.BaseRunNotFound,
+                RunId = baseRunId,
+            };
+        }
 
-            try
+        if (targetHeader is null)
+        {
+            return new ManifestCompareLoadResult
             {
-                RunComparePinFingerprintGuard.EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow(
-                    CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
-                        baseRun.GoldenManifest.CommittedArtifactInventory),
-                    CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
-                        targetRun.GoldenManifest.CommittedArtifactInventory));
-            }
-            catch (ConflictException)
+                Outcome = ManifestCompareLoadOutcome.TargetRunNotFound,
+                RunId = targetRunId,
+            };
+        }
+
+        try
+        {
+            RunComparePinFingerprintGuard.EnsureCreateTimePinFingerprintsMatchOrThrow(baseHeader, targetHeader);
+        }
+        catch (ConflictException)
+        {
+            return new ManifestCompareLoadResult
             {
-                return new ManifestCompareLoadResult
-                {
-                    Outcome = ManifestCompareLoadOutcome.PinFingerprintMismatch,
-                    RunId = baseRunId,
-                };
-            }
+                Outcome = ManifestCompareLoadOutcome.PinFingerprintMismatch,
+                RunId = baseRunId,
+            };
+        }
+
+        try
+        {
+            RunComparePinFingerprintGuard.EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow(
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    baseRun.GoldenManifest.CommittedArtifactInventory),
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    targetRun.GoldenManifest.CommittedArtifactInventory));
+        }
+        catch (ConflictException)
+        {
+            return new ManifestCompareLoadResult
+            {
+                Outcome = ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch,
+                RunId = baseRunId,
+            };
         }
 
         ComparisonResult comparison = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);

@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
@@ -24,7 +25,10 @@ internal static class ManifestDecisionReceiptHashCapturer
         FeasibilityVerdict? verdict = manifest.FeasibilityVerdict;
 
         if (verdict is null)
-            return;
+        {
+            throw new ConflictException(
+                "Finalization blocked: feasibility verdict is required to seal committed decision receipt hash.");
+        }
 
         string manifestHashBeforeReceipt = manifestHashService.ComputeHash(manifest);
 

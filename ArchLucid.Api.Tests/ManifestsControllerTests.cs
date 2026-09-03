@@ -7,12 +7,14 @@ using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -133,8 +135,23 @@ public sealed class ManifestsControllerTests
             .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunRecord
             {
                 RunId = runId,
+                TenantId = CallerScope.TenantId,
+                WorkspaceId = CallerScope.WorkspaceId,
+                ScopeProjectId = CallerScope.ProjectId,
                 GoldenManifestId = Guid.NewGuid(),
-                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed)
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            });
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                CallerScope,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = new ManifestDocument { RunId = runId },
             });
 
         Mock<ITenantRepository> tenants = new();
@@ -169,6 +186,7 @@ public sealed class ManifestsControllerTests
                 diagramService.Object,
                 scopeProvider.Object,
                 runs.Object,
+                authority.Object,
                 tenants.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }

@@ -34,6 +34,7 @@ public enum ManifestCompareLoadOutcome
     BaseLifecycleIncomplete,
     TargetLifecycleIncomplete,
     PinFingerprintMismatch,
+    CommittedArtifactInventoryMismatch,
 }
 
 /// <summary>Manifest comparison result or a not-found reason.</summary>

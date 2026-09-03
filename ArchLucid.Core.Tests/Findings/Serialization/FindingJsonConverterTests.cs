@@ -72,6 +72,65 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void RoundTrip_syncsEvidencePackageIdWithPropertiesBag()
+    {
+        Guid packageId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
+        Finding finding = new()
+        {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+            FindingId = "finding-003",
+            FindingType = "SecurityControlFinding",
+            Category = "Security",
+            EngineType = "SecurityCoverage",
+            Severity = FindingSeverity.Warning,
+            Title = "Missing control",
+            Rationale = "Control not applied.",
+            EvidencePackageId = packageId,
+        };
+
+        JsonSerializerOptions options = CreateOptions();
+        string json = JsonSerializer.Serialize(finding, options);
+        Finding? roundTripped = JsonSerializer.Deserialize<Finding>(json, options);
+
+        roundTripped.Should().NotBeNull();
+        roundTripped!.Properties.Should().ContainKey(FindingPropertyKeys.EvidencePackageId);
+        roundTripped.Properties[FindingPropertyKeys.EvidencePackageId].Should().Be(packageId.ToString("D"));
+    }
+
+    [Fact]
+    public void Deserialize_readsEvidencePackageIdFromPropertiesBag()
+    {
+        Guid packageId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000001");
+        string json = $$"""
+                        {
+                          "findingSchemaVersion": 2,
+                          "findingId": "finding-004",
+                          "findingType": "SecurityControlFinding",
+                          "category": "Security",
+                          "engineType": "SecurityCoverage",
+                          "severity": "Warning",
+                          "title": "Missing control",
+                          "rationale": "Control not applied.",
+                          "relatedNodeIds": [],
+                          "recommendedActions": [],
+                          "properties": {
+                            "{{FindingPropertyKeys.EvidencePackageId}}": "{{packageId:D}}"
+                          },
+                          "payloadType": null,
+                          "payload": null,
+                          "trace": {},
+                          "humanReviewStatus": "Pending"
+                        }
+                        """;
+
+        JsonSerializerOptions options = CreateOptions();
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.EvidencePackageId.Should().Be(packageId);
+    }
+
+    [Fact]
     public void RoundTrip_preservesInsightDensityFields()
     {
         Finding finding = new()
