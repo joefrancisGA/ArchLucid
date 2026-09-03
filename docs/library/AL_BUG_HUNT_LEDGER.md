@@ -2881,10 +2881,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
 - **hunts:** 123
-- **bugs-found:** 278
+- **bugs-found:** 279
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — RenewRiskException revoked waiver HTTP 409
+- **last-bug:** 2026-09-03 — RevokeRiskException double-revoke HTTP 409
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3443,7 +3443,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #569: promoted and proved RenewRiskException revoked-waiver conflict status mapping.
 
-- [ ] (hunt-ready) `GovernanceStickinessController.RevokeRiskException` / `RiskExceptionService.RevokeAsync` / `SqlRiskExceptionRepository.RevokeAsync` — second revoke (or revoke `Expired` waiver) on in-scope waiver returns HTTP 204 and logs duplicate `RiskExceptionRevoked` audit while `RenewRiskException` on `Revoked` returns HTTP 409 (#569 lifecycle parity) — mechanism: `EnsureRiskExceptionInScopeAsync` loads record by id regardless of status; SQL `UPDATE … WHERE Status = N'Active'` is blind (no row-count check); service always emits audit after UPDATE.
+- [x] (proven) `GovernanceStickinessController.RevokeRiskException` / `RiskExceptionService.RevokeAsync` — second revoke (or revoke `Expired` waiver) on in-scope waiver returned HTTP 204 and logged duplicate `RiskExceptionRevoked` audit while `RenewRiskException` on `Revoked` returns HTTP 409 (#569 lifecycle parity) — **hit 2026-09-03 (#570):** reject non-`Active` status with `ConflictException` → HTTP 409 before SQL revoke; regression in `RiskExceptionServiceTests.RevokeAsync_throws_conflict_when_risk_exception_status_is_revoked`, `RevokeAsync_throws_conflict_when_risk_exception_status_is_expired`, and `GovernanceStickinessControllerTests.RevokeRiskException_returns_conflict_when_waiver_is_already_revoked`.
 
 - [x] (invalid) `GovernanceStickinessController.RenewRiskException` on finding with latest disposition `Remediated` — `RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync` already runs in `RenewAsync` (same as create after #568); controller maps `ArgumentException` → HTTP 400; controller test gap only (`RenewRiskException_returns_bad_request_when_finding_latest_disposition_is_remediated` missing).
 
@@ -3455,7 +3455,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (invalid) `TenantBaselineController` / `TenantWorkspacesController` / `TenantHomepageSettingsController` ghost-tenant and empty-guid route validation — tenant preflight and empty-guid guards on proven read/mutate paths (ledger hunts #102–#303, #3096).
 
-2026-09-03 seed hunt #570: seeded RevokeRiskException already-revoked/expired lifecycle parity row; cheap-disproved renew-on-remediated (guard present), list-exceptions project scope, batch-review trim, recurrence validation, and tenancy controller parity candidates.
+2026-09-03 seed hunt #570: promoted and proved RevokeRiskException lifecycle conflict mapping for revoked/expired waivers.
 
 ---
 
