@@ -92,6 +92,7 @@ describe("GovernanceQuickApproveButton", () => {
     expect(await screen.findByTestId("governance-quick-approve-success-callout")).toHaveTextContent(
       GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE,
     );
+    expect(screen.getByRole("button", { name: "Record correction" })).toBeInTheDocument();
     expect(showSuccess).not.toHaveBeenCalled();
     expect(showError).not.toHaveBeenCalled();
   });

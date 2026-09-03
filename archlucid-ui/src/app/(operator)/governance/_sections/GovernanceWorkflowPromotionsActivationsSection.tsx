@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { GovernanceRecordCorrectionInlineControl } from "@/components/governance/GovernanceRecordCorrectionInlineControl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -138,6 +139,14 @@ export function GovernanceWorkflowPromotionsActivationsSection(
               </div>
               <div>By {p.promotedBy}</div>
               {p.notes ? <div>Notes: {p.notes}</div> : null}
+              <GovernanceRecordCorrectionInlineControl
+                testId={`governance-promotion-correction-${p.promotionRecordId}`}
+                target={{
+                  mutationKind: "governance_workflow_promote",
+                  subjectId: p.promotionRecordId,
+                  runId: p.runId,
+                }}
+              />
             </CardContent>
             <CardFooter>
               <Tooltip>
@@ -226,6 +235,14 @@ export function GovernanceWorkflowPromotionsActivationsSection(
                 <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{a.manifestVersion}</code>
               </div>
               <div>Active: {a.isActive ? "yes" : "no"}</div>
+              <GovernanceRecordCorrectionInlineControl
+                testId={`governance-activation-correction-${a.activationId}`}
+                target={{
+                  mutationKind: "governance_workflow_activate",
+                  subjectId: a.activationId,
+                  runId: a.runId,
+                }}
+              />
             </CardContent>
           </Card>
         ))}

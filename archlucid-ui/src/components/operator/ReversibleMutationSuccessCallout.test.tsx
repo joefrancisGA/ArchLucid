@@ -43,11 +43,27 @@ describe("ReversibleMutationSuccessCallout (TB-2148)", () => {
     render(
       <ReversibleMutationSuccessCallout
         message="Approval recorded."
-        mutationId="governance_quick_approve"
+        mutationId="governance_policy_pack_publish"
         onUndo={vi.fn()}
       />,
     );
 
     expect(screen.queryByRole("button", { name: "Undo" })).not.toBeInTheDocument();
+  });
+
+  it("shows record correction for amendable governance mutations", () => {
+    const onRecordCorrection = vi.fn();
+
+    render(
+      <ReversibleMutationSuccessCallout
+        message="Governance approval recorded."
+        mutationId="governance_quick_approve"
+        onRecordCorrection={onRecordCorrection}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Record correction" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Record correction" }));
+    expect(onRecordCorrection).toHaveBeenCalledTimes(1);
   });
 });
