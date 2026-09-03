@@ -15,6 +15,7 @@ export const GUIDED_TEACHING_CHROME_SURFACE_IDS = [
   "sample-reviews-on-overview",
   "keyboard-shortcuts-coach",
   "global-search-shortcut-coach",
+  "persistent-workspace-next-action-strip",
 ] as const;
 
 export type GuidedTeachingChromeSurfaceId = (typeof GUIDED_TEACHING_CHROME_SURFACE_IDS)[number];

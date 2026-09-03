@@ -443,6 +443,7 @@ public sealed class FirstValueReportBuilderTests
             Results = [result],
             Manifest = manifest,
             DecisionTraces = [],
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
         };
     }
 

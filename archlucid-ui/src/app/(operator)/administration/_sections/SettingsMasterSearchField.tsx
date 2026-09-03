@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 type SettingsMasterSearchFieldProps = {
   readonly value: string;
   readonly onChange: (next: string) => void;
+  readonly onClear: () => void;
   readonly resultCount: number;
 };
 
@@ -27,6 +28,12 @@ export function SettingsMasterSearchField(props: SettingsMasterSearchFieldProps)
           placeholder="Search settings…"
           className="pl-9"
           onChange={(event) => props.onChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && props.value.trim().length > 0) {
+              event.preventDefault();
+              props.onClear();
+            }
+          }}
         />
       </div>
       {props.value.trim().length > 0 ? (

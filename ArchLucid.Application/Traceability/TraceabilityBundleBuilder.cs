@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Text.Json;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
@@ -34,6 +35,10 @@ public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQu
 
         if (detail is null)
             return null;
+
+        if (detail.IsCommitted && !detail.HasBrokenManifestReference)
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId);
+
         Guid runGuid = Guid.TryParseExact(runId, "N", out Guid g1) ? g1 : Guid.TryParse(runId, out Guid g2) ? g2 : Guid.Empty;
         IReadOnlyList<AuditEvent> audits = runGuid == Guid.Empty
             ? []

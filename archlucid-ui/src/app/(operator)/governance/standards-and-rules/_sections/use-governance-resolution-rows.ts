@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   buildStandardsRulesGovernanceBannerModel,
@@ -9,6 +9,12 @@ import {
 } from "@/lib/governance/governance-resolution-page-presentation";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import { governanceResolutionUsesShowcaseRuleRows } from "@/lib/governance/governance-resolution-showcase";
+import {
+  parseStandardsRulesSearchQuery,
+  parseStandardsRulesSeverityFromSearch,
+  standardsRulesClearSearchHrefFromSearch,
+  standardsRulesSearchHrefFromSearch,
+} from "@/lib/governance/standards-rules-filters-url";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import {
   buildStandardsRuleRows,
@@ -31,10 +37,59 @@ import type { GovernanceResolutionPageViewModel } from "./governance-resolution-
 
 export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewModel) {
   const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_STANDARDS_AND_RULES_PATH;
   const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
-  const [filters, setFilters] = useState(EMPTY_STANDARDS_RULES_FILTER_STATE);
+  const urlSearchQuery = parseStandardsRulesSearchQuery(searchParams.get("q"));
+  const urlSeverity = parseStandardsRulesSeverityFromSearch(searchParams.get("severity"));
+  const [filters, setFiltersState] = useState({
+    ...EMPTY_STANDARDS_RULES_FILTER_STATE,
+    searchQuery: urlSearchQuery,
+    severity: urlSeverity,
+  });
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
+
+  useEffect(() => {
+    setFiltersState((current) => ({
+      ...current,
+      searchQuery: urlSearchQuery,
+      severity: urlSeverity,
+    }));
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery, urlSeverity]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = standardsRulesSearchHrefFromSearch(searchParams.toString(), searchQuery, pathname);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [pathname, router, searchParams, searchQuery]);
+
+  const setFilters = useCallback((
+    next: typeof filters | ((current: typeof filters) => typeof filters),
+  ): void => {
+    setFiltersState((current) => {
+      const resolved = typeof next === "function" ? next(current) : next;
+
+      setSearchQuery(resolved.searchQuery);
+
+      return resolved;
+    });
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery("");
+    router.replace(standardsRulesClearSearchHrefFromSearch(currentSearch, pathname), { scroll: false });
+  }, [currentSearch, pathname, router]);
 
   const onPickRun = useCallback(
     (runId: string) => {
@@ -111,8 +166,13 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
   return {
     scopedRunId,
     scopedRunFilterActive,
+    currentSearch,
+    pathname,
     filters,
     setFilters,
+    searchQuery,
+    setSearchQuery,
+    clearSearch,
     onPickRun,
     allRuleRows,
     filteredRuleRows,

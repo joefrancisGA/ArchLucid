@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
@@ -5,6 +7,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -39,12 +42,24 @@ public sealed class PreCommitGovernanceGateTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
+    private static string EmptyPinnedPolicyPackIdsJson => "[]";
+
+    private static string BuildPinnedPolicyPackIdsJson(params (Guid policyPackId, string version)[] rows)
+    {
+        PinnedPolicyPackRow[] pinRows = rows
+            .Select(row => new PinnedPolicyPackRow(row.policyPackId.ToString("D"), row.version))
+            .ToArray();
+
+        return JsonSerializer.Serialize(pinRows, ContractJson.CamelCaseIgnoreNullCompact);
+    }
+
     [SkippableFact]
     public async Task EvaluateAsync_blocks_when_critical_findings_and_assignment_enforces()
     {
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -57,6 +72,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -123,6 +139,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -135,6 +152,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -172,7 +190,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = true,
@@ -233,6 +251,7 @@ public sealed class PreCommitGovernanceGateTests
     {
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -245,6 +264,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = null,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -257,7 +277,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = true,
@@ -285,6 +305,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -297,6 +318,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -334,7 +356,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = false,
@@ -362,6 +384,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -374,6 +397,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -411,7 +435,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = false,
                 BlockCommitOnCritical = true,
@@ -439,6 +463,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -451,6 +476,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -463,7 +489,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = true,
@@ -491,6 +517,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -503,6 +530,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -560,7 +588,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = true,
@@ -604,6 +632,9 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson(
+                    (olderPackId, "1.0.0"),
+                    (newerPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -686,6 +717,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid olderPackId = Guid.NewGuid();
         Guid newerPackId = Guid.Parse("33333333-3333-3333-3333-333333333333");
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
@@ -699,6 +731,9 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson(
+                    (olderPackId, "1.0.0"),
+                    (newerPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -736,7 +771,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = olderPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = false,
@@ -781,6 +816,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -793,6 +829,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -830,7 +867,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = false,
@@ -862,6 +899,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -874,6 +912,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -911,7 +950,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = false,
@@ -940,6 +979,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -952,6 +992,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -999,7 +1040,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = true,
@@ -1030,6 +1071,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -1042,6 +1084,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -1079,7 +1122,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = false,
@@ -1189,6 +1232,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-global",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = EmptyPinnedPolicyPackIdsJson,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -1286,6 +1330,7 @@ public sealed class PreCommitGovernanceGateTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -1298,6 +1343,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-tech",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -1323,7 +1369,7 @@ public sealed class PreCommitGovernanceGateTests
                 WorkspaceId = TestScope.WorkspaceId,
                 ProjectId = TestScope.ProjectId,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                PolicyPackId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 BlockCommitOnCritical = false,
@@ -1398,6 +1444,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-tech-enforce",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = EmptyPinnedPolicyPackIdsJson,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);

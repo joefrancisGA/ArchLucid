@@ -13,6 +13,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -70,6 +71,10 @@ public sealed class RunFindingsQueryService(
                 ProblemDetail = $"Run '{runId}' has no findings snapshot."
             };
         }
+
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+            AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run),
+            runId);
 
         bool orderByPriority = RunFindingsListResponseBuilder.IsPriorityOrder(orderBy);
         int pageTake = take ?? FindingPagination.DefaultTake;
@@ -210,6 +215,19 @@ public sealed class RunFindingsQueryService(
         string findingId,
         CancellationToken cancellationToken)
     {
+        RunFindingsQueryOutcome? lifecycleBlock = await TryBlockWhenLifecycleIncompleteAsync(runId, cancellationToken);
+
+        if (lifecycleBlock is not null)
+        {
+            return new FindingEvidenceChainQueryResult
+            {
+                Outcome = lifecycleBlock.Value,
+                ProblemDetail = lifecycleBlock.Value == RunFindingsQueryOutcome.Conflict
+                    ? $"Evidence chain blocked for run '{runId}': authority lifecycle must be Complete."
+                    : $"Run '{runId}' was not found."
+            };
+        }
+
         FindingEvidenceChainResponse? chain =
             await findingEvidenceChainService.BuildAsync(runId, findingId, cancellationToken);
 
@@ -262,6 +280,19 @@ public sealed class RunFindingsQueryService(
             };
         }
 
+        RunFindingsQueryOutcome? lifecycleBlock = await TryBlockWhenLifecycleIncompleteAsync(runId, cancellationToken);
+
+        if (lifecycleBlock is not null)
+        {
+            return new FindingInspectQueryResult
+            {
+                Outcome = lifecycleBlock.Value,
+                ProblemDetail = lifecycleBlock.Value == RunFindingsQueryOutcome.Conflict
+                    ? $"Finding inspect blocked for run '{runId}': authority lifecycle must be Complete."
+                    : $"Run '{runId}' was not found."
+            };
+        }
+
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         FindingInspectReadOptions options = includeTypedPayload
             ? FindingInspectReadOptions.Full
@@ -295,5 +326,33 @@ public sealed class RunFindingsQueryService(
                 body.WithReasoningSummaryFromBuilder(reasoningSummaryBuilder),
                 findingTrustLabelMapper)
         };
+    }
+
+    private async Task<RunFindingsQueryOutcome?> TryBlockWhenLifecycleIncompleteAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
+            return RunFindingsQueryOutcome.NotFound;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Persistence.Models.RunRecord? run =
+            await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (run is null)
+            return RunFindingsQueryOutcome.NotFound;
+
+        try
+        {
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+                AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run),
+                runId);
+        }
+        catch (ConflictException)
+        {
+            return RunFindingsQueryOutcome.Conflict;
+        }
+
+        return null;
     }
 }

@@ -2,11 +2,17 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { useHelpDocsIndexQuery } from "@/hooks/use-help-docs-index-query";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
+import {
+  helpHubClearSearchHrefFromSearch,
+  helpHubSearchHrefFromSearch,
+  parseHelpHubSearchQuery,
+} from "@/lib/help/help-hub-search-url";
 import type { DocIndexEntry } from "@/lib/help-docs-index";
 
 export type { DocIndexEntry } from "@/lib/help-docs-index";
@@ -99,8 +105,35 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
 }
 
 export function HelpDocsClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlQuery = parseHelpHubSearchQuery(searchParams.get("q"));
   const indexQuery = useHelpDocsIndexQuery();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(urlQuery);
+
+  useEffect(() => {
+    setQuery(urlQuery);
+  }, [urlQuery]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = helpHubSearchHrefFromSearch(searchParams.toString(), query);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [query, router, searchParams]);
+
+  const clearSearch = useCallback(() => {
+    setQuery("");
+    router.replace(helpHubClearSearchHrefFromSearch(currentSearch), { scroll: false });
+  }, [currentSearch, router]);
   const loadError =
     indexQuery.isError
       ? indexQuery.error instanceof Error
@@ -174,6 +207,12 @@ export function HelpDocsClient() {
         type="search"
         value={query}
         onChange={(ev) => setQuery(ev.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && query.trim().length > 0) {
+            event.preventDefault();
+            clearSearch();
+          }
+        }}
         placeholder="Filter by title or summary"
         className={cn("max-w-xl", HELP_PAGE_TOC.referenceSearchInput)}
         autoComplete="off"

@@ -10,13 +10,14 @@ import {
   remainingSessionIdleMs,
   SESSION_CLEARED_AT_STORAGE_KEY,
   SESSION_IDLE_BROADCAST_CHANNEL,
-  SESSION_IDLE_TIMEOUT_MS,
+  SESSION_IDLE_FOCUS_HEARTBEAT_MS,
   SESSION_IDLE_WARNING_MS,
   writeSharedSessionLastActivityAt,
 } from "@/lib/auth/session-idle-timeout";
 import { buildSessionExpiredHref } from "@/lib/navigation/auth-sign-in-href";
 import { clearOperatorScopeStorage } from "@/lib/operator/operator-scope-storage";
 import { clearOidcSession } from "@/lib/oidc/session";
+import { OidcTokenExpiryWarningGuard } from "@/components/OidcTokenExpiryWarningGuard";
 
 function clearSessionAndRedirect(router: ReturnType<typeof useRouter>): void {
   sessionStorage.setItem(SESSION_CLEARED_AT_STORAGE_KEY, new Date().toISOString());
@@ -84,6 +85,20 @@ export function SessionIdleTimeoutGuard() {
       window.addEventListener(eventName, recordActivity, { passive: true });
     }
 
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        recordActivity();
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    const focusHeartbeatId = window.setInterval(() => {
+      if (document.visibilityState === "visible" && document.hasFocus()) {
+        recordActivity();
+      }
+    }, SESSION_IDLE_FOCUS_HEARTBEAT_MS);
+
     broadcastChannel?.addEventListener("message", () => {
       scheduleFromSharedActivity();
     });
@@ -99,6 +114,9 @@ export function SessionIdleTimeoutGuard() {
       for (const eventName of events) {
         window.removeEventListener(eventName, recordActivity);
       }
+
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.clearInterval(focusHeartbeatId);
 
       broadcastChannel?.close();
     };
@@ -120,38 +138,39 @@ export function SessionIdleTimeoutGuard() {
     };
   }, [warningVisible]);
 
-  if (!warningVisible) {
-    return null;
-  }
-
   return (
-    <div
-      role="alertdialog"
-      aria-live="assertive"
-      aria-labelledby="session-idle-warning-title"
-      className="fixed inset-x-4 bottom-4 z-[100] mx-auto max-w-lg rounded-lg border border-al-border bg-al-surface-raised p-4 shadow-lg"
-      data-testid="session-idle-warning"
-    >
-      <p id="session-idle-warning-title" className="m-0 font-medium text-al-text-primary">
-        Your session will end soon
-      </p>
-      <p className="mt-2 text-sm text-al-text-secondary">
-        You have been inactive. Move your mouse or press a key to stay signed in. Session ends in about{" "}
-        {warningSecondsRemaining} seconds.
-      </p>
-      <div className="mt-3">
-        <Button
-          type="button"
-          size="sm"
-          data-testid="session-idle-warning-stay-signed-in"
-          onClick={() => {
-            writeSharedSessionLastActivityAt();
-            setWarningVisible(false);
-          }}
+    <>
+      <OidcTokenExpiryWarningGuard />
+      {warningVisible ? (
+        <div
+          role="alertdialog"
+          aria-live="assertive"
+          aria-labelledby="session-idle-warning-title"
+          className="fixed inset-x-4 bottom-4 z-[100] mx-auto max-w-lg rounded-lg border border-al-border bg-al-surface-raised p-4 shadow-lg"
+          data-testid="session-idle-warning"
         >
-          Stay signed in
-        </Button>
-      </div>
-    </div>
+          <p id="session-idle-warning-title" className="m-0 font-medium text-al-text-primary">
+            Your session will end soon
+          </p>
+          <p className="mt-2 text-sm text-al-text-secondary">
+            You have been inactive. Move your mouse or press a key to stay signed in. Session ends in about{" "}
+            {warningSecondsRemaining} seconds.
+          </p>
+          <div className="mt-3">
+            <Button
+              type="button"
+              size="sm"
+              data-testid="session-idle-warning-stay-signed-in"
+              onClick={() => {
+                writeSharedSessionLastActivityAt();
+                setWarningVisible(false);
+              }}
+            >
+              Stay signed in
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
