@@ -1845,11 +1845,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 122
-- **bugs-found:** 237
+- **hunts:** 123
+- **bugs-found:** 238
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — dead-letter schemaVersion coercion; lowercase TrialStatus; trimmed TaskId retry grouping
+- **last-bug:** 2026-09-03 — lowercase TrialStatus parity gap in commercial eligibility and trial seat policy
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1863,6 +1863,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — padded `TaskId` breaks retry supersession — **hit 2026-09-03 (#600):** `" task-1 "` and `task-1` grouped separately so stale attempt 0 survived; fixed by trimming before keying (`Select_when_task_id_differs_only_by_outer_whitespace_chains_retries`).
 
 2026-09-03 thorough hunt #600: proved schemaVersion coercion, lowercase trial status, and TaskId trim gaps; disproved committed-without-manifest (SQL CHECK) and whitespace-only TaskId chaining (intentional).
+
+- [x] (proven) `CommercialTenantEligibility` / `TenantTrialSeatPolicy` — lowercase `TrialStatus` not treated as active — **hit 2026-09-03 (#601):** #600 fixed `CommercialPackagingTierResolver` only; `trialStatus:"active"` still bypassed seat-claim enforcement and Standard-tier commercial gates; fixed with `OrdinalIgnoreCase` (`RequiresSeatClaim_true_when_lowercase_active_trial_status`, `CommercialTenantEligibility_blocks_lowercase_active_trial_from_standard_gates`).
+
+2026-09-03 seed hunt #601: reseeded tenancy helpers after #600 TrialStatus fix; proved sibling Ordinal parity gap.
+
+- [ ] (candidate) `AgentExecutionFailureSummaryJson.TryDeserialize` (Application) — string-encoded `schemaVersion` still uses strict `int` deserialize while Core `RunAuthorityPipelineDeadLetterDetection` now coerces tokens
+- [ ] (candidate) `TenantTrialSeatPolicy` / `CommercialTenantEligibility` — other `TrialLifecycleStatus` values with unexpected casing (`converted`, `expired`) may mis-route lifecycle automation
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — missing `schemaVersion` property defaults deserialize `SchemaVersion` to 0 and is rejected despite forward-compatible payloads
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized

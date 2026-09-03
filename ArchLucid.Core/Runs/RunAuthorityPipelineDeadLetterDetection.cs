@@ -87,9 +87,9 @@ public static class RunAuthorityPipelineDeadLetterDetection
     {
         if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "schemaVersion", out JsonElement element))
         {
-            schemaVersion = default;
+            schemaVersion = SupportedSchemaVersion;
 
-            return false;
+            return true;
         }
 
         if (element.ValueKind == JsonValueKind.String
