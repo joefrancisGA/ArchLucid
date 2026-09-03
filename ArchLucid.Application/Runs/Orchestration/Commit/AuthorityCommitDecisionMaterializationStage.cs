@@ -33,7 +33,6 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
     IDecisionEngine decisionEngine,
     IAuthorityCommitProjectionBuilder projectionBuilder,
     ICommitOutputIntegrityService commitOutputIntegrityService,
-    IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     IGraphMergeRuntimeInvariantReporter graphMergeRuntimeInvariantReporter) : IAuthorityCommitDecisionMaterializationStage
 {
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
@@ -60,9 +59,6 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
     private readonly ICommitOutputIntegrityService _commitOutputIntegrityService =
         commitOutputIntegrityService ?? throw new ArgumentNullException(nameof(commitOutputIntegrityService));
 
-    private readonly IPolicyPackAssignmentRepository _policyPackAssignmentRepository =
-        policyPackAssignmentRepository ?? throw new ArgumentNullException(nameof(policyPackAssignmentRepository));
-
     private readonly IGraphMergeRuntimeInvariantReporter _graphMergeRuntimeInvariantReporter =
         graphMergeRuntimeInvariantReporter ?? throw new ArgumentNullException(nameof(graphMergeRuntimeInvariantReporter));
 
@@ -88,10 +84,10 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
         Task<IReadOnlyList<AgentResult>> agentResultsTask =
             _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
         Task<FindingsSnapshot?> findingsTask = _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, cancellationToken);
-        Task<IReadOnlyList<PolicyPackAssignment>> scopeAssignmentsTask =
-            _policyPackAssignmentRepository.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
+        IReadOnlyList<PolicyPackAssignment> scopePolicyPackAssignments =
+            RunHeaderPinnedPolicyPackAssignmentFactory.BuildSyntheticAssignments(runRecord, scope);
 
-        await Task.WhenAll(evidenceTask, graphTask, agentResultsTask, findingsTask, scopeAssignmentsTask);
+        await Task.WhenAll(evidenceTask, graphTask, agentResultsTask, findingsTask);
 
         AgentEvidencePackage evidencePackageForTelemetry = await evidenceTask;
         GraphSnapshot? graph = await graphTask;
@@ -103,7 +99,6 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
         GraphSnapshot graphForDecision = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResultsForTelemetry);
         await _graphMergeRuntimeInvariantReporter.ReportAfterMergeAsync(scope, graphForDecision, cancellationToken);
         FindingsSnapshot? findings = await findingsTask;
-        IReadOnlyList<PolicyPackAssignment> scopePolicyPackAssignments = await scopeAssignmentsTask;
 
         if (findings is null)
             throw new InvalidOperationException($"Findings snapshot '{findingsId:D}' for run '{runId}' was not found.");

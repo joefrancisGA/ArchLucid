@@ -12,9 +12,9 @@ function readSectionSource(fileName: string): string {
 
 const deferredChunkFamilyFiles = [
   "run-detail-page-view-deferred-chunks.tsx",
-  "run-detail-page-view-deferred-chunks-workspace.ts",
-  "run-detail-page-view-deferred-chunks-governance.ts",
-  "run-detail-page-view-deferred-chunks-evidence.ts",
+  "run-detail-page-view-deferred-chunks-workspace.tsx",
+  "run-detail-page-view-deferred-chunks-governance.tsx",
+  "run-detail-page-view-deferred-chunks-evidence.tsx",
   "run-detail-page-view-deferred-chunks-review-package.ts",
   "run-detail-page-view-deferred-chunks-diagnostics.ts",
   "run-detail-page-view-deferred-chunks-compare.ts",
@@ -42,7 +42,7 @@ describe("RunDetailBelowFoldSectionsDeferred", () => {
     expect(deferredChunksSource).not.toContain('"run-detail-below-fold"');
     expect(deferredChunksSource).not.toContain("RunDetailBelowFoldSectionsDeferred");
     expect(pageViewSource).toContain('./RunDetailBelowFoldSectionsDeferred"');
-    expect(tabbedWorkspaceSource).toContain('./RunDetailBelowFoldSectionsDeferred"');
+    expect(tabbedWorkspaceSource).toContain("RunDetailBelowFoldSectionsDeferred");
     expect(pageViewSource).not.toContain('./RunDetailBelowFoldSections"');
     expect(tabbedWorkspaceSource).not.toContain('./RunDetailBelowFoldSections"');
   });

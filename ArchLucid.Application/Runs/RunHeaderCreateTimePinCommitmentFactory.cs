@@ -61,6 +61,8 @@ public static class RunHeaderCreateTimePinCommitmentFactory
             evidenceRows,
             evidenceHashHex,
             architectureVersionHashHex,
-            knowledgeModelHashHex);
+            knowledgeModelHashHex,
+            header.PinnedFocusedPilotModeEnabled,
+            header.PinnedFocusedPilotCloudProvider);
     }
 }

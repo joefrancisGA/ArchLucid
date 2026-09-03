@@ -13,6 +13,11 @@ import {
   validateArchitectureDraftIntegrity,
 } from "@/lib/architecture/architecture-draft-readiness";
 import { actorSetFromDraftDocument } from "@/lib/architecture/architecture-creation-init";
+import {
+  dequeueArchitectureDraftOfflinePatch,
+  enqueueArchitectureDraftOfflinePatch,
+  listArchitectureDraftOfflineQueue,
+} from "@/lib/architecture/architecture-draft-offline-queue";
 import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
@@ -69,7 +74,28 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
   const persistDraft = useCallback(async (): Promise<boolean> => {
     if (!enabled) return true;
     if (!isOnline) {
+      const architectureId = args.resolvedArchitectureIdRef.current ?? args.architectureId;
+
+      if (
+        architectureId.trim().length > 0 &&
+        hasArchitectureDraftSaveableContent(args.fieldsRef.current) &&
+        validateArchitectureDraftIntegrity(args.fieldsRef.current).isValid
+      ) {
+        enqueueArchitectureDraftOfflinePatch({
+          architectureId,
+          payloadJson: JSON.stringify(
+            buildArchitectureDraftPatchPayload(
+              args.fieldsRef.current,
+              args.actorSetRef.current,
+              args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined,
+            ),
+          ),
+          queuedAtUtc: new Date().toISOString(),
+        });
+      }
+
       args.setSaveState("offline");
+
       return false;
     }
 
@@ -188,14 +214,36 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
   }, [args, args.fields, args.actorSet, args.hasUnsavedChanges, enabled, persistDraft]);
 
   useEffect(() => {
-    function handleOnline() {
-      if (args.hasUnsavedChanges && hasArchitectureDraftSaveableContent(args.fields)) void persistDraft();
+    async function replayOfflineQueue(): Promise<void> {
+      const queued = listArchitectureDraftOfflineQueue();
+
+      for (const entry of queued) {
+        try {
+          const body = JSON.parse(entry.payloadJson) as Parameters<typeof patchDraftRequest>[1];
+          await patchDraftRequest(entry.architectureId, body);
+          dequeueArchitectureDraftOfflinePatch(entry.architectureId);
+        }
+        catch {
+          break;
+        }
+      }
+
+      if (args.hasUnsavedChanges && hasArchitectureDraftSaveableContent(args.fields)) {
+        void persistDraft();
+      }
     }
+
+    function handleOnline() {
+      void replayOfflineQueue();
+    }
+
     function handleOffline() {
       args.setSaveState("offline");
     }
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);

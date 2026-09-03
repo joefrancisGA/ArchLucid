@@ -3,8 +3,14 @@ export const SESSION_IDLE_TIMEOUT_MS = 60 * 60 * 1000;
 
 export const SESSION_IDLE_TIMEOUT_MINUTES = SESSION_IDLE_TIMEOUT_MS / (60 * 1000);
 
+/** Interval while tab is focused — counts as activity for reading sessions. */
+export const SESSION_IDLE_FOCUS_HEARTBEAT_MS = 60 * 1000;
+
 /** Warn this many milliseconds before clearing the session. */
 export const SESSION_IDLE_WARNING_MS = 2 * 60 * 1000;
+
+/** Warn this many milliseconds before access-token expiry. */
+export const SESSION_TOKEN_EXPIRY_WARNING_MS = 2 * 60 * 1000;
 
 /** Shared cross-tab activity timestamp (ISO string). */
 export const SESSION_LAST_ACTIVITY_STORAGE_KEY = "archlucid.session.lastActivityAt";

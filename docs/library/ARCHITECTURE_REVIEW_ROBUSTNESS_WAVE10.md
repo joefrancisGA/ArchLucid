@@ -20,3 +20,5 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE9.md`](ARCHITECTURE_REVIEW_ROB
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave10ArchitectureTests.cs`.
 
 **Hasher baseline note:** suggestions 92 and 97 bump production `h(M)` to **`v5`** and align Hasher B pin projection. Owner re-lock via `golden-cohort lock-baseline --write` is required before nightly drift compares green against the new projection.
+
+**Successor:** [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE11.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE11.md) (suggestions 101–110; Hasher A **`v6`**).
