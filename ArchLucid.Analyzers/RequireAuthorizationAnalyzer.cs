@@ -111,7 +111,9 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
             hasQualifyingPublicMethods = true;
 
-            if (nonActionAttribute is not null && SymbolHasAttribute(method, nonActionAttribute))
+            if (nonActionAttribute is not null &&
+                (SymbolHasAttribute(method, nonActionAttribute) ||
+                 MethodInheritsAttributeFromOverriddenChain(method, nonActionAttribute)))
                 continue;
 
             foundPublicApiAction = true;
@@ -269,6 +271,21 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         for (INamedTypeSymbol? current = attributeClass; current is not null; current = current.BaseType)
         {
             if (SymbolEqualityComparer.Default.Equals(current, targetAttribute))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool MethodInheritsAttributeFromOverriddenChain(
+        IMethodSymbol method,
+        INamedTypeSymbol attributeType)
+    {
+        for (IMethodSymbol? overridden = method.OverriddenMethod;
+             overridden is not null;
+             overridden = overridden.OverriddenMethod)
+        {
+            if (SymbolHasAttribute(overridden, attributeType))
                 return true;
         }
 

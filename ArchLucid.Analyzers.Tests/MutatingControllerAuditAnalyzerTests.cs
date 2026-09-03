@@ -281,6 +281,39 @@ public sealed class PatchIgnoresAuditController(IAuditService auditService) : Co
     }
 
     [Fact]
+    public async Task Mutating_audit_excluded_on_base_method_suppresses_AL0003_on_override()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public abstract class ExcludedMethodBaseController : ControllerBase
+{
+    [MutatingAuditExcluded("base method excluded")]
+    public virtual IActionResult Post() => Ok();
+}
+
+public sealed class DerivedExcludedMethodController : ExcludedMethodBaseController
+{
+    [HttpPost]
+    public override IActionResult Post() => Ok();
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Http_Get_actions_do_not_require_audit()
     {
         const string testCode = AuditAndMvcStubs +

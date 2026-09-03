@@ -228,6 +228,18 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 return true;
         }
 
+        for (IMethodSymbol? overriddenMethod = methodDeclaredSymbolScoped.OverriddenMethod;
+             overriddenMethod is not null;
+             overriddenMethod = overriddenMethod.OverriddenMethod)
+        {
+            foreach (AttributeData baseMethodExcluded in overriddenMethod.GetAttributes())
+            {
+                if (SymbolEqualityComparer.Default.Equals(baseMethodExcluded.AttributeClass,
+                        exclusionAttributeSymbolScoped))
+                    return true;
+            }
+        }
+
         INamedTypeSymbol? nestedTypeWalker = methodDeclaredSymbolScoped.ContainingType;
 
         while (nestedTypeWalker is not null)
