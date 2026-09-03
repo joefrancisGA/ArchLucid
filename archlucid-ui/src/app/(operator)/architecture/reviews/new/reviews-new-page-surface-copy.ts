@@ -8,6 +8,10 @@ import {
 
 export const REVIEWS_NEW_PRIMARY_CONTENT_ID = "new-review-wizard" as const;
 
+export const REVIEWS_NEW_FIRST_VIEWPORT_ID = "reviews-new-first-viewport" as const;
+
+export const REVIEWS_NEW_SKIP_TARGET_ID = REVIEWS_NEW_FIRST_VIEWPORT_ID;
+
 export const REVIEWS_NEW_SKIP_LINK_LABEL = "Skip to review intake workspace" as const;
 
 export const REVIEWS_NEW_BREADCRUMB_REVIEWS_LABEL = "Architecture reviews" as const;

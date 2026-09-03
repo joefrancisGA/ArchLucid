@@ -34,7 +34,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { FirstPilotIntakeWizard } from "./FirstPilotIntakeWizard";
-import { ReviewsNewPageChrome } from "./ReviewsNewPageChrome";
+import { ReviewsNewPageShell } from "./ReviewsNewPageShell";
 
 describe("reviews-new resume hero coordination", () => {
   beforeEach(() => {
@@ -50,10 +50,9 @@ describe("reviews-new resume hero coordination", () => {
     });
 
     render(
-      <>
-        <ReviewsNewPageChrome />
+      <ReviewsNewPageShell>
         <FirstPilotIntakeWizard />
-      </>,
+      </ReviewsNewPageShell>,
     );
 
     expect(screen.getByTestId("reviews-new-wizard-resume-strip")).toBeInTheDocument();
@@ -68,7 +67,11 @@ describe("reviews-new resume hero coordination", () => {
       state: { systemName: "Core platform", description: "" },
     });
 
-    render(<ReviewsNewPageChrome />);
+    render(
+      <ReviewsNewPageShell>
+        <div data-testid="reviews-new-path-switcher" />
+      </ReviewsNewPageShell>,
+    );
 
     expect(screen.queryByTestId("reviews-new-wizard-resume-strip")).not.toBeInTheDocument();
   });

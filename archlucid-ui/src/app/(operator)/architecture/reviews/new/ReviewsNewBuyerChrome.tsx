@@ -11,7 +11,7 @@ export function ReviewsNewBuyerChrome(): React.JSX.Element | null {
   }
 
   return (
-    <div data-testid="reviews-new-orientation-top">
+    <div data-testid="reviews-new-orientation-bottom">
       <ReviewsNewEvidenceOrientationStrip sources={REVIEWS_NEW_ORIENTATION_SOURCES} />
     </div>
   );
