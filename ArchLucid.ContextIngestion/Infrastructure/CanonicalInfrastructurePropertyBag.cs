@@ -159,6 +159,12 @@ public static class CanonicalInfrastructurePropertyBag
 
         for (int index = 0; index < rawValue.Length; index++)
         {
+            if (inDoubleQuotes && rawValue[index] == '\\' && index + 1 < rawValue.Length)
+            {
+                index++;
+                continue;
+            }
+
             char character = rawValue[index];
 
             if (character == '"' && !inSingleQuotes)
@@ -184,6 +190,12 @@ public static class CanonicalInfrastructurePropertyBag
 
         for (int index = 0; index < rawValue.Length - 1; index++)
         {
+            if (inDoubleQuotes && rawValue[index] == '\\' && index + 1 < rawValue.Length)
+            {
+                index++;
+                continue;
+            }
+
             char character = rawValue[index];
 
             if (character == '"' && !inSingleQuotes)
@@ -209,6 +221,12 @@ public static class CanonicalInfrastructurePropertyBag
 
         for (int index = 0; index < rawValue.Length - 1; index++)
         {
+            if (inDoubleQuotes && rawValue[index] == '\\' && index + 1 < rawValue.Length)
+            {
+                index++;
+                continue;
+            }
+
             char character = rawValue[index];
 
             if (character == '"' && !inSingleQuotes)
