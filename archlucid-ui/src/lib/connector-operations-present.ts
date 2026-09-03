@@ -1,23 +1,38 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type {
+  ConnectorDisplayStatus,
+  ConnectorHumanStatus,
+} from "@/lib/connector-operations-status";
+import {
+  CONFLUENCE_PUBLISHING_DISABLED_CUSTOMER_SUMMARY,
+  isDisabledConnector,
+  resolveConnectorHumanStatus,
+} from "@/lib/connector-operations-status";
+import type {
   ConnectorSurfaceStatusDto,
   IntegrationEventBusStatusDto,
 } from "@/types/operate-rhythm";
 
-export type ConnectorHumanStatus =
-  | "Not configured"
-  | "Configuration incomplete"
-  | "Ready"
-  | "Disabled"
-  | "Needs attention";
+const INTEGRATIONS_CONFIG_KEY_PATTERN = /Integrations:/i;
 
-export type ConnectorDisplayStatus =
-  | "Ready"
-  | "Recommended"
-  | "Optional"
-  | "Disabled"
-  | "Not configured"
-  | "Needs attention";
+export type {
+  ConnectorDisplayStatus,
+  ConnectorHumanStatus,
+} from "@/lib/connector-operations-status";
+
+export {
+  CONFLUENCE_PUBLISHING_DISABLED_CUSTOMER_SUMMARY,
+  formatConnectorDisplayStatus,
+  formatConnectorStatusLabel,
+  isConnectorReady,
+  isDisabledConnector,
+  isOptionalConnector,
+  isRecommendedConnector,
+  resolveConnectorDisplayStatus,
+  resolveConnectorHumanStatus,
+  resolveIntegrationEventBusDisplayStatus,
+  resolveIntegrationEventBusHumanStatus,
+} from "@/lib/connector-operations-status";
 
 export type ConnectorPurposeGroupId = "notifications" | "ticketing" | "publishing" | "technical";
 
@@ -49,16 +64,6 @@ export const CONNECTOR_PURPOSE_GROUPS: readonly ConnectorPurposeGroup[] = [
     description: "Background event delivery for asynchronous integration workflows — not required for standard reviews.",
   },
 ] as const;
-
-const RECOMMENDED_CONNECTOR_KEYS = new Set<string>(["teams", "slack"]);
-const OPTIONAL_CONNECTOR_KEYS = new Set<string>([
-  "jira",
-  "azureBoards",
-  "servicenow",
-  "confluence",
-  "digests_advisory",
-  "outbound_webhooks",
-]);
 
 const CONNECTOR_GROUP_BY_KEY: Record<string, ConnectorPurposeGroupId> = {
   teams: "notifications",
@@ -93,26 +98,9 @@ const CONNECTOR_BEST_FOR: Record<string, string> = {
   digests_advisory: "Best for recurring architecture digests to stakeholders.",
 };
 
-export function isRecommendedConnector(connectorKey: string): boolean {
-  return RECOMMENDED_CONNECTOR_KEYS.has(connectorKey);
+export function resolveConnectorBestFor(connectorKey: string): string | null {
+  return CONNECTOR_BEST_FOR[connectorKey] ?? null;
 }
-
-export function isOptionalConnector(connectorKey: string): boolean {
-  return OPTIONAL_CONNECTOR_KEYS.has(connectorKey);
-}
-
-export function isDisabledConnector(connector: ConnectorSurfaceStatusDto): boolean {
-  if (connector.connectorKey !== "confluence") {
-    return false;
-  }
-
-  return connector.summary.toLowerCase().includes("disabled");
-}
-
-const INTEGRATIONS_CONFIG_KEY_PATTERN = /Integrations:/i;
-
-export const CONFLUENCE_PUBLISHING_DISABLED_CUSTOMER_SUMMARY =
-  "Confluence publishing is disabled for this deployment.";
 
 /** Maps deployment-operator connector summaries to buyer-safe text for integration readiness cards (TB-777). */
 export function formatConnectorCustomerSummary(connector: ConnectorSurfaceStatusDto): string {
@@ -131,88 +119,6 @@ export function formatConnectorCustomerSummary(connector: ConnectorSurfaceStatus
   }
 
   return summary;
-}
-
-export function resolveConnectorHumanStatus(connector: ConnectorSurfaceStatusDto): ConnectorHumanStatus {
-  if (isDisabledConnector(connector)) {
-    return "Disabled";
-  }
-
-  const readiness = connector.smokeReadiness.trim();
-
-  if (readiness === "LocallyValid" || readiness === "RouteConfigured") {
-    return "Ready";
-  }
-
-  if (readiness === "ConfigurationIncomplete") {
-    return "Configuration incomplete";
-  }
-
-  if (readiness === "NotConfigured") {
-    return "Not configured";
-  }
-
-  return "Needs attention";
-}
-
-export function isConnectorReady(connector: ConnectorSurfaceStatusDto | null | undefined): boolean {
-  if (connector === null || connector === undefined) {
-    return false;
-  }
-
-  return resolveConnectorHumanStatus(connector) === "Ready";
-}
-
-export function resolveConnectorDisplayStatus(connector: ConnectorSurfaceStatusDto): ConnectorDisplayStatus {
-  const humanStatus = resolveConnectorHumanStatus(connector);
-
-  if (humanStatus === "Ready") {
-    return "Ready";
-  }
-
-  if (humanStatus === "Disabled") {
-    return "Disabled";
-  }
-
-  if (humanStatus === "Needs attention") {
-    return "Needs attention";
-  }
-
-  if (isRecommendedConnector(connector.connectorKey)) {
-    return "Recommended";
-  }
-
-  if (isOptionalConnector(connector.connectorKey)) {
-    if (humanStatus === "Configuration incomplete") {
-      return "Optional";
-    }
-
-    return "Not configured";
-  }
-
-  if (humanStatus === "Configuration incomplete") {
-    return "Needs attention";
-  }
-
-  return "Not configured";
-}
-
-export function formatConnectorDisplayStatus(connector: ConnectorSurfaceStatusDto): string {
-  return resolveConnectorDisplayStatus(connector);
-}
-
-/** @deprecated Use {@link formatConnectorDisplayStatus} — kept for transitional imports. */
-export function formatConnectorStatusLabel(
-  connector: ConnectorSurfaceStatusDto,
-  humanStatus: ConnectorHumanStatus,
-): string {
-  void humanStatus;
-
-  return formatConnectorDisplayStatus(connector);
-}
-
-export function resolveConnectorBestFor(connectorKey: string): string | null {
-  return CONNECTOR_BEST_FOR[connectorKey] ?? null;
 }
 
 export function resolveConnectorGuidance(connector: ConnectorSurfaceStatusDto, humanStatus: ConnectorHumanStatus): string {
@@ -376,43 +282,10 @@ export function humanStatusBadgeClass(status: ConnectorHumanStatus): string {
   return displayStatusBadgeClass("Needs attention");
 }
 
-export function resolveIntegrationEventBusHumanStatus(bus: IntegrationEventBusStatusDto): ConnectorHumanStatus {
-  const readiness = bus.smokeReadiness.trim();
-
-  if (readiness === "LocallyValid") {
-    return "Ready";
-  }
-
-  if (readiness === "ConfigurationIncomplete") {
-    return "Configuration incomplete";
-  }
-
-  if (readiness === "NotConfigured") {
-    return "Not configured";
-  }
-
-  return "Needs attention";
-}
-
-export function resolveIntegrationEventBusDisplayStatus(bus: IntegrationEventBusStatusDto): ConnectorDisplayStatus {
-  const humanStatus = resolveIntegrationEventBusHumanStatus(bus);
-
-  if (humanStatus === "Ready") {
-    return "Ready";
-  }
-
-  if (humanStatus === "Configuration incomplete") {
-    return "Needs attention";
-  }
-
-  if (humanStatus === "Not configured") {
-    return "Not configured";
-  }
-
-  return "Needs attention";
-}
-
-export function resolveIntegrationEventBusGuidance(bus: IntegrationEventBusStatusDto, humanStatus: ConnectorHumanStatus): string {
+export function resolveIntegrationEventBusGuidance(
+  bus: IntegrationEventBusStatusDto,
+  humanStatus: ConnectorHumanStatus,
+): string {
   if (humanStatus === "Ready") {
     return "Background delivery is configured for this deployment.";
   }

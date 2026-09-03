@@ -45,12 +45,12 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
         int exportIndex = service.IndexOf("BuildForRunAsync", StringComparison.Ordinal);
         string exportBody = service[exportIndex..];
 
-        exportBody.Should().Contain("if (verdict is null)\n            return null;");
+        exportBody.Should().Contain("if (verdict is null)\n            return NotFound();");
 
         string tests = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Application.Tests", "Exports", "DecisionReceiptServiceTests.cs"));
 
-        tests.Should().Contain("BuildForRunAsync_MissingFeasibilityVerdict_ReturnsNull");
+        tests.Should().Contain("BuildForRunAsync_MissingFeasibilityVerdict_ReturnsNotFound");
     }
 
     [Fact]

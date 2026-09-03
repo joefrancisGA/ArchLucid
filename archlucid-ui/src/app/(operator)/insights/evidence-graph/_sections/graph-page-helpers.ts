@@ -117,16 +117,16 @@ export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions
   return GRAPH_IDLE;
 }
 
-/** Resolve Trace vs Graph tab from the URL, defaulting Graph for buyer-polished shells. */
+/** Resolve Trace vs Graph tab from the URL. Eval/demo shells default to graph; Working desk defaults to trace (WD-12). */
 export function resolveEvidenceTrailPresentationView(
   urlPresentation: string | null | undefined,
-  buyerPolished: boolean,
+  preferGraphDefault: boolean,
 ): EvidenceTrailPresentationView {
   if (urlPresentation === "trace" || urlPresentation === "graph") {
     return urlPresentation;
   }
 
-  return buyerPolished ? "graph" : "trace";
+  return preferGraphDefault ? "graph" : "trace";
 }
 
 export function applyProvenanceDemoPresentationIfEligible(

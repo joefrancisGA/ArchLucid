@@ -83,10 +83,30 @@ describe("DigestsHubClient buyer-polished shell", () => {
     ).not.toBeInTheDocument();
     // Setup-incomplete browse collapses the privacy note behind the get-started checklist.
     expect(screen.queryByTestId("digests-privacy-note")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-related-surfaces")).not.toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();
     });
+  });
+
+  it("renders get-started tab buyer chrome with orientation below browse workspace", async () => {
+    searchParams = new URLSearchParams("tab=get-started");
+
+    render(<DigestsHubClient />);
+
+    expect(await screen.findByText(DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByTestId("digests-browse-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-browse-settings-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-related-surfaces")).not.toBeInTheDocument();
+
+    const orderedLandmarks = ["digests-browse-content", "digests-browse-orientation-top"]
+      .map((testId) => document.querySelector(`[data-testid="${testId}"]`))
+      .filter((node): node is HTMLElement => node !== null)
+      .map((node) => node.getAttribute("data-testid"));
+
+    expect(orderedLandmarks).toEqual(["digests-browse-content", "digests-browse-orientation-top"]);
   });
 
   it("renders schedule-tab buyer chrome with orientation and hidden vocabulary rail", async () => {

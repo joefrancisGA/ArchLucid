@@ -10,6 +10,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
+import { WORKSPACE_MODE_GUIDED_TOP_BAR_CHIP_LABEL } from "@/lib/workspace-mode/workspace-mode-copy";
 
 const fullShellMock = vi.hoisted(() => ({ value: true }));
 const fetchBudgetStatus = vi.hoisted(() => vi.fn());
@@ -30,13 +31,21 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+const workspaceModeMock = vi.hoisted(() => ({
+  mode: "guided" as "guided" | "working",
+  mounted: true,
+  accountSyncState: "synced" as const,
+  isWorkingMode: false,
+  setAndPersist: vi.fn(),
+}));
+
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => ({
-    mode: "guided",
-    mounted: true,
-    accountSyncState: "synced",
-    isWorkingMode: false,
-    setAndPersist: vi.fn(),
+    mode: workspaceModeMock.mode,
+    mounted: workspaceModeMock.mounted,
+    accountSyncState: workspaceModeMock.accountSyncState,
+    isWorkingMode: workspaceModeMock.isWorkingMode,
+    setAndPersist: workspaceModeMock.setAndPersist,
   }),
 }));
 
@@ -96,6 +105,9 @@ describe("OperatorShellTopBar", () => {
     resetOperatorQueryClientForTests();
     fullShellMock.value = true;
     authorityThemeEvalMock.value = false;
+    workspaceModeMock.mode = "guided";
+    workspaceModeMock.mounted = true;
+    workspaceModeMock.isWorkingMode = false;
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
     fetchBudgetStatus.mockReset();
@@ -267,6 +279,31 @@ describe("OperatorShellTopBar", () => {
     });
 
     expect(fetchBudgetStatus).not.toHaveBeenCalled();
+  });
+
+  it("shows the guided mode chip when guided mode is active", async () => {
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("guided-mode-top-bar-chip-trigger")).toHaveTextContent(
+      WORKSPACE_MODE_GUIDED_TOP_BAR_CHIP_LABEL,
+    );
+  });
+
+  it("hides the guided mode chip in working mode", async () => {
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.queryByTestId("guided-mode-top-bar-chip")).not.toBeInTheDocument();
   });
 
   it("keeps the more menu only for the eval authority theme toggle", async () => {
