@@ -3535,11 +3535,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — PolicyPackCoverageProofEvaluator ignored camelCase governance scope JSON and recorded outcomes
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — pre-commit gate counted muted findings as blocking while pre-finalize checklist excluded them
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -3556,8 +3556,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Curated rule metadata key lookup is case-sensitive after JSON deserialization — **hit 2026-08-25:** `PolicyPackCuratedRuleKeyReader` used `metadata.TryGetValue` for `pack.curatedRules.v1`, so PascalCase `Pack.CuratedRules.V1` from deserialized pack content was ignored and authoring validation warned on tenant-authored rule keys; fixed via `PolicyPackContentMetadataReader`; regression in `ValidateAsync_when_curated_metadata_key_uses_PascalCase_accepts_matching_rule`
 - [x] (proven) `PolicyPackAssignmentOutcomeRecorder` marked assignments `evaluated` when `findingsSnapshot` was null — **hit 2026-08-26:** pre-finalize coverage refresh with no snapshot row fell through to `Evaluated` even with zero matching findings, overstating pack evaluation proof; fixed by returning `Skipped` when snapshot is absent (`PolicyPackAssignmentOutcomeRecorderTests.ApplyOutcomes_marks_skipped_when_findings_snapshot_is_missing`)
 - [x] (proven) `PolicyPackCoverageProofEvaluator` deserialized execute-time governance scope with default `JsonSerializer` options — **hit 2026-09-02:** camelCase `GovernanceScopeJson` from `ExecutedEffectiveGovernanceSnapshotJson` never bound `packAssignments`, so pre-finalize coverage proof always reported zero assignments and skipped advisories; fixed by using `TryDeserialize` and honoring recorded `EvaluationOutcome` values (`PolicyPackCoverageProofEvaluatorTests`)
+- [x] (proven) `PreCommitGateEvaluator` counted muted findings toward severity thresholds while `PreFinalizeChecklistService.CountActiveFindings` excluded `IsMuted` — **hit 2026-09-03:** operators could mute a critical finding and see checklist "Critical findings resolved" clear while pre-commit gate still blocked finalize; fixed by filtering `IsMuted` in shared gate evaluator (`PreCommitGateEvaluatorTests.Evaluate_ignores_muted_findings_when_blocking_on_critical`, `PreCommitGovernanceGateTests.EvaluateAsync_allows_when_only_blocking_findings_are_muted`)
 - [x] (invalid) Policy pack coverage proof ignores muted findings in outcome recorder mismatch — `PolicyPackCoverageProofEvaluator` and `PolicyPackAssignmentOutcomeRecorder` both filter `IsMuted` before matching; `PartiallyComplete` snapshots use the same incomplete branch as `Generating` (muted-only signals → `Skipped`, active signals → `Evaluated`; coverage proof agrees)
 - [x] (invalid) Governance dry-run returns null for invalid run id format — `PolicyPackGovernanceDryRunService.EvaluateAsync` intentionally returns null for non-GUID `targetRunId` so the API surfaces the same 404 as an out-of-scope run (no id-format oracle)
+- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` omits technology-consistency and evidence-linkage supplemental findings that `PreCommitGovernanceGate` appends on live evaluation — dry-run may report allowed while live gate blocks on the same run
+- [ ] (candidate) `PolicyPackFindingMatcher.MatchesAssignment` returns false on rule-key miss without pack-token/`EngineType` fallback when `ComplianceRuleKeys` is populated — coverage proof may mark assignments unproven despite pack-attributed findings
+
+2026-09-03 seed hunt #581 (hit): reseeded gate/checklist parity audit; proved muted-finding pre-commit gate mismatch.
 
 2026-09-02 seed hunt #8: reseeded pre-finalize coverage proof path; proved governance-scope JSON deserialization gap.
 
