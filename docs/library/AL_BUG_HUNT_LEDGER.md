@@ -2880,9 +2880,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 127
+- **hunts:** 128
 - **bugs-found:** 284
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-03
 - **last-bug:** 2026-09-03 — renew MarkExpired parity before sibling guard
 - **related-pd-tb:** none
@@ -3469,11 +3469,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `RiskExceptionService.RenewAsync` / `GovernanceStickinessController.RenewRiskException` — renewing an `Expired` waiver without sweeping stale `Status=Active` rows past `ExpiresAtUtc` first left multiple `Active` rows in `ListActiveForTenantAsync` (which filters `Status` only) while sibling `GetActiveForScopeFindingAsync` ignored past-expiry rows — **hit 2026-09-03 (#574):** `MarkExpiredAsync` + `AuditExpiredAsync` before sibling guard (create #573 parity); regression in `RiskExceptionServiceTests.RenewAsync_marks_expired_before_sibling_active_guard`.
 
-- [ ] (candidate) `GovernanceStickinessController.RenewRiskException` — OpenAPI `ProducesResponseType` omits HTTP 409 while handler maps `ConflictException` (revoked/sibling/active-waiver paths); document drift only unless clients rely on generated stubs.
+- [x] (invalid) `GovernanceStickinessController.RenewRiskException` — OpenAPI `ProducesResponseType` omits HTTP 409 while handler maps `ConflictException` (revoked/sibling/active-waiver paths); document drift only unless clients rely on generated stubs — **cheap-disproof 2026-09-03 (#575):** runtime maps `ConflictException` → HTTP 409; `RenewRiskException_returns_conflict_when_waiver_is_revoked` and `RenewRiskException_returns_conflict_when_another_active_waiver_exists_for_same_finding` cover behavior.
 
-- [ ] (candidate) `GovernanceStickinessController.ListRiskExceptions` — optional `projectId` query is validated for empty guid but not resolved through `GovernanceQueryProjectScope.TryResolve` like register reads (foreign project may return filtered empty list vs 400).
+- [x] (invalid) `GovernanceStickinessController.ListRiskExceptions` — optional `projectId` query is validated for empty guid but not resolved through `GovernanceQueryProjectScope.TryResolve` like register reads (foreign project may return filtered empty list vs 400) — duplicate of ledger #3450; facade `ListRiskExceptionsAsync` already calls `TryResolve` and returns `[]` (intentional hide pattern #2957).
 
-2026-09-03 seed hunt #574: reseeded from controller sources; proved renew MarkExpired-before-sibling-guard parity.
+- [x] (valid-no-repro) `GovernanceStickinessController.RenewRiskException` on finding with latest disposition `Remediated` — `RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync` rejects renew (create #568 parity); **repro test:** `RenewRiskException_returns_bad_request_when_finding_latest_disposition_is_remediated`.
+
+- [x] (valid-no-repro) `GovernanceStickinessController.RenewRiskException` — sibling active waiver `ConflictException` from service #573 maps to HTTP 409 at controller; **repro test:** `RenewRiskException_returns_conflict_when_another_active_waiver_exists_for_same_finding`.
+
+- [ ] (candidate) `GovernanceStickinessController.RevokeRiskException` / `RenewRiskException` — OpenAPI metadata omits HTTP 404 for out-of-scope `riskExceptionId` while handlers map `InvalidOperationException` → 404 (swagger drift only).
+
+2026-09-03 thorough hunt #575 (dry): cheap-disproved OpenAPI 409 drift and duplicate ListRiskExceptions project-scope candidate; valid-no-repro on renew remediated-disposition and sibling-active-waiver controller mapping.
 
 ---
 
