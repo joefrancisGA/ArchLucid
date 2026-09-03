@@ -270,10 +270,8 @@ export default function DecisionRegisterClient() {
   }, [router, searchParams]);
 
   const clearCustomDatePreset = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("range", "all");
-    router.replace(`${GOVERNANCE_DECISION_REGISTER_PATH}?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
+    // recordedAfter/recordedBefore aren't URL-bound; don't force ?range=all (it clears the typed dates via the datePreset effect).
+  }, []);
 
   return (
     <div className="space-y-4 p-4" data-testid="decision-register-page">

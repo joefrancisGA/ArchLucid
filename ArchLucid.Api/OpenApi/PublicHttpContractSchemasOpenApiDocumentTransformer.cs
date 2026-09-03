@@ -61,6 +61,26 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
                 schema.Properties,
                 "pinnedKnowledgeModelContentHashSha256",
                 "Read-only SHA-256 κ model content hash pinned at run create (wave-10).");
+
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "pinnedPolicyPackIdsJson",
+                "Read-only create-time policy pack pin rows (JSON array) frozen at run create (wave-6+).");
+
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "pinnedEvidencePackagePinsJson",
+                "Read-only create-time evidence package pin rows (JSON array) frozen at run create (wave-6+).");
+
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "pinnedFocusedPilotModeEnabled",
+                "Read-only focused-pilot mode pin frozen at run create (wave-11).");
+
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "pinnedFocusedPilotCloudProvider",
+                "Read-only focused-pilot cloud provider pin frozen at run create (wave-11).");
         }
     }
 

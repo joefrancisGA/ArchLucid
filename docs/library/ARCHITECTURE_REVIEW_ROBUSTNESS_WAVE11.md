@@ -20,3 +20,5 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE10.md`](ARCHITECTURE_REVIEW_RO
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave11ArchitectureTests.cs`.
 
 **Hasher baseline note:** suggestion 106 bumps production `h(M)` to **`v6`** (focused-pilot pin binding). Owner re-lock via `tests/manifest-hash/hasher-baseline-v6.json` and golden-cohort lock when pin-bound cohort fixtures land.
+
+**Successor:** [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE12.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE12.md) (suggestions 111–120; Hasher A **`v7`**).

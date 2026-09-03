@@ -56,7 +56,7 @@ type DecisionRegisterFiltersPanelProps = {
   readonly recordedBefore: string;
   readonly minConfidence: string;
   readonly maxConfidence: string;
-  readonly confidenceBasis: string;
+  readonly confidenceBasis: DecisionRegisterConfidenceBasisFilter;
   readonly datePreset: DecisionRegisterDatePreset;
   readonly currentSearch: string;
   readonly collapseAdvanced: boolean;
@@ -65,7 +65,7 @@ type DecisionRegisterFiltersPanelProps = {
   readonly onRecordedBeforeChange: (value: string) => void;
   readonly onMinConfidenceChange: (value: string) => void;
   readonly onMaxConfidenceChange: (value: string) => void;
-  readonly onConfidenceBasisChange: (value: string) => void;
+  readonly onConfidenceBasisChange: (value: DecisionRegisterConfidenceBasisFilter) => void;
   readonly onClearFilters: () => void;
 };
 

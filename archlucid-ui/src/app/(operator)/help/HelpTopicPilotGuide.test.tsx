@@ -5,6 +5,15 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 import { HelpPilotGuideView } from "@/app/(operator)/help/_sections/HelpPilotGuideView";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
@@ -13,7 +22,9 @@ import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
-import { PILOT_GUIDE_HELP_CLAIM_DISCIPLINE } from "@/lib/pilot-guide-help-evidence-copy";
+import { PILOT_GUIDE_HELP_CLAIM_DISCIPLINE, PILOT_GUIDE_HELP_FOLLOW_UPS_TITLE, PILOT_GUIDE_HELP_SOURCES } from "@/lib/pilot-guide-help-evidence-copy";
+import { PILOT_GUIDE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID } from "@/lib/pilot-guide-help-page-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { PILOT_GUIDE_HELP_PRIMARY_ACTIONS } from "@/lib/pilot-guide-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -57,9 +68,19 @@ describe("Pilot guide (HP)", () => {
     expect(screen.getByTestId("help-pilot-guide-page-title")).toHaveTextContent("Pilot guide");
     expect(screen.getByRole("heading", { level: 1, name: "Pilot guide" })).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
-    expect(screen.getByTestId("pilot-guide-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId(PILOT_GUIDE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       PILOT_GUIDE_HELP_CLAIM_DISCIPLINE,
     );
+    expect(screen.queryByTestId("pilot-guide-help-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: PILOT_GUIDE_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("help-pilot-guide-sources")).toBeInTheDocument();
+
+    const sourcesSection = screen.getByTestId("help-pilot-guide-sources");
+
+    for (const source of PILOT_GUIDE_HELP_SOURCES) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
 
     const headerActions = screen.getByTestId("help-pilot-guide-header-actions");
     const startReviewLinks = within(headerActions).getAllByRole("link", {

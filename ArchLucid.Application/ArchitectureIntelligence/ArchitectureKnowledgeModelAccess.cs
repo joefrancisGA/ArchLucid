@@ -173,8 +173,16 @@ public sealed class ArchitectureKnowledgeModelAccess(
         return await _persistence!
             .GetModelAsync(tenantId, identity.CurrentModelId, cancellationToken)
             .ConfigureAwait(false) is ArchitectureKnowledgeModel loaded
-            ? ArchitectureKnowledgeModelCloner.Clone(loaded)
+            ? VerifyAndCloneForRun(run, loaded)
             : null;
+    }
+
+    private static ArchitectureKnowledgeModel VerifyAndCloneForRun(
+        ArchLucid.Persistence.Models.RunRecord? run,
+        ArchitectureKnowledgeModel model)
+    {
+        EnsurePinnedKnowledgeModelContentHashOrThrow(run, model);
+        return ArchitectureKnowledgeModelCloner.Clone(model);
     }
 
     private async Task<ArchitectureKnowledgeModel?> LoadByRunIdFallbackAsync(
@@ -199,7 +207,15 @@ public sealed class ArchitectureKnowledgeModelAccess(
         ArchitectureKnowledgeModel model)
     {
         if (run is null || string.IsNullOrWhiteSpace(run.KnowledgeModelId))
+        {
+            if (run?.PinnedKnowledgeModelContentHashSha256 is { Length: > 0 })
+            {
+                throw new ConflictException(
+                    "Knowledge model load blocked: run has a knowledge model content hash pin but no knowledge model id.");
+            }
+
             return;
+        }
 
         if (run.PinnedKnowledgeModelContentHashSha256 is not { Length: > 0 })
         {

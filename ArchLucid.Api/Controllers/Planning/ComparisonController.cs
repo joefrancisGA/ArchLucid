@@ -62,6 +62,15 @@ public sealed class ComparisonController(ICompareRunsApplicationFacade compareRu
             ManifestCompareLoadOutcome.TargetManifestNotFound => this.NotFoundProblem(
                 $"Run '{result.RunId}' does not have a committed golden manifest.",
                 ProblemTypes.ManifestNotFound),
+            ManifestCompareLoadOutcome.BaseLifecycleIncomplete => this.ConflictProblem(
+                $"Run '{result.RunId}' authority lifecycle must be Complete before compare.",
+                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.TargetLifecycleIncomplete => this.ConflictProblem(
+                $"Run '{result.RunId}' authority lifecycle must be Complete before compare.",
+                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.PinFingerprintMismatch => this.ConflictProblem(
+                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
+                ProblemTypes.Conflict),
             _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {result.Outcome}."),
         };
     }
