@@ -2,6 +2,7 @@
  * Customer-facing copy for `/help/cloud-connections/aws`.
  * Permission rows reuse `aws-cloud-connection-permissions-manifest.ts`.
  */
+import { AWS_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION } from "@/lib/aws-cloud-connection-permissions-manifest";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const CONNECT_AWS_SECURELY_PAGE_TITLE = "Connect AWS securely";
@@ -99,7 +100,12 @@ export const CONNECT_AWS_SECURELY_WRITE_ACCESS_NOTE =
   "No row in this table grants write access or infrastructure administration.";
 
 export const CONNECT_AWS_SECURELY_PERMISSIONS_AUTHORITY_NOTE =
-  "The IAM permissions table below is the authoritative reference for Resource Explorer APIs, managed policies, and aggregator-index prerequisites.";
+  `The IAM permissions table below is the authoritative reference for Resource Explorer APIs, managed policies, and aggregator-index prerequisites (contract as of ${AWS_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION}).`;
+
+export const CONNECT_AWS_SECURELY_DATA_HANDLING_HEADING = "Data handling";
+
+export const CONNECT_AWS_SECURELY_PERMISSIONS_NOT_REQUIRED_NOTE =
+  "AdministratorAccess, PowerUserAccess, and IAMFullAccess are not required — see the restricted-policies warning under IAM permissions.";
 
 export const CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_HEADING = "Do not assign broad write-enabled policies";
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
+import { HelpImprovementPlanningHeaderActions } from "@/app/(operator)/help/_sections/HelpImprovementPlanningHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { ImprovementPlanningHelpClaimDisciplineStrip } from "@/components/help/ImprovementPlanningHelpClaimDisciplineStrip";
 import { ImprovementPlanningHelpEvidenceOrientationStrip } from "@/components/help/ImprovementPlanningHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -23,7 +23,17 @@ import {
   IMPROVEMENT_PLANNING_HELP_SHOW_TILE_ITEMS,
   IMPROVEMENT_PLANNING_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/improvement-planning-help-guide-content";
-import { IMPROVEMENT_PLANNING_HELP_CANONICAL_PATH } from "@/lib/improvement-planning-help-evidence-copy";
+import {
+  IMPROVEMENT_PLANNING_HELP_CANONICAL_PATH,
+  IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE,
+} from "@/lib/improvement-planning-help-evidence-copy";
+import {
+  IMPROVEMENT_PLANNING_HELP_FIRST_VIEWPORT_TEST_ID,
+  IMPROVEMENT_PLANNING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  IMPROVEMENT_PLANNING_HELP_PRIMARY_CONTENT_ID,
+  IMPROVEMENT_PLANNING_HELP_SKIP_LINK_LABEL,
+  IMPROVEMENT_PLANNING_HELP_SKIP_TARGET_ID,
+} from "@/lib/improvement-planning-help-page-copy";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -86,23 +96,33 @@ export function HelpImprovementPlanningGuideView(props: HelpImprovementPlanningG
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-improvement-planning-guide"
     >
+      <a href={`#${IMPROVEMENT_PLANNING_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {IMPROVEMENT_PLANNING_HELP_SKIP_LINK_LABEL}
+      </a>
+
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
         title={IMPROVEMENT_PLANNING_HELP_PAGE_TITLE}
         titleTestId="help-improvement-planning-page-title"
         subtitle={IMPROVEMENT_PLANNING_HELP_PAGE_SUBTITLE}
+        claimDiscipline={IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE}
+        claimDisciplineTestId={IMPROVEMENT_PLANNING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
         navHref={IMPROVEMENT_PLANNING_HELP_CANONICAL_PATH}
         headingLevel="h1"
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        actions={<HelpImprovementPlanningHeaderActions entry={entry} />}
       />
 
-      <ImprovementPlanningHelpClaimDisciplineStrip />
-
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <ImprovementPlanningHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-
+      <div
+        id={IMPROVEMENT_PLANNING_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+        data-testid={IMPROVEMENT_PLANNING_HELP_PRIMARY_CONTENT_ID}
+      >
+        <div
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid={IMPROVEMENT_PLANNING_HELP_FIRST_VIEWPORT_TEST_ID}
+        >
           <p className={readingBodyClass} data-testid="help-improvement-planning-overview">
             {IMPROVEMENT_PLANNING_HELP_OVERVIEW}
           </p>
@@ -110,10 +130,10 @@ export function HelpImprovementPlanningGuideView(props: HelpImprovementPlanningG
           <section
             className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="help-improvement-planning-action-panel"
-            aria-labelledby="help-improvement-planning-action-panel-heading"
+            aria-labelledby={IMPROVEMENT_PLANNING_HELP_SKIP_TARGET_ID}
           >
             <h2
-              id="help-improvement-planning-action-panel-heading"
+              id={IMPROVEMENT_PLANNING_HELP_SKIP_TARGET_ID}
               className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
             >
               {IMPROVEMENT_PLANNING_HELP_START_HERE_CARD_TITLE}
@@ -137,46 +157,52 @@ export function HelpImprovementPlanningGuideView(props: HelpImprovementPlanningG
               {IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION}
             </p>
           </section>
-
-          <section
-            aria-labelledby="what-improvement-planning-shows"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="what-improvement-planning-shows">What improvement planning shows</HelpSectionHeading>
-            <HelpTileList
-              items={IMPROVEMENT_PLANNING_HELP_SHOW_TILE_ITEMS}
-              testId="help-improvement-planning-show-tile-items"
-            />
-          </section>
-
-          <section
-            aria-labelledby="what-planning-returns"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="what-planning-returns">What planning returns</HelpSectionHeading>
-            <HelpTileList
-              items={IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS}
-              testId="help-improvement-planning-output-tile-items"
-            />
-          </section>
-
-          <section
-            aria-labelledby="how-improvement-planning-works"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="how-improvement-planning-works">How improvement planning works</HelpSectionHeading>
-            <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
-              data-testid="help-improvement-planning-how-stepper"
-            >
-              {IMPROVEMENT_PLANNING_HELP_HOW_TO_READ_STEPS.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </section>
         </div>
 
-        <HelpTopicTableOfContents headings={guideHeadings} />
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-improvement-planning-primary">
+            <section
+              aria-labelledby="what-improvement-planning-shows"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="what-improvement-planning-shows">What improvement planning shows</HelpSectionHeading>
+              <HelpTileList
+                items={IMPROVEMENT_PLANNING_HELP_SHOW_TILE_ITEMS}
+                testId="help-improvement-planning-show-tile-items"
+              />
+            </section>
+
+            <section
+              aria-labelledby="what-planning-returns"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="what-planning-returns">What planning returns</HelpSectionHeading>
+              <HelpTileList
+                items={IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS}
+                testId="help-improvement-planning-output-tile-items"
+              />
+            </section>
+
+            <section
+              aria-labelledby="how-improvement-planning-works"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="how-improvement-planning-works">How improvement planning works</HelpSectionHeading>
+              <ol
+                className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-improvement-planning-how-stepper"
+              >
+                {IMPROVEMENT_PLANNING_HELP_HOW_TO_READ_STEPS.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </section>
+          </div>
+
+          <HelpTopicTableOfContents headings={guideHeadings} />
+        </div>
+
+        <ImprovementPlanningHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
       </div>
     </article>
   );

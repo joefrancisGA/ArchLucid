@@ -16,71 +16,16 @@ internal static class BuyerProofPackCommand
 
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
-        if (args is null)
-            throw new ArgumentNullException(nameof(args));
+        BuyerProofPackCommandOptions? options = BuyerProofPackCommandArgParser.Parse(args, out string? parseError);
 
-        string? runId = null;
-        string? outZip = null;
-        string? repoRootOverride = null;
-
-        for (int i = 0; i < args.Length; i++)
+        if (options is null)
         {
-            string token = args[i];
-
-            if (string.Equals(token, "--out", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length)
-                {
-                    await Console.Error.WriteLineAsync("Missing value for --out.");
-
-                    return CliExitCode.UsageError;
-                }
-
-                outZip = args[++i];
-
-                continue;
-            }
-
-            if (string.Equals(token, "--repo-root", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length)
-                {
-                    await Console.Error.WriteLineAsync("Missing value for --repo-root.");
-
-                    return CliExitCode.UsageError;
-                }
-
-                repoRootOverride = args[++i];
-
-                continue;
-            }
-
-            if (token.StartsWith('-'))
-            {
-                await Console.Error.WriteLineAsync($"Unexpected flag: {token}");
-
-                return CliExitCode.UsageError;
-            }
-
-            if (runId is not null)
-            {
-                await Console.Error.WriteLineAsync("Only one run id is supported.");
-
-                return CliExitCode.UsageError;
-            }
-
-            runId = token;
-        }
-
-        if (string.IsNullOrWhiteSpace(runId) || string.IsNullOrWhiteSpace(outZip))
-        {
-            await Console.Error.WriteLineAsync(
-                "Usage: archlucid buyer-proof-pack <runId> --out <path.zip> [--repo-root <dir>]");
+            await Console.Error.WriteLineAsync(parseError);
 
             return CliExitCode.UsageError;
         }
 
-        string? repoRoot = ResolveRepoRoot(repoRootOverride);
+        string? repoRoot = ResolveRepoRoot(options.RepoRootOverride);
 
         if (repoRoot is null || !Directory.Exists(repoRoot))
         {
@@ -100,7 +45,7 @@ internal static class BuyerProofPackCommand
         string normalized = baseUrl.Trim().TrimEnd('/');
         using CliHttpProbeSession session = CliHttpProbeSession.ForApi(normalized, config, TimeSpan.FromMinutes(2));
         IBuyerProofArtifactCollector collector = new BuyerProofArtifactCollector();
-        BuyerProofArtifactCollectionResult collection = await collector.CollectAsync(runId, session, includePdf: true, cancellationToken);
+        BuyerProofArtifactCollectionResult collection = await collector.CollectAsync(options.RunId, session, includePdf: true, cancellationToken);
 
         if (collection.Status == BuyerProofArtifactCollectionStatus.NotFound)
         {
@@ -189,19 +134,19 @@ internal static class BuyerProofPackCommand
 
             Array.Sort(entries, static (a, b) => string.CompareOrdinal(a.RelativePath, b.RelativePath));
 
-            string manifestJson = BuildPackManifestJson(runId, demoWarning, entries);
+            string manifestJson = BuildPackManifestJson(options.RunId, demoWarning, entries);
             byte[] manifestBytes = BuyerPacketFolderWriter.Utf8NoBom.GetBytes(manifestJson);
             await File.WriteAllBytesAsync(Path.Combine(staging, "pack-manifest.json"), manifestBytes, cancellationToken);
 
-            string? outDir = Path.GetDirectoryName(Path.GetFullPath(outZip));
+            string? outDir = Path.GetDirectoryName(Path.GetFullPath(options.OutZip));
 
             if (!string.IsNullOrEmpty(outDir))
                 Directory.CreateDirectory(outDir);
 
-            if (File.Exists(outZip))
-                File.Delete(outZip);
+            if (File.Exists(options.OutZip))
+                File.Delete(options.OutZip);
 
-            await using (FileStream zipFs = new(outZip, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            await using (FileStream zipFs = new(options.OutZip, FileMode.CreateNew, FileAccess.Write, FileShare.None))
             await using (ZipArchive zip = new(zipFs, ZipArchiveMode.Create))
             {
                 foreach (PackFileEntry entry in entries)
@@ -218,7 +163,7 @@ internal static class BuyerProofPackCommand
                 await ms.WriteAsync(manifestBytes, cancellationToken);
             }
 
-            Console.WriteLine($"Wrote buyer proof pack: {outZip}");
+            Console.WriteLine($"Wrote buyer proof pack: {options.OutZip}");
 
             return CliExitCode.Success;
         }

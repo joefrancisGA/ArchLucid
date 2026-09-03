@@ -27,6 +27,12 @@ import {
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
   REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE,
 } from "./reviews-hub-copy";
+import {
+  REVIEWS_HUB_FIRST_VIEWPORT_ID,
+  REVIEWS_HUB_SKIP_LINK_LABEL,
+  REVIEWS_HUB_SKIP_TARGET_ID,
+} from "@/lib/reviews-hub-page-copy";
+import { REVIEWS_HUB_CLAIM_DISCIPLINE } from "@/lib/reviews-hub-evidence-copy";
 import { RunsPageView } from "./RunsPageView";
 import type { RunsPageModel } from "./runs-page-model";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
@@ -68,17 +74,16 @@ vi.mock("@/components/operator/OperatorPageHeader", () => ({
     metadata,
     actions,
     navHref,
+    claimDiscipline,
   }: {
     title: string;
     subtitle?: string;
     metadata?: ReactNode;
     actions?: ReactNode;
     navHref?: string;
+    claimDiscipline?: string;
   }) => (
-    <div>
-      {navHref !== undefined ? <span data-testid="page-heading-icon" aria-hidden /> : null}
-      <h2>{title}</h2>
-      {subtitle ? <p data-testid="runs-page-subtitle">{subtitle}</p> : null}
+      <h1>{title}</h1>
       {metadata ? <div data-testid="runs-page-metadata">{metadata}</div> : null}
       {actions ? <div data-testid="runs-page-header-actions">{actions}</div> : null}
     </div>
@@ -149,9 +154,15 @@ describe("RunsPageView page chrome", () => {
   it("renders synchronized title and hub subtitle without default project metadata", () => {
     render(<RunsPageView model={baseModel()} />);
 
+    expect(screen.getByRole("link", { name: REVIEWS_HUB_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${REVIEWS_HUB_SKIP_TARGET_ID}`,
+    );
+    expect(screen.getByTestId(REVIEWS_HUB_FIRST_VIEWPORT_ID)).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: REVIEWS_HUB_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("runs-page-subtitle")).toHaveTextContent(REVIEWS_HUB_PAGE_SUBTITLE);
+    expect(screen.getByTestId("reviews-hub-claim-discipline")).toHaveTextContent(REVIEWS_HUB_CLAIM_DISCIPLINE);
     expect(screen.queryByTestId("runs-page-project-label")).toBeNull();
   });
 
@@ -214,6 +225,14 @@ describe("RunsPageView page chrome", () => {
     expect(screen.getByTestId("reviews-hub-packages-table")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-recent-empty")).toBeNull();
+
+    const firstViewport = screen.getByTestId(REVIEWS_HUB_FIRST_VIEWPORT_ID);
+    const guidance = screen.getByTestId("reviews-hub-guidance");
+
+    expect(
+      firstViewport.compareDocumentPosition(guidance) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
     expect(screen.getByTestId("reviews-hub-more-ways")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-guidance")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-analytics")).toBeInTheDocument();

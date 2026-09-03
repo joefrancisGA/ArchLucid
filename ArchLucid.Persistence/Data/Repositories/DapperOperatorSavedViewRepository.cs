@@ -1,7 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
 
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Operator;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -30,6 +28,8 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
         PersistenceTenantScope.RequireEntityTenant(tenantId);
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
 
+        string? surfaceFilter = OperatorSavedViewRepositoryCore.NormalizeSurfaceFilter(surface);
+
         string sql = """
                      SELECT
                          Id,
@@ -46,21 +46,21 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
                        AND (UserId = @UserId OR IsShared = 1)
                      """;
 
-        if (!string.IsNullOrWhiteSpace(surface))
-        {
+        if (surfaceFilter is not null)
             sql += " AND Surface = @Surface";
-        }
 
         sql += " ORDER BY Name ASC;";
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        IEnumerable<OperatorSavedViewRow> rows = await connection.QueryAsync<OperatorSavedViewRow>(
+        IEnumerable<OperatorSavedViewSqlRow> rows = await connection.QueryAsync<OperatorSavedViewSqlRow>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, UserId = userId, Surface = surface },
+                new { TenantId = tenantId, UserId = userId, Surface = surfaceFilter },
                 cancellationToken: cancellationToken));
 
-        return rows.Select(row => MapRow(row, userId)).ToList();
+        return rows
+            .Select(row => OperatorSavedViewRepositoryCore.MapToResponse(MapSqlRow(row, tenantId), userId))
+            .ToList();
     }
 
     /// <inheritdoc />
@@ -94,9 +94,7 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
                 cancellationToken: cancellationToken));
 
         if (tenantCount == 0)
-        {
             return null;
-        }
 
         Guid id = Guid.NewGuid();
 
@@ -141,18 +139,16 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
                         Name = name,
                         SortKey = sortKey,
                         PayloadJson = payloadJson,
-                        IsShared = isShared
+                        IsShared = isShared,
                     },
                     cancellationToken: cancellationToken));
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
-            throw new InvalidOperationException(
-                $"A saved view named '{name}' already exists for surface '{surface}'.",
-                ex);
+            throw OperatorSavedViewRepositoryCore.CreateDuplicateNameException(name, surface);
         }
 
-        OperatorSavedViewRow? row = await connection.QueryFirstOrDefaultAsync<OperatorSavedViewRow>(
+        OperatorSavedViewSqlRow? row = await connection.QueryFirstOrDefaultAsync<OperatorSavedViewSqlRow>(
             new CommandDefinition(
                 """
                 SELECT
@@ -171,7 +167,9 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
                 new { Id = id },
                 cancellationToken: cancellationToken));
 
-        return row is null ? null : MapRow(row, userId);
+        return row is null
+            ? null
+            : OperatorSavedViewRepositoryCore.MapToResponse(MapSqlRow(row, tenantId), userId);
     }
 
     /// <inheritdoc />
@@ -185,9 +183,7 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
 
         if (viewId == Guid.Empty)
-        {
             return false;
-        }
 
         const string sql = """
                            DELETE FROM dbo.OperatorSavedViews
@@ -206,26 +202,22 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
         return affected > 0;
     }
 
-    private static OperatorSavedViewResponse MapRow(OperatorSavedViewRow row, string currentUserId)
-    {
-        OperatorSavedViewPayload payload =
-            JsonSerializer.Deserialize<OperatorSavedViewPayload>(row.PayloadJson, ContractJson.CamelCaseDeserializeCaseInsensitive)
-            ?? new OperatorSavedViewPayload();
-
-        return new OperatorSavedViewResponse
+    private static OperatorSavedViewStoredRow MapSqlRow(OperatorSavedViewSqlRow row, Guid tenantId) =>
+        new()
         {
             Id = row.Id,
+            TenantId = tenantId,
+            UserId = row.UserId,
             Surface = row.Surface,
             Name = row.Name,
-            Payload = payload,
+            SortKey = row.SortKey,
+            PayloadJson = row.PayloadJson,
+            IsShared = row.IsShared,
             CreatedUtc = new DateTimeOffset(row.CreatedUtc, TimeSpan.Zero),
             UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero),
-            IsShared = row.IsShared,
-            IsOwnedByCurrentUser = string.Equals(row.UserId, currentUserId, StringComparison.Ordinal)
         };
-    }
 
-    private sealed class OperatorSavedViewRow
+    private sealed class OperatorSavedViewSqlRow
     {
         public Guid Id
         {

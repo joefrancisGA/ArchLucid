@@ -22,10 +22,66 @@ public sealed partial class AzureRetailPricesCatalogClient
                 targetCollapsed,
                 StringComparison.OrdinalIgnoreCase)
                ||
-               retailCollapsed.StartsWith(targetCollapsed, StringComparison.OrdinalIgnoreCase) ||
-               targetCollapsed.StartsWith(retailCollapsed, StringComparison.OrdinalIgnoreCase) ||
-               (targetCollapsed.Length > 4 && retailCollapsed.Contains(targetCollapsed,
-                   StringComparison.OrdinalIgnoreCase));
+               HasCollapsedSkuPrefix(retailCollapsed, targetCollapsed) ||
+               HasCollapsedSkuPrefix(targetCollapsed, retailCollapsed) ||
+               (targetCollapsed.Length > 4 && CollapsedSkuContains(retailCollapsed, targetCollapsed));
+    }
+
+    private static bool CollapsedSkuContains(string haystack, string needle)
+    {
+        if (needle.Length == 0 || haystack.Length < needle.Length)
+            return false;
+
+        int index = 0;
+
+        while (index <= haystack.Length - needle.Length)
+        {
+            index = haystack.IndexOf(needle, index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            if (HasCollapsedSkuBoundary(haystack, index, needle.Length))
+                return true;
+
+            index++;
+        }
+
+        return false;
+    }
+
+    private static bool HasCollapsedSkuPrefix(string haystack, string needle)
+        =>
+            HasCollapsedSkuBoundary(haystack, 0, needle.Length)
+            && haystack.StartsWith(needle, StringComparison.OrdinalIgnoreCase);
+
+    private static bool HasCollapsedSkuBoundary(string haystack, int index, int needleLength)
+    {
+        int endIndex = index + needleLength;
+
+        if (endIndex < haystack.Length)
+        {
+            char next = haystack[endIndex];
+
+            if (next is >= '0' and <= '9' or '-')
+                return false;
+
+            // Reject letter-variant suffixes such as Standard_D4 matching Standard_D4s_v5.
+            if (endIndex > 0
+                && haystack[endIndex - 1] is >= '0' and <= '9'
+                && char.IsLetter(next))
+                return false;
+        }
+
+        if (index > 0)
+        {
+            char previous = haystack[index - 1];
+
+            if (previous is >= '0' and <= '9')
+                return false;
+        }
+
+        return true;
     }
 
     internal static string CollapseComparableSku(string? value)
@@ -106,17 +162,57 @@ public sealed partial class AzureRetailPricesCatalogClient
                 dto.RetailPrice ?? 0m;
 
     internal static bool IsHourMeter(string uom)
-        =>
-            uom.Contains("Hour", StringComparison.OrdinalIgnoreCase)
-            ||
-            uom.Contains("hrs", StringComparison.OrdinalIgnoreCase);
+    {
+        if (string.IsNullOrWhiteSpace(uom))
+            return false;
+
+        string trimmed = uom.Trim();
+
+        return trimmed.Contains("Hour", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("hrs", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains(" hr", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("/hr", StringComparison.OrdinalIgnoreCase)
+            || ContainsSlashHourToken(trimmed)
+            || trimmed.Contains(" h", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsSlashHourToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/h", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterH = index + 2;
+
+            if (afterH >= trimmed.Length || !char.IsLetter(trimmed[afterH]))
+                return true;
+
+            index = afterH;
+        }
+
+        return false;
+    }
 
     internal static bool IsMonthlyMeter(string uom)
-        =>
-            uom.Contains("Month",
-                StringComparison.OrdinalIgnoreCase)
-            ||
-            uom.Contains("/Month", StringComparison.OrdinalIgnoreCase);
+    {
+        if (string.IsNullOrWhiteSpace(uom))
+            return false;
+
+        string trimmed = uom.Trim();
+
+        return trimmed.Contains("Month", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("/Month", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("/mo", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains(" mo", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase);
+    }
 
     internal static string OdataEscape(string literal)
         =>

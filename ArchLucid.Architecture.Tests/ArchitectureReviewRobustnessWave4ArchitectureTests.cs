@@ -77,6 +77,12 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
         migration342.Should().Contain("@runTable");
         migration342.Should().NotMatchRegex(@"(?m)^\s*ALTER\s+TABLE\s+dbo\.Runs\b");
 
+        string bootstrapSql = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
+
+        bootstrapSql.Should().Contain("PinnedPolicyPackIdsJson");
+        bootstrapSql.Should().Contain("@policyPackPinRunTable");
+
         string pinService = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
 

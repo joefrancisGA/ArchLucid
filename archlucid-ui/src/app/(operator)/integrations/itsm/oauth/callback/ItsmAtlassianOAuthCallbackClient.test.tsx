@@ -21,10 +21,12 @@ import {
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-page-copy";
 import {
   ITSM_OAUTH_CALLBACK_CANONICAL_PATH,
+  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE,
   ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE,
   ITSM_OAUTH_CALLBACK_SOURCES,
 } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 
 const completeItsmAtlassianOAuthConsent = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
@@ -122,10 +124,17 @@ describe("ItsmAtlassianOAuthCallbackClient operator shell", () => {
     expect(openJira).toHaveAttribute("href", INTEGRATIONS_JIRA_PATH);
 
     const sources = screen.getByTestId("itsm-oauth-callback-sources");
-    expect(within(sources).getByRole("link", { name: "Audit" })).toHaveAttribute("href", GOVERNANCE_AUDIT_PATH);
+    expect(within(sources).getByRole("link", { name: /Open Audit/i })).toHaveAttribute("href", GOVERNANCE_AUDIT_PATH);
     expect(
       within(sources).queryByRole("link", { name: new RegExp(ITSM_OAUTH_CALLBACK_CANONICAL_PATH, "i") }),
     ).not.toBeInTheDocument();
+
+    const orientationBottom = screen.getByTestId("itsm-oauth-callback-orientation-bottom");
+    expect(orientationBottom).toContainElement(sources);
+    expect(
+      screen.getByTestId("itsm-oauth-callback-first-viewport").compareDocumentPosition(orientationBottom) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
 
     expect(document.activeElement).toBe(screen.getByTestId("itsm-oauth-callback-outcome"));
   });
@@ -162,7 +171,7 @@ describe("ItsmAtlassianOAuthCallbackClient failure branches", () => {
     expect(support.getAttribute("href")).toMatch(/^mailto:support@archlucid\.net\?/);
 
     const sources = screen.getByTestId("itsm-oauth-callback-sources");
-    expect(within(sources).getByRole("link", { name: "Audit" })).toHaveAttribute("href", GOVERNANCE_AUDIT_PATH);
+    expect(within(sources).getByRole("link", { name: /Open Audit/i })).toHaveAttribute("href", GOVERNANCE_AUDIT_PATH);
 
     expect(document.activeElement).toBe(screen.getByTestId("itsm-oauth-callback-outcome"));
   }
@@ -270,24 +279,32 @@ describe("ItsmAtlassianOAuthCallbackClient sources strip", () => {
     });
 
     const sources = screen.getByTestId("itsm-oauth-callback-sources");
+    const visibleSources = filterWhereToGoNextFollowUpLinks(ITSM_OAUTH_CALLBACK_SOURCES);
 
-    for (const link of ITSM_OAUTH_CALLBACK_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    for (const link of visibleSources) {
+      const linkName = link.href.startsWith("/help") ? `Read ${link.label}` : `Open ${link.label}`;
+      expect(within(sources).getByRole("link", { name: linkName })).toHaveAttribute("href", link.href);
     }
+
+    expect(within(sources).queryByRole("link", { name: "Open Integration readiness" })).not.toBeInTheDocument();
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(ITSM_OAUTH_CALLBACK_CANONICAL_PATH, "i") }),
     ).not.toBeInTheDocument();
   });
 
-  it("labels follow-ups for accessibility parity without a claim band", async () => {
+  it("labels follow-ups with claim discipline in the header below the outcome card", async () => {
     render(<ItsmAtlassianOAuthCallbackClient />);
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     });
 
-    expect(screen.queryByTestId("itsm-oauth-callback-claim-discipline")).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("itsm-oauth-callback-header-claim-discipline"),
+    ).toHaveTextContent(ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE);
+    expect(screen.queryByTestId("itsm-oauth-callback-claim-discipline")).toBeNull();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
+    expect(screen.queryByTestId("itsm-oauth-callback-orientation-top")).toBeNull();
   });
 });

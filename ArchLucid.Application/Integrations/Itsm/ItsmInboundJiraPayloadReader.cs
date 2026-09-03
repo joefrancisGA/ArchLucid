@@ -62,25 +62,46 @@ public sealed class ItsmInboundJiraPayloadReader : IItsmInboundPayloadReader
 
     private static string? TryReadJiraIssueKey(JsonElement root)
     {
-        if (root.TryGetProperty("issue", out JsonElement issue) &&
-            issue.TryGetProperty("key", out JsonElement keyEl))
+        if (!TryGetPropertyCaseInsensitive(root, "issue", out JsonElement issue))
+            return null;
 
-            return keyEl.GetString();
+        if (!TryGetPropertyCaseInsensitive(issue, "key", out JsonElement keyEl))
+            return null;
 
-        return null;
+        return keyEl.GetString();
     }
 
     private static string? TryReadJiraStatusName(JsonElement root)
     {
-        if (!root.TryGetProperty("issue", out JsonElement issue))
+        if (!TryGetPropertyCaseInsensitive(root, "issue", out JsonElement issue))
             return null;
 
-        if (!issue.TryGetProperty("fields", out JsonElement fields))
+        if (!TryGetPropertyCaseInsensitive(issue, "fields", out JsonElement fields))
             return null;
 
-        if (!fields.TryGetProperty("status", out JsonElement status))
+        if (!TryGetPropertyCaseInsensitive(fields, "status", out JsonElement status))
             return null;
 
-        return status.TryGetProperty("name", out JsonElement name) ? name.GetString() : null;
+        if (!TryGetPropertyCaseInsensitive(status, "name", out JsonElement name))
+            return null;
+
+        return name.GetString();
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }

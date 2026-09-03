@@ -27,57 +27,12 @@ public static class RunExplanationConfidenceCalloutBuilder
         using JsonDocument doc = JsonDocument.Parse(aggregateJson);
         JsonElement root = doc.RootElement;
 
-        double? ratio = null;
+        _ = RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(root);
+        _ = RunExplanationRiskCalloutBuilder.TryParseRiskPosture(root);
+        _ = RunExplanationCostCalloutBuilder.TryParseDecisionCount(root);
+        _ = RunExplanationComplianceCalloutBuilder.TryParseComplianceGapCount(root);
 
-        if (TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl))
-        {
-            ratio = TryReadFiniteDouble(ratioEl);
-        }
-
-        bool fallback =
-            (TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out JsonElement direct)
-             && TryReadBoolean(direct))
-            || (TryGetPropertyCaseInsensitive(root, "usedDeterministicFallback", out JsonElement legacy)
-                && TryReadBoolean(legacy));
-
-        string? warning = TryGetPropertyCaseInsensitive(root, "faithfulnessWarning", out JsonElement warningEl)
-                          && TryReadNonEmptyTextToken(warningEl, out string? warningText)
-            ? warningText?.Trim()
-            : null;
-
-        int? citationCount = null;
-
-        if (TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl))
-        {
-            if (citationsEl.ValueKind == JsonValueKind.Array)
-            {
-                citationCount = citationsEl.GetArrayLength();
-            }
-            else if (citationsEl.ValueKind == JsonValueKind.Number
-                     && TryReadWholeNumber(citationsEl, out int wholeNumberCount))
-            {
-                citationCount = wholeNumberCount;
-            }
-            else if (citationsEl.ValueKind is JsonValueKind.True or JsonValueKind.False)
-            {
-                citationCount = citationsEl.ValueKind == JsonValueKind.True ? 1 : 0;
-            }
-            else if (citationsEl.ValueKind == JsonValueKind.String)
-            {
-                string? raw = citationsEl.GetString();
-
-                if (TryParseBooleanString(raw, out bool booleanCount))
-                {
-                    citationCount = booleanCount ? 1 : 0;
-                }
-                else if (TryParseWholeNumberString(raw, out int stringEncodedCount))
-                {
-                    citationCount = stringEncodedCount;
-                }
-            }
-        }
-
-        return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);
+        return ParseConfidenceSignals(root);
     }
 
     public static string ResolveDisposition(RunExplanationConfidenceSignals? signals)
@@ -114,10 +69,15 @@ public static class RunExplanationConfidenceCalloutBuilder
             return "**Explanation confidence:** aggregate narrative was not collected — verify review detail before sponsor send.";
 
         if (!string.IsNullOrWhiteSpace(signals.FaithfulnessWarning))
-            return FormattableString.Invariant($"**Explanation confidence ({disposition}):** {signals.FaithfulnessWarning.Trim()}");
+        {
+            return FormattableString.Invariant(
+                $"**Explanation confidence ({disposition}):** {signals.FaithfulnessWarning.Trim()}");
+        }
 
         if (signals.DeterministicFallbackUsed)
+        {
             return "**Explanation confidence (HOLD):** aggregate narrative used deterministic fallback — treat as unsupported for sponsor send.";
+        }
 
         if (signals.FaithfulnessSupportRatio is { } ratio)
         {
@@ -139,294 +99,56 @@ public static class RunExplanationConfidenceCalloutBuilder
         return line.Replace("**", string.Empty, StringComparison.Ordinal).Trim();
     }
 
-    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    private static RunExplanationConfidenceSignals ParseConfidenceSignals(JsonElement root)
     {
-        foreach (JsonProperty property in element.EnumerateObject())
+        double? ratio = null;
+
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl))
+            ratio = RunExplanationAggregateJsonReader.TryReadFiniteDouble(ratioEl);
+
+        bool fallback =
+            (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out JsonElement direct)
+             && RunExplanationAggregateJsonReader.TryReadBoolean(direct))
+            || (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "usedDeterministicFallback", out JsonElement legacy)
+                && RunExplanationAggregateJsonReader.TryReadBoolean(legacy));
+
+        string? warning = RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "faithfulnessWarning", out JsonElement warningEl)
+                            && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(warningEl, out string? warningText)
+            ? warningText?.Trim()
+            : null;
+
+        int? citationCount = null;
+
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl))
         {
-            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            value = property.Value;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static double? TryReadFiniteDouble(JsonElement element)
-    {
-        if (element.ValueKind == JsonValueKind.Number
-            && element.TryGetDouble(out double numeric)
-            && double.IsFinite(numeric))
-        {
-            return numeric;
-        }
-
-        if (element.ValueKind != JsonValueKind.String)
-        {
-            if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            if (citationsEl.ValueKind == JsonValueKind.Array)
             {
-                return element.ValueKind == JsonValueKind.True ? 1.0 : 0.0;
+                citationCount = citationsEl.GetArrayLength();
             }
-
-            return null;
-        }
-
-        string? raw = element.GetString();
-
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return null;
-        }
-
-        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
-        {
-            return 1.0;
-        }
-
-        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
-        {
-            return 0.0;
-        }
-
-        if (double.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
-            && double.IsFinite(parsed))
-        {
-            return parsed;
-        }
-
-        return null;
-    }
-
-    private static bool TryReadBoolean(JsonElement element)
-    {
-        if (element.ValueKind == JsonValueKind.True)
-        {
-            return true;
-        }
-
-        if (element.ValueKind == JsonValueKind.False)
-        {
-            return false;
-        }
-
-        if (element.ValueKind == JsonValueKind.Number)
-        {
-            if (element.TryGetInt32(out int numeric))
+            else if (citationsEl.ValueKind == JsonValueKind.Number
+                     && RunExplanationAggregateJsonReader.TryReadWholeNumber(citationsEl, out int wholeNumberCount))
             {
-                return numeric != 0;
+                citationCount = wholeNumberCount;
             }
-
-            if (element.TryGetDouble(out double wholeNumber)
-                && double.IsFinite(wholeNumber)
-                && wholeNumber == Math.Floor(wholeNumber))
+            else if (citationsEl.ValueKind is JsonValueKind.True or JsonValueKind.False)
             {
-                return wholeNumber != 0;
+                citationCount = citationsEl.ValueKind == JsonValueKind.True ? 1 : 0;
             }
-
-            return false;
-        }
-
-        if (element.ValueKind != JsonValueKind.String)
-        {
-            return false;
-        }
-
-        string? raw = element.GetString()?.Trim();
-
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return false;
-        }
-
-        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("1", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("0", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (TryParseWholeNumberString(raw, out int numericFromString))
-        {
-            return numericFromString != 0;
-        }
-
-        return false;
-    }
-
-    private static bool TryReadWholeNumber(JsonElement element, out int value)
-    {
-        if (element.TryGetInt32(out value))
-        {
-            return true;
-        }
-
-        if (element.TryGetDouble(out double numeric)
-            && double.IsFinite(numeric)
-            && numeric >= 0
-            && numeric == Math.Floor(numeric))
-        {
-            value = (int)numeric;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryParseWholeNumberString(string? raw, out int value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
-        {
-            return true;
-        }
-
-        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
-            && double.IsFinite(numeric)
-            && numeric >= 0
-            && numeric == Math.Floor(numeric))
-        {
-            value = (int)numeric;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryReadNonEmptyTextToken(JsonElement element, out string? value)
-    {
-        if (element.ValueKind == JsonValueKind.String)
-        {
-            string? raw = element.GetString();
-
-            if (!string.IsNullOrWhiteSpace(raw)
-                && TryParseBooleanString(raw, out bool boolean))
+            else if (citationsEl.ValueKind == JsonValueKind.String)
             {
-                value = boolean ? "true" : "false";
+                string? raw = citationsEl.GetString();
 
-                return !string.IsNullOrWhiteSpace(value);
+                if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanCount))
+                {
+                    citationCount = booleanCount ? 1 : 0;
+                }
+                else if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out int stringEncodedCount))
+                {
+                    citationCount = stringEncodedCount;
+                }
             }
-
-            if (!string.IsNullOrWhiteSpace(raw)
-                && TryParseWholeNumberString(raw.Trim(), out int numericFromString))
-            {
-                value = numericFromString.ToString(CultureInfo.InvariantCulture);
-
-                return !string.IsNullOrWhiteSpace(value);
-            }
-
-            value = raw;
-
-            return !string.IsNullOrWhiteSpace(value);
         }
 
-        if (element.ValueKind == JsonValueKind.Number)
-        {
-            if (element.TryGetInt64(out long numeric))
-            {
-                value = numeric.ToString(CultureInfo.InvariantCulture);
-
-                return !string.IsNullOrWhiteSpace(value);
-            }
-
-            if (element.TryGetDouble(out double wholeNumber)
-                && double.IsFinite(wholeNumber)
-                && wholeNumber >= 0
-                && wholeNumber == Math.Floor(wholeNumber))
-            {
-                value = ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
-
-                return !string.IsNullOrWhiteSpace(value);
-            }
-
-            value = element.GetRawText();
-
-            return !string.IsNullOrWhiteSpace(value);
-        }
-
-        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
-        {
-            value = element.GetRawText();
-
-            return !string.IsNullOrWhiteSpace(value);
-        }
-
-        value = null;
-
-        return false;
-    }
-
-    private static bool TryParseBooleanString(string? raw, out bool value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("1", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("yes", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("on", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("enabled", StringComparison.OrdinalIgnoreCase))
-        {
-            value = true;
-
-            return true;
-        }
-
-        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("0", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("no", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("off", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("disabled", StringComparison.OrdinalIgnoreCase))
-        {
-            value = false;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
+        return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);
     }
 }

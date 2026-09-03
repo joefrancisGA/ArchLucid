@@ -14,13 +14,20 @@ import {
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { RecurrenceSchedulesPickReviewBeforeSchedulingStrip } from "@/components/governance/RecurrenceSchedulesPickReviewBeforeSchedulingStrip";
 import { RecurrenceSchedulesNextReviewFooterClient } from "@/components/governance/RecurrenceSchedulesNextReviewFooterClient";
 import { RecurrenceSchedulesWorkflowHelperCard } from "@/components/governance/RecurrenceSchedulesWorkflowHelperCard";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE } from "@/lib/recurrence-schedules-evidence-copy";
+import {
+  RECURRENCE_SCHEDULES_FIRST_VIEWPORT_ID,
+  RECURRENCE_SCHEDULES_PRIMARY_CONTENT_ID,
+  RECURRENCE_SCHEDULES_SKIP_LINK_LABEL,
+  RECURRENCE_SCHEDULES_SKIP_TARGET_ID,
+} from "@/lib/recurrence-schedules-page-copy";
 import {
   RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY,
   RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE,
@@ -31,6 +38,7 @@ import {
 } from "@/lib/recurrence-schedules-copy";
 
 import { RecurrenceSchedulesListSection } from "./RecurrenceSchedulesListSection";
+import { RecurrenceSchedulesBuyerChrome } from "./RecurrenceSchedulesBuyerChrome";
 import { useRecurrenceSchedulesClient } from "./use-recurrence-schedules-client";
 
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
@@ -121,53 +129,32 @@ export default function RecurrenceSchedulesClient() {
       data-testid="recurrence-schedules-page"
       data-empty-composition={isEmpty ? "true" : "false"}
     >
-      <div className="space-y-4">
-          <OperatorPageHeader
-            navHref={GOVERNANCE_RECURRENCE_SCHEDULES_PATH}
-            title="Recurrence schedules"
-            subtitle={RECURRENCE_SCHEDULES_PAGE_SUBTITLE}
-            actions={
-              <div className="flex flex-wrap items-center gap-2">
-                <PageContextualHelpButton />
-                {isEmpty ? null : createScheduleButton}
-              </div>
-            }
-          />
+      <a
+        href={`#${RECURRENCE_SCHEDULES_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {RECURRENCE_SCHEDULES_SKIP_LINK_LABEL}
+      </a>
 
-          <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" />
-          <AdvisoryRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" />
+      <OperatorPageHeader
+        navHref={GOVERNANCE_RECURRENCE_SCHEDULES_PATH}
+        title="Recurrence schedules"
+        subtitle={RECURRENCE_SCHEDULES_PAGE_SUBTITLE}
+        claimDiscipline={RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="recurrence-schedules-claim-discipline"
+        actions={isEmpty ? null : <div className="flex flex-wrap items-center gap-2">{createScheduleButton}</div>}
+      />
 
-          <CollapsibleSection
-            title={RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE}
-            sectionTestId="recurrence-schedules-how-it-works"
-          >
-            <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-              {RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY}
-            </p>
-          </CollapsibleSection>
-
-          {/* TB-1573: teaching helper is collapsed disclosure only — never a persistent rail. */}
-          {isEmpty ? null : <RecurrenceSchedulesWorkflowHelperCard />}
-
-          <nav
-            aria-label="Related governance links"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-            data-testid="recurrence-schedules-secondary-links"
-          >
-            {secondaryActions.map((action) => (
-              <Link
-                key={action.href}
-                href={action.href}
-                className={cn(
-                  "text-neutral-600 underline-offset-4 hover:underline dark:text-neutral-400",
-                  OPERATOR_TYPOGRAPHY.helper,
-                )}
-              >
-                {action.label}
-              </Link>
-            ))}
-          </nav>
-
+      <div
+        id={RECURRENCE_SCHEDULES_PRIMARY_CONTENT_ID}
+        data-testid={RECURRENCE_SCHEDULES_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-4")}
+      >
+        <div
+          id={RECURRENCE_SCHEDULES_FIRST_VIEWPORT_ID}
+          data-testid={RECURRENCE_SCHEDULES_FIRST_VIEWPORT_ID}
+          className="space-y-4"
+        >
           {loadError ? (
             <OperatorSectionLoadFailure
               message={loadError}
@@ -233,6 +220,42 @@ export default function RecurrenceSchedulesClient() {
             saveEdit={saveEdit}
             createScheduleButton={createScheduleButton}
           />
+        </div>
+
+        <CollapsibleSection
+          title={RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE}
+          sectionTestId="recurrence-schedules-how-it-works"
+        >
+          <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY}
+          </p>
+        </CollapsibleSection>
+
+        {isEmpty ? null : <RecurrenceSchedulesWorkflowHelperCard />}
+
+        <nav
+          aria-label="Related governance links"
+          className="flex flex-wrap gap-x-4 gap-y-1"
+          data-testid="recurrence-schedules-secondary-links"
+        >
+          {secondaryActions.map((action) => (
+            <Link
+              key={action.href}
+              href={action.href}
+              className={cn(
+                "text-neutral-600 underline-offset-4 hover:underline dark:text-neutral-400",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+            >
+              {action.label}
+            </Link>
+          ))}
+        </nav>
+
+        <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" />
+        <AdvisoryRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" />
+
+        <RecurrenceSchedulesBuyerChrome />
       </div>
 
       <ConfirmationDialog

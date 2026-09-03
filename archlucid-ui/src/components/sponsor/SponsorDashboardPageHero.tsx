@@ -1,15 +1,7 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-
 import { useSponsorDashboardData } from "@/components/sponsor/SponsorDashboardDataContext";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { Button } from "@/components/ui/button";
-import { RefreshButton } from "@/components/ui/refresh-button";
-import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorFreshnessMetadataWithClockLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
@@ -21,6 +13,9 @@ import {
   SPONSOR_DASHBOARD_PAGE_TITLE,
   executiveDashboardPageSubtitle,
 } from "@/lib/sponsor-dashboard-page-copy";
+import { ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-sponsor-dashboard-evidence-copy";
+
+import { SponsorDashboardHeaderActions } from "./SponsorDashboardHeaderActions";
 
 export type SponsorDashboardPageHeroProps = {
   readonly dashboardEmpty: boolean;
@@ -30,7 +25,6 @@ export type SponsorDashboardPageHeroProps = {
 export function SponsorDashboardPageHero({
   dashboardEmpty,
 }: SponsorDashboardPageHeroProps): React.JSX.Element {
-  const v = BUYER_SPONSOR_SUMMARY_VOCABULARY;
   const { refreshing, lastRefreshedAt, refreshDashboard } = useSponsorDashboardData();
 
   const freshnessLabel = refreshing
@@ -51,32 +45,16 @@ export function SponsorDashboardPageHero({
         title={SPONSOR_DASHBOARD_PAGE_TITLE}
         titleTestId="sponsor-report-heading"
         subtitle={executiveDashboardPageSubtitle()}
+        claimDiscipline={ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="architecture-sponsor-dashboard-claim-discipline"
         actions={
-          <div className="flex flex-wrap items-center gap-2" data-testid="sponsor-dashboard-hero-actions">
-            <PageContextualHelpButton />
-            <RefreshButton
-              data-testid="sponsor-dashboard-refresh-button"
-              busy={refreshing}
-              onClick={() => {
-                void refreshDashboard();
-              }}
-            />
-            {dashboardEmpty ? (
-              <Button variant="primary" size="sm" asChild>
-                <Link href="/architecture/reviews/new" className="no-underline" data-testid="sponsor-dashboard-hero-start-review">
-                  {v.emptyStatePrimaryAction}
-                </Link>
-              </Button>
-            ) : (
-              <Link
-                href={v.portfolioPageLearnMoreHref}
-                className={OPERATOR_LINK.optional}
-                data-testid="sponsor-dashboard-hero-learn-more"
-              >
-                {v.portfolioPageLearnMoreLabel}
-              </Link>
-            )}
-          </div>
+          <SponsorDashboardHeaderActions
+            dashboardEmpty={dashboardEmpty}
+            refreshing={refreshing}
+            onRefresh={() => {
+              void refreshDashboard();
+            }}
+          />
         }
         metadata={
           <OperatorPageFreshnessMetadata

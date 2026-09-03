@@ -107,9 +107,9 @@ export function RecommendationLearningWeightTable(props: { readonly deltas: Reco
           <EnterpriseTableRow key={`${row.featureGroup}:${row.feature}`}>
             <EnterpriseTableCell>{row.featureGroup}</EnterpriseTableCell>
             <EnterpriseTableCell className="font-mono">{row.feature}</EnterpriseTableCell>
-            <EnterpriseTableCell className="font-mono">{row.currentWeight.toFixed(3)}</EnterpriseTableCell>
-            <EnterpriseTableCell className="font-mono">{row.proposedWeight.toFixed(3)}</EnterpriseTableCell>
-            <EnterpriseTableCell className="font-mono">{row.absoluteDelta.toFixed(3)}</EnterpriseTableCell>
+            <EnterpriseTableCell className="font-mono">{Number(row.currentWeight ?? 0).toFixed(3)}</EnterpriseTableCell>
+            <EnterpriseTableCell className="font-mono">{Number(row.proposedWeight ?? 0).toFixed(3)}</EnterpriseTableCell>
+            <EnterpriseTableCell className="font-mono">{Number(row.absoluteDelta ?? 0).toFixed(3)}</EnterpriseTableCell>
             <EnterpriseTableCell>{row.observationCount}</EnterpriseTableCell>
           </EnterpriseTableRow>
         ))}

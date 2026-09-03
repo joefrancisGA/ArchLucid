@@ -1,16 +1,14 @@
 using System.Data;
-using System.Text.Json;
 
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Repositories;
 
 namespace ArchLucid.Decisioning.Repositories;
 
 public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 {
-    private const int MaxEntries = 500;
     private readonly Lock _lock = new();
 
     private readonly List<DecisionTraceDto> _store = [];
@@ -21,10 +19,7 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        ArgumentNullException.ThrowIfNull(trace);
-
-        if (trace is not RuleAuditTraceDto)
-            throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
+        DecisionTraceRepositoryCore.RequireRuleAudit(trace);
 
         ct.ThrowIfCancellationRequested();
         _ = connection;
@@ -32,10 +27,8 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 
         lock (_lock)
         {
-            _store.Add(Clone(trace));
-
-            if (_store.Count > MaxEntries)
-                _store.RemoveRange(0, _store.Count - MaxEntries);
+            _store.Add(DecisionTraceRepositoryCore.Clone(trace));
+            DecisionTraceRepositoryCore.TrimInMemoryEntries(_store);
         }
 
         return Task.CompletedTask;
@@ -46,22 +39,11 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         ct.ThrowIfCancellationRequested();
         lock (_lock)
         {
-            DecisionTraceDto? result = _store.FirstOrDefault(x =>
-                x is RuleAuditTraceDto rat &&
-                rat.RuleAudit.DecisionTraceId == decisionTraceId &&
-                rat.RuleAudit.TenantId == scope.TenantId &&
-                rat.RuleAudit.WorkspaceId == scope.WorkspaceId &&
-                rat.RuleAudit.ProjectId == scope.ProjectId);
+            DecisionTraceDto? result = _store.FirstOrDefault(trace =>
+                trace is RuleAuditTraceDto ruleAuditTrace
+                && DecisionTraceRepositoryCore.MatchesIdAndScope(ruleAuditTrace, scope, decisionTraceId));
 
-            return Task.FromResult(result is null ? null : Clone(result));
+            return Task.FromResult(result is null ? null : DecisionTraceRepositoryCore.Clone(result));
         }
-    }
-
-    private static DecisionTraceDto Clone(DecisionTraceDto source)
-    {
-        string json = JsonSerializer.Serialize(source, ContractJson.Default);
-        DecisionTraceDto? copy = JsonSerializer.Deserialize<DecisionTraceDto>(json, ContractJson.Default);
-
-        return copy ?? throw new InvalidOperationException("Clone produced null DecisionTraceDto.");
     }
 }

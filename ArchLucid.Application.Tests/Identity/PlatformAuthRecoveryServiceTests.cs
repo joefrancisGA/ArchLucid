@@ -157,7 +157,7 @@ public sealed class PlatformAuthRecoveryServiceTests
             },
             CancellationToken.None);
 
-        AuthSignInRoutingService routing = new(
+        AuthSignInRoutingService routing = AuthSignInRoutingServiceTestSupport.Create(
             domains,
             new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
             idpConfigs,

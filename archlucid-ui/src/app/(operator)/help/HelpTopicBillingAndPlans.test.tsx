@@ -386,7 +386,7 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(screen.queryByTestId("help-billing-last-refreshed")).toBeNull();
   });
 
-  it("uses keyboard-operable FAQ accordions with expand affordance", async () => {
+  it("renders FAQ answers without accordion disclosure", async () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
@@ -394,15 +394,8 @@ describe("HelpBillingAndPlansGuideView", () => {
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const firstFaq = screen.getByTestId("help-billing-faq-trial-ends");
-    const summary = within(firstFaq).getByText("What happens when my trial ends?");
 
-    expect(summary.tagName.toLowerCase()).toBe("span");
-    expect(firstFaq.tagName.toLowerCase()).toBe("details");
-    expect(within(firstFaq).getByText(/choose a paid plan/i)).not.toBeVisible();
-    expect(firstFaq.querySelector("svg")).toBeInTheDocument();
-
-    fireEvent.click(summary);
-
+    expect(firstFaq.tagName.toLowerCase()).toBe("div");
     expect(within(firstFaq).getByText(/choose a paid plan/i)).toBeVisible();
   });
 

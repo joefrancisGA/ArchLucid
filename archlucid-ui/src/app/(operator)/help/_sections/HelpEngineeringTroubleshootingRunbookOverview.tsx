@@ -1,4 +1,4 @@
-import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { HelpStaticSection } from "@/components/help/HelpStaticSection";
 
 import {
 
@@ -116,14 +116,10 @@ export function HelpEngineeringTroubleshootingRunbookOverview(
 
 
 
-      <CollapsibleSection
-
+      <HelpStaticSection
         title={ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_TITLE}
-
-        summaryLine={ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_INTRO}
-
-        sectionTestId="help-engineering-troubleshooting-runbook-source-paths"
-
+        intro={ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_INTRO}
+        testId="help-engineering-troubleshooting-runbook-source-paths"
       >
 
         <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
@@ -136,7 +132,7 @@ export function HelpEngineeringTroubleshootingRunbookOverview(
 
         </ul>
 
-      </CollapsibleSection>
+      </HelpStaticSection>
 
     </section>
 

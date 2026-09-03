@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -19,43 +18,13 @@ namespace ArchLucid.Persistence.Alerts;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connectionFactory) : IAlertRecordRepository
 {
-    private const string SelectColumns = """
-        AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
-        RunId, ComparedToRunId, RecommendationId,
-        Title, Category, Severity, Status,
-        TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
-        AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
-        DeduplicationKey, IsArchived
-        """;
-
     /// <inheritdoc />
     public async Task CreateAsync(AlertRecord alert, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(alert);
 
-        const string sql = """
-            INSERT INTO dbo.AlertRecords
-            (
-                AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
-                RunId, ComparedToRunId, RecommendationId,
-                Title, Category, Severity, Status,
-                TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
-                AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
-                DeduplicationKey, IsArchived
-            )
-            VALUES
-            (
-                @AlertId, @RuleId, @TenantId, @WorkspaceId, @ProjectId,
-                @RunId, @ComparedToRunId, @RecommendationId,
-                @Title, @Category, @Severity, @Status,
-                @TriggerValue, @Description, @CreatedUtc, @LastUpdatedUtc,
-                @AcknowledgedByUserId, @AcknowledgedByUserName, @ResolutionComment,
-                @DeduplicationKey, @IsArchived
-            );
-            """;
-
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, alert, cancellationToken: ct));
+        await connection.ExecuteAsync(new CommandDefinition(AlertRecordRepositoryCore.InsertSql, alert, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -63,52 +32,31 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
     {
         ArgumentNullException.ThrowIfNull(alert);
 
-        const string sql = """
-            UPDATE dbo.AlertRecords
-            SET
-                Status = @Status,
-                LastUpdatedUtc = @LastUpdatedUtc,
-                AcknowledgedByUserId = @AcknowledgedByUserId,
-                AcknowledgedByUserName = @AcknowledgedByUserName,
-                ResolutionComment = @ResolutionComment
-            WHERE AlertId = @AlertId;
-            """;
-
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, alert, cancellationToken: ct));
+        await connection.ExecuteAsync(new CommandDefinition(AlertRecordRepositoryCore.UpdateStatusSql, alert, cancellationToken: ct));
     }
 
     /// <inheritdoc />
     public async Task ArchiveAsync(Guid alertId, CancellationToken ct)
     {
-        const string sql = """
-            UPDATE dbo.AlertRecords
-            SET IsArchived = 1,
-                LastUpdatedUtc = @LastUpdatedUtc
-            WHERE AlertId = @AlertId;
-            """;
-
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(
-            sql,
+            AlertRecordRepositoryCore.ArchiveSql,
             new { AlertId = alertId, LastUpdatedUtc = TimeProvider.System.UtcNowDateTime() },
             cancellationToken: ct));
     }
 
     public async Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
     {
-        const string sql = $"""
-            SELECT {SelectColumns}
+        string sql = $"""
+            SELECT {AlertRecordRepositoryCore.SelectColumns}
             FROM dbo.AlertRecords
             WHERE AlertId = @AlertId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRecord>(
-            new CommandDefinition(sql, new
-            {
-                AlertId = alertId
-            }, cancellationToken: ct));
+            new CommandDefinition(sql, new { AlertId = alertId }, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -119,15 +67,15 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         string deduplicationKey,
         CancellationToken ct)
     {
-        const string sql = $"""
-            SELECT TOP 1 {SelectColumns}
+        string sql = $"""
+            SELECT TOP 1 {AlertRecordRepositoryCore.SelectColumns}
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
               AND DeduplicationKey = @DeduplicationKey
               AND IsArchived = 0
-              AND Status IN ('Open', 'Acknowledged')
+              AND Status IN ('{AlertStatus.Open}', '{AlertStatus.Acknowledged}')
             ORDER BY CreatedUtc DESC;
             """;
 
@@ -155,8 +103,8 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         bool includeArchived = false,
         CancellationToken ct = default)
     {
-        const string sql = $"""
-            SELECT TOP (@Take) {SelectColumns}
+        string sql = $"""
+            SELECT TOP (@Take) {AlertRecordRepositoryCore.SelectColumns}
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -197,8 +145,8 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         take = AlertRecordRepositoryCore.ClampPagedTake(take);
         skip = AlertRecordRepositoryCore.ClampPagedSkip(skip);
 
-        const string pageSql = $"""
-            SELECT {SelectColumns}
+        string pageSql = $"""
+            SELECT {AlertRecordRepositoryCore.SelectColumns}
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -209,7 +157,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
             """;
 
-        const string batchSql = """
+        string batchSql = """
             SELECT COUNT(*)
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
@@ -260,8 +208,8 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         int safeTake = AlertRecordRepositoryCore.ClampKeysetTake(take);
         int fetch = safeTake + 1;
 
-        const string sql = $"""
-            SELECT {SelectColumns}
+        string sql = $"""
+            SELECT {AlertRecordRepositoryCore.SelectColumns}
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -316,27 +264,10 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         Guid projectId,
         CancellationToken ct = default)
     {
-        const string sql = """
-            SELECT
-                ISNULL(SUM(CASE WHEN Status = N'Open' THEN 1 ELSE 0 END), 0) AS OpenCount,
-                ISNULL(SUM(CASE WHEN Status = N'Acknowledged' THEN 1 ELSE 0 END), 0) AS AcknowledgedCount,
-                ISNULL(SUM(CASE WHEN Status = N'Resolved' THEN 1 ELSE 0 END), 0) AS ResolvedCount,
-                ISNULL(SUM(CASE
-                    WHEN Status = N'Open' AND Severity IN (N'Critical', N'High') THEN 1
-                    ELSE 0
-                END), 0) AS BlockingCount,
-                MAX(COALESCE(LastUpdatedUtc, CreatedUtc)) AS LastEvaluatedUtc
-            FROM dbo.AlertRecords
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-              AND IsArchived = 0;
-            """;
-
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         AlertsInboxSummaryDto? row = await connection.QuerySingleOrDefaultAsync<AlertsInboxSummaryDto>(
             new CommandDefinition(
-                sql,
+                AlertRecordRepositoryCore.InboxSummarySql,
                 new
                 {
                     TenantId = tenantId,
