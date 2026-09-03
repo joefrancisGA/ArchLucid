@@ -2,7 +2,7 @@
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -22,6 +22,12 @@ import {
   sortGovernanceAssignedToMeQueueRows,
   type GovernanceAssignedToMeQueueSortKey,
 } from "@/lib/governance/governance-assigned-to-me-queue-sort";
+import {
+  governanceAssignedToMeSortHrefFromSearch,
+  parseGovernanceAssignedToMeSortAscFromSearch,
+  parseGovernanceAssignedToMeSortKeyFromSearch,
+} from "@/lib/governance/governance-assigned-to-me-queue-sort-url";
+import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 
 import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
@@ -46,6 +52,7 @@ export type GovernanceFindingsQueueDesktopTableProps = {
   readonly onRowOpened?: (row: GovernanceFindingQueueRow) => void;
   /** When set, Enter/row activation opens the triage panel instead of navigating away from the queue. */
   readonly onActivateRow?: (row: GovernanceFindingQueueRow, index: number) => void;
+  readonly showInsightDensityScore?: boolean;
 };
 
 /** Carbon-style desktop queue for architecture risks and recorded decisions (md+). */
@@ -62,12 +69,26 @@ export function GovernanceFindingsQueueDesktopTable(
     isRowNewSinceLastVisit,
     onRowOpened,
     onActivateRow,
+    showInsightDensityScore = false,
   } = props;
   const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH;
+  const searchParams = useSearchParams();
+  const urlSortKey = parseGovernanceAssignedToMeSortKeyFromSearch(searchParams.get("sort"));
+  const urlSortAsc = parseGovernanceAssignedToMeSortAscFromSearch(searchParams.get("dir"));
   const scrollParentRef = useRef<HTMLDivElement>(null);
   const [assignedToMeSortKey, setAssignedToMeSortKey] =
-    useState<GovernanceAssignedToMeQueueSortKey>("severity");
-  const [assignedToMeSortAsc, setAssignedToMeSortAsc] = useState(true);
+    useState<GovernanceAssignedToMeQueueSortKey>(urlSortKey);
+  const [assignedToMeSortAsc, setAssignedToMeSortAsc] = useState(urlSortAsc);
+
+  useEffect(() => {
+    setAssignedToMeSortKey(urlSortKey);
+  }, [urlSortKey]);
+
+  useEffect(() => {
+    setAssignedToMeSortAsc(urlSortAsc);
+  }, [urlSortAsc]);
+
   const displayRows = useMemo(() => {
     if (queueMode !== "assigned-to-me") {
       return rows;
@@ -117,13 +138,22 @@ export function GovernanceFindingsQueueDesktopTable(
   }, [keyboardNav.focusedRowIndex, rowVirtualizer, useVirtualization]);
 
   function toggleAssignedToMeSort(nextSortKey: GovernanceAssignedToMeQueueSortKey): void {
+    const nextAsc =
+      assignedToMeSortKey === nextSortKey
+        ? !assignedToMeSortAsc
+        : nextSortKey === "title" || nextSortKey === "sourceReview";
+
     if (assignedToMeSortKey === nextSortKey) {
-      setAssignedToMeSortAsc((current) => !current);
-      return;
+      setAssignedToMeSortAsc(nextAsc);
+    } else {
+      setAssignedToMeSortKey(nextSortKey);
+      setAssignedToMeSortAsc(nextAsc);
     }
 
-    setAssignedToMeSortKey(nextSortKey);
-    setAssignedToMeSortAsc(nextSortKey === "title" || nextSortKey === "sourceReview");
+    router.replace(
+      governanceAssignedToMeSortHrefFromSearch(searchParams.toString(), nextSortKey, nextAsc, pathname),
+      { scroll: false },
+    );
   }
 
   function toggleRow(findingId: string) {
@@ -203,6 +233,7 @@ export function GovernanceFindingsQueueDesktopTable(
     isRowNewSinceLastVisit,
     onRowOpened,
     ariaRowCount: useVirtualization ? ariaRowCount : undefined,
+    showInsightDensityScore,
   };
 
   return (

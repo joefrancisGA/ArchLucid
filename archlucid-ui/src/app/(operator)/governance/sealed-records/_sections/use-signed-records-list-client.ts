@@ -20,6 +20,10 @@ import {
   parseSignedRecordsListIntegrityFilter,
   signedRecordsListIntegrityHrefFromSearch,
 } from "@/lib/signed-records/signed-records-list-integrity-url";
+import {
+  parseSignedRecordsListSearchQuery,
+  signedRecordsListSearchHrefFromSearch,
+} from "@/lib/signed-records/signed-records-list-search";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import {
   resolveSignedRecordsFilterEmphasizedStepId,
@@ -94,6 +98,7 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   const scopedRunFilterActive = scopedRunId.length > 0;
   const urlDateRange = parseSignedRecordsListDateRangeFromSearch(searchParams.get("range"));
   const urlIntegrity = parseSignedRecordsListIntegrityFilter(searchParams.get("integrity"));
+  const urlSearchQuery = parseSignedRecordsListSearchQuery(searchParams.get("q"));
 
   const [rows, setRows] = useState<readonly SignedRecordsListRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,7 +109,7 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   const [retryingRunId, setRetryingRunId] = useState<string | null>(null);
   const [retryFailedRunId, setRetryFailedRunId] = useState<string | null>(null);
   const [retrySucceededRunId, setRetrySucceededRunId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [integrityFilter, setIntegrityFilter] = useState<SignedRecordsListIntegrityFilter>(urlIntegrity);
   const [dateRangePreset, setDateRangePreset] = useState<SignedRecordsListDateRangePreset | null>(urlDateRange);
   const [page, setPage] = useState(1);
@@ -128,6 +133,24 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   useEffect(() => {
     setDateRangePreset(urlDateRange);
   }, [urlDateRange]);
+
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = signedRecordsListSearchHrefFromSearch(searchParams.toString(), searchQuery);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [router, searchParams, searchQuery]);
 
   const onPickReviewForFiltering = useCallback(
     (reviewId: string) => {
@@ -314,9 +337,12 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     setIntegrityFilter("all");
     setDateRangePreset(null);
     router.replace(
-      signedRecordsListDateRangeHrefFromSearch(
-        signedRecordsListIntegrityHrefFromSearch(searchParams.toString(), "all"),
-        null,
+      signedRecordsListSearchHrefFromSearch(
+        signedRecordsListDateRangeHrefFromSearch(
+          signedRecordsListIntegrityHrefFromSearch(searchParams.toString(), "all"),
+          null,
+        ),
+        "",
       ),
       { scroll: false },
     );

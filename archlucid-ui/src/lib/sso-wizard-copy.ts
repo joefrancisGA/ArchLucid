@@ -5,6 +5,13 @@ export const SSO_WIZARD_PAGE_TITLE = "Configure single sign-on";
 export const SSO_WIZARD_PAGE_INTRO =
   "Record and verify your organization's identity provider configuration and role mapping for every workspace in this organization.";
 
+export const SSO_WIZARD_PAGE_SUBTITLE_BUYER =
+  "Set up and verify your organization's SSO configuration and role mapping before enabling sign-in for all users." as const;
+
+export function ssoWizardPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? SSO_WIZARD_PAGE_SUBTITLE_BUYER : SSO_WIZARD_PAGE_INTRO;
+}
+
 export const SSO_WIZARD_CONFIGURATION_EFFECT_LINE_PREFIX =
   "Saving configuration writes your verified identity provider settings and role mapping to the identity provider record for every workspace in this organization. It does not change how anyone signs in today — turning on SSO sign-in is a";
 

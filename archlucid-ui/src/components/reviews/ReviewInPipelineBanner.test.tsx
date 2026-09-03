@@ -17,6 +17,20 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("reviewTab=findings"),
 }));
 
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: "guided",
+    mounted: true,
+    accountSyncState: "synced",
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  }),
+}));
+
+vi.mock("@/hooks/use-review-workbench-shortcuts", () => ({
+  useReviewWorkbenchShortcuts: vi.fn(),
+}));
+
 const inPipelineSummary: RunSummary = {
   runId: "run-abc",
   projectId: "default",

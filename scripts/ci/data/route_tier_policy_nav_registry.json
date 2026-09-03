@@ -2112,6 +2112,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "User/UserAttentionSummaryController.cs",
+      "class_name": "UserAttentionSummaryController",
+      "route_template": "v{version:apiVersion}/user/attention-summary",
+      "normalized_prefix": "/v1/user/attention-summary",
+      "commercial_tier": "standard",
+      "class_policy": "AuthenticatedUserOnly",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "User/UserPreferencesController.cs",
       "class_name": "UserPreferencesController",
       "route_template": "v{version:apiVersion}/user/preferences",

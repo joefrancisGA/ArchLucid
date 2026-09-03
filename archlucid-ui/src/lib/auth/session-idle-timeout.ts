@@ -1,7 +1,12 @@
 /** Enterprise idle timeout — must stay aligned with {@link SessionIdleTimeoutGuard}. */
 export const SESSION_IDLE_TIMEOUT_MS = 60 * 60 * 1000;
 
+/** Working-mode professionals often read on projector or in meetings — longer ceiling. */
+export const SESSION_IDLE_WORKING_TIMEOUT_MS = 4 * 60 * 60 * 1000;
+
 export const SESSION_IDLE_TIMEOUT_MINUTES = SESSION_IDLE_TIMEOUT_MS / (60 * 1000);
+
+export const SESSION_IDLE_WORKING_TIMEOUT_MINUTES = SESSION_IDLE_WORKING_TIMEOUT_MS / (60 * 1000);
 
 /** Interval while tab is focused — counts as activity for reading sessions. */
 export const SESSION_IDLE_FOCUS_HEARTBEAT_MS = 60 * 1000;
@@ -20,6 +25,14 @@ export const SESSION_CLEARED_AT_STORAGE_KEY = "archlucid.session.clearedAt";
 
 /** Broadcast channel for cross-tab idle coordination. */
 export const SESSION_IDLE_BROADCAST_CHANNEL = "archlucid.session.idle";
+
+export function resolveSessionIdleTimeoutMs(workingMode: boolean): number {
+  if (workingMode) {
+    return SESSION_IDLE_WORKING_TIMEOUT_MS;
+  }
+
+  return SESSION_IDLE_TIMEOUT_MS;
+}
 
 export function readSharedSessionLastActivityAtMs(): number {
   if (typeof window === "undefined") {
@@ -59,8 +72,12 @@ export function writeSharedSessionLastActivityAt(nowMs: number = Date.now()): vo
   }
 }
 
-export function remainingSessionIdleMs(lastActivityAtMs: number, nowMs: number = Date.now()): number {
+export function remainingSessionIdleMs(
+  lastActivityAtMs: number,
+  nowMs: number = Date.now(),
+  idleTimeoutMs: number = SESSION_IDLE_TIMEOUT_MS,
+): number {
   const elapsed = nowMs - lastActivityAtMs;
 
-  return Math.max(0, SESSION_IDLE_TIMEOUT_MS - elapsed);
+  return Math.max(0, idleTimeoutMs - elapsed);
 }

@@ -26,7 +26,7 @@ describe("ReversibleMutationSuccessCallout (TB-2148)", () => {
 
     expect(screen.getByText("Marked 2 finding(s) as accepted.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Undo" })).toBeInTheDocument();
-    expect(screen.getByText(`Available for ${MUTATION_UNDO_WINDOW_SECONDS} seconds`)).toBeInTheDocument();
+    expect(screen.getByText("Available for several minutes")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Undo" }));
 
