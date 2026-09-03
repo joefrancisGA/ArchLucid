@@ -27,7 +27,9 @@ import {
   CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
 } from "@/lib/connect-aws-securely-help-evidence-copy";
 import {
+  CONNECT_AWS_SECURELY_HELP_FIRST_VIEWPORT_TEST_ID,
   CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL,
+  CONNECT_AWS_SECURELY_HELP_SKIP_TARGET_ID,
 } from "@/lib/connect-aws-securely-help-page-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -42,22 +44,25 @@ describe("HelpConnectAwsSecurelyGuideView buyer-polished shell", () => {
     render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
 
     const skipLink = screen.getByRole("link", { name: CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL });
-    expect(skipLink).toHaveAttribute("href", "#security-model");
+    expect(skipLink).toHaveAttribute("href", `#${CONNECT_AWS_SECURELY_HELP_SKIP_TARGET_ID}`);
 
-    expect(screen.getByTestId("connect-aws-securely-help-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("connect-aws-securely-help-header-claim-discipline").textContent).toContain(
       CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByTestId("connect-aws-securely-help-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("connect-aws-securely-help-claim-discipline")).toBeNull();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
     expect(screen.queryByTestId("help-topic-print-button")).toBeNull();
     expect(screen.getByTestId("connect-aws-configure-action")).toBeInTheDocument();
 
+    const firstViewport = screen.getByTestId(CONNECT_AWS_SECURELY_HELP_FIRST_VIEWPORT_TEST_ID);
     const primaryContent = screen.getByTestId("help-connect-aws-securely-primary-content");
     const body = screen.getByTestId("help-connect-aws-securely-primary");
     const orientation = screen.getByTestId("connect-aws-securely-help-orientation");
 
-    expect(primaryContent).toContainElement(orientation);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(body.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

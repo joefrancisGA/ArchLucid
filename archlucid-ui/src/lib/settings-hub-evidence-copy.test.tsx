@@ -5,6 +5,7 @@ import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 import { SettingsHubEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-settings-strips";
 import {
   SETTINGS_HUB_CANONICAL_PATH,
+  SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING,
   SETTINGS_HUB_FOLLOW_UPS_TITLE,
   SETTINGS_HUB_SOURCES,
   SETTINGS_HUB_SOURCES_INTRO,
@@ -19,7 +20,8 @@ describe("settings-hub-evidence-copy", () => {
   it("renders operator Sources follow-ups without a self-href", () => {
     render(<SettingsHubEvidenceOrientationStrip />);
 
-    expect(screen.queryByTestId("settings-hub-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("settings-hub-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByText(SETTINGS_HUB_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("settings-hub-sources");
