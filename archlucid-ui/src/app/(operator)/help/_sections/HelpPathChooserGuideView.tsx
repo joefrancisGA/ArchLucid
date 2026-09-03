@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpPathChooserEvaluatorSessionStrip } from "@/app/(operator)/help/_sections/HelpPathChooserEvaluatorSessionStrip";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
@@ -206,13 +206,15 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
             data-testid="help-path-chooser-content"
             id="reference-detail"
           >
-            <HelpStaticSection
-              title="Buyer orientation reference (pass/hold, stop rules, deferred scope)"
-              testId="help-path-chooser-reference-appendix"
+            <HelpLazyDetails
               className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
+              data-testid="help-path-chooser-reference-appendix"
+              summaryClassName={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              summary="Buyer orientation reference (pass/hold, stop rules, deferred scope)"
               preface={
                 <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  Pass/hold tables and stop-rule detail for evaluator sessions.
+                  Collapsed by default so the first viewport stays an evaluator guide. Expand when you need pass/hold
+                  tables or stop-rule detail.
                 </p>
               }
               bodyClassName={cn("mt-4", HELP_PAGE_LAYOUT.contentColumn)}
@@ -225,7 +227,7 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
                 helpTopicSlug={entry.slug}
                 preparedMarkdownOverride={preparedMarkdown}
               />
-            </HelpStaticSection>
+            </HelpLazyDetails>
           </section>
         </div>
 

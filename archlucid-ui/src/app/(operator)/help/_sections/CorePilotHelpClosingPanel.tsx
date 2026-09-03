@@ -35,8 +35,9 @@ export function CorePilotHelpClosingPanel(): React.JSX.Element {
       </div>
 
       <div data-testid="core-pilot-help-orientation">
+        <h3 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Before you share externally</h3>
         <p
-          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="core-pilot-help-claim-discipline"
         >
           {CORE_PILOT_HELP_CLAIM_DISCIPLINE}

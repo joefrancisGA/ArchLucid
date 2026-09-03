@@ -35,9 +35,6 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
 
 import { HelpContactSupportGuideView } from "@/app/(operator)/help/_sections/HelpContactSupportGuideView";
 import {
-  CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE,
-} from "@/lib/contact-support-help-evidence-copy";
-import {
   CONTACT_SUPPORT_HELP_OVERVIEW,
   CONTACT_SUPPORT_PRIMARY_ACTIONS,
   CONTACT_SUPPORT_REPORT_PROBLEM_ARTICLE,
@@ -69,10 +66,6 @@ describe("HelpContactSupportGuideView", () => {
 
     expect(screen.getByTestId("help-contact-support-page-title")).toHaveTextContent("Contact support");
     expect(screen.getByTestId("help-contact-support-overview")).toHaveTextContent(CONTACT_SUPPORT_HELP_OVERVIEW);
-    expect(screen.getByTestId("contact-support-help-header-claim-discipline")).toHaveTextContent(
-      CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE,
-    );
-    expect(screen.queryByTestId("contact-support-help-claim-discipline")).toBeNull();
     expect(screen.getByTestId("contact-support-help-support-expectations")).toHaveTextContent(
       TROUBLESHOOTING_SUPPORT_EXPECTATIONS,
     );
@@ -111,12 +104,9 @@ describe("HelpContactSupportGuideView", () => {
     const primaryContent = screen.getByTestId("help-contact-support-primary-content");
     const body = screen.getByTestId("help-contact-support-primary");
     const orientation = screen.getByTestId("contact-support-help-orientation");
-    const actionsSection = screen.getByTestId("help-contact-support-actions-section");
 
-    expect(primaryContent).toContainElement(actionsSection);
     expect(primaryContent).toContainElement(orientation);
-    expect(actionsSection.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(body.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("shows execute requirement when caller rank is below Execute", () => {

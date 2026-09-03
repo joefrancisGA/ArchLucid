@@ -11,23 +11,20 @@ export function provenanceLinkageToGraphViewModel(
   graph: ArchitectureRunProvenanceGraph,
   options?: ProvenanceVmOptions,
 ): GraphViewModel {
-  const nodes = graph.nodes ?? [];
-  const edges = graph.edges ?? [];
-
   const base: GraphViewModel = {
-    nodes: nodes.map((n) => ({
+    nodes: graph.nodes.map((n) => ({
       id: n.id,
       label: n.name,
       type: n.type,
       metadata: { ...(n.metadata ?? {}), referenceId: n.referenceId },
     })),
-    edges: edges.map((e) => ({
+    edges: graph.edges.map((e) => ({
       source: e.fromNodeId,
       target: e.toNodeId,
       type: e.type,
     })),
-    nodeCount: nodes.length,
-    edgeCount: edges.length,
+    nodeCount: graph.nodes.length,
+    edgeCount: graph.edges.length,
   };
 
   if (options?.buyerFacingLabels === true) {

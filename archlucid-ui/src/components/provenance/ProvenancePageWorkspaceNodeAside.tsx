@@ -10,19 +10,15 @@ import {
   provenanceNodeDisplayName,
   provenanceNodeTypeLabel,
 } from "@/lib/provenance-node-presentation";
-import type {
-  ArchitectureLinkageEdges,
-  ArchitectureLinkageNodes,
-  NormalizedArchitectureRunProvenanceGraph,
-} from "@/types/architecture-provenance";
+import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
-type ProvenanceGraphNode = ArchitectureLinkageNodes[number];
-type ProvenanceGraphEdge = ArchitectureLinkageEdges[number];
+type ProvenanceGraphNode = ArchitectureRunProvenanceGraph["nodes"][number];
+type ProvenanceGraphEdge = ArchitectureRunProvenanceGraph["edges"][number];
 
 export type ProvenancePageWorkspaceNodeAsideProps = {
   readonly runId: string;
   readonly selectedNode: ProvenanceGraphNode;
-  readonly graphNodes: ArchitectureLinkageNodes;
+  readonly graphNodes: ArchitectureRunProvenanceGraph["nodes"];
   readonly nodeById: Map<string, ProvenanceGraphNode>;
   readonly incomingEdges: ProvenanceGraphEdge[];
   readonly outgoingEdges: ProvenanceGraphEdge[];

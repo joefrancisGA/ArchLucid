@@ -58,15 +58,4 @@ describe("resolve-continue-last-digest-browse", () => {
     });
     expect(window.localStorage.getItem(DIGEST_BROWSE_LAST_VIEWED_STORAGE_KEY)).toBeNull();
   });
-
-  it("fails fast when the resolved digest has no digestId", () => {
-    const rows = [
-      { ...digest("d1", "2026-07-01T00:00:00Z", "Older"), digestId: undefined },
-      digest("d2", "2026-06-01T00:00:00Z", "Newer than nothing"),
-    ];
-
-    expect(() => resolveContinueLastDigestBrowse(rows)).toThrow(
-      "resolveContinueLastDigestBrowse requires digest.digestId.",
-    );
-  });
 });

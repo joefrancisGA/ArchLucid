@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import {
   useCallback,
   useState,
@@ -62,17 +63,29 @@ function BillingFaqItemCard(props: { readonly item: BillingHelpFaqItem }): React
   const { item } = props;
 
   return (
-    <div
+    <details
       id={item.id}
       className={cn(
-        "rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950",
+        "group rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm open:shadow-md dark:border-neutral-800 dark:bg-neutral-950",
         OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
       )}
       data-testid={`help-billing-faq-${item.id}`}
     >
-      <h3 className={cn("m-0 font-medium text-al-text-primary", HELP_PAGE_LAYOUT.readingBody)}>{item.question}</h3>
+      <summary
+        className={cn(
+          "flex cursor-pointer list-none items-start justify-between gap-3 marker:content-none [&::-webkit-details-marker]:hidden",
+          HELP_PAGE_LAYOUT.readingBody,
+          "font-medium text-al-text-primary",
+        )}
+      >
+        <span className="font-medium text-al-text-primary">{item.question}</span>
+        <ChevronDown
+          className="mt-0.5 h-4 w-4 shrink-0 text-neutral-500 transition-transform group-open:rotate-180 dark:text-neutral-400"
+          aria-hidden
+        />
+      </summary>
       <p className={cn("m-0 mt-3 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>{item.answer}</p>
-    </div>
+    </details>
   );
 }
 

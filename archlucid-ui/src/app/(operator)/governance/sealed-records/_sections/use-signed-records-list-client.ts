@@ -13,11 +13,6 @@ import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-
 import { resolveContinueLastSignedRecordsListRow } from "@/lib/resolve-continue-last-signed-record";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import {
-  parseSignedRecordsListSearchQuery,
-  signedRecordsListSearchHrefFromSearch,
-  SIGNED_RECORDS_LIST_SEARCH_PARAM,
-} from "@/lib/signed-records/signed-records-list-search";
-import {
   resolveSignedRecordsFilterEmphasizedStepId,
   resolveSignedRecordsFilterSteps,
 } from "@/lib/signed-records-filter-checklist";
@@ -31,10 +26,7 @@ import {
   SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX,
 } from "./signed-records-list-copy";
 import { buildSignedRecordsListRowsFromRuns, type SignedRecordsListRow } from "./signed-records-list-row";
-import {
-  parseSignedRecordsListIntegrityFilter,
-  type SignedRecordsListIntegrityFilter,
-} from "@/lib/signed-records/signed-records-list-integrity-url";
+import type { SignedRecordsListIntegrityFilter } from "./SignedRecordsListToolbar";
 
 const SIGNED_RECORDS_LIST_PAGE_SIZE = 100;
 
@@ -53,6 +45,7 @@ export type UseSignedRecordsListClientResult = {
   readonly searchQuery: string;
   readonly setSearchQuery: Dispatch<SetStateAction<string>>;
   readonly integrityFilter: SignedRecordsListIntegrityFilter;
+  readonly setIntegrityFilter: Dispatch<SetStateAction<SignedRecordsListIntegrityFilter>>;
   readonly page: number;
   readonly cursor: string;
   readonly hasMore: boolean;
@@ -87,8 +80,6 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
-  const urlSearchQuery = parseSignedRecordsListSearchQuery(searchParams.get(SIGNED_RECORDS_LIST_SEARCH_PARAM));
-  const urlIntegrityFilter = parseSignedRecordsListIntegrityFilter(searchParams.get("integrity"));
 
   const [rows, setRows] = useState<readonly SignedRecordsListRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,8 +90,8 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   const [retryingRunId, setRetryingRunId] = useState<string | null>(null);
   const [retryFailedRunId, setRetryFailedRunId] = useState<string | null>(null);
   const [retrySucceededRunId, setRetrySucceededRunId] = useState<string | null>(null);
-  const [searchQuery, setSearchQueryState] = useState(urlSearchQuery);
-  const integrityFilter = urlIntegrityFilter;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [integrityFilter, setIntegrityFilter] = useState<SignedRecordsListIntegrityFilter>("all");
   const [page, setPage] = useState(1);
   const [cursor, setCursor] = useState("");
   const [cursorHistory, setCursorHistory] = useState<readonly string[]>([]);
@@ -114,31 +105,6 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   useEffect(() => () => {
     mountedRef.current = false;
   }, []);
-
-  useEffect(() => {
-    setSearchQueryState(urlSearchQuery);
-  }, [urlSearchQuery]);
-
-  useEffect(() => {
-    const handle = window.setTimeout(() => {
-      const nextHref = signedRecordsListSearchHrefFromSearch(searchParams.toString(), searchQuery);
-
-      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-        router.replace(nextHref, { scroll: false });
-      }
-    }, 250);
-
-    return () => {
-      window.clearTimeout(handle);
-    };
-  }, [router, searchParams, searchQuery]);
-
-  const setSearchQuery = useCallback(
-    (value: SetStateAction<string>): void => {
-      setSearchQueryState(value);
-    },
-    [],
-  );
 
   const onPickReviewForFiltering = useCallback(
     (reviewId: string) => {
@@ -302,9 +268,9 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     setCursorHistory((history) => [...history, cursor]);
     setCursor(nextCursor);
     setPage((currentPage) => currentPage + 1);
-    setSearchQueryState("");
-    router.replace(signedRecordsListSearchHrefFromSearch(searchParams.toString(), ""), { scroll: false });
-  }, [cursor, nextCursor, router, searchParams]);
+    setSearchQuery("");
+    setIntegrityFilter("all");
+  }, [cursor, nextCursor]);
 
   const goToPreviousPage = useCallback(() => {
     if (cursorHistory.length === 0) {
@@ -316,19 +282,14 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     setCursorHistory((history) => history.slice(0, -1));
     setCursor(previousCursor);
     setPage((currentPage) => Math.max(1, currentPage - 1));
-    setSearchQueryState("");
-    router.replace(signedRecordsListSearchHrefFromSearch(searchParams.toString(), ""), { scroll: false });
-  }, [cursorHistory, router, searchParams]);
+    setSearchQuery("");
+    setIntegrityFilter("all");
+  }, [cursorHistory]);
 
   const clearFilters = useCallback(() => {
-    setSearchQueryState("");
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete(SIGNED_RECORDS_LIST_SEARCH_PARAM);
-    params.delete("integrity");
-    const nextQuery = params.toString();
-    const nextHref = nextQuery.length === 0 ? SIGNED_RECORDS_LIST_PATH : `${SIGNED_RECORDS_LIST_PATH}?${nextQuery}`;
-    router.replace(nextHref, { scroll: false });
-  }, [router, searchParams]);
+    setSearchQuery("");
+    setIntegrityFilter("all");
+  }, []);
 
   const hasRows = rows.length > 0;
   const isInitialLoad = loading && !hasRows;
@@ -380,6 +341,7 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     searchQuery,
     setSearchQuery,
     integrityFilter,
+    setIntegrityFilter,
     page,
     cursor,
     hasMore,
