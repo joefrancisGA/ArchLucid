@@ -731,4 +731,5 @@
 {"at":"2026-09-03T18:12:06.6491364Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-03T18:16:34.356382Z","zoneId":"tenant-scoped-analyzer","outcome":"hit"}
 {"at":"2026-09-03T18:21:20.5642667Z","zoneId":"security-analyzers","outcome":"hit"}
-{"at":"2026-09-03T18:25:16.1132230Z","zoneId":"security-analyzers","outcome":"hit"}
+{"at":"2026-09-03T18:25:16.113223Z","zoneId":"security-analyzers","outcome":"hit"}
+{"at":"2026-09-03T18:30:52.6165528Z","zoneId":"security-analyzers","outcome":"hit"}

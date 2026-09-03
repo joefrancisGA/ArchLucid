@@ -1486,11 +1486,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 6
-- **bugs-found:** 12
+- **hunts:** 7
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — ARCH001 duplicate/missed nested generic diagnostics; AL0001 ignored `[AllowAnonymous]` on overridden base actions
+- **last-bug:** 2026-09-03 — AL0003 missed mutating verbs on overridden controller actions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1510,6 +1510,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) ARCH001 emitted duplicate diagnostics when a generic had multiple banned type arguments — **hit 2026-09-03:** `AnalyzeGenericName` reported once per matching `TypeArguments` entry; fixed to emit a single diagnostic per generic; regression in `Reports_single_diagnostic_when_generic_has_multiple_banned_type_arguments`
 - [x] (proven) ARCH001 missed nested banned types inside generic type arguments — **hit 2026-09-03:** `IsOrUsesBannedType` did not recurse into `INamedTypeSymbol.TypeArguments`, so `Dictionary<string, List<IHttpContextAccessor>>` slipped through; fixed with recursive type-argument walk; regression in `Reports_nested_generic_type_argument_in_inner_layer_assembly`
 - [x] (proven) AL0001 ignored `[AllowAnonymous]` on overridden base helper — **hit 2026-09-03:** `RequireAuthorizationAnalyzer` checked auth attributes only on the derived `IMethodSymbol`, not `OverriddenMethod`; false-positive AL0001 on overrides; fixed by walking override chain; regression in `Does_not_report_AllowAnonymous_helper_inherited_from_base_method`
+- [x] (proven) AL0003 missed tracked HTTP verbs on overridden mutating actions — **hit 2026-09-03:** `MethodSpecifiesTrackedVerb` read only derived `IMethodSymbol` attributes, so `[HttpPost]` on a virtual base with an unaudited override skipped AL0003; fixed by walking `OverriddenMethod` and suppressing shadowed virtual bases; regressions in `AL0003_reports_when_overridden_action_inherits_HttpPost_from_base` and `AL0003_reports_when_override_adds_HttpPost_to_base_NonAction_helper`
+- [x] (valid-no-repro) `IHttpContextAccessor[]` array parameters — element-type `IdentifierName` already triggers ARCH001; no separate array-type gap
+- [x] (valid-no-repro) AL0001 `[Authorize]` on overridden base helper — already covered by `MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain`; regression in `Does_not_report_Authorize_helper_inherited_from_base_method`
 
 ---
 
