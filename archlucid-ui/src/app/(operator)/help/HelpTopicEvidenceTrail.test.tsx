@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
@@ -24,8 +24,15 @@ import { AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL } from "@/lib/empty-state-preset
 import { BUYER_EVIDENCE_TRAIL_LOAD_BUTTON } from "@/lib/buyer/buyer-polish-copy";
 import {
   EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE,
+  EVIDENCE_TRAIL_HELP_FOLLOW_UPS_TITLE,
   EVIDENCE_TRAIL_HELP_PRIMARY_ACTION,
+  EVIDENCE_TRAIL_HELP_SOURCES,
 } from "@/lib/evidence-trail-help-evidence-copy";
+import {
+  EVIDENCE_TRAIL_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+} from "@/lib/evidence-trail-help-page-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -112,10 +119,19 @@ describe("HelpEvidenceTrailGuideView (TB-1360–TB-1364)", () => {
       AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL,
     );
 
-    const claimDiscipline = screen.getByTestId("evidence-trail-help-claim-discipline");
+    const claimDiscipline = screen.getByTestId(EVIDENCE_TRAIL_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID);
 
     expect(claimDiscipline).toHaveTextContent(EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE);
     expect(claimDiscipline).toHaveTextContent("not a full audit export");
+    expect(screen.queryByTestId("evidence-trail-help-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: EVIDENCE_TRAIL_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+
+    const sourcesSection = screen.getByTestId("help-evidence-trail-sources");
+
+    for (const source of filterWhereToGoNextFollowUpLinks(EVIDENCE_TRAIL_HELP_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
 
     const exportActions = screen.getByTestId("help-topic-export-actions");
 
