@@ -2452,11 +2452,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 66
-- **bugs-found:** 127
+- **hunts:** 67
+- **bugs-found:** 129
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — simple-terraform scalar assignments ignored inline `//` comments (Bicep parity gap)
+- **last-bug:** 2026-09-03 — `TOP :` spaced prefix missed by topology hint extractor; array-object block comments parsed as live scalars
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2619,6 +2619,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SimpleTerraformResourceBlockParser` scalar assignments — inline `//` comments not stripped (Bicep parity gap) — **hit 2026-09-03 (#590):** `location = "eastus" // primary region` stored `tf.location = "eastus" // primary region` and false-modified infrastructure declaration deltas; fixed with `StripTrailingSlashSlashComment` and `StripTrailingBlockComment` before unquoting (`SimpleTerraformDeclarationParserTests.ParseAsync_InlineSlashSlashComment_DoesNotChangeTfLocation`, `InfrastructureDeclarationConnectorTests.DeltaAsync_SimpleTerraformInlineSlashSlashCommentChange_ReportsUnchanged`).
 
 2026-09-03 seed hunt #590: reseeded from simple-terraform vs Bicep scalar comment parity; proved missing `//`/`/* */` strip on HCL scalar values beyond #585 escaped-quote `#` fix.
+
+- [x] (proven) `PlainTextDocumentTopologyHintExtractor.EnumerateHintNames` — spaced `TOP :` prefix ignored — **hit 2026-09-03 (#598):** strict `StartsWith("TOP:")` missed `TOP : parentNet/childSubnet` while `PlainTextContextDocumentParser` already accepted optional whitespace before `:` via `TryGetPrefixedBody`; policy↔topology overlap never linked document-sourced hints; fixed by extracting shared `PlainTextDocumentPrefixedLine.TryGetPrefixedBody` (`EnumerateHintNames_SpacedPrefixBeforeColon_ExtractsTopologyHint`).
+- [x] (proven) `BicepArrayLiteralConverter.ParseObjectScalars` — block comments inside array objects not skipped — **hit 2026-09-03 (#598):** `ip_security_restrictions = [{ name = "AllowAll" /* ip_address = "1.1.1.1" */ }]` parsed commented-out `ip_address` as live scalar (body-level block-comment parity gap after #590); fixed with `TryConsumeBlockComment` in array-object scalar scan (`ParseAsync_IpSecurityRestrictionsArrayWithBlockCommentedProperty_DoesNotParseCommentedScalar`).
+
+2026-09-03 seed hunt #598: reseeded from plain-text topology hint extractor and array-literal converter; proved spaced `TOP :` prefix parity gap and array-object block-comment gap.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
