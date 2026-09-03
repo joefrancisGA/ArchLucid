@@ -22,7 +22,11 @@ export function digestsSchedulePageSubtitle(buyerPolishedShell: boolean): string
 
 export const DIGESTS_HUB_PRIMARY_CONTENT_ID = "digests-hub-primary-content" as const;
 
-export const DIGESTS_HUB_SKIP_LINK_LABEL = "Skip to architecture digests workspace" as const;
+export const DIGESTS_HUB_FIRST_VIEWPORT_ID = "digests-hub-first-viewport" as const;
+
+export const DIGESTS_HUB_SKIP_TARGET_ID = DIGESTS_HUB_FIRST_VIEWPORT_ID;
+
+export const DIGESTS_HUB_SKIP_LINK_LABEL = "Skip to digest workspace" as const;
 
 export const DIGESTS_SCHEDULE_TAB_LABEL = "Sponsor schedule" as const;
 
