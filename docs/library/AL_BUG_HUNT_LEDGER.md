@@ -1668,11 +1668,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` matched `disable public` inside optional-requirement phrasing (`no requirement to disable public network access`), emitting false premise-conflict signals
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — `FindingsMergeAndGateStage` dropped `GetMissingEngineTypeViolations` after pass-3 stage refactor
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1690,6 +1690,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` with negated intent phrases (`"do not disable public"`) — **hit 2026-09-02:** optional-requirement phrasing (`no requirement to disable public network access`) still matched `disable public`; extended negation suffix list; regression in `Classify_does_not_fire_private_network_conflict_for_optional_disable_public_phrase`.
 - [x] (valid-no-repro) `DeclarationPremiseConflictFindingEngine.ResolveApplicableIntentNodes` with PROTECTS/APPLIES_TO edge weight just below `GraphEdgeDecisioningThresholds.MinWeightForSemanticLink` — sub-threshold fallback at `minWeightInclusive: 0` keeps narrow applicability; `AnalyzeAsync_emits_error_when_protects_edge_weight_is_just_below_semantic_link_threshold` confirms Error severity.
 - [x] (valid-no-repro) `PortfolioRecurrenceFindingEngine.ResolveCurrentScopeIdentities` when the current system's persisted findings snapshot is empty on first pass — `IPortfolioRecurrenceCurrentReviewIdentitySource` plus `AddInFlightIdentitiesForSystem` merge in-flight identities; `AnalyzeAsync_when_current_snapshot_missing_uses_in_flight_identities` confirms recurrence emission.
+- [x] (proven) `FindingsMergeAndGateStage.ExecuteAsync` omitted `PolicyPackCategoryCoverageValidator.GetMissingEngineTypeViolations` — **hit 2026-09-03 (#577):** pass-3 stage refactor wired category coverage only; `RequiredEngineTypes` from pinned packs never produced `policy-pack-coverage` engine failures; fixed in merge stage; regression in `FindingsMergeAndGateStageTests.ExecuteAsync_adds_engine_failure_when_required_engine_type_did_not_succeed`; architecture guard retargeted to merge stage
+- [ ] (candidate) `RequirementCrossRunDiffFindingEngine` / `TopologyCrossRunDiffFindingEngine` with `PriorRunId` set but no prior graph snapshot id and no context prior-name properties — analyzers return empty prior lists and emit zero findings instead of fail-closed incomplete signal
+- [ ] (candidate) `DecisionRuleCriteriaEvaluator.TryEvaluate` value mismatch on present field paths — criteria value differs from finding payload but `missingContextFieldPaths` stays empty so `RuleBasedDecisionEngine` emits no audit warning
+- [ ] (candidate) `PolicyPackCategoryCoverageValidator.GetMissingCategoryViolations` engine-type substring heuristic (`engineType.Contains("security")`) — successful non-Security engine whose type contains `security` satisfies category coverage without a Security finding
 
 ---
 
