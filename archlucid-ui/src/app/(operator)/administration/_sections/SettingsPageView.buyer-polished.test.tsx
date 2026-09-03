@@ -82,11 +82,12 @@ vi.mock("next/navigation", () => ({
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING } from "@/lib/settings-hub-evidence-copy";
+import { SETTINGS_HUB_CLAIM_DISCIPLINE } from "@/lib/settings-hub-evidence-copy";
 
 import { SettingsPageView } from "./SettingsPageView";
 import {
   SETTINGS_MASTER_FIRST_VIEWPORT_ID,
+  SETTINGS_MASTER_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   SETTINGS_MASTER_PAGE_DESCRIPTION_BUYER,
   SETTINGS_MASTER_PAGE_DESCRIPTION_OPERATOR,
   SETTINGS_MASTER_SKIP_LINK_LABEL,
@@ -113,7 +114,10 @@ describe("SettingsPageView buyer-polished shell (SET)", () => {
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("settings-master-orientation-top")).toBeNull();
     expect(screen.getByTestId("settings-hub-sources")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId(SETTINGS_MASTER_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
+      SETTINGS_HUB_CLAIM_DISCIPLINE,
+    );
+    expect(screen.queryByTestId("settings-hub-claim-discipline")).toBeNull();
 
     const firstViewport = screen.getByTestId(SETTINGS_MASTER_FIRST_VIEWPORT_ID);
     const searchField = screen.getByPlaceholderText("Search settings…");
