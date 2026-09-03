@@ -1,5 +1,4 @@
 using ArchLucid.Api.Controllers.Governance;
-using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 
