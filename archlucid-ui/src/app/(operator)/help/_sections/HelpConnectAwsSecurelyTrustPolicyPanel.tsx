@@ -1,22 +1,32 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import Link from "next/link";
 
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { Button } from "@/components/ui/button";
 import {
   buildAwsCloudConnectionTrustPolicyTemplate,
   CONNECT_AWS_SECURELY_FEDERATION_IDENTIFIERS,
   CONNECT_AWS_SECURELY_FEDERATION_HEADING,
-  CONNECT_AWS_SECURELY_FEDERATION_INTRO,
   CONNECT_AWS_SECURELY_TRUST_POLICY_COPY_ERROR,
   CONNECT_AWS_SECURELY_TRUST_POLICY_HEADING,
   CONNECT_AWS_SECURELY_TRUST_POLICY_INTRO,
   CONNECT_AWS_SECURELY_TRUST_POLICY_REPLACE_HINT,
 } from "@/lib/connect-aws-securely-help-content";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD,
+  AWS_TRUST_STARTER_FEDERATION_INTRO_MID,
+  AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL,
+} from "@/lib/aws-cloud-connection-trust-policy-starter";
+import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
+import { ASSURANCE_STATUS_PUBLIC_PATH } from "@/lib/marketing-assurance-public-labels";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { showError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
+
+const ASSURANCE_STATUS_PATH = ASSURANCE_STATUS_PUBLIC_PATH;
 
 /** Federation identifiers table and copyable IAM trust-policy template for AWS setup. */
 export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
@@ -47,7 +57,15 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
       <div className="space-y-3">
         <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CONNECT_AWS_SECURELY_FEDERATION_HEADING}</h3>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {CONNECT_AWS_SECURELY_FEDERATION_INTRO}
+          {AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD}{" "}
+          <Link href={ASSURANCE_STATUS_PATH} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+            Assurance status
+          </Link>{" "}
+          {AWS_TRUST_STARTER_FEDERATION_INTRO_MID}{" "}
+          <Link href={CONNECTION_STATUS_CANONICAL_PATH} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+            Connection status
+          </Link>{" "}
+          {AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL}
         </p>
         <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="connect-aws-securely-federation-identifiers">
           <table className={HELP_PAGE_LAYOUT.table}>
@@ -69,13 +87,14 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
                   className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
                 >
                   <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
-                    {identifier.label}
+                    <span className="inline-flex items-center gap-1">
+                      <span>{identifier.label}</span>
+                      <FieldHelpTooltip label={identifier.label} hint={identifier.hint} />
+                    </span>
                   </th>
                   <td className={cn(HELP_PAGE_LAYOUT.tableBodyCell, "font-mono text-sm")}>
                     {identifier.value}
-                    {identifier.isPlaceholder ? (
-                      <span className="sr-only"> (placeholder — obtain live value from security review)</span>
-                    ) : null}
+                    {identifier.isPlaceholder ? <span className="sr-only"> (placeholder)</span> : null}
                   </td>
                 </tr>
               ))}
@@ -84,20 +103,25 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
         </div>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CONNECT_AWS_SECURELY_TRUST_POLICY_HEADING}</h3>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="connect-aws-securely-trust-policy-copy"
-            aria-label="Copy IAM trust policy template"
-            onClick={() => void copyTrustPolicy()}
-          >
-            {copyStatus === "success" ? "Copied" : "Copy trust policy"}
-          </Button>
-        </div>
+      <details className="group space-y-3" data-testid="connect-aws-securely-trust-policy-disclosure">
+        <summary className={cn("cursor-pointer list-none font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          <span className="inline-flex flex-wrap items-center justify-between gap-2">
+            <span>{CONNECT_AWS_SECURELY_TRUST_POLICY_HEADING}</span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="connect-aws-securely-trust-policy-copy"
+              aria-label="Copy IAM trust policy template"
+              onClick={(event) => {
+                event.preventDefault();
+                void copyTrustPolicy();
+              }}
+            >
+              {copyStatus === "success" ? "Copied" : "Copy trust policy"}
+            </Button>
+          </span>
+        </summary>
         <p
           className="sr-only"
           aria-live="polite"
@@ -121,7 +145,7 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {CONNECT_AWS_SECURELY_TRUST_POLICY_REPLACE_HINT}
         </p>
-      </div>
+      </details>
     </div>
   );
 }

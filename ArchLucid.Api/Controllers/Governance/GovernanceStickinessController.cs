@@ -1,8 +1,5 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
-using ArchLucid.Api.Http.Governance;
-using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Manifest;
@@ -37,27 +34,6 @@ public sealed partial class GovernanceStickinessController(
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
-    private IActionResult? ValidateRegisterMaxRows(int maxRows) =>
-        GovernanceStickinessHttpMapper.ValidateRegisterMaxRows(maxRows).ToBadRequestProblemOrNull(this);
-
-    private IActionResult? BadRequestWhenProjectQueryIdEmpty(Guid? projectId) =>
-        GovernanceStickinessHttpMapper.ValidateProjectQueryId(projectId).ToBadRequestProblemOrNull(this);
-
-    private IActionResult? ValidateDecisionRegisterFilters(
-        string? category,
-        DateTimeOffset? recordedAfterUtc,
-        DateTimeOffset? recordedBeforeUtc,
-        double? minConfidence,
-        double? maxConfidence,
-        string? buyerConfidenceSource) =>
-        GovernanceStickinessHttpMapper.ValidateDecisionRegisterFilters(
-            category,
-            recordedAfterUtc,
-            recordedBeforeUtc,
-            minConfidence,
-            maxConfidence,
-            buyerConfidenceSource).ToBadRequestProblemOrNull(this);
 
     private async Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken)
     {

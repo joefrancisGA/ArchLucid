@@ -1,0 +1,132 @@
+import type { RunDetailPageModel } from "./run-detail-page-model";
+import type { RunDetailPresentation } from "./run-detail-page-presentation";
+import {
+  RunDetailColdOpenOrientationDeferred,
+  RunDetailMidDeferredSections,
+  RunDetailMidDeferredSkeleton,
+  RunDetailOutcomeCardsDeferred,
+  RunDetailOverviewPanelClientDeferred,
+  RunDetailSponsorBottomLineDeferred,
+  RunDetailSponsorReportCtaCardDeferred,
+  RunDetailWorkspaceBlockingBannerDeferred,
+  RunDetailWorkspaceSummaryStripDeferred,
+} from "./RunDetailTabbedWorkspaceDeferredImports";
+import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
+import { Suspense } from "react";
+
+export type RunDetailOverviewTabCompositionInput = {
+  readonly model: RunDetailPageModel;
+  readonly presentation: RunDetailPresentation;
+  readonly outcomeCardsEl: React.ReactNode;
+};
+
+export function composeRunDetailOverviewTab(
+  input: RunDetailOverviewTabCompositionInput,
+): React.JSX.Element {
+  const m = input.model;
+  const p = input.presentation;
+  const {
+    blockingApprovalCount,
+    buyerFinalizedPackage,
+    deferredContext,
+    evidenceCoverageSummary,
+    evidenceInventoryCount,
+    executiveBottomLineContent,
+    findingsSummaryLine,
+    governanceOutcomeLine,
+    hasSubmittedArchitecture,
+    materialSeverityLine,
+    recommendedActions,
+    reviewDisplayTitle,
+    reviewOwnerLabel,
+    reviewStatusSummary,
+    severityCounts,
+    submittedArchitectureText,
+    workspaceStatus,
+  } = p;
+
+  const executiveBottomLineEl =
+    blockingApprovalCount === 0 ? (
+      <RunDetailSponsorBottomLineDeferred content={executiveBottomLineContent} />
+    ) : null;
+
+  return (
+    <div key="review-detail-overview-panel" className="space-y-4">
+      <RunDetailColdOpenOrientationDeferred
+        runId={m.resolvedDetail.run.runId}
+        packageTitle={reviewDisplayTitle}
+        packageOwnerLabel={reviewOwnerLabel}
+        workspaceStatus={workspaceStatus}
+      />
+      {blockingApprovalCount > 0 ? (
+        <RunDetailWorkspaceBlockingBannerDeferred blockingCount={blockingApprovalCount} />
+      ) : null}
+      <RunDetailWorkspaceSummaryStripDeferred
+        outcomeHeading={m.manifestId ? "Governance decision" : "Review posture"}
+        reviewOutcome={m.manifestId ? governanceOutcomeLine : reviewStatusSummary.reviewOutcome}
+        highestUnresolvedSeverity={reviewStatusSummary.highestUnresolvedSeverity}
+        findingsSummaryLine={findingsSummaryLine}
+        evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
+        primaryConcern={reviewStatusSummary.primaryConcern}
+        materialSeverityLine={materialSeverityLine}
+      />
+      {executiveBottomLineEl}
+      <RunDetailOverviewPanelClientDeferred
+        runId={m.resolvedDetail.run.runId}
+        architectureTitle={p.architectureSummaryTitle}
+        architectureText={submittedArchitectureText}
+        evidenceCount={evidenceInventoryCount}
+        hasSubmittedArchitecture={hasSubmittedArchitecture}
+        userAssertions={null}
+        recommendedActions={recommendedActions}
+        criticalCount={severityCounts.critical}
+        highCount={severityCounts.high}
+        proofStatusSlot={
+          <RunDetailFirstScreenProofStatusClient
+            key="run-detail-overview-proof-status"
+            runId={m.resolvedDetail.run.runId}
+            legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
+            isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
+          />
+        }
+      />
+      <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
+        <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
+        <div className="mt-3">{input.outcomeCardsEl}</div>
+      </details>
+      <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
+        <RunDetailMidDeferredSections context={deferredContext} />
+      </Suspense>
+      {buyerFinalizedPackage ? null : (
+        <RunDetailSponsorReportCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
+      )}
+    </div>
+  );
+}
+
+export function buildRunDetailOutcomeCards(
+  model: RunDetailPageModel,
+  presentation: RunDetailPresentation,
+): React.JSX.Element {
+  const { findingCoverageSummary, showcasePolicyPackStrip } = presentation;
+
+  return (
+    <RunDetailOutcomeCardsDeferred
+      runId={model.resolvedDetail.run.runId}
+      manifestId={model.manifestId}
+      artifactCount={model.artifacts.length}
+      findingCountDisplay={model.findingCountDisplay}
+      warningCountDisplay={model.warningCountDisplay}
+      hasGoldenManifest={Boolean(model.manifestId)}
+      unresolvedIssueCountDisplay={model.manifestSummary?.unresolvedIssueCount ?? null}
+      aggregateRiskPosture={model.explanationSummary?.riskPosture ?? null}
+      governanceGateLabel={model.governanceGateLabel}
+      authorityLifecyclePhase={model.resolvedDetail.authorityLifecyclePhase ?? null}
+      showcasePolicyPackStrip={showcasePolicyPackStrip}
+      degradedFindingCoverage={model.resolvedDetail.degradedFindingCoverage === true}
+      failedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
+      findingCoverageSummary={findingCoverageSummary}
+      pagePrimaryOwnedElsewhere
+    />
+  );
+}

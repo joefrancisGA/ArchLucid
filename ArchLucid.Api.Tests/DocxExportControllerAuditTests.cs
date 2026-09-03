@@ -1,7 +1,10 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Application;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -82,8 +85,18 @@ public sealed class DocxExportControllerAuditTests
 
         Mock<IAuditService> audit = new();
 
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery
+            .Setup(r => r.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = runId.ToString("N") },
+                AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
+            });
+
         DocxExportController sut = new(
             authority.Object,
+            runDetailQuery.Object,
             artifacts.Object,
             docx.Object,
             comparison.Object,

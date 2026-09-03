@@ -106,7 +106,6 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "integration-events-dlq",
   "integration-readiness-help",
   "invite-reviewer",
-  "itsm-oauth-callback",
   "jira-integration",
   "model-governance-settings",
   "notification-preference-center",

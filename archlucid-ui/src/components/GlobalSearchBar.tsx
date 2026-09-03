@@ -25,14 +25,7 @@ import {
 } from "@/lib/shell-header-search-label";
 import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
-import {
-  governanceFindingsSearchHrefFromSearch,
-  parseGovernanceFindingsSearchQuery,
-} from "@/lib/governance/governance-findings-queue-search";
-import {
-  isGovernanceFindingsQueueHeaderSearchPath,
-  isReviewsHubInventoryHeaderSearchPath,
-} from "@/lib/shell-header-route-local-search";
+import { isReviewsHubInventoryHeaderSearchPath } from "@/lib/shell-header-route-local-search";
 import { isReviewDetailHeaderSearchPath } from "@/lib/review-detail-header-section-search";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 import {
@@ -68,10 +61,6 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
       return "reviews-hub" as const;
     }
 
-    if (isGovernanceFindingsQueueHeaderSearchPath(path)) {
-      return "findings-queue" as const;
-    }
-
     if (isReviewDetailHeaderSearchPath(path)) {
       return "review-detail" as const;
     }
@@ -81,10 +70,6 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const routeLocalSearchQuery = useMemo(() => {
     if (routeLocalSearchMode === "reviews-hub") {
       return parseReviewsHubInventorySearchQuery(searchParams.get("q"));
-    }
-
-    if (routeLocalSearchMode === "findings-queue") {
-      return parseGovernanceFindingsSearchQuery(searchParams.get("q"));
     }
 
     return "";
@@ -118,30 +103,20 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   } = useGlobalSearchResults(query, routeLocalSearchMode);
 
   useEffect(() => {
-    if (routeLocalSearchMode === "reviews-hub" || routeLocalSearchMode === "findings-queue") {
+    if (routeLocalSearchMode === "reviews-hub") {
       setQuery(routeLocalSearchQuery);
     }
   }, [routeLocalSearchMode, routeLocalSearchQuery]);
 
   const replaceRouteLocalSearchQuery = useCallback(
     (nextQuery: string) => {
-      const path = pathname ?? "";
-
       if (routeLocalSearchMode === "reviews-hub") {
         router.replace(reviewsHubInventorySearchHrefFromSearch(searchParams.toString(), nextQuery), {
           scroll: false,
         });
-        return;
-      }
-
-      if (routeLocalSearchMode === "findings-queue") {
-        router.replace(
-          governanceFindingsSearchHrefFromSearch(searchParams.toString(), nextQuery, path),
-          { scroll: false },
-        );
       }
     },
-    [pathname, routeLocalSearchMode, router, searchParams],
+    [routeLocalSearchMode, router, searchParams],
   );
 
   useEffect(() => {
@@ -236,6 +211,22 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         }}
         onFocus={() => setOpen(routeLocalSearchMode === null ? true : open || routeLocalSearchMode === "review-detail")}
         onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            if (routeLocalSearchMode === "reviews-hub" && query.trim().length > 0) {
+              event.preventDefault();
+              setQuery("");
+              replaceRouteLocalSearchQuery("");
+              return;
+            }
+
+            if (routeLocalSearchMode === "review-detail") {
+              event.preventDefault();
+              setQuery("");
+              setOpen(false);
+              return;
+            }
+          }
+
           if (event.key?.toLowerCase() !== "k") {
             return;
           }
@@ -364,7 +355,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
                       type="button"
                       className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                       onClick={() => {
-                        router.push(`/architecture/reviews/${encodeURIComponent(run.runId)}`);
+                        router.push(`/architecture/reviews/${encodeURIComponent(run.runId ?? "")}`);
                         setOpen(false);
                       }}
                     >
@@ -386,7 +377,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
                       className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                       onClick={() => {
                         router.push(
-                          `/architecture/reviews/${encodeURIComponent(finding.runId)}/findings/${encodeURIComponent(finding.findingId)}`,
+                          `/architecture/reviews/${encodeURIComponent(finding.runId ?? "")}/findings/${encodeURIComponent(finding.findingId ?? "")}`,
                         );
                         setOpen(false);
                       }}
@@ -406,7 +397,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
                 {results?.policyPacks?.map((pack) => (
                   <li key={pack.policyPackId}>
                     <Link
-                      href={`${GOVERNANCE_POLICY_PACKS_PATH}?packId=${encodeURIComponent(pack.policyPackId)}`}
+                      href={`${GOVERNANCE_POLICY_PACKS_PATH}?packId=${encodeURIComponent(pack.policyPackId ?? "")}`}
                       className={cn("block rounded px-1 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                       onClick={() => setOpen(false)}
                     >

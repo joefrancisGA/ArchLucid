@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_sections/alerts-inbox-page-model";
+import {
+  alertsInboxStatusHrefFromSearch,
+  parseAlertsInboxStatusFromSearch,
+} from "@/lib/governance/alerts-inbox-status-url";
 
 /** Cursor stack: index 0 is always `""` (first page). Later entries are prior `nextCursor` values. */
 function initialCursorStack(initialModel: AlertsInboxPageModel | null): string[] {
@@ -16,17 +21,28 @@ function initialCursorStack(initialModel: AlertsInboxPageModel | null): string[]
 }
 
 export function useAlertsInboxPagination(initialModel: AlertsInboxPageModel | null) {
-  const [status, setStatus] = useState<string>(initialModel?.status ?? "Open");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlStatus = parseAlertsInboxStatusFromSearch(searchParams.get("status"));
+  const [status, setStatus] = useState<string>(initialModel?.status ?? urlStatus);
   const [cursorStack, setCursorStack] = useState<string[]>(() => initialCursorStack(initialModel));
+
+  useEffect(() => {
+    setStatus(urlStatus);
+  }, [urlStatus]);
 
   const cursor = cursorStack[cursorStack.length - 1] ?? "";
   const page = cursorStack.length;
   const canGoPrevious = cursorStack.length > 1;
 
-  function changeStatusFilter(value: string): void {
-    setStatus(value);
-    setCursorStack([""]);
-  }
+  const changeStatusFilter = useCallback(
+    (value: string): void => {
+      setStatus(value);
+      setCursorStack([""]);
+      router.replace(alertsInboxStatusHrefFromSearch(searchParams.toString(), value), { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   function goNextPage(nextCursor: string): void {
     setCursorStack((prev) => [...prev, nextCursor]);

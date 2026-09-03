@@ -76,15 +76,16 @@ export function buildAdvisoryScheduleListItemView(
   const last = schedule.lastRunUtc
     ? formatAdvisoryScheduleInstant(schedule.lastRunUtc, displayTimeZoneId)
     : { primary: " — ", utcSecondary: "" };
+  const runProjectSlug = schedule.runProjectSlug ?? "default";
   const projectLabel =
     projectLabelOverride?.trim() ||
-    (schedule.runProjectSlug === "default" ? "Current project" : schedule.runProjectSlug);
+    (runProjectSlug === "default" ? "Current project" : runProjectSlug);
 
   return {
-    scheduleId: schedule.scheduleId,
-    name: schedule.name.trim().length > 0 ? schedule.name : "Advisory scan schedule",
+    scheduleId: schedule.scheduleId ?? "",
+    name: (schedule.name ?? "").trim().length > 0 ? (schedule.name ?? "") : "Advisory scan schedule",
     projectLabel,
-    frequencyLabel: describeStoredCronExpression(schedule.cronExpression),
+    frequencyLabel: describeStoredCronExpression(schedule.cronExpression ?? ""),
     timeZoneLabel: "Stored as UTC schedule",
     nextRunPrimary: next.primary,
     nextRunUtcSecondary: next.utcSecondary,
@@ -92,8 +93,8 @@ export function buildAdvisoryScheduleListItemView(
     lastOutcome: " — ",
     statusKind: schedule.isEnabled ? "ready" : "draft",
     statusLabel: schedule.isEnabled ? "Ready" : "Draft",
-    isEnabled: schedule.isEnabled,
-    cronExpression: schedule.cronExpression,
+    isEnabled: schedule.isEnabled ?? false,
+    cronExpression: schedule.cronExpression ?? "",
   };
 }
 
@@ -102,7 +103,7 @@ export function summarizeExecutionOutcome(execution: AdvisoryScanExecution | und
     return " — ";
   }
 
-  const status = execution.status.trim();
+  const status = (execution.status ?? "").trim();
 
   if (status.length === 0) {
     return " — ";

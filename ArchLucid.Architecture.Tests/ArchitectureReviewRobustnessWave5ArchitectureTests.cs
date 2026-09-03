@@ -103,7 +103,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     public void Suggestion46_replay_execute_uses_authority_path()
     {
         string replayExecute = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "ReplayRunService.ExecutePrepared.cs"));
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunCommitStage.cs"));
 
         replayExecute.Should().Contain("ExecuteAuthorityPreparedReplayAsync");
         replayExecute.Should().Contain("AuthorityPipelineComplete");

@@ -211,7 +211,7 @@ export function AdvisorySchedulesTable(props: AdvisorySchedulesTableProps): Reac
           <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
             {executionsBySchedule[historyOpenFor].map((execution: AdvisoryScanExecution) => (
               <li key={execution.executionId}>
-                {execution.status} — {new Date(execution.startedUtc).toLocaleString()}
+                {execution.status ?? " — "} — {new Date(execution.startedUtc ?? 0).toLocaleString()}
                 {execution.errorMessage ? ` — ${execution.errorMessage}` : null}
               </li>
             ))}

@@ -2,13 +2,11 @@ using System.Collections.Concurrent;
 
 using ArchLucid.Core.Billing;
 
-using JetBrains.Annotations;
-
 namespace ArchLucid.Persistence.Billing;
 
 public sealed class InMemoryBillingLedger : IBillingLedger
 {
-    private readonly ConcurrentDictionary<Guid, BillingSubRow> _subscriptions = new();
+    private readonly ConcurrentDictionary<Guid, BillingSubscriptionRow> _subscriptions = new();
 
     private readonly ConcurrentDictionary<string, string> _webhookStatuses = new();
 
@@ -18,8 +16,9 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task<bool> TenantHasActiveSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        return Task.FromResult(_subscriptions.TryGetValue(tenantId, out BillingSubRow? row) &&
-                               string.Equals(row.Status, "Active", StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(
+            _subscriptions.TryGetValue(tenantId, out BillingSubscriptionRow? row)
+            && BillingLedgerCore.IsActiveStatus(row.Status));
     }
 
     public Task UpsertPendingCheckoutAsync(
@@ -33,8 +32,8 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         int workspaces,
         CancellationToken cancellationToken)
     {
-        _ = _subscriptions.TryGetValue(tenantId, out BillingSubRow? previous);
-        BillingSubRow next = new(
+        _ = _subscriptions.TryGetValue(tenantId, out BillingSubscriptionRow? previous);
+        BillingSubscriptionRow next = BillingLedgerCore.CreatePendingCheckout(
             tenantId,
             workspaceId,
             projectId,
@@ -42,11 +41,9 @@ public sealed class InMemoryBillingLedger : IBillingLedger
             providerSessionId,
             tierCode,
             seats,
-            workspaces,
-            "Pending");
+            workspaces);
 
         _subscriptions[tenantId] = next;
-
         RecordStateChange("UpsertPending", previous, next);
 
         return Task.CompletedTask;
@@ -59,7 +56,7 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         string payloadJson,
         CancellationToken cancellationToken)
     {
-        bool added = _webhookStatuses.TryAdd(dedupeKey, "Received");
+        bool added = _webhookStatuses.TryAdd(dedupeKey, BillingLedgerCore.WebhookStatusReceived);
 
         return Task.FromResult(added);
     }
@@ -90,8 +87,8 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         string? rawWebhookJson,
         CancellationToken cancellationToken)
     {
-        _ = _subscriptions.TryGetValue(tenantId, out BillingSubRow? previous);
-        BillingSubRow next = new(
+        _ = _subscriptions.TryGetValue(tenantId, out BillingSubscriptionRow? previous);
+        BillingSubscriptionRow next = BillingLedgerCore.CreateActiveSubscription(
             tenantId,
             workspaceId,
             projectId,
@@ -99,11 +96,9 @@ public sealed class InMemoryBillingLedger : IBillingLedger
             providerSubscriptionId,
             tierCode,
             seats,
-            workspaces,
-            "Active");
+            workspaces);
 
         _subscriptions[tenantId] = next;
-
         RecordStateChange("Activate", previous, next);
 
         return Task.CompletedTask;
@@ -111,12 +106,11 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task SuspendSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubscriptionRow? row))
+            return Task.CompletedTask;
 
-        BillingSubRow next = row with { Status = "Suspended" };
-
+        BillingSubscriptionRow next = BillingLedgerCore.WithStatus(row, BillingLedgerCore.StatusSuspended);
         _subscriptions[tenantId] = next;
-
         RecordStateChange("Suspend", row, next);
 
         return Task.CompletedTask;
@@ -124,27 +118,23 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task ReinstateSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubscriptionRow? row))
+            return Task.CompletedTask;
 
-        {
-            BillingSubRow next = row with { Status = "Active" };
-
-            _subscriptions[tenantId] = next;
-
-            RecordStateChange("Reinstate", row, next);
-        }
+        BillingSubscriptionRow next = BillingLedgerCore.WithStatus(row, BillingLedgerCore.StatusActive);
+        _subscriptions[tenantId] = next;
+        RecordStateChange("Reinstate", row, next);
 
         return Task.CompletedTask;
     }
 
     public Task CancelSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubscriptionRow? row))
+            return Task.CompletedTask;
 
-        BillingSubRow next = row with { Status = "Canceled" };
-
+        BillingSubscriptionRow next = BillingLedgerCore.WithStatus(row, BillingLedgerCore.StatusCanceled);
         _subscriptions[tenantId] = next;
-
         RecordStateChange("Cancel", row, next);
 
         return Task.CompletedTask;
@@ -153,11 +143,11 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson,
         CancellationToken cancellationToken)
     {
-        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
-        BillingSubRow next = row with { Tier = tierCode };
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubscriptionRow? row))
+            return Task.CompletedTask;
 
+        BillingSubscriptionRow next = BillingLedgerCore.WithTier(row, tierCode);
         _subscriptions[tenantId] = next;
-
         RecordStateChange("ChangePlan", row, next);
 
         return Task.CompletedTask;
@@ -166,52 +156,43 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson,
         CancellationToken cancellationToken)
     {
-        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
-        BillingSubRow next = row with { Seats = seatsPurchased };
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubscriptionRow? row))
+            return Task.CompletedTask;
 
+        BillingSubscriptionRow next = BillingLedgerCore.WithSeats(row, seatsPurchased);
         _subscriptions[tenantId] = next;
-
         RecordStateChange("ChangeQuantity", row, next);
 
         return Task.CompletedTask;
     }
 
-    public Task<IReadOnlyList<BillingSubscriptionStateHistoryEntry>> GetSubscriptionStateHistoryAsync(Guid tenantId,
+    public Task<IReadOnlyList<BillingSubscriptionStateHistoryEntry>> GetSubscriptionStateHistoryAsync(
+        Guid tenantId,
         int maxRows,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows is <= 0 or > 500)
-            throw new ArgumentOutOfRangeException(nameof(maxRows));
+        BillingLedgerCore.ValidateHistoryMaxRows(maxRows);
 
         lock (_historyGate)
         {
-            List<BillingSubscriptionStateHistoryEntry> page = _stateHistory
-                .Where(e => e.TenantId == tenantId)
-                .OrderByDescending(static e => e.RecordedUtc)
-                .Take(maxRows)
-                .ToList();
+            IReadOnlyList<BillingSubscriptionStateHistoryEntry> page =
+                BillingLedgerCore.SelectTenantHistory(_stateHistory, tenantId, maxRows);
 
-            return Task.FromResult<IReadOnlyList<BillingSubscriptionStateHistoryEntry>>(page);
+            return Task.FromResult(page);
         }
     }
 
     public Task<BillingSubscriptionSnapshot?> TryGetSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubscriptionRow? row))
             return Task.FromResult<BillingSubscriptionSnapshot?>(null);
 
-        return Task.FromResult<BillingSubscriptionSnapshot?>(
-            new BillingSubscriptionSnapshot(
-                row.Provider,
-                row.Tier,
-                row.Seats,
-                row.Workspaces,
-                row.Status));
+        return Task.FromResult<BillingSubscriptionSnapshot?>(BillingLedgerCore.ToSnapshot(row));
     }
 
     public Task<string?> TryGetProviderSubscriptionIdAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubscriptionRow? row))
             return Task.FromResult<string?>(null);
 
         return Task.FromResult<string?>(row.ProviderSubscriptionId);
@@ -224,53 +205,25 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         if (string.IsNullOrWhiteSpace(providerSubscriptionId))
             return Task.FromResult<Guid?>(null);
 
-        string trimmed = providerSubscriptionId.Trim();
-
-        foreach (KeyValuePair<Guid, BillingSubRow> pair in _subscriptions)
+        foreach (KeyValuePair<Guid, BillingSubscriptionRow> pair in _subscriptions)
         {
-            if (string.Equals(pair.Value.ProviderSubscriptionId, trimmed, StringComparison.Ordinal))
+            if (BillingLedgerCore.MatchesProviderSubscriptionId(pair.Value, providerSubscriptionId))
                 return Task.FromResult<Guid?>(pair.Key);
         }
 
         return Task.FromResult<Guid?>(null);
     }
 
-    private void RecordStateChange(string changeKind, BillingSubRow? previous, BillingSubRow next)
+    private void RecordStateChange(string changeKind, BillingSubscriptionRow? previous, BillingSubscriptionRow next)
     {
         lock (_historyGate)
         {
-            _stateHistory.Add(new BillingSubscriptionStateHistoryEntry
-            {
-                HistoryId = Guid.NewGuid(),
-                TenantId = next.TenantId,
-                WorkspaceId = next.WorkspaceId,
-                ProjectId = next.ProjectId,
-                RecordedUtc = TimeProvider.System.GetUtcNow(),
-                ChangeKind = changeKind,
-                PrevStatus = previous?.Status,
-                NewStatus = next.Status,
-                PrevTier = previous?.Tier,
-                NewTier = next.Tier,
-                PrevSeatsPurchased = previous?.Seats,
-                NewSeatsPurchased = next.Seats,
-                PrevWorkspacesPurchased = previous?.Workspaces,
-                NewWorkspacesPurchased = next.Workspaces,
-                PrevProvider = previous?.Provider,
-                NewProvider = next.Provider,
-                PrevProviderSubscriptionId = previous?.ProviderSubscriptionId,
-                NewProviderSubscriptionId = next.ProviderSubscriptionId,
-            });
+            _stateHistory.Add(
+                BillingLedgerCore.CreateStateHistoryEntry(
+                    changeKind,
+                    previous,
+                    next,
+                    TimeProvider.System.GetUtcNow()));
         }
     }
-
-    private sealed record BillingSubRow(
-        [UsedImplicitly] Guid TenantId,
-        Guid WorkspaceId,
-        Guid ProjectId,
-        string Provider,
-        string ProviderSubscriptionId,
-        string Tier,
-        int Seats,
-        int Workspaces,
-        string Status);
 }

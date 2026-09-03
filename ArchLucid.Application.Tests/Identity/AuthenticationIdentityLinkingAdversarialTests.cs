@@ -97,21 +97,15 @@ public sealed class AuthenticationIdentityLinkingAdversarialTests
         AuthenticationIdentityLinkProposalPersistStage proposalPersistStage = new(proposals);
         AuthenticationIdentityLinkProposalAuditNotifier proposalAuditNotifier = new(audit.Object);
 
-        AuthenticationIdentityLinkProposalService proposalService = new(
-
-            platformIdentity,
-
-            users,
-
-            identities,
-
-            proposalPersistStage,
-
-            reviews,
-
-            proposalAuditNotifier,
-
-            timeProvider);
+        AuthenticationIdentityLinkProposalService proposalService =
+            AuthenticationIdentityLinkProposalServiceTestSupport.Create(
+                platformIdentity,
+                users,
+                identities,
+                proposalPersistStage,
+                reviews,
+                proposalAuditNotifier,
+                timeProvider);
 
 
 
@@ -149,7 +143,7 @@ public sealed class AuthenticationIdentityLinkingAdversarialTests
 
                 users,
 
-                new AuthSignInRoutingService(
+                AuthSignInRoutingServiceTestSupport.Create(
 
                     new InMemoryTenantSignInEmailDomainRepository(),
 

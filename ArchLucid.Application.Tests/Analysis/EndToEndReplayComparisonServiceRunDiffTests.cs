@@ -1,6 +1,7 @@
 using ArchLucid.Application.Analysis;
-using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Analysis.ReplayComparison;
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -59,9 +60,8 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
     Mock<IScopeContextProvider> scopeProvider = new();
     scopeProvider.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext());
 
-    EndToEndReplayComparisonService sut = new(
-      runDetailQuery.Object,
-      runRepository.Object,
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
       exportRecords.Object,
       Mock.Of<IAgentResultDiffService>(),
       Mock.Of<IManifestDiffService>(),
@@ -328,6 +328,51 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
     Mock<IExportRecordDiffService>? exportDiff = null,
     Mock<IAgentResultDiffService>? agentDiff = null)
   {
+    return CreateSut(
+      runDetailQuery,
+      exportRecords.Object,
+      agentDiff?.Object ?? Mock.Of<IAgentResultDiffService>(),
+      manifestDiff.Object,
+      exportDiff?.Object ?? Mock.Of<IExportRecordDiffService>(),
+      new CrossReviewFindingCorrelationService(),
+      CreateLifecycleService(),
+      Mock.Of<IArchitectureKnowledgeModelAccess>(),
+      CreateScopeProvider());
+  }
+
+  private static EndToEndReplayComparisonService CreateSut(
+    Mock<IRunDetailQueryService> runDetailQuery,
+    IRunExportRecordRepository exportRecords,
+    IAgentResultDiffService agentDiff,
+    IManifestDiffService manifestDiff,
+    IExportRecordDiffService exportDiff,
+    ICrossReviewFindingCorrelationService correlationService,
+    ICrossReviewFindingLifecycleService lifecycleService,
+    IArchitectureKnowledgeModelAccess intelligence,
+    IScopeContextProvider scopeProvider)
+  {
+    EndToEndReplayComparisonReportComposer composer = new([
+      new ReplayComparisonAgentResultsDiffSlice(agentDiff),
+      new ReplayComparisonManifestsDiffSlice(manifestDiff),
+      new ReplayComparisonExportsDiffSlice(exportDiff),
+      new ReplayComparisonFindingLifecycleDiffSlice(
+        correlationService,
+        lifecycleService,
+        intelligence,
+        scopeProvider),
+      new ReplayComparisonInterpretationDiffSlice(),
+    ]);
+
+    return new EndToEndReplayComparisonService(
+      runDetailQuery.Object,
+      Mock.Of<IRunRepository>(),
+      exportRecords,
+      scopeProvider,
+      composer);
+  }
+
+  private static ICrossReviewFindingLifecycleService CreateLifecycleService()
+  {
     Mock<IFindingReviewTrailRepository> reviewTrailRepository = new();
     reviewTrailRepository
       .Setup(r => r.ListForFindingIdsSinceUtcAsync(
@@ -337,25 +382,15 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
         It.IsAny<CancellationToken>()))
       .ReturnsAsync([]);
 
-    Mock<IArchitectureKnowledgeModelAccess> intelligence = new();
-    intelligence
-      .Setup(k => k.GetForRunAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync((ArchitectureKnowledgeModel?)null);
+    return new CrossReviewFindingLifecycleService(reviewTrailRepository.Object);
+  }
 
+  private static IScopeContextProvider CreateScopeProvider()
+  {
     Mock<IScopeContextProvider> scopeProvider = new();
     scopeProvider.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext());
 
-    return new EndToEndReplayComparisonService(
-      runDetailQuery.Object,
-      Mock.Of<IRunRepository>(),
-      exportRecords.Object,
-      agentDiff?.Object ?? Mock.Of<IAgentResultDiffService>(),
-      manifestDiff.Object,
-      exportDiff?.Object ?? Mock.Of<IExportRecordDiffService>(),
-      new CrossReviewFindingCorrelationService(),
-      new CrossReviewFindingLifecycleService(reviewTrailRepository.Object),
-      intelligence.Object,
-      scopeProvider.Object);
+    return scopeProvider.Object;
   }
 
   private static ArchitectureRunDetail CreateDetail(string runId, DateTime? completedUtc)

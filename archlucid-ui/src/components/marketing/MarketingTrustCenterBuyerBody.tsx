@@ -66,10 +66,15 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
 
   return (
     <div className={cn("space-y-12", TRUST_CENTER_PUBLIC_LAYOUT.page)} data-testid="trust-center-body">
-      <a href="#trust-primary-content-heading" className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
-        Skip to Trust Center content
+      <a href={`#${TRUST_CENTER_PUBLIC_LAYOUT.skipTargetId}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
+        {TRUST_CENTER_PUBLIC_LAYOUT.skipLinkLabel}
       </a>
 
+      <div
+        id={TRUST_CENTER_PUBLIC_LAYOUT.firstViewportId}
+        data-testid={TRUST_CENTER_PUBLIC_LAYOUT.firstViewportId}
+        className="scroll-mt-24 space-y-12"
+      >
       <header className="space-y-5" data-testid="trust-center-hero">
         <div className="max-w-3xl">
           <h1 className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
@@ -128,8 +133,6 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </div>
       </header>
 
-      <TrustCenterVocabularyDisclosure />
-
       <section aria-labelledby="trust-assurance-glance-heading" data-testid="trust-center-assurance-glance">
         <h2
           id="trust-assurance-glance-heading"
@@ -171,6 +174,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           ))}
         </div>
       </section>
+      </div>
 
       <section
         id="trust-public-downloads"
@@ -403,7 +407,10 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </p>
       </section>
 
-      <TrustCenterEvidenceOrientationStrip />
+      <div data-testid="trust-center-orientation-bottom" className="space-y-8">
+        <TrustCenterVocabularyDisclosure />
+        <TrustCenterEvidenceOrientationStrip />
+      </div>
     </div>
   );
 }

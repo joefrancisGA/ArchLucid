@@ -4,14 +4,16 @@ import { describe, expect, it, vi } from "vitest";
 import { ReviewsHubActiveFiltersStrip } from "./ReviewsHubActiveFiltersStrip";
 
 describe("ReviewsHubActiveFiltersStrip", () => {
-  it("renders clear affordance when filter and search are active", () => {
-    const onClear = vi.fn();
+  it("dismisses search and filter chips independently", () => {
+    const onClearSearch = vi.fn();
+    const onClearFilter = vi.fn();
 
     render(
       <ReviewsHubActiveFiltersStrip
         activeFilter="needs-attention"
         searchQuery="payments"
-        onClear={onClear}
+        onClearSearch={onClearSearch}
+        onClearFilter={onClearFilter}
       />,
     );
 
@@ -21,11 +23,19 @@ describe("ReviewsHubActiveFiltersStrip", () => {
 
     expect(clear).toHaveClass("border-neutral-300");
     fireEvent.click(clear);
-    expect(onClear).toHaveBeenCalledTimes(1);
+    expect(onClearSearch).toHaveBeenCalledTimes(1);
+    expect(onClearFilter).toHaveBeenCalledTimes(1);
   });
 
   it("renders nothing when no filters are active", () => {
-    render(<ReviewsHubActiveFiltersStrip activeFilter="all" searchQuery="" onClear={vi.fn()} />);
+    render(
+      <ReviewsHubActiveFiltersStrip
+        activeFilter="all"
+        searchQuery=""
+        onClearSearch={vi.fn()}
+        onClearFilter={vi.fn()}
+      />,
+    );
 
     expect(screen.queryByTestId("reviews-hub-active-filters-strip")).toBeNull();
   });

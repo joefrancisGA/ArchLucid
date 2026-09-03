@@ -205,7 +205,7 @@ public sealed class TenantAuthDomainAdminServiceTests
             domains,
             recoveryAdmins,
             new AuthDomainDnsVerificationService(new NoOpDnsTxtRecordLookup(), clock),
-            new AuthSignInRoutingService(
+            AuthSignInRoutingServiceTestSupport.Create(
                 domains,
                 recoveryAdmins,
                 idpConfigs,

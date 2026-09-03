@@ -46,18 +46,7 @@ public sealed class DapperPlatformTenantAuthRecoveryGrantRepository(ISqlConnecti
                            );
                            """;
 
-        Guid grantId = grant.GrantId != Guid.Empty ? grant.GrantId : Guid.NewGuid();
-        PlatformTenantAuthRecoveryGrantRecord stored = new()
-        {
-            GrantId = grantId,
-            TenantId = grant.TenantId,
-            NormalizedDomain = grant.NormalizedDomain,
-            Reason = grant.Reason,
-            EvidenceReference = grant.EvidenceReference,
-            GrantedByActorId = grant.GrantedByActorId,
-            GrantedUtc = grant.GrantedUtc,
-            ExpiresUtc = grant.ExpiresUtc
-        };
+        PlatformTenantAuthRecoveryGrantRecord stored = PlatformTenantAuthRecoveryGrantRepositoryCore.PrepareInsert(grant);
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -273,19 +262,17 @@ public sealed class DapperPlatformTenantAuthRecoveryGrantRepository(ISqlConnecti
         }
 
         public PlatformTenantAuthRecoveryGrantRecord ToRecord() =>
-            new()
-            {
-                GrantId = GrantId,
-                TenantId = TenantId,
-                NormalizedDomain = NormalizedDomain,
-                Reason = Reason,
-                EvidenceReference = EvidenceReference,
-                GrantedByActorId = GrantedByActorId,
-                GrantedUtc = GrantedUtc,
-                ExpiresUtc = ExpiresUtc,
-                RevokedUtc = RevokedUtc,
-                RevokedByActorId = RevokedByActorId,
-                TenantNotifiedUtc = TenantNotifiedUtc
-            };
+            PlatformTenantAuthRecoveryGrantRepositoryCore.MapFromStorage(
+                GrantId,
+                TenantId,
+                NormalizedDomain,
+                Reason,
+                EvidenceReference,
+                GrantedByActorId,
+                GrantedUtc,
+                ExpiresUtc,
+                RevokedUtc,
+                RevokedByActorId,
+                TenantNotifiedUtc);
     }
 }

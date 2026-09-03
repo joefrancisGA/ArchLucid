@@ -60,12 +60,11 @@ public sealed class ExplanationServiceRunTests
         IAgentCompletionClient client = new FakeAgentCompletionClient(
             (_, _) => llmJson,
             LlmProviderDescriptor.ForOffline("stub-llm", "model-under-test"));
-        ExplanationService svc = new(
+        ExplanationService svc = ExplanationServiceTestSupport.Create(
             client,
-            new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
-            options,
-            new PassthroughSchemaValidationService(),
-            NullLogger<ExplanationService>.Instance);
+            deterministic: new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
+            explanationOptions: options,
+            schemaValidation: new PassthroughSchemaValidationService());
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
 
@@ -91,12 +90,11 @@ public sealed class ExplanationServiceRunTests
         const string prose = "We chose the hub pattern because latency budgets require it.";
 
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => prose);
-        ExplanationService svc = new(
+        ExplanationService svc = ExplanationServiceTestSupport.Create(
             client,
-            new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
-            Options.Create(new ExplanationServiceOptions()),
-            new PassthroughSchemaValidationService(),
-            NullLogger<ExplanationService>.Instance);
+            deterministic: new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
+            explanationOptions: Options.Create(new ExplanationServiceOptions()),
+            schemaValidation: new PassthroughSchemaValidationService());
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
 
@@ -114,12 +112,11 @@ public sealed class ExplanationServiceRunTests
         const string legacy = """{"summary":"Short","detailedNarrative":"Longer body here."}""";
 
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => legacy);
-        ExplanationService svc = new(
+        ExplanationService svc = ExplanationServiceTestSupport.Create(
             client,
-            new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
-            Options.Create(new ExplanationServiceOptions()),
-            new PassthroughSchemaValidationService(),
-            NullLogger<ExplanationService>.Instance);
+            deterministic: new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
+            explanationOptions: Options.Create(new ExplanationServiceOptions()),
+            schemaValidation: new PassthroughSchemaValidationService());
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
 
@@ -148,12 +145,11 @@ public sealed class ExplanationServiceRunTests
         SchemaValidationService schemaSvc = new(schemaLog.Object, Options.Create(schemaOpts));
 
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => invalidV1);
-        ExplanationService svc = new(
+        ExplanationService svc = ExplanationServiceTestSupport.Create(
             client,
-            new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
-            Options.Create(new ExplanationServiceOptions()),
-            schemaSvc,
-            NullLogger<ExplanationService>.Instance);
+            deterministic: new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
+            explanationOptions: Options.Create(new ExplanationServiceOptions()),
+            schemaValidation: schemaSvc);
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
 

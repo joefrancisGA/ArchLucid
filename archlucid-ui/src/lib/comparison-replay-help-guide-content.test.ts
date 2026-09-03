@@ -10,8 +10,8 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 describe("comparison-replay-help-guide-content", () => {
   it("uses canonical replayReview nav label for Validate review actions", () => {
     expect(OPERATOR_NAV_LINK_LABELS.replayReview).toBe("Validate review");
-    expect(COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label).toBe("Open Validate review");
-    expect(COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.label).toBe("Open Compare two reviews");
+    expect(COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label).toBe("Validate review");
+    expect(COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.label).toBe("Compare two reviews");
   });
 
   it("exports validate availability helpers for demo gating", () => {

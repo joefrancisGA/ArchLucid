@@ -157,10 +157,10 @@ export function HelpAzurePermissionsVerificationPanel(props: HelpAzurePermission
         </p>
       )}
       {state.status === "failed" && state.technicalDetail ? (
-        <details className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800">
-          <summary className="cursor-pointer font-medium">View technical details</summary>
+        <div className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800">
+          <h4 className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>Technical details</h4>
           <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{state.technicalDetail}</p>
-        </details>
+        </div>
       ) : null}
     </section>
   );

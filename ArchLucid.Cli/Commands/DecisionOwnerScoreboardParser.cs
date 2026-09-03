@@ -99,8 +99,6 @@ internal static class DecisionOwnerScoreboardRulesLoader
 
 internal static class DecisionOwnerScoreboardParser
 {
-    private const string LedgerSchema = "archlucid.pilot-decision-ledger.v1";
-
     internal static IReadOnlyList<DecisionOwnerLedgerRecord> LoadDirectory(string ledgerDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ledgerDirectory);
@@ -112,7 +110,7 @@ internal static class DecisionOwnerScoreboardParser
 
         foreach (string filePath in Directory.EnumerateFiles(ledgerDirectory, "*.json", SearchOption.AllDirectories))
         {
-            DecisionOwnerLedgerRecord? record = TryParseLedger(filePath);
+            DecisionOwnerLedgerRecord? record = DecisionOwnerScoreboardParseCore.TryParseLedger(filePath);
 
             if (record is not null)
                 records.Add(record);
@@ -121,101 +119,6 @@ internal static class DecisionOwnerScoreboardParser
         return records
             .OrderBy(static record => record.SourcePath, StringComparer.Ordinal)
             .ToList();
-    }
-
-    private static DecisionOwnerLedgerRecord? TryParseLedger(string filePath)
-    {
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(filePath));
-        JsonElement root = document.RootElement;
-
-        if (!root.TryGetProperty("schema", out JsonElement schemaElement)
-            || !string.Equals(schemaElement.GetString(), LedgerSchema, StringComparison.Ordinal))
-        {
-            return null;
-        }
-
-        bool noDecisionChangesConfirmed = root.TryGetProperty("noDecisionChangesConfirmed", out JsonElement noChangeElement)
-            && noChangeElement.ValueKind == JsonValueKind.True;
-
-        List<DecisionOwnerLedgerDecision> decisions = new();
-
-        if (root.TryGetProperty("decisionsUnderReview", out JsonElement decisionsElement)
-            && decisionsElement.ValueKind == JsonValueKind.Array)
-        {
-            foreach (JsonElement decisionElement in decisionsElement.EnumerateArray())
-            {
-                string decisionId = ReadString(decisionElement, "decisionId") ?? string.Empty;
-
-                if (string.IsNullOrWhiteSpace(decisionId))
-                    continue;
-
-                decisions.Add(new DecisionOwnerLedgerDecision
-                {
-                    DecisionId = decisionId,
-                    Title = ReadString(decisionElement, "title") ?? string.Empty,
-                    DecisionOwner = ReadString(decisionElement, "decisionOwner"),
-                    OwnerOutcome = ReadString(decisionElement, "ownerOutcome"),
-                    OutcomeRecordedUtc = ReadDateTime(decisionElement, "outcomeRecordedUtc"),
-                    ItsmTicketRef = ReadString(decisionElement, "itsmTicketRef"),
-                    RemediationDueUtc = ReadDateTime(decisionElement, "remediationDueUtc"),
-                });
-            }
-        }
-
-        List<DecisionOwnerLedgerChange> changes = new();
-
-        if (root.TryGetProperty("decisionChanges", out JsonElement changesElement)
-            && changesElement.ValueKind == JsonValueKind.Array)
-        {
-            foreach (JsonElement changeElement in changesElement.EnumerateArray())
-            {
-                string decisionId = ReadString(changeElement, "decisionId") ?? string.Empty;
-
-                if (string.IsNullOrWhiteSpace(decisionId))
-                    continue;
-
-                changes.Add(new DecisionOwnerLedgerChange
-                {
-                    DecisionId = decisionId,
-                    ChangedBecauseOfArchLucidFinding = changeElement.TryGetProperty(
-                            "changedBecauseOfArchLucidFinding",
-                            out JsonElement attributedElement)
-                        && attributedElement.ValueKind == JsonValueKind.True,
-                    FindingId = ReadString(changeElement, "findingId"),
-                    EvidenceChainId = ReadString(changeElement, "evidenceChainId"),
-                });
-            }
-        }
-
-        return new DecisionOwnerLedgerRecord
-        {
-            SourcePath = filePath,
-            RunId = ReadString(root, "runId"),
-            NoDecisionChangesConfirmed = noDecisionChangesConfirmed,
-            Decisions = decisions,
-            Changes = changes,
-        };
-    }
-
-    private static string? ReadString(JsonElement element, string propertyName)
-    {
-        if (!element.TryGetProperty(propertyName, out JsonElement value))
-            return null;
-
-        return value.ValueKind == JsonValueKind.String ? value.GetString() : null;
-    }
-
-    private static DateTime? ReadDateTime(JsonElement element, string propertyName)
-    {
-        string? text = ReadString(element, propertyName);
-
-        if (string.IsNullOrWhiteSpace(text))
-            return null;
-
-        if (DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime parsed))
-            return parsed.ToUniversalTime();
-
-        return null;
     }
 }
 

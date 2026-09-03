@@ -1,5 +1,6 @@
 using ArchLucid.Application.Admin;
 using ArchLucid.Application.Identity;
+using ArchLucid.Application.Identity.LinkProposal;
 using ArchLucid.Core.Identity;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Notifications.Email;
@@ -7,7 +8,9 @@ using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Operator;
 using ArchLucid.Application.Operator.Probes;
 using ArchLucid.Application.Support;
+using ArchLucid.Application.Identity.SignInRouting;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Application.Tenancy.Trial;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Http;
 using ArchLucid.Core.Metering;
@@ -85,6 +88,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPostAuthWorkspaceBootstrapService, PostAuthWorkspaceBootstrapService>();
         services.AddScoped<IPostAuthBootstrapService, PostAuthBootstrapService>();
         services.AddScoped<IEmailOtpSignInDomainPolicyService, EmailOtpSignInDomainPolicyService>();
+        services.AddScoped<IAuthSignInBypassResolver, AuthSignInBypassResolver>();
+        services.AddScoped<IAuthSignInRoutingEvaluator, AuthSignInRoutingEvaluator>();
         services.AddScoped<IAuthSignInRoutingService, AuthSignInRoutingService>();
         services.AddScoped<AuthDomainDnsVerificationService>();
         services.AddScoped<TenantAuthDomainVerificationService>();
@@ -96,6 +101,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IUserAccountRecoveryService, UserAccountRecoveryService>();
         services.AddScoped<IAuthenticationIdentityLinkProposalPersistStage, AuthenticationIdentityLinkProposalPersistStage>();
         services.AddScoped<IAuthenticationIdentityLinkProposalAuditNotifier, AuthenticationIdentityLinkProposalAuditNotifier>();
+        services.AddScoped<IExternalKeyEligibilityChecker, ExternalKeyEligibilityChecker>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalCreateStage, AuthenticationIdentityLinkProposalCreateStage>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalConfirmStage, AuthenticationIdentityLinkProposalConfirmStage>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalCancelStage, AuthenticationIdentityLinkProposalCancelStage>();
         services.AddScoped<IAuthenticationIdentityLinkProposalService, AuthenticationIdentityLinkProposalService>();
         services.AddScoped<IAuthenticationIdentityLinkChallengeService, AuthenticationIdentityLinkChallengeService>();
         services.AddScoped<IAuthenticationIdentityLinkingService, AuthenticationIdentityLinkingService>();
@@ -121,6 +130,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDefaultPolicyPackSeeder, DefaultPolicyPackSeeder>();
         services.AddScoped<DefaultPolicyPackCloudBaselineApplicator>();
         services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();
+        services.AddScoped<ITenantTrialAbuseGuard, TenantTrialAbuseGuard>();
+        services.AddScoped<ITenantTrialIdentityHandoffStage, TenantTrialIdentityHandoffStage>();
+        services.AddScoped<ITenantTrialConversionStage, TenantTrialConversionStage>();
         services.AddScoped<ITenantTrialFacade, TenantTrialFacade>();
         services.AddScoped<IMarketingAttributionService, MarketingAttributionService>();
         services.AddScoped<TrialLimitGate>();

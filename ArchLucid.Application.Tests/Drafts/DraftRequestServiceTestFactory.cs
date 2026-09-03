@@ -1,6 +1,6 @@
 using ArchLucid.Application.Authorization;
 using ArchLucid.Application;
-using ArchLucid.Application.Drafts;
+using ArchLucid.Application.Drafts.Stages;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -37,10 +37,9 @@ internal static class DraftRequestServiceTestFactory
     {
         DraftRequestCrudService crudService = new(
             repository,
-            questionSelectionEngine,
-            priorPackageSemanticMergeService,
-            workspaceSystemNameCollisionGuard,
-            Mock.Of<IWorkOwnershipDeleteAuthorizationService>());
+            new DraftRequestCreateStage(repository, priorPackageSemanticMergeService),
+            new DraftRequestMutateStage(repository, questionSelectionEngine, workspaceSystemNameCollisionGuard),
+            new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 
         DraftAdmissionService admissionService = new(
             repository,

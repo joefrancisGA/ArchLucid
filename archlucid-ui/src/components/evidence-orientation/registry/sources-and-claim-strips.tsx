@@ -74,6 +74,7 @@ import {
 } from "@/lib/signup-verify-evidence-copy";
 import {
   TRUST_CENTER_CLAIM_DISCIPLINE,
+  TRUST_CENTER_CLAIM_DISCIPLINE_HEADING,
   TRUST_CENTER_SOURCES,
   TRUST_CENTER_SOURCES_INTRO,
 } from "@/lib/trust-center-evidence-copy";
@@ -342,12 +343,11 @@ export function TrustCenterEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="trust-center"
-      part="sources"
       margin="mt-8"
       sourcesIntro={TRUST_CENTER_SOURCES_INTRO}
       sources={TRUST_CENTER_SOURCES}
-      claimHeading=""
-      claim=""
+      claimHeading={TRUST_CENTER_CLAIM_DISCIPLINE_HEADING}
+      claim={TRUST_CENTER_CLAIM_DISCIPLINE}
     />
   );
 }

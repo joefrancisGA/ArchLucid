@@ -82,6 +82,12 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
         migration342.Should().Contain("@runTable");
         migration342.Should().NotMatchRegex(@"(?m)^\s*ALTER\s+TABLE\s+dbo\.Runs\b");
 
+        string bootstrapSql = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
+
+        bootstrapSql.Should().Contain("PinnedPolicyPackIdsJson");
+        bootstrapSql.Should().Contain("@policyPackPinRunTable");
+
         string pinService = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
 
@@ -108,7 +114,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     public void Suggestion36_replay_skips_agent_tasks_when_authority_complete()
     {
         string replayPrepare = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "ReplayRunService.Prepare.cs"));
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunPrepareStage.cs"));
 
         replayPrepare.Should().Contain("AuthorityPipelineComplete");
         replayPrepare.Should().Contain("NoScheduledAgentTasksException");

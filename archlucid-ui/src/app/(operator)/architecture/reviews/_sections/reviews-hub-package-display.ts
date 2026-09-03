@@ -1,3 +1,4 @@
+import { authorityLifecyclePhaseLabel } from "@/lib/runs/authority-lifecycle-commit-block";
 import { formatRunListTitleWithDisambiguator } from "@/lib/operator/run-home-list-disambiguator";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import {
@@ -99,6 +100,12 @@ function splitReviewsHubReviewTitle(title: string): { primary: string; kindLabel
 }
 
 function reviewGovernanceState(run: RunSummary): string {
+  const authorityPhaseLabel = authorityLifecyclePhaseLabel(run.authorityLifecyclePhase);
+
+  if (authorityPhaseLabel !== null && run.authorityLifecyclePhase !== "Complete") {
+    return `Authority ${authorityPhaseLabel}`;
+  }
+
   const demoMeta = buyerDemoPackageCardMeta(run.runId);
 
   if (demoMeta !== null) {

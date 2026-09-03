@@ -37,73 +37,22 @@ export type GovernanceDashboardSummary = Omit<
   };
 
 /** One time bucket from GET /v1/governance/compliance-drift-trend. */
-export interface ComplianceDriftTrendPoint {
-  bucketUtc: string;
-  changeCount: number;
-  changesByType: Record<string, number>;
-  /** Findings captured (`FindingsSnapshotSealed` audit events) in this bucket. */
-  openFindingsCount?: number;
-  /** Human review dispositions in this bucket. */
-  resolvedFindingsCount?: number;
-}
+export type ComplianceDriftTrendPoint = components["schemas"]["ComplianceDriftTrendPoint"];
 
 /** GET /v1/governance/approval-requests/{id}/lineage */
-export interface GovernanceLineageRunSummary {
-  runId: string;
-  status: string;
-  createdUtc: string;
-  completedUtc: string | null;
-  currentManifestVersion: string | null;
-}
+export type GovernanceLineageRunSummary = components["schemas"]["GovernanceLineageRunSummary"];
 
-export interface GovernanceLineageManifestSummary {
-  manifestVersion: string | null;
-  decisionCount: number;
-  unresolvedIssueCount: number;
-  complianceGapCount: number;
-  /** Present when the Finalized review record verification payload is available. */
-  signedBy?: string | null;
-  signedUtc?: string | null;
-  verificationStatus?: string | null;
-  recordDigest?: string | null;
-}
+export type GovernanceLineageManifestSummary = components["schemas"]["GovernanceLineageManifestSummary"];
 
-export interface GovernanceLineageFindingSummary {
-  findingId: string;
-  title: string;
-  engineType: string;
-  severity: string;
-  traceCompletenessRatio: number;
-  /** Optional link to AgentExecutionTrace.traceId when the finding records it. */
-  sourceAgentExecutionTraceId?: string | null;
-}
+export type GovernanceLineageFindingSummary = components["schemas"]["GovernanceLineageFindingSummary"];
 
-export interface GovernanceLineageResult {
-  approvalRequest: GovernanceApprovalRequest;
-  run: GovernanceLineageRunSummary | null;
-  manifest: GovernanceLineageManifestSummary | null;
-  topFindings: GovernanceLineageFindingSummary[];
-  riskPosture: string | null;
-  promotions: GovernancePromotionRecord[];
-}
+export type GovernanceLineageResult = components["schemas"]["GovernanceLineageResult"];
 
 /** GET /v1/governance/approval-requests/{id}/rationale */
-export interface GovernanceRationaleResult {
-  schemaVersion: number;
-  approvalRequestId: string;
-  summary: string;
-  bullets: string[];
-}
+export type GovernanceRationaleResult = components["schemas"]["GovernanceRationaleResult"];
 
 /** POST /v1/governance/approval-requests/batch-review item row */
-export interface GovernanceBatchReviewItemResult {
-  approvalRequestId?: string;
-  succeeded?: boolean;
-  errorCode?: string | null;
-  message?: string | null;
-}
+export type GovernanceBatchReviewItemResult = components["schemas"]["GovernanceBatchReviewItemResult"];
 
 /** POST /v1/governance/approval-requests/batch-review */
-export interface GovernanceBatchReviewResponse {
-  results?: GovernanceBatchReviewItemResult[];
-}
+export type GovernanceBatchReviewResponse = components["schemas"]["GovernanceBatchReviewResponse"];

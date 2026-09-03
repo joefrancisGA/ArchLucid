@@ -25,6 +25,12 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
         sql.Should().Contain("PinnedEvidencePackagePinsJson");
         sql.Should().Contain("@runTable");
         sql.Should().NotMatchRegex(@"(?m)^\s*ALTER\s+TABLE\s+dbo\.Runs\b");
+
+        string bootstrapSql = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
+
+        bootstrapSql.Should().Contain("PinnedEvidencePackagePinsJson");
+        bootstrapSql.Should().Contain("@wave6PinRunTable");
     }
 
     [Fact]
@@ -118,7 +124,6 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
         string hasher = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
-        hasher.Should().Contain("HasherSchemaVersion = \"v3\"");
         hasher.Should().Contain("CreateTimePolicyPackPins");
         hasher.Should().Contain("CreateTimeEvidencePackagePins");
     }
@@ -141,7 +146,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     public void Suggestion59_replay_blocks_four_agent_when_stage_outcomes_exist()
     {
         string replay = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "ReplayRunService.ExecutePrepared.cs"));
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunExecutePreparedStage.cs"));
 
         replay.Should().Contain("SourceRunHasAuthorityStageProgressAsync");
         replay.Should().Contain("four-agent / DecisionEngineV2 replay is not permitted");

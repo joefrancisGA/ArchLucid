@@ -220,8 +220,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
         int maxRows,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows is <= 0 or > 500)
-            throw new ArgumentOutOfRangeException(nameof(maxRows));
+        BillingLedgerCore.ValidateHistoryMaxRows(maxRows);
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

@@ -47,6 +47,14 @@ export function GovernanceFindingsQueueSearchField(
       <Input
         value={searchQuery}
         onChange={(event) => setSearchQuery(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && searchQuery.trim().length > 0) {
+            event.preventDefault();
+            const clearedHref = governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", pathname);
+            router.replace(clearedHref, { scroll: false });
+            setSearchQuery("");
+          }
+        }}
         placeholder={props.placeholder ?? "Search findings…"}
         aria-label={props.placeholder ?? "Search findings"}
         className={OPERATOR_INVENTORY_TOOLBAR_SEARCH_CLASS}

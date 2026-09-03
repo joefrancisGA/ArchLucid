@@ -35,6 +35,7 @@ function GovernanceFindingsAdvancedFiltersPanel(
         nlFacets={props.nlFacets}
         jobViewFilterActive={props.jobViewFilterActive}
         findingsSearchQuery={props.findingsSearchQuery}
+        onDismissChip={props.onDismissActiveFilterChip}
         onClearAll={props.onClearAllFilters}
       />
       <GovernanceFindingsSavedViewsBar
@@ -74,7 +75,6 @@ export function GovernanceFindingsQueueToolbarSection(
       {props.compactRegisterFilterVisible ? (
         <GovernanceFindingsRegisterFilterCompact
           registerFilter={props.registerFilter}
-          onRegisterFilterChange={props.onRegisterFilterChange}
           onClearAllFilters={props.onClearAllFilters}
           allCount={props.scopedRows.length}
           openCount={props.registerSummary?.openRisks}

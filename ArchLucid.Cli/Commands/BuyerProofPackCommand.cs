@@ -16,71 +16,16 @@ internal static class BuyerProofPackCommand
 
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
-        if (args is null)
-            throw new ArgumentNullException(nameof(args));
+        BuyerProofPackCommandOptions? options = BuyerProofPackCommandArgParser.Parse(args, out string? parseError);
 
-        string? runId = null;
-        string? outZip = null;
-        string? repoRootOverride = null;
-
-        for (int i = 0; i < args.Length; i++)
+        if (options is null)
         {
-            string token = args[i];
-
-            if (string.Equals(token, "--out", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length)
-                {
-                    await Console.Error.WriteLineAsync("Missing value for --out.");
-
-                    return CliExitCode.UsageError;
-                }
-
-                outZip = args[++i];
-
-                continue;
-            }
-
-            if (string.Equals(token, "--repo-root", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length)
-                {
-                    await Console.Error.WriteLineAsync("Missing value for --repo-root.");
-
-                    return CliExitCode.UsageError;
-                }
-
-                repoRootOverride = args[++i];
-
-                continue;
-            }
-
-            if (token.StartsWith('-'))
-            {
-                await Console.Error.WriteLineAsync($"Unexpected flag: {token}");
-
-                return CliExitCode.UsageError;
-            }
-
-            if (runId is not null)
-            {
-                await Console.Error.WriteLineAsync("Only one run id is supported.");
-
-                return CliExitCode.UsageError;
-            }
-
-            runId = token;
-        }
-
-        if (string.IsNullOrWhiteSpace(runId) || string.IsNullOrWhiteSpace(outZip))
-        {
-            await Console.Error.WriteLineAsync(
-                "Usage: archlucid buyer-proof-pack <runId> --out <path.zip> [--repo-root <dir>]");
+            await Console.Error.WriteLineAsync(parseError);
 
             return CliExitCode.UsageError;
         }
 
-        string? repoRoot = ResolveRepoRoot(repoRootOverride);
+        string? repoRoot = ResolveRepoRoot(options.RepoRootOverride);
 
         if (repoRoot is null || !Directory.Exists(repoRoot))
         {
@@ -99,60 +44,35 @@ internal static class BuyerProofPackCommand
 
         string normalized = baseUrl.Trim().TrimEnd('/');
         using CliHttpProbeSession session = CliHttpProbeSession.ForApi(normalized, config, TimeSpan.FromMinutes(2));
-        HttpClient http = session.Http;
+        IBuyerProofArtifactCollector collector = new BuyerProofArtifactCollector();
+        BuyerProofArtifactCollectionResult collection = await collector.CollectAsync(options.RunId, session, includePdf: true, cancellationToken);
 
-        CliPilotRunDeltasFetchResult deltasFetch = await session.FetchPilotRunDeltasAsync(runId, cancellationToken);
-
-        if (deltasFetch.NotFound)
+        if (collection.Status == BuyerProofArtifactCollectionStatus.NotFound)
         {
-            await Console.Error.WriteLineAsync($"Run '{runId}' was not found (or is out of scope).");
+            await Console.Error.WriteLineAsync($"Run '{collection.RunId}' was not found (or is out of scope).");
 
             return CliExitCode.UsageError;
         }
 
-        if (!deltasFetch.Success)
+        if (collection.Status == BuyerProofArtifactCollectionStatus.GateFailed)
         {
-            await Console.Error.WriteLineAsync($"Error fetching pilot-run-deltas: {deltasFetch.StatusCode}: {deltasFetch.Body}");
-
-            return CliExitCode.OperationFailed;
-        }
-
-        string deltasJson = deltasFetch.Body;
-
-        if (!BuyerProofPackCommitGuard.TryValidate(deltasJson, out bool demoWarning, out string? gateError))
-        {
-            await Console.Error.WriteLineAsync(gateError);
+            await Console.Error.WriteLineAsync(collection.ErrorMessage);
 
             return CliExitCode.UsageError;
         }
 
-        using HttpResponseMessage mdResponse =
-            await http.GetAsync($"v1/pilots/runs/{Uri.EscapeDataString(runId)}/first-value-report", cancellationToken);
-
-        if (!mdResponse.IsSuccessStatusCode)
+        if (collection.Status != BuyerProofArtifactCollectionStatus.Success || collection.Artifacts is null)
         {
-            await Console.Error.WriteLineAsync($"Error fetching first-value Markdown: {(int)mdResponse.StatusCode}");
+            await Console.Error.WriteLineAsync(collection.ErrorMessage);
 
             return CliExitCode.OperationFailed;
         }
 
-        string markdown = await mdResponse.Content.ReadAsStringAsync(cancellationToken);
-
-        using HttpRequestMessage pdfReq = new(HttpMethod.Post,
-            $"v1/pilots/runs/{Uri.EscapeDataString(runId)}/first-value-report.pdf");
-
-        pdfReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/pdf"));
-
-        using HttpResponseMessage pdfResponse = await http.SendAsync(pdfReq, cancellationToken);
-
-        if (!pdfResponse.IsSuccessStatusCode)
-        {
-            await Console.Error.WriteLineAsync($"Error fetching first-value PDF: {(int)pdfResponse.StatusCode}");
-
-            return CliExitCode.OperationFailed;
-        }
-
-        byte[] pdfBytes = await pdfResponse.Content.ReadAsByteArrayAsync(cancellationToken);
+        BuyerProofArtifacts artifacts = collection.Artifacts;
+        string deltasJson = artifacts.DeltasJson;
+        string markdown = artifacts.FirstValueMarkdown;
+        byte[] pdfBytes = artifacts.FirstValuePdf ?? [];
+        bool demoWarning = artifacts.DemoWarning;
 
         string sponsorBriefSource = Path.Combine(repoRoot, "docs", "go-to-market", "EXECUTIVE_SPONSOR_BRIEF.md");
 
@@ -214,19 +134,19 @@ internal static class BuyerProofPackCommand
 
             Array.Sort(entries, static (a, b) => string.CompareOrdinal(a.RelativePath, b.RelativePath));
 
-            string manifestJson = BuildPackManifestJson(runId, demoWarning, entries);
+            string manifestJson = BuildPackManifestJson(options.RunId, demoWarning, entries);
             byte[] manifestBytes = BuyerPacketFolderWriter.Utf8NoBom.GetBytes(manifestJson);
             await File.WriteAllBytesAsync(Path.Combine(staging, "pack-manifest.json"), manifestBytes, cancellationToken);
 
-            string? outDir = Path.GetDirectoryName(Path.GetFullPath(outZip));
+            string? outDir = Path.GetDirectoryName(Path.GetFullPath(options.OutZip));
 
             if (!string.IsNullOrEmpty(outDir))
                 Directory.CreateDirectory(outDir);
 
-            if (File.Exists(outZip))
-                File.Delete(outZip);
+            if (File.Exists(options.OutZip))
+                File.Delete(options.OutZip);
 
-            await using (FileStream zipFs = new(outZip, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            await using (FileStream zipFs = new(options.OutZip, FileMode.CreateNew, FileAccess.Write, FileShare.None))
             await using (ZipArchive zip = new(zipFs, ZipArchiveMode.Create))
             {
                 foreach (PackFileEntry entry in entries)
@@ -243,7 +163,7 @@ internal static class BuyerProofPackCommand
                 await ms.WriteAsync(manifestBytes, cancellationToken);
             }
 
-            Console.WriteLine($"Wrote buyer proof pack: {outZip}");
+            Console.WriteLine($"Wrote buyer proof pack: {options.OutZip}");
 
             return CliExitCode.Success;
         }

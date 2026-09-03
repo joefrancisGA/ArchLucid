@@ -17,7 +17,7 @@ import {
   PROVENANCE_SECTION_RELATIONSHIPS_LABEL,
 } from "@/lib/provenance-evidence-copy";
 import type { ProvenanceReviewContext } from "@/components/provenance/provenance-page-workspace-types";
-import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
+import type { NormalizedArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import { cn } from "@/lib/utils";
 
 export type ProvenancePageWorkspaceHeaderProps = {
@@ -27,7 +27,7 @@ export type ProvenancePageWorkspaceHeaderProps = {
   readonly reviewHref: string;
   readonly reviewContext: ProvenanceReviewContext | null;
   readonly reviewTitle: string;
-  readonly graph: ArchitectureRunProvenanceGraph;
+  readonly graph: NormalizedArchitectureRunProvenanceGraph;
   readonly provenanceTraceId: string | null;
   readonly evidenceGraphHref: string;
 };

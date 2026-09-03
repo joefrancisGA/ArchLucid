@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -60,6 +61,8 @@ public sealed class RunSummaryOnePagerExportService(
 
         if (!detail.IsCommitted)
             throw new ConflictException("Export requires a finalized review with a committed architecture snapshot.");
+
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
         IReadOnlyList<ArchitectureFinding> topFindings =
             ArchitectureReviewBoardExportDocumentFactory.SelectRunSummaryTopFindings(detail, maxCount: 5);

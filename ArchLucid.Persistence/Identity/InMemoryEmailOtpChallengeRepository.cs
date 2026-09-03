@@ -15,19 +15,9 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         _ = cancellationToken;
         ArgumentNullException.ThrowIfNull(insert);
 
-        DateTimeOffset now = TimeProvider.System.GetUtcNow();
-        EmailOtpChallengeRecord row = new()
-        {
-            Id = insert.Id != Guid.Empty ? insert.Id : Guid.NewGuid(),
-            NormalizedEmail = insert.NormalizedEmail,
-            CodeHash = insert.CodeHash,
-            CreatedUtc = now,
-            ExpiresUtc = insert.ExpiresUtc,
-            FailedAttemptCount = 0,
-            ClientIpHash = insert.ClientIpHash,
-            UserAgentHash = insert.UserAgentHash,
-            InvitationId = insert.InvitationId
-        };
+        EmailOtpChallengeRecord row = EmailOtpChallengeRepositoryCore.CreateFromInsert(
+            insert,
+            TimeProvider.System.GetUtcNow());
 
         _byId[row.Id] = row;
 
@@ -51,7 +41,7 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         _ = cancellationToken;
 
         int count = _byId.Values.Count(row =>
-            row.NormalizedEmail == normalizedEmail && row.CreatedUtc >= sinceUtc);
+            EmailOtpChallengeRepositoryCore.MatchesRecentRequestByEmail(row, normalizedEmail, sinceUtc));
 
         return Task.FromResult(count);
     }
@@ -64,7 +54,7 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         _ = cancellationToken;
 
         int count = _byId.Values.Count(row =>
-            row.ClientIpHash == clientIpHash && row.CreatedUtc >= sinceUtc);
+            EmailOtpChallengeRepositoryCore.MatchesRecentRequestByClientIp(row, clientIpHash, sinceUtc));
 
         return Task.FromResult(count);
     }
@@ -77,15 +67,8 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
     {
         _ = cancellationToken;
 
-        int emailCount = _byId.Values.Count(row =>
-            row.NormalizedEmail == normalizedEmail && row.CreatedUtc >= sinceUtc);
-
-        int ipCount = clientIpHash is null
-            ? 0
-            : _byId.Values.Count(row =>
-                row.ClientIpHash == clientIpHash && row.CreatedUtc >= sinceUtc);
-
-        return Task.FromResult(new EmailOtpRecentRequestCounts(emailCount, ipCount));
+        return Task.FromResult(
+            EmailOtpChallengeRepositoryCore.CountRecentRequests(_byId.Values, normalizedEmail, clientIpHash, sinceUtc));
     }
 
     public Task<int> CountRecentFailedVerificationsByEmailAsync(
@@ -96,10 +79,7 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         _ = cancellationToken;
 
         int count = _byId.Values.Count(row =>
-            row.NormalizedEmail == normalizedEmail
-            && row.FailedAttemptCount > 0
-            && row.CreatedUtc >= sinceUtc
-            && row.CompletedUtc is null);
+            EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail(row, normalizedEmail, sinceUtc));
 
         return Task.FromResult(count);
     }
@@ -130,12 +110,10 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         {
             EmailOtpChallengeRecord row = entry.Value;
 
-            if (row.NormalizedEmail != normalizedEmail || row.CompletedUtc is not null || row.InvalidatedUtc is not null)
-            {
+            if (row.NormalizedEmail != normalizedEmail || !EmailOtpChallengeRepositoryCore.IsActive(row))
                 continue;
-            }
 
-            _byId[entry.Key] = Clone(row, invalidatedUtc: invalidatedUtc);
+            _byId[entry.Key] = EmailOtpChallengeRepositoryCore.Clone(row, invalidatedUtc: invalidatedUtc);
         }
 
         return Task.CompletedTask;
@@ -152,37 +130,24 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         lock (_completionLock)
         {
             List<Guid> activeIds = [];
+
             foreach (KeyValuePair<Guid, EmailOtpChallengeRecord> entry in _byId)
             {
                 EmailOtpChallengeRecord row = entry.Value;
 
-                if (row.NormalizedEmail == insert.NormalizedEmail
-                    && row.CompletedUtc is null
-                    && row.InvalidatedUtc is null)
-                {
+                if (row.NormalizedEmail == insert.NormalizedEmail && EmailOtpChallengeRepositoryCore.IsActive(row))
                     activeIds.Add(entry.Key);
-                }
             }
 
             foreach (Guid id in activeIds)
             {
                 EmailOtpChallengeRecord row = _byId[id];
-                _byId[id] = Clone(row, invalidatedUtc: invalidatedUtc);
+                _byId[id] = EmailOtpChallengeRepositoryCore.Clone(row, invalidatedUtc: invalidatedUtc);
             }
 
-            DateTimeOffset now = TimeProvider.System.GetUtcNow();
-            EmailOtpChallengeRecord created = new()
-            {
-                Id = insert.Id != Guid.Empty ? insert.Id : Guid.NewGuid(),
-                NormalizedEmail = insert.NormalizedEmail,
-                CodeHash = insert.CodeHash,
-                CreatedUtc = now,
-                ExpiresUtc = insert.ExpiresUtc,
-                FailedAttemptCount = 0,
-                ClientIpHash = insert.ClientIpHash,
-                UserAgentHash = insert.UserAgentHash,
-                InvitationId = insert.InvitationId
-            };
+            EmailOtpChallengeRecord created = EmailOtpChallengeRepositoryCore.CreateFromInsert(
+                insert,
+                TimeProvider.System.GetUtcNow());
 
             _byId[created.Id] = created;
 
@@ -205,83 +170,17 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
             {
                 return Task.FromResult(new EmailOtpChallengeCompletionOutcome
                 {
-                    Result = EmailOtpChallengeCompletionResult.NotFound
+                    Result = EmailOtpChallengeCompletionResult.NotFound,
                 });
             }
 
-            if (existing.CompletedUtc is not null)
-            {
-                return Task.FromResult(new EmailOtpChallengeCompletionOutcome
-                {
-                    Result = EmailOtpChallengeCompletionResult.AlreadyCompleted
-                });
-            }
+            (EmailOtpChallengeCompletionOutcome outcome, EmailOtpChallengeRecord? updated) =
+                EmailOtpChallengeRepositoryCore.EvaluateCompletion(existing, codeHash, nowUtc, maxFailedAttempts);
 
-            if (existing.InvalidatedUtc is not null)
-            {
-                return Task.FromResult(new EmailOtpChallengeCompletionOutcome
-                {
-                    Result = EmailOtpChallengeCompletionResult.Invalidated
-                });
-            }
-
-            if (existing.ExpiresUtc <= nowUtc)
-            {
-                return Task.FromResult(new EmailOtpChallengeCompletionOutcome
-                {
-                    Result = EmailOtpChallengeCompletionResult.Expired
-                });
-            }
-
-            if (!FixedTimeHexEquals.Equals(existing.CodeHash, codeHash))
-            {
-                int failed = existing.FailedAttemptCount + 1;
-                DateTimeOffset? invalidatedUtc = failed >= maxFailedAttempts ? nowUtc : null;
-
-                EmailOtpChallengeRecord updated = Clone(
-                    existing,
-                    failedAttemptCount: failed,
-                    invalidatedUtc: invalidatedUtc);
-
+            if (updated is not null)
                 _byId[challengeId] = updated;
 
-                return Task.FromResult(new EmailOtpChallengeCompletionOutcome
-                {
-                    Result = failed >= maxFailedAttempts
-                        ? EmailOtpChallengeCompletionResult.TooManyAttempts
-                        : EmailOtpChallengeCompletionResult.InvalidCode
-                });
-            }
-
-            EmailOtpChallengeRecord completed = Clone(existing, completedUtc: nowUtc);
-            _byId[challengeId] = completed;
-
-            return Task.FromResult(new EmailOtpChallengeCompletionOutcome
-            {
-                Result = EmailOtpChallengeCompletionResult.Completed,
-                Challenge = completed
-            });
+            return Task.FromResult(outcome);
         }
     }
-
-    private static EmailOtpChallengeRecord Clone(
-        EmailOtpChallengeRecord existing,
-        int? failedAttemptCount = null,
-        DateTimeOffset? completedUtc = null,
-        DateTimeOffset? invalidatedUtc = null) =>
-        new()
-        {
-            Id = existing.Id,
-            NormalizedEmail = existing.NormalizedEmail,
-            CodeHash = existing.CodeHash,
-            CreatedUtc = existing.CreatedUtc,
-            ExpiresUtc = existing.ExpiresUtc,
-            FailedAttemptCount = failedAttemptCount ?? existing.FailedAttemptCount,
-            CompletedUtc = completedUtc ?? existing.CompletedUtc,
-            InvalidatedUtc = invalidatedUtc ?? existing.InvalidatedUtc,
-            ClientIpHash = existing.ClientIpHash,
-            UserAgentHash = existing.UserAgentHash,
-            InvitationId = existing.InvitationId,
-            RowVersion = existing.RowVersion
-        };
 }

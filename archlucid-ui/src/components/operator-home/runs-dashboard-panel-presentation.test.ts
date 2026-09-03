@@ -6,7 +6,9 @@ import {
   homeGovernanceWarningsQueryEnabled,
   parseRunsDashboardShowArchivedFromSearch,
   parseRunsDashboardTabFromSearch,
+  resolveRunsDashboardOpenAllReviewsHref,
   runsDashboardHomeHrefFromSearch,
+  runsDashboardTabHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 
 describe("home governance warnings URL helpers", () => {
@@ -35,5 +37,22 @@ describe("home governance warnings URL helpers", () => {
     expect(
       runsDashboardHomeHrefFromSearch("warnings=1&archived=1", { governanceWarningsOnly: false }),
     ).toBe("/?archived=1");
+    expect(runsDashboardTabHrefFromSearch("warnings=1", "attention")).toBe("/?warnings=1&tab=attention");
+    expect(
+      resolveRunsDashboardOpenAllReviewsHref({
+        projectId: "default",
+        tab: "attention",
+        showArchived: false,
+        governanceWarningsOnly: false,
+      }),
+    ).toBe("/architecture/reviews?projectId=default&filter=needs-attention");
+    expect(
+      resolveRunsDashboardOpenAllReviewsHref({
+        projectId: "default",
+        tab: "all",
+        showArchived: true,
+        governanceWarningsOnly: false,
+      }),
+    ).toBe("/architecture/reviews?projectId=default&filter=Archived");
   });
 });

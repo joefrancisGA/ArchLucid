@@ -346,20 +346,19 @@ export function resolveReviewPackageDoThisNext(
   }
 
   if (primaryAction.kind === "send-to-sponsor" && evidenceCoverageGap(input)) {
-    return attachPostFinalizeGuidance(
-      {
-        kind: primaryAction.kind,
-        sentence: evidenceCoverageGapSentence(input.evidenceCoverageTotalCount),
-        actionLabel: "Review evidence coverage",
-        href: buildReviewWorkspaceTabHref(input.runId, "evidence"),
-        buttonVariant: "outline",
-        secondaryAction: {
-          label: primaryAction.label,
-          href: primaryAction.href ?? buildReviewWorkspaceTabHref(input.runId, "review-package", { hash: "sponsor-handoff" }),
-        },
-      },
-      input,
-    );
+    const quickLinks = buildPostFinalizeQuickLinks(input);
+    const followUpAction = {
+      label: "Start follow-up review",
+      href: secondReviewFromPriorHref(input.runId),
+    };
+
+    return {
+      kind: primaryAction.kind,
+      sentence: evidenceCoverageGapSentence(input.evidenceCoverageTotalCount),
+      actionLabel: "",
+      href: null,
+      quickLinks: quickLinks.length > 0 ? [followUpAction, ...quickLinks] : [followUpAction],
+    };
   }
 
   return attachPostFinalizeGuidance(
