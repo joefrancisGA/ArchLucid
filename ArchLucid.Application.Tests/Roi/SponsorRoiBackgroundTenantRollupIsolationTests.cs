@@ -138,9 +138,10 @@ public sealed class SponsorRoiBackgroundTenantRollupIsolationTests
             TimeProvider.System,
             Microsoft.Extensions.Options.Options.Create(new Core.Configuration.RoiCostEvidenceFreshnessOptions()));
 
-        RoiCostEvidenceCollectionResolver collectionResolver = new(
-            packageRepository.Object,
-            cloudInventoryRepository.Object);
+        RoiCostEvidenceCollectionResolver collectionResolver =
+            RoiCostEvidenceCollectionResolverTestSupport.Create(
+                packageRepository.Object,
+                cloudInventoryRepository.Object);
 
         SponsorRoiPricingLabelResolver pricingLabelResolver = new(
             CreateAmbientPricingContextResolver(),

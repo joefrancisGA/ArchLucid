@@ -46,6 +46,7 @@ internal static class ReplayAuthorityRunRecordFactory
                 PackageOrigin = sourceAuthorityRun.PackageOrigin
                     ?? ArchitecturePackageOriginResolver.Resolve(request),
                 ArchitectureVersionId = sourceAuthorityRun.ArchitectureVersionId,
+                PinnedArchitectureVersionContentHashSha256 = sourceAuthorityRun.PinnedArchitectureVersionContentHashSha256,
                 KnowledgeModelId = sourceAuthorityRun.KnowledgeModelId,
                 PinnedPolicyPackIdsJson = sourceAuthorityRun.PinnedPolicyPackIdsJson,
                 PinnedPolicyPackIdsHashSha256 = sourceAuthorityRun.PinnedPolicyPackIdsHashSha256,

@@ -26,11 +26,13 @@ import {
   mapItsmAtlassianOAuthCallbackFailure,
   mapItsmAtlassianOAuthIdpError,
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-error-copy";
+import { ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 import {
   ITSM_ATLASSIAN_OAUTH_CALLBACK_CONNECTOR_STATE_CONSENT_WITHOUT_CREDENTIAL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_CONNECTOR_STATE_UNCHANGED,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_FAILURE_TITLE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID,
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID,
@@ -203,23 +205,25 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
         {ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL}
       </a>
 
+      <OperatorPageHeader
+        title={pageTitle}
+        titleTestId="itsm-oauth-callback-page-title"
+        navHref={INTEGRATIONS_JIRA_PATH}
+        headingLevel="h1"
+        claimDiscipline={ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE}
+        claimDisciplineTestId={ITSM_ATLASSIAN_OAUTH_CALLBACK_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+        actions={<ItsmAtlassianOAuthCallbackHeaderActions phase={phase} />}
+      />
+
       <div
         id={ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID}
         data-testid="itsm-oauth-callback-primary-content"
-        className={cn("space-y-4", OPERATOR_LAYOUT.sectionStack)}
+        className={cn("scroll-mt-24 space-y-4", OPERATOR_LAYOUT.sectionStack)}
       >
-        <OperatorPageHeader
-          title={pageTitle}
-          titleTestId="itsm-oauth-callback-page-title"
-          navHref={INTEGRATIONS_JIRA_PATH}
-          headingLevel="h1"
-          actions={<ItsmAtlassianOAuthCallbackHeaderActions phase={phase} />}
-        />
-
         <div
           id={ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID}
           data-testid={ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID}
-          className="scroll-mt-24"
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
         >
           <Card className="max-w-[40rem] border-neutral-200/80 bg-al-surface-raised dark:border-neutral-800">
             <CardContent className={cn(OPERATOR_CARD.body, "space-y-4")}>

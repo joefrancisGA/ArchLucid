@@ -1,6 +1,9 @@
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Roi;
@@ -10,7 +13,9 @@ namespace ArchLucid.Application.Roi;
 /// </summary>
 public sealed class RoiCostEvidenceCollectionResolver(
     IAzureExtractorPackageRepository azureExtractorPackageRepository,
-    ICloudInventoryExtractorPackageRepository cloudInventoryExtractorPackageRepository)
+    ICloudInventoryExtractorPackageRepository cloudInventoryExtractorPackageRepository,
+    IRunRepository runRepository,
+    IRunEvidencePackagePinService runEvidencePackagePinService)
 {
     private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
         azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
@@ -18,6 +23,12 @@ public sealed class RoiCostEvidenceCollectionResolver(
     private readonly ICloudInventoryExtractorPackageRepository _cloudInventoryExtractorPackageRepository =
         cloudInventoryExtractorPackageRepository
         ?? throw new ArgumentNullException(nameof(cloudInventoryExtractorPackageRepository));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IRunEvidencePackagePinService _runEvidencePackagePinService =
+        runEvidencePackagePinService ?? throw new ArgumentNullException(nameof(runEvidencePackagePinService));
 
     public async Task<bool> HasAnyUploadedInventoryPackagesAsync(ScopeContext scope, CancellationToken cancellationToken)
     {
@@ -88,6 +99,20 @@ public sealed class RoiCostEvidenceCollectionResolver(
         Guid runId,
         CancellationToken cancellationToken)
     {
+        RunRecord? header =
+            await _runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        IReadOnlyList<EvidencePackagePin> pinnedEvidence =
+            _runEvidencePackagePinService.ResolvePinsFromHeader(header);
+
+        if (pinnedEvidence.Count > 0)
+        {
+            DateTime? fromPins = MaxUtc(pinnedEvidence.Select(static pin => pin.CollectionUtc).ToArray());
+
+            if (fromPins is not null)
+                return fromPins;
+        }
+
         AzureExtractorPackageProvenance? azureProvenance =
             await _azureExtractorPackageRepository
                 .TryGetLatestProvenanceByRunIdAsync(scope, runId, cancellationToken)

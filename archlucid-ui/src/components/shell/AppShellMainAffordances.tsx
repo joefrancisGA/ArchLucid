@@ -27,9 +27,12 @@ export function AppShellMainAffordances() {
   const isSettingsHubPath = pathname === "/administration";
   const isItsmOAuthCallbackPath = pathname === "/integrations/itsm/oauth/callback";
   const isDigestsHubPath = pathname === "/architecture/digests";
+  const isReviewsHubPath = pathname === "/architecture/reviews";
   const isFirstReviewGuidePath = pathname === "/architecture/first-review-guide";
   const isAdvisoryScansHubPath =
     pathname === "/governance/advisory-scans" || pathname.startsWith("/governance/advisory-scans/");
+  const isRecurrenceSchedulesPath =
+    pathname === "/governance/recurrence-schedules" || pathname.startsWith("/governance/recurrence-schedules/");
   const hideShortcutCoaches =
     isPreferencesSettingsPath ||
     isHelpTopicPath ||
@@ -37,8 +40,10 @@ export function AppShellMainAffordances() {
     isSettingsHubPath ||
     isItsmOAuthCallbackPath ||
     isDigestsHubPath ||
+    isReviewsHubPath ||
     isFirstReviewGuidePath ||
-    isAdvisoryScansHubPath;
+    isAdvisoryScansHubPath ||
+    isRecurrenceSchedulesPath;
   const showPersistentWorkspaceNextActionStrip = isPersistentWorkspaceNextActionStripPath(pathname);
   const staticDemoEnv = isExplicitStaticDemoMarketingBuild();
 

@@ -72,7 +72,10 @@ export function SettingsPageView() {
         <div
           id={SETTINGS_MASTER_FIRST_VIEWPORT_ID}
           data-testid={SETTINGS_MASTER_FIRST_VIEWPORT_ID}
-          className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
         >
           <SettingsMasterOverviewHeader
             scope={scope}

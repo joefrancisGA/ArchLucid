@@ -1,5 +1,6 @@
 using ArchLucid.Core.Billing;
 using ArchLucid.Application.Budgeting;
+using ArchLucid.Application.Budgeting.Wallet;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
@@ -270,13 +271,7 @@ public sealed class LlmTenantWalletServiceTests
             .ReturnsAsync(LlmTenantWalletConsumeResult.Conflict());
 
         LlmWalletSettlementQueue queue = new();
-        LlmTenantWalletService service = new(
-            repository.Object,
-            new Mock<IStripeWalletGateway>().Object,
-            queue,
-            new Mock<IAuditService>().Object,
-            TimeProvider.System,
-            NullLogger<LlmTenantWalletService>.Instance);
+        LlmTenantWalletService service = CreateService(repository.Object, new Mock<IStripeWalletGateway>().Object, queue: queue);
 
         Guid correlationId = Guid.NewGuid();
         await service.ConsumeInternalAsync(tenantId, 5m, correlationId, CancellationToken.None);
@@ -339,13 +334,7 @@ public sealed class LlmTenantWalletServiceTests
             .ReturnsAsync(LlmTenantWalletCreditResult.Conflict());
 
         LlmWalletSettlementQueue queue = new();
-        LlmTenantWalletService service = new(
-            repository.Object,
-            new Mock<IStripeWalletGateway>().Object,
-            queue,
-            new Mock<IAuditService>().Object,
-            TimeProvider.System,
-            NullLogger<LlmTenantWalletService>.Instance);
+        LlmTenantWalletService service = CreateService(repository.Object, new Mock<IStripeWalletGateway>().Object, queue: queue);
 
         Guid correlationId = Guid.NewGuid();
         await service.ReconcileOverageInternalAsync(tenantId, 25m, 40m, correlationId, CancellationToken.None);
@@ -414,15 +403,8 @@ public sealed class LlmTenantWalletServiceTests
         view.BalanceUsd.Should().Be(25m);
     }
 
-    private static LlmTenantWalletService CreateService(InMemoryLlmTenantWalletRepository repository)
-    {
-        Mock<IStripeWalletGateway> stripe = new();
-
-        return CreateService(repository, stripe.Object);
-    }
-
     private static LlmTenantWalletService CreateService(
-        InMemoryLlmTenantWalletRepository repository,
+        ILlmTenantWalletRepository repository,
         IStripeWalletGateway stripeGateway,
         LlmWalletSettlementQueue? queue = null,
         TimeProvider? timeProvider = null)
@@ -431,14 +413,22 @@ public sealed class LlmTenantWalletServiceTests
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        return new LlmTenantWalletService(
+        TimeProvider resolvedTimeProvider = timeProvider ?? TimeProvider.System;
+        LlmTenantWalletRefillStage refillStage = new(
             repository,
             stripeGateway,
-            settlementQueue,
             audit.Object,
-            timeProvider ?? TimeProvider.System,
-            NullLogger<LlmTenantWalletService>.Instance);
+            resolvedTimeProvider,
+            NullLogger<LlmTenantWalletRefillStage>.Instance);
+
+        return new LlmTenantWalletService(
+            new LlmTenantWalletConsumeStage(repository, settlementQueue, NullLogger<LlmTenantWalletConsumeStage>.Instance),
+            refillStage,
+            new LlmTenantWalletWebhookStage(settlementQueue, refillStage));
     }
+
+    private static LlmTenantWalletService CreateService(InMemoryLlmTenantWalletRepository repository) =>
+        CreateService(repository, new Mock<IStripeWalletGateway>().Object);
 
     private sealed class FakeTimeProvider(DateTimeOffset utcNow) : TimeProvider
     {

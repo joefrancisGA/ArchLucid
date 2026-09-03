@@ -98,7 +98,10 @@ internal static class ReplayRunServiceTestSupport
             authorityRunOrchestrator ?? Mock.Of<IAuthorityRunOrchestrator>(),
             prepareStage,
             cloneStage,
-            commitStage);
+            commitStage,
+            authorityRunRepository,
+            scopeContextProvider,
+            Mock.Of<IRunGovernanceScopePinService>());
 
         return new ReplayRunService(prepareStage, executePreparedStage);
     }
@@ -155,7 +158,10 @@ internal static class ReplayRunServiceTestSupport
             authorityRunOrchestrator ?? Mock.Of<IAuthorityRunOrchestrator>(),
             prepareStage,
             cloneStage,
-            commitStage);
+            commitStage,
+            authorityRunRepository.Object,
+            scopeProvider.Object,
+            Mock.Of<IRunGovernanceScopePinService>());
 
         ReplayRunService service = new(prepareStage, executePreparedStage);
 

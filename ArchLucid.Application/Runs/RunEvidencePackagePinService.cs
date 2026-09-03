@@ -57,9 +57,6 @@ public sealed class RunEvidencePackagePinService(
 
         PinnedEvidencePackageRow[] ordered = await BuildPinnedRowsAsync(scope, cancellationToken).ConfigureAwait(false);
 
-        if (ordered.Length == 0)
-            return;
-
         (string json, byte[] hash) = SerializePinnedRows(ordered);
         header.PinnedEvidencePackagePinsJson = json;
         header.PinnedEvidencePackagePinsHashSha256 = hash;
@@ -167,14 +164,26 @@ public sealed class RunEvidencePackagePinService(
             .ConfigureAwait(false);
 
         if (awsDownload is not null)
-            rows.Add(new PinnedEvidencePackageRow(AwsProvider, awsDownload.PackageId, null));
+        {
+            DateTime? awsCollectionUtc = await _cloudInventoryExtractorPackageRepository
+                .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, CloudProvider.Aws, cancellationToken)
+                .ConfigureAwait(false);
+
+            rows.Add(new PinnedEvidencePackageRow(AwsProvider, awsDownload.PackageId, awsCollectionUtc));
+        }
 
         CloudInventoryExtractorPackageDownloadRecord? gcpDownload = await _cloudInventoryExtractorPackageRepository
             .TryGetLatestDownloadInScopeAsync(scope, CloudProvider.Gcp, cancellationToken)
             .ConfigureAwait(false);
 
         if (gcpDownload is not null)
-            rows.Add(new PinnedEvidencePackageRow(GcpProvider, gcpDownload.PackageId, null));
+        {
+            DateTime? gcpCollectionUtc = await _cloudInventoryExtractorPackageRepository
+                .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, CloudProvider.Gcp, cancellationToken)
+                .ConfigureAwait(false);
+
+            rows.Add(new PinnedEvidencePackageRow(GcpProvider, gcpDownload.PackageId, gcpCollectionUtc));
+        }
 
         return rows
             .OrderBy(static row => row.Provider, StringComparer.OrdinalIgnoreCase)

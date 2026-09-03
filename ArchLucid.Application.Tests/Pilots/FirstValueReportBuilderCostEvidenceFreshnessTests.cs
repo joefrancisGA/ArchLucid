@@ -1,5 +1,6 @@
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Tests.Roi;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -129,7 +130,7 @@ public sealed class FirstValueReportBuilderCostEvidenceFreshnessTests
             .Setup(repo => repo.TryGetLatestProvenanceByRunIdAsync(Scope, runId, CloudProvider.Gcp, It.IsAny<CancellationToken>()))
             .ReturnsAsync((CloudInventoryExtractorPackageProvenance?)null);
 
-        return new RoiCostEvidenceCollectionResolver(azureRepository.Object, cloudRepository.Object);
+        return RoiCostEvidenceCollectionResolverTestSupport.Create(azureRepository.Object, cloudRepository.Object);
     }
 
     private static FirstValueReportBuilder CreateSut(

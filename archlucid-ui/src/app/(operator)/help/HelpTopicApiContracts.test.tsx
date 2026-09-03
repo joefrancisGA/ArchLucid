@@ -6,8 +6,16 @@ import { HelpTopicAuthorityGate } from "@/app/(operator)/help/_sections/HelpTopi
 import {
   API_CONTRACTS_HELP_PAGE_TITLE,
   API_CONTRACTS_HELP_PRIMARY_ACTIONS,
-  API_CONTRACTS_HELP_SOURCES,
 } from "@/lib/api-contracts-help-guide-content";
+import {
+  API_CONTRACTS_HELP_CLAIM_DISCIPLINE,
+  API_CONTRACTS_HELP_SOURCES,
+} from "@/lib/api-contracts-help-evidence-copy";
+import {
+  API_CONTRACTS_HELP_FIRST_VIEWPORT_TEST_ID,
+  API_CONTRACTS_HELP_SKIP_LINK_LABEL,
+  API_CONTRACTS_HELP_SKIP_TARGET_ID,
+} from "@/lib/api-contracts-help-page-copy";
 import { API_CONTRACTS_HELP_REFERENCE_LANDING } from "@/lib/api-contracts-help-reference-content";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
@@ -20,8 +28,21 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
+}));
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -146,9 +167,14 @@ describe("HelpApiContractsGuideView (HG)", () => {
       API_CONTRACTS_HELP_REFERENCE_LANDING.purpose,
     );
     expect(screen.getByTestId("help-api-contracts-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("help-api-contracts-sources-strip")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-api-contracts-orientation")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-api-contracts-sources-strip")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-api-contracts-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId("help-api-contracts-orientation")).toBeInTheDocument();
     expect(screen.queryByTestId("help-api-contracts-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-api-contracts-header-claim-discipline")).toHaveTextContent(
+      API_CONTRACTS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.getByTestId(API_CONTRACTS_HELP_FIRST_VIEWPORT_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("help-api-contracts-content")).toHaveAttribute("tabindex", "-1");
     expect(screen.getByTestId("help-technical-reference-toc")).toBeInTheDocument();
     expect(screen.getByTestId("help-api-contracts-major-sections")).toBeInTheDocument();
@@ -169,14 +195,16 @@ describe("HelpApiContractsGuideView (HG)", () => {
 
     for (const source of API_CONTRACTS_HELP_SOURCES) {
       expect(
-        within(screen.getByTestId("help-api-contracts-sources-strip")).getByRole("link", { name: source.label }),
+        within(screen.getByTestId("help-api-contracts-sources")).getByRole("link", {
+          name: `Read ${source.label}`,
+        }),
       ).toHaveAttribute("href", source.href);
     }
 
     const visibleLinkLabels = screen.getAllByRole("link").map((link) => link.textContent?.trim() ?? "");
 
     for (const source of API_CONTRACTS_HELP_SOURCES) {
-      expect(visibleLinkLabels.filter((label) => label === source.label)).toHaveLength(1);
+      expect(visibleLinkLabels.filter((label) => label === `Read ${source.label}`)).toHaveLength(1);
     }
 
     const visible = document.body.textContent ?? "";
@@ -198,12 +226,10 @@ describe("HelpApiContractsGuideView (HG)", () => {
 
     render(<HelpApiContractsGuideView entry={entry} markdown={loaded.markdown} />);
 
-    const skipLink = screen.getByRole("link", { name: "Skip to API contracts reference" });
-    const contentColumn = screen.getByTestId("help-api-contracts-content");
+    const skipLink = screen.getByRole("link", { name: API_CONTRACTS_HELP_SKIP_LINK_LABEL });
+    const firstViewport = screen.getByTestId(API_CONTRACTS_HELP_FIRST_VIEWPORT_TEST_ID);
 
-    expect(skipLink).toHaveAttribute("href", "#help-api-contracts-content");
-    expect(contentColumn).toHaveAttribute("tabindex", "-1");
-    contentColumn.focus();
-    expect(document.activeElement).toBe(contentColumn);
+    expect(skipLink).toHaveAttribute("href", `#${API_CONTRACTS_HELP_SKIP_TARGET_ID}`);
+    expect(firstViewport).toHaveAttribute("id", API_CONTRACTS_HELP_SKIP_TARGET_ID);
   });
 });

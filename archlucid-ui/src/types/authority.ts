@@ -4,7 +4,10 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 /**
  * Intentional UI-only list enrichments merged onto OpenAPI `RunSummaryResponse` after fetch.
- * These keys are not part of the generated schema; keep them here rather than parallel DTO structs.
+ *
+ * Wave 9: **not** an OpenAPI alias — no `RunSummaryWireExtensions` schema exists. Keys are sporadic
+ * list/detail merges the shell treats as present after fetch; document new extensions here instead of
+ * widening `RunSummaryResponse` in hand-authored DTOs.
  */
 export type RunSummaryWireExtensions = {
   /** Golden manifest id when list/summary already resolved it (avoids N× getRunDetail). */

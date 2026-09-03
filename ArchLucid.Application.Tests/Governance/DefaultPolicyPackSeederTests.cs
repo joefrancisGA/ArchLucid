@@ -24,14 +24,13 @@ public sealed class DefaultPolicyPackSeederTests
         InMemoryPolicyPackAssignmentRepository assignments = new();
         InMemoryPolicyPackChangeLogRepository changeLog = new();
         IArchLucidUnitOfWorkFactory uowFactory = ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory();
-        PolicyPackManagementService management = new(
+        PolicyPackManagementService management = PolicyPackManagementServiceComposer.Compose(
             packs,
             versions,
             assignments,
             changeLog,
             uowFactory,
-            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
 
         DefaultPolicyPackSeeder sut = new(management, packs, NullLogger<DefaultPolicyPackSeeder>.Instance);
 
@@ -65,14 +64,13 @@ public sealed class DefaultPolicyPackSeederTests
         InMemoryPolicyPackAssignmentRepository assignments = new();
         InMemoryPolicyPackChangeLogRepository changeLog = new();
         IArchLucidUnitOfWorkFactory uowFactory = ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory();
-        PolicyPackManagementService management = new(
+        PolicyPackManagementService management = PolicyPackManagementServiceComposer.Compose(
             packs,
             versions,
             assignments,
             changeLog,
             uowFactory,
-            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
 
         DefaultPolicyPackSeeder sut = new(management, packs, NullLogger<DefaultPolicyPackSeeder>.Instance);
 
