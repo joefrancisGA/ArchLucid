@@ -52,6 +52,13 @@ public sealed class TenantTrialAbuseGuard(
 
         string requestedOid = body.EntraOid!.Trim();
 
+        if (requestedOid.Length > TrialIdentityUserFieldLimits.LinkedEntraOidMaxLength)
+        {
+            return Failure(
+                TenantTrialHttpOutcome.ValidationFailed,
+                $"Entra OID must be at most {TrialIdentityUserFieldLimits.LinkedEntraOidMaxLength} characters.");
+        }
+
         if (localRow.LinkedEntraOid is { } existingLinkedOid && existingLinkedOid != requestedOid)
         {
             return Failure(
