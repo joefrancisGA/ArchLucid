@@ -169,6 +169,85 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
         unparsedFinding.EvaluationConfidenceScore.Should().BeLessThan(35);
     }
 
+    [Fact]
+    public async Task TryEnrichAsync_engine_type_fallback_prefers_parsed_trace_when_multiple_topology_tasks_exist()
+    {
+        Guid runGuid = Guid.Parse("60606060-6060-6060-6060-606060606060");
+        const string runKey = "60606060606060606060606060606060";
+        const string taskUnparsed = "task-unparsed-first";
+        const string taskPassing = "task-passing-second";
+        string goodJson = LoadGoldenFixture("golden-agent-result-valid.json");
+
+        AgentExecutionTrace unparsedTrace = new()
+        {
+            TraceId = "trace-unparsed",
+            TaskId = taskUnparsed,
+            RunId = runKey,
+            AgentType = AgentType.Topology,
+            ParseSucceeded = false,
+            ParsedResultJson = null,
+            AttemptIndex = 1,
+        };
+
+        AgentExecutionTrace passingTrace = new()
+        {
+            TraceId = "trace-passing",
+            TaskId = taskPassing,
+            RunId = runKey,
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = goodJson,
+            AttemptIndex = 1,
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "finding-engine-fallback",
+            FindingType = "AgentArchitectureFinding-Topology",
+            Category = "Security",
+            EngineType = AgentType.Topology.ToString(),
+            Severity = FindingSeverity.Error,
+            Title = "Topology finding without trace id uses engine-type fallback.",
+            Rationale = "Topology finding without trace id uses engine-type fallback.",
+            Trace = new ExplainabilityTrace
+            {
+                RulesApplied = ["agent-Topology"],
+                DecisionsTaken = ["Recorded architecture finding from Topology agent."],
+                Notes = ["evidence:ev-1"],
+                Citations = ["ev-1"],
+            },
+        };
+
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            RunId = runGuid,
+            Findings = [finding],
+        };
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("10101010-1010-1010-1010-101010101010"),
+            WorkspaceId = Guid.Parse("20202020-2020-2020-2020-202020202020"),
+            ProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030"),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
+
+        Mock<IAgentExecutionTraceRepository> traceRepository = new();
+        traceRepository
+            .Setup(r => r.GetByRunIdAsync(scope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([unparsedTrace, passingTrace]);
+
+        FindingsSnapshotEvaluationConfidenceEnricher sut = CreateSut(traceRepository.Object, scopeProvider.Object);
+
+        await sut.TryEnrichAsync(snapshot, CancellationToken.None);
+
+        finding.EvaluationConfidenceScore.Should().NotBeNull();
+        finding.EvaluationConfidenceScore.Should().BeGreaterThan(44);
+    }
+
     private static Finding CreateTopologyFinding(string findingId, string traceId)
     {
         return new Finding
@@ -221,6 +300,8 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
             Options.Create(gateOptions),
             referenceEvaluator,
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
+            new NoOpLlmFaithfulnessEvaluator(),
+            Options.Create(new AgentOutputLlmFaithfulnessOptions()),
             new FindingConfidenceCalculator());
 
         return new FindingsSnapshotEvaluationConfidenceEnricher(
@@ -244,5 +325,15 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
     {
         public Task AppendAsync(AgentOutputEvaluationResultRecord row, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
+    }
+
+    private sealed class NoOpLlmFaithfulnessEvaluator : IAgentOutputFaithfulnessEvaluator
+    {
+        public Task<double?> TryEvaluateAsync(
+            string traceId,
+            string parsedResultJson,
+            AgentEvidencePackage evidencePackage,
+            CancellationToken cancellationToken) =>
+            Task.FromResult<double?>(null);
     }
 }

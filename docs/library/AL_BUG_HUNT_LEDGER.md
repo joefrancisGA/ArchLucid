@@ -1665,6 +1665,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-09-03 thorough hunt #640 (hit): confidence path omitted Phase B LLM faithfulness; engine-type trace fallback used unordered `g.First()`; threaded faithfulness into `ComputeQualityGateAcceptedForConfidenceAsync` and `SelectPreferredTraceForAgentType`.
+
+---
+
 ## Zone: agent-runtime-evaluation
 
 - **id:** agent-runtime-evaluation
@@ -1673,13 +1677,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — confidence enrichment ignored calibrated confidence on semantic reject floor
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — confidence enrichment omitted Phase B LLM faithfulness enforcement
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1691,8 +1695,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) PilotStrict sponsor evidence gate evaluates superseded auto-retry traces — **hit 2026-08-21:** `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` iterated all persisted traces; a rejected first attempt blocked sponsor evidence even when the latest retry passed PilotStrict.
 - [x] (proven) Confidence enrichment ignores PilotStrict faithfulness rejection — **hit 2026-08-23:** `ComputeQualityGateAcceptedForConfidenceAsync` and both confidence enrichers evaluated traces without run evidence/faithfulness, so `schemaPassed` stayed true on outputs PilotStrict would reject for low agent-result faithfulness support.
 - [x] (proven) Confidence enrichment ignores calibrated confidence on semantic reject floor — **hit 2026-08-26:** `ComputeQualityGateAcceptedForConfidenceAsync` omitted `calibratedConfidenceByTaskId`, so high heuristic semantic scores accepted traces the batch recorder rejected when `CalibratedConfidence` was below `SemanticRejectBelow`; fixed by threading calibrated lookup through `AgentEvaluationConfidencePipeline` (`AgentOutputTraceQualityEvaluatorTests.ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor`).
-- [ ] (candidate) `ComputeQualityGateAcceptedForConfidenceAsync` omits Phase B LLM faithfulness enforcement — recorder path passes `llmFaithfulnessEvaluator` / options; confidence path does not.
-- [ ] (candidate) `AgentEvaluationConfidencePipeline.TraceByAgentType` uses unordered `g.First()` — engine-type fallback may inherit wrong trace when multiple same-agent tasks lack trace-id linkage.
+- [x] (proven) `ComputeQualityGateAcceptedForConfidenceAsync` omits Phase B LLM faithfulness enforcement — **hit 2026-09-03:** recorder path passed `llmFaithfulnessEvaluator` / options; confidence path did not; regression in `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_phase_b_llm_faithfulness_below_reject_floor`
+- [x] (proven) `AgentEvaluationConfidencePipeline.TraceByAgentType` uses unordered `g.First()` — **hit 2026-09-03:** engine-type fallback inherited arbitrary trace when multiple same-agent tasks lacked trace-id linkage; fixed with `SelectPreferredTraceForAgentType`; regression in `TryEnrichAsync_engine_type_fallback_prefers_parsed_trace_when_multiple_topology_tasks_exist`
 
 2026-08-26 seed hunt #5: proved calibrated-confidence parity gap; reseeded LLM Phase B and engine-type fallback candidates.
 
