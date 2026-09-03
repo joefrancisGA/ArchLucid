@@ -5056,6 +5056,7 @@ export interface components {
             addedRelationships?: components["schemas"]["RelationshipDiffItem"][];
             addedRequiredControls?: string[];
             addedServices?: string[];
+            inputFingerprints?: null | components["schemas"]["CompareInputFingerprints"];
             leftManifestVersion?: string;
             removedDatastores?: string[];
             removedRelationships?: components["schemas"]["RelationshipDiffItem"][];
