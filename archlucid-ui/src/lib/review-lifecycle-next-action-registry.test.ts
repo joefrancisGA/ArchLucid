@@ -48,6 +48,18 @@ describe("review-lifecycle-next-action-registry (TB-2366)", () => {
     expect(actions.optional.some((action) => action.id === "compare")).toBe(false);
   });
 
+  it("prefills Compare with priorRunId for the current review", () => {
+    const action = reviewLifecycleNextActionInstance({
+      id: "compare",
+      hrefInput: {
+        runId: "run-1",
+        showCompareCta: true,
+      },
+    });
+
+    expect(action?.href).toBe("/insights/compare-two-reviews?priorRunId=run-1");
+  });
+
   it("lists in-review review-package actions", () => {
     const actions = listReviewLifecycleNextActions({
       surface: "review-package",

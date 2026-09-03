@@ -1,4 +1,4 @@
-import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { secondReviewFromPriorHref } from "@/lib/second-review-prior-package";
 import {
   SPONSOR_BRIEFING_EXPORT_LABEL,
@@ -182,7 +182,7 @@ function resolveHref(id: ReviewLifecycleNextActionId, input: BuildReviewLifecycl
         return null;
       }
 
-      return comparePageHrefAdaptive(runId);
+      return buildCompareTwoReviewsHref({ baseRunId: runId });
 
     case "validate-replay":
       return `${INTERNAL_REPLAY_PATH}?runId=${encodeURIComponent(runId)}`;

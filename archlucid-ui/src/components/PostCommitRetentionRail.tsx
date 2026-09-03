@@ -7,7 +7,7 @@ import type { ReactElement } from "react";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
-import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
@@ -107,7 +107,7 @@ export function PostCommitRetentionRail({
         ) : null}
         {showCompareCta ? (
           <Button type="button" asChild variant="outline" size="sm" className="justify-center sm:justify-start">
-            <Link href={comparePageHrefAdaptive(runId)} title="Compare this review to another finalized review">
+            <Link href={buildCompareTwoReviewsHref({ baseRunId: runId })} title="Compare this review to another finalized review">
               Compare with another review
             </Link>
           </Button>
