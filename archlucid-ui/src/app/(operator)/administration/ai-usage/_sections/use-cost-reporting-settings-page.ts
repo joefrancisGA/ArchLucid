@@ -323,6 +323,7 @@ export function useCostReportingSettingsPage(
     adminDashboard,
     derived,
     filters,
+    currentSearch: searchParams.toString(),
     canViewBudgetDetails,
     canManageBudget,
     showDetailedActivityLink: isArchLucidInternalOperatorShellEnv(),

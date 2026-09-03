@@ -11,10 +11,12 @@ import {
   parseProvenanceViewModeFromSearch,
   parseProvenanceTableSearchQueryFromSearch,
   parseProvenanceTableNodeTypeFromSearch,
+  parseProvenanceTableEdgeSearchQueryFromSearch,
   provenanceCategoryHrefFromSearch,
   provenanceViewModeHrefFromSearch,
   provenanceTableSearchHrefFromSearch,
   provenanceTableNodeTypeHrefFromSearch,
+  provenanceTableEdgeSearchHrefFromSearch,
 } from "@/lib/provenance/provenance-workspace-filters-url";
 import {
   PROVENANCE_SECTION_GRAPH_LABEL,
@@ -66,6 +68,7 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   const urlCategory = parseProvenanceCategoryFromSearch(searchParams.get("category"));
   const urlNodeSearch = parseProvenanceTableSearchQueryFromSearch(searchParams.get("q"));
   const urlNodeTypeFilter = parseProvenanceTableNodeTypeFromSearch(searchParams.get("nodeType"));
+  const urlEdgeSearch = parseProvenanceTableEdgeSearchQueryFromSearch(searchParams.get("edgeQ"));
   // OpenAPI may omit optional arrays; normalize before .length / .map so SSR/demo payloads cannot crash.
   const graph: ArchitectureRunProvenanceGraph = {
     ...props.graph,
@@ -84,7 +87,7 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   const [edgesExpanded, setEdgesExpanded] = useState(() => graph.edges.length < SEARCH_THRESHOLD);
   const [nodeSearch, setNodeSearch] = useState(urlNodeSearch);
   const [nodeTypeFilter, setNodeTypeFilter] = useState(urlNodeTypeFilter);
-  const [edgeSearch, setEdgeSearch] = useState("");
+  const [edgeSearch, setEdgeSearch] = useState(urlEdgeSearch);
 
   const nodeById = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node])), [graph.nodes]);
 
@@ -105,6 +108,10 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   }, [urlNodeTypeFilter]);
 
   useEffect(() => {
+    setEdgeSearch(urlEdgeSearch);
+  }, [urlEdgeSearch]);
+
+  useEffect(() => {
     const handle = window.setTimeout(() => {
       const nextHref = provenanceTableSearchHrefFromSearch(searchParams.toString(), nodeSearch, pathname);
 
@@ -117,6 +124,20 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
       window.clearTimeout(handle);
     };
   }, [nodeSearch, pathname, router, searchParams]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = provenanceTableEdgeSearchHrefFromSearch(searchParams.toString(), edgeSearch, pathname);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [edgeSearch, pathname, router, searchParams]);
 
   const setNodeTypeFilterWithUrl = useCallback((value: string): void => {
     setNodeTypeFilter(value);

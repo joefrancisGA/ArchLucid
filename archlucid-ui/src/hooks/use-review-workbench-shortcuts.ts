@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
-import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useKeyboardShortcuts, type KeyboardShortcutsMap } from "@/hooks/useKeyboardShortcuts";
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 
 export type UseReviewWorkbenchShortcutsOptions = {
@@ -18,16 +18,19 @@ const COLUMN_BY_KEY: Record<string, ReviewWorkbenchColumnId> = {
 };
 
 export function useReviewWorkbenchShortcuts(options: UseReviewWorkbenchShortcutsOptions): void {
-  const shortcuts =
-    options.enabled && options.onSaveDraft !== undefined
-      ? {
-          "ctrl+shift+s": {
-            handler: options.onSaveDraft,
-            description: "Save architecture draft",
-            allowInInput: true,
-          },
-        }
-      : {};
+  const shortcuts = useMemo((): KeyboardShortcutsMap => {
+    if (!options.enabled || options.onSaveDraft === undefined) {
+      return {};
+    }
+
+    return {
+      "ctrl+shift+s": {
+        handler: options.onSaveDraft,
+        description: "Save architecture draft",
+        allowInInput: true,
+      },
+    };
+  }, [options.enabled, options.onSaveDraft]);
 
   useKeyboardShortcuts(shortcuts);
 

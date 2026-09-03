@@ -52,6 +52,13 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         finding.ReviewedByUserId = ReadOptionalString(root, "reviewedByUserId");
         finding.ReviewNotes = ReadOptionalString(root, "reviewNotes");
 
+        if (TryGetPropertyCaseInsensitive(root, "evidencePackageId", out JsonElement packageIdEl)
+            && packageIdEl.ValueKind == JsonValueKind.String
+            && Guid.TryParse(packageIdEl.GetString(), out Guid evidencePackageId))
+        {
+            finding.EvidencePackageId = evidencePackageId;
+        }
+
         if (TryGetPropertyCaseInsensitive(root, "enforcementTier", out JsonElement tierEl))
         {
             finding.EnforcementTier = ReadEnforcementTier(tierEl);
@@ -174,6 +181,12 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
             writer.WriteNull("reviewedAtUtc");
 
         WriteOptionalString(writer, "reviewNotes", value.ReviewNotes);
+
+        if (value.EvidencePackageId is Guid packageId)
+            writer.WriteString("evidencePackageId", packageId.ToString("D"));
+        else
+            writer.WriteNull("evidencePackageId");
+
         WriteInsightDensityFields(writer, value);
         writer.WriteEndObject();
     }

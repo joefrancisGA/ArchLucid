@@ -39,22 +39,30 @@ describe("demo-ui-env — TB-643 buyer-default shell", () => {
     }
   });
 
-  it("defaults buyer-polished shell when operator experience is unset", () => {
+  it("defaults buyer-polished shell off for production Working seats (PT-01)", () => {
     delete process.env.NEXT_PUBLIC_DEMO_MODE;
     delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
     delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
 
-    expect(isBuyerPolishedOperatorShellEnv()).toBe(true);
+    expect(isBuyerPolishedOperatorShellEnv()).toBe(false);
     expect(isOperatorExperienceFullShellEnv()).toBe(false);
   });
 
-  it("keeps buyer-polished shell when operator experience is explicitly operator", () => {
+  it("keeps buyer-polished shell off when operator experience is explicitly operator", () => {
     delete process.env.NEXT_PUBLIC_DEMO_MODE;
     delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
 
-    expect(isBuyerPolishedOperatorShellEnv()).toBe(true);
+    expect(isBuyerPolishedOperatorShellEnv()).toBe(false);
     expect(isOperatorExperienceFullShellEnv()).toBe(true);
+  });
+
+  it("enables buyer-polished shell for demo mode builds", () => {
+    process.env.NEXT_PUBLIC_DEMO_MODE = "true";
+    delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+
+    expect(isBuyerPolishedOperatorShellEnv()).toBe(true);
   });
 
   it("keeps buyer vocabulary pass active for default and full-operator shells", () => {

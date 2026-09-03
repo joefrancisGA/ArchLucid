@@ -17,6 +17,7 @@ import {
   buildGoldenSponsorPackageWalkthroughHref,
   buildGoldenSponsorPackageWalkthroughHrefFromReviewPath,
 } from "@/lib/golden-sponsor-package-walkthrough";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
 export type EmptyHomeDoThisNextAction = {
   readonly label: string;
@@ -76,13 +77,11 @@ function resolveBlockingSetupAction(
   return toSetupAction(nextRequired, bridgeCopy);
 }
 
-const NEW_REVIEW_HREF = "/architecture/reviews/new";
-
 function resolveWorkingModeNewReviewAction(): EmptyHomeDoThisNextAction {
   return {
     kind: "work",
     label: "New review",
-    href: NEW_REVIEW_HREF,
+    href: ARCHITECTURES_NEW_PATH,
     bridgeCopy: "Open the draft editor and start a new architecture review.",
   };
 }
