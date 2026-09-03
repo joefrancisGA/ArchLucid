@@ -40,6 +40,10 @@ import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths"
 import {
   parseAlertsInboxSeverityFromSearch,
 } from "@/lib/governance/alerts-inbox-severity-url";
+import {
+  alertsInboxStatusHrefFromSearch,
+  parseAlertsInboxStatusFromSearch,
+} from "@/lib/governance/alerts-inbox-status-url";
 
 type PendingActionState = {
   alertId: string;
@@ -74,11 +78,12 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
   const urlSeverity = parseAlertsInboxSeverityFromSearch(searchParams.get("severity"));
+  const urlStatus = parseAlertsInboxStatusFromSearch(searchParams.get("status"));
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
   const canMutateAlertInbox = useNavSurface("alerts").mutationCapability;
   const buyerPolishedShell = initialModel?.buyerPolishedShell ?? isBuyerPolishedOperatorShellEnv();
-  const [status, setStatus] = useState<string>(initialModel?.status ?? "Open");
+  const [status, setStatus] = useState<string>(initialModel?.status ?? urlStatus);
   const [severity, setSeverity] = useState<string>(urlSeverity);
   const [cursorStack, setCursorStack] = useState<string[]>(() => initialCursorStack(initialModel));
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(initialModel?.loadFailure ?? null);
@@ -144,6 +149,15 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     setSeverity(urlSeverity);
     setCursorStack([""]);
   }, [urlSeverity]);
+
+  useEffect(() => {
+    if (status === urlStatus) {
+      return;
+    }
+
+    setStatus(urlStatus);
+    setCursorStack([""]);
+  }, [status, urlStatus]);
 
   const refreshInbox = useCallback(
     async (options?: { readonly refreshSummary?: boolean }) => {
@@ -374,6 +388,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
   function changeStatusFilter(value: string): void {
     setStatus(value);
     setCursorStack([""]);
+    router.replace(alertsInboxStatusHrefFromSearch(searchParams.toString(), value), { scroll: false });
   }
 
   function goNextPage(): void {

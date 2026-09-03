@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -10,6 +11,10 @@ import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { graphNeighborhoodDepthHrefFromSearch } from "@/lib/insights/graph-neighborhood-depth-url";
+import {
+  graphDecisionIdHrefFromSearch,
+  graphNodeIdHrefFromSearch,
+} from "@/lib/insights/graph-node-decision-id-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 
@@ -41,6 +46,23 @@ export function GraphModeAuxiliaryFields(props: GraphModeAuxiliaryFieldsProps) {
   const pathname = usePathname() ?? EVIDENCE_GRAPH_PATH;
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref =
+        mode === "decision-subgraph"
+          ? graphDecisionIdHrefFromSearch(currentSearch, decisionId, pathname)
+          : graphNodeIdHrefFromSearch(currentSearch, nodeId, pathname);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [currentSearch, decisionId, mode, nodeId, pathname, router]);
 
   const onDepthChipSelect = (nextDepth: number): void => {
     onDepthChange(nextDepth);
