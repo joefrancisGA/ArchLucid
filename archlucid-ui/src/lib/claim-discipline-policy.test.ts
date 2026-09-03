@@ -30,6 +30,7 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("audit-trail")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("help-hub")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("help-api-contracts")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("help-api-keys")).toBe(true);
   });
 
   it("resolveClaimDisciplineForStrip returns undefined for omitted slugs", () => {
