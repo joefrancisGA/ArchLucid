@@ -8,7 +8,6 @@ import {
 } from "@/lib/resolve-review-detail-visible-tabs";
 import {
   REVIEW_DETAIL_DEFAULT_TAB,
-  REVIEW_DETAIL_TAB_LABELS,
   type ReviewDetailTabId,
 } from "@/lib/review-detail-workspace-tabs";
 
