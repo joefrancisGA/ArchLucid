@@ -99,4 +99,11 @@ public sealed class CommitRunResult
         get;
         set;
     } = [];
+
+    /// <summary>Wave-15 suggestion 141: sealed artifact inventory rows for Hasher B callers.</summary>
+    public IReadOnlyList<Core.Manifest.Sections.CommittedArtifactInventoryEntry> CommittedArtifactInventory
+    {
+        get;
+        set;
+    } = [];
 }
