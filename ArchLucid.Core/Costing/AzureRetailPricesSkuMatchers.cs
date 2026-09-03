@@ -16,8 +16,11 @@ public sealed partial class AzureRetailPricesCatalogClient
             && type.Contains("Reservation", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if ((row.MeterTier ?? string.Empty).Contains("Government",
-                StringComparison.OrdinalIgnoreCase))
+        string meterTier = row.MeterTier ?? string.Empty;
+
+        if (!meterTier.Contains("non-government", StringComparison.OrdinalIgnoreCase)
+            && !meterTier.Contains("nongovernment", StringComparison.OrdinalIgnoreCase)
+            && meterTier.Contains("Government", StringComparison.OrdinalIgnoreCase))
             return false;
 
         string meterName = row.MeterName ?? string.Empty;

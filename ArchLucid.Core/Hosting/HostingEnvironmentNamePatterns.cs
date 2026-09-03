@@ -46,6 +46,13 @@ public static class HostingEnvironmentNamePatterns
             return true;
         }
 
+        if (string.Equals(trimmed, "produce", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("produce-", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("produce_", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         return false;
     }
 }
