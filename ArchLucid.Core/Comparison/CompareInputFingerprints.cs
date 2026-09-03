@@ -72,4 +72,18 @@ public sealed class CompareInputFingerprints
         get;
         set;
     }
+
+    /// <summary>Wave-15 suggestion 145: committed artifact inventory fingerprint for the base run.</summary>
+    public string? BaseCommittedArtifactInventoryHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-15 suggestion 145: committed artifact inventory fingerprint for the target run.</summary>
+    public string? TargetCommittedArtifactInventoryHashSha256
+    {
+        get;
+        set;
+    }
 }

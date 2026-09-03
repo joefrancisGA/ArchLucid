@@ -59,7 +59,7 @@ public static class ManifestCommittedArtifactInventoryCapturer
             .ToList();
     }
 
-    /// <summary>Wave-14 suggestion 139: detect partial commits where inventory rows diverge from persisted pointers.</summary>
+    /// <summary>Wave-14 suggestion 139 / wave-15 suggestion 143: detect partial commits where inventory rows diverge from persisted pointers.</summary>
     public static void EnsureStoredInventoryMatchesPointersOrThrow(ManifestDocument persistedManifest, RunRecord header, string runIdLabel)
     {
         ArgumentNullException.ThrowIfNull(persistedManifest);
@@ -106,6 +106,52 @@ public static class ManifestCommittedArtifactInventoryCapturer
                     $"Commit recovery blocked for run '{runIdLabel}': committed artifact inventory is missing '{requiredName}'.");
             }
         }
+    }
+
+    /// <summary>Wave-15 suggestion 143: recompute inventory content hashes and compare to sealed rows.</summary>
+    public static void EnsureStoredInventoryContentHashesMatchOrThrow(
+        ManifestDocument persistedManifest,
+        ManifestCommittedArtifactInventoryMaterial material,
+        string runIdLabel)
+    {
+        ArgumentNullException.ThrowIfNull(persistedManifest);
+        ArgumentNullException.ThrowIfNull(material);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runIdLabel);
+
+        Dictionary<string, string> expectedHashes = BuildExpectedContentHashes(material);
+
+        foreach (KeyValuePair<string, string> expected in expectedHashes)
+        {
+            CommittedArtifactInventoryEntry? stored = persistedManifest.CommittedArtifactInventory
+                .FirstOrDefault(row => string.Equals(row.ArtifactName, expected.Key, StringComparison.Ordinal));
+
+            if (stored is null)
+            {
+                throw new ConflictException(
+                    $"Commit recovery blocked for run '{runIdLabel}': committed artifact inventory is missing '{expected.Key}'.");
+            }
+
+            if (!string.Equals(stored.ContentHashSha256, expected.Value, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ConflictException(
+                    $"Commit recovery blocked for run '{runIdLabel}': committed artifact inventory hash for '{expected.Key}' diverges from recomputed bytes.");
+            }
+        }
+    }
+
+    private static Dictionary<string, string> BuildExpectedContentHashes(ManifestCommittedArtifactInventoryMaterial material)
+    {
+        Dictionary<string, string> expected = new(StringComparer.Ordinal)
+        {
+            ["golden-manifest"] = HashUtf8(material.GoldenManifestUtf8),
+            ["findings-snapshot"] = HashUtf8(material.FindingsSnapshotUtf8),
+            ["decision-trace"] = HashUtf8(material.DecisionTraceUtf8),
+        };
+
+        if (material.ArtifactBundleUtf8 is not null)
+            expected["artifact-bundle"] = HashUtf8(material.ArtifactBundleUtf8);
+
+        return expected;
     }
 
     public static string HashUtf8(byte[] utf8) =>

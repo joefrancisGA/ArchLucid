@@ -80,6 +80,18 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     created.RunId = runGuid;
 
                     await auditService.LogAsync(created, ct);
+
+                    if (runGuid is Guid createdRunGuid)
+                    {
+                        AuditEvent lifecycleTransition = AuthorityRunLifecycleTransitionAuditor.BuildTransitionEvent(
+                            scope,
+                            createdRunGuid,
+                            AuthorityRunLifecyclePhase.NotStarted,
+                            AuthorityRunLifecyclePhase.InProgress,
+                            "run-created",
+                            actor);
+                        await auditService.LogAsync(lifecycleTransition, ct);
+                    }
                 },
                 logger,
                 $"Run.Created:{LogSanitizer.Sanitize(entityId)}",

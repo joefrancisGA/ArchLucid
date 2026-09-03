@@ -15,7 +15,7 @@ public static class DecisionReceiptComposer
         ArgumentNullException.ThrowIfNull(draft);
         ArgumentNullException.ThrowIfNull(verdict);
 
-        return new DecisionReceiptDocument
+        DecisionReceiptDocument receipt = new()
         {
             GeneratedUtc = TimeProvider.System.UtcNowDateTime(),
             Source = DecisionReceiptSource.DraftAdmission,
@@ -25,6 +25,15 @@ public static class DecisionReceiptComposer
             Verdict = verdict,
             CostStory = BuildCostStory(),
         };
+
+        return SealReceiptHash(receipt);
+    }
+
+    private static DecisionReceiptDocument SealReceiptHash(DecisionReceiptDocument receipt)
+    {
+        receipt.ReceiptHashSha256 = DecisionReceiptCanonicalHasher.ComputeSha256Hex(receipt);
+
+        return receipt;
     }
 
     public static DecisionReceiptDocument BuildForRun(
@@ -49,7 +58,7 @@ public static class DecisionReceiptComposer
                 nameof(manifestVersion));
         }
 
-        return new DecisionReceiptDocument
+        DecisionReceiptDocument receipt = new()
         {
             GeneratedUtc = TimeProvider.System.UtcNowDateTime(),
             Source = DecisionReceiptSource.CommittedRun,
@@ -59,6 +68,8 @@ public static class DecisionReceiptComposer
             ManifestVersion = manifestVersion,
             CostStory = BuildCostStory(),
         };
+
+        return SealReceiptHash(receipt);
     }
 
     public static string BuildFilename(Guid? draftId, Guid? runId)

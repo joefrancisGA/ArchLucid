@@ -77,6 +77,18 @@ public sealed partial class ManifestFinalizationService
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ManifestCommittedArtifactInventoryMaterial inventoryMaterial =
+            ManifestCommittedArtifactInventoryMaterialFactory.Build(request);
+        ManifestCommittedArtifactInventoryCapturer.ApplyToManifest(
+            request.ManifestModel,
+            inventoryMaterial,
+            request.ManifestModel.CreatedUtc);
+        ManifestDecisionReceiptHashCapturer.ApplyToManifest(
+            request.ManifestModel,
+            request.RunId,
+            request.Contract.Metadata.ManifestVersion,
+            manifestHashService);
+
         if (request.SkipPersistingPipelineArtifacts)
             return request.ManifestModel;
 
@@ -97,13 +109,6 @@ public sealed partial class ManifestFinalizationService
                 request.PreloadedArchitectureRequest,
                 request.PreloadedFindingsSnapshot);
         }
-
-        ManifestCommittedArtifactInventoryMaterial inventoryMaterial =
-            ManifestCommittedArtifactInventoryMaterialFactory.Build(request);
-        ManifestCommittedArtifactInventoryCapturer.ApplyToManifest(
-            request.ManifestModel,
-            inventoryMaterial,
-            request.ManifestModel.CreatedUtc);
 
         if (connection is not null)
         {

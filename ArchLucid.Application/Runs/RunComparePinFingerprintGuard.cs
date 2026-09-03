@@ -55,7 +55,9 @@ public static class RunComparePinFingerprintGuard
         RunRecord? baseHeader,
         RunRecord? targetHeader,
         string? baseManifestHash,
-        string? targetManifestHash)
+        string? targetManifestHash,
+        string? baseCommittedArtifactInventoryHashSha256 = null,
+        string? targetCommittedArtifactInventoryHashSha256 = null)
     {
         return new CompareInputFingerprints
         {
@@ -73,6 +75,8 @@ public static class RunComparePinFingerprintGuard
                 RunHeaderPinFingerprint.ToHexOrNull(targetHeader?.PinnedKnowledgeModelContentHashSha256),
             BaseManifestHashSha256 = baseManifestHash,
             TargetManifestHashSha256 = targetManifestHash,
+            BaseCommittedArtifactInventoryHashSha256 = baseCommittedArtifactInventoryHashSha256,
+            TargetCommittedArtifactInventoryHashSha256 = targetCommittedArtifactInventoryHashSha256,
         };
     }
 
