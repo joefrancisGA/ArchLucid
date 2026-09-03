@@ -53,7 +53,6 @@ import {
   SPECIALTY_REVIEW_TEMPLATES_HELP_CHOOSING_BULLETS,
   SPECIALTY_REVIEW_TEMPLATES_HELP_CHOOSING_TITLE,
   SPECIALTY_REVIEW_TEMPLATES_INTEGRATIONS_NOTE,
-  SPECIALTY_REVIEW_TEMPLATES_INTRO_DISCLOSURE_TITLE,
   SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE,
   SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT,
   SPECIALTY_REVIEW_TEMPLATES_RELATED_LINKS,
@@ -192,12 +191,6 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
         </div>
 
         <div className="space-y-4">
-          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/30">
-            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.helper)}>
-              {SPECIALTY_REVIEW_TEMPLATES_INTRO_DISCLOSURE_TITLE}
-            </summary>
-            <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>{SPECIALTY_WALKTHROUGHS_HELP_OVERVIEW}</p>
-          </details>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             <Link href="/architecture/reviews/new" className={cn(OPERATOR_LINK.inline)}>
               {SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL}
