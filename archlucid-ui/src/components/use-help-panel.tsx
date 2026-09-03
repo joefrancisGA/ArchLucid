@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
@@ -37,6 +38,7 @@ const HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY = "archlucid_help_core_pilot_pin
 export function useHelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPanelProps) {
   const pathname = usePathname() ?? "/";
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
+  const teachingChromeVisible = useTeachingChromeVisible();
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<HelpTabId>(initialTab);
   const [corePilotPinDismissedThisSession, setCorePilotPinDismissedThisSession] = useState(false);
@@ -94,7 +96,7 @@ export function useHelpPanel({ open, onOpenChange, initialTab = "guides" }: Help
   );
 
   const corePilotPinnedHelp = useMemo(() => {
-    if (hasCommittedArchitectureReview || corePilotPinDismissedThisSession) {
+    if (!teachingChromeVisible || hasCommittedArchitectureReview || corePilotPinDismissedThisSession) {
       return null;
     }
 
@@ -152,6 +154,7 @@ export function useHelpPanel({ open, onOpenChange, initialTab = "guides" }: Help
     onOpenChange,
     pathname,
     query,
+    teachingChromeVisible,
   ]);
 
   const handleOpenChange = useCallback((next: boolean): void => {
