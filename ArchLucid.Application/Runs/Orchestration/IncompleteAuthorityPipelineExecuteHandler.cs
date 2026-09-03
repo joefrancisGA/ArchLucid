@@ -19,6 +19,7 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
     IArchitectureRequestRepository requestRepository,
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
+    IRunGovernanceScopePinService runGovernanceScopePinService,
     IRunStateTransitionService runStateTransitionService,
     ILogger<IncompleteAuthorityPipelineExecuteHandler> logger) : IIncompleteAuthorityPipelineExecuteHandler
 {
@@ -33,6 +34,9 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunGovernanceScopePinService _runGovernanceScopePinService =
+        runGovernanceScopePinService ?? throw new ArgumentNullException(nameof(runGovernanceScopePinService));
 
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
@@ -79,6 +83,10 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         await PrepareFailedRunForRetryAsync(scope, runGuid, cancellationToken);
 
+        RunRecord? runHeader = await _runRepository
+            .GetByIdAsync(scope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
         if (_logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
@@ -86,6 +94,8 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
                 LogSanitizer.Sanitize(runId),
                 run.Status);
         }
+
+        using IDisposable restoredPilotScope = _runGovernanceScopePinService.BeginRestoredScope(runHeader);
 
         await _authorityRunOrchestrator.CompleteQueuedAuthorityPipelineAsync(ingestionRequest, cancellationToken);
 

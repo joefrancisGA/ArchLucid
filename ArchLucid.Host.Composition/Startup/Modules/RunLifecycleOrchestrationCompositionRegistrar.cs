@@ -237,7 +237,6 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureIdentityService, ArchitectureIdentityService>();
         services.AddScoped<IArchitectureVersionService, ArchitectureVersionService>();
         services.AddScoped<IFindingAnalysisContextBuilder, FindingAnalysisContextBuilder>();
-        services.AddScoped<IEvidencePackagePinResolver, EvidencePackagePinResolver>();
         services.AddSingleton<IEvidenceGraphMaterializer, EvidenceGraphMaterializer>();
         services.AddScoped<IRunPolicyPackPinService, RunPolicyPackPinService>();
         services.AddScoped<IRunEvidencePackagePinService, RunEvidencePackagePinService>();

@@ -10919,4 +10919,12 @@ BEGIN
     ALTER TABLE dbo.Runs
         ADD PinnedFocusedPilotCloudProvider INT NULL;
 END;
+
+GO
+
+IF COL_LENGTH(N'dbo.Runs', N'PinnedArchitectureVersionContentHashSha256') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs
+        ADD PinnedArchitectureVersionContentHashSha256 VARBINARY(32) NULL;
+END;
 GO

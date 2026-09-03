@@ -109,9 +109,10 @@ internal static class SponsorRoiSummaryServiceTestSupport
             clock ?? TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions()));
 
-        RoiCostEvidenceCollectionResolver collectionResolver = new(
-            packageRepository.Object,
-            cloudInventoryRepository.Object);
+        RoiCostEvidenceCollectionResolver collectionResolver =
+            RoiCostEvidenceCollectionResolverTestSupport.Create(
+                packageRepository.Object,
+                cloudInventoryRepository.Object);
 
         SponsorRoiTenantPricingContextResolver tenantPricingContextResolver =
             pricingContextResolver ?? CreateDefaultPricingContextResolver(resolvedScope);
