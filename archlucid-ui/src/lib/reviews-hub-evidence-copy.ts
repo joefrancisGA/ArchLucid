@@ -6,6 +6,8 @@ import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governanc
 export const REVIEWS_HUB_CLAIM_DISCIPLINE =
   "Architecture reviews lists draft, active, and finalized packages — not a full audit export by itself. Open a review workspace, Evidence graph, or Audit when you need export-ready records.";
 
+export const REVIEWS_HUB_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const REVIEWS_HUB_SOURCES_INTRO =
   "Use these follow-ups when list browsing turns into package detail, evidence search, or approval activity.";
 

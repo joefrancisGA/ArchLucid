@@ -25,8 +25,7 @@ public static class CommercialPackagingTierResolver
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
             return null;
 
-        if (subscription is not null &&
-            string.Equals(subscription.Status, "Active", StringComparison.OrdinalIgnoreCase))
+        if (subscription is not null)
         {
             if (subscription.WorkspacesPurchased <= CommercialPackagingLimits.TeamWorkspacesIncluded &&
                 subscription.SeatsPurchased <= CommercialPackagingLimits.TeamSeatsIncluded)

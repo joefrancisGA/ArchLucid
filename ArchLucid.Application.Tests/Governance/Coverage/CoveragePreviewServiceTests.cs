@@ -1,9 +1,11 @@
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Application.Governance.Coverage.Stages;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.PolicyPacks;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Governance;
 
@@ -28,7 +30,7 @@ public sealed class CoveragePreviewServiceTests
         InMemoryPolicyPackRepository packRepository = new();
         await SeedBaselinePacksAsync(packRepository);
 
-        CoveragePreviewService service = new(packRepository, new InMemoryPolicyPackAssignmentRepository());
+        CoveragePreviewService service = CreateService(packRepository, new InMemoryPolicyPackAssignmentRepository());
         CoveragePreviewResult preview = await service.PreviewAsync(
             TestScope,
             new CoveragePreviewInput { FocusedPilotModeEnabled = true });
@@ -47,7 +49,7 @@ public sealed class CoveragePreviewServiceTests
             CreatePack(DefaultPolicyPackCatalog.AzureWellArchitectedDisplayName),
             CancellationToken.None);
 
-        CoveragePreviewService service = new(packRepository, new InMemoryPolicyPackAssignmentRepository());
+        CoveragePreviewService service = CreateService(packRepository, new InMemoryPolicyPackAssignmentRepository());
         CoveragePreviewResult preview = await service.PreviewAsync(
             TestScope,
             new CoveragePreviewInput
@@ -71,7 +73,7 @@ public sealed class CoveragePreviewServiceTests
             CreatePack("PCI-DSS (Architecture / Segmentation)"),
             CancellationToken.None);
 
-        CoveragePreviewService service = new(packRepository, new InMemoryPolicyPackAssignmentRepository());
+        CoveragePreviewService service = CreateService(packRepository, new InMemoryPolicyPackAssignmentRepository());
         CoveragePreviewResult preview = await service.PreviewAsync(
             TestScope,
             new CoveragePreviewInput
@@ -106,4 +108,11 @@ public sealed class CoveragePreviewServiceTests
         PackType = PolicyPackType.PlatformDefault,
         CurrentVersion = "1.0.0",
     };
+
+    private static CoveragePreviewService CreateService(
+        IPolicyPackRepository packRepository,
+        IPolicyPackAssignmentRepository assignmentRepository) =>
+        new(
+            new CoveragePreviewLoadStage(packRepository, assignmentRepository),
+            new CoveragePreviewEmitStage());
 }

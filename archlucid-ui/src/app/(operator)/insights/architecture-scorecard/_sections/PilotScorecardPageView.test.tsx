@@ -109,10 +109,10 @@ describe("PilotScorecardPageView", () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams("runId=run-scorecard-test"));
   });
 
-  it("mounts contextual help (TB-1959)", () => {
+  it("hides contextual help chrome in buyer-polished shell (TB-1959)", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
   });
 
   it("renders follow-up orientation strip and directional claim discipline (SCX Evidence)", () => {
@@ -121,7 +121,7 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByTestId("architecture-scorecard-sources")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Where to go next" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Sources" })).toBeNull();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-scorecard-orientation-top")).toBeNull();
 
     const summaryRow = screen.getByTestId("review-scorecard-summary-row");

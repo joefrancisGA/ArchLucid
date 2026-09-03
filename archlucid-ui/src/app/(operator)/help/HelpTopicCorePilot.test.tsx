@@ -545,7 +545,8 @@ describe("HelpCorePilotGuideView", () => {
 
     expect(firstArchitectureReviewHelpCopyContainsBannedPattern(visible)).toEqual([]);
     expect(visible.toLowerCase()).not.toContain("operator orientation");
-    expect(screen.getByRole("heading", { level: 3, name: "Before you share externally" })).toBeInTheDocument();
+    expect(visible).not.toContain("Before you share externally");
+    expect(screen.getByTestId("core-pilot-help-claim-discipline")).toBeInTheDocument();
   });
 
   it("does not resolve retired first-hour-operator-path bookmark", () => {

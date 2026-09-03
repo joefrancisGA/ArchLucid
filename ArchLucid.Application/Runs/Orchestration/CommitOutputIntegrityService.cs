@@ -192,6 +192,13 @@ public sealed class CommitOutputIntegrityService(
             version,
             architectureRequest,
             knowledgeModel);
+
+        if (header.PinnedArchitectureVersionContentHashSha256 is { Length: > 0 } pinnedHash
+            && !version.ContentHashSha256.AsSpan().SequenceEqual(pinnedHash))
+        {
+            throw new ConflictException(
+                "Commit blocked: create-time architecture version content hash (κ) drifted since run create.");
+        }
     }
 
     private async Task EnsureCreateTimePinsUnchangedOrThrowAsync(

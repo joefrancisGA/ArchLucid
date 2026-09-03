@@ -53,8 +53,10 @@ import { DigestsScheduleBuyerChrome } from "./DigestsScheduleBuyerChrome";
 import { WeeklyDigestHealthBanner } from "./WeeklyDigestHealthBanner";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
+  DIGESTS_HUB_FIRST_VIEWPORT_ID,
   DIGESTS_HUB_PRIMARY_CONTENT_ID,
   DIGESTS_HUB_SKIP_LINK_LABEL,
+  DIGESTS_HUB_SKIP_TARGET_ID,
 } from "@/lib/digests-browse-copy";
 
 const TAB_PARAM = "tab";
@@ -243,26 +245,30 @@ export function DigestsHubClient(): ReactElement {
   return (
     <div className="px-0" data-testid="digests-hub">
       <a
-        href={`#${DIGESTS_HUB_PRIMARY_CONTENT_ID}`}
+        href={`#${DIGESTS_HUB_SKIP_TARGET_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
         {DIGESTS_HUB_SKIP_LINK_LABEL}
       </a>
+
+      <DigestsPageHeader
+        subtitle={pageSubtitle}
+        refreshing={refreshing}
+        lastUpdatedUtc={lastUpdatedUtc}
+        onRefresh={onRefresh}
+        lastUpdatedPrefix={browseSetupGuidesChecklist ? DIGESTS_HEALTH_CHECK_PREFIX : undefined}
+        actions={browseHeaderActions}
+      />
 
       <div
         id={DIGESTS_HUB_PRIMARY_CONTENT_ID}
         data-testid="digests-hub-primary-content"
         className={cn("scroll-mt-24")}
       >
-        <DigestsPageHeader
-          subtitle={pageSubtitle}
-          refreshing={refreshing}
-          lastUpdatedUtc={lastUpdatedUtc}
-          onRefresh={onRefresh}
-          lastUpdatedPrefix={browseSetupGuidesChecklist ? DIGESTS_HEALTH_CHECK_PREFIX : undefined}
-          actions={browseHeaderActions}
-        />
-
+        <div
+          id={DIGESTS_HUB_FIRST_VIEWPORT_ID}
+          data-testid={DIGESTS_HUB_FIRST_VIEWPORT_ID}
+        >
       {/* Tabs sit immediately under the header so hub navigation precedes orientation chrome. */}
       <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-4">
         <TabsList aria-label="Digest hub sections" data-testid="digests-hub-tablist">
@@ -287,14 +293,6 @@ export function DigestsHubClient(): ReactElement {
             );
           })}
         </TabsList>
-
-        {activeTab === "schedule" ? (
-          buyerPolishedShell ? null : <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
-        ) : activeTab === "subscriptions" ? (
-          <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
-        ) : (
-          <DigestsRelatedSurfacesRail />
-        )}
 
         {activeTab === "schedule" ? (
           <WeeklyDigestHealthBanner
@@ -353,7 +351,16 @@ export function DigestsHubClient(): ReactElement {
           />
           {buyerPolishedShell ? <DigestsScheduleBuyerChrome /> : null}
         </TabsContent>
+
+        {activeTab === "schedule" ? (
+          buyerPolishedShell ? null : <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
+        ) : activeTab === "subscriptions" ? (
+          <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
+        ) : (
+          <DigestsRelatedSurfacesRail />
+        )}
       </Tabs>
+        </div>
       </div>
     </div>
   );

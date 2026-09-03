@@ -26,8 +26,11 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("pilot-outcomes")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("roi-summary")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("architecture-scorecard")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("architecture-sponsor-dashboard")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("audit-trail")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("help-hub")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("help-api-contracts")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("help-api-keys")).toBe(true);
   });
 
   it("resolveClaimDisciplineForStrip returns undefined for omitted slugs", () => {
@@ -55,6 +58,7 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-azure-boards", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-soc2-self-assessment", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-dpa-template", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-evidence-intake", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-caiq-sig-response", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-configuration-reference", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-first-value-20-minutes", "not a package.")).toBeUndefined();
@@ -74,6 +78,7 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-azure-boards")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-soc2-self-assessment")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-dpa-template")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-evidence-intake")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-caiq-sig-response")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-configuration-reference")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-first-value-20-minutes")).toBe(false);

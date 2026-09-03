@@ -39,7 +39,7 @@ public static class SponsorReviewPacketComposer
         sb.AppendLine();
         sb.AppendLine($"**Generated (UTC):** {generatedUtc:yyyy-MM-dd HH:mm:ss} Z");
 
-        ExportSafetyNoticeMarkdown.Append(sb, isDemoTenant: false, activeTrialExportNotice);
+        ExportSafetyNoticeMarkdown.Append(sb, ResolveIsDemoTenant(detail), activeTrialExportNotice);
         sb.AppendLine();
         AppendManifestSummarySection(sb, detail);
 
@@ -62,8 +62,7 @@ public static class SponsorReviewPacketComposer
         SponsorRoiSummaryResponse roiSummary,
         ArchitectureRunDetail detail)
     {
-        bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(detail.Run?.RunId ?? string.Empty)
-            || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run?.RequestId);
+        bool isDemoTenant = ResolveIsDemoTenant(detail);
 
         PilotRunDeltas deltas = new() { IsDemoTenant = isDemoTenant };
 
@@ -307,4 +306,8 @@ public static class SponsorReviewPacketComposer
         sb.AppendLine(
             $"- **Waiver expiry reversions (30d):** {realized.WaiverExpiryReversionCount30Days.ToString(CultureInfo.InvariantCulture)}");
     }
+
+    private static bool ResolveIsDemoTenant(ArchitectureRunDetail detail) =>
+        ContosoRetailDemoIdentifiers.IsDemoRunId(detail.Run?.RunId ?? string.Empty)
+        || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run?.RequestId);
 }

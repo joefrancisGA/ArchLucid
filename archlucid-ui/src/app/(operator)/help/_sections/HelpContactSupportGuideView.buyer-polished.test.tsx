@@ -58,6 +58,7 @@ import {
   CONTACT_SUPPORT_PRIMARY_ACTIONS,
 } from "@/lib/contact-support-help-guide-content";
 import {
+  CONTACT_SUPPORT_HELP_FIRST_VIEWPORT_TEST_ID,
   CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL,
   CONTACT_SUPPORT_HELP_SKIP_TARGET_ID,
 } from "@/lib/contact-support-help-page-copy";
@@ -76,9 +77,10 @@ describe("HelpContactSupportGuideView buyer-polished shell", () => {
     const skipLink = screen.getByRole("link", { name: CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${CONTACT_SUPPORT_HELP_SKIP_TARGET_ID}`);
 
-    expect(screen.getByTestId("contact-support-help-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("contact-support-help-header-claim-discipline").textContent).toContain(
       CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.queryByTestId("contact-support-help-claim-discipline")).toBeNull();
     expect(screen.getByTestId("contact-support-help-sources")).toBeInTheDocument();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
@@ -89,12 +91,14 @@ describe("HelpContactSupportGuideView buyer-polished shell", () => {
       CONTACT_SUPPORT_PRIMARY_ACTIONS.emailSupport.href,
     );
 
+    const firstViewport = screen.getByTestId(CONTACT_SUPPORT_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionsSection = screen.getByTestId("help-contact-support-actions-section");
     const primaryContent = screen.getByTestId("help-contact-support-primary-content");
     const body = screen.getByTestId("help-contact-support-primary");
     const orientation = screen.getByTestId("contact-support-help-orientation");
 
-    expect(primaryContent).toContainElement(actionsSection);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(actionsSection);
     expect(actionsSection.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(body.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

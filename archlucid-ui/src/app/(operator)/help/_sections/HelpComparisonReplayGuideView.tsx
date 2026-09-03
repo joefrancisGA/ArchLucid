@@ -5,7 +5,6 @@ import Link from "next/link";
 import { HelpComparisonReplayHeaderActions } from "@/app/(operator)/help/_sections/HelpComparisonReplayHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ComparisonReplayHelpEvidenceOrientationStrip } from "@/components/help/ComparisonReplayHelpEvidenceOrientationStrip";
-import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -39,6 +38,7 @@ import {
 } from "@/lib/comparison-replay-help-related-guides";
 import {
   COMPARISON_REPLAY_HELP_CANONICAL_PATH,
+  COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
   COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID,
 } from "@/lib/comparison-replay-help-evidence-copy";
 import {
@@ -116,9 +116,10 @@ export function HelpComparisonReplayGuideView(
         title={entry.title}
         titleTestId="help-comparison-replay-page-title"
         subtitle={entry.summary}
+        claimDiscipline={COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="comparison-replay-help-header-claim-discipline"
         navHref={COMPARISON_REPLAY_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={<HelpTopicBreadcrumb topicTitle={entry.title} />}
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<HelpComparisonReplayHeaderActions entry={entry} />}
       />

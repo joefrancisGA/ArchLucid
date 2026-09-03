@@ -70,4 +70,32 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
         latest.Should().ContainSingle();
         latest[0].TraceId.Should().Be("trace-attempt-2");
     }
+
+    [Fact]
+    public void Select_when_task_id_missing_keeps_each_trace_distinct()
+    {
+        DateTime sharedUtc = new(2026, 5, 1, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace topology = new()
+        {
+            TraceId = "trace-a-topology",
+            TaskId = string.Empty,
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace cost = new()
+        {
+            TraceId = "trace-z-cost",
+            TaskId = string.Empty,
+            AgentType = AgentType.Cost,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([topology, cost]);
+
+        latest.Should().HaveCount(2);
+        latest.Select(static t => t.TraceId).Should().BeEquivalentTo(["trace-a-topology", "trace-z-cost"]);
+    }
 }

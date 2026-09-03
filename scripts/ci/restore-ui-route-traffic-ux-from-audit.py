@@ -60,7 +60,7 @@ _AUDIT_UX_SCORES: dict[str, int] = {
     "ALE": 73,
     "GRX": 74,
     "HGX": 75,
-    "SIG": 88,
+    "SIG": 87,
     "FI": 75,
     "AUX": 74,
     "SAX": 74,

@@ -21,7 +21,7 @@ import {
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-page-copy";
 import {
   ITSM_OAUTH_CALLBACK_CANONICAL_PATH,
-  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING,
+  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE,
   ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE,
   ITSM_OAUTH_CALLBACK_SOURCES,
 } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
@@ -293,7 +293,7 @@ describe("ItsmAtlassianOAuthCallbackClient sources strip", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("labels follow-ups with claim discipline below the outcome card", async () => {
+  it("labels follow-ups with claim discipline in the header below the outcome card", async () => {
     render(<ItsmAtlassianOAuthCallbackClient />);
 
     await waitFor(() => {
@@ -301,9 +301,9 @@ describe("ItsmAtlassianOAuthCallbackClient sources strip", () => {
     });
 
     expect(
-      screen.getByRole("heading", { name: ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("itsm-oauth-callback-claim-discipline")).toBeInTheDocument();
+      screen.getByTestId("itsm-oauth-callback-header-claim-discipline"),
+    ).toHaveTextContent(ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE);
+    expect(screen.queryByTestId("itsm-oauth-callback-claim-discipline")).toBeNull();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
     expect(screen.queryByTestId("itsm-oauth-callback-orientation-top")).toBeNull();
   });

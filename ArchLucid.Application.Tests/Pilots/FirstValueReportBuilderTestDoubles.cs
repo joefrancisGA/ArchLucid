@@ -1,4 +1,5 @@
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Tests.Roi;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -15,7 +16,7 @@ internal static class FirstValueReportBuilderTestDoubles
         Mock<IAzureExtractorPackageRepository> azureRepository = new();
         Mock<ICloudInventoryExtractorPackageRepository> cloudRepository = new();
 
-        return new RoiCostEvidenceCollectionResolver(azureRepository.Object, cloudRepository.Object);
+        return RoiCostEvidenceCollectionResolverTestSupport.Create(azureRepository.Object, cloudRepository.Object);
     }
 
     internal static IOptions<RoiCostEvidenceFreshnessOptions> CreateDefaultFreshnessOptions() =>

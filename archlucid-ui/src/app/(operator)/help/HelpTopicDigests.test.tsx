@@ -5,22 +5,29 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 import { HelpDigestsGuideView } from "@/app/(operator)/help/_sections/HelpDigestsGuideView";
 import {
-  expectClaimDisciplineBand,
-  expectClaimDisciplineBandContent,
-  expectClaimDisciplineHeading,
-} from "@/lib/claim-discipline-test-helpers";
-import {
   DIGESTS_HELP_CLAIM_DISCIPLINE,
-  DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING,
+  DIGESTS_HELP_CANONICAL_PATH,
   DIGESTS_HELP_FOLLOW_UPS_TITLE,
   DIGESTS_HELP_SOURCES,
   DIGESTS_HELP_SUBSCRIPTION_AUDIT_TRAIL_LINK,
   DIGESTS_HELP_SUBSCRIPTION_CONSTRAINTS,
 } from "@/lib/digests-help-evidence-copy";
 import {
-  DIGESTS_HELP_CLAIM_HEADING_ID,
   DIGESTS_HELP_CONTENT_ITEMS,
   DIGESTS_HELP_GUIDE_HEADINGS,
   DIGESTS_HELP_OVERVIEW,
@@ -32,6 +39,7 @@ import {
 import { DIGESTS_BROWSE_TAB_PATH, DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/digests-route-paths";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { DIGESTS_HELP_CLAIM_HEADING_ID } from "@/lib/digests-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpDigestsGuideView", () => {
@@ -45,7 +53,7 @@ describe("HelpDigestsGuideView", () => {
     expect(entry?.releaseApplicability).toBe("architecture digests orientation");
   });
 
-  it("shows orientation above overview and buyer-safe section order", () => {
+  it("shows overview in first viewport and header claim discipline", () => {
     if (entry === undefined) {
       throw new Error("Expected digests documentation entry.");
     }
@@ -55,13 +63,17 @@ describe("HelpDigestsGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: DIGESTS_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(DIGESTS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.getByTestId("help-digests-header-claim-discipline")).toHaveTextContent(
+      DIGESTS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
 
     const overview = screen.getByTestId("help-digests-overview");
     const followUpsHeading = screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE });
 
     expect(overview).toHaveTextContent(DIGESTS_HELP_OVERVIEW);
-    expect(followUpsHeading.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expectClaimDisciplineBand(screen, "help-digests", "help-digests-claim-discipline");
+    expect(overview.compareDocumentPosition(followUpsHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByTestId("help-digests-claim-discipline-strip")).toBeNull();
+    expect(screen.queryByTestId("help-digests-claim-discipline")).toBeNull();
   });
 
   it("shows digest content types, sample panel, and subscription constraints", () => {
@@ -97,29 +109,17 @@ describe("HelpDigestsGuideView", () => {
     );
   });
 
-  it("shows claim discipline once and cross-topic follow-up links", () => {
+  it("renders sources-only follow-ups at the bottom", () => {
     if (entry === undefined) {
       throw new Error("Expected digests documentation entry.");
     }
 
     render(<HelpDigestsGuideView entry={entry} />);
 
-    expect(screen.getByTestId("help-digests-claim-discipline-strip")).toHaveTextContent(DIGESTS_HELP_CLAIM_DISCIPLINE);
-    expectClaimDisciplineBandContent(
-      screen,
-      "help-digests",
-      "help-digests-claim-discipline",
-      DIGESTS_HELP_CLAIM_DISCIPLINE,
-    );
-    expectClaimDisciplineHeading(
-      screen,
-      "help-digests",
-      DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING,
-      DIGESTS_HELP_CLAIM_HEADING_ID,
-    );
     expect(screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByText(/Diligence artifact/i)).toBeNull();
     expect(screen.getByTestId("help-digests-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("help-digests-orientation-bottom")).toBeInTheDocument();
 
     const followUps = screen.getByTestId("help-digests-sources");
     for (const source of DIGESTS_HELP_SOURCES) {
@@ -177,5 +177,19 @@ describe("HelpDigestsGuideView", () => {
     render(<HelpDigestsGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-digests-guide").textContent).not.toMatch(/\bSources\b/);
+  });
+
+  it("renders a sticky TOC and canonical nav href on the page header", () => {
+    if (entry === undefined) {
+      throw new Error("Expected digests documentation entry.");
+    }
+
+    render(<HelpDigestsGuideView entry={entry} />);
+
+    expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
+    expect(screen.getByTestId("help-digests-page-title").closest("[data-nav-href]")).toHaveAttribute(
+      "data-nav-href",
+      DIGESTS_HELP_CANONICAL_PATH,
+    );
   });
 });
