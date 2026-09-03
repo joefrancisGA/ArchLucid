@@ -2880,7 +2880,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 122
+- **hunts:** 123
 - **bugs-found:** 278
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
@@ -3442,6 +3442,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — renewing a revoked in-scope waiver returned HTTP 404 because SQL zero-row renew mapped to `InvalidOperationException` instead of lifecycle conflict — **hit 2026-09-03 (#569):** reject `RiskExceptionStatus.Revoked` with `ConflictException` → HTTP 409; regression in `RiskExceptionServiceTests.RenewAsync_throws_conflict_when_risk_exception_status_is_revoked` and `GovernanceStickinessControllerTests.RenewRiskException_returns_conflict_when_waiver_is_revoked`.
 
 2026-09-03 seed hunt #569: promoted and proved RenewRiskException revoked-waiver conflict status mapping.
+
+- [ ] (hunt-ready) `GovernanceStickinessController.RevokeRiskException` / `RiskExceptionService.RevokeAsync` / `SqlRiskExceptionRepository.RevokeAsync` — second revoke (or revoke `Expired` waiver) on in-scope waiver returns HTTP 204 and logs duplicate `RiskExceptionRevoked` audit while `RenewRiskException` on `Revoked` returns HTTP 409 (#569 lifecycle parity) — mechanism: `EnsureRiskExceptionInScopeAsync` loads record by id regardless of status; SQL `UPDATE … WHERE Status = N'Active'` is blind (no row-count check); service always emits audit after UPDATE.
+
+- [x] (invalid) `GovernanceStickinessController.RenewRiskException` on finding with latest disposition `Remediated` — `RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync` already runs in `RenewAsync` (same as create after #568); controller maps `ArgumentException` → HTTP 400; controller test gap only (`RenewRiskException_returns_bad_request_when_finding_latest_disposition_is_remediated` missing).
+
+- [x] (invalid) `GovernanceStickinessController.ListRiskExceptions` optional out-of-scope `projectId` — `GovernanceQueryProjectScope.TryResolve` returns `[]` (intentional hide pattern, ledger #2957); `ValidateProjectQueryId` rejects `Guid.Empty` (ledger #351).
+
+- [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` padded `approvalRequestIds` — facade trims per id in loop (`rawApprovalRequestId.Trim()`); duplicate/whitespace cases covered in `GovernanceControllerRunHistoryScopeTests`.
+
+- [x] (invalid) `GovernanceStickinessController` recurrence schedule create/update validation — name/cron max-length and cron format guards shipped #556; create requires `isEnabled` and non-empty `sourceRunId`.
+
+- [x] (invalid) `TenantBaselineController` / `TenantWorkspacesController` / `TenantHomepageSettingsController` ghost-tenant and empty-guid route validation — tenant preflight and empty-guid guards on proven read/mutate paths (ledger hunts #102–#303, #3096).
+
+2026-09-03 seed hunt #570: seeded RevokeRiskException already-revoked/expired lifecycle parity row; cheap-disproved renew-on-remediated (guard present), list-exceptions project scope, batch-review trim, recurrence validation, and tenancy controller parity candidates.
 
 ---
 
