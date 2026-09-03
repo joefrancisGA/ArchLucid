@@ -97,10 +97,10 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
         if (symbol is not INamedTypeSymbol { IsGenericType: true } named)
             return;
 
-        foreach (ITypeSymbol? unused in named.TypeArguments.Where(typeArg => IsOrUsesBannedType(typeArg, symbols)))
-        {
-            context.ReportDiagnostic(Arch001Descriptor.Create(generic.Identifier.GetLocation(), named.ToDisplayString()));
-        }
+        if (!named.TypeArguments.Any(typeArg => IsOrUsesBannedType(typeArg, symbols)))
+            return;
+
+        context.ReportDiagnostic(Arch001Descriptor.Create(generic.Identifier.GetLocation(), named.ToDisplayString()));
     }
 
     private static void AnalyzeIdentifierName(
@@ -191,12 +191,24 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
             return true;
         if (symbols.ClaimsPrincipal is not null && SymbolEqualityComparer.Default.Equals(named, symbols.ClaimsPrincipal))
             return true;
-        if (symbols.IHttpContextAccessor is null)
-            return false;
 
-        foreach (INamedTypeSymbol iface in named.AllInterfaces)
-            if (SymbolEqualityComparer.Default.Equals(iface, symbols.IHttpContextAccessor))
-                return true;
+        if (symbols.IHttpContextAccessor is not null)
+        {
+            foreach (INamedTypeSymbol iface in named.AllInterfaces)
+            {
+                if (SymbolEqualityComparer.Default.Equals(iface, symbols.IHttpContextAccessor))
+                    return true;
+            }
+        }
+
+        if (named.IsGenericType)
+        {
+            foreach (ITypeSymbol typeArg in named.TypeArguments)
+            {
+                if (IsOrUsesBannedType(typeArg, symbols))
+                    return true;
+            }
+        }
 
         return false;
     }

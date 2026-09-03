@@ -1486,11 +1486,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 5
-- **bugs-found:** 9
+- **hunts:** 6
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — AL0001/AL0003 ignored method-level attributes on overridden base actions
+- **last-bug:** 2026-09-03 — ARCH001 duplicate/missed nested generic diagnostics; AL0001 ignored `[AllowAnonymous]` on overridden base actions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1507,7 +1507,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) AL0001 ignores `[NonAction]` on overridden base helper — **hit 2026-09-03:** `RequireAuthorizationAnalyzer` checked `NonActionAttribute` only on the derived `IMethodSymbol`, not `OverriddenMethod` chain; `public override IActionResult Helper()` false-positive AL0001; fixed by walking override chain; regression in `Does_not_report_NonAction_helper_inherited_from_base_method`
 - [x] (proven) AL0003 ignores `[MutatingAuditExcluded]` on overridden base mutating action — **hit 2026-09-03:** `MutatingAuditExcludeApplies` skipped method-level exclusion on `OverriddenMethod` when derived action re-declared `[HttpPost]`; false-positive AL0003; fixed by walking override chain; regression in `Mutating_audit_excluded_on_base_method_suppresses_AL0003_on_override`
 - [x] (valid-no-repro) `HttpContext? ctx = default` in inner layer — type name in declaration is intentional ARCH001 signal, not a `default` expression false positive
-- [ ] (candidate) `ARCH001` may duplicate diagnostics for nested qualified generic type arguments — needs hunt-ready locus if duplicate reports appear in real code
+- [x] (proven) ARCH001 emitted duplicate diagnostics when a generic had multiple banned type arguments — **hit 2026-09-03:** `AnalyzeGenericName` reported once per matching `TypeArguments` entry; fixed to emit a single diagnostic per generic; regression in `Reports_single_diagnostic_when_generic_has_multiple_banned_type_arguments`
+- [x] (proven) ARCH001 missed nested banned types inside generic type arguments — **hit 2026-09-03:** `IsOrUsesBannedType` did not recurse into `INamedTypeSymbol.TypeArguments`, so `Dictionary<string, List<IHttpContextAccessor>>` slipped through; fixed with recursive type-argument walk; regression in `Reports_nested_generic_type_argument_in_inner_layer_assembly`
+- [x] (proven) AL0001 ignored `[AllowAnonymous]` on overridden base helper — **hit 2026-09-03:** `RequireAuthorizationAnalyzer` checked auth attributes only on the derived `IMethodSymbol`, not `OverriddenMethod`; false-positive AL0001 on overrides; fixed by walking override chain; regression in `Does_not_report_AllowAnonymous_helper_inherited_from_base_method`
 
 ---
 
