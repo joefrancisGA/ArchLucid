@@ -1563,11 +1563,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 4
-- **bugs-found:** 6
+- **hunts:** 5
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — ChangeQuantity missing quantity defaulted to one seat
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — abandoned checkout Pending row blocked retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1582,6 +1582,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` labels tenant-wide `monthPressure` as "Current project" in `ByWorkspaceProject` — fixed 2026-08-24; row now reads "Tenant-wide (estimated)" (`TenantLlmCostReportingServiceTests.BuildDashboardAsync_labels_breakdown_as_tenant_wide_estimate`).
 - [x] (proven) `MarketplaceChangePlanWebhookMutationHandler` defaults missing `planId` to `TenantTier.Standard` and mutates ledger — fixed 2026-08-24; defer without mutation (`MarketplaceChangePlanWebhookMutationHandlerTests.Ga_enabled_missing_planId_defers_without_ledger_mutation`).
 - [x] (proven) `MarketplaceChangeQuantityWebhookMutationHandler` defaults missing `quantity` to one seat and mutates ledger — **hit 2026-09-02 (#511):** GA-enabled `ChangeQuantity` without `quantity` called `ReadQuantity` fallback `1` while sibling `ChangePlan` defers on missing `planId`; fixed with `TryReadQuantity` guard (`MarketplaceChangeQuantityWebhookMutationHandlerTests.Ga_enabled_missing_quantity_defers_without_ledger_mutation`).
+- [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` treats any non-`Canceled` subscription as an active conflict — **hit 2026-09-03 (#564):** first checkout upserts `Pending` then abandoned retries returned `ActiveSubscriptionConflict`; fixed by blocking only `Active`/`Suspended` (`BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`).
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler` gates on `AzureMarketplace.GaEnabled` only while sibling `ChangePlan` uses `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` (Stripe provider parity) — no Stripe `ChangeQuantity` dispatch path today; cheap-disproof before hunt-ready promotion.
+- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` maps `IsPaymentPastDue` only from `Suspended` status — verify Stripe `past_due` always suspends ledger row before status query.
+
+2026-09-03 seed hunt #564: proved abandoned-checkout Pending retry conflict; reseeded ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates.
 
 2026-09-02 seed hunt #511: reseeded from ArchLucid.Application/Billing marketplace mutation handlers; proved ChangeQuantity missing-quantity default seat mutation gap (symmetric to #508 ChangePlan missing planId deferral).
 
