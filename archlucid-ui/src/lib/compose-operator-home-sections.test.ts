@@ -138,4 +138,25 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     expect(sectionIds.indexOf("attention-taxonomy")).toBeLessThan(sectionIds.indexOf("recent-reviews"));
     expect(sectionIds).not.toContain("recommended-next");
   });
+
+  it("prioritizes work queue sections in Working mode", () => {
+    const sections = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: true,
+        hasOverviewReviewRows: true,
+        draftCount: 0,
+        hasCommittedManifest: true,
+        openFindingsCount: 2,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: false,
+      workingMode: true,
+      metrics: { ...emptyMetrics, hasReviews: true, openFindings: 2, reviewPackagesCommitted: 1 },
+    });
+
+    const sectionIds = sections.map((section) => section.id);
+
+    expect(sectionIds.indexOf("unfinished")).toBeLessThan(sectionIds.indexOf("start-something"));
+    expect(sectionIds.indexOf("recent-reviews")).toBeLessThan(sectionIds.indexOf("start-something"));
+  });
 });

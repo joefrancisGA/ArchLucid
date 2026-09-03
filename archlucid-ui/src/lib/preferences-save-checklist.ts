@@ -35,8 +35,15 @@ export function resolvePreferencesSaveSteps(input: {
   readonly cloudPlatforms: PreferenceSaveStepInput;
   readonly sampleReviewsOnOverview: PreferenceSaveStepInput;
   readonly followUpLinkStrips: PreferenceSaveStepInput;
+  readonly workspaceMode: PreferenceSaveStepInput;
 }): readonly PreferencesSaveChecklistStep[] {
   return [
+    {
+      id: "workspace-mode",
+      label: "Workspace mode",
+      anchorId: "workspace-mode",
+      status: resolvePreferenceStepStatus(input.workspaceMode),
+    },
     {
       id: "appearance",
       label: "Appearance",

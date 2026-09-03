@@ -85,7 +85,7 @@ export function DraftIntakeRequiredClarificationField(
   return (
     <fieldset
       className={cn(
-        "space-y-3 rounded-md border p-3",
+        "space-y-2.5 rounded-md border p-3",
         isFocused
           ? "border-l-[3px] border-l-neutral-700 border-neutral-300 bg-white shadow-sm dark:border-neutral-700 dark:border-l-neutral-400 dark:bg-neutral-950"
           : "border-neutral-200 bg-neutral-50/60 dark:border-neutral-800 dark:bg-neutral-900/30",
@@ -191,7 +191,8 @@ export function DraftIntakeRequiredClarificationField(
               props.onSaveAndContinue(props.question.questionKey);
             }
           }}
-          rows={isPrimary ? 3 : 2}
+          rows={showAllMode ? 2 : isPrimary ? 3 : 2}
+          className={showAllMode ? "min-h-[3rem]" : undefined}
           disabled={props.busy}
         />
       )}

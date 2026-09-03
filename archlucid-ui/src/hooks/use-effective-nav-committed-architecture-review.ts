@@ -1,6 +1,7 @@
 "use client";
 
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 /**
@@ -19,6 +20,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
  */
 export function useEffectiveNavCommittedArchitectureReview(): boolean {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
+  const { isWorkingMode } = useWorkspaceMode();
 
-  return hasCommittedArchitectureReview || isBuyerPolishedOperatorShellEnv();
+  return hasCommittedArchitectureReview || isBuyerPolishedOperatorShellEnv() || isWorkingMode;
 }

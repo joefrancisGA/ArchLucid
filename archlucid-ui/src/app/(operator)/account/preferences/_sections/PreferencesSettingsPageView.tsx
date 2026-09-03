@@ -40,7 +40,10 @@ import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { useUserPreferencesExplicitFlags } from "@/lib/use-user-preferences-explicit-flags";
 import { useSampleReviewsOnOverviewPreference } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { useWhereToGoNextPreference } from "@/components/WhereToGoNextPreferenceProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { WorkspaceModePreferencePanel } from "@/components/preferences/WorkspaceModePreferencePanel";
 import { cn } from "@/lib/utils";
+import { WORKSPACE_MODE_PREFERENCE_HEADING } from "@/lib/workspace-mode/workspace-mode-copy";
 
 export function PreferencesSettingsPageView() {
   const { mounted: appearanceMounted, accountSyncState: appearanceAccountSyncState } = useUserAppearancePreference();
@@ -64,6 +67,12 @@ export function PreferencesSettingsPageView() {
     setAndPersist: setTimeZoneAndPersist,
   } = useIanaTimeZonePreference();
   const explicitFlags = useUserPreferencesExplicitFlags();
+  const {
+    mode: workspaceMode,
+    mounted: workspaceModeMounted,
+    accountSyncState: workspaceModeAccountSyncState,
+    setAndPersist: setWorkspaceModeAndPersist,
+  } = useWorkspaceMode();
 
   const preferencesSaveSteps = resolvePreferencesSaveSteps({
     appearance: {
@@ -90,6 +99,11 @@ export function PreferencesSettingsPageView() {
       isExplicit: explicitFlags.whereToGoNextIsExplicit,
       mounted: whereToGoNextMounted,
       accountSyncState: whereToGoNextAccountSyncState,
+    },
+    workspaceMode: {
+      isExplicit: explicitFlags.workspaceModeIsExplicit,
+      mounted: workspaceModeMounted,
+      accountSyncState: workspaceModeAccountSyncState,
     },
   });
   const preferencesSaveEmphasizedStepId = resolvePreferencesSaveEmphasizedStepId(preferencesSaveSteps);
@@ -126,6 +140,25 @@ export function PreferencesSettingsPageView() {
         emphasizedStepId={preferencesSaveEmphasizedStepId}
         testIdPrefix="preferences-save"
       />
+      <Card id="workspace-mode" data-testid="preferences-workspace-mode-card">
+        <CardHeader>
+          <CardTitle id="preferences-workspace-mode-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {WORKSPACE_MODE_PREFERENCE_HEADING}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {workspaceModeMounted ? (
+            <WorkspaceModePreferencePanel
+              mode={workspaceMode}
+              onModeChange={setWorkspaceModeAndPersist}
+              accountSyncState={workspaceModeAccountSyncState}
+              labelledById="preferences-workspace-mode-heading"
+            />
+          ) : (
+            <div aria-hidden="true" className="h-24 w-full" data-testid="workspace-mode-preference-loading" />
+          )}
+        </CardContent>
+      </Card>
       <Card id="appearance" data-testid="preferences-appearance-card">
         <CardHeader>
           <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>

@@ -30,7 +30,7 @@ class TestAdoptionBatch5AK(unittest.TestCase):
         self.assertIn("useGovernanceDecisionsNeededSummaryQuery", text)
 
     def test_tb_223_api_client_exposes_summary(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "api" / "governance-stickiness-api.ts"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "api" / "governance-stickiness-api-registers.ts"
         text = path.read_text(encoding="utf-8")
         self.assertIn("getGovernanceDecisionsNeededSummary", text)
         self.assertIn("decisions-needed-summary", text)
