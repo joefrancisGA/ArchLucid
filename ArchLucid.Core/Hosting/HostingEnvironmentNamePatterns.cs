@@ -7,9 +7,10 @@ namespace ArchLucid.Core.Hosting;
 public static class HostingEnvironmentNamePatterns
 {
     /// <summary>
-    ///     Treats names containing <c>prod</c> (case-insensitive) as production-like so misnamed hosts
-    ///     (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot rely on Development-only behavior.
-    ///     Excludes <c>non-production</c> / <c>nonproduction</c>.
+    ///     Treats names containing a production-like <c>prod</c> token (case-insensitive) as production-like so
+    ///     misnamed hosts (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot rely on Development-only
+    ///     behavior. Excludes <c>non-production</c> / <c>nonproduction</c> and embedded <c>prod</c> substrings
+    ///     inside unrelated words (for example <c>reproduce</c>, <c>product</c>).
     /// </summary>
     public static bool EnvironmentNameImpliesProductionLike(string? environmentName)
     {
@@ -24,49 +25,53 @@ public static class HostingEnvironmentNamePatterns
         if (trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if (IsProdSubstringFalsePositiveEnvironmentName(trimmed))
-            return false;
-
-        return trimmed.Contains("prod", StringComparison.OrdinalIgnoreCase);
+        return ContainsProductionLikeProdReference(trimmed);
     }
 
-    private static bool IsProdSubstringFalsePositiveEnvironmentName(string trimmed)
+    private static bool ContainsProductionLikeProdReference(string trimmed)
     {
-        if (string.Equals(trimmed, "reproduce", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("reproduce-", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("reproduce_", StringComparison.OrdinalIgnoreCase))
-        {
+        if (trimmed.Contains("production", StringComparison.OrdinalIgnoreCase))
             return true;
-        }
 
-        if (string.Equals(trimmed, "product", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("product-", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("product_", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
+        return ContainsStandaloneProdDelimiterToken(trimmed);
+    }
 
-        if (string.Equals(trimmed, "produce", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("produce-", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("produce_", StringComparison.OrdinalIgnoreCase))
-        {
+    private static bool ContainsStandaloneProdDelimiterToken(string trimmed)
+    {
+        if (string.Equals(trimmed, "prod", StringComparison.OrdinalIgnoreCase))
             return true;
-        }
 
-        if (string.Equals(trimmed, "prodigy", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("prodigy-", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("prodigy_", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
+        int index = 0;
 
-        if (string.Equals(trimmed, "prodigal", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("prodigal-", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("prodigal_", StringComparison.OrdinalIgnoreCase))
+        while (index < trimmed.Length)
         {
-            return true;
+            index = trimmed.IndexOf("prod", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            if (IsStandaloneProdToken(trimmed, index))
+                return true;
+
+            index += 4;
         }
 
         return false;
+    }
+
+    private static bool IsStandaloneProdToken(string trimmed, int prodIndex)
+    {
+        int before = prodIndex - 1;
+        int afterProd = prodIndex + 4;
+
+        bool okBefore = prodIndex == 0
+            || !char.IsLetterOrDigit(trimmed[before])
+            || trimmed[before] is '-' or '_';
+
+        bool okAfter = afterProd >= trimmed.Length
+            || !char.IsLetter(trimmed[afterProd])
+            || trimmed[afterProd] is '-' or '_';
+
+        return okBefore && okAfter;
     }
 }
