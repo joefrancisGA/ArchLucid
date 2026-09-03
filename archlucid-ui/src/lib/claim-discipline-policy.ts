@@ -34,6 +34,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "comparison-replay-help",
   "compliance-journey",
   "connection-status",
+  "contact-support-help",
   "contextual-help-drawer",
   "decision-register",
   "demo-readiness",

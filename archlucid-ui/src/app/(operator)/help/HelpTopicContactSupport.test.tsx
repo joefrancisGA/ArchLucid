@@ -35,6 +35,9 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
 
 import { HelpContactSupportGuideView } from "@/app/(operator)/help/_sections/HelpContactSupportGuideView";
 import {
+  CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE,
+} from "@/lib/contact-support-help-evidence-copy";
+import {
   CONTACT_SUPPORT_HELP_OVERVIEW,
   CONTACT_SUPPORT_PRIMARY_ACTIONS,
   CONTACT_SUPPORT_REPORT_PROBLEM_ARTICLE,
@@ -66,6 +69,10 @@ describe("HelpContactSupportGuideView", () => {
 
     expect(screen.getByTestId("help-contact-support-page-title")).toHaveTextContent("Contact support");
     expect(screen.getByTestId("help-contact-support-overview")).toHaveTextContent(CONTACT_SUPPORT_HELP_OVERVIEW);
+    expect(screen.getByTestId("contact-support-help-header-claim-discipline")).toHaveTextContent(
+      CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE,
+    );
+    expect(screen.queryByTestId("contact-support-help-claim-discipline")).toBeNull();
     expect(screen.getByTestId("contact-support-help-support-expectations")).toHaveTextContent(
       TROUBLESHOOTING_SUPPORT_EXPECTATIONS,
     );
