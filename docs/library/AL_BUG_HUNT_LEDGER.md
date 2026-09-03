@@ -3119,11 +3119,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 129
-- **bugs-found:** 285
+- **hunts:** 130
+- **bugs-found:** 286
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — revoke waiver skipped MarkExpired sweep before active-status guard
+- **last-bug:** 2026-09-03 — recurrence schedule accepted non-committed source runs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3719,6 +3719,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceStickinessController.RevokeRiskException` / `RenewRiskException` — OpenAPI metadata omits HTTP 404 for out-of-scope `riskExceptionId` while handlers map `InvalidOperationException` → 404 (swagger drift only).
 
 - [x] (proven) `RiskExceptionService.RevokeAsync` / `GovernanceStickinessController.RevokeRiskException` — past-expiry `Status=Active` waivers revoked without `MarkExpiredAsync` sweep — **hit 2026-09-03 (#656):** create #573 and renew #574 call `MarkExpiredAsync` before lifecycle guards; revoke checked stale `Active` rows past `ExpiresAtUtc` and returned HTTP 204 instead of HTTP 409; fixed with sweep + re-read before revoke (create/renew parity); regression in `RevokeAsync_marks_expired_before_revoke_when_waiver_is_past_expiry`.
+
+- [ ] (candidate) `GovernanceStickinessFacade.TryResolveFindingMergeConflictAsync` — resolve path skips `RequireFindingInspectInScopeAsync` used by disposition/waiver mutations; snapshot-only membership may resolve conflicts on finding ids that disposition would 404.
+
+- [ ] (candidate) `RiskExceptionValidation.Validate` / `GovernanceStickinessController.CreateRiskException` — sub-10-char waiver rationale accepted while disposition paths enforce `FindingDispositionValidation.MinimumRationaleLength` for accept/waive.
+
+- [ ] (candidate) `TenantPilotValueReportController.GetPilotValueReport` / `PilotValueReportService.CollectCommittedRunsAsync` — wide default date window walks unbounded keyset pages without max-span cap (drift-trend / LLM cost reporting cap parity).
+
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `GovernanceStickinessFacade.CreateRecurrenceScheduleAsync` — `ReadyForCommit` in-scope `sourceRunId` with manifest persisted recurring schedule — **hit 2026-09-03 (#657):** contract requires committed source run; create path only checked scope + existence; `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` enforces `LegacyRunStatus = Committed` (featured-sample / stickiness funnel parity); regression in `CreateRecurrenceScheduleAsync_throws_when_source_run_is_not_committed` and controller/validation tests.
+
+2026-09-03 seed hunt #657: promoted three candidates; proved recurrence committed-source-run guard.
 
 2026-09-03 thorough hunt #656: cheap-disproved OpenAPI 404 swagger drift candidate; proved revoke MarkExpired sweep parity gap.
 

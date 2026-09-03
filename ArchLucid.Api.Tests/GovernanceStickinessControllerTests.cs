@@ -7,6 +7,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -2838,6 +2839,7 @@ public sealed class GovernanceStickinessControllerTests
             {
                 RunId = sourceRunId,
                 ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         GovernanceStickinessController controller = BuildSut(runRepository: runs);
@@ -2868,6 +2870,7 @@ public sealed class GovernanceStickinessControllerTests
             {
                 RunId = sourceRunId,
                 ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         GovernanceStickinessController controller = BuildSut(runRepository: runs);
@@ -2877,6 +2880,37 @@ public sealed class GovernanceStickinessControllerTests
             SourceRunId = sourceRunId,
             Name = "weekly review",
             CronExpression = new string('0', RecurrenceScheduleValidation.CronExpressionMaxLength + 1),
+            IsEnabled = true,
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_when_source_run_is_not_committed()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                GoldenManifestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            });
+
+        GovernanceStickinessController controller = BuildSut(runRepository: runs);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            CronExpression = "0 9 * * 1",
             IsEnabled = true,
         };
 
@@ -2905,6 +2939,7 @@ public sealed class GovernanceStickinessControllerTests
             {
                 RunId = sourceRunId,
                 ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo, runRepository: runs);
@@ -2947,6 +2982,7 @@ public sealed class GovernanceStickinessControllerTests
             {
                 RunId = sourceRunId,
                 ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo, runRepository: runs);
@@ -3057,6 +3093,7 @@ public sealed class GovernanceStickinessControllerTests
                 WorkspaceId = Scope.WorkspaceId,
                 ScopeProjectId = Scope.ProjectId,
                 ArchitectureId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         GovernanceStickinessController controller = BuildSut(
