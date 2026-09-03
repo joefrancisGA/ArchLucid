@@ -7187,6 +7187,21 @@
         },
         "type": "object"
       },
+      "ComparisonDuplicateKeyConflict": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "key": {
+            "type": "string"
+          },
+          "section": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ComparisonExplanationResult": {
         "properties": {
           "highLevelSummary": {
@@ -7487,6 +7502,12 @@
           "decisionChanges": {
             "items": {
               "$ref": "#/components/schemas/DecisionDelta"
+            },
+            "type": "array"
+          },
+          "duplicateKeyConflicts": {
+            "items": {
+              "$ref": "#/components/schemas/ComparisonDuplicateKeyConflict"
             },
             "type": "array"
           },
@@ -17354,6 +17375,12 @@
           "cost": {
             "$ref": "#/components/schemas/CostSection"
           },
+          "createTimeArchitectureVersionContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createTimeEvidencePackagePins": {
             "items": {
               "$ref": "#/components/schemas/PinnedEvidencePackageRow"
@@ -17361,6 +17388,12 @@
             "type": "array"
           },
           "createTimeEvidencePackagePinsHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createTimeKnowledgeModelContentHashSha256": {
             "type": [
               "null",
               "string"
@@ -26811,6 +26844,13 @@
               "string"
             ]
           },
+          "pinnedArchitectureVersionContentHashSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "pinnedEvidencePackagePinsHashSha256": {
             "format": "byte",
             "type": [
@@ -26835,6 +26875,13 @@
             "type": [
               "null",
               "boolean"
+            ]
+          },
+          "pinnedKnowledgeModelContentHashSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
             ]
           },
           "pinnedPolicyPackIdsHashSha256": {
@@ -27680,6 +27727,22 @@
         "properties": {
           "enabled": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SetWorkspaceModeGraduationOfferRequest": {
+        "properties": {
+          "state": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SetWorkspaceModeRequest": {
+        "properties": {
+          "mode": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -32495,6 +32558,18 @@
             "type": "boolean"
           },
           "whereToGoNextIsExplicit": {
+            "type": "boolean"
+          },
+          "workspaceMode": {
+            "type": "string"
+          },
+          "workspaceModeGraduationOffer": {
+            "type": "string"
+          },
+          "workspaceModeGraduationOfferIsExplicit": {
+            "type": "boolean"
+          },
+          "workspaceModeIsExplicit": {
             "type": "boolean"
           }
         },
