@@ -349,11 +349,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 7
-- **bugs-found:** 9
+- **hunts:** 8
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — embedded zero-width chars in `EvidenceBundleId` passed worker gate but broke bundle lookup
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — empty `{}` infrastructure declaration objects survived payload materialization
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -371,7 +371,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-24 dry hunt #6: no open hypotheses; re-tested null-document / gate paths — `MaterializeDocumentList` already filters `[null]` before `IsValidForProcessing`; aligned stale repro test with filter semantics (`Deserialize_filters_null_document_elements_before_worker_gate`).
 - [x] (proven) `IsValidForProcessing` rejects blank payload `projectId` before worker can overwrite from `dbo.Runs` — **hit 2026-08-24:** gate ran before `GetByIdAsync`; whitespace-only `projectId` marked processed instead of resuming; fixed by dropping non-authoritative `ProjectId` from `IsValidForProcessing`; regression in `IsValidForProcessing_allows_blank_project_id_because_worker_overwrites_from_persisted_run` / `ProcessPendingBatchAsync_recovers_blank_payload_project_id_from_persisted_run`
 - [x] (proven) `HasSubstantiveText` allowed embedded format/control characters in `EvidenceBundleId` — **hit 2026-08-26:** `\u200Bbundle-1` passed `IsValidForProcessing` but `EvidenceBundleId.Trim()` left zero-width chars, so post-pipeline bundle lookup failed and retried instead of invalid-payload discard; fixed by rejecting any format/control character in the id; regression in `IsValidForProcessing_rejects_embedded_zero_width_in_evidence_bundle_id`.
-- [ ] (candidate) `MaterializeInfrastructureDeclarationList` filters null references only — empty `{}` declaration objects survive JSON and may yield connector warnings instead of deterministic discard at the gate.
+- [x] (proven) `MaterializeInfrastructureDeclarationList` filtered null references only — **hit 2026-09-03:** STJ `infrastructureDeclarations: [{}]` deserialized to default `format=json` with null `name`/`content`; empty objects reached `JsonInfrastructureDeclarationParser` instead of being stripped at materialization; fixed by requiring substantive `name` and `content` (`Deserialize_filters_empty_infrastructure_declaration_objects`).
+
+2026-09-03 thorough hunt #582 (hit): proved empty infrastructure declaration objects survived payload materialization.
 
 2026-08-26 seed hunt #7: proved embedded zero-width evidence bundle ids; reseeded empty infrastructure declaration object candidate.
 
