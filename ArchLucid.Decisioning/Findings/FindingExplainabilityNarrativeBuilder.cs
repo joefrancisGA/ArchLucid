@@ -1,7 +1,3 @@
-using ArchLucid.Contracts.Findings;
-using ArchLucid.Contracts.Persistence.Explanation;
-using ArchLucid.Decisioning.Models;
-
 namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
