@@ -578,6 +578,94 @@ type _AiUsageDashboardModelWave14BarrelAliases = [
   >,
 ];
 
+/** Wave 15 — health-dashboard summary tiles and severity-helper modules. */
+type _HealthDashboardSummaryWave15ModuleAliases = [
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-tiles").HealthSummaryTile,
+    import("@/lib/health-dashboard-summary").HealthSummaryTile
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-severity-helpers").humanizeCircuitGateName,
+    typeof import("@/lib/health-dashboard-summary").humanizeCircuitGateName
+  >,
+];
+
+/** Wave 15 — health-dashboard summary barrel re-exports tiles and severity-helper slices. */
+type _HealthDashboardSummaryWave15BarrelAliases = [
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-tiles").buildHealthSummaryTiles,
+    typeof import("@/lib/health-dashboard-summary").buildHealthSummaryTiles
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-severity-helpers").circuitSeverity,
+    typeof import("@/lib/health-dashboard-summary").circuitSeverity
+  >,
+];
+
+/** Wave 15 — governance-dashboard summary, lineage, and batch-review modules. */
+type _GovernanceDashboardWave15ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["GovernanceDashboardSummary"],
+    import("@/types/governance-dashboard-summary").GovernanceDashboardSummary
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceLineageResult"],
+    import("@/types/governance-dashboard-lineage").GovernanceLineageResult
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceBatchReviewResponse"],
+    import("@/types/governance-dashboard-batch-review").GovernanceBatchReviewResponse
+  >,
+];
+
+/** Wave 15 — governance-dashboard barrel re-exports summary, lineage, and batch-review slices. */
+type _GovernanceDashboardWave15BarrelAliases = [
+  AssertExtends<
+    import("@/types/governance-dashboard-summary").ComplianceDriftTrendPoint,
+    import("@/types/governance-dashboard").ComplianceDriftTrendPoint
+  >,
+  AssertExtends<
+    import("@/types/governance-dashboard-lineage").GovernanceRationaleResult,
+    import("@/types/governance-dashboard").GovernanceRationaleResult
+  >,
+  AssertExtends<
+    import("@/types/governance-dashboard-batch-review").GovernanceBatchReviewItemResult,
+    import("@/types/governance-dashboard").GovernanceBatchReviewItemResult
+  >,
+];
+
+/** Wave 15 — operate-rhythm pilot-stickiness, integrations, and alerts modules. */
+type _OperateRhythmWave15ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["OperatorStickinessSnapshotResponse"],
+    import("@/types/operate-rhythm-pilot-stickiness").OperatorStickinessSnapshotDto
+  >,
+  AssertExtends<
+    components["schemas"]["TenantIntegrationsOperationsResponse"],
+    import("@/types/operate-rhythm-integrations").TenantIntegrationsOperationsDto
+  >,
+  AssertExtends<
+    components["schemas"]["AlertActionLoopResponse"],
+    import("@/types/operate-rhythm-alerts").AlertActionLoopDto
+  >,
+];
+
+/** Wave 15 — operate-rhythm barrel re-exports pilot-stickiness, integrations, and alerts slices. */
+type _OperateRhythmWave15BarrelAliases = [
+  AssertExtends<
+    import("@/types/operate-rhythm-pilot-stickiness").PilotFunnelSnapshotDto,
+    import("@/types/operate-rhythm").PilotFunnelSnapshotDto
+  >,
+  AssertExtends<
+    import("@/types/operate-rhythm-integrations").normalizeConnectorSurfaceStatus,
+    typeof import("@/types/operate-rhythm").normalizeConnectorSurfaceStatus
+  >,
+  AssertExtends<
+    import("@/types/operate-rhythm-alerts").WeeklyDigestHealthDto,
+    import("@/types/operate-rhythm").WeeklyDigestHealthDto
+  >,
+];
+
 /** Wave 12 — authority run-detail trust-evidence module. */
 type _AuthorityRunDetailWave12TrustModuleAliases = [
   AssertExtends<
@@ -1314,6 +1402,12 @@ const _compileTimeAliasGuards: [
   _HealthDashboardWave14BarrelAliases,
   _AiUsageDashboardModelWave14ModuleAliases,
   _AiUsageDashboardModelWave14BarrelAliases,
+  _HealthDashboardSummaryWave15ModuleAliases,
+  _HealthDashboardSummaryWave15BarrelAliases,
+  _GovernanceDashboardWave15ModuleAliases,
+  _GovernanceDashboardWave15BarrelAliases,
+  _OperateRhythmWave15ModuleAliases,
+  _OperateRhythmWave15BarrelAliases,
   _AuthorityRunDetailWave12TrustModuleAliases,
   _AuthorityRunDetailWave12ProvenanceModuleAliases,
   _AuthorityRunDetailWave12BarrelAliases,
@@ -1375,6 +1469,12 @@ const _compileTimeAliasGuards: [
   [] as unknown as _HealthDashboardWave14BarrelAliases,
   [] as unknown as _AiUsageDashboardModelWave14ModuleAliases,
   [] as unknown as _AiUsageDashboardModelWave14BarrelAliases,
+  [] as unknown as _HealthDashboardSummaryWave15ModuleAliases,
+  [] as unknown as _HealthDashboardSummaryWave15BarrelAliases,
+  [] as unknown as _GovernanceDashboardWave15ModuleAliases,
+  [] as unknown as _GovernanceDashboardWave15BarrelAliases,
+  [] as unknown as _OperateRhythmWave15ModuleAliases,
+  [] as unknown as _OperateRhythmWave15BarrelAliases,
   [] as unknown as _AuthorityRunDetailWave12TrustModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12ProvenanceModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12BarrelAliases,

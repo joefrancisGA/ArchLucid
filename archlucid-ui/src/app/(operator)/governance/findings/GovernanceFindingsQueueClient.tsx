@@ -8,7 +8,8 @@ import {
   GovernanceFindingsAssignedToMeHeaderMetadata,
   GovernanceFindingsAssignedToMeStatusBadge,
 } from "@/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeChrome";
-import { GovernanceFindingsQueueAssignedToMeShell } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
+import { GovernanceFindingsQueueTableShell } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueTableShell";
+import { useGovernanceFindingsQueueBulkActions } from "@/app/(operator)/governance/findings/use-governance-findings-queue-bulk-actions";
 import { GovernanceFindingsQueueHeader } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
@@ -89,7 +90,6 @@ export default function GovernanceFindingsQueueClient({
   mode = "tenant",
 }: GovernanceFindingsQueueClientProps) {
   const [hideGenericLowDensity, setHideGenericLowDensity] = useState(false);
-  const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(() => new Set());
   const { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters } =
     useGovernanceFindingsQueueFacets(mode);
   const isAssignedToMe = mode === "assigned-to-me";
@@ -102,6 +102,7 @@ export default function GovernanceFindingsQueueClient({
   const assignedToMeCountQuery = useAssignedToMeFindingsCountQuery({ enabled: isAssignedToMe });
   const activeQuery = isAssignedToMe ? assignedToMeQuery : tenantQuery;
   const { rows, loading, loadFailed, refresh } = activeQuery;
+  const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh });
   const assignedToMeFetchBasis = isAssignedToMe ? assignedToMeQuery.fetchBasis : null;
   const assignedToMeCheckedAt =
     isAssignedToMe && assignedToMeQuery.dataUpdatedAt > 0
@@ -360,7 +361,7 @@ export default function GovernanceFindingsQueueClient({
         loading={loading}
         currentJobId={currentJobId}
       />
-      <GovernanceFindingsQueueAssignedToMeShell
+      <GovernanceFindingsQueueTableShell
         isAssignedToMe={isAssignedToMe}
         mode={mode}
         buyerPolishedShell={buyerPolishedShell}
@@ -417,12 +418,9 @@ export default function GovernanceFindingsQueueClient({
         hideGenericLowDensity={hideGenericLowDensity}
         onHideGenericLowDensityChange={setHideGenericLowDensity}
         showInsightDensityScore={isWorkingMode}
-        selectedFindingIds={selectedFindingIds}
-        onSelectionChange={setSelectedFindingIds}
-        onBulkApplied={() => {
-          setSelectedFindingIds(new Set());
-          refresh();
-        }}
+        selectedFindingIds={bulkActions.selectedFindingIds}
+        onSelectionChange={bulkActions.onSelectionChange}
+        onBulkApplied={bulkActions.onBulkApplied}
         loadFailed={loadFailed}
         loadFailedPreset={loadFailedPreset}
         loadFailure={loadFailure}
