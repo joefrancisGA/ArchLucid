@@ -1881,11 +1881,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 128
-- **bugs-found:** 243
+- **hunts:** 129
+- **bugs-found:** 245
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — padded `TrialStatus` whitespace bypassed active-trial gates
+- **last-bug:** 2026-09-03 — `IsMonthlyMeter` `NonMonthly` false positive; graph pin hash whitespace blocked reuse
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1946,6 +1946,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CommercialPackagingTierResolver` / `TenantTrialSeatPolicy` / `CommercialTenantEligibility` — padded `TrialStatus` not treated as active — **hit 2026-09-03 (#642):** after #600/#601 `OrdinalIgnoreCase` parity, `trialStatus:" active "` still bypassed tier resolution null, seat-claim enforcement, and Standard-tier commercial gates; fixed with `TrialLifecycleStatus.EqualsStatus` trim+ignore-case helper (`ResolveCommercialTierLabel_returns_null_for_padded_active_trial_status`, `RequiresSeatClaim_true_when_padded_active_trial_status`, `CommercialTenantEligibility_blocks_padded_active_trial_from_standard_gates`).
 
 2026-09-03 seed hunt #642: reseeded tenancy helpers after #601 lowercase TrialStatus fix; proved whitespace-padded active status parity gap.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — bare `Month` substring false-positive on `1 NonMonthly` — **hit 2026-09-03 (#644):** unbounded `Contains("Month")` matched non-monthly unit-of-measure after #539/#586 bounded-token fixes for ` mo` and `/mo`; inflated consumption SKU monthly cost estimates; fixed with `ContainsMonthWordToken` / `ContainsSlashMonthWordToken` (`LooksLikeConsumptionUsd_rejects_nonmonthly_unit_of_measure_false_positive`, `TryMonthlyUsdFromRow_rejects_nonmonthly_unit_of_measure_false_positive`).
+
+- [x] (proven) `GraphSnapshotCommittedReuseResolver.PinFingerprintMatchesHeader` / `PinStringPropertyMatches` — padded pin hash properties blocked committed graph reuse — **hit 2026-09-03 (#644):** `architectureVersionId` already trimmed in #630 but `policyPackPinsHashSha256Hex` and sibling pin fingerprints compared raw stored text; whitespace-padded graph context properties failed observational equality despite matching run header pins; fixed with `.Trim()` on stored pin strings (`TryResolveAsync_reuses_graph_when_policy_pack_pins_hash_has_outer_whitespace`).
+
+2026-09-03 seed hunt #644: reseeded from `AzureRetailPricesSkuMatchers` and `GraphSnapshotCommittedReuseResolver`; proved `NonMonthly` month-token false positive and pin-hash trim parity gap.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized

@@ -248,7 +248,7 @@ public static class GraphSnapshotCommittedReuseResolver
         string? stored = ReadContextProperty(graph, propertyKey);
 
         return !string.IsNullOrEmpty(stored)
-               && string.Equals(stored, expected, StringComparison.OrdinalIgnoreCase);
+               && string.Equals(stored.Trim(), expected, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool PinFingerprintMatchesHeader(
@@ -263,7 +263,7 @@ public static class GraphSnapshotCommittedReuseResolver
         string? storedHex = ReadContextProperty(graph, propertyKey);
 
         return !string.IsNullOrEmpty(storedHex)
-               && string.Equals(storedHex, expectedHex, StringComparison.OrdinalIgnoreCase);
+               && string.Equals(storedHex.Trim(), expectedHex, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? ReadContextProperty(GraphSnapshot graph, string key)

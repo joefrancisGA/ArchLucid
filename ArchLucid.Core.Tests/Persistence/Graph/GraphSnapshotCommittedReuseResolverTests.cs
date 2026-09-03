@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -57,6 +58,54 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
         result.Snapshot.GraphSnapshotId.Should().Be(graphId);
     }
 
+    [Fact]
+    public async Task TryResolveAsync_reuses_graph_when_policy_pack_pins_hash_has_outer_whitespace()
+    {
+        Guid runId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        byte[] headerHash = Convert.FromHexString("A1B2C3D4E5F607182930A1B2C3D4E5F607182930A1B2C3D4E5F607182930A1B2");
+        ContextSnapshot contextSnapshot = BuildContextSnapshot(contextId);
+        ArchitectureKnowledgeModel knowledgeModel = BuildKnowledgeModel();
+        GraphSnapshot stored = BuildGraphWithContextPins(
+            contextId,
+            runId,
+            graphId,
+            contextSnapshot,
+            knowledgeModel,
+            architectureVersionIdValue: null,
+            policyPackPinsHash: $" {Convert.ToHexString(headerHash)} ");
+
+        Mock<IGraphSnapshotRepository> repo = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        repo.Setup(r => r.GetByIdAsync(scope, graphId, It.IsAny<CancellationToken>())).ReturnsAsync(stored);
+
+        RunRecord runHeader = new()
+        {
+            RunId = runId,
+            PinnedPolicyPackIdsHashSha256 = headerHash,
+        };
+
+        GraphSnapshotResolutionResult? result = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
+            scope,
+            runId,
+            graphId,
+            contextId,
+            repo.Object,
+            CancellationToken.None,
+            contextSnapshot: contextSnapshot,
+            knowledgeModel: knowledgeModel,
+            runHeader: runHeader);
+
+        result.Should().NotBeNull();
+        result!.ResolutionMode.Should().Be("reused_from_run_header");
+    }
+
     private static ContextSnapshot BuildContextSnapshot(Guid contextSnapshotId)
     {
         return new ContextSnapshot
@@ -100,8 +149,22 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
         Guid graphId,
         ContextSnapshot contextSnapshot,
         ArchitectureKnowledgeModel knowledgeModel,
-        string architectureVersionIdValue)
+        string? architectureVersionIdValue,
+        string? policyPackPinsHash = null)
     {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["contextCanonicalFingerprint"] = GraphSnapshotCanonicalFingerprint.Compute(contextSnapshot),
+            ["knowledgeModelFingerprint"] =
+                GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(knowledgeModel),
+        };
+
+        if (architectureVersionIdValue is not null)
+            properties["architectureVersionId"] = architectureVersionIdValue;
+
+        if (policyPackPinsHash is not null)
+            properties["policyPackPinsHashSha256Hex"] = policyPackPinsHash;
+
         return new GraphSnapshot
         {
             GraphSnapshotId = graphId,
@@ -115,13 +178,7 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
                     NodeId = "ctx",
                     NodeType = "ContextSnapshot",
                     Label = "Context",
-                    Properties = new Dictionary<string, string>
-                    {
-                        ["contextCanonicalFingerprint"] = GraphSnapshotCanonicalFingerprint.Compute(contextSnapshot),
-                        ["knowledgeModelFingerprint"] =
-                            GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(knowledgeModel),
-                        ["architectureVersionId"] = architectureVersionIdValue,
-                    },
+                    Properties = properties,
                 },
             ],
         };
