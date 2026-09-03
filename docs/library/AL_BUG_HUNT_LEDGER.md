@@ -1862,15 +1862,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 125
-- **bugs-found:** 240
+- **hunts:** 126
+- **bugs-found:** 241
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — null failure-summary `schemaVersion` JSON token rejected dead-letter detection
+- **last-bug:** 2026-09-03 — Azure extractor manifest upgrader rejected on/off and 1.0 schemaVersion strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+- [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryReadSchemaVersion` — string `"off"` / `"1.0"` schemaVersion tokens rejected — **hit 2026-09-03 (#624):** private `TryParseBooleanString` used bare `bool.TryParse` and `TryParseWholeNumberString` only accepted integers while sibling `AzureExtractorPackageZipValidator` already coerces on/off and whole-number doubles; fixed by reusing `RunExplanationAggregateJsonReader` coercion (`TryUpgradeManifestJson_upgrades_string_off_synonym_zero_schema_version`, `TryUpgradeManifestJson_accepts_string_whole_number_one_point_zero_schema_version`).
+
+2026-09-03 seed hunt #624: proved manifest upgrader schemaVersion coercion parity gap vs package validator.
 
 - [x] (proven) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` — IPv4-mapped RFC1918 addresses bypass private-network guard — **hit 2026-09-03 (#597):** `::ffff:10.0.0.1` / `::ffff:192.168.1.1` stayed on the IPv6 branch after #223 ULA fix and returned allowed; SSRF policies missed mapped private literals; fixed by unmapping with `MapToIPv4()` before RFC1918 checks (`PrivateNetworkAddressGuard_IsForbiddenIpAddress_blocks_ipv4_mapped_private_addresses`).
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — string-encoded / whole-number-double `schemaVersion` rejected — **hit 2026-09-03 (#600):** `"schemaVersion":"1"` and `1.0` failed strict `int` deserialize and dropped dead-letter detection after #596 failureClass casing fix; fixed with case-insensitive schemaVersion coercion and direct `failureClass` read (`IsDeadLettered_returns_true_for_string_encoded_schema_version`, `IsDeadLettered_returns_true_for_whole_number_double_schema_version`).

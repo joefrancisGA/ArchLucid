@@ -31,4 +31,27 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
         error.Should().BeNull();
         manifestJson.Should().Contain("\"schemaVersion\":1");
     }
+
+    [Fact]
+    public void TryUpgradeManifestJson_upgrades_string_off_synonym_zero_schema_version()
+    {
+        string manifestJson = """{"schemaVersion":"off","tenantId":"contoso"}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeTrue();
+        error.Should().BeNull();
+        manifestJson.Should().Contain("\"schemaVersion\":1");
+    }
+
+    [Fact]
+    public void TryUpgradeManifestJson_accepts_string_whole_number_one_point_zero_schema_version()
+    {
+        string manifestJson = """{"schemaVersion":"1.0","tenantId":"contoso"}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeTrue();
+        error.Should().BeNull();
+    }
 }
