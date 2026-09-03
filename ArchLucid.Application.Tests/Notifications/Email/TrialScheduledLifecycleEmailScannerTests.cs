@@ -4,8 +4,6 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.IntegrationOutbox;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
