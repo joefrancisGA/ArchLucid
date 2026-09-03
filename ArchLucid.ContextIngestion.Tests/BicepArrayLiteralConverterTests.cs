@@ -1,3 +1,4 @@
+using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
 
@@ -36,5 +37,33 @@ public sealed class BicepArrayLiteralConverterTests
         result.Should().ContainSingle();
         result[0].Properties.Should().ContainKey("tf.ip_security_restrictions");
         result[0].Properties["tf.ip_security_restrictions"].Should().NotContain("1.1.1.1");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InlineCommaSeparatedArrayObject_ExpandsNetworkBaseline()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-inline-array-network",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        ip_security_restrictions = [{ name = "AllowAll", ip_address = "0.0.0.0/0", action = "Allow" }]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _terraformParser.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand(parsed);
+
+        expanded.Should().HaveCountGreaterThan(1);
+
+        CanonicalObject? baseline = expanded.FirstOrDefault(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint");
+
+        baseline.Should().NotBeNull();
     }
 }

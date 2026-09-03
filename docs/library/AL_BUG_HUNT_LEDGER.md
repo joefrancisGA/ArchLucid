@@ -2452,11 +2452,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 67
-- **bugs-found:** 129
+- **hunts:** 68
+- **bugs-found:** 130
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `TOP :` spaced prefix missed by topology hint extractor; array-object block comments parsed as live scalars
+- **last-bug:** 2026-09-03 — comma-separated inline array object properties parsed as single scalar; App Service network expander missed open-internet rules
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2624,6 +2624,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BicepArrayLiteralConverter.ParseObjectScalars` — block comments inside array objects not skipped — **hit 2026-09-03 (#598):** `ip_security_restrictions = [{ name = "AllowAll" /* ip_address = "1.1.1.1" */ }]` parsed commented-out `ip_address` as live scalar (body-level block-comment parity gap after #590); fixed with `TryConsumeBlockComment` in array-object scalar scan (`ParseAsync_IpSecurityRestrictionsArrayWithBlockCommentedProperty_DoesNotParseCommentedScalar`).
 
 2026-09-03 seed hunt #598: reseeded from plain-text topology hint extractor and array-literal converter; proved spaced `TOP :` prefix parity gap and array-object block-comment gap.
+
+- [x] (proven) `BicepArrayLiteralConverter.ParseObjectScalars` — comma-separated properties on one line inside array objects parsed as single scalar — **hit 2026-09-03 (#599):** `[{ name: 'AllowAll', ipAddress: '0.0.0.0/0', action: 'Allow' }]` stored only `name` with trailing assignment text; `AppServiceNetworkAccessSecurityBaselineExpander` never detected open-internet rules; fixed by splitting assignment segments on commas outside quoted strings (`ParseAsync_InlineSingleLineArray_ExpandsNetworkBaseline`, `ParseAsync_InlineCommaSeparatedArrayObject_ExpandsNetworkBaseline`).
+
+2026-09-03 seed hunt #599: reseeded from array-literal converter; proved comma-separated inline array-object scalar gap beyond #598 block-comment fix.
+
+- [ ] (candidate) `BicepArrayLiteralConverter.ParseObjectScalars` — full-line `#` HCL comments inside array objects may be mis-parsed if comment text resembles assignments
+- [ ] (candidate) `InfrastructureDeclarationBraceBodyExtractor` — single-quoted strings containing unescaped `'` may prematurely close delimiter scanning
+- [ ] (candidate) `PlainTextDocumentTopologyHintExtractor.EnumerateHintNames` — tab-indented `TOP:` lines after `TrimEntries` split may differ from parser line handling for mixed whitespace
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
