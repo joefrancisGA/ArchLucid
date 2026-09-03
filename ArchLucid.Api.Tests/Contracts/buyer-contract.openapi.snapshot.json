@@ -6992,6 +6992,27 @@
         },
         "type": "object"
       },
+      "CommittedArtifactInventoryEntry": {
+        "properties": {
+          "artifactName": {
+            "type": "string"
+          },
+          "capturedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "contentHashSha256": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "producer": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "CommittedCoverageAssignmentSnapshot": {
         "properties": {
           "coverageType": {
@@ -7146,6 +7167,74 @@
               "type": "string"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "CompareInputFingerprints": {
+        "properties": {
+          "baseArchitectureVersionContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baseEvidencePackagePinHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baseKnowledgeModelContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baseManifestHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "basePolicyPackPinHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "comparisonAlgorithmVersion": {
+            "type": "string"
+          },
+          "targetArchitectureVersionContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetEvidencePackagePinHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetKnowledgeModelContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetManifestHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetPolicyPackPinHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -7510,6 +7599,16 @@
               "$ref": "#/components/schemas/ComparisonDuplicateKeyConflict"
             },
             "type": "array"
+          },
+          "inputFingerprints": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareInputFingerprints"
+              }
+            ]
           },
           "requirementChanges": {
             "items": {
@@ -17362,6 +17461,12 @@
             },
             "type": "array"
           },
+          "committedArtifactInventory": {
+            "items": {
+              "$ref": "#/components/schemas/CommittedArtifactInventoryEntry"
+            },
+            "type": "array"
+          },
           "compliance": {
             "$ref": "#/components/schemas/ComplianceSection"
           },
@@ -17374,6 +17479,12 @@
           },
           "cost": {
             "$ref": "#/components/schemas/CostSection"
+          },
+          "createTimeArchitectureRequestId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "createTimeArchitectureVersionContentHashSha256": {
             "type": [
@@ -17412,11 +17523,30 @@
               "string"
             ]
           },
+          "createTimePackageOrigin": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createTimePilotAoaiDeploymentSnapshot": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createTimePolicyPackPins": {
             "items": {
               "$ref": "#/components/schemas/PinnedPolicyPackRow"
             },
             "type": "array"
+          },
+          "createTimeStructuralExecutionMode": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "createdUtc": {
             "format": "date-time",
@@ -20184,6 +20314,17 @@
       },
       "PinnedPolicyPackRow": {
         "properties": {
+          "blockCommitMinimumSeverity": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "blockCommitOnCritical": {
+            "default": false,
+            "type": "boolean"
+          },
           "policyPackId": {
             "type": "string"
           },
@@ -23588,6 +23729,12 @@
           "disposition": {
             "$ref": "#/components/schemas/FindingDisposition"
           },
+          "evidenceRequestText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingIds": {
             "items": {
               "type": "string"
@@ -23599,6 +23746,12 @@
           },
           "revisitDueUtc": {
             "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tradeOffAcknowledgment": {
             "type": [
               "null",
               "string"
@@ -26873,12 +27026,14 @@
             ]
           },
           "pinnedEvidencePackagePinsJson": {
+            "description": "Read-only create-time evidence package pin rows (JSON array) frozen at run create (wave-6\u002B).",
             "type": [
               "null",
               "string"
             ]
           },
           "pinnedFocusedPilotCloudProvider": {
+            "description": "Read-only focused-pilot cloud provider pin frozen at run create (wave-11).",
             "format": "int32",
             "type": [
               "null",
@@ -26886,6 +27041,7 @@
             ]
           },
           "pinnedFocusedPilotModeEnabled": {
+            "description": "Read-only focused-pilot mode pin frozen at run create (wave-11).",
             "type": [
               "null",
               "boolean"
@@ -26907,6 +27063,7 @@
             ]
           },
           "pinnedPolicyPackIdsJson": {
+            "description": "Read-only create-time policy pack pin rows (JSON array) frozen at run create (wave-6\u002B).",
             "type": [
               "null",
               "string"

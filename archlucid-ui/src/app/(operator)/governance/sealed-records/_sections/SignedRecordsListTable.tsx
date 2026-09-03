@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import { HelpCopyableValue } from "@/components/help/HelpCopyableValue";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -17,6 +18,13 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseSignedRecordsListSortAscFromSearch,
+  parseSignedRecordsListSortKeyFromSearch,
+  signedRecordsListSortHrefFromSearch,
+  type SignedRecordsListSortKey,
+} from "@/lib/signed-records/signed-records-list-sort-url";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 
 import { SignedRecordsListEmptyValue } from "./signed-records-list-empty-value";
@@ -47,7 +55,7 @@ export type SignedRecordsListTableProps = {
   readonly onRetryRow: (runId: string) => void;
 };
 
-type SortKey = "reviewTitle" | "committedUtc";
+type SortKey = SignedRecordsListSortKey;
 
 function sortDirectionFor(
   activeKey: SortKey,
@@ -110,8 +118,21 @@ function SignedRecordsListSealDetails(props: {
 /** EnterpriseTable body for the signed-records index — deferred off First Load (wave 11). */
 export function SignedRecordsListTable(props: SignedRecordsListTableProps): React.JSX.Element {
   const { rows, enriching = false, retryingRunId, onRetryRow } = props;
-  const [sortKey, setSortKey] = useState<SortKey>("committedUtc");
-  const [sortAsc, setSortAsc] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? SIGNED_RECORDS_LIST_PATH;
+  const searchParams = useSearchParams();
+  const urlSortKey = parseSignedRecordsListSortKeyFromSearch(searchParams.get("sort"));
+  const urlSortAsc = parseSignedRecordsListSortAscFromSearch(searchParams.get("dir"));
+  const [sortKey, setSortKey] = useState<SortKey>(urlSortKey);
+  const [sortAsc, setSortAsc] = useState(urlSortAsc);
+
+  useEffect(() => {
+    setSortKey(urlSortKey);
+  }, [urlSortKey]);
+
+  useEffect(() => {
+    setSortAsc(urlSortAsc);
+  }, [urlSortAsc]);
 
   const sortedRows = useMemo(() => {
     const copy = [...rows];
@@ -122,13 +143,22 @@ export function SignedRecordsListTable(props: SignedRecordsListTableProps): Reac
   }, [rows, sortAsc, sortKey]);
 
   function onSort(nextKey: SortKey) {
+    const nextAsc =
+      sortKey === nextKey
+        ? !sortAsc
+        : nextKey === "reviewTitle";
+
     if (sortKey === nextKey) {
-      setSortAsc((value) => !value);
-      return;
+      setSortAsc(nextAsc);
+    } else {
+      setSortKey(nextKey);
+      setSortAsc(nextAsc);
     }
 
-    setSortKey(nextKey);
-    setSortAsc(nextKey === "reviewTitle");
+    router.replace(
+      signedRecordsListSortHrefFromSearch(searchParams.toString(), nextKey, nextAsc, pathname),
+      { scroll: false },
+    );
   }
 
   return (

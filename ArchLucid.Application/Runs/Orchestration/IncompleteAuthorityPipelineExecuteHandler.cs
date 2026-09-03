@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs;
 using ArchLucid.ContextIngestion.Mapping;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
@@ -86,6 +87,14 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
         RunRecord? runHeader = await _runRepository
             .GetByIdAsync(scope, runGuid, cancellationToken)
             .ConfigureAwait(false);
+
+        if (runHeader is null)
+        {
+            throw new InvalidOperationException(
+                $"Run '{runId}' header was not found; cannot resume the deferred authority pipeline.");
+        }
+
+        ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(scope, runHeader, runId);
 
         if (_logger.IsEnabled(LogLevel.Information))
         {

@@ -92,6 +92,7 @@ jobs:
         run: |
           python3 scripts/ci/check_sponsor_export_execution_mode_label.py
           python3 scripts/ci/check_live_api_private_beta_access_ci_wiring.py
+          python3 scripts/ci/check_ui_jwt_bearer_build_on_push_corset.py
           python3 scripts/ci/check_push_corset_openapi_snapshot.py
           python3 scripts/ci/check_release_gate_playwright_wiring.py
           python3 scripts/ci/check_insight_density_advisory_surfaces.py
@@ -101,6 +102,7 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_sponsor_export_execution_mode_label.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_live_api_private_beta_access_ci_wiring.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_ui_jwt_bearer_build_on_push_corset.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_push_corset_openapi_snapshot.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_release_gate_playwright_wiring.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_insight_density_advisory_surfaces.py"
@@ -130,3 +132,28 @@ jobs:
           npm ci
           python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
           npm run typecheck
+
+  ui-jwt-bearer-build:
+    name: "Operator UI: jwt-bearer production build (blocking)"
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Install UI deps & build Next (standalone, jwt-bearer client)
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          NEXT_PUBLIC_ARCHLUCID_AUTH_MODE: jwt-bearer
+        run: |
+          npm ci
+          npm run build
