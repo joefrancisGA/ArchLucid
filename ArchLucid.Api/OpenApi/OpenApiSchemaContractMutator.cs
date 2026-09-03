@@ -38,6 +38,14 @@ internal static class OpenApiSchemaContractMutator
         };
     }
 
+    internal static void AddStringIfMissing(IDictionary<string, IOpenApiSchema> properties, string jsonName)
+    {
+        if (properties.ContainsKey(jsonName))
+            return;
+
+        properties[jsonName] = new OpenApiSchema { Type = JsonSchemaType.String };
+    }
+
     internal static void EnsureRequired(OpenApiSchema schema, params string[] propertyNames)
     {
         if (propertyNames.Length == 0)

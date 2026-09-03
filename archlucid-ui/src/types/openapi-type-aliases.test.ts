@@ -258,22 +258,299 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
 type AssertExtends<Base, Derived extends Base> = Derived;
 
 /** Compile-time guard: aliased DTOs remain assignable to their OpenAPI wire shapes. */
-type _AuthorityAliases = [
-  AssertExtends<components["schemas"]["DiffItemResponse"], import("@/types/authority").DiffItem>,
-  AssertExtends<components["schemas"]["ManifestComparisonResponse"], import("@/types/authority").ManifestComparison>,
-  AssertExtends<components["schemas"]["RunComparisonResponse"], import("@/types/authority").RunComparison>,
-  AssertExtends<components["schemas"]["ReplayValidationResponse"], import("@/types/authority").ReplayValidation>,
-  AssertExtends<components["schemas"]["ReplayResponse"], import("@/types/authority").ReplayResponse>,
-  AssertExtends<components["schemas"]["ProvenanceNode"], import("@/types/authority").ProvenanceNode>,
-  AssertExtends<components["schemas"]["ProvenanceEdge"], import("@/types/authority").ProvenanceEdge>,
+type _AuthorityRunSummaryWave11Aliases = [
+  AssertExtends<components["schemas"]["RunSummaryResponse"], import("@/types/authority-run-summary").RunSummary>,
+];
+
+type _AuthorityManifestWave11Aliases = [
+  AssertExtends<components["schemas"]["DiffItemResponse"], import("@/types/authority-manifest").DiffItem>,
+  AssertExtends<components["schemas"]["ManifestComparisonResponse"], import("@/types/authority-manifest").ManifestComparison>,
+  AssertExtends<components["schemas"]["RunComparisonResponse"], import("@/types/authority-manifest").RunComparison>,
+  AssertExtends<components["schemas"]["ReplayValidationResponse"], import("@/types/authority-manifest").ReplayValidation>,
+  AssertExtends<components["schemas"]["ReplayResponse"], import("@/types/authority-manifest").ReplayResponse>,
+  AssertExtends<
+    components["schemas"]["ManifestSummaryResponse"],
+    import("@/types/authority-manifest").ManifestSummary
+  >,
+  AssertExtends<
+    components["schemas"]["ArtifactDescriptorResponse"],
+    import("@/types/authority-manifest").ArtifactDescriptor
+  >,
+  AssertExtends<
+    components["schemas"]["RunAgentLlmCostEstimateResponse"],
+    import("@/types/authority-manifest").RunAgentExecutionLlmCostEstimate
+  >,
+];
+
+type _AuthorityRunDetailWave11Aliases = [
+  AssertExtends<components["schemas"]["ProvenanceNode"], import("@/types/authority-run-detail").ProvenanceNode>,
+  AssertExtends<components["schemas"]["ProvenanceEdge"], import("@/types/authority-run-detail").ProvenanceEdge>,
   AssertExtends<
     components["schemas"]["DecisionProvenanceGraph"],
-    import("@/types/authority").DecisionProvenanceGraph
+    import("@/types/authority-run-detail").DecisionProvenanceGraph
   >,
   AssertExtends<
     components["schemas"]["RunPipelineTimelineItemResponse"],
-    import("@/types/authority").PipelineTimelineItem
+    import("@/types/authority-run-detail").PipelineTimelineItem
   >,
+];
+
+/** Wave 12 — explanation run vs structured envelope modules. */
+type _ExplanationWave12ModuleAliases = [
+  AssertExtends<components["schemas"]["ExplanationProvenance"], import("@/types/explanation-run").ExplanationProvenance>,
+  AssertExtends<components["schemas"]["StructuredExplanation"], import("@/types/explanation-structured").StructuredExplanation>,
+  AssertExtends<
+    components["schemas"]["FindingExplainabilityEvidence"],
+    import("@/types/explanation-structured").FindingExplainabilityEvidence
+  >,
+  AssertExtends<
+    components["schemas"]["FindingEvidenceChainResponse"],
+    import("@/types/explanation-structured").FindingEvidenceChain
+  >,
+  AssertExtends<components["schemas"]["FindingLlmAuditResult"], import("@/types/explanation-structured").FindingLlmAudit>,
+  AssertExtends<
+    components["schemas"]["FindingExplainabilityResult"],
+    import("@/types/explanation-structured").FindingExplainability
+  >,
+  AssertExtends<
+    components["schemas"]["ComparisonExplanationResult"],
+    import("@/types/explanation-run").ComparisonExplanation
+  >,
+];
+
+/** Wave 12 — explanation barrel re-exports preserve `@/types/explanation` import surface. */
+type _ExplanationWave12BarrelAliases = [
+  AssertExtends<import("@/types/explanation-run").RunExplanation, import("@/types/explanation").RunExplanation>,
+  AssertExtends<
+    import("@/types/explanation-run").ExplanationProvenance,
+    import("@/types/explanation").ExplanationProvenance
+  >,
+  AssertExtends<
+    import("@/types/explanation-structured").StructuredExplanation,
+    import("@/types/explanation").StructuredExplanation
+  >,
+  AssertExtends<
+    import("@/types/explanation-structured").FindingExplainability,
+    import("@/types/explanation").FindingExplainability
+  >,
+  AssertExtends<
+    import("@/types/explanation-run").ComparisonExplanation,
+    import("@/types/explanation").ComparisonExplanation
+  >,
+];
+
+/** Wave 12 — draft-intake actor/trust descriptor module. */
+type _DraftIntakeActorsWave12ModuleAliases = [
+  AssertExtends<components["schemas"]["ActorKind"], import("@/types/draft-intake-actors").ActorKind>,
+  AssertExtends<components["schemas"]["TrustOrigin"], import("@/types/draft-intake-actors").TrustOrigin>,
+  AssertExtends<
+    components["schemas"]["InteractionContract"],
+    import("@/types/draft-intake-actors").InteractionContract
+  >,
+  AssertExtends<components["schemas"]["ActorOrigin"], import("@/types/draft-intake-actors").ActorOrigin>,
+  AssertExtends<components["schemas"]["ActorDescriptor"], import("@/types/draft-intake-actors").ActorDescriptor>,
+  AssertExtends<components["schemas"]["ActorSet"], import("@/types/draft-intake-actors").ActorSet>,
+];
+
+/** Wave 12 — draft-intake barrel re-exports actor descriptors from `draft-intake-actors`. */
+type _DraftIntakeActorsWave12BarrelAliases = [
+  AssertExtends<import("@/types/draft-intake-actors").ActorKind, import("@/types/draft-intake").ActorKind>,
+  AssertExtends<import("@/types/draft-intake-actors").ActorDescriptor, import("@/types/draft-intake").ActorDescriptor>,
+  AssertExtends<import("@/types/draft-intake-actors").ActorSet, import("@/types/draft-intake").ActorSet>,
+];
+
+/** Wave 13 — draft-intake document, lifecycle/status, branch, workflow, and request modules. */
+type _DraftIntakeWave13ModuleAliases = [
+  AssertExtends<components["schemas"]["DraftRequestStatus"], import("@/types/draft-intake-status").DraftRequestStatus>,
+  AssertExtends<
+    components["schemas"]["DraftBranchOverrideKind"],
+    import("@/types/draft-intake-status").DraftBranchOverrideKind
+  >,
+  AssertExtends<components["schemas"]["BranchDraftRequest"], import("@/types/draft-intake-branch").BranchDraftRequest>,
+  AssertExtends<
+    components["schemas"]["DraftBranchQuotaResponse"],
+    import("@/types/draft-intake-branch").DraftBranchQuotaResponse
+  >,
+  AssertExtends<
+    components["schemas"]["DraftRequestDocument"],
+    import("@/types/draft-intake-document").DraftRequestDocument
+  >,
+  AssertExtends<
+    components["schemas"]["DraftRequestResponse"],
+    import("@/types/draft-intake-workflow").DraftRequestResponse
+  >,
+  AssertExtends<
+    components["schemas"]["DraftRequestSummaryResponse"],
+    import("@/types/draft-intake-workflow").DraftRequestSummary
+  >,
+  AssertExtends<
+    components["schemas"]["CreateDraftRequest"],
+    import("@/types/draft-intake-requests").CreateDraftRequest
+  >,
+  AssertExtends<
+    components["schemas"]["PatchDraftRequest"],
+    import("@/types/draft-intake-requests").PatchDraftRequest
+  >,
+  AssertExtends<
+    components["schemas"]["DraftIntakeReasonRequest"],
+    import("@/types/draft-intake-requests").DraftIntakeReasonRequest
+  >,
+];
+
+/** Wave 13 — draft-intake barrel re-exports document, lifecycle, and workflow slices. */
+type _DraftIntakeWave13BarrelAliases = [
+  AssertExtends<
+    import("@/types/draft-intake-document").DraftRequestDocument,
+    import("@/types/draft-intake").DraftRequestDocument
+  >,
+  AssertExtends<import("@/types/draft-intake-status").DraftRequestStatus, import("@/types/draft-intake").DraftRequestStatus>,
+  AssertExtends<
+    import("@/types/draft-intake-branch").BranchDraftResponse,
+    import("@/types/draft-intake").BranchDraftResponse
+  >,
+  AssertExtends<
+    import("@/types/draft-intake-workflow").DraftAdmissionResponse,
+    import("@/types/draft-intake").DraftAdmissionResponse
+  >,
+  AssertExtends<
+    import("@/types/draft-intake-requests").CreateDraftRequest,
+    import("@/types/draft-intake").CreateDraftRequest
+  >,
+];
+
+/** Wave 13 — agent-forensics trace and evaluation score modules. */
+type _AgentForensicsWave13ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["AgentExecutionTraceSummary"],
+    import("@/types/agent-forensics-traces").AgentExecutionTraceRow
+  >,
+  AssertExtends<
+    components["schemas"]["AgentExecutionTraceResponse"],
+    import("@/types/agent-forensics-traces").AgentExecutionTraceListPayload
+  >,
+  AssertExtends<
+    components["schemas"]["AgentOutputSemanticScore"],
+    import("@/types/agent-forensics-scores").AgentOutputSemanticScoreRow
+  >,
+  AssertExtends<
+    components["schemas"]["AgentOutputEvaluationScore"],
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationScoreRow
+  >,
+  AssertExtends<
+    components["schemas"]["RunRetrievalGroundingResponse"],
+    import("@/types/agent-forensics-scores").RunRetrievalGroundingPayload
+  >,
+];
+
+/** Wave 13 — agent-forensics barrel re-exports trace and score slices. */
+type _AgentForensicsWave13BarrelAliases = [
+  AssertExtends<
+    import("@/types/agent-forensics-traces").AgentExecutionTraceRow,
+    import("@/types/agent-forensics").AgentExecutionTraceRow
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationSummaryPayload,
+    import("@/types/agent-forensics").AgentOutputEvaluationSummaryPayload
+  >,
+];
+
+/** Wave 13 — explanation confidence helpers and structured envelope modules. */
+type _ExplanationWave13ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["StructuredExplanation"],
+    import("@/types/explanation-structured-envelope").StructuredExplanation
+  >,
+  AssertExtends<
+    components["schemas"]["FindingExplainabilityResult"],
+    import("@/types/explanation-structured-envelope").FindingExplainability
+  >,
+  AssertExtends<
+    NonNullable<components["schemas"]["FindingConfidenceLevel"]>,
+    import("@/types/explanation-confidence").FindingConfidenceLevel
+  >,
+];
+
+/** Wave 13 — explanation-structured barrel re-exports confidence and envelope slices. */
+type _ExplanationWave13BarrelAliases = [
+  AssertExtends<
+    import("@/types/explanation-confidence").FindingConfidenceLevel,
+    import("@/types/explanation-structured").FindingConfidenceLevel
+  >,
+  AssertExtends<
+    import("@/types/explanation-structured-envelope").StructuredExplanation,
+    import("@/types/explanation-structured").StructuredExplanation
+  >,
+  AssertExtends<
+    import("@/types/explanation-confidence").normalizeFindingConfidenceLevel,
+    typeof import("@/types/explanation-structured").normalizeFindingConfidenceLevel
+  >,
+];
+
+/** Wave 12 — authority run-detail trust-evidence module. */
+type _AuthorityRunDetailWave12TrustModuleAliases = [
+  AssertExtends<
+    components["schemas"]["TrustEvidenceFieldSnapshot"],
+    import("@/types/authority-run-detail-trust").TrustEvidenceFieldSnapshot
+  >,
+  AssertExtends<
+    components["schemas"]["RunTrustEvidenceRouteRef"],
+    import("@/types/authority-run-detail-trust").RunTrustEvidenceRouteRef
+  >,
+  AssertExtends<
+    components["schemas"]["RunTrustEvidenceTopFindingRow"],
+    import("@/types/authority-run-detail-trust").RunTrustEvidenceTopFindingRow
+  >,
+  AssertExtends<
+    components["schemas"]["RunTrustEvidenceCard"],
+    import("@/types/authority-run-detail-trust").RunTrustEvidenceCard
+  >,
+  AssertExtends<
+    components["schemas"]["RunRetrievalGroundingSummaryDto"],
+    import("@/types/authority-run-detail-trust").RunRetrievalGroundingSummary
+  >,
+];
+
+/** Wave 12 — authority run-detail provenance and pipeline timeline module. */
+type _AuthorityRunDetailWave12ProvenanceModuleAliases = [
+  AssertExtends<
+    components["schemas"]["ProvenanceNode"],
+    import("@/types/authority-run-detail-provenance").ProvenanceNode
+  >,
+  AssertExtends<
+    components["schemas"]["ProvenanceEdge"],
+    import("@/types/authority-run-detail-provenance").ProvenanceEdge
+  >,
+  AssertExtends<
+    components["schemas"]["DecisionProvenanceGraph"],
+    import("@/types/authority-run-detail-provenance").DecisionProvenanceGraph
+  >,
+  AssertExtends<
+    components["schemas"]["RunPipelineTimelineItemResponse"],
+    import("@/types/authority-run-detail-provenance").PipelineTimelineItem
+  >,
+];
+
+/** Wave 12 — authority run-detail barrel re-exports trust and provenance slices. */
+type _AuthorityRunDetailWave12BarrelAliases = [
+  AssertExtends<
+    import("@/types/authority-run-detail-trust").RunTrustEvidenceCard,
+    import("@/types/authority-run-detail").RunTrustEvidenceCard
+  >,
+  AssertExtends<
+    import("@/types/authority-run-detail-provenance").ProvenanceNode,
+    import("@/types/authority-run-detail").ProvenanceNode
+  >,
+  AssertExtends<
+    import("@/types/authority-run-detail-provenance").PipelineTimelineItem,
+    import("@/types/authority-run-detail").PipelineTimelineItem
+  >,
+];
+
+/** Barrel re-exports preserve the public `@/types/authority` import surface. */
+type _AuthorityBarrelWave11Aliases = [
+  AssertExtends<import("@/types/authority-run-summary").RunSummary, import("@/types/authority").RunSummary>,
+  AssertExtends<import("@/types/authority-manifest").ManifestSummary, import("@/types/authority").ManifestSummary>,
+  AssertExtends<import("@/types/authority-run-detail").RunDetail, import("@/types/authority").RunDetail>,
 ];
 
 /** Wave 10 — run-detail wire shapes while OpenAPI `AgentResult` snapshot stays `{}`. */
@@ -284,7 +561,7 @@ type _AuthorityRunDetailWave10Aliases = [
   >,
   AssertExtends<
     components["schemas"]["RunRetrievalGroundingSummaryDto"],
-    import("@/types/authority").RunRetrievalGroundingSummary
+    import("@/types/authority-run-detail").RunRetrievalGroundingSummary
   >,
 ];
 
@@ -879,20 +1156,20 @@ type _PilotScorecardAliases = [
 type _AuthorityTrustEvidenceAliases = [
   AssertExtends<
     components["schemas"]["TrustEvidenceFieldSnapshot"],
-    import("@/types/authority").TrustEvidenceFieldSnapshot
+    import("@/types/authority-run-detail").TrustEvidenceFieldSnapshot
   >,
   AssertExtends<
     components["schemas"]["RunTrustEvidenceRouteRef"],
-    import("@/types/authority").RunTrustEvidenceRouteRef
+    import("@/types/authority-run-detail").RunTrustEvidenceRouteRef
   >,
   AssertExtends<
     components["schemas"]["RunTrustEvidenceTopFindingRow"],
-    import("@/types/authority").RunTrustEvidenceTopFindingRow
+    import("@/types/authority-run-detail").RunTrustEvidenceTopFindingRow
   >,
-  AssertExtends<components["schemas"]["RunTrustEvidenceCard"], import("@/types/authority").RunTrustEvidenceCard>,
+  AssertExtends<components["schemas"]["RunTrustEvidenceCard"], import("@/types/authority-run-detail").RunTrustEvidenceCard>,
   AssertExtends<
     components["schemas"]["RunRetrievalGroundingSummaryDto"],
-    import("@/types/authority").RunRetrievalGroundingSummary
+    import("@/types/authority-run-detail").RunRetrievalGroundingSummary
   >,
 ];
 
@@ -924,8 +1201,24 @@ type _PaginationWave9Aliases = [
 ];
 
 const _compileTimeAliasGuards: [
-  _AuthorityAliases,
+  _AuthorityRunSummaryWave11Aliases,
+  _AuthorityManifestWave11Aliases,
+  _AuthorityRunDetailWave11Aliases,
+  _AuthorityBarrelWave11Aliases,
   _AuthorityRunDetailWave10Aliases,
+  _ExplanationWave12ModuleAliases,
+  _ExplanationWave12BarrelAliases,
+  _DraftIntakeActorsWave12ModuleAliases,
+  _DraftIntakeActorsWave12BarrelAliases,
+  _DraftIntakeWave13ModuleAliases,
+  _DraftIntakeWave13BarrelAliases,
+  _AgentForensicsWave13ModuleAliases,
+  _AgentForensicsWave13BarrelAliases,
+  _ExplanationWave13ModuleAliases,
+  _ExplanationWave13BarrelAliases,
+  _AuthorityRunDetailWave12TrustModuleAliases,
+  _AuthorityRunDetailWave12ProvenanceModuleAliases,
+  _AuthorityRunDetailWave12BarrelAliases,
   _OperateRhythmAliases,
   _TechnologyLedgerAliases,
   _AlertsAliases,
@@ -963,8 +1256,24 @@ const _compileTimeAliasGuards: [
   _AuthorityTrustEvidenceAliases,
   _PaginationWave9Aliases,
 ] = [
-  [] as unknown as _AuthorityAliases,
+  [] as unknown as _AuthorityRunSummaryWave11Aliases,
+  [] as unknown as _AuthorityManifestWave11Aliases,
+  [] as unknown as _AuthorityRunDetailWave11Aliases,
+  [] as unknown as _AuthorityBarrelWave11Aliases,
   [] as unknown as _AuthorityRunDetailWave10Aliases,
+  [] as unknown as _ExplanationWave12ModuleAliases,
+  [] as unknown as _ExplanationWave12BarrelAliases,
+  [] as unknown as _DraftIntakeActorsWave12ModuleAliases,
+  [] as unknown as _DraftIntakeActorsWave12BarrelAliases,
+  [] as unknown as _DraftIntakeWave13ModuleAliases,
+  [] as unknown as _DraftIntakeWave13BarrelAliases,
+  [] as unknown as _AgentForensicsWave13ModuleAliases,
+  [] as unknown as _AgentForensicsWave13BarrelAliases,
+  [] as unknown as _ExplanationWave13ModuleAliases,
+  [] as unknown as _ExplanationWave13BarrelAliases,
+  [] as unknown as _AuthorityRunDetailWave12TrustModuleAliases,
+  [] as unknown as _AuthorityRunDetailWave12ProvenanceModuleAliases,
+  [] as unknown as _AuthorityRunDetailWave12BarrelAliases,
   [] as unknown as _OperateRhythmAliases,
   [] as unknown as _TechnologyLedgerAliases,
   [] as unknown as _AlertsAliases,

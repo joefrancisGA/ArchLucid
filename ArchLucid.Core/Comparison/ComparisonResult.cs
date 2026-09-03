@@ -82,6 +82,13 @@ public class ComparisonResult
         get;
         set;
     } = [];
+
+    /// <summary>Wave-13 suggestion 126: create-time pin and manifest hash fingerprints for both compare inputs.</summary>
+    public CompareInputFingerprints? InputFingerprints
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>Duplicate comparison key detected in one manifest section (wave-10 suggestion 98).</summary>
