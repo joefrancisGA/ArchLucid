@@ -1,6 +1,17 @@
-import { Label } from "@/components/ui/label";
+"use client";
+
+import { usePathname, useSearchParams } from "next/navigation";
+
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { cn } from "@/lib/utils";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
+import {
+  findingsGroundingFilterHrefFromSearch,
+  findingsOriginFilterHrefFromSearch,
+} from "@/lib/findings/findings-provenance-url";
 import {
   GROUNDING_FILTER_OPTIONS,
   ORIGIN_FILTER_OPTIONS,
@@ -9,51 +20,57 @@ import {
 export function FindingsProvenanceFilters(props: {
   readonly idPrefix: string;
   readonly originFilter: FindingOriginFilter;
-  readonly onOriginFilterChange: (filter: FindingOriginFilter) => void;
   readonly groundingFilter: FindingGroundingFilter;
-  readonly onGroundingFilterChange: (filter: FindingGroundingFilter) => void;
 }): React.JSX.Element {
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+
   return (
     <>
-      <div>
-        <Label htmlFor={`${props.idPrefix}-origin`} className={OPERATOR_TYPOGRAPHY.helper}>
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} id={`${props.idPrefix}-origin-label`}>
           Origin
-        </Label>
-        <select
-          id={`${props.idPrefix}-origin`}
-          className="mt-1 h-9 w-full rounded-md border border-neutral-200 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
-          value={props.originFilter}
-          onChange={(event) => {
-            props.onOriginFilterChange(event.target.value as FindingOriginFilter);
-          }}
+        </p>
+        <FilterChipGroup
+          aria-labelledby={`${props.idPrefix}-origin-label`}
+          className="flex flex-wrap gap-2"
           data-testid={`${props.idPrefix}-origin`}
         >
           {ORIGIN_FILTER_OPTIONS.map((option) => (
-            <option key={option.id} value={option.id}>
+            <FilterChip
+              key={option.id}
+              href={findingsOriginFilterHrefFromSearch(currentSearch, pathname, option.id)}
+              scroll={false}
+              className={buyerFilterChipClass(props.originFilter === option.id, false)}
+              aria-current={props.originFilter === option.id ? "page" : undefined}
+            >
               {option.label}
-            </option>
+            </FilterChip>
           ))}
-        </select>
+        </FilterChipGroup>
       </div>
-      <div>
-        <Label htmlFor={`${props.idPrefix}-grounding`} className={OPERATOR_TYPOGRAPHY.helper}>
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} id={`${props.idPrefix}-grounding-label`}>
           Grounding
-        </Label>
-        <select
-          id={`${props.idPrefix}-grounding`}
-          className="mt-1 h-9 w-full rounded-md border border-neutral-200 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
-          value={props.groundingFilter}
-          onChange={(event) => {
-            props.onGroundingFilterChange(event.target.value as FindingGroundingFilter);
-          }}
+        </p>
+        <FilterChipGroup
+          aria-labelledby={`${props.idPrefix}-grounding-label`}
+          className="flex flex-wrap gap-2"
           data-testid={`${props.idPrefix}-grounding`}
         >
           {GROUNDING_FILTER_OPTIONS.map((option) => (
-            <option key={option.id} value={option.id}>
+            <FilterChip
+              key={option.id}
+              href={findingsGroundingFilterHrefFromSearch(currentSearch, pathname, option.id)}
+              scroll={false}
+              className={buyerFilterChipClass(props.groundingFilter === option.id, false)}
+              aria-current={props.groundingFilter === option.id ? "page" : undefined}
+            >
               {option.label}
-            </option>
+            </FilterChip>
           ))}
-        </select>
+        </FilterChipGroup>
       </div>
     </>
   );

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -7,18 +7,13 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpArchitectureIntelligenceGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureIntelligenceGuideView";
 import {
-  expectClaimDisciplineBandContent,
-} from "@/lib/claim-discipline-test-helpers";
-import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
-  ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING,
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE,
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK,
   ARCHITECTURE_INTELLIGENCE_HELP_SOURCES,
 } from "@/lib/architecture-intelligence-help-evidence-copy";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS,
-  ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
   ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS,
   ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION,
   ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE,
@@ -31,7 +26,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("HelpArchitectureIntelligenceGuideView", () => {
   const entry = getProductDocumentationEntry("architecture-intelligence");
 
-  it("renders provenance, linked capability tiles, and claim discipline heading", () => {
+  it("renders provenance, linked capability tiles, and header claim discipline", () => {
     if (entry === undefined) {
       throw new Error("Expected architecture-intelligence documentation entry.");
     }
@@ -56,29 +51,13 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
       "href",
       ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK.href,
     );
-    expect(screen.getByRole("heading", { name: ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
-      ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
-    );
-    expect(screen.getByTestId("help-architecture-intelligence-claim-discipline-strip")).toHaveTextContent(
+    expect(screen.getByTestId("help-architecture-intelligence-header-claim-discipline")).toHaveTextContent(
       ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
     );
-    expectClaimDisciplineBandContent(
-      screen,
-      "help-architecture-intelligence",
-      "help-architecture-intelligence-claim-discipline",
-      ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
-    );
-    expect(screen.getByTestId("help-architecture-intelligence-claim-discipline-strip").textContent).not.toContain(
-      "tenant-scoped",
-    );
+    expect(screen.queryByTestId("help-architecture-intelligence-claim-discipline-strip")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
-      "href",
-      ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.href,
-    );
-    expect(screen.getAllByRole("link", { name: ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.label })).toHaveLength(2);
 
     for (const item of ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS) {
       expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
@@ -91,9 +70,11 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
 
     expect(new Set(linkedHrefs).size).toBe(linkedHrefs.length);
 
+    const sourcesSection = screen.getByTestId("help-architecture-intelligence-sources");
+
     for (const source of ARCHITECTURE_INTELLIGENCE_HELP_SOURCES) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
     expect(screen.getByRole("link", { name: "Read Model governance help" })).toHaveAttribute(

@@ -8,6 +8,8 @@ export const PROJECTS_RECYCLE_BIN_CANONICAL_PATH = "/administration/workspace-se
 export const PROJECTS_RECYCLE_BIN_CLAIM_DISCIPLINE =
   "This Projects recycle bin lists soft-deleted architecture projects you can restore — not a full audit export. Open Tenant settings, Architecture drafts, or Audit for workspace scope or activity records.";
 
+export const PROJECTS_RECYCLE_BIN_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const PROJECTS_RECYCLE_BIN_SOURCES_INTRO =
   "Use these follow-ups when restored projects turn into architecture drafts, tenant scope checks, or audit cites.";
 

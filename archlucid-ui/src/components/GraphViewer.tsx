@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -36,6 +37,7 @@ import {
   resolveBuyerTrailPathNodeIds,
 } from "@/lib/graph-buyer-path-filter";
 import { applyGraphSelectionFocus } from "@/lib/graph-selection-highlight";
+import { parseGraphPathOnlyFromSearch, graphPathOnlyHrefFromSearch } from "@/lib/insights/graph-path-only-url";
 import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 
 /**
@@ -66,6 +68,11 @@ export function GraphViewer({
    */
   compactChrome?: boolean;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlPathOnly = parseGraphPathOnlyFromSearch(searchParams.get("pathOnly"));
+
   const deferredTypeFilter = useDeferredValue(typeFilter);
   const filtered = useMemo(
     () => graphViewModelFilteredByNodeType(graph, deferredTypeFilter),
@@ -90,7 +97,7 @@ export function GraphViewer({
 
   const { isAdvanced, toggle } = useBasicAdvancedToggle("archlucid_graph_settings_advanced_toggle");
   const [edgeInferenceThreshold, setEdgeInferenceThreshold] = useState("0.75");
-  const [showPathOnly, setShowPathOnly] = useState(false);
+  const [showPathOnly, setShowPathOnly] = useState(urlPathOnly);
   const [pathNodeIds, setPathNodeIds] = useState<Set<string> | null>(null);
   const [fitViewTrigger, setFitViewTrigger] = useState(0);
   const [zoom100Trigger, setZoom100Trigger] = useState(0);
@@ -141,24 +148,34 @@ export function GraphViewer({
     setPathNodeIds(nextPath);
     setShowPathOnly(true);
     setFitViewTrigger((current) => current + 1);
+    router.replace(graphPathOnlyHrefFromSearch(currentSearch, true), { scroll: false });
   };
 
-  const handleTogglePathOnly = (): void => {
-    if (showPathOnly) {
-      setShowPathOnly(false);
-      setPathNodeIds(null);
-      setFitViewTrigger((current) => current + 1);
+  useEffect(() => {
+    setShowPathOnly(urlPathOnly);
+  }, [urlPathOnly]);
+
+  useEffect(() => {
+    if (!urlPathOnly || selectedNode === null) {
+      if (!urlPathOnly) {
+        setPathNodeIds(null);
+      }
 
       return;
     }
 
-    handleTracePath();
-  };
+    const nextPath = resolveBuyerTrailPathNodeIds(filtered, selectedNode.id);
+
+    if (nextPath !== null) {
+      setPathNodeIds(nextPath);
+    }
+  }, [filtered, selectedNode, urlPathOnly]);
 
   const handleResetView = (): void => {
     setShowPathOnly(false);
     setPathNodeIds(null);
     setFitViewTrigger((current) => current + 1);
+    router.replace(graphPathOnlyHrefFromSearch(currentSearch, false), { scroll: false });
   };
 
   const selectionBreadcrumb =
@@ -249,7 +266,6 @@ export function GraphViewer({
               onZoom100={() => setZoom100Trigger((current) => current + 1)}
               onResetView={handleResetView}
               onTracePath={handleTracePath}
-              onTogglePathOnly={handleTogglePathOnly}
               showPathOnly={showPathOnly}
               hasSelection={hasSelection}
             />

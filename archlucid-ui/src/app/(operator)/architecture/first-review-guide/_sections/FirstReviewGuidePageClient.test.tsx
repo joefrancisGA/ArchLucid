@@ -6,16 +6,11 @@ import { FirstReviewGuidePageClient } from "./FirstReviewGuidePageClient";
 import {
   BUYER_ONBOARDING_PAGE_LEAD,
   BUYER_ONBOARDING_PAGE_TITLE,
-  FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE,
+  FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
-import {
-  FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_ID,
-  FIRST_REVIEW_GUIDE_SKIP_LINK_LABEL,
-  FIRST_REVIEW_GUIDE_SKIP_TARGET_ID,
-} from "@/lib/first-review-guide-page-copy";
 import { FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID } from "@/lib/first-review-guide-route";
-import { FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE, FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
+import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
 import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -31,6 +26,13 @@ vi.mock("next/link", () => ({
     <a href={href} {...rest}>
       {children}
     </a>
+  ),
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
+  PageContextualHelpButton: ({ triggerText }: { triggerText?: string }) => (
+    <button type="button" data-testid="page-contextual-help-button">{triggerText ?? "Help"}</button>
   ),
 }));
 
@@ -115,16 +117,16 @@ describe("FirstReviewGuidePageClient", () => {
     expect(surface.className).not.toMatch(/mx-auto/);
   });
 
-  it("places the support panel beside the checklist in a two-column layout at lg+", () => {
+  it("places the support panel beside the header in a two-column layout at lg+", () => {
     mockUseFirstReviewGuideState.mockReturnValue(loadedGuideState);
     render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
 
     const supportPanel = screen.getByTestId("first-review-guide-support-panel");
-    const firstViewport = screen.getByTestId(FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_ID);
-    const layoutGrid = firstViewport.closest(".lg\\:grid-cols-\\[minmax\\(0\\,1fr\\)_minmax\\(260px\\,320px\\)\\]");
+    const header = screen.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE });
+    const layoutGrid = header.closest(".lg\\:grid-cols-\\[minmax\\(0\\,1fr\\)_minmax\\(260px\\,320px\\)\\]");
 
     expect(layoutGrid).not.toBeNull();
-    expect(layoutGrid).toContainElement(firstViewport);
+    expect(layoutGrid).toContainElement(header);
     expect(layoutGrid).toContainElement(supportPanel);
     expect(supportPanel).toHaveClass("lg:sticky", "lg:top-4");
   });
@@ -135,12 +137,6 @@ describe("FirstReviewGuidePageClient", () => {
 
     expect(screen.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(BUYER_ONBOARDING_PAGE_LEAD)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: FIRST_REVIEW_GUIDE_SKIP_LINK_LABEL })).toHaveAttribute(
-      "href",
-      `#${FIRST_REVIEW_GUIDE_SKIP_TARGET_ID}`,
-    );
-    expect(screen.getByTestId(FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_ID)).toBeInTheDocument();
-    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-readiness")).toHaveTextContent("Ready to start");
     expect(screen.getByTestId("first-review-guide-readiness")).toHaveTextContent(
       "Optional workspace setup can be completed later.",
@@ -150,17 +146,12 @@ describe("FirstReviewGuidePageClient", () => {
     );
     expect(screen.queryByTestId("first-review-guide-help-crosslink")).not.toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-orientation")).toBeInTheDocument();
-    expect(screen.queryByText(FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-walkthrough")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(
+      FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
+    );
     expect(screen.queryByTestId("first-review-guide-header-loading")).not.toBeInTheDocument();
-
-    const firstViewport = screen.getByTestId(FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_ID);
-    const orientationStrip = screen.getByTestId("first-review-guide-orientation");
-
-    expect(
-      firstViewport.compareDocumentPosition(orientationStrip) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
 
     const startReviewLinks = screen.getAllByRole("link", { name: /start review/i });
     expect(startReviewLinks.length).toBeLessThanOrEqual(2);
@@ -233,8 +224,8 @@ describe("FirstReviewGuidePageClient", () => {
       progress: {
         phase: "complete" as const,
         progressFraction: 1,
-        summaryLabel: FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE,
-        detailLabel: null,
+        summaryLabel: "Complete",
+        detailLabel: "Your first architecture review is finalized.",
         completedStepCount: 7,
         totalStepCount: 7,
       },
@@ -268,10 +259,7 @@ describe("FirstReviewGuidePageClient", () => {
     });
     render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
 
-    expect(screen.queryByTestId("first-review-guide-readiness")).not.toBeInTheDocument();
-    expect(screen.getByTestId("first-review-guide-completed-message")).toHaveTextContent(
-      FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE,
-    );
+    expect(screen.getByTestId("first-review-guide-readiness")).toHaveTextContent("First review completed");
     expect(screen.getByTestId("first-review-guide-sealed-record-provenance")).toHaveTextContent("Payments platform");
     expect(screen.getByTestId("first-review-guide-sealed-record-provenance")).toHaveTextContent("Apr 15, 2026");
     expect(screen.queryByTestId("first-review-guide-evaluation-scope")).not.toBeInTheDocument();
@@ -285,8 +273,6 @@ describe("FirstReviewGuidePageClient", () => {
       "/architecture/reviews/new",
     );
     expect(screen.getByTestId("first-review-guide-walkthrough-completed-summary")).toBeInTheDocument();
-    expect(screen.queryByText(/7 of 7 steps complete/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE })).not.toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-walkthrough")).not.toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-orientation")).toBeInTheDocument();
   });

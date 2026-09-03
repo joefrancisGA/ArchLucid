@@ -4,7 +4,7 @@ import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { TroubleshootingHelpClaimDisciplineStrip } from "@/components/help/TroubleshootingHelpClaimDisciplineStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { TroubleshootingCommonIssuesList } from "@/components/help/TroubleshootingCommonIssuesList";
 import { TroubleshootingHelpEvidenceOrientationStrip } from "@/components/help/TroubleshootingHelpEvidenceOrientationStrip";
@@ -196,19 +196,20 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
             </p>
           </section>
 
-          <HelpStaticSection
+          <HelpLazyDetails
             id="advanced-diagnostics"
-            title="Advanced diagnostics"
-            testId="troubleshooting-advanced-diagnostics"
-            className={OPERATOR_SHELL_SCROLL_OFFSET_CLASS}
-            bodyClassName="space-y-4"
+            className={cn(HELP_PAGE_LAYOUT.details, OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
+            data-testid="troubleshooting-advanced-diagnostics"
+            summaryClassName={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}
+            summary="Advanced diagnostics"
+            bodyClassName={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}
           >
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               Technical checks for workspace administrators and support. Most users should start with the quick fixes
               and decision tree above.
             </p>
             <HelpTroubleshootingAdvancedDiagnostics />
-          </HelpStaticSection>
+          </HelpLazyDetails>
 
           <EvidenceOrientationMetaLine
             testId="troubleshooting-help-freshness"

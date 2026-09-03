@@ -56,7 +56,7 @@ type AuditEventGroup = { stage: string; events: AuditEvent[] };
 type AuditResultsSectionProps = {
   buyerPolishedShell: boolean;
   viewMode: AuditTrailViewMode;
-  onViewModeChange: (mode: AuditTrailViewMode) => void;
+  currentSearch: string;
   callerAuthorityRank: number;
   events: AuditEvent[];
   displayEvents: AuditEvent[];
@@ -81,7 +81,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
   const {
     buyerPolishedShell,
     viewMode,
-    onViewModeChange,
+    currentSearch,
     callerAuthorityRank,
     events,
     displayEvents,
@@ -149,7 +149,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                 ? auditResultsSectionHeadingReader
                 : auditResultsSectionHeadingOperator}
         </h3>
-        <AuditTrailViewSwitcher viewMode={viewMode} onViewModeChange={onViewModeChange} />
+        <AuditTrailViewSwitcher viewMode={viewMode} currentSearch={currentSearch} />
       </div>
       <p className={cn("mb-2 mt-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {storyPresentation ? (

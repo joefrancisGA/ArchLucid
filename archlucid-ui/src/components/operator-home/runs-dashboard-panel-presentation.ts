@@ -1,6 +1,5 @@
 import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator/operator-home-metric-hrefs";
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
-import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 
 export const RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID = "default";
 
@@ -101,69 +100,8 @@ export function runsDashboardHomeHrefFromSearch(
   return query.length === 0 ? "/" : `/?${query}`;
 }
 
-export function resolveRunsDashboardOpenAllReviewsHref(args: {
-  readonly projectId: string;
-  readonly tab: RunsDashboardTabId;
-  readonly showArchived: boolean;
-  readonly governanceWarningsOnly: boolean;
-}): string {
-  const params = new URLSearchParams();
-  params.set("projectId", args.projectId);
-
-  if (args.showArchived) {
-    params.set("filter", "Archived");
-  } else if (args.governanceWarningsOnly || args.tab === "attention") {
-    params.set("filter", "needs-attention");
-  } else if (args.tab === "approved") {
-    params.set("filter", "finalized");
-  } else if (args.tab === "outcomes") {
-    params.set("filter", "Active");
-  }
-
-  return `/architecture/reviews?${params.toString()}`;
-}
-
-export function runsDashboardTabHrefFromSearch(
-  currentSearch: string,
-  tab: RunsDashboardTabId,
-): string {
-  return runsDashboardHomeHrefFromSearch(currentSearch, { tab, showArchived: false });
-}
-
-export function runsDashboardDisabledTabReason(
-  tabId: RunsDashboardTabId,
-  buyerPolishedShell: boolean,
-): string {
-  if (tabId === "attention") {
-    return buyerPolishedShell
-      ? "No reviews need attention in this workspace."
-      : RUNS_DASHBOARD_LABELS.noReviewsNeedAttention;
-  }
-
-  if (tabId === "approved") {
-    return "No approved reviews in this workspace.";
-  }
-
-  if (tabId === "outcomes") {
-    return "No review outcomes in this workspace.";
-  }
-
-  return "This filter is unavailable because there are no matching reviews.";
-}
-
-export function runsDashboardArchivedDisabledReason(
-  archivedFieldSupported: boolean,
-  archivedCount: number,
-): string {
-  if (!archivedFieldSupported) {
-    return "Archived reviews are not available in this workspace.";
-  }
-
-  if (archivedCount === 0) {
-    return "No archived reviews in this workspace.";
-  }
-
-  return "This filter is unavailable.";
+export function resolveRunsDashboardOpenAllReviewsHref(projectId: string): string {
+  return `/architecture/reviews?projectId=${encodeURIComponent(projectId)}`;
 }
 
 const BUYER_STATUS_TAB_IDS: readonly RunsDashboardTabId[] = ["all", "approved", "attention", "outcomes"];
@@ -189,4 +127,26 @@ export function resolveRunsDashboardRecentListTab(
     tab === "approved" ||
     (buyerPolishedShell && (tab === "attention" || tab === "outcomes"))
   );
+}
+
+export function runsDashboardTabHrefFromSearch(currentSearch: string, tab: RunsDashboardTabId): string {
+  return runsDashboardHomeHrefFromSearch(currentSearch, { tab });
+}
+
+export function runsDashboardDisabledTabReason(tab: RunsDashboardTabId, buyerPolishedShell: boolean): string {
+  void buyerPolishedShell;
+
+  if (tab === "approved") {
+    return "No approved reviews in the current scope.";
+  }
+
+  if (tab === "attention") {
+    return "No reviews need attention in the current scope.";
+  }
+
+  if (tab === "outcomes") {
+    return "No outcome reviews in the current scope.";
+  }
+
+  return "No reviews in this view.";
 }

@@ -30,6 +30,12 @@ vi.mock("./SearchNextReviewFooterClient", () => ({
   SearchNextReviewFooterClient: () => <div data-testid="search-next-review-footer-stub" />,
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/insights/search-review-evidence",
+  useSearchParams: () => new URLSearchParams("runId=run-search-1"),
+}));
+
 import { SearchPageView } from "./SearchPageView";
 import type { SearchPageViewModel } from "./search-page-view-model";
 import { SEARCH_LOAD_RETRY_LABEL } from "./search-page-copy";
@@ -54,45 +60,33 @@ function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageVie
 }
 
 describe("SearchPageView", () => {
-  it("runs search when an example query chip is clicked", () => {
-    const onSearch = vi.fn().mockResolvedValue(undefined);
-    const setQuery = vi.fn();
-
+  it("links example query chips to the search query param", () => {
     render(
       <SearchPageView
         model={buildModel({
           query: "",
-          onSearch,
-          setQuery,
         })}
       />,
     );
 
-    fireEvent.click(screen.getByTestId("search-example-query-chip-finding-title"));
+    const chip = screen.getByTestId("search-example-query-chip-finding-title");
 
-    expect(setQuery).toHaveBeenCalledWith("cross-account access finding");
-    expect(onSearch).toHaveBeenCalledWith("cross-account access finding");
+    expect(chip).toHaveAttribute("href", "/insights/search-review-evidence?runId=run-search-1&q=cross-account+access+finding");
   });
 
-  it("runs search when a recent query chip is clicked", () => {
-    const onSearch = vi.fn().mockResolvedValue(undefined);
-    const setQuery = vi.fn();
-
+  it("links recent query chips to the search query param", () => {
     render(
       <SearchPageView
         model={buildModel({
           query: "",
           recentQueries: ["phi risk"],
-          onSearch,
-          setQuery,
         })}
       />,
     );
 
-    fireEvent.click(screen.getByTestId("search-recent-query-chip-phi risk"));
+    const chip = screen.getByTestId("search-recent-query-chip-phi risk");
 
-    expect(setQuery).toHaveBeenCalledWith("phi risk");
-    expect(onSearch).toHaveBeenCalledWith("phi risk");
+    expect(chip).toHaveAttribute("href", "/insights/search-review-evidence?runId=run-search-1&q=phi+risk");
   });
 
   it("shows load failure panel with retry that re-invokes search", () => {

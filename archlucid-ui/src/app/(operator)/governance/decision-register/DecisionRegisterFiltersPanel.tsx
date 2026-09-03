@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
@@ -13,6 +14,8 @@ import {
   OPERATOR_DATE_RANGE_INPUT_CLASSNAME,
   OPERATOR_DATE_RANGE_START_LABEL,
 } from "@/lib/operator-date-range-copy";
+import { decisionRegisterDatePresetHrefFromSearch } from "@/lib/governance/decision-register-date-range-url";
+import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 
 import {
   DECISION_REGISTER_ADVANCED_FILTERS_TITLE,
@@ -33,6 +36,12 @@ import type { DecisionRegisterDatePreset } from "./decision-register-date-range"
 
 const CONFIDENCE_BASIS_OPTIONS = ["Evidence-backed", "Model-assisted", "Unknown"] as const;
 
+const DATE_PRESET_OPTIONS: ReadonlyArray<{ readonly id: DecisionRegisterDatePreset; readonly label: string }> = [
+  { id: "30", label: DECISION_REGISTER_DATE_PRESET_30_LABEL },
+  { id: "90", label: DECISION_REGISTER_DATE_PRESET_90_LABEL },
+  { id: "all", label: DECISION_REGISTER_DATE_PRESET_ALL_LABEL },
+];
+
 const inputClassName =
   "rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950";
 
@@ -44,6 +53,7 @@ type DecisionRegisterFiltersPanelProps = {
   readonly maxConfidence: string;
   readonly confidenceBasis: string;
   readonly datePreset: DecisionRegisterDatePreset;
+  readonly currentSearch: string;
   readonly collapseAdvanced: boolean;
   readonly onCategoryChange: (value: string) => void;
   readonly onRecordedAfterChange: (value: string) => void;
@@ -51,25 +61,8 @@ type DecisionRegisterFiltersPanelProps = {
   readonly onMinConfidenceChange: (value: string) => void;
   readonly onMaxConfidenceChange: (value: string) => void;
   readonly onConfidenceBasisChange: (value: string) => void;
-  readonly onDatePresetChange: (preset: DecisionRegisterDatePreset) => void;
   readonly onClearFilters: () => void;
 };
-
-function DatePresetChip(props: {
-  readonly active: boolean;
-  readonly label: string;
-  readonly onClick: () => void;
-}): React.JSX.Element {
-  return (
-    <FilterChip
-      className={buyerFilterChipClass(props.active, false)}
-      aria-pressed={props.active}
-      onClick={props.onClick}
-    >
-      {props.label}
-    </FilterChip>
-  );
-}
 
 export function DecisionRegisterFiltersPanel(props: DecisionRegisterFiltersPanelProps): React.JSX.Element {
   const advancedFilters = (
@@ -127,28 +120,24 @@ export function DecisionRegisterFiltersPanel(props: DecisionRegisterFiltersPanel
     <Card data-testid="decision-register-filters">
       <CardHeader className="space-y-3">
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{DECISION_REGISTER_FILTERS_TITLE}</CardTitle>
-        <div className="flex flex-wrap items-center gap-2">
-          <DatePresetChip
-            active={props.datePreset === "30"}
-            label={DECISION_REGISTER_DATE_PRESET_30_LABEL}
-            onClick={() => {
-              props.onDatePresetChange("30");
-            }}
-          />
-          <DatePresetChip
-            active={props.datePreset === "90"}
-            label={DECISION_REGISTER_DATE_PRESET_90_LABEL}
-            onClick={() => {
-              props.onDatePresetChange("90");
-            }}
-          />
-          <DatePresetChip
-            active={props.datePreset === "all"}
-            label={DECISION_REGISTER_DATE_PRESET_ALL_LABEL}
-            onClick={() => {
-              props.onDatePresetChange("all");
-            }}
-          />
+        <FilterChipGroup aria-label="Decision register date range" className="flex flex-wrap items-center gap-2">
+          {DATE_PRESET_OPTIONS.map((option) => (
+            <FilterChip
+              key={option.id}
+              href={decisionRegisterDatePresetHrefFromSearch(
+                props.currentSearch,
+                option.id,
+                GOVERNANCE_DECISION_REGISTER_PATH,
+              )}
+              scroll={false}
+              className={buyerFilterChipClass(props.datePreset === option.id, false)}
+              aria-current={props.datePreset === option.id ? "page" : undefined}
+              aria-label={`Date range: ${option.label}`}
+              data-testid={`decision-register-date-preset-${option.id}`}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
           {props.datePreset === "all" ? (
             <span
               className={cn(
@@ -160,7 +149,7 @@ export function DecisionRegisterFiltersPanel(props: DecisionRegisterFiltersPanel
               {DECISION_REGISTER_DATE_RANGE_ALL_CHIP}
             </span>
           ) : null}
-        </div>
+        </FilterChipGroup>
       </CardHeader>
       <CardContent className="space-y-3">
         <label className={cn("grid max-w-md gap-1", OPERATOR_TYPOGRAPHY.body)}>

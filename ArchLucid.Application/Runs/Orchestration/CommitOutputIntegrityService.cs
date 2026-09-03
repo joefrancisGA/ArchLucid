@@ -193,11 +193,34 @@ public sealed class CommitOutputIntegrityService(
             architectureRequest,
             knowledgeModel);
 
-        if (header.PinnedArchitectureVersionContentHashSha256 is { Length: > 0 } pinnedHash
-            && !version.ContentHashSha256.AsSpan().SequenceEqual(pinnedHash))
+        if (header.PinnedArchitectureVersionContentHashSha256 is not { Length: > 0 } pinnedHash)
+        {
+            throw new ConflictException(
+                "Commit blocked: run is missing create-time architecture version content hash (κ) pin.");
+        }
+
+        if (!version.ContentHashSha256.AsSpan().SequenceEqual(pinnedHash))
         {
             throw new ConflictException(
                 "Commit blocked: create-time architecture version content hash (κ) drifted since run create.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(header.KnowledgeModelId)
+            && header.PinnedKnowledgeModelContentHashSha256 is not { Length: > 0 })
+        {
+            throw new ConflictException(
+                "Commit blocked: run is missing create-time knowledge model content hash pin.");
+        }
+
+        if (header.PinnedKnowledgeModelContentHashSha256 is { Length: > 0 } pinnedKnowledgeModelHash)
+        {
+            byte[]? computed = Architecture.KnowledgeModelContentFingerprint.TryComputeContentHashSha256(knowledgeModel);
+
+            if (computed is null || !computed.AsSpan().SequenceEqual(pinnedKnowledgeModelHash))
+            {
+                throw new ConflictException(
+                    "Commit blocked: knowledge model content hash drifted since run create.");
+            }
         }
     }
 

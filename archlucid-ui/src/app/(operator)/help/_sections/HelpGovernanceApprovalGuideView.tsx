@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { GovernanceApprovalHelpClaimDisciplineStrip } from "@/components/help/GovernanceApprovalHelpClaimDisciplineStrip";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpGovernanceApprovalRoleGuide } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalRoleGuide";
 import { HelpGovernanceApprovalTechnicalReference } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalTechnicalReference";
@@ -159,10 +160,16 @@ function TroubleshootingList(): React.ReactElement {
     <ul className="m-0 list-none space-y-2 p-0" data-testid="help-governance-approval-troubleshooting">
       {GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING.map((item) => (
         <li key={item.issue}>
-          <div className={cn(DESIGN_TOKENS.surface.card, "p-3")}>
-            <h4 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          <details className={cn(DESIGN_TOKENS.surface.card, "group p-3")}>
+            <summary
+              className={cn(
+                "flex cursor-pointer list-none items-center gap-2 font-semibold text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
+                OPERATOR_TYPOGRAPHY.cardTitle,
+              )}
+            >
+              <DisclosureTriangleIndicator />
               {item.issue}
-            </h4>
+            </summary>
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
               {item.resolution}
               {item.href !== undefined && item.linkLabel !== undefined ? (
@@ -175,7 +182,7 @@ function TroubleshootingList(): React.ReactElement {
                 </>
               ) : null}
             </p>
-          </div>
+          </details>
         </li>
       ))}
     </ul>

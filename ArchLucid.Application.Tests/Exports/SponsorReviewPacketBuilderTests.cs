@@ -31,6 +31,7 @@ public sealed class SponsorReviewPacketBuilderTests
     {
         ArchitectureRunDetail detail = new()
         {
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
             Run = new ArchitectureRun
             {
                 RunId = RunId,
@@ -56,6 +57,7 @@ public sealed class SponsorReviewPacketBuilderTests
     {
         ArchitectureRunDetail detail = new()
         {
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
             Run = new ArchitectureRun
             {
                 RunId = RunId,
@@ -115,6 +117,7 @@ public sealed class SponsorReviewPacketBuilderTests
 
         ArchitectureRunDetail detail = new()
         {
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
             Run = new ArchitectureRun
             {
                 RunId = RunId,
@@ -167,6 +170,7 @@ public sealed class SponsorReviewPacketBuilderTests
     {
         ArchitectureRunDetail detail = new()
         {
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
             Run = new ArchitectureRun
             {
                 RunId = RunId,
@@ -196,6 +200,7 @@ public sealed class SponsorReviewPacketBuilderTests
 
         ArchitectureRunDetail detail = new()
         {
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
             Run = new ArchitectureRun
             {
                 RunId = RunId,

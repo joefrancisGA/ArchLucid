@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -112,6 +113,7 @@ public sealed class ArchitectureKnowledgeModelAccess(
             return;
 
         run.KnowledgeModelId = nextModelId;
+        RunHeaderKnowledgeModelContentPin.ApplyToHeader(run, modelToSave, nextModelId);
 
         if (run.GraphSnapshotId.HasValue)
             run.GraphSnapshotId = null;

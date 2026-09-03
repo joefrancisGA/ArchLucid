@@ -28,6 +28,18 @@ const ARCHITECTURES_HUB_FILTER_IDS = new Set<string>(
 
 export const ARCHITECTURES_HUB_SEARCH_PARAM = "q";
 export const ARCHITECTURES_HUB_FILTER_PARAM = "filter";
+export const ARCHITECTURES_HUB_SORT_PARAM = "sort";
+
+export type ArchitectureHubSortId = "updated-desc" | "updated-asc" | "name-asc" | "name-desc";
+
+const ARCHITECTURES_HUB_SORT_IDS = new Set<string>([
+  "updated-desc",
+  "updated-asc",
+  "name-asc",
+  "name-desc",
+]);
+
+export const DEFAULT_ARCHITECTURES_HUB_SORT: ArchitectureHubSortId = "updated-desc";
 
 /** Parses `?filter=` from the architectures hub URL; unknown values fall back to All. */
 export function parseArchitecturesHubFilter(raw: string | null | undefined): ArchitectureHubFilterId {
@@ -42,6 +54,21 @@ export function parseArchitecturesHubFilter(raw: string | null | undefined): Arc
   }
 
   return trimmed as ArchitectureHubFilterId;
+}
+
+/** Parses `?sort=` from the architectures hub URL; unknown values fall back to updated-desc. */
+export function parseArchitecturesHubSort(raw: string | null | undefined): ArchitectureHubSortId {
+  if (raw === null || raw === undefined) {
+    return DEFAULT_ARCHITECTURES_HUB_SORT;
+  }
+
+  const trimmed = raw.trim();
+
+  if (!ARCHITECTURES_HUB_SORT_IDS.has(trimmed)) {
+    return DEFAULT_ARCHITECTURES_HUB_SORT;
+  }
+
+  return trimmed as ArchitectureHubSortId;
 }
 
 /** Parses `?q=` from the architectures hub URL. */
@@ -95,6 +122,24 @@ export function architecturesHubClearSearchHrefFromSearch(
   pathname: string = ARCHITECTURES_LIST_PATH,
 ): string {
   return architecturesHubSearchHrefFromSearch(currentSearch, "", pathname);
+}
+
+export function architecturesHubSortHrefFromSearch(
+  currentSearch: string,
+  sort: ArchitectureHubSortId,
+  pathname: string = ARCHITECTURES_LIST_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (sort === DEFAULT_ARCHITECTURES_HUB_SORT) {
+    params.delete(ARCHITECTURES_HUB_SORT_PARAM);
+  } else {
+    params.set(ARCHITECTURES_HUB_SORT_PARAM, sort);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
 
 export function architecturesHubFilterEmptyReason(filter: ArchitectureHubFilterId): string {

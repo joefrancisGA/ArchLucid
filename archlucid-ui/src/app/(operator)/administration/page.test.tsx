@@ -100,7 +100,7 @@ describe("SettingsPageView", () => {
     ).toBeInTheDocument();
     expect(screen.getByTestId("settings-master-overview-header")).toBeInTheDocument();
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
-    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Search settings…")).toBeInTheDocument();
     expect(screen.getByTestId("settings-master-section-nav")).toBeInTheDocument();
     expect(screen.getByTestId("settings-section-security-trust")).toBeInTheDocument();

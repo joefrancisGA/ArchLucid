@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.AzureExtractor.Stages;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.AzureExtractor;
@@ -253,17 +254,17 @@ public sealed class AzureExtractorIngestServiceTests
         Mock<IAgentTaskRepository> tasks = new();
         Mock<IEvidenceBundleRepository> evidence = new();
 
-        return new AzureExtractorIngestService(
-            scope.Object,
-            actor.Object,
-            auditService.Object,
-            packageRepo.Object,
-            runRepo.Object,
-            tasks.Object,
-            evidence.Object,
+        AzureExtractorPreparedZipValidateStage validateStage = new(
+            scope.Object, actor.Object, auditService.Object, runRepo.Object,
             new PassthroughAzureExtractorResultEnricher(),
             Microsoft.Extensions.Options.Options.Create(new AzureExtractorEnrichmentOptions { Enabled = false }),
-            NullLogger<AzureExtractorIngestService>.Instance);
+            NullLogger<AzureExtractorPreparedZipValidateStage>.Instance);
+        AzureExtractorPreparedZipPersistStage persistStage = new(
+            scope.Object, auditService.Object, packageRepo.Object, tasks.Object, evidence.Object,
+            NullLogger<AzureExtractorPreparedZipPersistStage>.Instance);
+        return new AzureExtractorIngestService(
+            scope.Object, actor.Object, auditService.Object,
+            validateStage, persistStage, NullLogger<AzureExtractorIngestService>.Instance);
     }
 
     private sealed class PassthroughAzureExtractorResultEnricher : IAzureExtractorResultEnricher

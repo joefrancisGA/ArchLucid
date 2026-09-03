@@ -22,6 +22,7 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
   ArtifactDescriptor: "ArtifactDescriptorResponse",
   RunAgentExecutionLlmCostEstimate: "RunAgentLlmCostEstimateResponse",
   RunDetailAgentResult: "AgentResult",
+  RunRetrievalGroundingSummary: "RunRetrievalGroundingSummaryDto",
   PilotFunnelSnapshotDto: "PilotFunnelSnapshotResponse",
   OperatorStickinessSnapshotDto: "OperatorStickinessSnapshotResponse",
   ConnectorSurfaceStatusDto: "ConnectorSurfaceStatusResponse",
@@ -242,7 +243,6 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
   RunTrustEvidenceRouteRef: "RunTrustEvidenceRouteRef",
   RunTrustEvidenceTopFindingRow: "RunTrustEvidenceTopFindingRow",
   RunTrustEvidenceCard: "RunTrustEvidenceCard",
-  RunRetrievalGroundingSummary: "RunRetrievalGroundingSummaryDto",
   RunExplanation: "ExplanationResult",
   FindingConfidenceLevel: "FindingConfidenceLevel",
   PilotScorecardJson: "PilotInProductScorecardResponse",
@@ -273,6 +273,18 @@ type _AuthorityAliases = [
   AssertExtends<
     components["schemas"]["RunPipelineTimelineItemResponse"],
     import("@/types/authority").PipelineTimelineItem
+  >,
+];
+
+/** Wave 10 — run-detail wire shapes while OpenAPI `AgentResult` snapshot stays `{}`. */
+type _AuthorityRunDetailWave10Aliases = [
+  AssertExtends<
+    Pick<components["schemas"]["Finding"], "category" | "findingId" | "severity">,
+    import("@/types/authority-run-detail-wire").RunDetailAgentFinding
+  >,
+  AssertExtends<
+    components["schemas"]["RunRetrievalGroundingSummaryDto"],
+    import("@/types/authority").RunRetrievalGroundingSummary
   >,
 ];
 
@@ -913,6 +925,7 @@ type _PaginationWave9Aliases = [
 
 const _compileTimeAliasGuards: [
   _AuthorityAliases,
+  _AuthorityRunDetailWave10Aliases,
   _OperateRhythmAliases,
   _TechnologyLedgerAliases,
   _AlertsAliases,
@@ -951,6 +964,7 @@ const _compileTimeAliasGuards: [
   _PaginationWave9Aliases,
 ] = [
   [] as unknown as _AuthorityAliases,
+  [] as unknown as _AuthorityRunDetailWave10Aliases,
   [] as unknown as _OperateRhythmAliases,
   [] as unknown as _TechnologyLedgerAliases,
   [] as unknown as _AlertsAliases,
@@ -1001,5 +1015,9 @@ describe("openapi type alias schema keys", () => {
 
   it("keeps the mapping table in sync with the number of guarded aliases", () => {
     expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(245);
+  });
+
+  it("documents empty AgentResult OpenAPI snapshot (wave 10 wire module)", () => {
+    expect(openApiSnapshot.components.schemas.AgentResult).toEqual({});
   });
 });

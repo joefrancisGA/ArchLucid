@@ -8,7 +8,7 @@ import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_
 import { HelpAcceleratorChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
 import { AcceleratorChooserHelpClaimDisciplineStrip } from "@/components/help/AcceleratorChooserHelpClaimDisciplineStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { HelpAcceleratorCostGovernancePackCard } from "@/components/accelerator/HelpAcceleratorCostGovernancePackCard";
@@ -103,9 +103,10 @@ function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): Rea
         <span className="font-medium text-al-text-primary">When not to use: </span>
         {packEntry.doNotUseWhen}
       </p>
-      <HelpStaticSection
+      <CollapsibleSection
         title="Technical outputs and file detail"
-        testId={`help-accelerator-chooser-pack-${packEntry.id}-technical`}
+        summaryAriaLabel={`Technical outputs and file detail for ${packEntry.buyerJob}`}
+        sectionTestId={`help-accelerator-chooser-pack-${packEntry.id}-technical`}
       >
         {hasTechnicalInputs ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -123,7 +124,7 @@ function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): Rea
           <span className="font-medium text-al-text-primary">Outputs: </span>
           {packEntry.expectedOutputs}
         </p>
-      </HelpStaticSection>
+      </CollapsibleSection>
       <AcceleratorPackStartCta
         packId={packEntry.id}
         packLabel={packEntry.packLabel}
