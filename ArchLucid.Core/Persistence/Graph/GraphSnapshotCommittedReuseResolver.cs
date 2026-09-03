@@ -122,8 +122,8 @@ public static class GraphSnapshotCommittedReuseResolver
         {
             string? storedVersion = ReadContextProperty(graph, ArchitectureVersionIdKey);
 
-            if (string.IsNullOrEmpty(storedVersion)
-                || !Guid.TryParse(storedVersion, out Guid parsedVersion)
+            if (string.IsNullOrWhiteSpace(storedVersion)
+                || !Guid.TryParse(storedVersion.Trim(), out Guid parsedVersion)
                 || parsedVersion != expectedVersionId)
             {
                 return false;
