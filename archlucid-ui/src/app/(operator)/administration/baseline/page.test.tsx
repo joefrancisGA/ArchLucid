@@ -16,6 +16,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
     isNextPublicDemoMode: () => false,
   };
 });
