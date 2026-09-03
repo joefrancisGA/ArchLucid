@@ -2795,7 +2795,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — trial lifecycle email gate rejected lowercase `TrialStatus`
+- **last-bug:** 2026-09-03 — lowercase `TrialStatus` blocked trial lifecycle email dispatch and scheduled scans
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2836,12 +2836,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ExecDigestUnsubscribeController` success text copied from sponsor digest — **hit 2026-09-03 (#540):** valid exec-digest unsubscribe returned `"Sponsor digest email has been turned off..."`; fixed copy to `"Exec digest email..."` (`ExecDigestUnsubscribeControllerTests.UnsubscribeAsync_valid_token_disables_email_and_returns_plain_text`).
 - [x] (proven) `FindingRemediationAssignmentEmailDispatcher` accepted malformed assignee mailboxes — **hit 2026-09-03 (#583):** `IsMailboxAddress` only required `@` with index > 0, so `finance@` rendered and sent while digest subscriptions reject via `IdentityEmailNormalizer`; fixed with shared normalizer; regression in `FindingRemediationAssignmentEmailDispatcherTests.TryDispatchAsync_rejects_invalid_assignee_mailbox_without_sending`.
 - [x] (invalid) `WeeklySponsorReportEmailDispatcher` subject capitalizes "Sponsor" while summary email uses lowercase "sponsor" — intentional product copy distinction (`weekly Sponsor report` vs `weekly sponsor summary`); no delivery/idempotency impact.
+- [x] (proven) `TrialLifecycleEmailDispatcher.PassesTriggerGate` / `TrialScheduledLifecycleEmailScanner` — lowercase `TrialStatus` not treated as active — **hit 2026-09-03 (#621):** `trialStatus:"active"` used `Ordinal` compare against `TrialLifecycleStatus.Active` after Core #600/#601 parity fixes elsewhere; welcome mail and day-7 scan were skipped; fixed with `OrdinalIgnoreCase` (`DispatchAsync_sends_welcome_when_lowercase_active_trial_status`, `PublishDueAsync_publishes_mid_trial_for_lowercase_active_trial_status`).
+
+2026-09-03 thorough hunt #621: proved trial lifecycle TrialStatus casing parity gap; cheap-disproved sponsor report subject capitalization as copy-only.
 - [x] (proven) `TrialLifecycleEmailDispatcher.PassesTriggerGate` — lowercase `TrialStatus` suppresses lifecycle mail — **hit 2026-09-03 (#613):** `trialStatus:"active"` failed `Ordinal` compare against `TrialLifecycleStatus.Active` after #600–#601 fixed sibling Core tenancy helpers; mid-trial/expiring/limit emails silently skipped; fixed with `OrdinalIgnoreCase` for Active/Converted gates (`DispatchAsync_sends_mid_trial_email_when_trial_status_is_lowercase_active`).
 - [x] (invalid) `ExecDigestUnsubscribeController` class XML summary still says sponsor digest — wrong developer-doc `<summary>` on exec controller; user-visible unsubscribe response copy fixed in #540.
 
 2026-09-03 thorough hunt #613: cheap-disproved sponsor subject capitalization candidate; proved trial lifecycle TrialStatus casing gap.
 
 2026-09-03 seed hunt #583: reseeded notifications-pipeline; proved remediation-assignment mailbox validation gap vs digest subscription parity; cheap-disproved exec unsubscribe XML summary as non-user-facing.
+
 
 ## Zone: artifact-synthesis
 
