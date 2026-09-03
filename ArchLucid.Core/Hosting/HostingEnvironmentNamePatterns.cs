@@ -21,7 +21,21 @@ public static class HostingEnvironmentNamePatterns
         if (trimmed.Contains("non-production", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return !trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase)
-               && trimmed.Contains("prod", StringComparison.OrdinalIgnoreCase);
+        if (trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (IsReproduceLikeEnvironmentName(trimmed))
+            return false;
+
+        return trimmed.Contains("prod", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsReproduceLikeEnvironmentName(string trimmed)
+    {
+        if (string.Equals(trimmed, "reproduce", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return trimmed.StartsWith("reproduce-", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("reproduce_", StringComparison.OrdinalIgnoreCase);
     }
 }

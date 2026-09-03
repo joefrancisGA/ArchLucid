@@ -1881,11 +1881,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 130
-- **bugs-found:** 247
+- **hunts:** 131
+- **bugs-found:** 248
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `hrs` substring false positive; graph context/km fingerprint whitespace blocked reuse
+- **last-bug:** 2026-09-03 — `reproduce` environment names misclassified as production-like
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1958,6 +1958,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GraphSnapshotCommittedReuseResolver.IsObservationallyEqual` — padded `contextCanonicalFingerprint` / `knowledgeModelFingerprint` blocked committed graph reuse — **hit 2026-09-03 (#645):** pin-hash trim landed in #644 but context and KM fingerprint compares stayed raw; whitespace-padded graph context properties failed observational equality; fixed with bilateral `.Trim()` on stored and expected fingerprints (`TryResolveAsync_reuses_graph_when_context_fingerprint_has_outer_whitespace`, `TryResolveAsync_reuses_graph_when_knowledge_model_fingerprint_has_outer_whitespace`).
 
 2026-09-03 seed hunt #645: reseeded from `GraphSnapshotCommittedReuseResolver` after #644 pin-hash trim; proved context/KM fingerprint trim parity gap and `hrs` substring false positive.
+
+- [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — `reproduce` environment names misclassified as production-like — **hit 2026-09-03 (#646):** unbounded `Contains("prod")` matched `Reproduce` / `reproduce-bug-*` bug-repro environment names after non-production exclusions; production-like config lint and bypass-auth guards applied incorrectly; fixed by excluding reproduce-like environment name prefixes (`EnvironmentNameImpliesProductionLike_rejects_reproduce_environment_names`).
+
+2026-09-03 seed hunt #646: reseeded from `HostingEnvironmentNamePatterns`; proved `prod` substring false positive on reproduce environment names.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
