@@ -102,6 +102,8 @@ export function ReviewWorkbenchLayout(props: ReviewWorkbenchLayoutProps): React.
                   aria-label={`Focus ${columnLabel(column.id)} column`}
                   onClick={() => props.onFocusColumn(column.id)}
                 >
+                  Focus
+                </button>
               </div>
               <div className="min-w-0 overflow-visible">{column.panel}</div>
             </div>
