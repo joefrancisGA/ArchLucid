@@ -16,7 +16,12 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
     public void Suggestion121_manifest_retrieval_uses_lifecycle_guard()
     {
         string get = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Get.cs"));
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Api",
+                "Controllers",
+                "Governance",
+                "ManifestsController.Get.Manifest.cs"));
 
         get.Should().Contain("AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow");
         get.Should().Contain("AuthorityRunLifecyclePhaseListResolver");

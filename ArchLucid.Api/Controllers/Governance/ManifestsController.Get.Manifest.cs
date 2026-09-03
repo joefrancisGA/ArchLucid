@@ -101,8 +101,9 @@ public sealed partial class ManifestsController
         if (run is null)
             return false;
 
-        AuthorityRunLifecyclePhase phase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run);
-        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(phase, runGuid.ToString("N"));
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+            AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run),
+            runGuid.ToString("N"));
         return true;
     }
 }
