@@ -92,6 +92,13 @@ public static class RunAuthorityPipelineDeadLetterDetection
             return true;
         }
 
+        if (element.ValueKind == JsonValueKind.Null)
+        {
+            schemaVersion = SupportedSchemaVersion;
+
+            return true;
+        }
+
         if (element.ValueKind == JsonValueKind.String
             && RunExplanationAggregateJsonReader.TryParseWholeNumberString(element.GetString(), out schemaVersion))
         {

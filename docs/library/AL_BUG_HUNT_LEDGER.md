@@ -1846,11 +1846,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 124
-- **bugs-found:** 239
+- **hunts:** 125
+- **bugs-found:** 240
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — omitted failure-summary schemaVersion rejected dead-letter detection
+- **last-bug:** 2026-09-03 — null failure-summary `schemaVersion` JSON token rejected dead-letter detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1875,8 +1875,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #602: proved omitted failure-summary schemaVersion gap; disproved Application-layer and converted/expired casing candidates.
 
-- [ ] (candidate) `AgentExecutionFailureSummaryJson.TryDeserialize` (Application) — string-encoded `schemaVersion` parity gap with Core dead-letter reader (hunt in Application zone)
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — null JSON `schemaVersion` token should be treated like omitted v1 default
+- [x] (invalid) `AgentExecutionFailureSummaryJson.TryDeserialize` (Application) — string-encoded `schemaVersion` parity gap — wrong zone for `archlucid-core`; locus is `ArchLucid.Application/Runs/AgentExecutionFailureSummaryJson.cs` (re-confirmed hunt #604).
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — null JSON `schemaVersion` token rejected — **hit 2026-09-03 (#604):** `{"schemaVersion":null,"failureClass":"PipelineDeadLetter"}` failed after #602 omitted-property fix; null token now defaults to supported v1 (`IsDeadLettered_returns_true_when_schema_version_property_is_null`).
+
+2026-09-03 thorough hunt #604: proved null failure-summary schemaVersion gap; re-disproved Application-layer candidate.
+
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
