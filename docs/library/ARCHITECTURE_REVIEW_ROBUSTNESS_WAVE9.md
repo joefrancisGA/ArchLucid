@@ -20,3 +20,5 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE7.md`](ARCHITECTURE_REVIEW_ROB
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave9ArchitectureTests.cs`.
 
 **Hasher B note:** suggestion 86 changes cohort content fingerprints when create-time pins are present. Owner re-lock via `golden-cohort lock-baseline --write` is required before nightly drift compares green against new projection.
+
+Wave 10 suggestions (91–100): [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE10.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE10.md).

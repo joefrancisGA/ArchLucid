@@ -35,9 +35,9 @@ public interface IFindingAnalysisContextBuilder
 public sealed class FindingAnalysisContextBuilder(
     IRunRepository runRepository,
     IArchitectureVersionRepository architectureVersionRepository,
-    IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     IPolicyPackVersionRepository policyPackVersionRepository,
-    IRunEvidencePackagePinService runEvidencePackagePinService) : IFindingAnalysisContextBuilder
+    IRunEvidencePackagePinService runEvidencePackagePinService,
+    IRunPolicyPackPinService runPolicyPackPinService) : IFindingAnalysisContextBuilder
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -45,14 +45,14 @@ public sealed class FindingAnalysisContextBuilder(
     private readonly IArchitectureVersionRepository _architectureVersionRepository =
         architectureVersionRepository ?? throw new ArgumentNullException(nameof(architectureVersionRepository));
 
-    private readonly IPolicyPackAssignmentRepository _policyPackAssignmentRepository =
-        policyPackAssignmentRepository ?? throw new ArgumentNullException(nameof(policyPackAssignmentRepository));
-
     private readonly IPolicyPackVersionRepository _policyPackVersionRepository =
         policyPackVersionRepository ?? throw new ArgumentNullException(nameof(policyPackVersionRepository));
 
     private readonly IRunEvidencePackagePinService _runEvidencePackagePinService =
         runEvidencePackagePinService ?? throw new ArgumentNullException(nameof(runEvidencePackagePinService));
+
+    private readonly IRunPolicyPackPinService _runPolicyPackPinService =
+        runPolicyPackPinService ?? throw new ArgumentNullException(nameof(runPolicyPackPinService));
 
     public async Task<FindingAnalysisContext> BuildAsync(
         ScopeContext scope,
@@ -68,6 +68,13 @@ public sealed class FindingAnalysisContextBuilder(
         Persistence.Models.RunRecord? header =
             await _runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
+        if (header is not null)
+        {
+            await _runPolicyPackPinService
+                .VerifyPinIntegrityOrThrowAsync(header, scope, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         PriorReviewSnapshots? prior = await TryResolvePriorAsync(scope, header, request, cancellationToken)
             .ConfigureAwait(false);
 
@@ -80,6 +87,8 @@ public sealed class FindingAnalysisContextBuilder(
             ?? evidencePins.FirstOrDefault();
 
         await EnsurePinnedArchitectureVersionHashUnchangedOrThrowAsync(scope, header, request, knowledgeModel, cancellationToken)
+            .ConfigureAwait(false);
+        await EnsurePinnedKnowledgeModelContentHashUnchangedOrThrowAsync(header, knowledgeModel, cancellationToken)
             .ConfigureAwait(false);
 
         return new FindingAnalysisContext
@@ -106,54 +115,28 @@ public sealed class FindingAnalysisContextBuilder(
             Persistence.Models.RunRecord? header,
             CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrWhiteSpace(header?.PinnedPolicyPackIdsJson))
+        if (string.IsNullOrWhiteSpace(header?.PinnedPolicyPackIdsJson))
         {
-            if (!RunHeaderPinDeserializer.TryDeserializePolicyPackRows(
-                    header.PinnedPolicyPackIdsJson,
-                    out PinnedPolicyPackRow[] pinnedRows))
-            {
-                throw new ConflictException(
-                    "Finding analysis blocked: run policy pack pin JSON is not a versioned PinnedPolicyPackRow array.");
-            }
-
-            IReadOnlyList<PolicyPackContentDocument> pinnedContents =
-                await LoadPackContentsForPinnedRowsAsync(scope, pinnedRows, cancellationToken).ConfigureAwait(false);
-
-            string[] pinnedPackIds = pinnedRows
-                .Select(static row => row.PolicyPackId)
-                .ToArray();
-
-            return (pinnedPackIds, pinnedContents);
+            throw new ConflictException(
+                "Finding analysis blocked: run is missing create-time policy pack pin JSON.");
         }
 
-        IReadOnlyList<PolicyPackAssignment> assignments = await _policyPackAssignmentRepository
-            .ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
-            .ConfigureAwait(false);
-
-        PolicyPackAssignment[] enabled = assignments
-            .Where(static assignment => assignment.IsEnabled)
-            .ToArray();
-
-        string[] packIds = enabled
-            .Select(static assignment => assignment.PolicyPackId.ToString("D"))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-
-        List<PolicyPackContentDocument> contents = [];
-
-        foreach (PolicyPackAssignment assignment in enabled)
+        if (!RunHeaderPinDeserializer.TryDeserializePolicyPackRows(
+                header.PinnedPolicyPackIdsJson,
+                out PinnedPolicyPackRow[] pinnedRows))
         {
-            PolicyPackVersion? version = await _policyPackVersionRepository
-                .GetByPackAndVersionAsync(assignment.PolicyPackId, assignment.PolicyPackVersion, cancellationToken)
-                .ConfigureAwait(false);
-
-            PolicyPackContentDocument? document = PolicyPackContentDocumentJson.TryDeserialize(version?.ContentJson);
-
-            if (document is not null)
-                contents.Add(document);
+            throw new ConflictException(
+                "Finding analysis blocked: run policy pack pin JSON is not a versioned PinnedPolicyPackRow array.");
         }
 
-        return (packIds, contents);
+        IReadOnlyList<PolicyPackContentDocument> pinnedContents =
+            await LoadPackContentsForPinnedRowsAsync(scope, pinnedRows, cancellationToken).ConfigureAwait(false);
+
+        string[] pinnedPackIds = pinnedRows
+            .Select(static row => row.PolicyPackId)
+            .ToArray();
+
+        return (pinnedPackIds, pinnedContents);
     }
 
     private async Task<IReadOnlyList<PolicyPackContentDocument>> LoadPackContentsForPinnedRowsAsync(
@@ -188,14 +171,16 @@ public sealed class FindingAnalysisContextBuilder(
         ArchitectureKnowledgeModel? knowledgeModel,
         CancellationToken cancellationToken)
     {
-        if (header?.PinnedArchitectureVersionContentHashSha256 is not { Length: > 0 } pinnedHash)
+        if (header?.ArchitectureVersionId is not Guid versionId || versionId == Guid.Empty)
             return;
 
-        if (header.ArchitectureVersionId is not Guid versionId || versionId == Guid.Empty)
+        if (header.PinnedArchitectureVersionContentHashSha256 is not { Length: > 0 })
         {
             throw new ConflictException(
-                "Finding analysis blocked: run has a pinned architecture version content hash but no ArchitectureVersionId.");
+                "Finding analysis blocked: run is missing create-time architecture version content hash (κ) pin.");
         }
+
+        byte[] pinnedHash = header.PinnedArchitectureVersionContentHashSha256;
 
         ArchitectureVersionRecord? version = await _architectureVersionRepository
             .GetByIdAsync(scope, versionId, cancellationToken)
@@ -220,6 +205,33 @@ public sealed class FindingAnalysisContextBuilder(
             version,
             request,
             knowledgeModel);
+    }
+
+    private static Task EnsurePinnedKnowledgeModelContentHashUnchangedOrThrowAsync(
+        Persistence.Models.RunRecord? header,
+        ArchitectureKnowledgeModel? knowledgeModel,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        if (header is null || string.IsNullOrWhiteSpace(header.KnowledgeModelId))
+            return Task.CompletedTask;
+
+        if (header.PinnedKnowledgeModelContentHashSha256 is not { Length: > 0 })
+        {
+            throw new ConflictException(
+                "Finding analysis blocked: run is missing create-time knowledge model content hash pin.");
+        }
+
+        byte[]? computed = KnowledgeModelContentFingerprint.TryComputeContentHashSha256(knowledgeModel);
+
+        if (computed is null || !computed.AsSpan().SequenceEqual(header.PinnedKnowledgeModelContentHashSha256))
+        {
+            throw new ConflictException(
+                "Finding analysis blocked: knowledge model content hash drifted since run create.");
+        }
+
+        return Task.CompletedTask;
     }
 
     private async Task<PriorReviewSnapshots?> TryResolvePriorAsync(
@@ -249,13 +261,7 @@ public sealed class FindingAnalysisContextBuilder(
 
             if (requestPriorHeader is not null)
             {
-                return new PriorReviewSnapshots
-                {
-                    PriorArchitectureVersionId = requestPriorHeader.ArchitectureVersionId,
-                    PriorGraphSnapshotId = requestPriorHeader.GraphSnapshotId,
-                    PriorFindingsSnapshotId = requestPriorHeader.FindingsSnapshotId,
-                    PriorRunId = parsedRequestPriorRunId,
-                };
+                return BuildPriorSnapshots(requestPriorHeader, parsedRequestPriorRunId);
             }
         }
 
@@ -286,12 +292,25 @@ public sealed class FindingAnalysisContextBuilder(
         if (priorHeader is null)
             return null;
 
-        return new PriorReviewSnapshots
+        return BuildPriorSnapshots(priorHeader, parsedPriorRunId);
+    }
+
+    private static PriorReviewSnapshots BuildPriorSnapshots(
+        Persistence.Models.RunRecord priorHeader,
+        Guid priorRunId) =>
+        new()
         {
             PriorArchitectureVersionId = priorHeader.ArchitectureVersionId,
             PriorGraphSnapshotId = priorHeader.GraphSnapshotId,
             PriorFindingsSnapshotId = priorHeader.FindingsSnapshotId,
-            PriorRunId = parsedPriorRunId,
+            PriorRunId = priorRunId,
+            PriorPinnedPolicyPackIdsHashSha256Hex =
+                RunHeaderPinFingerprint.ToHexOrNull(priorHeader.PinnedPolicyPackIdsHashSha256),
+            PriorPinnedEvidencePackagePinsHashSha256Hex =
+                RunHeaderPinFingerprint.ToHexOrNull(priorHeader.PinnedEvidencePackagePinsHashSha256),
+            PriorPinnedArchitectureVersionContentHashSha256Hex =
+                RunHeaderPinFingerprint.ToHexOrNull(priorHeader.PinnedArchitectureVersionContentHashSha256),
+            PriorPinnedKnowledgeModelContentHashSha256Hex =
+                RunHeaderPinFingerprint.ToHexOrNull(priorHeader.PinnedKnowledgeModelContentHashSha256),
         };
-    }
 }

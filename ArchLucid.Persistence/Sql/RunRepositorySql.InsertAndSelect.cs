@@ -17,7 +17,8 @@ internal static partial class RunRepositorySql
                                      PinnedPolicyPackIdsJson, PinnedPolicyPackIdsHashSha256,
                                      PinnedEvidencePackagePinsJson, PinnedEvidencePackagePinsHashSha256,
                                      PinnedFocusedPilotModeEnabled, PinnedFocusedPilotCloudProvider,
-                                     PinnedArchitectureVersionContentHashSha256
+                                     PinnedArchitectureVersionContentHashSha256,
+                                     PinnedKnowledgeModelContentHashSha256
                                  )
                                  OUTPUT inserted.RowVersionStamp INTO @RunInsertOutput
                                  VALUES
@@ -32,7 +33,8 @@ internal static partial class RunRepositorySql
                                      @PinnedPolicyPackIdsJson, @PinnedPolicyPackIdsHashSha256,
                                      @PinnedEvidencePackagePinsJson, @PinnedEvidencePackagePinsHashSha256,
                                      @PinnedFocusedPilotModeEnabled, @PinnedFocusedPilotCloudProvider,
-                                     @PinnedArchitectureVersionContentHashSha256
+                                     @PinnedArchitectureVersionContentHashSha256,
+                                     @PinnedKnowledgeModelContentHashSha256
                                  );
 
                                  SELECT RowVersionStamp FROM @RunInsertOutput;
@@ -132,7 +134,8 @@ internal static partial class RunRepositorySql
                                      PinnedEvidencePackagePinsHashSha256 = @PinnedEvidencePackagePinsHashSha256,
                                      PinnedFocusedPilotModeEnabled = @PinnedFocusedPilotModeEnabled,
                                      PinnedFocusedPilotCloudProvider = @PinnedFocusedPilotCloudProvider,
-                                     PinnedArchitectureVersionContentHashSha256 = @PinnedArchitectureVersionContentHashSha256
+                                     PinnedArchitectureVersionContentHashSha256 = @PinnedArchitectureVersionContentHashSha256,
+                                     PinnedKnowledgeModelContentHashSha256 = @PinnedKnowledgeModelContentHashSha256
                                  OUTPUT inserted.RowVersionStamp INTO @RunUpdateOutput
                                  WHERE RunId = @RunId
                                    AND TenantId = @TenantId

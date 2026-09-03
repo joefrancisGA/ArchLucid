@@ -8,7 +8,8 @@ using ArchLucid.Persistence.Models;
 namespace ArchLucid.Application.Findings;
 
 /// <summary>
-///     Wave-5 suggestion 43 / wave-6 suggestion 55: resolve scoped extractor downloads from create-time pins.
+///     Wave-5 suggestion 43 / wave-6 suggestion 55 / wave-10 suggestion 94:
+///     resolve scoped extractor downloads from create-time pins only (no latest-in-scope fallback).
 /// </summary>
 public static class EffectfulFindingEngineEvidenceLoader
 {
@@ -39,14 +40,8 @@ public static class EffectfulFindingEngineEvidenceLoader
             return pinnedDownload;
         }
 
-        if (analysisContext?.HasCreateTimeEvidencePinCommitment == true
-            || analysisContext?.EvidencePins is { Count: > 0 })
-        {
-            throw new ConflictException(
-                "Effectful finding engine blocked: run has create-time evidence pin commitment but no Azure package was pinned.");
-        }
-
-        return await repository.TryGetLatestDownloadInScopeAsync(scope, cancellationToken).ConfigureAwait(false);
+        throw new ConflictException(
+            "Effectful finding engine blocked: run has no pinned Azure evidence package.");
     }
 
     public static async Task<CloudInventoryExtractorPackageDownloadRecord?> TryResolveCloudDownloadAsync(
@@ -83,15 +78,8 @@ public static class EffectfulFindingEngineEvidenceLoader
             return pinnedDownload;
         }
 
-        if (analysisContext?.HasCreateTimeEvidencePinCommitment == true
-            || analysisContext?.EvidencePins is { Count: > 0 })
-        {
-            throw new ConflictException(
-                $"Effectful finding engine blocked: run has create-time evidence pin commitment but no {cloudProvider} package was pinned.");
-        }
-
-        return await repository.TryGetLatestDownloadInScopeAsync(scope, cloudProvider, cancellationToken)
-            .ConfigureAwait(false);
+        throw new ConflictException(
+            $"Effectful finding engine blocked: run has no pinned {cloudProvider} evidence package.");
     }
 
     private static EvidencePackagePin? ResolvePinnedPin(FindingAnalysisContext? analysisContext, string provider)

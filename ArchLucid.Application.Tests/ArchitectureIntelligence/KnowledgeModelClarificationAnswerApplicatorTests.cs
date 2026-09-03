@@ -52,11 +52,13 @@ public sealed class KnowledgeModelClarificationAnswerApplicatorTests
     };
 
     Mock<IArchitectureIntelligencePersistence> persistence = new();
+    ArchitectureKnowledgeModel? savedModel = null;
     persistence
       .Setup(p => p.GetModelAsync(TestScope.TenantId.ToString("D"), modelId, It.IsAny<CancellationToken>()))
       .ReturnsAsync(model);
     persistence
       .Setup(p => p.SaveModelAsync(It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()))
+      .Callback<ArchitectureKnowledgeModel, CancellationToken>((saved, _) => savedModel = saved)
       .Returns(Task.CompletedTask);
 
     Mock<IRunRepository> runs = new();
@@ -79,11 +81,12 @@ public sealed class KnowledgeModelClarificationAnswerApplicatorTests
     applied.AppliedCount.Should().Be(1);
     applied.AppliedAnswers.Should().ContainKey(questionId);
 
-    model.FramingAnswers[$"{KnowledgeModelClarificationAnswerApplicator.FindingClarificationFramingKeyPrefix}{questionId}"]
+    savedModel.Should().NotBeNull();
+    savedModel!.FramingAnswers[$"{KnowledgeModelClarificationAnswerApplicator.FindingClarificationFramingKeyPrefix}{questionId}"]
         .Should().Be(answer);
 
     string formatted = OperatorAssertedClarificationAnswerFormatter.Format(questionId, answer);
-    model.Elements.Should().ContainSingle(element =>
+    savedModel.Elements.Should().ContainSingle(element =>
         element.Kind == ArchitectureElementKind.Assumption
         && element.Description == formatted);
   }
