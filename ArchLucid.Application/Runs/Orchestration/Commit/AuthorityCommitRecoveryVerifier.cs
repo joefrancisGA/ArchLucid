@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Runs.Orchestration.Commit;
@@ -45,5 +47,29 @@ public static class AuthorityCommitRecoveryVerifier
             throw new ConflictException(
                 $"Commit recovery blocked for run '{runIdLabel}': run header and architecture run golden manifest ids diverge.");
         }
+    }
+
+    /// <summary>Wave-14 suggestion 139: verify sealed inventory rows match persisted snapshot pointers.</summary>
+    public static void EnsureInventoryConsistentOrThrow(
+        ManifestDocument? persistedManifest,
+        RunRecord header,
+        string runIdLabel)
+    {
+        ArgumentNullException.ThrowIfNull(header);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runIdLabel);
+
+        if (!header.GoldenManifestId.HasValue)
+            return;
+
+        if (persistedManifest is null)
+        {
+            throw new ConflictException(
+                $"Commit recovery blocked for run '{runIdLabel}': golden manifest id is set but the manifest row is missing.");
+        }
+
+        ManifestCommittedArtifactInventoryCapturer.EnsureStoredInventoryMatchesPointersOrThrow(
+            persistedManifest,
+            header,
+            runIdLabel);
     }
 }

@@ -216,6 +216,7 @@ public sealed class DecisionReceiptServiceTests
             {
                 ManifestId = ManifestId,
                 RunId = RunId,
+                ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
                 FeasibilityVerdict = new FeasibilityVerdict
                 {
                     Kind = FeasibilityVerdictKind.SoftInfeasible,
