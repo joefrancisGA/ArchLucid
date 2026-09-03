@@ -2436,11 +2436,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 65
-- **bugs-found:** 126
+- **hunts:** 66
+- **bugs-found:** 127
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — escaped double-quotes before inline HCL/Bicep comments truncated scalar values
+- **last-bug:** 2026-09-03 — simple-terraform scalar assignments ignored inline `//` comments (Bicep parity gap)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2599,6 +2599,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CanonicalInfrastructurePropertyBag` comment strippers — escaped `\"` before `#` / `//` / `/*` truncated scalar values — **hit 2026-09-03 (#585):** `note = "eastus\" # region"` stored `tf.note = eastus\` because `StripTrailingHclComment` toggled quote state on escaped quotes without backslash-skip (same class as #538 brace extractor); fixed with backslash-skip in `StripTrailingHclComment`, `StripTrailingSlashSlashComment`, and `StripTrailingBlockComment` (`ParseAsync_EscapedQuoteBeforeHash_DoesNotTruncateScalarValue`).
 
 2026-09-03 seed hunt #585: reseeded from context-ingestion comment strippers; proved escaped-quote comment-strip gap beyond #538 brace-extractor fix.
+
+- [x] (proven) `SimpleTerraformResourceBlockParser` scalar assignments — inline `//` comments not stripped (Bicep parity gap) — **hit 2026-09-03 (#590):** `location = "eastus" // primary region` stored `tf.location = "eastus" // primary region` and false-modified infrastructure declaration deltas; fixed with `StripTrailingSlashSlashComment` and `StripTrailingBlockComment` before unquoting (`SimpleTerraformDeclarationParserTests.ParseAsync_InlineSlashSlashComment_DoesNotChangeTfLocation`, `InfrastructureDeclarationConnectorTests.DeltaAsync_SimpleTerraformInlineSlashSlashCommentChange_ReportsUnchanged`).
+
+2026-09-03 seed hunt #590: reseeded from simple-terraform vs Bicep scalar comment parity; proved missing `//`/`/* */` strip on HCL scalar values beyond #585 escaped-quote `#` fix.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
