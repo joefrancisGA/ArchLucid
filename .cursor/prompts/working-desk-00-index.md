@@ -13,6 +13,8 @@ ArchLucid sells a **seat for a repeat professional**. Working mode, finding undo
 
 **Relationship to PT-01–20:** `.cursor/prompts/professional-tool-00-index.md` is the overlay/residual set (identity, start path, tabs, amend, keyboard, ranking, trail, first-paint, home, workbench, presenter, infeasible package, MUST-finalize, dirty guard, token keepalive, compare). **WD-01–12** are the structural 12 from the livelihood-desk analysis. If a WD row lists a PT owner, **do not fork** — run or extend that PT file; use the WD file only for the residual named in *What to build*.
 
+**Fifteen-prompt residual set:** [`livelihood-instrument-00-index.md`](livelihood-instrument-00-index.md) (**LI-01–15**) consolidates the 2026-09-03 diagnosis into fifteen run-now files with current-code anchors. If an LI row lists a WD owner, do not fork — implement the leftover *What to build* in that LI file.
+
 ## Run order
 
 Independent after **WD-01**. Prefer **01 → 08 → 02 → 03** first (identity, live recovery, decision record, finding honesty). **WD-04** must not collapse desktop review tabs. **WD-03** must not change `typed-engine-protected`. **WD-07** is live meeting elicitation — not the CTO demo overlay.

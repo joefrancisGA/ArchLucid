@@ -17,4 +17,4 @@ Copy-paste prompts for livelihood-grade workspace mitigations. Branch template: 
 
 See conversation transcript for full paste-ready prompt text.
 
-**Successor set (2026-09-03):** livelihood-grade residuals live in [`.cursor/prompts/professional-tool-00-index.md`](../../.cursor/prompts/professional-tool-00-index.md). **PT-01–10** are the first residual rewrite; **PT-11–20** are the second wave (workbench, cross-device drafts, restore, presenter, infeasible package, skipped-MUST finalize, dirty guards, meeting token keep-alive, compare-from-review). Do not re-run DD-01–10.
+**Successor set (2026-09-03):** run [`.cursor/prompts/livelihood-instrument-00-index.md`](../../.cursor/prompts/livelihood-instrument-00-index.md) (**LI-01–15**). Predecessors: [`.cursor/prompts/professional-tool-00-index.md`](../../.cursor/prompts/professional-tool-00-index.md) (**PT-01–20**) and [`.cursor/prompts/working-desk-00-index.md`](../../.cursor/prompts/working-desk-00-index.md) (**WD-01–12**). Do not re-run DD-01–10. Each LI file names the PT/WD owner and forbids a fork.
