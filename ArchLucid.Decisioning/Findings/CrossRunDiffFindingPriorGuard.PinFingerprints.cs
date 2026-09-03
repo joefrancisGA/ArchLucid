@@ -61,6 +61,22 @@ public static partial class CrossRunDiffFindingPriorGuard
             engineType,
             priorGraphId,
             "knowledge model content hash");
+
+        EnsureGraphPropertyMatchesPriorHeaderOrThrow(
+            contextNode.Properties,
+            ContextGraphPropertyKeys.FocusedPilotModeEnabled,
+            analysisContext.Prior.PriorPinnedFocusedPilotModeEnabled,
+            engineType,
+            priorGraphId,
+            "focused pilot mode pin");
+
+        EnsureGraphPropertyMatchesPriorHeaderOrThrow(
+            contextNode.Properties,
+            ContextGraphPropertyKeys.FocusedPilotCloudProvider,
+            analysisContext.Prior.PriorPinnedFocusedPilotCloudProvider,
+            engineType,
+            priorGraphId,
+            "focused pilot cloud provider pin");
     }
 
     private static void EnsureGraphPropertyMatchesPriorHeaderOrThrow(

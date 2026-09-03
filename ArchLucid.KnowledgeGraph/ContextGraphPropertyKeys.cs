@@ -48,6 +48,12 @@ public static class ContextGraphPropertyKeys
     /// <summary>Uppercase hex SHA-256 κ model content hash pinned at create.</summary>
     public const string KnowledgeModelContentHashSha256Hex = "knowledgeModelContentHashSha256Hex";
 
+    /// <summary>Focused pilot mode pinned at create (wave-11 suggestion 106).</summary>
+    public const string FocusedPilotModeEnabled = "focusedPilotModeEnabled";
+
+    /// <summary>Focused pilot cloud provider pinned at create (wave-11 suggestion 106).</summary>
+    public const string FocusedPilotCloudProvider = "focusedPilotCloudProvider";
+
     /// <summary>Pipe-separated topology categories added by tenant policy packs (additive floor).</summary>
     public const string PolicyExpectedTopologyCategories = "policyExpectedTopologyCategories";
 

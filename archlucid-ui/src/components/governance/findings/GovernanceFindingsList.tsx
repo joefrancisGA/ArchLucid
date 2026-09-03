@@ -1,12 +1,13 @@
 "use client";
 
 import { memo, useState, type ReactElement } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { GovernanceFindingTriagePanel } from "@/components/governance/findings/GovernanceFindingTriagePanel";
-import { useGovernanceFindingTriage } from "@/components/governance/findings/use-governance-finding-triage";
+import { useGovernanceFindingTriageWithCursor } from "@/components/governance/findings/use-governance-finding-triage-with-cursor";
 import { resolveGovernanceQueueRowActivityAtUtc } from "@/lib/findings/finding-activity-at-utc";
 import {
   governanceQueueRowWatermarkKey,
@@ -51,7 +52,16 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   const [bulkDispositionSuccessMessage, setBulkDispositionSuccessMessage] = useState<string | null>(null);
   const [bulkDispositionUndo, setBulkDispositionUndo] = useState<(() => Promise<void>) | null>(null);
   const [bulkDispositionUndoBusy, setBulkDispositionUndoBusy] = useState(false);
-  const triage = useGovernanceFindingTriage(displayedRows);
+  const searchParams = useSearchParams();
+  const triage = useGovernanceFindingTriageWithCursor(displayedRows, searchParams);
+
+  function handleBulkApplied(): void {
+    if (triage.open) {
+      triage.goNext();
+    }
+
+    onBulkApplied();
+  }
 
   function openTriageRow(row: GovernanceFindingQueueRow): void {
     markGovernanceRowSeen(row);
@@ -81,7 +91,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   if (buyerPolishedShell) {
     return (
       <div className="space-y-4">
-        <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={onBulkApplied} />
+        <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={handleBulkApplied} />
         <GovernanceFindingTriagePanel
           open={triage.open}
           row={triage.activeRow}
@@ -150,7 +160,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
 
   return (
     <>
-      <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={onBulkApplied} />
+      <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={handleBulkApplied} />
       <GovernanceFindingTriagePanel
         open={triage.open}
         row={triage.activeRow}
@@ -208,7 +218,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
               setBulkDispositionSuccessMessage(message);
               setBulkDispositionUndo(undo ?? null);
             }}
-            onApplied={onBulkApplied}
+            onApplied={handleBulkApplied}
           />
         </div>
       ) : null}

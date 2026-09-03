@@ -57,10 +57,12 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-integration-readiness", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-structured-brief", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-pilot-feedback", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-pilot-guide", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-azure-boards", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-soc2-self-assessment", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-dpa-template", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-evidence-intake", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-evidence-trail", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-policy-packs", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-prior-manifest-retrieval", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-caiq-sig-response", "not a package.")).toBeUndefined();
@@ -81,10 +83,12 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-integration-readiness")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-structured-brief")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-pilot-feedback")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-pilot-guide")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-azure-boards")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-soc2-self-assessment")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-dpa-template")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-evidence-intake")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-evidence-trail")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-policy-packs")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-prior-manifest-retrieval")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-caiq-sig-response")).toBe(false);

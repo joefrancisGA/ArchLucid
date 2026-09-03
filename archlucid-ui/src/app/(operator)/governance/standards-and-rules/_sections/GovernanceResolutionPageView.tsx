@@ -163,6 +163,11 @@ export function GovernanceResolutionPageView(props: Props) {
             ) : null}
             <StandardsRulesFilters
               filters={rows.filters}
+              currentSearch={rows.currentSearch}
+              pathname={rows.pathname}
+              searchQuery={rows.searchQuery}
+              onSearchQueryChange={rows.setSearchQuery}
+              onClearSearch={rows.clearSearch}
               visibleCount={rows.filteredRuleRows.length}
               totalCount={rows.allRuleRows.length}
               options={rows.filterOptions}

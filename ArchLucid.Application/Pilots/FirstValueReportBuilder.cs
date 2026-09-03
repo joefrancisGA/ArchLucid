@@ -101,6 +101,9 @@ public sealed class FirstValueReportBuilder(
             return null;
         }
 
+        if (detail.IsCommitted && !detail.HasBrokenManifestReference)
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId);
+
         PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         DateTimeOffset end = TimeProvider.System.GetUtcNow();
