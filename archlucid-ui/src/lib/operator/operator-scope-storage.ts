@@ -8,6 +8,7 @@ import { clearHasExistingRunsCache } from "@/lib/operator/operator-run-presence"
 import { clearHasSeenWelcomeOnboarding } from "@/lib/operator/operator-welcome-onboarding-storage";
 import { clearFrictionlessTrialSessionForAuthenticatedOperator } from "@/lib/operator/operator-frictionless-trial-session-cleanup";
 import { clearOperatorShellStatusScopeAgnosticCaches } from "@/lib/operator/operator-shell-status-scope-cache";
+import { clearOperatorHomeRunsSnapshotStale } from "@/lib/operator/operator-home-lifecycle-notify";
 import { clearOperatorShellStableCache } from "@/lib/operator/operator-shell-stable-cache";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { isLikelySignedIn } from "@/lib/oidc/session";
@@ -83,6 +84,7 @@ function notifyOperatorScopeChanged(): void {
   clearHasExistingRunsCache();
   clearHasSeenWelcomeOnboarding();
   clearOperatorHomeDisclosureStorage();
+  clearOperatorHomeRunsSnapshotStale();
 }
 
 export function writeOperatorScopeToStorage(record: OperatorScopeRecord): void {

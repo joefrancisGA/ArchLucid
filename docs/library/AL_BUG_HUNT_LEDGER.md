@@ -3577,11 +3577,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 12
-- **bugs-found:** 19
+- **hunts:** 13
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — SSR runs snapshot without scope stamp; billing active subscription without tier label
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — OPERATOR_HOME_RUNS_STALE survived tenant switch and consumed on wrong scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3610,11 +3610,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `resolveOperatorBillingCurrentPlan` — non-empty `commercialTier` with omitted `isTrialUsage` and stale `trialStatus: Active` returned `tenant-trial` instead of `paid-plan` — **hit 2026-08-31 (#329):** treat commercial tier as paid unless `isTrialUsage === true` (usage omission parity with explicit `false`); regression in `operator-billing-current-plan.test.ts`.
 - [x] (proven) `isOperatorHomeRunsDashboardServerSnapshotFresh` / `shouldSkipRunsDashboardClientFetchOnMount` — SSR runs snapshot treated fresh when `scopeQueryKeySnapshot` was omitted, reopening tenant-switch stale rows after #329 — **hit 2026-09-02 (#423):** reject snapshots missing scope stamp; regression in `operator-home-runs-dashboard-client-fetch.test.ts`.
 - [x] (proven) `resolveOperatorBillingCurrentPlan` — active `hasSubscription` with empty `tierCode` / `commercialTier` and `isTrialUsage: false` returned `no-paid-plan` while invoice helpers reported a live subscription — **hit 2026-09-02 (#423):** `hasActiveSubscription` branch before trial fallback; regression in `operator-billing-current-plan.test.ts`.
-- [ ] (candidate) `mapHomepageSettings` — `isConfigured` / `isAvailable` require literal `true`; omitted/null API flags may hide configured homepage hero.
-- [ ] (candidate) `runProjectMatchesEffectiveScope` — empty effective project id matches any run project during scope transitions.
-- [ ] (candidate) `markOperatorHomeRunsSnapshotStale` — `OPERATOR_HOME_RUNS_STALE` session flag not cleared on `notifyOperatorScopeChanged`.
-- [ ] (candidate) `parseOperatorScopeQueryKey` — scope ids containing `:` break three-part split parsing.
+- [x] (invalid) `mapHomepageSettings` — `isConfigured` / `isAvailable` require literal `true`; omitted/null API flags may hide configured homepage hero — **cheap-disproof 2026-09-03:** backend `FeaturedCompletedSampleSnapshot` always sets non-nullable `IsConfigured` / `IsAvailable` in `FeaturedCompletedSampleService.ProjectSnapshotAsync`; `=== true` coercion is defensive only.
+- [x] (invalid) `runProjectMatchesEffectiveScope` — empty effective project id matches any run project during scope transitions — **cheap-disproof 2026-09-03:** intentional TB-077 guard; `operator-resource-scope.test.ts` documents empty-side match as by design.
+- [x] (proven) `markOperatorHomeRunsSnapshotStale` — `OPERATOR_HOME_RUNS_STALE` session flag not cleared on `notifyOperatorScopeChanged` — **hit 2026-09-03 (#544):** lifecycle stale marker from tenant A consumed on tenant B Overview after switch, dropping refresh signal when returning to A; fixed via `clearOperatorHomeRunsSnapshotStale` on scope change (`operator-scope-storage.test.ts`).
+- [x] (invalid) `parseOperatorScopeQueryKey` — scope ids containing `:` break three-part split parsing — **cheap-disproof 2026-09-03:** operator scope ids are UUIDs (hyphen-separated); colon delimiter is safe for `tenant:workspace:project` keys.
 - [x] (invalid) `deriveOperatorHomeWorkspaceMetrics` — paginated slice with `totalCount > items.length` shows zero KPI aggregates — **cheap-disproof 2026-09-02:** intentional partial-page guard (`operator-home-workspace-metrics.test.ts`); zeroed aggregates avoid overstating workspace-wide totals.
+
+2026-09-03 thorough hunt #544: proved OPERATOR_HOME_RUNS_STALE leaked across tenant switch; cheap-disproved homepage flag omission, empty project scope match, and colon-in-UUID scope parsing.
 
 2026-09-02 seed hunt #423: proved SSR scope-stamp gap and billing subscription-without-tier plan card mismatch; seeded homepage flags, scope match, stale runs flag, and scope-id parsing candidates; cheap-disproved partial-page KPI zeroing.
 
