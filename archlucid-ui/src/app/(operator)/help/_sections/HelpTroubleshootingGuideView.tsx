@@ -123,7 +123,10 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
 
           <section
             id="start-here"
-            className="space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            className={cn(
+              OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+              "space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40",
+            )}
             data-testid="troubleshooting-start-here-card"
             aria-labelledby="troubleshooting-start-here-heading"
           >
