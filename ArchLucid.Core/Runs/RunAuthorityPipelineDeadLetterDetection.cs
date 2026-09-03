@@ -110,15 +110,15 @@ public static class RunAuthorityPipelineDeadLetterDetection
         {
             string? raw = element.GetString();
 
+            if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion))
+            {
+                return schemaVersion == SupportedSchemaVersion;
+            }
+
             if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanSchema))
             {
                 schemaVersion = booleanSchema ? SupportedSchemaVersion : 0;
 
-                return schemaVersion == SupportedSchemaVersion;
-            }
-
-            if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion))
-            {
                 return schemaVersion == SupportedSchemaVersion;
             }
         }
