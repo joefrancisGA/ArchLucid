@@ -17,7 +17,7 @@ internal static class MultiRecipientEmailDispatch
         Guid tenantId,
         string idempotencyKeyPrefix,
         string templateId,
-        IReadOnlyList<string> normalizedMailboxes,
+        IReadOnlyList<string> mailboxes,
         ISentEmailLedger sentEmailLedger,
         IEmailProvider emailProvider,
         Func<string, EmailMessage> buildMessage,
