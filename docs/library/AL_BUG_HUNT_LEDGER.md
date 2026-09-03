@@ -2880,11 +2880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 119
-- **bugs-found:** 275
+- **hunts:** 120
+- **bugs-found:** 276
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — bulk defer revisitDueUtc validation parity
+- **last-bug:** 2026-09-03 — bulk NeedsEvidence evidenceRequestText parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3424,6 +3424,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` / `GovernanceFindingsBulkActions` — bulk `Deferred` without `revisitDueUtc` auto-filled `now + 30 days` and returned HTTP 200 while single-item `FindingDispositionValidation` requires explicit revisit due — **hit 2026-09-03 (#566):** remove facade auto-fill; bulk UI sends `defaultDeferredRevisitDueUtc()` (+30 days); API regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_deferred_without_revisit_due`; UI regression in `GovernanceFindingsBulkActions.test.tsx`.
 
 2026-09-03 seed hunt #566: promoted and proved bulk defer `revisitDueUtc` validation parity with single-item disposition path.
+
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `RecordBulkFindingDispositionRequest` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` — bulk `NeedsEvidence` always returned HTTP 400 because contract omitted `EvidenceRequestText` while `FindingDispositionValidation` requires it — **hit 2026-09-03 (#567):** add shared `EvidenceRequestText` on bulk contract and forward in facade; regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_ok_when_needs_evidence_with_shared_evidence_request_text` and `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_forwards_evidence_request_text_for_needs_evidence_disposition`.
+
+- [x] (invalid) `CreateRiskException` `manifestId=Guid.Empty` skips manifest-run binding — optional field; empty guid means no manifest linkage; `runId` required at HTTP layer (#563).
+
+- [x] (invalid) `RecordBulkDisposition` hardcoded `RunId=Guid.Empty` vs single-item run validation — bulk contract is finding-scoped; no `RunId` property by design.
+
+- [x] (invalid) Digest `ianaTimeZoneId` longer than SQL `NVARCHAR(128)` — `IanaTimeZonePreferenceValues.NormalizeOrNull` rejects unknown ids before persist (#2962–#2963); valid IANA ids are well under 128 chars.
+
+2026-09-03 seed hunt #567: promoted and proved bulk `NeedsEvidence` `EvidenceRequestText` contract parity; cheap-disproved manifestId empty-guid, bulk RunId, and digest timezone length candidates.
 
 ---
 
