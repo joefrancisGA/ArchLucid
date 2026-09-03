@@ -46,6 +46,12 @@ public sealed class RiskExceptionService(
         DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
         RiskExceptionValidation.Validate(request, now);
 
+        await RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync(
+            _findingReviewTrailRepository,
+            scope.TenantId,
+            request.FindingId.Trim(),
+            cancellationToken);
+
         RiskExceptionRecord record = new()
         {
             RiskExceptionId = Guid.NewGuid(),
