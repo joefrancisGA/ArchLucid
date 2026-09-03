@@ -20,3 +20,5 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE12.md`](ARCHITECTURE_REVIEW_RO
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave13ArchitectureTests.cs`.
 
 **Hasher baseline note:** suggestion 129 bumps production `h(M)` to **`v8`** (committed artifact inventory binding; review snapshot excludes non-deterministic `GeneratedUtc`). Owner re-lock via `tests/manifest-hash/hasher-baseline-v8.json`.
+
+**Successor:** [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE14.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE14.md) (suggestions 131–140; Hasher A **`v9`** for blob-bound inventory).

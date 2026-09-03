@@ -98,7 +98,12 @@ public sealed partial class ManifestFinalizationService
                 request.PreloadedFindingsSnapshot);
         }
 
-        ManifestCommittedArtifactInventoryCapturer.ApplyToManifest(request.ManifestModel, request);
+        ManifestCommittedArtifactInventoryMaterial inventoryMaterial =
+            ManifestCommittedArtifactInventoryMaterialFactory.Build(request);
+        ManifestCommittedArtifactInventoryCapturer.ApplyToManifest(
+            request.ManifestModel,
+            inventoryMaterial,
+            request.ManifestModel.CreatedUtc);
 
         if (connection is not null)
         {

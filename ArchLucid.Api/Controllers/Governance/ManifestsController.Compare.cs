@@ -1,7 +1,12 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Runs;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -143,13 +148,43 @@ public sealed partial class ManifestsController
 
         GoldenManifest? right = await GetManifestInScopeAsync(rightVersion, cancellationToken);
 
-        return right is null
-            ? new LoadedManifestPair
+        if (right is null)
+        {
+            return new LoadedManifestPair
             {
                 Error = this.NotFoundProblem($"Manifest '{rightVersion}' was not found.",
                     ProblemTypes.ManifestNotFound)
-            }
-            : new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };
+            };
+        }
+
+        await EnsureManifestComparePinFingerprintsMatchOrThrowAsync(left, right, cancellationToken);
+
+        return new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };
+    }
+
+    private async Task EnsureManifestComparePinFingerprintsMatchOrThrowAsync(
+        GoldenManifest left,
+        GoldenManifest right,
+        CancellationToken cancellationToken)
+    {
+        if (!AuthorityRunIdentifier.TryParse(left.RunId, out Guid leftRunGuid)
+            || !AuthorityRunIdentifier.TryParse(right.RunId, out Guid rightRunGuid))
+        {
+            throw new ConflictException(
+                "Compare blocked: both manifests must reference resolvable run ids with create-time pin headers.");
+        }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? leftHeader = await _runRepository.GetByIdAsync(scope, leftRunGuid, cancellationToken);
+        RunRecord? rightHeader = await _runRepository.GetByIdAsync(scope, rightRunGuid, cancellationToken);
+
+        if (leftHeader is null || rightHeader is null)
+        {
+            throw new ConflictException(
+                "Compare blocked: one or both manifest runs are missing persisted headers for pin fingerprint verification.");
+        }
+
+        RunComparePinFingerprintGuard.EnsureCreateTimePinFingerprintsMatchOrThrow(leftHeader, rightHeader);
     }
 
     private sealed class LoadedManifestPair
