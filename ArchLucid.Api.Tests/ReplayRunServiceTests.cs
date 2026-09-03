@@ -139,7 +139,10 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuthorityRunOrchestrator>(),
             prepareStage,
             cloneStage,
-            commitStage);
+            commitStage,
+            _authorityRunRepository.Object,
+            _scopeContextProvider.Object,
+            Mock.Of<IRunGovernanceScopePinService>());
         _sut = new ReplayRunService(prepareStage, executePreparedStage);
     }
 

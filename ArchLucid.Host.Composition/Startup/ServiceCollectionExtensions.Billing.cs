@@ -1,5 +1,6 @@
 using ArchLucid.Application.Billing;
 using ArchLucid.Application.Budgeting;
+using ArchLucid.Application.Budgeting.Wallet;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
@@ -32,6 +33,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ILlmTenantWalletStripeWebhookProcessor, LlmTenantWalletStripeWebhookProcessor>();
         services.AddSingleton<LlmWalletSettlementQueue>();
         services.AddSingleton<ILlmWalletSettlementQueue>(sp => sp.GetRequiredService<LlmWalletSettlementQueue>());
+        services.AddScoped<ILlmTenantWalletConsumeStage, LlmTenantWalletConsumeStage>();
+        services.AddScoped<ILlmTenantWalletRefillStage, LlmTenantWalletRefillStage>();
+        services.AddScoped<ILlmTenantWalletWebhookStage, LlmTenantWalletWebhookStage>();
         services.AddScoped<LlmTenantWalletService>();
         services.AddScoped<ILlmTenantWalletService>(sp => sp.GetRequiredService<LlmTenantWalletService>());
         services.AddHostedService<LlmWalletSettlementHostedService>();

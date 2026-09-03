@@ -94,7 +94,7 @@ public sealed class UsageEventRepositoryCoreTests
             Id = Guid.NewGuid(),
             TenantId = tenantId,
             IdempotencyKey = "dup",
-            Kind = UsageMeterKind.LlmTokensIn,
+            Kind = UsageMeterKind.LlmPromptTokens,
             Quantity = 1,
             RecordedUtc = DateTimeOffset.UtcNow,
         };
@@ -103,7 +103,7 @@ public sealed class UsageEventRepositoryCoreTests
             Id = Guid.NewGuid(),
             TenantId = tenantId,
             IdempotencyKey = "dup",
-            Kind = UsageMeterKind.LlmTokensIn,
+            Kind = UsageMeterKind.LlmPromptTokens,
             Quantity = 2,
             RecordedUtc = DateTimeOffset.UtcNow,
         };
@@ -126,7 +126,7 @@ public sealed class UsageEventRepositoryCoreTests
             {
                 Id = Guid.NewGuid(),
                 TenantId = tenantId,
-                Kind = UsageMeterKind.LlmTokensIn,
+                Kind = UsageMeterKind.LlmPromptTokens,
                 Quantity = 3,
                 RecordedUtc = start.AddHours(1),
             },
@@ -134,7 +134,7 @@ public sealed class UsageEventRepositoryCoreTests
             {
                 Id = Guid.NewGuid(),
                 TenantId = tenantId,
-                Kind = UsageMeterKind.LlmTokensIn,
+                Kind = UsageMeterKind.LlmPromptTokens,
                 Quantity = 2,
                 RecordedUtc = start.AddHours(2),
             },

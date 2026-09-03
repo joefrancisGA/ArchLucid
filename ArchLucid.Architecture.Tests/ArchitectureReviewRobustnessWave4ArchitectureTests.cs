@@ -38,16 +38,11 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
 
         context.Should().Contain("EvidencePackagePin? EvidencePin");
 
-        File.Exists(
-                Path.Combine(
-                    RepoRoot,
-                    "ArchLucid.Application",
-                    "Runs",
-                    "Orchestration",
-                    "Pipeline",
-                    "EvidencePackagePinResolver.cs"))
-            .Should()
-            .BeTrue();
+        string pinService = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunEvidencePackagePinService.cs"));
+
+        pinService.Should().Contain("ResolvePinsFromHeader");
+        pinService.Should().Contain("HasCreateTimePinCommitment");
     }
 
     [Fact]

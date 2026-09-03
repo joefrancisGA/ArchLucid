@@ -9,7 +9,7 @@ import {
 } from "@/lib/trust-center-evidence-copy";
 
 describe("TrustCenterEvidenceOrientationStrip", () => {
-  it("renders Sources footer without the public-assurance claim callout", () => {
+  it("renders sources-only follow-ups when hero carries claim discipline", () => {
     render(<TrustCenterEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("trust-center-sources")).toBeInTheDocument();

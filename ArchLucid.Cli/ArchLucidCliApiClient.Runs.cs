@@ -10,7 +10,9 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Contracts.Requests;
 
 using Gen = ArchLucid.Api.Client.Generated;
@@ -294,7 +296,39 @@ public sealed partial class ArchLucidApiClient
                 return new GoldenManifestFingerprintResult(false, null,
                     "Manifest could not be deserialized to GoldenManifest.");
 
-            string sha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest);
+            Gen.RunDetailsResponse runPayload = await _api.ReviewAsync(runId, ct);
+
+            GoldenManifestCreateTimePinCommitment? createTimePins = null;
+
+            if (runPayload.Run is not null)
+            {
+                string runWireJson = JsonSerializer.Serialize(runPayload.Run, runPayload.Run.GetType(), _jsonOptions);
+                using JsonDocument runDoc = JsonDocument.Parse(runWireJson);
+                JsonElement runElement = runDoc.RootElement;
+
+                RunRecord header = new()
+                {
+                    PinnedPolicyPackIdsJson = runElement.TryGetProperty("pinnedPolicyPackIdsJson", out JsonElement policyJson)
+                        ? policyJson.GetString()
+                        : null,
+                    PinnedEvidencePackagePinsJson = runElement.TryGetProperty(
+                            "pinnedEvidencePackagePinsJson",
+                            out JsonElement evidenceJson)
+                        ? evidenceJson.GetString()
+                        : null,
+                    PinnedEvidencePackagePinsHashSha256 = runElement.TryGetProperty(
+                            "pinnedEvidencePackagePinsHashSha256",
+                            out JsonElement evidenceHash)
+                        && evidenceHash.ValueKind == JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(evidenceHash.GetString())
+                        ? Convert.FromHexString(evidenceHash.GetString()!)
+                        : null,
+                };
+
+                createTimePins = RunHeaderCreateTimePinCommitmentFactory.TryFromRunHeader(header);
+            }
+
+            string sha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest, createTimePins);
 
             return new GoldenManifestFingerprintResult(true, sha, null);
         }

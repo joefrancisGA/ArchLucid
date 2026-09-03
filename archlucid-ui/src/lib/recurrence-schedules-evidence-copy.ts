@@ -5,6 +5,8 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDI
 export const RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE =
   "Recurrence schedules set when architecture reviews repeat — not a full audit export. Open Findings, approval queue, or Audit when you need resolution history or approval records.";
 
+export const RECURRENCE_SCHEDULES_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const RECURRENCE_SCHEDULES_SOURCES_INTRO =
   "Use these follow-ups when schedule setup needs package context, risk triage, or approval workflow.";
 

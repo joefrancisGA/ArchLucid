@@ -79,6 +79,26 @@ public sealed class RunPolicyPackPinService(IPolicyPackAssignmentRepository poli
                 "Commit blocked: run is missing a policy pack pin hash from create time.");
         }
 
+        if (string.IsNullOrWhiteSpace(header.PinnedPolicyPackIdsJson))
+        {
+            throw new ConflictException(
+                "Commit blocked: run has policy pack pin hash but is missing the create-time pin JSON.");
+        }
+
+        if (!RunHeaderPinDeserializer.TryDeserializePolicyPackRows(header.PinnedPolicyPackIdsJson, out _))
+        {
+            throw new ConflictException(
+                "Commit blocked: policy pack pin JSON is not a valid PinnedPolicyPackRow array.");
+        }
+
+        byte[] jsonHash = SHA256.HashData(Encoding.UTF8.GetBytes(header.PinnedPolicyPackIdsJson));
+
+        if (!jsonHash.AsSpan().SequenceEqual(header.PinnedPolicyPackIdsHashSha256))
+        {
+            throw new ConflictException(
+                "Commit blocked: policy pack pin JSON no longer matches the stored create-time pin hash.");
+        }
+
         (_, byte[] rebuiltHash) = await BuildPinAsync(scope, cancellationToken).ConfigureAwait(false);
 
         if (!rebuiltHash.AsSpan().SequenceEqual(header.PinnedPolicyPackIdsHashSha256))

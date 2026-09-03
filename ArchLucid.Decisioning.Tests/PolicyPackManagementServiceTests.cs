@@ -56,14 +56,13 @@ public sealed class PolicyPackManagementServiceTests
                     It.IsAny<IDbTransaction?>()))
             .Returns(Task.CompletedTask);
 
-        PolicyPackManagementService sut = new(
+        PolicyPackManagementService sut = PolicyPackManagementServiceComposer.Compose(
             packRepo.Object,
             versionRepo.Object,
             new Mock<IPolicyPackAssignmentRepository>().Object,
             changeLog.Object,
             uowFactory.Object,
-            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
 
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
@@ -134,14 +133,13 @@ public sealed class PolicyPackManagementServiceTests
                     It.IsAny<IDbTransaction?>()))
             .ThrowsAsync(new InvalidOperationException("log failed"));
 
-        PolicyPackManagementService sut = new(
+        PolicyPackManagementService sut = PolicyPackManagementServiceComposer.Compose(
             packRepo.Object,
             versionRepo.Object,
             new Mock<IPolicyPackAssignmentRepository>().Object,
             changeLog.Object,
             uowFactory.Object,
-            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
 
         PolicyPack result = await sut.CreatePackAsync(
             Guid.NewGuid(),
@@ -207,14 +205,13 @@ public sealed class PolicyPackManagementServiceTests
                     It.IsAny<IDbTransaction?>()))
             .Returns(Task.CompletedTask);
 
-        PolicyPackManagementService sut = new(
+        PolicyPackManagementService sut = PolicyPackManagementServiceComposer.Compose(
             packRepo.Object,
             versionRepo.Object,
             new Mock<IPolicyPackAssignmentRepository>().Object,
             changeLog.Object,
             new Mock<IArchLucidUnitOfWorkFactory>().Object,
-            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
 
         await sut.PublishVersionAsync(packId, "2.0.0", """{"k":1}""", CancellationToken.None);
 
@@ -297,14 +294,13 @@ public sealed class PolicyPackManagementServiceTests
                     It.IsAny<IDbTransaction?>()))
             .Returns(Task.CompletedTask);
 
-        PolicyPackManagementService sut = new(
+        PolicyPackManagementService sut = PolicyPackManagementServiceComposer.Compose(
             packRepo.Object,
             versionRepo.Object,
             new Mock<IPolicyPackAssignmentRepository>().Object,
             changeLog.Object,
             new Mock<IArchLucidUnitOfWorkFactory>().Object,
-            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
 
         await sut.PublishVersionAsync(packId, "1.0.0", """{"new":true}""", CancellationToken.None);
 
@@ -336,14 +332,13 @@ public sealed class PolicyPackManagementServiceTests
             .Setup(i => i.InvalidateTenantAsync(tenantId, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        PolicyPackManagementService sut = new(
+        PolicyPackManagementService sut = PolicyPackManagementServiceComposer.Compose(
             new Mock<IPolicyPackRepository>().Object,
             new Mock<IPolicyPackVersionRepository>().Object,
             assignmentRepo.Object,
             new Mock<IPolicyPackChangeLogRepository>().Object,
             new Mock<IArchLucidUnitOfWorkFactory>().Object,
-            invalidator.Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            invalidator.Object);
 
         await sut.AssignAsync(
             tenantId,
@@ -396,14 +391,13 @@ public sealed class PolicyPackManagementServiceTests
             .Setup(i => i.InvalidateTenantAsync(tenantId, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        PolicyPackManagementService sut = new(
+        PolicyPackManagementService sut = PolicyPackManagementServiceComposer.Compose(
             packRepo.Object,
             versionRepo.Object,
             new Mock<IPolicyPackAssignmentRepository>().Object,
             new Mock<IPolicyPackChangeLogRepository>().Object,
             new Mock<IArchLucidUnitOfWorkFactory>().Object,
-            invalidator.Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            invalidator.Object);
 
         await sut.PublishVersionAsync(packId, "1.0.0", "{}", CancellationToken.None);
 
@@ -427,14 +421,13 @@ public sealed class PolicyPackManagementServiceTests
                     It.IsAny<IDbTransaction?>()))
             .Returns(Task.CompletedTask);
 
-        PolicyPackManagementService sut = new(
+        PolicyPackManagementService sut = PolicyPackManagementServiceComposer.Compose(
             new Mock<IPolicyPackRepository>().Object,
             new Mock<IPolicyPackVersionRepository>().Object,
             assignmentRepo.Object,
             changeLog.Object,
             new Mock<IArchLucidUnitOfWorkFactory>().Object,
-            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
 
         Guid packId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         await sut.AssignAsync(
@@ -498,14 +491,13 @@ public sealed class PolicyPackManagementServiceTests
                     It.IsAny<IDbTransaction?>()))
             .Returns(Task.CompletedTask);
 
-        PolicyPackManagementService sut = new(
+        PolicyPackManagementService sut = PolicyPackManagementServiceComposer.Compose(
             new Mock<IPolicyPackRepository>().Object,
             new Mock<IPolicyPackVersionRepository>().Object,
             assignmentRepo.Object,
             changeLog.Object,
             new Mock<IArchLucidUnitOfWorkFactory>().Object,
-            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
 
         bool ok = await sut.TryArchiveAssignmentAsync(tenantId, assignmentId, CancellationToken.None);
 
@@ -536,14 +528,13 @@ public sealed class PolicyPackManagementServiceTests
 
         Mock<IPolicyPackChangeLogRepository> changeLog = new();
 
-        PolicyPackManagementService sut = new(
+        PolicyPackManagementService sut = PolicyPackManagementServiceComposer.Compose(
             new Mock<IPolicyPackRepository>().Object,
             new Mock<IPolicyPackVersionRepository>().Object,
             assignmentRepo.Object,
             changeLog.Object,
             new Mock<IArchLucidUnitOfWorkFactory>().Object,
-            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
 
         bool ok = await sut.TryArchiveAssignmentAsync(tenantId, assignmentId, CancellationToken.None);
 

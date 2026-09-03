@@ -79,6 +79,9 @@ public sealed class FindingAnalysisContextBuilder(
             .FirstOrDefault(pin => string.Equals(pin.Provider, RunEvidencePackagePinService.AzureProvider, StringComparison.OrdinalIgnoreCase))
             ?? evidencePins.FirstOrDefault();
 
+        await EnsurePinnedArchitectureVersionHashUnchangedOrThrowAsync(scope, header, request, knowledgeModel, cancellationToken)
+            .ConfigureAwait(false);
+
         return new FindingAnalysisContext
         {
             RunId = runId,
@@ -176,6 +179,47 @@ public sealed class FindingAnalysisContextBuilder(
         }
 
         return contents;
+    }
+
+    private async Task EnsurePinnedArchitectureVersionHashUnchangedOrThrowAsync(
+        ScopeContext scope,
+        Persistence.Models.RunRecord? header,
+        ArchitectureRequest? request,
+        ArchitectureKnowledgeModel? knowledgeModel,
+        CancellationToken cancellationToken)
+    {
+        if (header?.PinnedArchitectureVersionContentHashSha256 is not { Length: > 0 } pinnedHash)
+            return;
+
+        if (header.ArchitectureVersionId is not Guid versionId || versionId == Guid.Empty)
+        {
+            throw new ConflictException(
+                "Finding analysis blocked: run has a pinned architecture version content hash but no ArchitectureVersionId.");
+        }
+
+        ArchitectureVersionRecord? version = await _architectureVersionRepository
+            .GetByIdAsync(scope, versionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (version is null)
+        {
+            throw new ConflictException(
+                "Finding analysis blocked: pinned ArchitectureVersionId was not found.");
+        }
+
+        if (!version.ContentHashSha256.AsSpan().SequenceEqual(pinnedHash))
+        {
+            throw new ConflictException(
+                "Finding analysis blocked: architecture version content hash (κ) drifted since run create.");
+        }
+
+        if (request is null)
+            return;
+
+        ArchitectureVersionContentFingerprintVerifier.EnsurePinnedVersionMatchesRequestOrThrow(
+            version,
+            request,
+            knowledgeModel);
     }
 
     private async Task<PriorReviewSnapshots?> TryResolvePriorAsync(
