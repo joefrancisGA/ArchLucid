@@ -1020,6 +1020,68 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RenewRiskException_returns_conflict_when_waiver_is_revoked()
+    {
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        RiskExceptionRecord revokedRecord = new()
+        {
+            RiskExceptionId = exceptionId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            FindingId = "finding-1",
+            OwnerUserId = "owner",
+            Rationale = "rationale",
+            Status = RiskExceptionStatus.Revoked,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+            CreatedByUserId = "creator",
+        };
+
+        Mock<IRiskExceptionRepository> repository = new();
+        repository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(revokedRecord);
+
+        RiskExceptionService riskExceptionService = new(
+            repository.Object,
+            Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(s => s.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(revokedRecord);
+        riskExceptions
+            .Setup(s => s.RenewAsync(
+                Scope.TenantId,
+                exceptionId,
+                It.IsAny<RenewRiskExceptionRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((
+                Guid tenantId,
+                Guid riskExceptionId,
+                RenewRiskExceptionRequest request,
+                string renewedByUserId,
+                CancellationToken cancellationToken) =>
+                riskExceptionService.RenewAsync(tenantId, riskExceptionId, request, renewedByUserId, cancellationToken));
+
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.RenewRiskException(exceptionId, request, CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
     public async Task RenewRiskException_returns_bad_request_when_evidence_ref_exceeds_max_length()
     {
         Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");

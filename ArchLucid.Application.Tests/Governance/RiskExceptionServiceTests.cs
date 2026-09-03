@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -69,5 +70,59 @@ public sealed class RiskExceptionServiceTests
         Func<Task> act = () => sut.CreateAsync(request, Scope, "reviewer@test", CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>().WithMessage("*Remediated*");
+    }
+
+    [Fact]
+    public async Task RenewAsync_throws_conflict_when_risk_exception_status_is_revoked()
+    {
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Mock<IRiskExceptionRepository> repository = new();
+        repository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RiskExceptionRecord
+            {
+                RiskExceptionId = exceptionId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "rationale",
+                Status = RiskExceptionStatus.Revoked,
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+                CreatedByUserId = "creator",
+            });
+
+        RiskExceptionService sut = new(
+            repository.Object,
+            Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<ILogger<RiskExceptionService>>());
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        Func<Task> act = () => sut.RenewAsync(
+            Scope.TenantId,
+            exceptionId,
+            request,
+            "reviewer@test",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>().WithMessage("*Revoked*");
+
+        repository.Verify(
+            r => r.RenewAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

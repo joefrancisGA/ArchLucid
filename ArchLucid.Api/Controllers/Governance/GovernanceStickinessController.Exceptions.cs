@@ -163,6 +163,10 @@ public sealed partial class GovernanceStickinessController
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);

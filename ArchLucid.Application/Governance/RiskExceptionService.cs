@@ -181,6 +181,11 @@ public sealed class RiskExceptionService(
         if (existing is null)
             throw new InvalidOperationException("Risk exception was not found.");
 
+        if (existing.Status == RiskExceptionStatus.Revoked)
+        {
+            throw new ConflictException("Revoked risk exceptions cannot be renewed.");
+        }
+
         await RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync(
             _findingReviewTrailRepository,
             tenantId,
