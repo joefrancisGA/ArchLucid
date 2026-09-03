@@ -27,6 +27,7 @@ export function AppShellMainAffordances() {
   const isSettingsHubPath = pathname === "/administration";
   const isItsmOAuthCallbackPath = pathname === "/integrations/itsm/oauth/callback";
   const isDigestsHubPath = pathname === "/architecture/digests";
+  const isReviewsHubPath = pathname === "/architecture/reviews";
   const isFirstReviewGuidePath = pathname === "/architecture/first-review-guide";
   const isAdvisoryScansHubPath =
     pathname === "/governance/advisory-scans" || pathname.startsWith("/governance/advisory-scans/");
@@ -39,6 +40,7 @@ export function AppShellMainAffordances() {
     isSettingsHubPath ||
     isItsmOAuthCallbackPath ||
     isDigestsHubPath ||
+    isReviewsHubPath ||
     isFirstReviewGuidePath ||
     isAdvisoryScansHubPath ||
     isRecurrenceSchedulesPath;
