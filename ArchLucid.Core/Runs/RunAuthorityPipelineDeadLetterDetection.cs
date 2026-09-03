@@ -99,10 +99,28 @@ public static class RunAuthorityPipelineDeadLetterDetection
             return true;
         }
 
-        if (element.ValueKind == JsonValueKind.String
-            && RunExplanationAggregateJsonReader.TryParseWholeNumberString(element.GetString(), out schemaVersion))
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
+            schemaVersion = element.ValueKind == JsonValueKind.True ? SupportedSchemaVersion : 0;
+
             return schemaVersion == SupportedSchemaVersion;
+        }
+
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            string? raw = element.GetString();
+
+            if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanSchema))
+            {
+                schemaVersion = booleanSchema ? SupportedSchemaVersion : 0;
+
+                return schemaVersion == SupportedSchemaVersion;
+            }
+
+            if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion))
+            {
+                return schemaVersion == SupportedSchemaVersion;
+            }
         }
 
         if (element.ValueKind == JsonValueKind.Number
