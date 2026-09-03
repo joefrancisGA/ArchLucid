@@ -7,6 +7,7 @@ using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.GoldenCorpus;
 using ArchLucid.Persistence.Models;
@@ -111,7 +112,30 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             GoldenManifestCreateTimePinCommitment? createTimePins =
                 RunHeaderCreateTimePinCommitmentFactory.TryFromRunHeader(header);
 
-            string actualSha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest!, createTimePins);
+            IReadOnlyList<CommittedArtifactInventoryFingerprintRow>? inventoryRows = null;
+
+            if (commitDoc.RootElement.TryGetProperty("committedArtifactInventory", out JsonElement inventoryElement)
+                && inventoryElement.ValueKind == JsonValueKind.Array)
+            {
+                List<Core.Manifest.Sections.CommittedArtifactInventoryEntry> entries = [];
+
+                foreach (JsonElement rowElement in inventoryElement.EnumerateArray())
+                {
+                    entries.Add(
+                        new Core.Manifest.Sections.CommittedArtifactInventoryEntry
+                        {
+                            ArtifactName = rowElement.GetProperty("artifactName").GetString() ?? string.Empty,
+                            ContentType = rowElement.GetProperty("contentType").GetString() ?? string.Empty,
+                            ContentHashSha256 = rowElement.GetProperty("contentHashSha256").GetString() ?? string.Empty,
+                            Producer = rowElement.GetProperty("producer").GetString() ?? string.Empty,
+                            CapturedUtc = rowElement.GetProperty("capturedUtc").GetDateTime(),
+                        });
+                }
+
+                inventoryRows = CommittedArtifactInventoryFingerprintProjector.FromEntries(entries);
+            }
+
+            string actualSha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest!, createTimePins, inventoryRows);
             string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
 

@@ -1,10 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
 import type { ProvenanceViewMode } from "@/components/provenance/ProvenanceViewModeSwitcher";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import {
+  parseProvenanceCategoryFromSearch,
+  parseProvenanceViewModeFromSearch,
+  parseProvenanceTableSearchQueryFromSearch,
+  parseProvenanceTableNodeTypeFromSearch,
+  provenanceCategoryHrefFromSearch,
+  provenanceViewModeHrefFromSearch,
+  provenanceTableSearchHrefFromSearch,
+  provenanceTableNodeTypeHrefFromSearch,
+} from "@/lib/provenance/provenance-workspace-filters-url";
 import {
   PROVENANCE_SECTION_GRAPH_LABEL,
   PROVENANCE_SECTION_LINKAGE_POINTS_LABEL,
@@ -48,6 +59,13 @@ function flashNodeRow(nodeId: string): void {
 
 export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) {
   const { runId, provenanceTraceId, reviewContext, dataOrigin = "live" } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? reviewDetailPath(runId);
+  const searchParams = useSearchParams();
+  const urlViewMode = parseProvenanceViewModeFromSearch(searchParams.get("view"));
+  const urlCategory = parseProvenanceCategoryFromSearch(searchParams.get("category"));
+  const urlNodeSearch = parseProvenanceTableSearchQueryFromSearch(searchParams.get("q"));
+  const urlNodeTypeFilter = parseProvenanceTableNodeTypeFromSearch(searchParams.get("nodeType"));
   // OpenAPI may omit optional arrays; normalize before .length / .map so SSR/demo payloads cannot crash.
   const graph: ArchitectureRunProvenanceGraph = {
     ...props.graph,
@@ -56,17 +74,59 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
     timeline: props.graph.timeline ?? [],
     traceabilityGaps: props.graph.traceabilityGaps ?? [],
   };
-  const [viewMode, setViewMode] = useState<ProvenanceViewMode>("graph");
+  const [viewMode, setViewModeState] = useState<ProvenanceViewMode>(urlViewMode);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [highlightedEdgeId, setHighlightedEdgeId] = useState<string | null>(null);
-  const [activeFilters, setActiveFilters] = useState<Set<ProvenanceNodeFilterCategory>>(new Set());
+  const [activeFilters, setActiveFilters] = useState<Set<ProvenanceNodeFilterCategory>>(
+    () => (urlCategory === null ? new Set() : new Set([urlCategory])),
+  );
   const [layoutSeed, setLayoutSeed] = useState(0);
   const [edgesExpanded, setEdgesExpanded] = useState(() => graph.edges.length < SEARCH_THRESHOLD);
-  const [nodeSearch, setNodeSearch] = useState("");
-  const [nodeTypeFilter, setNodeTypeFilter] = useState("");
+  const [nodeSearch, setNodeSearch] = useState(urlNodeSearch);
+  const [nodeTypeFilter, setNodeTypeFilter] = useState(urlNodeTypeFilter);
   const [edgeSearch, setEdgeSearch] = useState("");
 
   const nodeById = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node])), [graph.nodes]);
+
+  useEffect(() => {
+    setViewModeState(urlViewMode);
+  }, [urlViewMode]);
+
+  useEffect(() => {
+    setActiveFilters(urlCategory === null ? new Set() : new Set([urlCategory]));
+  }, [urlCategory]);
+
+  useEffect(() => {
+    setNodeSearch(urlNodeSearch);
+  }, [urlNodeSearch]);
+
+  useEffect(() => {
+    setNodeTypeFilter(urlNodeTypeFilter);
+  }, [urlNodeTypeFilter]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = provenanceTableSearchHrefFromSearch(searchParams.toString(), nodeSearch, pathname);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [nodeSearch, pathname, router, searchParams]);
+
+  const setNodeTypeFilterWithUrl = useCallback((value: string): void => {
+    setNodeTypeFilter(value);
+    router.replace(provenanceTableNodeTypeHrefFromSearch(searchParams.toString(), value, pathname), { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const setViewMode = useCallback((mode: ProvenanceViewMode): void => {
+    setViewModeState(mode);
+    router.replace(provenanceViewModeHrefFromSearch(searchParams.toString(), mode, pathname), { scroll: false });
+  }, [pathname, router, searchParams]);
 
   const sections = useMemo((): ProvenanceSection[] => {
     const next: ProvenanceSection[] = [];
@@ -192,19 +252,12 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
       return;
     }
 
-    setActiveFilters((current) => {
-      const next = new Set(current);
+    const nextCategory = activeFilters.has(filter) ? null : filter;
 
-      if (next.has(filter)) {
-        next.delete(filter);
-      } else {
-        next.add(filter);
-      }
-
-      return next;
-    });
+    setActiveFilters(nextCategory === null ? new Set() : new Set([nextCategory]));
     setLayoutSeed((value) => value + 1);
-  }, [filterCounts]);
+    router.replace(provenanceCategoryHrefFromSearch(searchParams.toString(), nextCategory, pathname), { scroll: false });
+  }, [activeFilters, filterCounts, pathname, router, searchParams]);
 
   const graphVisibleNodeCount = useMemo(() => {
     return graph.nodes.filter((node) => provenanceNodeMatchesFilter(node, activeFilters)).length;
@@ -212,11 +265,11 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
 
   const onGraphRenderFailed = useCallback(() => {
     setViewMode("table");
-  }, []);
+  }, [setViewMode]);
 
   const openTablesView = useCallback(() => {
     setViewMode("table");
-  }, []);
+  }, [setViewMode]);
 
   const retryGraphLayout = useCallback(() => {
     setLayoutSeed((value) => value + 1);
@@ -256,6 +309,8 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
     graph,
     viewMode,
     setViewMode,
+    pathname,
+    currentSearch: searchParams.toString(),
     selectedNodeId,
     highlightedEdgeId,
     setHighlightedEdgeId,
@@ -266,7 +321,7 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
     nodeSearch,
     setNodeSearch,
     nodeTypeFilter,
-    setNodeTypeFilter,
+    setNodeTypeFilter: setNodeTypeFilterWithUrl,
     edgeSearch,
     setEdgeSearch,
     nodeById,

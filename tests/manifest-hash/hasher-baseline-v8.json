@@ -1,0 +1,6 @@
+{
+  "hasherSchemaVersion": "v8",
+  "fixtureName": "BaseManifest",
+  "description": "Pinned SHA-256 for ManifestHashService over the BaseManifest fixture in ManifestHashServiceTests (wave-13 committed artifact inventory binding; GeneratedUtc excluded from review snapshot hash).",
+  "expectedManifestHashSha256": "AC4AC658E29E8D4497B66FC7AC04AB8C3B579D7BF75C86186B0EAE65B67E0E97"
+}

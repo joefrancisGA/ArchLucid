@@ -16,6 +16,9 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
         ApplyRunSummaryResponse(document);
         ApplyRunRecord(document);
         ApplyManifestSummaryResponse(document);
+        ApplyComparisonResult(document);
+        ApplyCompareInputFingerprints(document);
+        ApplyDecisionReceiptDocument(document);
         ApplyArchitectureRequest(document);
         ApplyContextDocumentRequest(document);
         ApplyProductFeedbackRequest(document);
@@ -113,6 +116,90 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
             "decisionCount",
             "warningCount",
             "unresolvedIssueCount");
+
+        if (schema.Properties is not null)
+        {
+            SetPinHashDescriptionIfPresent(
+                schema.Properties,
+                "manifestHash",
+                "Read-only SHA-256 over canonical committed manifest hash (Hasher A).");
+        }
+    }
+
+    private static void ApplyComparisonResult(OpenApiDocument document)
+    {
+        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, "ComparisonResult", out OpenApiSchema schema))
+            return;
+
+        schema.Properties ??= new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal);
+        OpenApiSchemaContractMutator.AddStringIfMissing(schema.Properties, "inputFingerprints");
+
+        if (schema.Properties.TryGetValue("inputFingerprints", out IOpenApiSchema? fingerprintsSchema)
+            && fingerprintsSchema is OpenApiSchema mutableFingerprints)
+        {
+            OpenApiSchemaContractMutator.SetDescriptionIfMissing(
+                mutableFingerprints,
+                "Wave-13/14/15: create-time pin, manifest hash, and committed artifact inventory fingerprints for both compare inputs.");
+            mutableFingerprints.Type = JsonSchemaType.Object;
+            mutableFingerprints.Properties ??= new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal);
+            OpenApiSchemaContractMutator.AddStringIfMissing(mutableFingerprints.Properties, "comparisonAlgorithmVersion");
+            OpenApiSchemaContractMutator.AddStringIfMissing(mutableFingerprints.Properties, "baseManifestHashSha256");
+            OpenApiSchemaContractMutator.AddStringIfMissing(mutableFingerprints.Properties, "targetManifestHashSha256");
+            OpenApiSchemaContractMutator.AddStringIfMissing(
+                mutableFingerprints.Properties,
+                "baseCommittedArtifactInventoryHashSha256");
+            OpenApiSchemaContractMutator.AddStringIfMissing(
+                mutableFingerprints.Properties,
+                "targetCommittedArtifactInventoryHashSha256");
+        }
+    }
+
+    private static void ApplyCompareInputFingerprints(OpenApiDocument document)
+    {
+        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, "CompareInputFingerprints", out OpenApiSchema schema))
+            return;
+
+        schema.Properties ??= new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal);
+        OpenApiSchemaContractMutator.AddStringIfMissing(schema.Properties, "baseCommittedArtifactInventoryHashSha256");
+        OpenApiSchemaContractMutator.AddStringIfMissing(schema.Properties, "targetCommittedArtifactInventoryHashSha256");
+        OpenApiSchemaContractMutator.SetDescriptionIfMissing(
+            schema,
+            "Wave-15 suggestion 145: compare input fingerprints including committed artifact inventory rows.");
+    }
+
+    private static void ApplyDecisionReceiptDocument(OpenApiDocument document)
+    {
+        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, "DecisionReceiptDocument", out OpenApiSchema schema))
+            return;
+
+        schema.Properties ??= new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal);
+
+        SetPinHashDescriptionIfPresent(
+            schema.Properties,
+            "manifestHashSha256",
+            "Wave-13/14: SHA-256 over canonical committed manifest hash bound into the receipt.");
+
+        SetPinHashDescriptionIfPresent(
+            schema.Properties,
+            "manifestVersion",
+            "Committed golden manifest contract version bound into the receipt.");
+
+        SetPinHashDescriptionIfMissing(
+            schema.Properties,
+            "receiptHashSha256",
+            "Wave-15 suggestion 150: canonical SHA-256 over exportable receipt fields.");
+    }
+
+    private static void SetPinHashDescriptionIfMissing(
+        IDictionary<string, IOpenApiSchema> properties,
+        string jsonName,
+        string description)
+    {
+        if (properties.TryGetValue(jsonName, out IOpenApiSchema? propertySchema)
+            && propertySchema is OpenApiSchema mutableProperty)
+        {
+            OpenApiSchemaContractMutator.SetDescriptionIfMissing(mutableProperty, description);
+        }
     }
 
     private static void ApplyArchitectureRequest(OpenApiDocument document)

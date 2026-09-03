@@ -1,0 +1,142 @@
+using System.Text.Json;
+
+using ArchLucid.Api.Contracts;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Exports;
+using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Queries;
+
+using Microsoft.AspNetCore.Mvc;
+
+namespace ArchLucid.Api.Controllers.Authority;
+
+public sealed partial class ArtifactExportController
+{
+    /// <summary>Downloads the ADR 0052 decision receipt JSON for a committed infeasible run.</summary>
+    [HttpGet("reviews/{runId:guid}/decision-receipt")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DownloadRunDecisionReceipt(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        DecisionReceiptDocument? receipt =
+            await decisionReceiptService.BuildForRunAsync(scope, runId, ct);
+
+        if (receipt is null)
+            return this.NotFoundProblem(
+                $"Decision receipt for run '{runId}' was not found or is not exportable.",
+                ProblemTypes.ManifestNotFound);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.DecisionReceiptExported,
+                RunId = runId,
+            },
+            ct);
+
+        string json = JsonSerializer.Serialize(receipt, new JsonSerializerOptions { WriteIndented = true });
+        byte[] body = System.Text.Encoding.UTF8.GetBytes(json);
+
+        return File(body, "application/json", DecisionReceiptComposer.BuildFilename(receipt.DraftId, receipt.RunId));
+    }
+
+    /// <summary>
+    ///     ZIP export of run manifest, trace, and artifacts when the run is committed; artifacts ordered like the
+    ///     manifest bundle list.
+    /// </summary>
+    [HttpGet("reviews/{runId:guid}/export")]
+    [HttpGet("runs/{runId:guid}/export")]
+    [Produces("application/zip")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DownloadRunExport(
+        Guid runId,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        byte[]? renderedPng = null;
+
+        if (configuration.GetValue("ArchLucid:MermaidCli:Enabled", false))
+        {
+            RunDetailDto? runDetailForDiagram = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
+            if (runDetailForDiagram?.GoldenManifest is not null)
+            {
+                IReadOnlyList<SynthesizedArtifact> artifactsForDiagram =
+                    await artifactQueryService.GetArtifactsByManifestIdAsync(
+                        scope,
+                        runDetailForDiagram.GoldenManifest.ManifestId,
+                        ct);
+
+                string? mermaid = MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifactsForDiagram);
+
+                if (!string.IsNullOrWhiteSpace(mermaid))
+                    renderedPng = await diagramImageRenderer.RenderMermaidPngAsync(mermaid, ct);
+            }
+        }
+
+        RunExportPackageResult packageResult =
+            await runExportPackageBuilder.BuildAsync(scope, runId, renderedPng, ct);
+
+        if (!packageResult.Found)
+            return this.NotFoundProblem(packageResult.NotFoundReason!, packageResult.ProblemType);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.RunExported,
+                RunId = runId,
+                ManifestId = packageResult.ManifestId
+            },
+            ct);
+
+        return File(packageResult.ZipContent!, packageResult.ContentType!, packageResult.PackageFileName!);
+    }
+
+    /// <summary>
+    ///     Advisory Terraform ZIP for a run (placeholder README + stub file; CLI aztfexport wrapping is documented in README).
+    /// </summary>
+    [HttpGet("reviews/{runId:guid}/terraform-advisory-export")]
+    [HttpGet("runs/{runId:guid}/terraform-advisory-export")]
+    [Produces("application/zip")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DownloadTerraformAdvisoryExport(
+        Guid runId,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (runDetail.GoldenManifest is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' has no committed golden manifest available for export.",
+                ProblemTypes.ManifestNotFound);
+
+        ArtifactPackage package = artifactPackagingService.BuildTerraformAdvisoryPlaceholderExport(runId);
+
+        await auditService.LogAsync(
+            new AuditEvent { EventType = AuditEventTypes.TerraformAdvisoryExportDownloaded, RunId = runId },
+            ct);
+
+        return File(package.Content, package.ContentType, package.PackageFileName);
+    }
+}

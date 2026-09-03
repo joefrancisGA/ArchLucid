@@ -102,6 +102,23 @@ export function SystemHealthPageView(props: Props) {
         }}
       />
 
+      {m.statusTransitions.length > 0 ? (
+        <div
+          className="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950/40"
+          data-testid="system-health-status-transitions"
+          role="status"
+        >
+          <p className={cn("m-0 mb-2 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+            Status changes since you opened this page
+          </p>
+          <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
+            {m.statusTransitions.map((transition) => (
+              <li key={`${transition.at.toISOString()}-${transition.message}`}>{transition.message}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="system-health" />
       {isArchLucidInternalOperatorShellEnv() ? (
         <ConfigurationSystemHealthVocabularyRail currentSurfaceId="system-health" />
