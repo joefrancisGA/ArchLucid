@@ -1,7 +1,6 @@
 "use client";
 
 import { FilterChip } from "@/components/ui/filter-chip";
-import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -12,7 +11,6 @@ import { isOperatorAttentionKindDestinationActive } from "@/lib/operator/operato
 import {
   OPERATOR_ATTENTION_KIND_IDS,
   OPERATOR_ATTENTION_KIND_LABELS,
-  operatorAttentionKindEmptyReason,
   type OperatorAttentionKindId,
 } from "@/lib/operator/operator-attention-taxonomy";
 import { cn } from "@/lib/utils";
@@ -47,8 +45,7 @@ export function OperatorAttentionKindStrip(
           {OPERATOR_ATTENTION_KIND_STRIP_HELPER}
         </p>
       ) : null}
-      <FilterChipGroup
-        aria-label="Attention kinds"
+      <ul
         className="m-0 flex list-none flex-wrap gap-1.5 p-0"
         data-testid="operator-attention-kind-chips"
       >
@@ -61,18 +58,14 @@ export function OperatorAttentionKindStrip(
             searchParams,
             destination.href,
           );
-          const disabled = count === 0;
-          const disabledReasonId = `operator-attention-kind-${kind}-disabled-reason`;
 
           return (
-            <span key={kind} className="inline-flex">
+            <li key={kind}>
               <FilterChip
-                href={disabled ? undefined : destination.href}
-                className={cn("gap-1", buyerFilterChipClass(selected, disabled, count === 0))}
+                href={destination.href}
+                className={cn("gap-1", buyerFilterChipClass(selected, false, count === 0))}
                 aria-current={selected ? "page" : undefined}
                 aria-label={`${label}: ${count} items`}
-                aria-describedby={disabled ? disabledReasonId : undefined}
-                disabled={disabled}
                 data-testid={`operator-attention-kind-chip-${kind}`}
               >
                 <span>{label}</span>
@@ -86,15 +79,10 @@ export function OperatorAttentionKindStrip(
                   ({count})
                 </span>
               </FilterChip>
-              {disabled ? (
-                <span id={disabledReasonId} className="sr-only">
-                  {operatorAttentionKindEmptyReason(kind)}
-                </span>
-              ) : null}
-            </span>
+            </li>
           );
         })}
-      </FilterChipGroup>
+      </ul>
     </div>
   );
 }

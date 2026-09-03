@@ -28,7 +28,7 @@ describe("architecture-scorecard Insights regressions (TB-1960)", () => {
 
     expect(topic?.slug).toBe("architecture-scorecard");
     expect(topic?.hashFragment).toBeUndefined();
-    expect(topic?.label).toBe("Architecture scorecard");
+    expect(topic?.label).toBe("How architecture scorecards work");
   });
 
   it("empty primary CTA uses buyer Start architecture review label (TB-1958)", () => {

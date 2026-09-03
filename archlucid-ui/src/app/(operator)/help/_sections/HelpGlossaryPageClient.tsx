@@ -74,10 +74,10 @@ function GlossaryTermEntry(props: GlossaryTermEntryProps): React.ReactElement {
         </p>
       ) : null}
       {props.term.detail !== undefined ? (
-        <div className="mt-3 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800">
-          <h4 className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>More detail</h4>
+        <details className="mt-3 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800">
+          <summary className="cursor-pointer font-medium">More detail</summary>
           <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{props.term.detail}</p>
-        </div>
+        </details>
       ) : null}
       {props.term.relatedTermIds !== undefined && props.term.relatedTermIds.length > 0 ? (
         <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

@@ -56,19 +56,15 @@ export function DigestsBrowseHistoryList({
         </EnterpriseTableHead>
         <EnterpriseTableBody>
           {digests.map((digest) => {
-            const digestId = digest.digestId;
-            if (!digestId) {
-              return null;
-            }
-            const attempts = rowAttempts[digestId] ?? [];
+            const attempts = rowAttempts[digest.digestId] ?? [];
             const status = resolveDigestDeliveryStatus(attempts);
             const coverage: DigestPeriodCoverage = resolveDigestPeriodCoverage(digest);
-            const selectedRow = selectedDigestId === digestId;
+            const selectedRow = selectedDigestId === digest.digestId;
 
             return (
               <EnterpriseTableRow
-                key={digestId}
-                id={digestRowElementId(digestId)}
+                key={digest.digestId}
+                id={digestRowElementId(digest.digestId)}
                 selected={selectedRow}
               >
                 <EnterpriseTableCell>
@@ -78,7 +74,7 @@ export function DigestsBrowseHistoryList({
                       "cursor-pointer text-left text-al-link underline-offset-2 hover:underline",
                       OPERATOR_TYPOGRAPHY.body,
                     )}
-                    onClick={() => onSelectDigest(digestId)}
+                    onClick={() => onSelectDigest(digest.digestId)}
                   >
                     {digest.title}
                   </button>
@@ -107,7 +103,7 @@ export function DigestsBrowseHistoryList({
                     type="button"
                     size="sm"
                     variant="outline"
-                    onClick={() => onSelectDigest(digestId)}
+                    onClick={() => onSelectDigest(digest.digestId)}
                   >
                     Open
                   </Button>

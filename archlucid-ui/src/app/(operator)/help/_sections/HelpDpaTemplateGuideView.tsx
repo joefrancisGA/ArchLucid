@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { DpaTemplateHelpClaimDisciplineStrip } from "@/components/help/DpaTemplateHelpClaimDisciplineStrip";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -177,16 +177,18 @@ export function HelpDpaTemplateGuideView(props: HelpDpaTemplateGuideViewProps): 
           </ul>
         </section>
 
-        <HelpStaticSection
-          title="Show full DPA template (clauses and placeholders)"
-          testId="help-dpa-template-full-disclosure"
+        <HelpLazyDetails
           className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
+          data-testid="help-dpa-template-full-disclosure"
+          summaryClassName={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+          summary="Show full DPA template (clauses and placeholders)"
           preface={
             <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {DPA_TEMPLATE_HELP_FULL_DISCLOSURE_CAVEAT}
             </p>
           }
           bodyClassName={cn(HELP_PAGE_LAYOUT.contentColumn, "mt-4")}
+          bodyTestId="help-dpa-template-content"
         >
           <MarketingAccessibilityMarkdownFragment
             markdownBody={markdown}
@@ -195,7 +197,7 @@ export function HelpDpaTemplateGuideView(props: HelpDpaTemplateGuideViewProps): 
             sourceDocPath={sourceDocPath}
             helpTopicSlug={entry.slug}
           />
-        </HelpStaticSection>
+        </HelpLazyDetails>
       </div>
     </article>
   );

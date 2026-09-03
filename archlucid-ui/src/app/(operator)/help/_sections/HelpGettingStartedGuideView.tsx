@@ -7,7 +7,7 @@ import { GettingStartedHelpClaimDisciplineStrip } from "@/components/help/Gettin
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { Button } from "@/components/ui/button";
@@ -290,12 +290,13 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             </ol>
           </section>
 
-          <HelpStaticSection
+          <HelpLazyDetails
             id="technical-details"
-            title={GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE}
-            testId="getting-started-technical-details"
-            className={OPERATOR_SHELL_SCROLL_OFFSET_CLASS}
-            bodyClassName="space-y-4"
+            className={cn(HELP_PAGE_LAYOUT.details, OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
+            data-testid="getting-started-technical-details"
+            summaryClassName={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}
+            summary={GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE}
+            bodyClassName={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}
           >
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY}</p>
             <PlainLanguageTable terms={GETTING_STARTED_HELP_TECHNICAL_TERMS} testId="getting-started-technical-terms-table" />
@@ -312,7 +313,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
                 Troubleshooting
               </Link>
             </p>
-          </HelpStaticSection>
+          </HelpLazyDetails>
         </div>
 
         {showSectionNav ? <HelpTopicTableOfContents headings={GETTING_STARTED_HELP_GUIDE_HEADINGS} /> : null}

@@ -36,7 +36,7 @@ export function OperatorHomeGovernanceWarningsMetricLink(
         warningsFilterActive ? "font-semibold text-al-text-primary" : undefined,
         props.className,
       )}
-      aria-current={warningsFilterActive ? "page" : undefined}
+      aria-current={warningsFilterActive ? "true" : undefined}
       data-testid="operator-home-governance-warnings-metric"
       data-active={warningsFilterActive ? "true" : "false"}
     >

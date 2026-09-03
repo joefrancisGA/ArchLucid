@@ -9,11 +9,11 @@ import { TimeZonePreferencePanel } from "@/components/preferences/TimeZonePrefer
 import { WhereToGoNextPreferencePanel } from "@/components/preferences/WhereToGoNextPreferencePanel";
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { PreferencesSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 import { PREFERENCES_CLOUD_PLATFORMS_HEADING } from "@/lib/cloud-platform-scope-copy";
 import { PREFERENCES_TIME_ZONE_HEADING } from "@/lib/iana-time-zone-preference-copy";
-import { PREFERENCES_DISPLAY_ON_OPERATOR_PAGES_HEADING } from "@/lib/preferences-display-on-operator-pages-copy";
 import {
   PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID,
   PREFERENCES_WHERE_TO_GO_NEXT_HEADING,
@@ -23,13 +23,7 @@ import {
   PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING,
 } from "@/lib/sample-reviews-on-overview-preference-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import {
-  PREFERENCES_SETTINGS_FIRST_VIEWPORT_ID,
-  PREFERENCES_SETTINGS_PRIMARY_CONTENT_ID,
-  PREFERENCES_SETTINGS_SKIP_LINK_LABEL,
-  PREFERENCES_SETTINGS_SKIP_TARGET_ID,
-} from "@/lib/preferences-page-copy";
+import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
 import {
   resolvePreferencesSaveEmphasizedStepId,
   resolvePreferencesSaveSteps,
@@ -96,32 +90,14 @@ export function PreferencesSettingsPageView() {
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="preferences-settings-page">
-      <a
-        href={`#${PREFERENCES_SETTINGS_SKIP_TARGET_ID}`}
-        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-      >
-        {PREFERENCES_SETTINGS_SKIP_LINK_LABEL}
-      </a>
-
       <OperatorPageHeader
         navHref={ACCOUNT_PREFERENCES_PATH}
         title="Preferences"
         titleTestId="preferences-settings-page-title"
+        actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
       />
-
-      <div
-        id={PREFERENCES_SETTINGS_PRIMARY_CONTENT_ID}
-        data-testid={PREFERENCES_SETTINGS_PRIMARY_CONTENT_ID}
-        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
-      >
-        <div
-          id={PREFERENCES_SETTINGS_FIRST_VIEWPORT_ID}
-          data-testid={PREFERENCES_SETTINGS_FIRST_VIEWPORT_ID}
-          className={OPERATOR_LAYOUT.sectionStack}
-        >
       <PreferencesSaveChecklist
-        title="Your preferences"
-        description="Changes save to your account automatically."
+        title="Save preferences checklist"
         steps={preferencesSaveSteps}
         emphasizedStepId={preferencesSaveEmphasizedStepId}
         testIdPrefix="preferences-save"
@@ -180,59 +156,56 @@ export function PreferencesSettingsPageView() {
           )}
         </CardContent>
       </Card>
-      <Card data-testid="preferences-display-on-operator-pages-card">
+      <Card
+        id={PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID}
+        data-testid="preferences-sample-reviews-on-overview-card"
+      >
         <CardHeader>
-          <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            {PREFERENCES_DISPLAY_ON_OPERATOR_PAGES_HEADING}
+          <CardTitle
+            id="preferences-sample-reviews-on-overview-heading"
+            as="h2"
+            className={OPERATOR_TYPOGRAPHY.cardTitle}
+          >
+            {PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div id={PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID} data-testid="preferences-sample-reviews-on-overview-card">
-            <h3
-              id="preferences-sample-reviews-on-overview-heading"
-              className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
-            >
-              {PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING}
-            </h3>
-            <div className="mt-3">
-              {sampleReviewsOnOverviewMounted ? (
-                <SampleReviewsOnOverviewPreferencePanel
-                  enabled={sampleReviewsOnOverviewEnabled}
-                  onEnabledChange={setSampleReviewsOnOverviewAndPersist}
-                  accountSyncState={sampleReviewsOnOverviewAccountSyncState}
-                  labelledById="preferences-sample-reviews-on-overview-heading"
-                />
-              ) : (
-                <div
-                  aria-hidden="true"
-                  className="h-16 w-full"
-                  data-testid="sample-reviews-on-overview-preference-loading"
-                />
-              )}
-            </div>
-          </div>
-          <div id={PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID} data-testid="preferences-follow-up-link-strips-card">
-            <h3 id="preferences-follow-up-strips-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
-            </h3>
-            <div className="mt-3">
-              {whereToGoNextMounted ? (
-                <WhereToGoNextPreferencePanel
-                  enabled={whereToGoNextEnabled}
-                  onEnabledChange={setWhereToGoNextAndPersist}
-                  accountSyncState={whereToGoNextAccountSyncState}
-                  labelledById="preferences-follow-up-strips-heading"
-                />
-              ) : (
-                <div aria-hidden="true" className="h-16 w-full" data-testid="where-to-go-next-preference-loading" />
-              )}
-            </div>
-          </div>
+        <CardContent>
+          {sampleReviewsOnOverviewMounted ? (
+            <SampleReviewsOnOverviewPreferencePanel
+              enabled={sampleReviewsOnOverviewEnabled}
+              onEnabledChange={setSampleReviewsOnOverviewAndPersist}
+              accountSyncState={sampleReviewsOnOverviewAccountSyncState}
+              labelledById="preferences-sample-reviews-on-overview-heading"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="h-16 w-full"
+              data-testid="sample-reviews-on-overview-preference-loading"
+            />
+          )}
         </CardContent>
       </Card>
-        </div>
+      <Card id={PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID} data-testid="preferences-follow-up-link-strips-card">
+        <CardHeader>
+          <CardTitle id="preferences-follow-up-strips-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {whereToGoNextMounted ? (
+            <WhereToGoNextPreferencePanel
+              enabled={whereToGoNextEnabled}
+              onEnabledChange={setWhereToGoNextAndPersist}
+              accountSyncState={whereToGoNextAccountSyncState}
+              labelledById="preferences-follow-up-strips-heading"
+            />
+          ) : (
+            <div aria-hidden="true" className="h-16 w-full" data-testid="where-to-go-next-preference-loading" />
+          )}
+        </CardContent>
+      </Card>
       <PreferencesSettingsEvidenceOrientationStrip />
-      </div>
     </OperatorPageContainer>
   );
 }

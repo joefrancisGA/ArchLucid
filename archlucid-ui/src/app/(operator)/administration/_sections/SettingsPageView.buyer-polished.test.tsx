@@ -82,15 +82,13 @@ vi.mock("next/navigation", () => ({
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING } from "@/lib/settings-hub-evidence-copy";
 
 import { SettingsPageView } from "./SettingsPageView";
 import {
-  SETTINGS_MASTER_FIRST_VIEWPORT_ID,
   SETTINGS_MASTER_PAGE_DESCRIPTION_BUYER,
   SETTINGS_MASTER_PAGE_DESCRIPTION_OPERATOR,
+  SETTINGS_MASTER_PRIMARY_CONTENT_ID,
   SETTINGS_MASTER_SKIP_LINK_LABEL,
-  SETTINGS_MASTER_SKIP_TARGET_ID,
 } from "./settings-master-page-copy";
 
 describe("SettingsPageView buyer-polished shell (SET)", () => {
@@ -100,27 +98,26 @@ describe("SettingsPageView buyer-polished shell (SET)", () => {
     internalShell.enabled = false;
   });
 
-  it("renders skip link, catalog before orientation, buyer description, and hides contextual help", () => {
+  it("renders skip link, orientation after search, buyer description, and hides contextual help", () => {
     render(<SettingsPageView />);
 
     expect(screen.getByRole("link", { name: SETTINGS_MASTER_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${SETTINGS_MASTER_SKIP_TARGET_ID}`,
+      `#${SETTINGS_MASTER_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("settings-master-primary-content")).toBeInTheDocument();
     expect(screen.getByText(SETTINGS_MASTER_PAGE_DESCRIPTION_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(SETTINGS_MASTER_PAGE_DESCRIPTION_OPERATOR)).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("settings-master-orientation-top")).toBeNull();
+    expect(screen.getByTestId("settings-master-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("settings-hub-sources")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
 
-    const firstViewport = screen.getByTestId(SETTINGS_MASTER_FIRST_VIEWPORT_ID);
+    const orientation = screen.getByTestId("settings-master-orientation-top");
     const searchField = screen.getByPlaceholderText("Search settings…");
-    const orientationBottom = screen.getByTestId("settings-master-orientation-bottom");
 
-    expect(firstViewport).toContainElement(searchField);
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(
+      searchField.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(
       screen.getByRole("heading", { level: 1, name: OPERATOR_NAV_LINK_LABELS.settings }),
     ).toBeInTheDocument();

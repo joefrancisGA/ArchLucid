@@ -147,18 +147,23 @@ describe("HelpDpaTemplateGuideView", () => {
     const allPrimaryStyled = container.querySelectorAll('[class*="--al-primary-action-bg"]');
     expect(allPrimaryStyled).toHaveLength(1);
 
-    expect(screen.getByTestId("help-dpa-template-full-disclosure")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-dpa-template-content")).toBeNull();
   });
 
-  it("renders the full DPA markdown body without a collapsible wrapper", async () => {
+  it("mounts the full DPA markdown body only after the disclosure opens", async () => {
     if (loaded === null) {
       throw new Error("Expected dpa-template documentation to load.");
     }
 
     render(<HelpDpaTemplateGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
+    expect(screen.queryByTestId("help-dpa-template-content")).toBeNull();
+
     const disclosure = screen.getByTestId("help-dpa-template-full-disclosure");
-    expect(disclosure.tagName.toLowerCase()).toBe("section");
-    expect(screen.getByText("Show full DPA template (clauses and placeholders)")).toBeInTheDocument();
+    expect(disclosure).toBeInstanceOf(HTMLDetailsElement);
+    fireEvent.click(screen.getByText("Show full DPA template (clauses and placeholders)"));
+    await waitFor(() => {
+      expect(screen.getByTestId("help-dpa-template-content")).toBeInTheDocument();
+    });
   });
 });

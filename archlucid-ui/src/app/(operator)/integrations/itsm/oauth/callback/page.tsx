@@ -10,11 +10,9 @@ import { OPERATOR_CARD, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
 import {
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL,
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_TARGET_ID,
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-page-copy";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +24,7 @@ function ItsmOAuthCallbackLoading(): React.ReactElement {
       data-testid="itsm-oauth-callback-page"
     >
       <a
-        href={`#${ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_TARGET_ID}`}
+        href={`#${ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
         {ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL}
@@ -35,27 +33,21 @@ function ItsmOAuthCallbackLoading(): React.ReactElement {
       <div
         id={ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID}
         data-testid="itsm-oauth-callback-primary-content"
-        className={cn("space-y-4", OPERATOR_LAYOUT.sectionStack)}
+        className={cn("scroll-mt-24 space-y-4", OPERATOR_LAYOUT.sectionStack)}
       >
         <OperatorPageHeader
           title={ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE}
           titleTestId="itsm-oauth-callback-page-title"
           navHref={INTEGRATIONS_JIRA_PATH}
           headingLevel="h1"
-          actions={<ItsmAtlassianOAuthCallbackHeaderActions phase="loading" />}
+          actions={<ItsmAtlassianOAuthCallbackHeaderActions />}
         />
 
-        <div
-          id={ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID}
-          data-testid={ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID}
-          className="scroll-mt-24"
-        >
-          <Card className="max-w-[40rem] border-neutral-200/80 bg-al-surface-raised dark:border-neutral-800">
-            <CardContent className={cn(OPERATOR_CARD.body)}>
-              <ItsmAtlassianOAuthCallbackLoadingView />
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="max-w-[40rem] border-neutral-200/80 bg-al-surface-raised dark:border-neutral-800">
+          <CardContent className={cn(OPERATOR_CARD.body)}>
+            <ItsmAtlassianOAuthCallbackLoadingView />
+          </CardContent>
+        </Card>
       </div>
     </OperatorPageContainer>
   );

@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { PageHeading } from "@/components/PageHeading";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
@@ -36,6 +37,7 @@ export function SettingsMasterOverviewHeader(props: SettingsMasterOverviewHeader
       navHref={SETTINGS_ROOT_PATH}
       title={OPERATOR_NAV_LINK_LABELS.settings}
       description={settingsMasterPageDescription(buyerPolishedShell)}
+      actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
       data-testid="settings-master-overview-header"
     >
       <dl className={cn("m-0 flex flex-wrap gap-3", OPERATOR_TYPOGRAPHY.helper)}>

@@ -14,7 +14,6 @@ export type FilterChipProps = {
   readonly "aria-current"?: boolean | "page" | "step" | "location" | "date" | "time";
   readonly "aria-describedby"?: string;
   readonly disabled?: boolean;
-  readonly scroll?: boolean;
   readonly "data-testid"?: string;
 };
 
@@ -25,11 +24,10 @@ export type FilterChipProps = {
 export function FilterChip(props: FilterChipProps): ReactElement {
   const shell = cn(DESIGN_TOKENS.interactive.chip, DESIGN_TOKENS.accent.focusRing, props.className);
 
-  if (props.href !== undefined && props.href.trim().length > 0 && props.disabled !== true) {
+  if (props.href !== undefined && props.href.trim().length > 0) {
     return (
       <Link
         href={props.href}
-        scroll={props.scroll}
         className={shell}
         aria-label={props["aria-label"]}
         aria-current={props["aria-current"]}
@@ -47,7 +45,6 @@ export function FilterChip(props: FilterChipProps): ReactElement {
       onClick={props.onClick}
       aria-label={props["aria-label"]}
       aria-pressed={props["aria-pressed"]}
-      aria-current={props["aria-current"]}
       aria-describedby={props["aria-describedby"]}
       disabled={props.disabled}
       data-testid={props["data-testid"]}

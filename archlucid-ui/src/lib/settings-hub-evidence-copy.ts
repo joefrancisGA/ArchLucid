@@ -12,11 +12,6 @@ import {
 
 export const SETTINGS_HUB_CANONICAL_PATH = SETTINGS_ROOT_PATH;
 
-export const SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING = "Scope of this hub" as const;
-
-export const SETTINGS_HUB_CLAIM_DISCIPLINE =
-  "This page is an administration launcher for workspace, security, billing, and support settings — not a sealed review record, evidence trail, or assurance attestation by itself.";
-
 export const SETTINGS_HUB_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.settingsHub;
 
 export const SETTINGS_HUB_SOURCES_INTRO = hubSecondaryFollowUpsIntro(

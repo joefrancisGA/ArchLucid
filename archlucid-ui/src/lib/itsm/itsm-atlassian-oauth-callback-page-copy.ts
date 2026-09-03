@@ -34,8 +34,4 @@ export const ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_JIRA_LABEL = "Jira";
 
 export const ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID = "itsm-oauth-callback-primary-content" as const;
 
-export const ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID = "itsm-oauth-callback-first-viewport" as const;
-
-export const ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_TARGET_ID = ITSM_ATLASSIAN_OAUTH_CALLBACK_FIRST_VIEWPORT_ID;
-
 export const ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL = "Skip to consent outcome" as const;

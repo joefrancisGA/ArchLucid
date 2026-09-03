@@ -11,16 +11,14 @@ export type SlackIntegrationTestFeedback = {
 };
 
 export function interpretSlackIntegrationTestResult(result: WebhookTestResponse): SlackIntegrationTestFeedback {
-  const statusCode = result.statusCode ?? 0;
-
-  if (result.transportSucceeded && statusCode >= 200 && statusCode < 300) {
+  if (result.transportSucceeded && result.statusCode >= 200 && result.statusCode < 300) {
     return { kind: "success", message: SLACK_INTEGRATION_TEST_SUCCESS };
   }
 
   if (result.transportSucceeded) {
     return {
       kind: "error",
-      message: `${SLACK_INTEGRATION_TEST_FAILURE} Slack returned HTTP ${statusCode}.`,
+      message: `${SLACK_INTEGRATION_TEST_FAILURE} Slack returned HTTP ${result.statusCode}.`,
     };
   }
 

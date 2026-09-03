@@ -347,13 +347,9 @@ export function RecommendationLearningOpsPageClient(props: Props) {
         <section className="rounded-lg border border-al-border/70 p-4">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Before-and-after impact analysis</h2>
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {weightDeltas.filter((row) => Math.abs(Number(row.absoluteDelta ?? 0)) > 0.001).length} weighted features change in the
+            {weightDeltas.filter((row) => Math.abs(row.absoluteDelta) > 0.001).length} weighted features change in the
             preview. Largest upward movement:{" "}
-            {weightDeltas.reduce(
-              (best, row) =>
-                Number(row.absoluteDelta ?? 0) > Number(best.absoluteDelta ?? 0) ? row : best,
-              weightDeltas[0],
-            ).feature}.
+            {weightDeltas.reduce((best, row) => (row.absoluteDelta > best.absoluteDelta ? row : best), weightDeltas[0]).feature}.
           </p>
           <RecommendationLearningWeightTable deltas={weightDeltas} />
         </section>
@@ -396,7 +392,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
                 <EnterpriseTableCell>{item.outcomeCount}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <StatusTag
-                    kind={profileVersionStatusTagKind(item.isActive === true)}
+                    kind={profileVersionStatusTagKind(item.isActive)}
                     label={item.isActive ? "Active" : "Historical"}
                   />
                 </EnterpriseTableCell>
@@ -407,7 +403,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
                       size="sm"
                       variant="outline"
                       disabled={!canMutate || busyAction !== null}
-                      onClick={() => setRollbackProfileId(item.profileId ?? null)}
+                      onClick={() => setRollbackProfileId(item.profileId)}
                     >
                       Roll back to this version
                     </Button>

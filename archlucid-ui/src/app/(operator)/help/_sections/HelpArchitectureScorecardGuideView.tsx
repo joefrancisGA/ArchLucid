@@ -4,7 +4,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ArchitectureScorecardHelpClaimDisciplineStrip } from "@/components/help/ArchitectureScorecardHelpClaimDisciplineStrip";
 import { ArchitectureScorecardHelpEvidenceOrientationStrip } from "@/components/help/ArchitectureScorecardHelpEvidenceOrientationStrip";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -157,16 +156,16 @@ export function HelpArchitectureScorecardGuideView(
               <p className={cn("m-0 font-mono text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_FORMULA}
               </p>
-              <HelpStaticSection
-                title={ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_TITLE}
-                testId="help-architecture-scorecard-worked-example"
-              >
-                <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+              <details className={HELP_PAGE_LAYOUT.details} data-testid="help-architecture-scorecard-worked-example">
+                <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  {ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_TITLE}
+                </summary>
+                <ul className={cn(HELP_PAGE_LAYOUT.detailsBody, "m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
                   {ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_LINES.map((line) => (
                     <li key={line}>{line}</li>
                   ))}
                 </ul>
-              </HelpStaticSection>
+              </details>
               <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_HREF}>
                 {ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_LABEL} →
               </Link>
