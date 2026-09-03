@@ -45,9 +45,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 86.44%
+**OVERALL WEIGHT SCORE:** 86.50%
 
-**OVERALL EVIDENCE SCORE:** 78.77%
+**OVERALL EVIDENCE SCORE:** 78.83%
 
 ## Master table (UX score 0 first; then Deficit desc; ties A→Z by path)
 
