@@ -2875,11 +2875,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 113
-- **bugs-found:** 267
+- **hunts:** 114
+- **bugs-found:** 268
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — policy pack GetVersion SemVer and max-length validation parity
+- **last-bug:** 2026-09-03 — RecordDisposition trade-off acknowledgment forwarding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3389,8 +3389,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #557: proved link-entra entraOid max-length validation before identity handoff; seeded preview cron and policy-pack version read parity candidates.
 
-- [ ] (candidate) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — `cronExpression` longer than `NVARCHAR(100)` returns HTTP 200 `{ isValid: false }` instead of HTTP 400 parity with create/update (`RecurrenceScheduleValidation`).
-- [ ] (candidate) `PolicyPacksController.GetVersion` — route `packVersion` longer than `NVARCHAR(50)` returns HTTP 404 instead of HTTP 400 parity with publish/assign validators.
+- [x] (invalid) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — `cronExpression` longer than `NVARCHAR(100)` returns HTTP 200 `{ isValid: false }` instead of HTTP 400 parity with create/update — **cheap-disproof 2026-09-03 (#559):** dry-run preview intentionally returns validation outcome in body for unsupported cron (regression `PreviewRecurrenceScheduleRuns_marks_invalid_cron_without_daily_fallback`); no persistence path; over-length crons fail syntax check with same 200 contract.
+- [x] (proven) `PolicyPacksController.GetVersion` / `PolicyPacksHttpMapper.ValidatePackVersion` — route `packVersion` longer than `NVARCHAR(50)` or non-SemVer returned HTTP 404 version-not-found while publish/assign return HTTP 400 — **hit 2026-09-03 (#559):** shared `PackVersionMaxLength` and SemVer guard in `ValidatePackVersion`; regression in `PolicyPacksHttpMapperTests` and `PolicyPacksControllerListScopeTests.GetVersion_returns_bad_request_when_pack_version_exceeds_max_length` / `GetVersion_returns_bad_request_when_pack_version_is_not_semver`.
+
+2026-09-03 thorough hunt #559: cheap-disproved preview cron length parity; proved policy pack GetVersion SemVer and max-length validation parity with publish/assign.
+
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` — body `tradeOffAcknowledgment` dropped when rebuilding `RecordFindingDispositionRequest`, so Accepted dispositions with valid trade-off returned HTTP 400 ("Trade-off acknowledgment is required") — **hit 2026-09-03 (#560):** forward `TradeOffAcknowledgment` in normalized request; regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_ok_when_trade_off_acknowledgment_provided`.
+
+2026-09-03 seed hunt #560: promoted and proved RecordDisposition trade-off acknowledgment drop; seeded renew evidenceRef length and promote catalog version SemVer parity candidates.
+
+- [ ] (candidate) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionValidation.ValidateRenew` — overlong body `evidenceRef` may reach SQL `EvidenceRef NVARCHAR(500)` without HTTP 400 while create path enforces `EvidenceRefMaxLength` (hunt #552 parity).
+- [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPackCatalogAdminService.TryPromoteFromSourcePackAsync` — optional body `version` lacks SemVer and `SnapshotVersion NVARCHAR(50)` max-length guard before catalog lookup (GetVersion/publish parity hunt #559).
 
 ---
 
