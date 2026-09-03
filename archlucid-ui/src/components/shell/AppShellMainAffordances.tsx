@@ -27,13 +27,16 @@ export function AppShellMainAffordances() {
   const isItsmOAuthCallbackPath = pathname === "/integrations/itsm/oauth/callback";
   const isDigestsHubPath = pathname === "/architecture/digests";
   const isFirstReviewGuidePath = pathname === "/architecture/first-review-guide";
+  const isAdvisoryScansHubPath =
+    pathname === "/governance/advisory-scans" || pathname.startsWith("/governance/advisory-scans/");
   const hideShortcutCoaches =
     isPreferencesSettingsPath ||
     isHelpTopicPath ||
     isArchitectureScorecardPath ||
     isItsmOAuthCallbackPath ||
     isDigestsHubPath ||
-    isFirstReviewGuidePath;
+    isFirstReviewGuidePath ||
+    isAdvisoryScansHubPath;
   const showPersistentWorkspaceNextActionStrip = isPersistentWorkspaceNextActionStripPath(pathname);
   const staticDemoEnv = isExplicitStaticDemoMarketingBuild();
 
