@@ -2839,11 +2839,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 102
-- **bugs-found:** 253
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-08-31 — combined PRs #981–#991 plus #992 catalog/projectId/checklist validation; combined al-bug hunts #313–#334: ghost-workspace posture/coverage reads, environment-catalog ghost tenant, empty projectId query, governance scope gates, OTP RowVersion retry, link-proposal status guard, AgentResultJsonConverter evidenceRefs merge, product-feedback score and checklist isCompleted omission/validation
+- **hunts:** 103
+- **bugs-found:** 255
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — seed hunt #541: decision-register padded `buyerConfidenceSource` 400 parity and out-of-range `minConfidence`/`maxConfidence` validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3315,6 +3315,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-26 seed hunt #81: proved decision-register/bundle project scope, risk-exception finding and waiver scope, tenant workspace project mutate scope; shipped hunt #79 assignment/disposition/manifest fixes on the same branch.
 
 2026-08-26 seed hunt #79: proved assignment enable/archive, risk-register project scope, manifest evidence scope, finding disposition scope.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateBuyerConfidenceSource` / `GovernanceStickinessController.GetDecisionRegister` — padded `buyerConfidenceSource` query (`" Evidence-backed "`) returned HTTP 400 unknown-label instead of HTTP 200 while SQL reader trims at query time — **hit 2026-09-03 (#541):** trim before known-label check and pass trimmed value to register filters; regression in `GovernanceStickinessHttpMapperTests.ValidateBuyerConfidenceSource_accepts_padded_known_label` and `GovernanceStickinessControllerTests.GetDecisionRegister_returns_ok_when_buyer_confidence_source_is_padded`.
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateDecisionRegisterFilters` / `GovernanceStickinessController.GetDecisionRegister` — `minConfidence` below 0 or `maxConfidence` above 1 accepted without HTTP 400 (only inverted-range check existed) — **hit 2026-09-03 (#541):** `[0, 1]` bounds validation on both query params; regression in `GovernanceStickinessHttpMapperTests.ValidateDecisionRegisterFilters_rejects_out_of_range_confidence_bounds` and `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_confidence_bounds_are_out_of_range`.
+
+2026-09-03 seed hunt #541: proved decision-register padded buyer-confidence label trim parity and confidence bound validation; broke two-dry-hunt streak.
 
 ---
 

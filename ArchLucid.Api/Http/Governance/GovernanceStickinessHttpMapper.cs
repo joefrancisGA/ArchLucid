@@ -81,7 +81,32 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        GovernanceHttpValidation? minConfidenceValidation = ValidateConfidenceBound(minConfidence, "minConfidence");
+
+        if (minConfidenceValidation is not null)
+            return minConfidenceValidation;
+
+        GovernanceHttpValidation? maxConfidenceValidation = ValidateConfidenceBound(maxConfidence, "maxConfidence");
+
+        if (maxConfidenceValidation is not null)
+            return maxConfidenceValidation;
+
         return ValidateBuyerConfidenceSource(buyerConfidenceSource);
+    }
+
+    private static GovernanceHttpValidation? ValidateConfidenceBound(double? confidence, string parameterName)
+    {
+        if (confidence is null)
+            return null;
+
+        if (confidence < 0 || confidence > 1)
+        {
+            return new GovernanceHttpValidation(
+                $"{parameterName} must be between 0 and 1.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
     }
 
     public static GovernanceHttpValidation? ValidateBuyerConfidenceSource(string? buyerConfidenceSource)
@@ -89,14 +114,16 @@ public static class GovernanceStickinessHttpMapper
         if (buyerConfidenceSource is null)
             return null;
 
-        if (string.IsNullOrWhiteSpace(buyerConfidenceSource))
+        string normalizedBuyerConfidenceSource = buyerConfidenceSource.Trim();
+
+        if (string.IsNullOrWhiteSpace(normalizedBuyerConfidenceSource))
         {
             return new GovernanceHttpValidation(
                 "buyerConfidenceSource cannot be empty or whitespace.",
                 ProblemTypes.ValidationFailed);
         }
 
-        if (!IsKnownBuyerConfidenceSource(buyerConfidenceSource))
+        if (!IsKnownBuyerConfidenceSource(normalizedBuyerConfidenceSource))
         {
             return new GovernanceHttpValidation(
                 $"buyerConfidenceSource must be one of: {BuyerDecisionConfidenceSource.EvidenceBacked}, {BuyerDecisionConfidenceSource.ModelAssisted}, or {BuyerDecisionConfidenceSource.Unknown}.",

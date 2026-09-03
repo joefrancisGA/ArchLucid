@@ -366,6 +366,38 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetDecisionRegister_returns_ok_when_buyer_confidence_source_is_padded()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            buyerConfidenceSource: " Evidence-backed ",
+            cancellationToken: CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Theory]
+    [InlineData(-0.1, null)]
+    [InlineData(null, 1.1)]
+    public async Task GetDecisionRegister_returns_bad_request_when_confidence_bounds_are_out_of_range(
+        double? minConfidence,
+        double? maxConfidence)
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            minConfidence: minConfidence,
+            maxConfidence: maxConfidence,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetDecisionRegister_returns_bad_request_when_max_rows_is_zero()
     {
         GovernanceStickinessController sut = BuildSut();

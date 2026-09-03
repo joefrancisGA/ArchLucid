@@ -664,3 +664,4 @@
 {"at":"2026-09-03T00:59:21.2663325Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-03T01:08:36.9594959Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-03T01:20:05.9319691Z","zoneId":"notifications-pipeline","outcome":"hit"}
+{"at":"2026-09-03T01:34:57.4612050Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
