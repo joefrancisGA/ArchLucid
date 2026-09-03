@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using ArchLucid.Core.Explanation;
+
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>In-memory upgrade path for legacy extractor manifest schema versions.</summary>
@@ -133,7 +135,7 @@ public static class AzureExtractorManifestSchemaUpgrader
 
                 string? raw = jsonValue.GetValue<string>();
 
-                if (TryParseBooleanString(raw, out bool booleanSchema))
+                if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanSchema))
                 {
                     schemaVersion = booleanSchema ? 1 : 0;
 
@@ -204,17 +206,5 @@ public static class AzureExtractorManifestSchemaUpgrader
         value = default;
 
         return false;
-    }
-
-    private static bool TryParseBooleanString(string? raw, out bool value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        return bool.TryParse(raw.Trim(), out value);
     }
 }
