@@ -12,6 +12,7 @@ import { governanceResolutionUsesShowcaseRuleRows } from "@/lib/governance/gover
 import {
   parseStandardsRulesSearchQuery,
   parseStandardsRulesSeverityFromSearch,
+  parseStandardsRulesLinkedFindingsFromSearch,
   standardsRulesClearSearchHrefFromSearch,
   standardsRulesSearchHrefFromSearch,
 } from "@/lib/governance/standards-rules-filters-url";
@@ -44,10 +45,12 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
   const scopedRunFilterActive = scopedRunId.length > 0;
   const urlSearchQuery = parseStandardsRulesSearchQuery(searchParams.get("q"));
   const urlSeverity = parseStandardsRulesSeverityFromSearch(searchParams.get("severity"));
+  const urlLinkedFindings = parseStandardsRulesLinkedFindingsFromSearch(searchParams.get("linkedFindings"));
   const [filters, setFiltersState] = useState({
     ...EMPTY_STANDARDS_RULES_FILTER_STATE,
     searchQuery: urlSearchQuery,
     severity: urlSeverity,
+    linkedFindings: urlLinkedFindings,
   });
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
 
@@ -56,9 +59,10 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
       ...current,
       searchQuery: urlSearchQuery,
       severity: urlSeverity,
+      linkedFindings: urlLinkedFindings,
     }));
     setSearchQuery(urlSearchQuery);
-  }, [urlSearchQuery, urlSeverity]);
+  }, [urlLinkedFindings, urlSearchQuery, urlSeverity]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {

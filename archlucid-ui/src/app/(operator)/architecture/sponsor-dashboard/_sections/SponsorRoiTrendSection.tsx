@@ -1,9 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { SponsorTimeRangeSelect } from "@/components/sponsor/SponsorTimeRangeSelect";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,6 +15,11 @@ import {
   type SponsorRoiHistoryPoint,
   useSponsorRoiSummaryHistoryQuery,
 } from "@/hooks/use-sponsor-roi-summary-history-query";
+import {
+  parseSponsorRoiTrendRangeFromSearch,
+  sponsorRoiTrendRangeHrefFromSearch,
+} from "@/lib/sponsor/sponsor-roi-trend-range-url";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   type SponsorTimeRange,
   filterHistoryPointsByRange,
@@ -83,12 +91,39 @@ function trendRangeLabel(range: SponsorTimeRange): string {
   return "all available months";
 }
 
+const SPONSOR_ROI_TREND_RANGE_OPTIONS: readonly { readonly value: SponsorTimeRange; readonly label: string }[] = [
+  { value: "30d", label: "Last 30 days" },
+  { value: "quarter", label: "Last quarter" },
+  { value: "year", label: "Last year" },
+  { value: "all", label: "All time" },
+];
+
 /** Sponsor ROI savings and critical-finding trend chart (API returns ~6 months; UI can filter). */
 export function SponsorRoiTrendSection({
   defaultTimeRange = "quarter",
   showTimeRangeSelector = false,
 }: SponsorRoiTrendSectionProps) {
-  const [timeRange, setTimeRange] = useState<SponsorTimeRange>(defaultTimeRange);
+  const router = useRouter();
+  const pathname = usePathname() ?? SPONSOR_DASHBOARD_HREF;
+  const searchParams = useSearchParams();
+  const urlTimeRange = parseSponsorRoiTrendRangeFromSearch(searchParams.get("range"));
+  const [timeRange, setTimeRange] = useState<SponsorTimeRange>(
+    searchParams.has("range") ? urlTimeRange : defaultTimeRange,
+  );
+
+  useEffect(() => {
+    if (!showTimeRangeSelector || !searchParams.has("range")) {
+      return;
+    }
+
+    setTimeRange(urlTimeRange);
+  }, [showTimeRangeSelector, urlTimeRange, searchParams]);
+
+  const onTimeRangeChange = (next: SponsorTimeRange): void => {
+    setTimeRange(next);
+    router.replace(sponsorRoiTrendRangeHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
+  };
+
   const historyQuery = useSponsorRoiSummaryHistoryQuery();
   const allPoints: NormalizedHistoryPoint[] = useMemo(
     () => (historyQuery.data ?? []).filter(isNormalizedHistoryPoint),
@@ -117,12 +152,23 @@ export function SponsorRoiTrendSection({
             </CardDescription>
           </div>
           {showTimeRangeSelector ? (
-            <SponsorTimeRangeSelect
-              id="exec-roi-trend-range"
-              value={timeRange}
-              onValueChange={setTimeRange}
-              triggerTestId="exec-roi-trend-time-range"
-            />
+            <FilterChipGroup aria-label="ROI trend time range" className="flex flex-wrap gap-2">
+              {SPONSOR_ROI_TREND_RANGE_OPTIONS.map((option) => (
+                <FilterChip
+                  key={option.value}
+                  href={sponsorRoiTrendRangeHrefFromSearch(searchParams.toString(), option.value, pathname)}
+                  scroll={false}
+                  className={buyerFilterChipClass(timeRange === option.value, false)}
+                  aria-current={timeRange === option.value ? "page" : undefined}
+                  data-testid={`exec-roi-trend-range-${option.value}`}
+                  onClick={() => {
+                    onTimeRangeChange(option.value);
+                  }}
+                >
+                  {option.label}
+                </FilterChip>
+              ))}
+            </FilterChipGroup>
           ) : null}
         </div>
       </CardHeader>
