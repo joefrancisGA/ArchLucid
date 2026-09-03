@@ -1805,13 +1805,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 11
-- **bugs-found:** 14
+- **hunts:** 12
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — stale refresh `finally` cleared replacement in-flight guard (regression)
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1826,12 +1826,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) In-flight token refresh resurrects OIDC session after `clearOidcSession` — **hit 2026-08-23 hunt #34:** `ensureAccessTokenFresh` always called `persistTokenResponse` when the IdP refresh completed, so sign-out or idle-timeout clears that ran mid-flight wrote tokens back into `sessionStorage`; fixed by tracking a session generation counter bumped on clear and skipping persist/clear side effects for stale refreshes.
 - [x] (proven) Stale in-flight refresh blocks token refresh for a replacement session after `clearOidcSession` — **hit 2026-08-23 hunt #36:** `clearOidcSession` bumped the generation counter but left `refreshInFlight` set, so the first `ensureAccessTokenFresh` on a new sign-in awaited the prior session's refresh instead of starting one with the new refresh token; fixed by clearing the in-flight guard when session keys are removed.
 - [x] (proven) Transient OIDC refresh network failure clears the operator session — **hit 2026-08-23 hunt #41:** `ensureAccessTokenFresh` catch-all called `clearOidcSession` on any refresh rejection, so a flaky `Failed to fetch` during background renew wiped tokens while the refresh token was still valid; fixed by clearing only on OAuth auth failures (`invalid_grant`, 401/403) and leaving the session intact for network/5xx errors.
-- [x] (proven) Stale refresh `finally` clears the replacement session's in-flight guard — **hit 2026-08-23 hunt #42:** `ensureAccessTokenFresh` always set `refreshInFlight = null` in `finally`, so when a prior-session refresh completed after `clearOidcSession` and a replacement refresh had started, the stale `finally` nulled the guard and parallel API callers fired a duplicate IdP refresh (`invalid_grant` risk); fixed by clearing `refreshInFlight` only when it still references the completing promise.
+- [x] (proven) Stale refresh `finally` clears the replacement session's in-flight guard — **hit 2026-08-23 hunt #42:** `ensureAccessTokenFresh` always set `refreshInFlight = null` in `finally`, so when a prior-session refresh completed after `clearOidcSession` and a replacement refresh had started, the stale `finally` nulled the guard and parallel API callers fired a duplicate IdP refresh (`invalid_grant` risk); fixed by clearing `refreshInFlight` only when it still references the completing promise. **Re-hit 2026-09-03 hunt #594:** regression restored unconditional `refreshInFlight = null`; `does not clear the replacement refresh guard when a stale refresh finally runs` failed (3 refresh calls); same conditional-`finally` fix reapplied.
 - [x] (proven) Negative `expires_in` from token response writes a past expiry and breaks the session — **hit 2026-08-23:** `persistTokenResponse` stored `Date.now() + negative expires_in`, so a malformed IdP payload left the access token immediately expired and could tight-loop refresh; fixed by falling back to the default lifetime for negative values while still honoring zero.
 - [x] (proven) Missing `access_token` in token response persists the literal string `"undefined"` — **hit 2026-08-23:** `sessionStorage.setItem` coerced `undefined` to `"undefined"`, so `isLikelySignedIn` returned true and API calls sent `Bearer undefined`; fixed by rejecting empty or non-string access tokens before writing session keys.
 - [x] (proven) Malformed OIDC discovery document missing endpoints is cached permanently — **hit 2026-08-24:** `loadDiscoveryDocument` cached any HTTP 200 JSON body, so a partial discovery payload blocked sign-in, refresh, and logout discovery until a full page reload; fixed by validating required endpoints and evicting invalid documents from the cache.
 - [x] (proven) Token endpoint OAuth error returned with HTTP 200 is treated as a token response — **hit 2026-08-24:** `postTokenForm` only parsed OAuth `error` bodies when `response.ok` was false, so `invalid_grant` in a 200 body threw on missing `access_token` and `ensureAccessTokenFresh` kept a stale refresh token instead of clearing the session; fixed by rejecting OAuth error JSON before returning token responses.
 - [x] (proven) String `expires_in` from token response falls back to default lifetime — **hit 2026-08-24:** `resolveExpiresInSeconds` used `Number.isFinite` on the raw value, so IdPs that serialize `expires_in` as a JSON string were treated as non-finite and given the 3600s default; fixed by coercing with `Number()` before validation.
+- [ ] (candidate) Supplemental Google OIDC redirect overwrites primary PKCE state — `initiateSupplementalOidcRedirect` calls the same `storePkceState` session keys as `initiateOidcRedirect`; starting Google sign-in while a primary IdP authorize round-trip is pending could replace `state`/`code_verifier`/`nonce` before callback.
+- [ ] (candidate) Malformed `end_session_endpoint` in discovery passes parse but breaks RP-initiated logout — `parseDiscoveryDocument` validates `authorization_endpoint` and `token_endpoint` with `new URL()` but copies `end_session_endpoint` without URL validation; `signOutAndRedirectHome` may fall through to `/` without IdP logout when the endpoint is not a valid absolute URL.
 
 ---
 
