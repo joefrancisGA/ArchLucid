@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ArchitecturesHubListSkeleton } from "@/app/(operator)/architecture/architectures/_sections/ArchitecturesHubListSkeleton";
@@ -24,6 +25,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
 import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
@@ -34,7 +36,6 @@ import {
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
-  type ArchitectureDraftCustomerStatus,
 } from "@/lib/architecture/architecture-draft-status";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
@@ -46,11 +47,6 @@ import {
 import {
   ARCHITECTURES_HUB_EMPTY_BODY,
   ARCHITECTURES_HUB_EMPTY_TITLE,
-  ARCHITECTURES_HUB_FILTER_ALL_LABEL,
-  ARCHITECTURES_HUB_FILTER_ARCHIVED_LABEL,
-  ARCHITECTURES_HUB_FILTER_DRAFT_LABEL,
-  ARCHITECTURES_HUB_FILTER_NO_REVIEW_LABEL,
-  ARCHITECTURES_HUB_FILTER_READY_LABEL,
   ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER,
   ARCHITECTURES_HUB_PAGE_TITLE,
   ARCHITECTURES_HUB_SORT_NAME_ASC_LABEL,
@@ -64,6 +60,19 @@ import {
   ARCHITECTURES_HUB_TABLE_STATUS_COLUMN,
   ARCHITECTURES_HUB_TABLE_UPDATED_COLUMN,
 } from "@/lib/architectures-hub-copy";
+import {
+  ARCHITECTURES_HUB_FILTER_OPTIONS,
+  architecturesHubClearSearchHrefFromSearch,
+  architecturesHubFilterEmptyReason,
+  architecturesHubFilterHrefFromSearch,
+  architecturesHubSearchHrefFromSearch,
+  countArchitecturesHubFilterMatches,
+  matchesArchitecturesHubFilter,
+  matchesArchitecturesHubSearch,
+  parseArchitecturesHubFilter,
+  parseArchitecturesHubSearchQuery,
+  type ArchitectureHubFilterId,
+} from "@/lib/architecture/architectures-hub-filters";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -78,20 +87,7 @@ import { resolveContinueLastArchitectureDraftEntry } from "@/lib/architecture-dr
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { cn } from "@/lib/utils";
 
-type ArchitectureFilterId =
-  | "all"
-  | ArchitectureDraftCustomerStatus
-  | "no-review";
-
 type ArchitectureSortId = "updated-desc" | "updated-asc" | "name-asc" | "name-desc";
-
-const FILTER_OPTIONS: ReadonlyArray<{ id: ArchitectureFilterId; label: string }> = [
-  { id: "all", label: ARCHITECTURES_HUB_FILTER_ALL_LABEL },
-  { id: "draft", label: ARCHITECTURES_HUB_FILTER_DRAFT_LABEL },
-  { id: "ready-for-review", label: ARCHITECTURES_HUB_FILTER_READY_LABEL },
-  { id: "no-review", label: ARCHITECTURES_HUB_FILTER_NO_REVIEW_LABEL },
-  { id: "archived", label: ARCHITECTURES_HUB_FILTER_ARCHIVED_LABEL },
-];
 
 const SORT_OPTIONS: ReadonlyArray<{ id: ArchitectureSortId; label: string }> = [
   { id: "updated-desc", label: ARCHITECTURES_HUB_SORT_UPDATED_DESC_LABEL },
@@ -99,39 +95,6 @@ const SORT_OPTIONS: ReadonlyArray<{ id: ArchitectureSortId; label: string }> = [
   { id: "name-asc", label: ARCHITECTURES_HUB_SORT_NAME_ASC_LABEL },
   { id: "name-desc", label: ARCHITECTURES_HUB_SORT_NAME_DESC_LABEL },
 ];
-
-function matchesSearch(entry: ArchitectureDraftRegistryEntry, query: string): boolean {
-  const normalized = query.trim().toLowerCase();
-
-  if (normalized.length === 0) {
-    return true;
-  }
-
-  const haystack = [entry.displayName, entry.ownerLabel, entry.architectureId].join(" ").toLowerCase();
-
-  return haystack.includes(normalized);
-}
-
-function matchesFilter(entry: ArchitectureDraftRegistryEntry, filter: ArchitectureFilterId): boolean {
-  if (filter === "all") {
-    // Abandoned drafts live under Archived; the default inventory hides them after delete.
-    return entry.customerStatus !== "archived";
-  }
-
-  if (filter === "no-review") {
-    // Abandoned drafts are archived — they must not also appear under "No review yet".
-    return entry.linkedReviewId === null && entry.customerStatus !== "archived";
-  }
-
-  return entry.customerStatus === filter;
-}
-
-function countForFilter(
-  entries: readonly ArchitectureDraftRegistryEntry[],
-  filter: ArchitectureFilterId,
-): number {
-  return entries.filter((entry) => matchesFilter(entry, filter)).length;
-}
 
 function compareEntries(
   left: ArchitectureDraftRegistryEntry,
@@ -154,32 +117,49 @@ function compareEntries(
 }
 
 function ArchitectureFilterChip(props: {
-  readonly option: { id: ArchitectureFilterId; label: string };
+  readonly option: { id: ArchitectureHubFilterId; label: string };
   readonly count: number;
   readonly selected: boolean;
-  readonly onSelect: (id: ArchitectureFilterId) => void;
+  readonly href: string;
 }): React.JSX.Element {
+  const disabled = props.option.id !== "all" && props.count === 0;
+  const disabledReasonId = `architecture-hub-filter-${props.option.id}-disabled-reason`;
   const labelWithCount = `${props.option.label} (${props.count})`;
 
   return (
-    <FilterChip
-      className={buyerFilterChipClass(props.selected, false)}
-      aria-pressed={props.selected}
-      aria-label={`Filter architectures: ${labelWithCount}`}
-      onClick={() => props.onSelect(props.option.id)}
-    >
-      {labelWithCount}
-    </FilterChip>
+    <span className="inline-flex">
+      <FilterChip
+        href={disabled ? undefined : props.href}
+        scroll={false}
+        className={buyerFilterChipClass(props.selected, disabled, props.count === 0)}
+        aria-current={props.selected ? "page" : undefined}
+        aria-label={`Filter architectures: ${labelWithCount}`}
+        aria-describedby={disabled ? disabledReasonId : undefined}
+        disabled={disabled}
+      >
+        {labelWithCount}
+      </FilterChip>
+      {disabled ? (
+        <span id={disabledReasonId} className="sr-only">
+          {architecturesHubFilterEmptyReason(props.option.id)}
+        </span>
+      ) : null}
+    </span>
   );
 }
 
 /** Client-side architecture draft registry — search, filter, and sort saved drafts. */
 export function ArchitectureDraftListClient(): React.JSX.Element {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlSearchQuery = parseArchitecturesHubSearchQuery(searchParams.get("q"));
+  const activeFilter = parseArchitecturesHubFilter(searchParams.get("filter"));
+
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const isHydrated = useArchitectureDraftRegistryHydrated();
   const entries = useArchitectureDraftRegistryEntries();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<ArchitectureFilterId>("all");
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [activeSort, setActiveSort] = useState<ArchitectureSortId>("updated-desc");
   const scopeRecord = useOperatorScopeRecord();
   const workspaceScopeTeaching = resolveWorkspaceScopeEmptyTeachingForHub({
@@ -188,11 +168,29 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
     objectPlural: "architecture drafts",
   });
 
-  const filterCounts = useMemo(() => {
-    const counts = new Map<ArchitectureFilterId, number>();
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
 
-    for (const option of FILTER_OPTIONS) {
-      counts.set(option.id, countForFilter(entries, option.id));
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = architecturesHubSearchHrefFromSearch(searchParams.toString(), searchQuery);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [router, searchParams, searchQuery]);
+
+  const filterCounts = useMemo(() => {
+    const counts = new Map<ArchitectureHubFilterId, number>();
+
+    for (const option of ARCHITECTURES_HUB_FILTER_OPTIONS) {
+      counts.set(option.id, countArchitecturesHubFilterMatches(entries, option.id));
     }
 
     return counts;
@@ -200,10 +198,19 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
 
   const filteredEntries = useMemo(() => {
     return entries
-      .filter((entry) => matchesSearch(entry, searchQuery) && matchesFilter(entry, activeFilter))
+      .filter(
+        (entry) =>
+          matchesArchitecturesHubSearch(entry, searchQuery) &&
+          matchesArchitecturesHubFilter(entry, activeFilter),
+      )
       .slice()
       .sort((left, right) => compareEntries(left, right, activeSort));
   }, [activeFilter, activeSort, entries, searchQuery]);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery("");
+    router.replace(architecturesHubClearSearchHrefFromSearch(currentSearch), { scroll: false });
+  }, [currentSearch, router]);
 
   const continueLastDraft = useMemo(() => resolveContinueLastArchitectureDraftEntry(entries), [entries]);
 
@@ -261,6 +268,12 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
           type="search"
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && searchQuery.trim().length > 0) {
+              event.preventDefault();
+              clearSearch();
+            }
+          }}
           placeholder={ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER}
           aria-label={ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER}
           className={cn(
@@ -269,17 +282,17 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
           )}
           data-testid="architecture-draft-list-search"
         />
-        <div className="flex flex-wrap items-center gap-3">
-          {FILTER_OPTIONS.map((option) => (
+        <FilterChipGroup aria-label="Filter architectures" className="flex flex-wrap items-center gap-3">
+          {ARCHITECTURES_HUB_FILTER_OPTIONS.map((option) => (
             <ArchitectureFilterChip
               key={option.id}
               option={option}
               count={filterCounts.get(option.id) ?? 0}
               selected={activeFilter === option.id}
-              onSelect={setActiveFilter}
+              href={architecturesHubFilterHrefFromSearch(currentSearch, option.id)}
             />
           ))}
-        </div>
+        </FilterChipGroup>
         <div className="flex flex-wrap items-center gap-2 lg:ml-auto">
           <label
             htmlFor="architecture-draft-list-sort"

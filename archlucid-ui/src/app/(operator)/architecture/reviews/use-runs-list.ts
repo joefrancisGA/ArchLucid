@@ -17,6 +17,7 @@ import { runsListPageFilterStatusLine } from "@/lib/runs-list-filter-status-line
 import type { RunSummary } from "@/types/authority";
 
 import type { BuyerPackageScopeFilter, RunsListClientProps, SortOrder } from "./runs-list-types";
+import { parseBuyerPackageScopeFilter } from "./buyer-package-scope-url";
 
 function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
@@ -33,7 +34,6 @@ export type UseRunsListResult = {
   filterText: string;
   setFilterText: (value: string) => void;
   buyerPackageScope: BuyerPackageScopeFilter;
-  setBuyerPackageScope: (scope: BuyerPackageScopeFilter) => void;
   sortOrder: SortOrder;
   setSortOrder: (order: SortOrder) => void;
   selectedRun: RunSummary | null;
@@ -62,6 +62,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const { runs, projectId, page, pageSize, totalCount, nextCursor = null } = props;
   const searchParams = useSearchParams();
   const listContextFilter = searchParams.get("filter");
+  const urlBuyerPackageScope = parseBuyerPackageScopeFilter(searchParams.get("scope"));
   const safeRuns = useMemo(() => {
     const filtered = runs.filter((run) => {
       if (typeof run.runId !== "string" || run.runId.trim().length === 0) {
@@ -83,7 +84,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const buyerCollapseFilters = buyerPolished && totalCount <= 1;
 
   const [filterText, setFilterText] = useState("");
-  const [buyerPackageScope, setBuyerPackageScope] = useState<BuyerPackageScopeFilter>("all");
+  const buyerPackageScope = urlBuyerPackageScope;
   const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
   const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
   const [compareSelection, setCompareSelection] = useState<string[]>([]);
@@ -259,7 +260,6 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     filterText,
     setFilterText,
     buyerPackageScope,
-    setBuyerPackageScope,
     sortOrder,
     setSortOrder,
     selectedRun,

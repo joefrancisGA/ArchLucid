@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 
 import { alertsConfigurationPageSubtitle } from "@/lib/alerts-page-copy";
+import { ALERT_RULES_CLAIM_DISCIPLINE } from "@/lib/alert-rules-evidence-copy";
 
 import {
 
@@ -99,6 +100,10 @@ describe("AlertRulesPageHeader", () => {
 
 
     expect(screen.getByRole("heading", { level: 2, name: "Alert rules" })).toBeInTheDocument();
+
+    expect(screen.getByTestId("alert-rules-hub-claim-discipline")).toHaveTextContent(
+      ALERT_RULES_CLAIM_DISCIPLINE.slice(0, 40),
+    );
 
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
 

@@ -26,6 +26,7 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("pilot-outcomes")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("roi-summary")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("architecture-scorecard")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("alert-rules-hub")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("architecture-sponsor-dashboard")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("audit-trail")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("help-hub")).toBe(true);
@@ -69,6 +70,7 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-sponsor-report", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-engineering-troubleshooting", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-getting-started", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-glossary", "not a package.")).toBeUndefined();
   });
 
   it("expectsVisibleClaimDisciplineBand mirrors omit policy", () => {
@@ -92,6 +94,7 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-sponsor-report")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-engineering-troubleshooting")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-getting-started")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-glossary")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-review-guide")).toBe(false);
   });
 

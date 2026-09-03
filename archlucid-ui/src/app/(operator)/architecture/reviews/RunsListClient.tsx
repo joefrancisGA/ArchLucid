@@ -48,7 +48,6 @@ export function RunsListClient(props: RunsListClientProps) {
     filterText,
     setFilterText,
     buyerPackageScope,
-    setBuyerPackageScope,
     sortOrder,
     setSortOrder,
     selectedRun,
@@ -198,7 +197,6 @@ export function RunsListClient(props: RunsListClientProps) {
                   <BuyerPackageScopeFilterChips
                     scope={buyerPackageScope}
                     buyerPipelineLabels={buyerPipelineLabels}
-                    onScopeChange={setBuyerPackageScope}
                   />
                 </div>
               </fieldset>
@@ -219,7 +217,6 @@ export function RunsListClient(props: RunsListClientProps) {
                 <BuyerPackageScopeFilterChips
                   scope={buyerPackageScope}
                   buyerPipelineLabels={buyerPipelineLabels}
-                  onScopeChange={setBuyerPackageScope}
                 />
               </div>
             </fieldset>

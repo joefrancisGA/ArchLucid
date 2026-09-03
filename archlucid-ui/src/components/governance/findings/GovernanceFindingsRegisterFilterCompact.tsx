@@ -39,6 +39,10 @@ export function GovernanceFindingsRegisterFilterCompact(
     return `${fallback} (${count})`;
   }
 
+  function registerFilterEmptyReason(filter: RiskRegisterFilter): string {
+    return `No findings match ${RISK_REGISTER_FILTER_LABELS[filter]}.`;
+  }
+
   return (
     <div
       className="flex flex-wrap items-center gap-2"
@@ -47,29 +51,39 @@ export function GovernanceFindingsRegisterFilterCompact(
     >
       <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Show</span>
       <FilterChipGroup aria-label="Findings register filter" className="flex flex-wrap items-center gap-2">
-        <FilterChip
-          href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, "all", pathname)}
-          scroll={false}
-          className={buyerFilterChipClass(props.registerFilter === "all", false)}
-          aria-current={props.registerFilter === "all" ? "page" : undefined}
-        >
-          {renderFilterLabel("all", RISK_REGISTER_FILTER_LABELS.all, props.allCount)}
-        </FilterChip>
-        {RISK_REGISTER_QUICK_FILTERS.map((filter) => (
-          <FilterChip
-            key={filter}
-            href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, filter, pathname)}
-            scroll={false}
-            className={buyerFilterChipClass(props.registerFilter === filter, false)}
-            aria-current={props.registerFilter === filter ? "page" : undefined}
-          >
-            {renderFilterLabel(
-              filter,
-              RISK_REGISTER_FILTER_LABELS[filter],
-              filter === "open" ? props.openCount : undefined,
-            )}
-          </FilterChip>
-        ))}
+        {(["all", ...RISK_REGISTER_QUICK_FILTERS] as const).map((filter) => {
+          const count = filter === "all" ? props.allCount : filter === "open" ? props.openCount : undefined;
+          const disabled = filter !== "all" && count === 0;
+          const disabledReasonId = `governance-findings-register-filter-${filter}-disabled-reason`;
+
+          return (
+            <span key={filter} className="inline-flex">
+              <FilterChip
+                href={
+                  disabled
+                    ? undefined
+                    : governanceFindingsRegisterFilterHrefFromSearch(currentSearch, filter, pathname)
+                }
+                scroll={false}
+                className={buyerFilterChipClass(props.registerFilter === filter, disabled, count === 0)}
+                aria-current={props.registerFilter === filter ? "page" : undefined}
+                aria-describedby={disabled ? disabledReasonId : undefined}
+                disabled={disabled}
+              >
+                {renderFilterLabel(
+                  filter,
+                  RISK_REGISTER_FILTER_LABELS[filter],
+                  filter === "all" ? props.allCount : filter === "open" ? props.openCount : undefined,
+                )}
+              </FilterChip>
+              {disabled ? (
+                <span id={disabledReasonId} className="sr-only">
+                  {registerFilterEmptyReason(filter)}
+                </span>
+              ) : null}
+            </span>
+          );
+        })}
       </FilterChipGroup>
       {hasNonDefaultFilter ? (
         <Button type="button" size="sm" variant="outline" onClick={props.onClearAllFilters}>

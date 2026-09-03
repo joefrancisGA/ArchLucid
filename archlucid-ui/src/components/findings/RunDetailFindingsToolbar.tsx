@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 
@@ -13,6 +13,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatFindingsVisibilitySummaryLine } from "@/lib/findings/finding-confidence-filter";
 import { reviewFindingsToolbarFilterHrefFromSearch } from "@/lib/findings/review-findings-toolbar-filter-url";
+import { reviewFindingsToolbarClearSearchHrefFromSearch } from "@/lib/findings/review-findings-toolbar-search-url";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
@@ -85,9 +86,15 @@ export type RunDetailFindingsToolbarProps = {
 
 export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
   const layout = props.layout ?? "full";
+  const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
+
+  const clearFindingsSearch = (): void => {
+    router.replace(reviewFindingsToolbarClearSearchHrefFromSearch(currentSearch, pathname), { scroll: false });
+    props.onSearchQueryChange("");
+  };
   const severityCounts = useMemo(
     () => deriveFindingsToolbarSeverityCounts(props.findings),
     [props.findings],
@@ -185,6 +192,12 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
               value={props.searchQuery}
               onChange={(event) => {
                 props.onSearchQueryChange(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && props.searchQuery.trim().length > 0) {
+                  event.preventDefault();
+                  clearFindingsSearch();
+                }
               }}
               placeholder="Search title or recommendation"
               className="mt-1 h-9"
