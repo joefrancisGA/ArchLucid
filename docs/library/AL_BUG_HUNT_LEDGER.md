@@ -2880,11 +2880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 124
-- **bugs-found:** 280
+- **hunts:** 125
+- **bugs-found:** 281
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — finding/run authority binding on waiver create and disposition
+- **last-bug:** 2026-09-03 — duplicate active waiver per finding HTTP 409
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3461,7 +3461,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `GovernanceStickinessController.CreateRiskException` / `RiskExceptionService.CreateAsync` — second active waiver for the same finding returns HTTP 200 (no uniqueness guard on `(TenantId, FindingId, Active)`).
 
-2026-09-03 seed hunt #571: promoted and proved finding/run authority binding on waiver create and disposition record; seeded duplicate-active-waiver candidate.
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `RiskExceptionService.CreateAsync` — second non-expired active waiver for the same scoped finding returned HTTP 200 while inspect `HasActiveWaiver` and UI create path assume at most one — **hit 2026-09-03 (#572):** `GetActiveForScopeFindingAsync` guard (tenant/workspace/project/finding parity with inspect follow-up SQL) throws `ConflictException` → HTTP 409; regression in `RiskExceptionServiceTests.CreateAsync_throws_conflict_when_active_waiver_exists_for_finding` and `GovernanceStickinessControllerTests.CreateRiskException_returns_conflict_when_active_waiver_exists_for_finding`.
+
+2026-09-03 thorough hunt #572: promoted and proved duplicate active waiver create conflict mapping.
 
 ---
 
