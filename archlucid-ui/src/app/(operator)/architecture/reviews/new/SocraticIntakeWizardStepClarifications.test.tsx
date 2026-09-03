@@ -52,7 +52,10 @@ describe("SocraticIntakeWizardStepClarifications", () => {
     render(<SocraticIntakeWizardStepClarifications {...baseProps} />);
 
     expect(screen.getByTestId("socratic-clarifications-step")).toBeInTheDocument();
-    expect(screen.getByTestId("guided-intake-primary-panel")).toBeInTheDocument();
+    const card = screen.getByTestId("guided-intake-primary-panel");
+    expect(card).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Required clarifications" })).toBeInTheDocument();
+    expect(card).toContainElement(screen.getByTestId("wizard-sticky-footer"));
     expect(screen.getByTestId("socratic-questions-done")).toBeInTheDocument();
     expect(screen.getByText("Who owns production support?")).toBeInTheDocument();
   });

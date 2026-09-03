@@ -61,7 +61,7 @@ function SummaryMetric(props: SummaryMetricProps): React.JSX.Element {
       <Link
         href={props.href}
         className={cn(
-          "m-0 inline-flex items-baseline gap-1 no-underline hover:underline",
+          "m-0 inline-flex items-baseline gap-1",
           OPERATOR_LINK.inline,
           OPERATOR_TYPOGRAPHY.helper,
           "text-al-text-secondary hover:text-al-text-primary",

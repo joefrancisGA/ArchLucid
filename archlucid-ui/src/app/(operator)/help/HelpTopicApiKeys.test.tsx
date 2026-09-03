@@ -5,16 +5,23 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKeysGuideView";
-import {
-  expectClaimDisciplineBandContent,
-  expectClaimDisciplineHeading,
-} from "@/lib/claim-discipline-test-helpers";
-import { expectsVisibleClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 import {
   API_KEYS_HELP_ACTION_PANEL_INTRO,
   API_KEYS_HELP_ACTION_PANEL_TITLE,
-  API_KEYS_HELP_CLAIM_HEADING_ID,
   API_KEYS_HELP_INSTEAD_SECTION_TITLE,
   API_KEYS_HELP_OVERVIEW,
   API_KEYS_HELP_PAGE_SUBTITLE,
@@ -26,7 +33,6 @@ import {
 import {
   API_KEYS_HELP_CANONICAL_PATH,
   API_KEYS_HELP_CLAIM_DISCIPLINE,
-  API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING,
   API_KEYS_HELP_FOLLOW_UPS_TITLE,
   API_KEYS_HELP_SOURCES,
 } from "@/lib/api-keys-help-evidence-copy";
@@ -59,6 +65,9 @@ describe("HelpApiKeysGuideView", () => {
 
     expect(pageHeader).not.toBeNull();
     expect(within(pageHeader as HTMLElement).getByText(API_KEYS_HELP_RELEASE_STATUS_LABEL)).toBeInTheDocument();
+    expect(screen.getByTestId("help-api-keys-header-claim-discipline")).toHaveTextContent(
+      API_KEYS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
 
     const overview = screen.getByTestId("help-api-keys-overview");
 
@@ -90,38 +99,18 @@ describe("HelpApiKeysGuideView", () => {
     expect(screen.queryByRole("link", { name: "Open API keys" })).toBeNull();
   });
 
-  it("renders reachable steps, claim discipline heading, and help-specific Sources chips", () => {
+  it("renders reachable steps, header claim discipline, and sources-only follow-ups at the bottom", () => {
     if (entry === undefined) {
       throw new Error("Expected api-keys documentation entry.");
     }
 
     render(<HelpApiKeysGuideView entry={entry} />);
 
-    expect(screen.getByTestId("help-api-keys-claim-discipline-strip")).toHaveTextContent(API_KEYS_HELP_CLAIM_DISCIPLINE);
+    expect(screen.queryByTestId("help-api-keys-claim-discipline-strip")).toBeNull();
+    expect(screen.queryByTestId("help-api-keys-claim-discipline")).toBeNull();
     expect(screen.getByRole("heading", { name: API_KEYS_HELP_INSTEAD_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-api-keys-how-stepper")).toBeInTheDocument();
     expect(screen.queryByTestId("help-api-keys-step-follow-ups")).toBeNull();
-
-    expectClaimDisciplineHeading(
-      screen,
-      "help-api-keys",
-      API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING,
-      API_KEYS_HELP_CLAIM_HEADING_ID,
-    );
-    expectClaimDisciplineBandContent(
-      screen,
-      "help-api-keys",
-      "help-api-keys-claim-discipline",
-      API_KEYS_HELP_CLAIM_DISCIPLINE,
-    );
-    const claimDiscipline = screen.queryByTestId("help-api-keys-claim-discipline");
-
-    if (claimDiscipline !== null) {
-      expect(claimDiscipline.textContent?.toLowerCase()).not.toContain("not available");
-    }
-    expect(screen.getByTestId("help-api-keys-claim-discipline-strip").textContent?.toLowerCase()).not.toContain(
-      "not available",
-    );
     expect(screen.getByRole("heading", { name: API_KEYS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const followUps = screen.getByTestId("help-api-keys-sources");
@@ -138,7 +127,7 @@ describe("HelpApiKeysGuideView", () => {
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_PRIMARY_ACTIONS.audit.label })).toHaveLength(1);
   });
 
-  it("renders a sticky TOC with five on-page sections including claim discipline", () => {
+  it("renders a sticky TOC with on-page sections and bottom orientation landmark", () => {
     if (entry === undefined) {
       throw new Error("Expected api-keys documentation entry.");
     }
@@ -149,12 +138,8 @@ describe("HelpApiKeysGuideView", () => {
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_ACTION_PANEL_TITLE })).not.toHaveLength(0);
     expect(screen.getAllByRole("link", { name: "What API keys are for" })).not.toHaveLength(0);
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_INSTEAD_SECTION_TITLE })).not.toHaveLength(0);
-
-    if (expectsVisibleClaimDisciplineBand("help-api-keys")) {
-      expect(screen.getAllByRole("link", { name: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING })).not.toHaveLength(0);
-    }
-
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_FOLLOW_UPS_TITLE })).not.toHaveLength(0);
+    expect(screen.getByTestId("help-api-keys-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("help-api-keys-page-title").closest("[data-nav-href]")).toHaveAttribute(
       "data-nav-href",
       API_KEYS_HELP_CANONICAL_PATH,

@@ -111,9 +111,14 @@ public sealed class ArchitectureVersionService(
         }
 
         if (header.ArchitectureVersionId == architectureVersionId
-            && header.PinnedArchitectureVersionContentHashSha256 is { Length: > 0 } existing
-            && existing.AsSpan().SequenceEqual(artifactHash))
+            && header.PinnedArchitectureVersionContentHashSha256 is { Length: > 0 } existing)
         {
+            if (!existing.AsSpan().SequenceEqual(artifactHash))
+            {
+                throw new ConflictException(
+                    $"Architecture version pin failed for run '{runId:D}' and architecture version '{architectureVersionId:D}': existing pinned content hash does not match computed artifact hash.");
+            }
+
             return;
         }
 

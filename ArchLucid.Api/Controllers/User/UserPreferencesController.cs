@@ -59,6 +59,14 @@ public sealed class UserPreferencesController(
             userId,
             UserSettingKeys.IanaTimeZoneId,
             cancellationToken);
+        string? workspaceModeStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.WorkspaceMode,
+            cancellationToken);
+        string? workspaceModeGraduationOfferStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.WorkspaceModeGraduationOffer,
+            cancellationToken);
 
         string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(appearanceStored)
             ?? AppearancePreferenceValues.Default;
@@ -66,6 +74,8 @@ public sealed class UserPreferencesController(
         bool whereToGoNextEnabled = WhereToGoNextVisibilityValues.ParseOrDefault(whereToGoNextStored);
         bool sampleReviewsOnOverviewEnabled = SampleReviewsOnOverviewVisibilityValues.ParseOrDefault(sampleReviewsOnOverviewStored);
         string ianaTimeZoneId = IanaTimeZonePreferenceValues.NormalizeOrDefault(ianaTimeZoneStored);
+        string workspaceMode = WorkspaceModeValues.ParseOrDefault(workspaceModeStored);
+        string workspaceModeGraduationOffer = WorkspaceModeGraduationOfferValues.ParseOrDefault(workspaceModeGraduationOfferStored);
 
         return Ok(new UserPreferencesResponse
         {
@@ -82,6 +92,10 @@ public sealed class UserPreferencesController(
             IanaTimeZoneId = ianaTimeZoneId,
             IanaTimeZoneIsExplicit = ianaTimeZoneStored is not null
                 && IanaTimeZonePreferenceValues.NormalizeOrNull(ianaTimeZoneStored) is not null,
+            WorkspaceMode = workspaceMode,
+            WorkspaceModeIsExplicit = WorkspaceModeValues.IsExplicitValue(workspaceModeStored),
+            WorkspaceModeGraduationOffer = workspaceModeGraduationOffer,
+            WorkspaceModeGraduationOfferIsExplicit = WorkspaceModeGraduationOfferValues.IsExplicitValue(workspaceModeGraduationOfferStored),
         });
     }
 
@@ -226,6 +240,72 @@ public sealed class UserPreferencesController(
             userId,
             UserSettingKeys.IanaTimeZoneId,
             normalized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists the authenticated user's workspace mode preference.</summary>
+    [HttpPut("workspace-mode")]
+    [MutatingAuditExcluded("Personal workspace mode stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWorkspaceMode(
+        [FromBody] SetWorkspaceModeRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string serialized = WorkspaceModeValues.Serialize(body.Mode);
+
+        if (!WorkspaceModeValues.IsExplicitValue(serialized))
+        {
+            return this.BadRequestProblem("mode must be 'guided' or 'working'.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.WorkspaceMode,
+            serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists the authenticated user's workspace-mode graduation-offer preference.</summary>
+    [HttpPut("workspace-mode-graduation-offer")]
+    [MutatingAuditExcluded("Personal workspace-mode graduation offer stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWorkspaceModeGraduationOffer(
+        [FromBody] SetWorkspaceModeGraduationOfferRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string serialized = WorkspaceModeGraduationOfferValues.Serialize(body.State);
+
+        if (!WorkspaceModeGraduationOfferValues.IsExplicitValue(serialized))
+        {
+            return this.BadRequestProblem(
+                "state must be 'pending', 'dismissed', or 'remind-next'.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.WorkspaceModeGraduationOffer,
+            serialized,
             cancellationToken);
 
         return NoContent();

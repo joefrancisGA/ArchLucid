@@ -5,6 +5,19 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 vi.mock("@/app/(operator)/help/_sections/HelpAzurePermissionsVerificationPanel", () => ({
   HelpAzurePermissionsVerificationPanel: (props: { readonly returnHref: string }) => (
     <div data-testid="azure-permissions-verify-section" data-return-href={props.returnHref} />
@@ -35,14 +48,18 @@ import {
   AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID,
+  AZURE_PERMISSIONS_HELP_FOLLOW_UPS_TITLE,
   AZURE_PERMISSIONS_HELP_HEADER_TEST_ID,
   AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID,
   AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID,
+  AZURE_PERMISSIONS_HELP_SOURCES,
   formatAzurePermissionsHelpRequirementsReviewedLine,
 } from "@/lib/azure-permissions-help-evidence-copy";
+import { AZURE_PERMISSIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID } from "@/lib/azure-permissions-help-page-copy";
 import { CONNECT_AZURE_SECURELY_PAGE_TITLE } from "@/lib/connect-azure-securely-help-content";
-import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpAzurePermissionsGuideView", () => {
@@ -128,7 +145,7 @@ describe("HelpAzurePermissionsGuideView", () => {
 
     expect(primary).toHaveAttribute("href", AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.defaultHref);
     expect(primary).toHaveTextContent(AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.label);
-    expect(primary.closest("header")).not.toBeNull();
+    expect(primary.closest(`[data-testid="${AZURE_PERMISSIONS_HELP_HEADER_TEST_ID}"]`)).not.toBeNull();
     expect(primary.compareDocumentPosition(screen.getByTestId("azure-permissions-trust-panel")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -142,13 +159,13 @@ describe("HelpAzurePermissionsGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: AZURE_PERMISSIONS_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(AZURE_PERMISSIONS_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
-    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
-    if (!shouldOmitClaimDisciplineBand("azure-permissions-help")) {
-      expect(screen.getByTestId("azure-permissions-help-claim-discipline")).toHaveTextContent(
-        AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE,
-      );
-    }
-    expect(screen.queryByTestId("azure-permissions-help-sources")).not.toBeInTheDocument();
+    expect(screen.getByTestId(AZURE_PERMISSIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
+      AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.queryByTestId("azure-permissions-help-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-azure-permissions-claim-discipline-strip")).toBeNull();
+    expect(screen.getByTestId("azure-permissions-help-sources")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: AZURE_PERMISSIONS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.label })).toHaveAttribute(
       "href",
       "/integrations/cloud-connections/azure",
@@ -178,6 +195,14 @@ describe("HelpAzurePermissionsGuideView", () => {
       "href",
       "/help/cloud-connections/gcp",
     );
+
+    const followUps = screen.getByTestId("azure-permissions-help-sources");
+    const visibleSources = filterWhereToGoNextFollowUpLinks(AZURE_PERMISSIONS_HELP_SOURCES);
+
+    for (const source of visibleSources) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(followUps).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 
   it("sends the verify action to Azure setup when no return context is supplied", () => {

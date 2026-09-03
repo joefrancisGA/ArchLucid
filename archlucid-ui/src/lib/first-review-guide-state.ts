@@ -12,8 +12,9 @@ import {
   resolveFinishSetupWizardSteps,
 } from "@/lib/finish-setup-wizard-steps";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE } from "@/lib/buyer/buyer-polish-copy";
 import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type FirstReviewGuideStepUiStatus = "not-started" | "current" | "complete" | "blocked";
 
@@ -297,8 +298,8 @@ export function resolveFirstReviewGuideProgress(
     return {
       phase: "complete",
       progressFraction: 1,
-      summaryLabel: "Complete",
-      detailLabel: "Your first architecture review is finalized.",
+      summaryLabel: FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE,
+      detailLabel: null,
       completedStepCount: totalStepCount,
       totalStepCount,
     };

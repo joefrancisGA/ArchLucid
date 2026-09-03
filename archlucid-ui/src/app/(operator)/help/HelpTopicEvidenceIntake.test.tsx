@@ -8,8 +8,14 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 import { HelpEvidenceIntakeGuideView } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeGuideView";
 import {
   EVIDENCE_INTAKE_HELP_CLAIM_DISCIPLINE,
+  EVIDENCE_INTAKE_HELP_FOLLOW_UPS_TITLE,
   EVIDENCE_INTAKE_HELP_PRIMARY_ACTION,
+  EVIDENCE_INTAKE_HELP_SOURCES,
 } from "@/lib/evidence-intake-help-evidence-copy";
+import {
+  EVIDENCE_INTAKE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+} from "@/lib/evidence-intake-help-page-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_DISCLOSURE_LABEL,
   EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_DISCLOSURE_LABEL,
@@ -139,7 +145,21 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
       within(verifyPanel).queryByRole("link", { name: EVIDENCE_INTAKE_HELP_PRIMARY_ACTION.label }),
     ).not.toBeInTheDocument();
 
-    expect(screen.getByText(EVIDENCE_INTAKE_HELP_CLAIM_DISCIPLINE)).toBeInTheDocument();
+    expect(screen.getByTestId(EVIDENCE_INTAKE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
+      EVIDENCE_INTAKE_HELP_CLAIM_DISCIPLINE,
+    );
+    expect(screen.queryByTestId("evidence-intake-help-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: EVIDENCE_INTAKE_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+
+    const sourcesSection = screen.getByTestId("help-evidence-intake-sources");
+    const orientationBottom = screen.getByTestId("help-evidence-intake-orientation-bottom");
+
+    expect(orientationBottom).toContainElement(sourcesSection);
+
+    for (const source of EVIDENCE_INTAKE_HELP_SOURCES) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 
   it("canonicalizes related guides to first-architecture-review (TB-1352)", () => {

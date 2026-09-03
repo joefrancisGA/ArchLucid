@@ -6,6 +6,8 @@ import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 import { fetchPagedReviewsInventory } from "@/lib/api/reviews-paged-inventory";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { fetchTenantTrialStatusCached } from "@/lib/tenant-trial-status-client";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { isSampleReviewRun } from "@/lib/reviews/is-sample-review-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -42,6 +44,14 @@ export type CorePilotCommitContext = {
 
 function isCommittedRunSummary(run: RunSummary): boolean {
   return run.hasGoldenManifest === true;
+}
+
+function isTenantOwnedRunSummary(run: RunSummary): boolean {
+  return !isSampleReviewRun(run);
+}
+
+function isCommittedTenantRunSummary(run: RunSummary): boolean {
+  return isCommittedRunSummary(run) && isTenantOwnedRunSummary(run);
 }
 
 export const PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT: CorePilotCommitContext = {
@@ -99,13 +109,13 @@ function resolveSealedReviewRecordSummary(
     return null;
   }
 
-  const displayName = committed?.displayName?.trim() ?? "";
+  const buyerTitle = committed !== undefined ? buyerFacingReviewTitleFromSummary(committed).trim() : "";
   const completedUtc = committed?.completedUtc?.trim() ?? "";
   const createdUtc = committed?.createdUtc?.trim() ?? "";
 
   return {
     runId: firstCommittedRunId,
-    displayName: displayName.length > 0 ? displayName : null,
+    displayName: buyerTitle.length > 0 && buyerTitle !== "Untitled review" ? buyerTitle : null,
     finalizedOnUtc:
       completedUtc.length > 0
         ? completedUtc
@@ -124,13 +134,14 @@ export function buildCorePilotCommitContextFromRunItems(
   trialAnchoredCommit: boolean,
   trialFirstCommitUtc: string | null = null,
 ): CorePilotCommitContext {
-  const latestRun = items.length > 0 ? items[0]! : null;
+  const tenantRuns = items.filter((run) => isTenantOwnedRunSummary(run));
+  const latestRun = tenantRuns.length > 0 ? tenantRuns[0]! : null;
   const latestRunId = latestRun?.runId ?? null;
   const latestRunReadyToFinalize =
     latestRun !== null &&
     latestRun.hasFindingsSnapshot === true &&
     latestRun.hasGoldenManifest !== true;
-  const committedRuns = items.filter((r) => isCommittedRunSummary(r));
+  const committedRuns = items.filter((run) => isCommittedTenantRunSummary(run));
   const committed = committedRuns[0];
   const secondCommitted = committedRuns.length > 1 ? committedRuns[1] : undefined;
   const committedReviewCount = Math.max(committedRuns.length, trialAnchoredCommit ? 1 : 0);

@@ -16,10 +16,12 @@ import { GlobalSearchShortcutCoach } from "@/components/usability/GlobalSearchSh
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 import { isPersistentWorkspaceNextActionStripPath } from "@/lib/persistent-workspace-next-action-strip-path";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 
 /** Non-critical main-column affordances loaded after the shell paints. */
 export function AppShellMainAffordances() {
   const pathname = usePathname() ?? "/";
+  const teachingChromeVisible = useTeachingChromeVisible();
   const isOperatorHome = pathname === "/";
   const isPreferencesSettingsPath = pathname === "/account/preferences";
   const isHelpTopicPath = pathname === "/help" || pathname.startsWith("/help/");
@@ -46,6 +48,21 @@ export function AppShellMainAffordances() {
     isRecurrenceSchedulesPath;
   const showPersistentWorkspaceNextActionStrip = isPersistentWorkspaceNextActionStripPath(pathname);
   const staticDemoEnv = isExplicitStaticDemoMarketingBuild();
+
+  if (!teachingChromeVisible) {
+    return (
+      <>
+        <BuyerGoldenJourneyLayerContextStrip />
+        {showPersistentWorkspaceNextActionStrip ? <PersistentWorkspaceNextActionStrip /> : null}
+        <OperatorRecentViewsTracker />
+        <ReviewsListReturnStateTracker />
+        {staticDemoEnv ? (
+          <DemoVsLiveChromeBanner isStaticDemoEnv showWatermark className="mb-3" />
+        ) : null}
+        <PageContextualHelpFab />
+      </>
+    );
+  }
 
   return (
     <>

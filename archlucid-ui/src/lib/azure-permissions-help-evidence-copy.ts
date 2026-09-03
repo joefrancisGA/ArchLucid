@@ -1,8 +1,23 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const AZURE_PERMISSIONS_HELP_CANONICAL_PATH = "/help/azure-permissions" as const;
 
 export const AZURE_PERMISSIONS_HELP_TOPIC_LABEL = "How Azure permissions work" as const;
+
+export const AZURE_PERMISSIONS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const AZURE_PERMISSIONS_HELP_SOURCES_INTRO =
+  "Use these follow-ups when Azure permission questions need live connection settings, health checks, or assurance citations.";
+
+/** Help Sources — excludes action-panel destinations already in the first viewport. */
+export const AZURE_PERMISSIONS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
+  { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },
+  { label: "Cloud connections hub", href: "/integrations/cloud-connections" },
+  { label: "Azure connection settings", href: "/integrations/cloud-connections/azure" },
+  { label: "Connection status", href: "/administration/connection-status" },
+  { label: "Assurance status", href: "/assurance-status" },
+] as const;
 
 export type AzurePermissionsHelpJobMatrixRow = {
   readonly label: string;
