@@ -1,3 +1,4 @@
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
 
@@ -25,7 +26,10 @@ internal static class MultiRecipientEmailDispatch
     {
         bool recordedAny = false;
         bool skippedAllAsAlreadyRecorded = true;
-        List<string> distinctMailboxes = DistinctMailboxesCaseInsensitive(normalizedMailboxes);
+        List<string> distinctMailboxes = DistinctValidNormalizedMailboxes(normalizedMailboxes);
+
+        if (distinctMailboxes.Count == 0)
+            return false;
 
         foreach (string mailbox in distinctMailboxes)
         {
@@ -63,17 +67,20 @@ internal static class MultiRecipientEmailDispatch
         return recordedAny;
     }
 
-    private static List<string> DistinctMailboxesCaseInsensitive(IReadOnlyList<string> normalizedMailboxes)
+    private static List<string> DistinctValidNormalizedMailboxes(IReadOnlyList<string> mailboxes)
     {
         List<string> distinct = [];
         HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string mailbox in normalizedMailboxes)
+        foreach (string mailbox in mailboxes)
         {
-            if (!seen.Add(mailbox))
+            if (!IdentityEmailNormalizer.TryNormalize(mailbox, out string normalizedMailbox, out _))
                 continue;
 
-            distinct.Add(mailbox);
+            if (!seen.Add(normalizedMailbox))
+                continue;
+
+            distinct.Add(normalizedMailbox);
         }
 
         return distinct;

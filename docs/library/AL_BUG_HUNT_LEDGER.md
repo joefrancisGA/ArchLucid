@@ -2764,11 +2764,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 13
-- **bugs-found:** 24
+- **hunts:** 14
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — digest email subscription accepted non-mailbox destinations; exec unsubscribe copy mismatch
+- **last-bug:** 2026-09-03 — multi-recipient digest dispatch sent to malformed mailboxes without IdentityEmailNormalizer validation
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2808,10 +2808,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DigestSubscriptionFacade.CreateAsync` persisted non-canonical `ChannelType` casing — **hit 2026-09-03 (#540):** lowercase `email` stored as-is instead of `DigestDeliveryChannelType.Email`; fixed with `CanonicalizeChannelType` (`DigestSubscriptionsControllerTests.Create_canonicalizes_email_channel_type_to_contract_constant`).
 - [x] (proven) `ExecDigestUnsubscribeController` success text copied from sponsor digest — **hit 2026-09-03 (#540):** valid exec-digest unsubscribe returned `"Sponsor digest email has been turned off..."`; fixed copy to `"Exec digest email..."` (`ExecDigestUnsubscribeControllerTests.UnsubscribeAsync_valid_token_disables_email_and_returns_plain_text`).
 - [x] (proven) `FindingRemediationAssignmentEmailDispatcher` accepted malformed assignee mailboxes — **hit 2026-09-03 (#583):** `IsMailboxAddress` only required `@` with index > 0, so `finance@` rendered and sent while digest subscriptions reject via `IdentityEmailNormalizer`; fixed with shared normalizer; regression in `FindingRemediationAssignmentEmailDispatcherTests.TryDispatchAsync_rejects_invalid_assignee_mailbox_without_sending`.
-- [ ] (candidate) `WeeklySponsorReportEmailDispatcher` subject capitalizes "Sponsor" while summary email uses lowercase "sponsor" — subject-line copy inconsistency only; no delivery/idempotency impact observed.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` subject capitalizes "Sponsor" while summary email uses lowercase "sponsor" — subject-line copy inconsistency only; no delivery/idempotency impact observed (#627 cheap-disproof).
+- [x] (proven) `MultiRecipientEmailDispatch` forwarded malformed recipient mailboxes to the email provider — **hit 2026-09-03 (#627):** exec/sponsor/weekly/recurrence dispatchers trimmed blanks but never called `IdentityEmailNormalizer`, so `finance@` reached `IEmailProvider.SendAsync` while digest subscriptions and remediation assignment reject via the shared normalizer; fixed by filtering and normalizing in `DistinctValidNormalizedMailboxes`; regression in `ExecDigestEmailDispatcher_skips_invalid_recipient_mailboxes_without_sending` and `ExecDigestEmailDispatcher_delivers_only_to_valid_recipients_when_list_is_mixed`.
 - [x] (invalid) `ExecDigestUnsubscribeController` class XML summary still says sponsor digest — wrong developer-doc `<summary>` on exec controller; user-visible unsubscribe response copy fixed in #540.
 
 2026-09-03 seed hunt #583: reseeded notifications-pipeline; proved remediation-assignment mailbox validation gap vs digest subscription parity; cheap-disproved exec unsubscribe XML summary as non-user-facing.
+
+2026-09-03 thorough hunt #627: proved `MultiRecipientEmailDispatch` malformed-mailbox gap (parity with #583 remediation fix); cheap-disproved sponsor report vs summary subject capitalization as copy-only.
 
 ## Zone: artifact-synthesis
 
