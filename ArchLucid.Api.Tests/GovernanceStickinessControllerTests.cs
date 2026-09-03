@@ -1734,6 +1734,48 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordBulkDisposition_returns_ok_when_accepted_and_shared_rationale_supplies_trade_off()
+    {
+        const string rationale = "accepted after architecture board review";
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request =>
+                    request.FindingId == "finding-1"
+                    && request.TradeOffAcknowledgment == rationale),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = "finding-1" });
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = rationale,
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
     public async Task RecordBulkDisposition_returns_bad_request_when_list_contains_duplicate_finding_ids()
     {
         const string findingId = "finding-bulk-dup";

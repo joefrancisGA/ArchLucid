@@ -51,12 +51,22 @@ public sealed partial class GovernanceStickinessFacade
         foreach (string normalizedFindingId in normalizedFindingIds)
         {
 
+            string? tradeOffAcknowledgment = null;
+
+            if (request.Disposition == ArchLucid.Contracts.Findings.FindingDisposition.Accepted)
+            {
+                tradeOffAcknowledgment = string.IsNullOrWhiteSpace(request.TradeOffAcknowledgment)
+                    ? request.Rationale
+                    : request.TradeOffAcknowledgment;
+            }
+
             RecordFindingDispositionRequest normalized = new()
             {
                 FindingId = normalizedFindingId,
                 RunId = Guid.Empty,
                 Disposition = request.Disposition,
                 Rationale = request.Rationale,
+                TradeOffAcknowledgment = tradeOffAcknowledgment,
                 RevisitDueUtc = request.Disposition == ArchLucid.Contracts.Findings.FindingDisposition.Deferred && request.RevisitDueUtc is null
                     ? TimeProvider.System.GetUtcNow().AddDays(30)
                     : request.RevisitDueUtc,

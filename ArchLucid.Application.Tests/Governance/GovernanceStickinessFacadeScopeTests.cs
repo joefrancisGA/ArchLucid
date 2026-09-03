@@ -791,6 +791,49 @@ public sealed class GovernanceStickinessFacadeScopeTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task RecordBulkDispositionAsync_forwards_trade_off_acknowledgment_for_accepted_disposition()
+    {
+        const string findingId = "finding-bulk-accept";
+        const string rationale = "accepted after architecture board review";
+
+        Mock<IFindingInspectReadRepository> inspect = new();
+        inspect
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request =>
+                    request.FindingId == findingId
+                    && request.TradeOffAcknowledgment == rationale),
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: inspect.Object,
+            dispositionService: dispositions.Object);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId],
+            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+            Rationale = rationale,
+        };
+
+        RecordBulkFindingDispositionResponse response =
+            await sut.RecordBulkDispositionAsync(request, CancellationToken.None);
+
+        response.ProcessedCount.Should().Be(1);
+    }
+
     private static GovernanceStickinessFacade CreateSut(
         IArchitectureRiskRegisterService? riskRegister = null,
         IFindingInspectReadRepository? findingInspect = null,
