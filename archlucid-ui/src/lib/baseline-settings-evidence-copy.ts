@@ -7,6 +7,9 @@ export const BASELINE_SETTINGS_HELP_TOPIC_LABEL = "How baseline settings work";
 
 export const BASELINE_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
+export const BASELINE_SETTINGS_CLAIM_DISCIPLINE =
+  "These baseline settings are workspace measurement inputs for ROI estimates — not audited financial reporting or a sealed diligence export. Open Pilot ROI measurement help or the architecture scorecard for methodology context.";
+
 export const BASELINE_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when baseline anchors turn into ROI methodology, scorecard numbers, or sponsor outcomes.";
 
