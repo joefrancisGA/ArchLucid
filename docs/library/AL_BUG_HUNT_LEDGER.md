@@ -599,12 +599,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **impact:** high
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
-- **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~DapperFindingInspectReadRepositoryTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 4
-- **bugs-found:** 4
+- **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — FollowUpBatch merged child rows across reruns sharing the same scoped FindingId
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — `ResolveRuleFields` threw `NullReferenceException` when `AppliedRuleIdsJson` deserialized a null first element instead of falling back to trace rule text
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -615,9 +615,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Inspect query joins without tenant on the child table and leaks sibling-tenant rows — fixed: FollowUpBatch now scopes FindingRelatedNodes / rules / actions / AuditEvents / FindingReviewEvents / RiskExceptions to TenantId+WorkspaceId+ProjectId
 - [x] (proven) `ResolveRuleFields` pairs `DecisionRuleId` from `AppliedRuleIdsJson` with unrelated `FindingTraceRulesApplied` SortOrder=0 text — fixed: keep `DecisionRuleName` aligned with the first applied rule id when JSON ids exist
 - [x] (proven) FollowUpBatch merged related nodes / rule text / recommended actions across reruns sharing the same scoped `FindingId` — **hit 2026-08-24:** `@RunId` from the primary inspect row was unused on child-table sub-queries; main inspect `TOP 1` was non-deterministic; fixed with `r.RunId = @RunId`, `ORDER BY r.CreatedUtc DESC, r.RunId DESC`, and `aet.RunId = r.RunId`; regressions in `FollowUpBatch_scopes_related_nodes_to_main_inspect_run` and related shape tests
-- [ ] (hunt-ready) `DapperFindingInspectReadRepository.ResolveRuleFields` with non-empty `AppliedRuleIdsJson` — always sets `DecisionRuleName` to the first rule id and deliberately ignores `firstRuleText` from the SQL join, so inspect UI shows id strings instead of trace rule labels.
-- [ ] (hunt-ready) `FindingInspectReadModelMapper.ParseFindingSeverity` with unknown or typo `Severity` column value — `Enum.TryParse` failure returns `FindingSeverity.Info`, downgrading Critical/High findings in inspect responses without surfacing parse failure.
-- [ ] (hunt-ready) `DapperFindingInspectReadRepository.GetInspectAsync` with `IncludeTypedPayload = false` — `BuildMetadataTypedPayload` duplicates `rationale` into both `rationale` and `whyThisMatters` keys, so clients expecting distinct fields from full `PayloadJson` see identical strings on first paint.
+- [x] (invalid) `ResolveRuleFields` with non-empty `AppliedRuleIdsJson` ignores `firstRuleText` for `DecisionRuleName` — intentional after 2026-08-24 proven fix; mis-pairing trace SortOrder=0 text with decisioning rule ids was worse than showing the rule id
+- [x] (valid-no-repro) `ParseFindingSeverity` unknown `Severity` column defaults to `Info` — documented contract in `FindingInspectReadModelMapperTests`; invalid DB values cannot be recovered without a separate mapping table
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` duplicates `rationale` into `whyThisMatters` for metadata-only inspect — intentional slim first-paint payload; UI `findingWhyThisMattersText` already falls back to rationale
+- [x] (proven) `ResolveRuleFields` with `AppliedRuleIdsJson` containing a null first element — **hit 2026-09-03:** `ids[0].Trim()` threw `NullReferenceException` on `[null]` instead of falling back to `firstRuleText`; fixed with null/whitespace guard; consolidated regressions in `FindingInspectReadRepositoryCoreTests` (removed stale reflection tests on moved helper)
 
 ---
 
