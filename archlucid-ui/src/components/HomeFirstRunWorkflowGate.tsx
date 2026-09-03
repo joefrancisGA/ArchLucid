@@ -4,6 +4,7 @@ import { OperatorFirstRunWorkflowPanel } from "@/components/operator/OperatorFir
 import { SamplePackageShortcutsCard } from "@/components/operator-home/SamplePackageShortcutsCard";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import {
   isBuyerPolishedOperatorShellEnv,
   isBuyerSafeDemoMarketingChromeEnv,
@@ -29,8 +30,9 @@ const emptyCommitContext: CorePilotCommitContext = {
  */
 export function HomeFirstRunWorkflowGate() {
   const exploreCompletedOutput = isBuyerSafeDemoMarketingChromeEnv();
-  const curatedShortcutsRail = !isOperatorExperienceFullShellEnv();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const curatedShortcutsRail = !isOperatorExperienceFullShellEnv() && !architectWorkspaceChrome;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv() && !architectWorkspaceChrome;
   const needsCommitProbe = !exploreCompletedOutput && !curatedShortcutsRail && !buyerPolishedShell;
 
   const commitContextQuery = useCorePilotCommitContextQuery({ enabled: needsCommitProbe });

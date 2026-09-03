@@ -62,7 +62,7 @@ describe("resolveReviewDetailTabLifecycleStage", () => {
 });
 
 describe("resolveReviewDetailVisibleTabs", () => {
-  it("splits primary and more tabs across lifecycle stages", () => {
+  it("keeps every tab visible in stable order with no desktop more split", () => {
     for (const input of [
       { manifestId: null, showProgressTracker: false, runCompleted: false },
       { manifestId: null, showProgressTracker: true, runCompleted: false },
@@ -70,12 +70,9 @@ describe("resolveReviewDetailVisibleTabs", () => {
       { manifestId: "m-1", showProgressTracker: false, runCompleted: true },
     ] as const) {
       const resolved = resolveReviewDetailVisibleTabs(input);
-      const combined = [...resolved.visibleTabIds, ...resolved.moreTabIds];
 
-      expect(new Set(combined).size).toBe(combined.length);
-      expect([...combined].sort()).toEqual([...REVIEW_DETAIL_TAB_IDS].sort());
-      expect(resolved.visibleTabIds.length).toBeGreaterThan(0);
-      expect(resolved.moreTabIds.length).toBeGreaterThan(0);
+      expect(resolved.visibleTabIds).toEqual(REVIEW_DETAIL_TAB_IDS);
+      expect(resolved.moreTabIds).toEqual([]);
     }
   });
 
@@ -87,8 +84,8 @@ describe("resolveReviewDetailVisibleTabs", () => {
     });
 
     expect(resolved.stage).toBe("draft");
-    expect(resolved.visibleTabIds).toContain("overview");
-    expect(resolved.moreTabIds.length).toBeGreaterThan(0);
+    expect(resolved.visibleTabIds).toEqual(REVIEW_DETAIL_TAB_IDS);
+    expect(resolved.moreTabIds).toEqual([]);
     expect(resolved.defaultTabId).toBe("overview");
   });
 

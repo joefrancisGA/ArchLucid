@@ -9,6 +9,7 @@ using ArchLucid.Application.Runs.Orchestration.Commit;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -149,6 +150,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<IAuthorityCommitGovernanceStage>(),
             Mock.Of<IAuthorityCommitPersistenceStage>(),
             failureRecorder.Object,
+            Mock.Of<IGoldenManifestRepository>(),
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }

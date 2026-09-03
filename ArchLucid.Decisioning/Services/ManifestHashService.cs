@@ -21,7 +21,7 @@ public sealed class ManifestHashService : IManifestHashService
     ///     Canonical projection schema version. Increment only with deliberate baseline re-lock
     ///     (<c>MANIFEST_HASH_HASHER_BASELINE.md</c>, <c>TB-1157</c>).
     /// </summary>
-    public const string HasherSchemaVersion = "v7";
+    public const string HasherSchemaVersion = "v10";
 
     /// <inheritdoc />
     public string ComputeHash(ManifestDocument manifest)
@@ -88,7 +88,6 @@ public sealed class ManifestHashService : IManifestHashService
                 ? null
                 : new
                 {
-                    manifest.EffectiveGovernanceAtCommit.GeneratedUtc,
                     manifest.EffectiveGovernanceAtCommit.RuleSetId,
                     manifest.EffectiveGovernanceAtCommit.RuleSetVersion,
                     manifest.EffectiveGovernanceAtCommit.RuleSetHash,
@@ -112,7 +111,6 @@ public sealed class ManifestHashService : IManifestHashService
                 ? null
                 : new
                 {
-                    manifest.ReviewStandardsAtCommit.GeneratedUtc,
                     PolicyReferences = manifest.ReviewStandardsAtCommit.PolicyReferences
                         .OrderBy(reference => reference, StringComparer.Ordinal)
                         .ToArray(),
@@ -121,7 +119,19 @@ public sealed class ManifestHashService : IManifestHashService
                     ReviewedQualityDimensions = manifest.ReviewStandardsAtCommit.ReviewedQualityDimensions
                         .OrderBy(dimension => dimension, StringComparer.Ordinal)
                         .ToArray()
-                }
+                },
+            CommittedArtifactInventory = manifest.CommittedArtifactInventory
+                .OrderBy(row => row.ArtifactName, StringComparer.Ordinal)
+                .Select(row => new
+                {
+                    row.ArtifactName,
+                    row.ContentType,
+                    row.ContentHashSha256,
+                    row.Producer,
+                    row.CapturedUtc,
+                })
+                .ToArray(),
+            manifest.CommittedDecisionReceiptHashSha256,
         });
 
         using SHA256 sha = SHA256.Create();

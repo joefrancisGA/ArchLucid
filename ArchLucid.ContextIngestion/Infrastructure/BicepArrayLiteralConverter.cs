@@ -95,7 +95,7 @@ internal static class BicepArrayLiteralConverter
         {
             string line = rawLine.Trim();
 
-            if (TryConsumeBlockComment(ref line, ref inBlockComment))
+            if (InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment(ref line, ref inBlockComment))
                 continue;
 
             if (line.Length == 0 || line.StartsWith("//", StringComparison.Ordinal) || line.StartsWith('#'))
@@ -165,44 +165,5 @@ internal static class BicepArrayLiteralConverter
 
         if (trailingSegment.Length > 0)
             yield return trailingSegment;
-    }
-
-    private static bool TryConsumeBlockComment(ref string line, ref bool inBlockComment)
-    {
-        if (inBlockComment)
-        {
-            int end = line.IndexOf("*/", StringComparison.Ordinal);
-
-            if (end < 0)
-            {
-                line = string.Empty;
-
-                return true;
-            }
-
-            line = line[(end + 2)..].TrimStart();
-            inBlockComment = false;
-        }
-
-        while (true)
-        {
-            int start = line.IndexOf("/*", StringComparison.Ordinal);
-
-            if (start < 0)
-                break;
-
-            int end = line.IndexOf("*/", start + 2, StringComparison.Ordinal);
-
-            if (end < 0)
-            {
-                line = line[..start].TrimEnd();
-                inBlockComment = true;
-                break;
-            }
-
-            line = string.Concat(line.AsSpan(0, start), line.AsSpan(end + 2)).Trim();
-        }
-
-        return string.IsNullOrWhiteSpace(line) && inBlockComment;
     }
 }

@@ -25,4 +25,11 @@ public sealed class CommitRunResponse
         get;
         set;
     } = [];
+
+    /// <summary>Wave-15 suggestion 141: sealed artifact inventory rows for Hasher B callers.</summary>
+    public List<CommitRunCommittedArtifactInventoryEntry> CommittedArtifactInventory
+    {
+        get;
+        set;
+    } = [];
 }

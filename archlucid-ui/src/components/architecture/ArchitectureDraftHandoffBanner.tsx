@@ -7,6 +7,7 @@ import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL,
   ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD,
+  ARCHITECTURE_DRAFT_HANDOFF_CANONICAL_REVIEW_LABEL,
   buildArchitectureDraftHandoffBannerTitle,
 } from "@/lib/architecture/architecture-draft-handoff-gate";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -30,6 +31,7 @@ export function ArchitectureDraftHandoffBanner(
     >
       <p className="m-0 font-semibold">{buildArchitectureDraftHandoffBannerTitle(props.linkedReviewTitle)}</p>
       <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD}</p>
+      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_DRAFT_HANDOFF_CANONICAL_REVIEW_LABEL}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-draft-continue-review">
           <Link href={reviewDetailPath(props.linkedReviewId)}>Continue in review</Link>
