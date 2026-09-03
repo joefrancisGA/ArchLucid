@@ -257,11 +257,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 5
-- **bugs-found:** 4
+- **hunts:** 6
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23 — hunt #37: AttemptIndex must rank before CreatedUtc in latest-per-task selector
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — empty TaskId collapsed unrelated agent traces in latest-per-task selector
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** 0
 
@@ -272,9 +272,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Integrity failure is logged but commit still proceeds Î“Ã‡Ã¶ retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
 - [x] Latest-per-task selector breaks on equal `CreatedUtc` and picks a superseded rejected schema-remediation attempt over a later accepted attempt Î“Ã‡Ã¶ fixed: tie-break on `AttemptIndex` then `TraceId` in `AgentExecutionTraceLatestPerTaskSelector`
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` sorts `CreatedUtc` before `AttemptIndex`, so a superseded rejected attempt with a newer timestamp blocks commit after a higher `AttemptIndex` accepted retry — **hit 2026-08-23 hunt #37:** order by `AttemptIndex` then `CreatedUtc` then `TraceId`
-- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode.Real`, `PilotStrict`, and empty `traces` — returns no blocking reasons, so `CommitOutputIntegrityService.EnsurePassOrThrowAsync` allows commit with zero execution traces recorded.
-- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode` not equal to `Real` — ignores `QualityRejected` and `RecordedQualityGateOutcome.Rejected` on all traces, permitting commit despite recorded rejections in simulator/non-real runs.
-- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator` with latest-per-task trace showing `RecordedQualityGateOutcome != Rejected` but `QualityRejected == true` — still emits a blocking reason, so a patch that clears only `RecordedQualityGateOutcome` cannot un-block commit while `QualityRejected` remains set.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode.Real`, `PilotStrict`, and empty `traces` — TB-2226 fail-closed scope is recorded rejections on persisted traces, not trace-count presence; empty list yields no rejection to block (lifecycle Complete remains a separate commit guard).
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode` not equal to `Real` — simulator/non-real bypass is intentional (`GetBlockingReasons_when_simulator_mode_returns_empty`).
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator` with `RecordedQualityGateOutcome != Rejected` but `QualityRejected == true` — dual-flag defense is intentional (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`).
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` — empty `TaskId` collapsed unrelated agent traces into one retry chain — **hit 2026-09-02 (#507):** two PilotStrict traces with `TaskId=""` kept only the lexicographically greatest `TraceId`, hiding a rejected topology trace behind an accepted cost trace; fixed by grouping missing task ids per `TraceId` (`Select_when_task_id_missing_keeps_each_trace_distinct`, `GetBlockingReasons_when_task_id_missing_groups_by_agent_type_not_single_empty_task`).
+
+2026-09-02 thorough hunt #507: cheap-disproof on three hunt-ready rows (empty traces, non-Real bypass, dual-flag defense); proved empty-TaskId latest-per-task collapse gap.
 
 ---
 
@@ -1309,11 +1312,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 9
-- **bugs-found:** 15
+- **hunts:** 10
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — sponsor packet top decisions leaked other runs in project
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — sponsor packet omitted top-level demo notice
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1336,6 +1339,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SponsorReviewPacketBuilder.BuildTopDecisionsAsync` — `GetRegisterAsync` is project-scoped with no `runId` filter; per-run executive packet listed decisions from other runs — **hit 2026-08-27:** filter register rows by `entry.RunId` before composing top decisions (`SponsorReviewPacketBuilderTests.BuildMarkdownAsync_includes_only_decisions_for_the_requested_run`).
 - [x] (proven) `DecisionReceiptService.BuildForRunAsync` — used `GetRunSummaryAsync` + manifest summary only; omitted `HasBrokenManifestReference` / `IsCommitted` guards used by sibling export services — **hit 2026-08-27:** in-progress or broken-manifest runs with a golden-manifest pointer could export decision receipts; aligned with `SponsorReviewPacketBuilder` via `IRunDetailQueryService` (`DecisionReceiptServiceTests.BuildForRunAsync_UncommittedRunWithManifestPointer_ReturnsNull`, `BuildForRunAsync_BrokenManifestReference_ReturnsNull`).
 - [x] (proven) `TenantReviewBoardCoverLogoStore.TryGetBytesAsync` — returned raw blob bytes without `ArchitectureReviewBoardCoverLogoValidator` re-check at export embed time — **hit 2026-08-27:** validate on read and return null for tampered payloads (`TenantReviewBoardCoverLogoStoreTests`).
+
+- [x] (proven) `SponsorReviewPacketComposer.ComposeMarkdown` — hardcoded `isDemoTenant: false` in `ExportSafetyNoticeMarkdown.Append` — **hit 2026-09-02 (#497):** demo runs showed evidence-badge demo labeling only inside nested review summary while board PDF/DOCX/HTML place demo notice at document start; fixed by resolving demo tenant from `ContosoRetailDemoIdentifiers` before header append (`ComposeMarkdown_includes_top_level_demo_notice_for_demo_run`).
+
+2026-09-02 seed hunt #497: reseeded from tenant export surfaces; proved sponsor packet top-level demo notice gap after master merge.
 
 ---
 
@@ -1379,11 +1386,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 7
-- **bugs-found:** 9
+- **hunts:** 8
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — ServiceNow inbound webhook ignored `incident_state` when `state` was JSON null
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — Jira inbound webhook ignored PascalCase issue/fields/status/name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1399,9 +1406,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RouteTenantScopeBindingFilter` forbade anonymous `[AllowUnscopedRoute]` ITSM tenant webhook actions — **hit 2026-08-24:** filter compared route `{tenantId}` to empty ambient scope and returned HTTP 403 before controller dispatch; skip unscoped/anonymous endpoints.
 - [x] (proven) ServiceNow inbound webhook ignored `incident_state` when `state` was whitespace — **hit 2026-08-25:** `TryReadServiceNowKeys` only fell back on null `state`, so payloads like `"state":" "` with `"incident_state":"6"` were rejected instead of mapping resolved (`ItsmInboundWebhookSyncServiceTests.ServiceNow_inbound_uses_incident_state_when_state_is_whitespace`).
 - [x] (proven) ServiceNow inbound webhook ignored `incident_state` when `state` was JSON null — **hit 2026-08-26:** `TryReadServiceNowKeys` assigned `state` from `GetRawText()` (`"null"`) for `JsonValueKind.Null`, blocking `incident_state` fallback; fixed by treating null tokens as absent (`ServiceNow_inbound_uses_incident_state_when_state_is_json_null`).
-- [ ] (candidate) Jira inbound payload property lookup is case-sensitive on `issue` / `fields` / `status` / `name` — PascalCase shapes from some integrators may be ignored.
-- [ ] (candidate) `ItsmInboundExternalStatusMapper.TryMapConfiguredDisposition` silently skips invalid disposition enum spellings without audit, unlike human-review map unknown-status handling.
-- [ ] (candidate) `ItsmInboundWebhookReplayEventId.Resolve` preserves delivery-id casing while the replay guard lowercases cache keys — harmless today but synthetic keys remain case-sensitive in the resolved id string stored in audit payloads.
+- [x] (proven) `ItsmInboundJiraPayloadReader` case-sensitive on `issue` / `fields` / `status` / `name` — **hit 2026-09-02 (#520):** PascalCase `Issue`/`Key`/`Fields`/`Status`/`Name` webhook shapes returned `TryRead=false` and were dropped; fixed with case-insensitive property lookup (`ItsmInboundJiraPayloadReaderTests.TryRead_accepts_PascalCase_issue_fields_status_name`).
+- [x] (invalid) `ItsmInboundExternalStatusMapper.TryMapConfiguredDisposition` silently skips invalid disposition enum spellings without audit — invalid config returns null disposition and sync audit records `dispositionSkipReason: disposition_unmapped`; existing regression `TryMapServiceNowStateToDisposition_ignores_invalid_enum_values` documents intentional skip (asymmetric with human-review rejection but not a parse defect).
+- [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.Resolve` delivery-id casing vs replay guard lowercase cache keys — `BuildCacheKey` lowercases event ids for dedupe; preserved casing in audit payloads is cosmetic and duplicate delivery ids with different casing still dedupe correctly.
+
+2026-09-02 thorough hunt #520: cheap-disproof closed disposition-map and replay-id casing candidates; proved Jira PascalCase payload property lookup gap.
 
 ---
 
@@ -1538,11 +1547,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — ChangeQuantity missing quantity defaulted to one seat
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1556,6 +1565,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` daily chart labels prior-month UTC dates with current-month spend when `days` exceeds elapsed month days — fixed 2026-08-24; clamp window to month start (`TenantLlmCostReportingServiceTests.BuildDashboardAsync_daily_buckets_stay_within_current_utc_month`).
 - [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` labels tenant-wide `monthPressure` as "Current project" in `ByWorkspaceProject` — fixed 2026-08-24; row now reads "Tenant-wide (estimated)" (`TenantLlmCostReportingServiceTests.BuildDashboardAsync_labels_breakdown_as_tenant_wide_estimate`).
 - [x] (proven) `MarketplaceChangePlanWebhookMutationHandler` defaults missing `planId` to `TenantTier.Standard` and mutates ledger — fixed 2026-08-24; defer without mutation (`MarketplaceChangePlanWebhookMutationHandlerTests.Ga_enabled_missing_planId_defers_without_ledger_mutation`).
+- [x] (proven) `MarketplaceChangeQuantityWebhookMutationHandler` defaults missing `quantity` to one seat and mutates ledger — **hit 2026-09-02 (#511):** GA-enabled `ChangeQuantity` without `quantity` called `ReadQuantity` fallback `1` while sibling `ChangePlan` defers on missing `planId`; fixed with `TryReadQuantity` guard (`MarketplaceChangeQuantityWebhookMutationHandlerTests.Ga_enabled_missing_quantity_defers_without_ledger_mutation`).
+
+2026-09-02 seed hunt #511: reseeded from ArchLucid.Application/Billing marketplace mutation handlers; proved ChangeQuantity missing-quantity default seat mutation gap (symmetric to #508 ChangePlan missing planId deferral).
 
 ---
 
@@ -1776,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 84
-- **bugs-found:** 196
+- **hunts:** 115
+- **bugs-found:** 227
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — AwsEc2/GCP case-sensitive priceDimensions/pricingInfo lookup
+- **last-bug:** 2026-09-02 — GCP machine-type letter-prefix collision (e2-micro vs ve2-micro)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2046,6 +2058,130 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-02 seed hunt #496: reseeded from ArchLucid.Core costing parsers; proved case-sensitive priceDimensions/pricingInfo property lookup after #495 nested price casing fix.
 
+- [x] (proven) `AwsEc2OfferIndexParser` / `GcpCloudBillingCatalogClient` — case-sensitive `attributes` / `skus` JSON property names — **hit 2026-09-02 (#498):** PascalCase `"Attributes"` and `"Skus"` skipped hourly SKUs while canonical casing matched; fixed with case-insensitive property lookup (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_attributes_property`, `TryGetComputeEngineMonthlyUsdAsync_parses_pascal_case_skus_root_property`).
+
+2026-09-02 seed hunt #498: reseeded from ArchLucid.Core costing parsers; proved case-sensitive attributes/skus property lookup after #496 priceDimensions/pricingInfo casing fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser` — case-sensitive root `products` / `terms` / `OnDemand` JSON property names — **hit 2026-09-02 (#499):** PascalCase `"Products"` / `"Terms"` and lowercase `"ondemand"` skipped the entire offer index while canonical casing matched; fixed with case-insensitive root property lookup (`TryGetLinuxOnDemandHourlyUsd_parses_pascal_case_root_offer_properties`).
+
+2026-09-02 seed hunt #499: reseeded from ArchLucid.Core costing parsers; proved case-sensitive root offer-index property lookup after #498 attributes/skus casing fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — omitted zero `units` property rejected nanos-only `unitPrice` — **hit 2026-09-02 (#500):** `"unitPrice": { "nanos": 10400000 }` returned null while explicit `"units": 0` parsed; fixed by defaulting missing units to zero (`TryGetComputeEngineMonthlyUsdAsync_parses_unit_price_with_omitted_zero_units`).
+
+2026-09-02 seed hunt #500: reseeded from ArchLucid.Core costing parsers; proved GCP unitPrice omitted-zero-units gap after #499 AWS root casing fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — omitted zero `nanos` property rejected units-only `unitPrice` — **hit 2026-09-02 (#501):** `"unitPrice": { "units": 1 }` returned null while explicit `"nanos": 0` parsed after #500 units default; fixed by defaulting missing nanos to zero (`TryGetComputeEngineMonthlyUsdAsync_parses_unit_price_with_omitted_zero_nanos`).
+
+2026-09-02 seed hunt #501: reseeded from ArchLucid.Core costing parsers; proved GCP unitPrice omitted-zero-nanos gap (symmetric to #500 omitted-zero-units fix).
+
+- [x] (proven) `AwsEc2OfferIndexParser` — case-sensitive OnDemand product SKU key lookup — **hit 2026-09-02 (#502):** `products` key `"ABC"` with `OnDemand` key `"abc"` returned null while matching casing parsed; fixed with case-insensitive OnDemand product key lookup (`TryGetLinuxOnDemandHourlyUsd_parses_mismatched_on_demand_product_key_casing`).
+
+2026-09-02 seed hunt #502: reseeded from ArchLucid.Core costing parsers; proved AWS OnDemand product-key casing gap after #501 GCP omitted-zero-nanos fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.IsHourlyUsageUnit` — `Hrs` hourly usage-unit synonym rejected — **hit 2026-09-02 (#503):** `"usageUnit": "Hrs"` returned null while `"h"` and boolean/`"on"` synonyms already parsed; fixed by accepting `Hrs` alongside `h` (`TryGetComputeEngineMonthlyUsdAsync_parses_hrs_synonym_hourly_usage_unit`).
+
+2026-09-02 seed hunt #503: reseeded from ArchLucid.Core costing parsers; proved GCP Hrs hourly usage-unit synonym gap after #502 AWS OnDemand key casing fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadHourlyUnit` — `h` hourly unit synonym rejected — **hit 2026-09-02 (#504):** `"unit": "h"` returned null while `"Hrs"` and boolean/`"on"` synonyms already parsed; fixed by accepting `h` alongside `Hrs` (`TryGetLinuxOnDemandHourlyUsd_parses_h_synonym_hourly_unit`).
+
+2026-09-02 seed hunt #504: reseeded from ArchLucid.Core costing parsers; proved AWS h hourly unit synonym gap (symmetric to #503 GCP Hrs fix).
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryFetchComputeHourlyUsdAsync` — only first `pricingInfo` entry consulted — **hit 2026-09-02 (#505):** SKU with non-hourly `pricingInfo[0]` (`usageUnit: "mo"`) and hourly `pricingInfo[1]` returned null instead of scanning later entries; fixed by iterating all `pricingInfo` rows (`TryGetComputeEngineMonthlyUsdAsync_uses_later_hourly_pricing_info_entry`).
+
+2026-09-02 seed hunt #505: reseeded from ArchLucid.Core costing parsers; proved GCP pricingInfo first-entry-only scan gap after #504 AWS h unit synonym fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryReadTieredRateUsd` — only first `tieredRates` entry consulted — **hit 2026-09-02 (#506):** zero-price `tieredRates[0]` caused null while `tieredRates[1]` held the paid hourly rate; fixed by iterating all tier rows (`TryGetComputeEngineMonthlyUsdAsync_uses_later_paid_tiered_rate_entry`).
+
+2026-09-02 seed hunt #506: reseeded from ArchLucid.Core costing parsers; proved GCP tieredRates first-entry-only scan gap after #505 pricingInfo iteration fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadHourlyUnit` — `hour` / `hours` hourly unit synonyms rejected — **hit 2026-09-02 (#508):** `"unit": "hour"` returned null while `"h"` / `"Hrs"` / `"on"` synonyms already parsed; fixed by accepting `hour` and `hours` (`TryGetLinuxOnDemandHourlyUsd_parses_hour_synonym_hourly_unit`).
+
+2026-09-02 seed hunt #508: reseeded from ArchLucid.Core costing parsers; proved AWS hour/hours hourly unit synonym gap after #506 GCP tieredRates iteration fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.IsHourlyUsageUnit` — `hour` / `hours` hourly usage-unit synonyms rejected — **hit 2026-09-02 (#509):** `"usageUnit": "hour"` returned null while `"h"` / `"Hrs"` synonyms already parsed after #503; fixed by accepting `hour` and `hours` (`TryGetComputeEngineMonthlyUsdAsync_parses_hour_synonym_hourly_usage_unit`).
+
+2026-09-02 seed hunt #509: reseeded from ArchLucid.Core costing parsers; proved GCP hour/hours usage-unit synonym gap (symmetric to #508 AWS hour fix).
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadHourlyUnit` — `hr` hourly unit synonym rejected — **hit 2026-09-02 (#510):** `"unit": "hr"` returned null while `"h"` / `"Hrs"` / `"hour"` / `"hours"` synonyms already parsed after #508; fixed by accepting `hr` (`TryGetLinuxOnDemandHourlyUsd_parses_hr_synonym_hourly_unit`).
+
+2026-09-02 seed hunt #510: reseeded from ArchLucid.Core costing parsers; proved AWS hr hourly unit synonym gap (symmetric to #508 hour/hours fix).
+
+- [x] (proven) `GcpCloudBillingCatalogClient.IsHourlyUsageUnit` — `hr` hourly usage-unit synonym rejected — **hit 2026-09-02 (#512):** `"usageUnit": "hr"` returned null while `"h"` / `"Hrs"` / `"hour"` / `"hours"` synonyms already parsed after #509; fixed by accepting `hr` (`TryGetComputeEngineMonthlyUsdAsync_parses_hr_synonym_hourly_usage_unit`).
+
+2026-09-02 seed hunt #512: reseeded from ArchLucid.Core costing parsers; proved GCP hr usage-unit synonym gap (symmetric to #510 AWS hr fix).
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — `1 Hr` hourly unit-of-measure synonym rejected — **hit 2026-09-02 (#513):** `"UnitOfMeasure": "1 Hr"` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `"1 Hour"` and `"Hrs"` already matched; fixed by accepting ` hr` token and standalone `h` / `hr` synonyms (`AzureRetailPricesSkuMatchersTests.TryMonthlyUsdFromRow_accepts_hr_unit_of_measure_synonym`).
+
+2026-09-02 seed hunt #513: reseeded from ArchLucid.Core Azure retail SKU matchers; proved Hr hourly UOM synonym gap after #512 GCP hr usage-unit fix.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — `1 h` hourly unit-of-measure synonym rejected — **hit 2026-09-02 (#514):** `"UnitOfMeasure": "1 h"` failed `TryMonthlyUsdFromRow` while `"1 Hr"` and `"1 Hour"` already matched after #513; fixed by accepting ` h` token (`AzureRetailPricesSkuMatchersTests.TryMonthlyUsdFromRow_accepts_h_unit_of_measure_synonym`).
+
+2026-09-02 seed hunt #514: reseeded from ArchLucid.Core Azure retail SKU matchers; proved h hourly UOM synonym gap (symmetric to #513 Hr fix).
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — `1 Mo` monthly unit-of-measure synonym rejected — **hit 2026-09-02 (#515):** `"UnitOfMeasure": "1 Mo"` failed `TryMonthlyUsdFromRow` while `"1 Month"` already matched; fixed by accepting ` mo` token and standalone `mo` synonym (`AzureRetailPricesSkuMatchersTests.TryMonthlyUsdFromRow_accepts_mo_unit_of_measure_synonym`).
+
+2026-09-02 seed hunt #515: reseeded from ArchLucid.Core Azure retail SKU matchers; proved Mo monthly UOM synonym gap (symmetric to #513–#514 hourly token fixes).
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — `1/mo` monthly unit-of-measure synonym rejected — **hit 2026-09-02 (#516):** `"UnitOfMeasure": "1/mo"` failed `TryMonthlyUsdFromRow` while `"1 Month"` and `"1 Mo"` already matched after #515; fixed by accepting `/mo` token (`AzureRetailPricesSkuMatchersTests.TryMonthlyUsdFromRow_accepts_slash_mo_unit_of_measure_synonym`).
+
+2026-09-02 seed hunt #516: reseeded from ArchLucid.Core Azure retail SKU matchers; proved slash-mo monthly UOM synonym gap (symmetric to #515 Mo fix).
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — `1/hr` hourly unit-of-measure synonym rejected — **hit 2026-09-02 (#517):** `"UnitOfMeasure": "1/hr"` failed `TryMonthlyUsdFromRow` while `"1 Hr"` and `"1 h"` already matched after #513–#514; fixed by accepting `/hr` token (`AzureRetailPricesSkuMatchersTests.TryMonthlyUsdFromRow_accepts_slash_hr_unit_of_measure_synonym`).
+
+2026-09-02 seed hunt #517: reseeded from ArchLucid.Core Azure retail SKU matchers; proved slash-hr hourly UOM synonym gap (symmetric to #516 slash-mo fix).
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — `1/h` hourly unit-of-measure synonym rejected — **hit 2026-09-02 (#518):** `"UnitOfMeasure": "1/h"` failed `TryMonthlyUsdFromRow` while `"1/hr"` and `"1 h"` already matched after #514/#517; fixed by accepting `/h` token (`AzureRetailPricesSkuMatchersTests.TryMonthlyUsdFromRow_accepts_slash_h_unit_of_measure_synonym`).
+
+2026-09-02 seed hunt #518: reseeded from ArchLucid.Core Azure retail SKU matchers; proved slash-h hourly UOM synonym gap (symmetric to #517 slash-hr fix).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryReadQuantity` — quantity above `int.MaxValue` silently clamped to `2147483647` — **hit 2026-09-02 (#519):** `"quantity":2147483648` and `"quantity":5000000000` returned `true` with clamped seat count via unchecked `(int)` double cast; fixed with `numeric <= int.MaxValue` guard (`TryReadQuantity_rejects_quantity_above_int_max`, `ReadQuantity_uses_fallback_when_quantity_above_int_max`, `TryReadQuantity_rejects_string_encoded_quantity_above_int_max`).
+
+2026-09-02 seed hunt #519: reseeded from ArchLucid.Core marketplace webhook parser; proved quantity overflow clamp gap beyond Azure UOM synonym sweep.
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — embedded `enterprise` substring false-positive — **hit 2026-09-02 (#521):** `NonEnterpriseStandard` mapped to `Enterprise` via bare `Contains("enterprise")`; fixed with delimiter-token matching (`TierStorageCodeFromPlanId_does_not_false_positive_on_non_enterprise_substring`, `TierStorageCodeFromPlanId_maps_delimited_enterprise_token`).
+
+2026-09-02 seed hunt #521: reseeded from ArchLucid.Core marketplace billing parser; proved planId tier substring false-positive beyond quantity overflow fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.TryFetchComputeHourlyUsdAsync` — machine-type `Contains` prefix collision — **hit 2026-09-02 (#522):** catalog SKU `n1-standard-10` matched lookup for `n1-standard-1` and returned the higher hourly rate; fixed with boundary-aware `DescriptionMatchesMachineType` (`TryGetComputeEngineMonthlyUsdAsync_prefers_exact_machine_type_over_prefix_collision`).
+
+2026-09-02 seed hunt #522: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog machine-type prefix collision beyond marketplace billing fixes.
+
+- [x] (proven) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — non-`Active` subscription ignored purchased caps — **hit 2026-09-02 (#523):** canceled subscription with `WorkspacesPurchased=8` fell through to usage inference and returned `Team` instead of `Professional`; fixed by resolving purchased caps whenever a subscription row exists (`ResolveCommercialTierLabel_uses_purchased_caps_when_subscription_is_not_active`).
+
+2026-09-02 seed hunt #523: reseeded from ArchLucid.Core billing packaging resolver; proved non-Active subscription purchased-cap drift beyond GCP costing prefix fix.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.RowMatchesCollapsed` — collapsed SKU `StartsWith`/`Contains` prefix collision — **hit 2026-09-02 (#525):** `Standard_D4` matched retail row `Standard_D48s_v5` after underscore collapse (`StandardD4` prefix of `StandardD48sv5`) and picked the wrong Azure retail price; fixed with boundary-aware `HasCollapsedSkuPrefix` / `CollapsedSkuContains` (`RowMatchesSku_rejects_d4_series_prefix_collision_against_d48`).
+
+2026-09-02 seed hunt #525: reseeded from ArchLucid.Core Azure retail SKU matchers; proved collapsed SKU prefix collision (parity with GCP #522 machine-type fix).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — slash/colon-delimited `enterprise` token not recognized — **hit 2026-09-02 (#526):** `contoso/enterprise/monthly` and `contoso:enterprise:annual` returned `Standard` because `IsPlanIdDelimiter` omitted `/` and `:` after #521 delimiter-token fix; fixed by extending delimiters (`TierStorageCodeFromPlanId_maps_slash_or_colon_delimited_enterprise_token`).
+
+2026-09-02 seed hunt #526: reseeded from ArchLucid.Core marketplace webhook parser; proved slash/colon planId enterprise token gap beyond #521 delimiter fix.
+
+- [x] (proven) `AwsEc2OfferIndexParser.TryReadAttribute` — numeric product attribute JSON tokens ignored — **hit 2026-09-02 (#528):** `"instanceType":12345` returned null for lookup `"12345"` while string attributes already parsed after #491 trim fix; fixed with whole-number coercion (`TryGetLinuxOnDemandHourlyUsd_parses_numeric_instance_type_attribute`).
+
+2026-09-02 seed hunt #528: reseeded from ArchLucid.Core AWS offer-index parser; proved numeric attribute token coercion gap beyond #491 whitespace trim fix.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.HasCollapsedSkuBoundary` — letter-variant SKU suffix prefix collision — **hit 2026-09-02 (#529):** `Standard_D4` matched retail row `Standard_D4s_v5` after #525 digit-boundary fix because `s` suffix after size digit `4` was still accepted (`StandardD4` prefix of `StandardD4sv5`); fixed by rejecting letter suffixes immediately following a digit (`RowMatchesSku_rejects_letter_suffix_series_collision`).
+
+2026-09-02 seed hunt #529: reseeded from ArchLucid.Core Azure retail SKU matchers; proved letter-suffix prefix collision beyond #525 digit-boundary fix.
+
+- [x] (proven) `GcpCloudBillingCatalogClient.DescriptionMatchesMachineType` — letter-variant machine-type suffix prefix collision — **hit 2026-09-02 (#531):** lookup `n1-standard-1` matched catalog SKU `n1-standard-1d` after #522 digit-boundary fix because trailing `d` was not rejected; fixed by rejecting letter suffixes immediately following a digit (`TryGetComputeEngineMonthlyUsdAsync_rejects_letter_suffix_machine_type_collision`).
+
+2026-09-02 seed hunt #531: reseeded from ArchLucid.Core GCP billing catalog; proved letter-suffix machine-type collision (parity with Azure #529).
+
+- [x] (proven) `GcpCloudBillingCatalogClient.DescriptionMatchesMachineType` — letter-variant machine-type prefix collision — **hit 2026-09-02 (#537):** lookup `e2-micro` matched catalog SKU `ve2-micro` after #531 suffix-boundary fix because leading `v` was not rejected; fixed by rejecting letter prefixes immediately before the match (`TryGetComputeEngineMonthlyUsdAsync_rejects_letter_prefix_machine_type_collision`).
+
+2026-09-02 seed hunt #537: reseeded from ArchLucid.Core GCP billing catalog; proved letter-prefix machine-type collision (parity with #531 suffix fix).
+
+- [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — backslash/pipe-delimited `enterprise` token not recognized — **hit 2026-09-02 (#532):** `contoso\enterprise\monthly` and `contoso|enterprise|annual` returned `Standard` because `IsPlanIdDelimiter` omitted `\` and `|` after #526 slash/colon fix; fixed by extending delimiters (`TierStorageCodeFromPlanId_maps_backslash_or_pipe_delimited_enterprise_token`).
+
+2026-09-02 seed hunt #532: reseeded from ArchLucid.Core marketplace webhook parser; proved backslash/pipe planId enterprise token gap beyond #526 delimiter fix.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — `/h` substring false-positive on `1/health` — **hit 2026-09-02 (#533):** bare `Contains("/h")` matched non-hourly `1/health` unit-of-measure and treated the row as hourly consumption after #518 `/h` synonym fix; fixed with boundary-aware `ContainsSlashHourToken` (`LooksLikeConsumptionUsd_rejects_health_unit_of_measure_false_positive`, `TryMonthlyUsdFromRow_rejects_health_unit_of_measure_false_positive`).
+
+2026-09-02 seed hunt #533: reseeded from ArchLucid.Core Azure retail SKU matchers; proved `/h` UOM substring false-positive beyond hourly synonym sweep.
+
 2026-09-02 seed hunt #487: reseeded from ArchLucid.Core costing parsers; proved GCP billing catalog numeric units/nanos coercion gap (parity with #486 AwsEc2 USD fix).
 
 2026-09-02 seed hunt #486: reseeded from ArchLucid.Core costing parsers after boolean-synonym sweep; proved AwsEc2 offer-index numeric USD price coercion gap.
@@ -2234,11 +2370,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 59
-- **bugs-found:** 120
+- **hunts:** 63
+- **bugs-found:** 124
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — simple-terraform HCL array literals leaked inner scalars
+- **last-bug:** 2026-09-02 — bracket/brace in line comments truncated balanced extraction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2373,6 +2509,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DocumentConnector.DeltaAsync` spaced `REQ :` prefix vs `REQ:` — prior `TryGetPrefixedBody` fix already reports unchanged; regression `DocumentConnectorTests.DeltaAsync_SpacedRequirementPrefixChange_ReportsUnchanged`.
 
 2026-09-02 seed hunt #430: reseeded from parser files; proved simple-terraform HCL array literal gap; disproved Bicep inline-array and document spaced-prefix delta regressions.
+
+- [x] (proven) `SimpleTerraformResourceBlockParser` nested `site_config` blocks stored raw body and dropped inner `ip_security_restrictions` arrays — **hit 2026-09-02 (#524):** HCL `site_config { ip_security_restrictions = [ ... ] }` emitted only `tf.site_config` text and leaked inner scalars, so App Service network-rule expander never ran; fixed by flattening `site_config`/`properties` with balanced-brace extraction (Bicep parity) (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedSiteConfigIpSecurityRestrictionsArray_PreservesRulesForNetworkExpander`, `ParseAsync_NestedSiteConfigIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
+
+2026-09-02 seed hunt #524: reseeded from context-ingestion parsers; proved nested simple-terraform site_config array flatten gap beyond top-level HCL array fix (#430).
+
+- [x] (proven) `SimpleTerraformResourceBlockParser` / `BicepResourceBodyParser` — multiline `key =` / `key:` array headers not recognized — **hit 2026-09-02 (#527):** `ip_security_restrictions =` newline `[` leaked inner scalars (`tf.name`, `tf.ip_address`) instead of `tf.ip_security_restrictions` JSON array; fixed by probing the next non-empty line for `[` after a header-only assignment (`ParseAsync_MultilineIpSecurityRestrictionsArray_PreservesRulesForNetworkExpander` in simple-terraform and Bicep tests).
+
+2026-09-02 seed hunt #527: reseeded from context-ingestion parsers; proved multiline array header gap beyond same-line HCL/Bicep array fixes (#430/#524).
+
+- [x] (proven) `InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody` — `}` inside quoted strings prematurely closed nested blocks — **hit 2026-09-02 (#530):** `site_config { note = "has } char" public_network_access = "Disabled" }` dropped `tf.public_network_access` because brace depth ignored quotes while bracket extraction already tracked them; fixed with quote-aware brace scanning (`ParseAsync_NestedSiteConfigWithClosingBraceInQuotedString_StillParsesTrailingScalars` in simple-terraform and Bicep tests).
+
+2026-09-02 seed hunt #530: reseeded from context-ingestion brace extractor; proved quote-unaware brace depth gap beyond #527 multiline array header fix.
+
+- [x] (proven) `InfrastructureDeclarationBraceBodyExtractor` — `]` / `}` inside `//` line comments prematurely closed balanced bodies — **hit 2026-09-02 (#534):** `ip_security_restrictions = [ // legacy rule ]` truncated at comment `]` and leaked inner scalars (`tf.name`, `tf.ip_address`) instead of `tf.ip_security_restrictions` JSON array; fixed by skipping `//`, `/* */`, and `#` comments before delimiter depth counting in shared brace/bracket extractor (`ParseAsync_IpSecurityRestrictionsArrayWithBracketInLineComment_PreservesRulesForNetworkExpander`, `ParseAsync_NestedSiteConfigWithClosingBraceInLineComment_StillParsesTrailingScalars` in simple-terraform and Bicep tests).
+
+2026-09-02 seed hunt #534: reseeded from context-ingestion brace extractor; proved comment-unaware delimiter depth gap beyond #530 quote-aware brace fix.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
@@ -2514,11 +2666,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 4
-- **bugs-found:** 6
+- **hunts:** 5
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — markdown generators hardcoded Assumptions as Not specified
+- **last-hunt:** 2026-09-02
+- **last-bug:** 2026-09-02 — architecture narrative omitted committed decisions
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2532,11 +2684,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArtifactBundleValidator` fail-open on content-hash mismatch — **hit 2026-08-24:** required non-empty hash but never compared to `ArtifactHashing.ComputeHash`; regression in `Validate_when_content_hash_mismatch_throws`
 - [x] (proven) `FileNameSanitizer` allowed Unicode slash homoglyphs in export paths — **hit 2026-08-24:** fullwidth solidus U+FF0F survived sanitization; regression in `FileNameSanitizer_replaces_invalid_windows_characters` (`..／..／manifest.json`)
 - [x] (proven) `ArchitectureNarrativeArtifactGenerator` omitted `Topology.SelectedPatterns` — **hit 2026-08-25:** narrative listed resources/gaps only while `ReferenceArchitectureMarkdownGenerator` and DOCX export emitted `- Pattern:` lines; regression in `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_topology_selected_patterns`
-- [ ] (candidate) `ArchitectureNarrativeArtifactGenerator` omits `manifest.Decisions` — reference-architecture and DOCX include decisions while narrative jumps to unresolved issues
+- [x] (proven) `ArchitectureNarrativeArtifactGenerator` omitted `manifest.Decisions` — **hit 2026-09-02 (#536):** narrative jumped from placeholder sections to unresolved issues while `ReferenceArchitectureMarkdownGenerator` and DOCX export listed committed decisions; fixed with `## Decisions` section (`ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_decisions`).
 - [ ] (candidate) `MermaidDiagramArtifactGenerator` ignores typed golden topology — AST built only from `manifest.Decisions`, not `Topology.Services` / `Datastores`
 - [ ] (candidate) `DocxExportService.BuildDocumentAsync` omits Constraints and Assumptions sections present in markdown artifacts
 - [ ] (candidate) `DocxExportService` skips `LlmArtifactFreeTextSanitizer` on manifest posture strings (topology gaps, security/compliance gaps)
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` hardcoded `## Assumptions` as `Not specified.` — **hit 2026-08-26:** committed `manifest.Assumptions` dropped while Constraints were already emitted from manifest; fixed by listing assumptions or `No assumptions were recorded.` (`ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified`, `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified`).
+
+2026-09-02 thorough hunt #536: proved architecture narrative decisions parity gap vs reference-architecture markdown and DOCX export.
 
 ---
 
@@ -3318,11 +3472,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 8
-- **bugs-found:** 15
+- **hunts:** 9
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Quick Scan captcha challenge without Turnstile mount
+- **last-bug:** 2026-09-02 — showcase embedded demo sign-in CTA missing returnUrl
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3346,6 +3500,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Quick Scan `SampleOnly` auto-sample `useEffect` overwrites a real analysis when capacity status loads after submit — **hit 2026-08-27:** effect lacked `result === null` guard; aligned with optimistic `isQuickScanAiSubmitAllowed(null)` race (`use-quick-scan-client.test.ts`).
 
 2026-09-02 thorough hunt #429: proved quick-scan capacity-banner recovery and progressive CAPTCHA Turnstile mount gaps.
+
+- [x] (proven) `DemoPreviewSignInCallout` / `DemoPreviewEvaluationCta` hardcoded `/auth/signin` without `returnUrl` on embedded showcase demo body — **hit 2026-09-02 (#535):** gated showcase visitors who signed in from the bottom demo preview CTAs did not return to `/architecture/reviews/{runId}` unlike `ShowcaseQuickNav`; fixed by threading `signInReturnPath` from `DemoPreviewMarketingBody` and using `buildAuthSignInHref` (`DemoPreviewCallouts.test.tsx`).
+
+2026-09-02 seed hunt #535: reseeded from showcase demo preview callouts; proved sign-in returnUrl parity gap vs `ShowcaseQuickNav`.
 
 2026-08-28 thorough hunt #7: proved sponsor digest signInUrl trailing-slash normalization; reseeded quick-scan capacity-banner and captcha candidates.
 - [x] (proven) Static-first showcase slugs skip API but pass `renderMode="api"` and `banner={null}` when API base is configured — **hit 2026-08-27:** conflated API configured with served-from-API; static-first branch now always uses `renderMode="static"` and static banner (`showcase-page.test.tsx`).

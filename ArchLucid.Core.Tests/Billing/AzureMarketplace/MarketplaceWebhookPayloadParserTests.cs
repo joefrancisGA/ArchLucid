@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Billing.AzureMarketplace;
+using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
@@ -142,5 +143,73 @@ public sealed class MarketplaceWebhookPayloadParserTests
         int quantity = MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement, fallback: 10);
 
         quantity.Should().Be(1);
+    }
+
+    [Fact]
+    public void TryReadQuantity_rejects_quantity_above_int_max()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":2147483648}""");
+
+        bool ok = MarketplaceWebhookPayloadParser.TryReadQuantity(document.RootElement, out int quantity);
+
+        ok.Should().BeFalse();
+        quantity.Should().Be(0);
+    }
+
+    [Fact]
+    public void ReadQuantity_uses_fallback_when_quantity_above_int_max()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":5000000000}""");
+
+        int quantity = MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement, fallback: 7);
+
+        quantity.Should().Be(7);
+    }
+
+    [Fact]
+    public void TryReadQuantity_rejects_string_encoded_quantity_above_int_max()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"quantity":"2147483648"}""");
+
+        bool ok = MarketplaceWebhookPayloadParser.TryReadQuantity(document.RootElement, out int quantity);
+
+        ok.Should().BeFalse();
+        quantity.Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData("Contoso-Enterprise-Plan", nameof(TenantTier.Enterprise))]
+    [InlineData("contoso-enterprise", nameof(TenantTier.Enterprise))]
+    [InlineData("team", nameof(TenantTier.Standard))]
+    public void TierStorageCodeFromPlanId_maps_delimited_enterprise_token(string planId, string expectedTier)
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId).Should().Be(expectedTier);
+    }
+
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_non_enterprise_substring()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("NonEnterpriseStandard")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
+    [Theory]
+    [InlineData("contoso/enterprise/monthly")]
+    [InlineData("contoso:enterprise:annual")]
+    public void TierStorageCodeFromPlanId_maps_slash_or_colon_delimited_enterprise_token(string planId)
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+            .Should()
+            .Be(nameof(TenantTier.Enterprise));
+    }
+
+    [Theory]
+    [InlineData(@"contoso\enterprise\monthly")]
+    [InlineData("contoso|enterprise|annual")]
+    public void TierStorageCodeFromPlanId_maps_backslash_or_pipe_delimited_enterprise_token(string planId)
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+            .Should()
+            .Be(nameof(TenantTier.Enterprise));
     }
 }

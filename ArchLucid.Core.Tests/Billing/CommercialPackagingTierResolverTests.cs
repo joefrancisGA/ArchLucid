@@ -61,6 +61,17 @@ public sealed class CommercialPackagingTierResolverTests
         label.Should().Be(CommercialPackagingTierLabels.Team);
     }
 
+    [SkippableFact]
+    public void ResolveCommercialTierLabel_uses_purchased_caps_when_subscription_is_not_active()
+    {
+        TenantRecord tenant = PaidTenant(TenantTier.Standard);
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 2, 8, "Canceled");
+
+        string? label = CommercialPackagingTierResolver.ResolveCommercialTierLabel(tenant, subscription, 1, 3);
+
+        label.Should().Be(CommercialPackagingTierLabels.Professional);
+    }
+
     private static TenantRecord PaidTenant(TenantTier tier, string? trialStatus = null)
     {
         return new TenantRecord

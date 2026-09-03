@@ -4,13 +4,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ItsmAtlassianOAuthCallbackClient } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackClient";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
-import { ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 import {
   ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL,
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL,
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_TARGET_ID,
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-page-copy";
+import {
+  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING,
+  ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE,
+} from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 
 const completeItsmAtlassianOAuthConsent = vi.fn();
 let searchParams = new URLSearchParams("code=oauth-code&state=oauth-state");
@@ -59,11 +62,11 @@ describe("ItsmAtlassianOAuthCallbackClient buyer-polished shell", () => {
     completeItsmAtlassianOAuthConsent.mockImplementation(() => new Promise(() => undefined));
   });
 
-  it("renders skip link, follow-ups above outcome card, and hides contextual help", () => {
+  it("renders skip link, outcome before follow-ups, and hides contextual help", () => {
     render(<ItsmAtlassianOAuthCallbackClient />);
 
     const skipLink = screen.getByRole("link", { name: ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL });
-    expect(skipLink).toHaveAttribute("href", `#${ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID}`);
+    expect(skipLink).toHaveAttribute("href", `#${ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_TARGET_ID}`);
 
     expect(screen.getByTestId("itsm-oauth-callback-page-title")).toHaveTextContent(
       ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE,
@@ -76,14 +79,20 @@ describe("ItsmAtlassianOAuthCallbackClient buyer-polished shell", () => {
       INTEGRATIONS_JIRA_PATH,
     );
 
-    expect(screen.getByRole("heading", { level: 2, name: ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-    expect(screen.queryByTestId("itsm-oauth-callback-claim-discipline")).not.toBeInTheDocument();
-
     const primaryContent = screen.getByTestId("itsm-oauth-callback-primary-content");
-    const orientation = screen.getByTestId("itsm-oauth-callback-orientation-top");
+    const firstViewport = screen.getByTestId("itsm-oauth-callback-first-viewport");
+    const orientation = screen.getByTestId("itsm-oauth-callback-orientation-bottom");
     const outcome = screen.getByTestId("itsm-oauth-callback-outcome");
 
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(outcome);
     expect(primaryContent).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(outcome) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    expect(screen.getByRole("heading", { level: 2, name: ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING }),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("itsm-oauth-callback-orientation-top")).toBeNull();
   });
 });

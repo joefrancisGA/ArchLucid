@@ -17,7 +17,7 @@ public static class AgentExecutionTraceLatestPerTaskSelector
             return traces;
 
         List<AgentExecutionTrace> latest = traces
-            .GroupBy(static t => t.TaskId, StringComparer.OrdinalIgnoreCase)
+            .GroupBy(GetLatestPerTaskKey, StringComparer.OrdinalIgnoreCase)
             .Select(static g => g
                 .OrderByDescending(static t => t.AttemptIndex)
                 .ThenByDescending(static t => t.CreatedUtc)
@@ -26,5 +26,16 @@ public static class AgentExecutionTraceLatestPerTaskSelector
             .ToList();
 
         return latest;
+    }
+
+    private static string GetLatestPerTaskKey(AgentExecutionTrace trace)
+    {
+        ArgumentNullException.ThrowIfNull(trace);
+
+        if (!string.IsNullOrWhiteSpace(trace.TaskId))
+            return trace.TaskId;
+
+        // Missing TaskId must not collapse unrelated agent traces into one retry chain.
+        return trace.TraceId;
     }
 }
