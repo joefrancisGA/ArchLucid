@@ -1862,11 +1862,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 126
-- **bugs-found:** 241
+- **hunts:** 127
+- **bugs-found:** 242
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — boolean / `on` synonym `schemaVersion` JSON tokens rejected dead-letter detection
+- **last-bug:** 2026-09-03 — graph snapshot reuse rejected whitespace-padded architectureVersionId pin
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1902,16 +1902,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — PascalCase `FailureClass` property name missed — case-insensitive property lookup already reads `FailureClass`; regression `IsDeadLettered_returns_true_for_PascalCase_failure_class_property_name`.
 
-- [ ] (candidate) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"true"` / boolean `true` schemaVersion at current version not idempotent upgrade path — validator accepts but upgrader may treat as legacy zero; cheap-disproof before repro.
-- [ ] (candidate) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` — decimal IPv4 literals (`3232235777`) bypass host-literal guard — `TryParse` may not accept; verify before repro.
+- [x] (valid-no-repro) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"true"` / boolean `true` schemaVersion at current version — #612 coercion maps boolean synonyms to v1; current-version path returns true without mutation (#630 cheap-disproof).
+- [x] (invalid) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` / `IsForbiddenHostLiteral` — decimal IPv4 literals (`3232235777`) — `IPAddress.TryParse` accepts decimal notation on .NET 10 and `IsForbiddenIpAddress` already blocks the mapped private address (#630 cheap-disproof).
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — boolean / string-boolean `schemaVersion` rejected — duplicate of #616; regressions already cover boolean/`on`/`"true"` tokens.
+
+- [x] (proven) `GraphSnapshotCommittedReuseResolver.IsObservationallyEqual` — whitespace-padded `architectureVersionId` GUID rejected reuse — **hit 2026-09-03 (#630):** persisted context node property `" {guid} "` failed `Guid.TryParse` without trim while sibling pin readers trim before compare; committed graph reuse skipped despite matching context/κ fingerprints; fixed with `storedVersion.Trim()` before parse (`TryResolveAsync_reuses_graph_when_architecture_version_id_has_outer_whitespace`).
+
+2026-09-03 thorough hunt #630: proved graph snapshot architectureVersionId trim gap; cheap-disproved stale upgrader, dead-letter boolean, and decimal IPv4 candidates.
 
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryReadSchemaVersion` — boolean synonym / string-double `schemaVersion` tokens rejected — **hit 2026-09-03 (#612):** `"on"` / `"off"` and `"1.0"` failed `bool.TryParse` / integer-only string parse while `AzureExtractorPackageZipValidator` already accepts synonym and whole-number-double tokens; in-memory upgrade path rejected manifests the ZIP validator would accept; fixed with validator-parity boolean synonyms and fractional whole-number string coercion (`TryUpgradeManifestJson_accepts_on_synonym_for_current_schema_version`, `TryUpgradeManifestJson_upgrades_off_synonym_for_legacy_zero_schema_version`, `TryUpgradeManifestJson_accepts_string_whole_number_double_schema_version`).
 
 2026-09-03 seed hunt #612: reseeded Azure extractor manifest coercion after #595; proved upgrader boolean-synonym and string-double parity gap.
-
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — boolean / string-boolean `schemaVersion` rejected — validator parity gap sibling to #600–#604; cheap-disproof before repro.
-- [ ] (candidate) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — decimal IPv4 literals bypass host-literal guard — `IPAddress.TryParse` may not accept; verify before repro.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
