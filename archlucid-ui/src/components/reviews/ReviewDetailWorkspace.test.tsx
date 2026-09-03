@@ -1,7 +1,10 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
+import { REVIEW_WORKBENCH_LAYOUT_TEST_ID } from "@/components/reviews/ReviewWorkbenchLayout";
+import { WORKSPACE_MODE_STORAGE_KEY } from "@/lib/workspace-mode/workspace-mode-preference";
+import { PROFESSIONAL_WORKBENCH_STORAGE_KEY } from "@/lib/workspace-mode/professional-workbench-preference";
 import {
   isActivityNewSinceLastVisit,
   markLastVisitedNow,
@@ -10,6 +13,13 @@ import {
 
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
+const workspaceModeMock = vi.hoisted(() => ({
+  mode: "guided" as const,
+  mounted: true,
+  accountSyncState: "synced" as const,
+  isWorkingMode: false,
+  setAndPersist: vi.fn(),
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -18,6 +28,14 @@ vi.mock("next/navigation", () => ({
   }),
   usePathname: () => "/architecture/reviews/run-abc",
   useSearchParams: () => new URLSearchParams("reviewTab=overview"),
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => workspaceModeMock,
+}));
+
+vi.mock("@/hooks/use-review-workbench-shortcuts", () => ({
+  useReviewWorkbenchShortcuts: vi.fn(),
 }));
 
 const RUN_ID = "run-abc";
@@ -36,6 +54,9 @@ const workspacePanels = {
 describe("ReviewDetailWorkspace", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    workspaceModeMock.mode = "guided";
+    workspaceModeMock.isWorkingMode = false;
+    workspaceModeMock.mounted = true;
   });
 
   it("renders tab list and overview panel by default", () => {
@@ -127,5 +148,32 @@ describe("ReviewDetailWorkspace", () => {
 
     expect(screen.getByTestId("panel-findings")).toBeInTheDocument();
     expect(screen.getByTestId("review-detail-workspace-panel-findings")).toBeInTheDocument();
+  });
+
+  it("renders workbench layout in Working mode when architecture, findings, and evidence tabs are visible", async () => {
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+
+    window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, "working");
+    window.localStorage.setItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY, "1");
+
+    render(
+      <ReviewDetailWorkspace
+        runId={RUN_ID}
+        tabLifecycle={{
+          manifestId: "manifest-1",
+          showProgressTracker: false,
+          runCompleted: false,
+        }}
+        panels={workspacePanels}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID)).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("review-workbench-column-architecture")).toBeInTheDocument();
+    expect(screen.getByTestId("review-workbench-column-findings")).toBeInTheDocument();
+    expect(screen.getByTestId("review-workbench-column-evidence")).toBeInTheDocument();
   });
 });

@@ -30,6 +30,14 @@ export type ComposeOperatorHomeSectionsInput = {
   readonly workingMode?: boolean;
 };
 
+function shouldShowHomeMetricsStrip(metrics: OperatorHomeWorkspaceMetricsSnapshot): boolean {
+  return metrics.reviewPackagesCommitted > 0;
+}
+
+function metricsStripSection(): OperatorHomeSectionDescriptor {
+  return { id: "metrics-strip", testId: "operator-home-metrics-strip" };
+}
+
 function earlyPhaseSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty") {
     return [{ id: "hero", testId: "operator-home-hero-section" }];
@@ -43,13 +51,16 @@ function earlyPhaseSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSect
   ];
 }
 
-function buyerPolishedSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
+function buyerPolishedSections(
+  phase: OperatorHomeWorkspacePhase,
+  metrics: OperatorHomeWorkspaceMetricsSnapshot,
+): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty" || phase === "eval-with-drafts") {
     return earlyPhaseSections(phase);
   }
 
   const sections: OperatorHomeSectionDescriptor[] = [
-    { id: "metrics-strip", testId: "operator-home-metrics-strip" },
+    ...(shouldShowHomeMetricsStrip(metrics) ? [metricsStripSection()] : []),
     { id: "attention-taxonomy", testId: "operator-home-attention-taxonomy" },
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "start-something", testId: "operator-home-start-something" },
@@ -66,13 +77,16 @@ function buyerPolishedSections(phase: OperatorHomeWorkspacePhase): OperatorHomeS
   return sections;
 }
 
-function operatorShellSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
+function operatorShellSections(
+  phase: OperatorHomeWorkspacePhase,
+  metrics: OperatorHomeWorkspaceMetricsSnapshot,
+): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty" || phase === "eval-with-drafts") {
     return earlyPhaseSections(phase);
   }
 
   const sections: OperatorHomeSectionDescriptor[] = [
-    { id: "metrics-strip", testId: "operator-home-metrics-strip" },
+    ...(shouldShowHomeMetricsStrip(metrics) ? [metricsStripSection()] : []),
     { id: "attention-taxonomy", testId: "operator-home-attention-taxonomy" },
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "start-something", testId: "operator-home-start-something" },
@@ -84,13 +98,16 @@ function operatorShellSections(phase: OperatorHomeWorkspacePhase): OperatorHomeS
   return sections;
 }
 
-function workingModeOperatorShellSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
+function workingModeOperatorShellSections(
+  phase: OperatorHomeWorkspacePhase,
+  metrics: OperatorHomeWorkspaceMetricsSnapshot,
+): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty" || phase === "eval-with-drafts") {
     return earlyPhaseSections(phase);
   }
 
   return [
-    { id: "metrics-strip", testId: "operator-home-metrics-strip" },
+    ...(shouldShowHomeMetricsStrip(metrics) ? [metricsStripSection()] : []),
     { id: "attention-taxonomy", testId: "operator-home-attention-taxonomy" },
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
@@ -105,14 +122,14 @@ export function composeOperatorHomeSections(
   const phase = resolveOperatorHomeWorkspacePhase(input.phaseSignals);
 
   if (input.buyerPolishedShell) {
-    return buyerPolishedSections(phase);
+    return buyerPolishedSections(phase, input.metrics);
   }
 
   if (input.workingMode === true) {
-    return workingModeOperatorShellSections(phase);
+    return workingModeOperatorShellSections(phase, input.metrics);
   }
 
-  return operatorShellSections(phase);
+  return operatorShellSections(phase, input.metrics);
 }
 
 export function operatorHomeSectionDescriptor(

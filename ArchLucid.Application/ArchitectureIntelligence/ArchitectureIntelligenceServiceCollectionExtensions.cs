@@ -142,6 +142,8 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IClosedLoopRecommendationStage, ClosedLoopRecommendationStage>();
         services.AddScoped<IClosedLoopPublishStage, ClosedLoopPublishStage>();
         services.AddScoped<IClosedLoopArchitectureReasoningOrchestrator, ClosedLoopArchitectureReasoningOrchestrator>();
+        services.AddScoped<IGoldenArchitectureInvokeStage, GoldenArchitectureInvokeStage>();
+        services.AddScoped<IGoldenArchitectureBenchmarkStage, GoldenArchitectureBenchmarkStage>();
         services.AddScoped<IGoldenArchitectureTestRunner, GoldenArchitectureTestRunner>();
         services.AddScoped<IAuthorityClosedLoopStrengtheningPass, AuthorityClosedLoopStrengtheningPass>();
     }

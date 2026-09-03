@@ -51,4 +51,24 @@ public sealed class DecisionReceiptComposerTests
         receipt.Intake!.BusinessOutcome.Should().Be("Reduce triage time.");
         receipt.CostStory.Label.Should().Be(DecisionReceiptConstants.CostEstimateLabel);
     }
+
+    [Fact]
+    public void BuildForRun_RequiresManifestHashAndVersion()
+    {
+        FeasibilityVerdict verdict = new()
+        {
+            Kind = FeasibilityVerdictKind.SoftInfeasible,
+            Summary = "Policy controls are not satisfied.",
+        };
+
+        Action missingHash = () =>
+            DecisionReceiptComposer.BuildForRun(Guid.NewGuid(), verdict, manifestHashSha256: null, manifestVersion: "v1");
+
+        missingHash.Should().Throw<ArgumentException>();
+
+        Action missingVersion = () =>
+            DecisionReceiptComposer.BuildForRun(Guid.NewGuid(), verdict, manifestHashSha256: "ABC123", manifestVersion: null);
+
+        missingVersion.Should().Throw<ArgumentException>();
+    }
 }

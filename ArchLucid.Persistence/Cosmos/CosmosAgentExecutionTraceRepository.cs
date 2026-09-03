@@ -12,7 +12,7 @@ namespace ArchLucid.Persistence.Cosmos;
 
 /// <summary>Cosmos-backed <see cref="IAgentExecutionTraceRepository" />.</summary>
 /// <remarks>
-///     Implementation lives in <c>CosmosAgentExecutionTraceRepository.{Patch|Query}.cs</c> partials.
+///     Implementation lives in <c>CosmosAgentExecutionTraceRepository.{Patch|Query.*}.cs</c> partials.
 ///     The type remains one <see cref="IAgentExecutionTraceRepository" /> implementation and DI registration.
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification = "Requires Cosmos account or emulator.")]

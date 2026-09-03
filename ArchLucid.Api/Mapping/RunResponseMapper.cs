@@ -6,6 +6,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Manifest.Sections;
 
 namespace ArchLucid.Api.Mapping;
 
@@ -77,11 +78,24 @@ internal static class RunResponseMapper
     public static CommitRunResponse ToCommitRunResponse(
         GoldenManifest manifest,
         IEnumerable<DecisionTraceDto> decisionTraces,
-        IEnumerable<string> warnings)
+        IEnumerable<string> warnings,
+        IEnumerable<CommittedArtifactInventoryEntry>? committedArtifactInventory = null)
     {
         return new CommitRunResponse
         {
-            Manifest = manifest, DecisionTraces = decisionTraces.ToList(), Warnings = warnings.ToList()
+            Manifest = manifest,
+            DecisionTraces = decisionTraces.ToList(),
+            Warnings = warnings.ToList(),
+            CommittedArtifactInventory = (committedArtifactInventory ?? [])
+                .Select(static row => new CommitRunCommittedArtifactInventoryEntry
+                {
+                    ArtifactName = row.ArtifactName,
+                    ContentType = row.ContentType,
+                    ContentHashSha256 = row.ContentHashSha256,
+                    Producer = row.Producer,
+                    CapturedUtc = row.CapturedUtc,
+                })
+                .ToList(),
         };
     }
 
