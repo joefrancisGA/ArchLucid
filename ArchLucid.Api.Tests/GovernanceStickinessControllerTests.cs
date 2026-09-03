@@ -1827,6 +1827,66 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_when_name_exceeds_max_length()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            });
+
+        GovernanceStickinessController controller = BuildSut(runRepository: runs);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            Name = new string('n', RecurrenceScheduleValidation.NameMaxLength + 1),
+            CronExpression = "0 9 * * 1",
+            IsEnabled = true,
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_when_cron_expression_exceeds_max_length()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            });
+
+        GovernanceStickinessController controller = BuildSut(runRepository: runs);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            Name = "weekly review",
+            CronExpression = new string('0', RecurrenceScheduleValidation.CronExpressionMaxLength + 1),
+            IsEnabled = true,
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task CreateRecurrenceSchedule_persists_inactive_schedule()
     {
         Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -1945,6 +2005,41 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task UpdateRecurrenceSchedule_returns_bad_request_when_name_exceeds_max_length()
+    {
+        Guid scheduleId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
+        recurrenceRepo
+            .Setup(r => r.GetByIdAsync(scheduleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ArchitectureReviewRecurrenceSchedule
+                {
+                    ScheduleId = scheduleId,
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                    Name = "existing",
+                    CronExpression = "0 9 * * 1",
+                    IsEnabled = true,
+                });
+
+        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo);
+
+        IActionResult action = await controller.UpdateRecurrenceSchedule(
+            scheduleId,
+            new UpdateArchitectureReviewRecurrenceScheduleRequest
+            {
+                Name = new string('n', RecurrenceScheduleValidation.NameMaxLength + 1),
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
