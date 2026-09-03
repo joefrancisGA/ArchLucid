@@ -2875,11 +2875,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 112
-- **bugs-found:** 266
+- **hunts:** 113
+- **bugs-found:** 267
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — link-entra entraOid max-length validation
+- **last-bug:** 2026-09-03 — policy pack GetVersion SemVer and max-length validation parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

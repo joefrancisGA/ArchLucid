@@ -499,6 +499,38 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task GetVersion_returns_bad_request_when_pack_version_exceeds_max_length()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
+
+        IActionResult result = await sut.GetVersion(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new string('1', PolicyPackRequestValidationRules.PackVersionMaxLength + 1),
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetVersion_returns_bad_request_when_pack_version_is_not_semver()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
+
+        IActionResult result = await sut.GetVersion(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            "latest",
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task ExplainPack_returns_bad_request_when_route_id_empty()
     {
         Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);

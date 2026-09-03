@@ -1,5 +1,7 @@
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 
 namespace ArchLucid.Api.Http.Governance;
 
@@ -18,6 +20,22 @@ public static class PolicyPacksHttpMapper
     {
         if (string.IsNullOrWhiteSpace(packVersion))
             return new GovernanceHttpValidation("Version is required.", ProblemTypes.ValidationFailed);
+
+        string trimmedVersion = packVersion.Trim();
+
+        if (trimmedVersion.Length > PolicyPackRequestValidationRules.PackVersionMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"Version must be at most {PolicyPackRequestValidationRules.PackVersionMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!PolicyPackRequestValidationRules.BePolicyPackSemVerVersion(trimmedVersion))
+        {
+            return new GovernanceHttpValidation(
+                PolicyPackRequestValidationRules.PackVersionSemVerMessage,
+                ProblemTypes.ValidationFailed);
+        }
 
         return null;
     }
