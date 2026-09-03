@@ -9,7 +9,17 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { TabsContent } from "@/components/ui/tabs";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { ArchLucidAppRole } from "@/lib/current-principal";
+import {
+  SETTINGS_ROLES_MEMBER_ROLE_OPTIONS,
+  settingsRolesMemberRoleHrefFromSearch,
+  settingsRolesMemberStatusHrefFromSearch,
+  type SettingsRolesMemberStatusFilter,
+} from "@/lib/administration/settings-roles-member-filters-url";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 import type { SettingsRolesContinueLastTarget } from "@/lib/resolve-continue-last-settings-principal";
 
@@ -35,6 +45,10 @@ import {
 export type SettingsRolesUsersTabProps = {
   readonly model: SettingsRolesPageViewModel;
   readonly userRows: readonly SettingsRolesAssignablePrincipalRow[];
+  readonly memberRoleFilter: ArchLucidAppRole | null;
+  readonly memberStatusFilter: SettingsRolesMemberStatusFilter | null;
+  readonly membersFilterSearch: string;
+  readonly membersFilterPathname: string;
   readonly usersTabInviteFirstLayout: boolean;
   readonly usersTabEmptyWorkspace: boolean;
   readonly usersSectionTitle: string;
@@ -57,6 +71,61 @@ export function SettingsRolesUsersTab(props: SettingsRolesUsersTabProps) {
   return (
     <TabsContent value="users" data-testid="settings-roles-tabpanel-users">
       <div className={OPERATOR_LAYOUT.sectionStack}>
+        <FilterChipGroup
+          aria-label="Filter members by role"
+          className="flex flex-wrap gap-2"
+          data-testid="settings-roles-member-role-chips"
+        >
+          <FilterChip
+            href={settingsRolesMemberRoleHrefFromSearch(props.membersFilterSearch, null, props.membersFilterPathname)}
+            scroll={false}
+            className={buyerFilterChipClass(props.memberRoleFilter === null, false)}
+            aria-current={props.memberRoleFilter === null ? "page" : undefined}
+          >
+            All roles
+          </FilterChip>
+          {SETTINGS_ROLES_MEMBER_ROLE_OPTIONS.map((role) => (
+            <FilterChip
+              key={role}
+              href={settingsRolesMemberRoleHrefFromSearch(props.membersFilterSearch, role, props.membersFilterPathname)}
+              scroll={false}
+              className={buyerFilterChipClass(props.memberRoleFilter === role, false)}
+              aria-current={props.memberRoleFilter === role ? "page" : undefined}
+            >
+              {role}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+        <FilterChipGroup
+          aria-label="Filter members by principal type"
+          className="flex flex-wrap gap-2"
+          data-testid="settings-roles-member-status-chips"
+        >
+          <FilterChip
+            href={settingsRolesMemberStatusHrefFromSearch(props.membersFilterSearch, null, props.membersFilterPathname)}
+            scroll={false}
+            className={buyerFilterChipClass(props.memberStatusFilter === null, false)}
+            aria-current={props.memberStatusFilter === null ? "page" : undefined}
+          >
+            All members
+          </FilterChip>
+          <FilterChip
+            href={settingsRolesMemberStatusHrefFromSearch(props.membersFilterSearch, "user", props.membersFilterPathname)}
+            scroll={false}
+            className={buyerFilterChipClass(props.memberStatusFilter === "user", false)}
+            aria-current={props.memberStatusFilter === "user" ? "page" : undefined}
+          >
+            Users
+          </FilterChip>
+          <FilterChip
+            href={settingsRolesMemberStatusHrefFromSearch(props.membersFilterSearch, "api_key", props.membersFilterPathname)}
+            scroll={false}
+            className={buyerFilterChipClass(props.memberStatusFilter === "api_key", false)}
+            aria-current={props.memberStatusFilter === "api_key" ? "page" : undefined}
+          >
+            API keys
+          </FilterChip>
+        </FilterChipGroup>
         {props.usersTabInviteFirstLayout ? (
           <>
             <Card

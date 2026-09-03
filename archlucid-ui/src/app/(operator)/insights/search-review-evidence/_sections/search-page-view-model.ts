@@ -1,9 +1,11 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 
 import type { RetrievalHit } from "./retrieval-hit";
+import type { RetrievalHitRelevanceTier } from "./retrieval-hit-display";
 
 export type SearchPageViewModel = {
   readonly buyerShell: boolean;
+  readonly confidence: RetrievalHitRelevanceTier | null;
   readonly failure: ApiLoadFailureState | null;
   readonly hasSearched: boolean;
   readonly isDemo: boolean;
@@ -16,4 +18,5 @@ export type SearchPageViewModel = {
   readonly runId: string;
   readonly setQuery: (next: string) => void;
   readonly setRunId: (next: string) => void;
+  readonly totalResultCount: number;
 };

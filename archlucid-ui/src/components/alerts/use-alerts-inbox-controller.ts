@@ -37,6 +37,9 @@ import {
 import type { AlertActionLoopDto } from "@/types/operate-rhythm";
 import { useSyncAlertsHubHeaderConfigureLink } from "@/components/alerts/AlertsHubHeaderConfigureLinkContext";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  parseAlertsInboxSeverityFromSearch,
+} from "@/lib/governance/alerts-inbox-severity-url";
 
 type PendingActionState = {
   alertId: string;
@@ -70,11 +73,13 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const urlSeverity = parseAlertsInboxSeverityFromSearch(searchParams.get("severity"));
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
   const canMutateAlertInbox = useNavSurface("alerts").mutationCapability;
   const buyerPolishedShell = initialModel?.buyerPolishedShell ?? isBuyerPolishedOperatorShellEnv();
   const [status, setStatus] = useState<string>(initialModel?.status ?? "Open");
+  const [severity, setSeverity] = useState<string>(urlSeverity);
   const [cursorStack, setCursorStack] = useState<string[]>(() => initialCursorStack(initialModel));
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(initialModel?.loadFailure ?? null);
   const [pendingAction, setPendingAction] = useState<PendingActionState | null>(null);
@@ -135,6 +140,11 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     });
   }, [alerts]);
 
+  useEffect(() => {
+    setSeverity(urlSeverity);
+    setCursorStack([""]);
+  }, [urlSeverity]);
+
   const refreshInbox = useCallback(
     async (options?: { readonly refreshSummary?: boolean }) => {
       const statusFilterValue = status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : status;
@@ -154,10 +164,22 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
 
   const visibleAlerts = useMemo(
     () =>
-      alerts.filter(
-        (alert) => alert.isArchived !== true && matchesAlertsInboxRunScope(alert, scopedRunId),
-      ),
-    [alerts, scopedRunId],
+      alerts.filter((alert) => {
+        if (alert.isArchived === true) {
+          return false;
+        }
+
+        if (!matchesAlertsInboxRunScope(alert, scopedRunId)) {
+          return false;
+        }
+
+        if (severity.trim().length > 0 && alert.severity !== severity) {
+          return false;
+        }
+
+        return true;
+      }),
+    [alerts, scopedRunId, severity],
   );
 
   const onPickReviewForTriage = useCallback(
@@ -430,6 +452,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     queuePendingAction,
     selectedAlertIds,
     setActionComment,
+    severity,
     status,
     summaryCounts,
     summaryLoading,

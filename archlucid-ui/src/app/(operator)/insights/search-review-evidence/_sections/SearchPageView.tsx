@@ -31,6 +31,11 @@ import {
   searchReviewEvidenceClearQueryHrefFromSearch,
   searchReviewEvidenceQueryHrefFromSearch,
 } from "@/lib/insights/search-review-evidence-query-url";
+import {
+  SEARCH_REVIEW_EVIDENCE_CONFIDENCE_OPTIONS,
+  searchReviewEvidenceConfidenceHrefFromSearch,
+} from "@/lib/insights/search-review-evidence-confidence-url";
+import { retrievalHitRelevanceLabel } from "./retrieval-hit-display";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 import {
   resolveSearchReviewEvidenceEmphasizedStepId,
@@ -78,6 +83,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
   const currentSearch = searchParams.toString();
   const {
     buyerShell,
+    confidence,
     failure,
     hasSearched,
     isDemo,
@@ -90,6 +96,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     onClearRecentQueries,
     setQuery,
     setRunId,
+    totalResultCount,
   } = model;
 
   const pageTitle = searchPageTitle(runId);
@@ -294,7 +301,42 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         <EnterpriseCompactEmptyState
           {...SEARCH_EMPTY_COMPACT}
           actions={searchEmptyStateActions(scopedRunId)}
+          description={
+            confidence !== null && totalResultCount > 0
+              ? `No hits match ${retrievalHitRelevanceLabel(confidence).toLowerCase()}. Try another confidence tier or broaden your query.`
+              : SEARCH_EMPTY_COMPACT.description
+          }
         />
+      ) : null}
+
+      {hasSearched && failure === null && totalResultCount > 0 ? (
+        <FilterChipGroup
+          aria-label="Filter search results by confidence"
+          className="flex flex-wrap gap-2"
+          data-testid="search-review-evidence-confidence-chips"
+        >
+          <FilterChip
+            href={searchReviewEvidenceConfidenceHrefFromSearch(currentSearch, null, pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(confidence === null, loading)}
+            aria-current={confidence === null ? "page" : undefined}
+            disabled={loading}
+          >
+            All confidence
+          </FilterChip>
+          {SEARCH_REVIEW_EVIDENCE_CONFIDENCE_OPTIONS.map((tier) => (
+            <FilterChip
+              key={tier}
+              href={searchReviewEvidenceConfidenceHrefFromSearch(currentSearch, tier, pathname)}
+              scroll={false}
+              className={buyerFilterChipClass(confidence === tier, loading)}
+              aria-current={confidence === tier ? "page" : undefined}
+              disabled={loading}
+            >
+              {retrievalHitRelevanceLabel(tier)}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
       ) : null}
 
       <div className="grid gap-3" data-testid="search-review-evidence-results">

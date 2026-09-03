@@ -319,3 +319,100 @@ describe("wave14 filter url helpers", () => {
     expect(helpHubSearchHrefFromSearch("tab=guides", "export")).toBe("/help?tab=guides&q=export");
   });
 });
+
+describe("wave15 filter url helpers", () => {
+  it("architectures hub owner and domain params", async () => {
+    const {
+      parseArchitecturesHubOwnerFromSearch,
+      architecturesHubOwnerHrefFromSearch,
+      parseArchitecturesHubDomainFromSearch,
+      architecturesHubDomainHrefFromSearch,
+    } = await import("@/lib/architecture/architectures-hub-owner-domain-url");
+
+    expect(parseArchitecturesHubOwnerFromSearch("platform-team")).toBe("platform-team");
+    expect(architecturesHubOwnerHrefFromSearch("q=vpc", "platform-team")).toBe(
+      "/architecture/architectures?q=vpc&owner=platform-team",
+    );
+    expect(parseArchitecturesHubDomainFromSearch("acme.com")).toBe("acme.com");
+    expect(architecturesHubDomainHrefFromSearch("owner=team", "acme.com")).toBe(
+      "/architecture/architectures?owner=team&domain=acme.com",
+    );
+  });
+
+  it("compare finding lifecycle status param", async () => {
+    const {
+      parseCompareFindingLifecycleStatusFromSearch,
+      compareFindingLifecycleStatusHrefFromSearch,
+    } = await import("@/lib/compare/compare-finding-lifecycle-status-url");
+
+    expect(parseCompareFindingLifecycleStatusFromSearch("NewlyIdentified")).toBe("NewlyIdentified");
+    expect(compareFindingLifecycleStatusHrefFromSearch("priorRunId=a&laterRunId=b", "CandidateResolved")).toBe(
+      "/insights/compare-two-reviews?priorRunId=a&laterRunId=b&comparisonStatus=CandidateResolved",
+    );
+  });
+
+  it("graph node type and search confidence params", async () => {
+    const { parseGraphNodeTypeFromSearch, graphNodeTypeHrefFromSearch } = await import(
+      "@/lib/insights/graph-node-type-url"
+    );
+    const {
+      parseSearchReviewEvidenceConfidenceFromSearch,
+      searchReviewEvidenceConfidenceHrefFromSearch,
+    } = await import("@/lib/insights/search-review-evidence-confidence-url");
+
+    expect(parseGraphNodeTypeFromSearch("Finding")).toBe("Finding");
+    expect(graphNodeTypeHrefFromSearch("runId=r1", "Finding")).toBe("/insights/evidence-graph?runId=r1&nodeType=Finding");
+    expect(parseSearchReviewEvidenceConfidenceFromSearch("high")).toBe("high");
+    expect(searchReviewEvidenceConfidenceHrefFromSearch("runId=r1&q=phi", "medium")).toBe(
+      "/insights/search-review-evidence?runId=r1&q=phi&confidence=medium",
+    );
+  });
+
+  it("alerts severity, sealed records range, and ai usage range params", async () => {
+    const { parseAlertsInboxSeverityFromSearch, alertsInboxSeverityHrefFromSearch } = await import(
+      "@/lib/governance/alerts-inbox-severity-url"
+    );
+    const { parseSignedRecordsListDateRangeFromSearch, signedRecordsListDateRangeHrefFromSearch } = await import(
+      "@/lib/signed-records/signed-records-list-date-range-url"
+    );
+    const { parseAiUsageDailyRangeFromSearch, aiUsageDailyRangeHrefFromSearch } = await import(
+      "@/lib/administration/ai-usage-daily-range-url"
+    );
+
+    expect(parseAlertsInboxSeverityFromSearch("Critical")).toBe("Critical");
+    expect(alertsInboxSeverityHrefFromSearch("runId=r1", "High")).toBe("/governance/alerts?runId=r1&severity=High");
+    expect(parseSignedRecordsListDateRangeFromSearch("7d")).toBe("7d");
+    expect(signedRecordsListDateRangeHrefFromSearch("runId=r1", "30d")).toBe(
+      "/governance/sealed-records?runId=r1&range=30d",
+    );
+    expect(parseAiUsageDailyRangeFromSearch("7d")).toBe("7d");
+    expect(aiUsageDailyRangeHrefFromSearch("metric=tokens", "7d")).toBe(
+      "/administration/ai-usage?metric=tokens&range=7d",
+    );
+  });
+
+  it("connector category and settings member role/status params", async () => {
+    const { parseConnectorOperationsCategoryFromSearch, connectorOperationsCategoryHrefFromSearch } = await import(
+      "@/lib/integrations/connector-operations-category-url"
+    );
+    const {
+      parseSettingsRolesMemberRoleFromSearch,
+      settingsRolesMemberRoleHrefFromSearch,
+      parseSettingsRolesMemberStatusFromSearch,
+      settingsRolesMemberStatusHrefFromSearch,
+    } = await import("@/lib/administration/settings-roles-member-filters-url");
+
+    expect(parseConnectorOperationsCategoryFromSearch("ticketing")).toBe("ticketing");
+    expect(connectorOperationsCategoryHrefFromSearch("", "notifications")).toBe(
+      "/administration/connection-status?category=notifications",
+    );
+    expect(parseSettingsRolesMemberRoleFromSearch("Admin")).toBe("Admin");
+    expect(settingsRolesMemberRoleHrefFromSearch("tab=users", "Operator")).toBe(
+      "/administration/users?tab=users&role=Operator",
+    );
+    expect(parseSettingsRolesMemberStatusFromSearch("user")).toBe("user");
+    expect(settingsRolesMemberStatusHrefFromSearch("tab=users&role=Admin", "api_key")).toBe(
+      "/administration/users?tab=users&role=Admin&status=api_key",
+    );
+  });
+});
