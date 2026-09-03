@@ -24,9 +24,11 @@ public sealed class AgentEvaluationConfidencePipeline(
     IAgentOutputEvaluator structuralEvaluator,
     HeuristicOnlyAgentOutputSemanticEvaluator confidenceGateSemanticEvaluator,
     IAgentOutputQualityGate qualityGate,
-    IOptions<AgentOutputQualityGateOptions> gateOptions,
+    IAgentOutputQualityGateOptionsResolver gateOptionsResolver,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
+    IAgentOutputFaithfulnessEvaluator llmFaithfulnessEvaluator,
+    IOptions<AgentOutputLlmFaithfulnessOptions> llmFaithfulnessOptions,
     FindingConfidenceCalculator confidenceCalculator)
 {
     private readonly IAgentExecutionTraceRepository _traceRepository =
@@ -50,8 +52,8 @@ public sealed class AgentEvaluationConfidencePipeline(
     private readonly IAgentOutputQualityGate _qualityGate =
         qualityGate ?? throw new ArgumentNullException(nameof(qualityGate));
 
-    private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions =
-        gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
+    private readonly IAgentOutputQualityGateOptionsResolver _gateOptionsResolver =
+        gateOptionsResolver ?? throw new ArgumentNullException(nameof(gateOptionsResolver));
 
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
@@ -59,6 +61,12 @@ public sealed class AgentEvaluationConfidencePipeline(
     private readonly IAgentResultEvidenceFaithfulnessChecker _agentResultEvidenceFaithfulnessChecker =
         agentResultEvidenceFaithfulnessChecker ??
         throw new ArgumentNullException(nameof(agentResultEvidenceFaithfulnessChecker));
+
+    private readonly IAgentOutputFaithfulnessEvaluator _llmFaithfulnessEvaluator =
+        llmFaithfulnessEvaluator ?? throw new ArgumentNullException(nameof(llmFaithfulnessEvaluator));
+
+    private readonly IOptions<AgentOutputLlmFaithfulnessOptions> _llmFaithfulnessOptions =
+        llmFaithfulnessOptions ?? throw new ArgumentNullException(nameof(llmFaithfulnessOptions));
 
     private readonly FindingConfidenceCalculator _confidenceCalculator =
         confidenceCalculator ?? throw new ArgumentNullException(nameof(confidenceCalculator));
@@ -97,14 +105,16 @@ public sealed class AgentEvaluationConfidencePipeline(
 
         bool schemaPassed = await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
             trace,
-            _gateOptions.Value,
+            _gateOptionsResolver.Resolve(cancellationToken),
             _structuralEvaluator,
             _confidenceGateSemanticEvaluator,
             _qualityGate,
             cancellationToken,
             evidence,
             _agentResultEvidenceFaithfulnessChecker,
-            calibratedConfidenceByTaskId).ConfigureAwait(false);
+            calibratedConfidenceByTaskId,
+            _llmFaithfulnessEvaluator,
+            _llmFaithfulnessOptions.Value).ConfigureAwait(false);
 
         bool referenceMatched = await _referenceCaseRunEvaluator
             .ComputeAnyPassingReferenceCaseAsync(trace, cancellationToken)
@@ -186,7 +196,7 @@ public sealed class AgentEvaluationConfidencePipeline(
 
         Dictionary<AgentType, AgentExecutionTrace> traceByAgentType = latestTraces
             .GroupBy(static t => t.AgentType)
-            .ToDictionary(static g => g.Key, static g => g.First());
+            .ToDictionary(static g => g.Key, static g => SelectPreferredTraceForAgentType(g));
 
         Dictionary<string, AgentExecutionTrace> traceByTaskId = latestTraces
             .ToDictionary(static t => t.TaskId, static t => t, StringComparer.OrdinalIgnoreCase);
@@ -207,4 +217,12 @@ public sealed class AgentEvaluationConfidencePipeline(
             Evidence = evidence,
         };
     }
+
+    private static AgentExecutionTrace SelectPreferredTraceForAgentType(IEnumerable<AgentExecutionTrace> traces) =>
+        traces
+            .OrderByDescending(static t => t.ParseSucceeded && !string.IsNullOrEmpty(t.ParsedResultJson))
+            .ThenByDescending(static t => t.AttemptIndex)
+            .ThenByDescending(static t => t.CreatedUtc)
+            .ThenByDescending(static t => t.TraceId, StringComparer.Ordinal)
+            .First();
 }

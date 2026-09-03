@@ -158,7 +158,7 @@ public sealed partial class ScimUserService
     {
         ScimUserRecord? other = await _users.GetByExternalIdAsync(tenantId, externalId, cancellationToken);
 
-        if (other is not null && other.Id != userId && other.DirectoryRemovedUtc is null)
+        if (other is not null && other.Id != userId)
             throw new ScimConflictException($"User with externalId '{externalId}' already exists.");
     }
 

@@ -159,9 +159,67 @@ public sealed class TrialLifecycleEmailDispatcherTests
     }
 
     [Fact]
-    public async Task DispatchAsync_sends_mid_trial_email_when_trial_status_is_lowercase_active()
+    public async Task DispatchAsync_sends_welcome_when_lowercase_active_trial_status()
     {
         Guid tenantId = Guid.Parse("37373737-3737-3737-3737-373737373737");
+        InMemorySentEmailLedger ledger = new();
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = tenantId,
+                Name = "Acme",
+                TrialStatus = "active",
+            });
+
+        Mock<ITenantTrialEmailContactLookup> contactLookup = new();
+        contactLookup.Setup(l => l.TryResolveAdminEmailAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("admin@example.test");
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>ok</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("ok");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        TrialLifecycleEmailDispatcher sut = new(
+            tenantRepository.Object,
+            contactLookup.Object,
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<TrialLifecycleEmailDispatcher>.Instance);
+
+        TrialLifecycleEmailIntegrationEnvelope envelope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Parse("38383838-3838-3838-3838-383838383838"),
+            ProjectId = Guid.Parse("39393939-3939-3939-3939-393939393939"),
+            Trigger = TrialLifecycleEmailTrigger.TrialProvisioned,
+        };
+
+        await sut.DispatchAsync(envelope, CancellationToken.None);
+
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Once,
+            "lowercase active trial status must pass the trigger gate like canonical Active");
+    }
+
+    [Fact]
+    public async Task DispatchAsync_sends_mid_trial_email_when_trial_status_is_lowercase_active()
+    {
+        Guid tenantId = Guid.Parse("3a3a3a3a-3a3a-3a3a-3a3a-3a3a3a3a3a3a");
         DateTimeOffset utcNow = DateTimeOffset.UtcNow;
 
         Mock<ITenantRepository> tenantRepository = new();
@@ -205,8 +263,8 @@ public sealed class TrialLifecycleEmailDispatcherTests
         TrialLifecycleEmailIntegrationEnvelope envelope = new()
         {
             TenantId = tenantId,
-            WorkspaceId = Guid.Parse("38383838-3838-3838-3838-383838383838"),
-            ProjectId = Guid.Parse("39393939-3939-3939-3939-393939393939"),
+            WorkspaceId = Guid.Parse("3b3b3b3b-3b3b-3b3b-3b3b-3b3b3b3b3b3b"),
+            ProjectId = Guid.Parse("3c3c3c3c-3c3c-3c3c-3c3c-3c3c3c3c3c3c"),
             Trigger = TrialLifecycleEmailTrigger.MidTrialDay7,
         };
 

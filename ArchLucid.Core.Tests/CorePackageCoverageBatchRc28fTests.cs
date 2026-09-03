@@ -65,6 +65,13 @@ public sealed class CorePackageCoverageBatchRc28fTests
         PrivateNetworkAddressGuard.IsForbiddenIpAddress(ip).Should().BeFalse();
     }
 
+    [Fact]
+    public void PrivateNetworkAddressGuard_IsForbiddenHostLiteral_blocks_decimal_ipv4_private_literals()
+    {
+        // 3232235777 == 192.168.1.1; .NET IPAddress.TryParse accepts decimal IPv4 forms.
+        PrivateNetworkAddressGuard.IsForbiddenHostLiteral("3232235777").Should().BeTrue();
+    }
+
     [Theory]
     [InlineData("User@Example.COM", "user@example.com", "User@Example.COM")]
     [InlineData("  Admin@Contoso.com  ", "admin@contoso.com", "Admin@Contoso.com")]

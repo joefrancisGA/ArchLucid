@@ -61,12 +61,12 @@ public static class RunAuthorityPipelineDeadLetterDetection
                     document.RootElement,
                     "failureClass",
                     out JsonElement failureClassElement)
-                || failureClassElement.ValueKind != JsonValueKind.String)
+                || !RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(failureClassElement, out string? failureClass))
             {
                 return null;
             }
 
-            string? failureClass = failureClassElement.GetString();
+            failureClass = failureClass?.Trim();
 
             if (string.IsNullOrWhiteSpace(failureClass))
                 return null;
@@ -99,18 +99,28 @@ public static class RunAuthorityPipelineDeadLetterDetection
             return true;
         }
 
-        if (element.ValueKind == JsonValueKind.String
-            && RunExplanationAggregateJsonReader.TryParseWholeNumberString(element.GetString(), out schemaVersion))
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
+            schemaVersion = element.ValueKind == JsonValueKind.True ? SupportedSchemaVersion : 0;
+
             return schemaVersion == SupportedSchemaVersion;
         }
 
-        if (element.ValueKind == JsonValueKind.String
-            && RunExplanationAggregateJsonReader.TryParseBooleanString(element.GetString(), out bool booleanSchema))
+        if (element.ValueKind == JsonValueKind.String)
         {
-            schemaVersion = booleanSchema ? SupportedSchemaVersion : 0;
+            string? raw = element.GetString();
 
-            return schemaVersion == SupportedSchemaVersion;
+            if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion))
+            {
+                return schemaVersion == SupportedSchemaVersion;
+            }
+
+            if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanSchema))
+            {
+                schemaVersion = booleanSchema ? SupportedSchemaVersion : 0;
+
+                return schemaVersion == SupportedSchemaVersion;
+            }
         }
 
         if (element.ValueKind == JsonValueKind.Number
