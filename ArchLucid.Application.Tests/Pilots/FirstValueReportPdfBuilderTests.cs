@@ -258,6 +258,7 @@ public sealed class FirstValueReportPdfBuilderTests
         return new ArchitectureRunDetail
         {
             Run = run, Manifest = manifest, Results = [], DecisionTraces = [],
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
         };
     }
 }

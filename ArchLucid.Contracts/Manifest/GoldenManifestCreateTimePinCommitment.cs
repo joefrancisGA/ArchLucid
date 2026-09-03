@@ -10,4 +10,6 @@ public sealed record GoldenManifestCreateTimePinCommitment(
     IReadOnlyList<PinnedEvidencePackageRow> EvidencePackagePins,
     string? EvidencePackagePinsHashSha256Hex,
     string? ArchitectureVersionContentHashSha256Hex = null,
-    string? KnowledgeModelContentHashSha256Hex = null);
+    string? KnowledgeModelContentHashSha256Hex = null,
+    bool? FocusedPilotModeEnabled = null,
+    int? FocusedPilotCloudProvider = null);

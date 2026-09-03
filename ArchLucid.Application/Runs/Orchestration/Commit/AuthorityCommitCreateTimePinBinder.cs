@@ -64,5 +64,8 @@ public static class AuthorityCommitCreateTimePinBinder
             manifest.CreateTimeKnowledgeModelContentHashSha256 =
                 Convert.ToHexString(runRecord.PinnedKnowledgeModelContentHashSha256);
         }
+
+        manifest.CreateTimeFocusedPilotModeEnabled = runRecord.PinnedFocusedPilotModeEnabled;
+        manifest.CreateTimeFocusedPilotCloudProvider = runRecord.PinnedFocusedPilotCloudProvider;
     }
 }

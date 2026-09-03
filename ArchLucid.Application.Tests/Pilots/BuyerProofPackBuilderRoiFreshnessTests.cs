@@ -296,6 +296,7 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             Manifest = manifest,
             Results = [],
             DecisionTraces = [],
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
         };
     }
 

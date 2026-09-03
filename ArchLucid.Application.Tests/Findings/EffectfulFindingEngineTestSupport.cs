@@ -14,10 +14,10 @@ namespace ArchLucid.Application.Tests.Findings;
 /// </summary>
 internal static class EffectfulFindingEngineTestSupport
 {
-    public static FindingAnalysisContext CreateAzurePinnedContext(Guid packageId) =>
-        CreatePinnedContext(RunEvidencePackagePinService.AzureProvider, packageId);
+    public static FindingAnalysisContext CreateAzurePinnedContext(Guid packageId, DateTime? collectionUtc = null) =>
+        CreatePinnedContext(RunEvidencePackagePinService.AzureProvider, packageId, collectionUtc);
 
-    public static FindingAnalysisContext CreateCloudPinnedContext(CloudProvider provider, Guid packageId)
+    public static FindingAnalysisContext CreateCloudPinnedContext(CloudProvider provider, Guid packageId, DateTime? collectionUtc = null)
     {
         string pinProvider = provider switch
         {
@@ -26,7 +26,7 @@ internal static class EffectfulFindingEngineTestSupport
             _ => provider.ToString().ToLowerInvariant(),
         };
 
-        return CreatePinnedContext(pinProvider, packageId);
+        return CreatePinnedContext(pinProvider, packageId, collectionUtc);
     }
 
     public static void SetupAzurePinnedDownload(
@@ -79,7 +79,7 @@ internal static class EffectfulFindingEngineTestSupport
             .ReturnsAsync((CloudInventoryExtractorPackageDownloadRecord?)null);
     }
 
-    private static FindingAnalysisContext CreatePinnedContext(string provider, Guid packageId) => new()
+    private static FindingAnalysisContext CreatePinnedContext(string provider, Guid packageId, DateTime? collectionUtc) => new()
     {
         RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
         ContextSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
@@ -87,6 +87,7 @@ internal static class EffectfulFindingEngineTestSupport
         {
             Provider = provider,
             PackageId = packageId,
+            CollectionUtc = collectionUtc ?? DateTime.UtcNow,
         },
     };
 }
