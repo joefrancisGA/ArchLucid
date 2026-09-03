@@ -7,6 +7,7 @@ import { DESIGN_TOKENS } from "@/lib/design-tokens";
 export type FilterChipProps = {
   readonly children: ReactNode;
   readonly href?: string;
+  readonly scroll?: boolean;
   readonly onClick?: () => void;
   readonly className?: string;
   readonly "aria-label"?: string;
@@ -28,6 +29,7 @@ export function FilterChip(props: FilterChipProps): ReactElement {
     return (
       <Link
         href={props.href}
+        scroll={props.scroll}
         className={shell}
         aria-label={props["aria-label"]}
         aria-current={props["aria-current"]}

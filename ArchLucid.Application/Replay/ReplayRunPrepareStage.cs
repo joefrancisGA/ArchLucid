@@ -22,6 +22,8 @@ public sealed class ReplayRunPrepareStage(
     IScopeContextProvider scopeContextProvider,
     IAgentTaskRepository taskRepository,
     IRunStageOutcomesRepository runStageOutcomesRepository,
+    IRunPolicyPackPinService runPolicyPackPinService,
+    IRunEvidencePackagePinService runEvidencePackagePinService,
     IReplayRunCloneStage cloneStage) : IReplayRunPrepareStage
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
@@ -44,6 +46,12 @@ public sealed class ReplayRunPrepareStage(
 
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
         runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
+
+    private readonly IRunPolicyPackPinService _runPolicyPackPinService =
+        runPolicyPackPinService ?? throw new ArgumentNullException(nameof(runPolicyPackPinService));
+
+    private readonly IRunEvidencePackagePinService _runEvidencePackagePinService =
+        runEvidencePackagePinService ?? throw new ArgumentNullException(nameof(runEvidencePackagePinService));
 
     private readonly IReplayRunCloneStage _cloneStage =
         cloneStage ?? throw new ArgumentNullException(nameof(cloneStage));
@@ -84,6 +92,12 @@ public sealed class ReplayRunPrepareStage(
 
         RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(replayGuid, scope, sourceAuthorityRun, request);
         await _authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);
+        await _runPolicyPackPinService
+            .VerifyPinIntegrityOrThrowAsync(replayAuthority, scope, cancellationToken)
+            .ConfigureAwait(false);
+        await _runEvidencePackagePinService
+            .VerifyPinIntegrityOrThrowAsync(replayAuthority, scope, cancellationToken)
+            .ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
 
         if (tasks.Count == 0)

@@ -5,6 +5,10 @@ import { useMemo } from "react";
 import { useAlertsInboxSummaryQuery } from "@/components/alerts/use-alerts-inbox-queries";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
+import {
+  mapUserAttentionSummaryToSurfaceCounts,
+  useUserAttentionSummaryQuery,
+} from "@/hooks/use-user-attention-summary-query";
 import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
 import { useGovernanceReviewsAwaitingActionQuery } from "@/hooks/use-governance-reviews-awaiting-action-query";
 import { deriveAttentionSurfaceCounts } from "@/lib/operator/derive-attention-surface-counts";
@@ -30,6 +34,8 @@ export function useOperatorAttentionSummary(
   options?: UseOperatorAttentionSummaryOptions,
 ): OperatorAttentionSummaryResult {
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const serverAttentionQuery = useUserAttentionSummaryQuery(concernFetchEnabled);
+  const serverAttention = mapUserAttentionSummaryToSurfaceCounts(serverAttentionQuery.data);
   const { items: awaitingItems } = useGovernanceReviewsAwaitingActionQuery();
   const assignedQuery = useAssignedToMeFindingsCountQuery();
   const { summary: alertsSummary } = useAlertsInboxSummaryQuery({
@@ -49,9 +55,11 @@ export function useOperatorAttentionSummary(
       deriveAttentionSurfaceCounts({
         unfinishedWorkRailCount,
         runs,
-        assignedToMeFindingsCount: assignedQuery.data ?? 0,
-        awaitingApprovalCount: awaitingItems.length,
-        alertsOpenCount: alertsSummary.open,
+        assignedToMeFindingsCount:
+          serverAttention.assignedToMeFindingsCount ?? assignedQuery.data ?? 0,
+        awaitingApprovalCount:
+          serverAttention.awaitingApprovalCount ?? awaitingItems.length,
+        alertsOpenCount: serverAttention.alertsOpenCount ?? alertsSummary.open,
       }),
     [
       awaitingItems.length,
@@ -60,6 +68,9 @@ export function useOperatorAttentionSummary(
       options?.unfinishedWorkRailCount,
       unfinishedWorkRailCount,
       runs,
+      serverAttention.assignedToMeFindingsCount,
+      serverAttention.awaitingApprovalCount,
+      serverAttention.alertsOpenCount,
     ],
   );
 

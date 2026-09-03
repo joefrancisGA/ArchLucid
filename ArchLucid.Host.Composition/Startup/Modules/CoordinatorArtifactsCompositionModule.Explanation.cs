@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.AgentRuntime.Explanation.Stages;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Ask;
 using ArchLucid.Application.Budgeting;
@@ -93,6 +94,9 @@ partial class CoordinatorArtifactsCompositionModule
         RegisterLlmCostEstimationUsdRateOverride(services, storageOptions);
         services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
         services.AddSingleton<IDeterministicExplanationService, DeterministicExplanationService>();
+        services.AddScoped<IExplanationSignalStage, ExplanationSignalStage>();
+        services.AddScoped<IExplanationLlmNarrativeStage, ExplanationLlmNarrativeStage>();
+        services.AddScoped<IExplanationFallbackStage, ExplanationFallbackStage>();
         services.AddScoped<IExplanationService, ExplanationService>();
         services.AddScoped<IFindingExplainabilityComposer, FindingExplainabilityComposer>();
         RegisterRunExplanationSummaryService(services, configuration);

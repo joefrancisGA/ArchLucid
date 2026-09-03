@@ -1,3 +1,4 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
 using ArchLucid.Contracts.ArchitectureIntelligence;
@@ -62,9 +63,15 @@ public sealed class KnowledgeModelClarificationAnswerApplicatorTests
       .Returns(Task.CompletedTask);
 
     Mock<IRunRepository> runs = new();
+    byte[] pinnedKnowledgeModelHash = KnowledgeModelContentFingerprint.TryComputeContentHashSha256(model)!;
     runs
       .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new RunRecord { RunId = runId, KnowledgeModelId = modelId });
+      .ReturnsAsync(new RunRecord
+      {
+        RunId = runId,
+        KnowledgeModelId = modelId,
+        PinnedKnowledgeModelContentHashSha256 = pinnedKnowledgeModelHash,
+      });
     runs
       .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
       .Returns(Task.CompletedTask);
