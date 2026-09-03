@@ -1845,11 +1845,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 123
-- **bugs-found:** 238
+- **hunts:** 124
+- **bugs-found:** 239
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — lowercase TrialStatus parity gap in commercial eligibility and trial seat policy
+- **last-bug:** 2026-09-03 — omitted failure-summary schemaVersion rejected dead-letter detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
