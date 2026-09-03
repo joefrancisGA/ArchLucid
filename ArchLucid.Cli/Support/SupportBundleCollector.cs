@@ -7,14 +7,12 @@ using System.Text.Json;
 using ArchLucid.Cli.Commands;
 using ArchLucid.Core.Support;
 
-using Microsoft.Extensions.Configuration;
-
 namespace ArchLucid.Cli.Support;
 
 /// <summary>
 ///     Gathers explicit, reviewable sections for <see cref="SupportBundleArchiveWriter" />.
 /// </summary>
-public static class SupportBundleCollector
+public static partial class SupportBundleCollector
 {
     /// <summary>Maximum characters stored per health response body to keep bundles compact.</summary>
     public const int MaxHealthBodyLength = 48_000;
@@ -74,173 +72,6 @@ public static class SupportBundleCollector
             workspace,
             references,
             logs);
-    }
-
-    private static async Task<SupportBundleApiContractSection> CollectApiContractSectionAsync(
-        ArchLucidApiClient client,
-        CancellationToken ct)
-    {
-        const string openApiPath = "/openapi/v1.json";
-        const int maxCaptureBytes = 65_536;
-
-        (int status, string preview, bool truncated) =
-            await client.GetBoundedUtf8BodyAsync(openApiPath, maxCaptureBytes, ct);
-
-        return new SupportBundleApiContractSection
-        {
-            MicrosoftOpenApiV1 = new SupportBundleBoundedHttpProbe
-            {
-                Path = openApiPath,
-                HttpStatus = status,
-                BodyPreview = preview,
-                BodyTruncated = truncated,
-                MaxBytesCaptured = maxCaptureBytes
-            }
-        };
-    }
-
-    private static SupportBundleCliBuildInfo ReadCliBuildInfo()
-    {
-        Assembly asm = typeof(SupportBundleCollector).Assembly;
-        AssemblyName name = asm.GetName();
-
-        string assemblyVersion = name.Version?.ToString() ?? "unknown";
-        string informational = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-                               ?? assemblyVersion;
-
-        return new SupportBundleCliBuildInfo
-        {
-            InformationalVersion = informational, AssemblyVersion = assemblyVersion, RuntimeFramework = RuntimeInformation.FrameworkDescription
-        };
-    }
-
-    private static async Task<(string? Json, string? Error)> TryGetVersionAsync(
-        ArchLucidApiClient client,
-        CancellationToken ct)
-    {
-        try
-        {
-            string? json = await client.GetVersionJsonAsync(ct);
-
-            if (json is null)
-                return (null, "GET /version returned non-success or empty body.");
-
-            return (json, null);
-        }
-        catch (Exception ex)
-        {
-            return (null, ex.GetType().Name + ": " + ex.Message);
-        }
-    }
-
-    private static async Task<SupportBundleHealthProbe> ProbeAsync(
-        ArchLucidApiClient client,
-        string path,
-        CancellationToken ct)
-    {
-        (int code, string body) = await client.GetHealthProbeAsync(path, ct);
-
-        bool truncated = body.Length > MaxHealthBodyLength;
-
-        if (truncated)
-
-            body = body[..MaxHealthBodyLength] + "\n... [truncated by ArchLucid support-bundle]";
-
-        return new SupportBundleHealthProbe { Path = path, HttpStatus = code, Body = body, BodyTruncated = truncated };
-    }
-
-    private static SupportBundleConfigSummary BuildConfigSummary(
-        ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
-        string workingDirectory)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(workingDirectory);
-
-        string root = Path.GetFullPath(workingDirectory);
-
-        SupportBundleConfigSummary summary;
-
-        if (config is null)
-        {
-            string fallbackUrl = SupportBundleRedactor.RedactHttpUrl(ArchLucidApiClient.ResolveBaseUrl(null));
-
-            summary = new SupportBundleConfigSummary { HasArchlucidJson = false, ApiBaseUrlRedacted = fallbackUrl };
-        }
-        else
-        {
-            string resolved = ArchLucidApiClient.ResolveBaseUrl(config);
-
-            summary = new SupportBundleConfigSummary
-            {
-                HasArchlucidJson = true,
-                ProjectName = config.ProjectName,
-                SchemaVersion = config.SchemaVersion,
-                ApiBaseUrlRedacted = SupportBundleRedactor.RedactHttpUrl(resolved),
-                InputsBriefPath = config.Inputs.Brief,
-                OutputsLocalCacheDir = config.Outputs.LocalCacheDir,
-                PluginsLockFile = config.Plugins?.LockFile,
-                TerraformEnabled = config.Infra?.Terraform.Enabled,
-                TerraformPath = config.Infra?.Terraform.Path,
-                Architecture = config.Architecture
-            };
-        }
-
-        IConfiguration merged = ValidateConfigConfigurationFactory.BuildMerged(config, root);
-        bool appsettingsExists = ValidateConfigConfigurationFactory.AppsettingsFileExists(root);
-        IReadOnlyList<ValidateConfigFinding> findings = ValidateConfigEvaluator.Evaluate(merged, root, appsettingsExists);
-
-        List<SupportBundleValidateConfigAlert> alerts = findings
-            .Where(static f => f.Severity is ValidateConfigFindingSeverity.Warning or ValidateConfigFindingSeverity.Error)
-            .Select(static f => new SupportBundleValidateConfigAlert
-            {
-                Severity = f.Severity.ToString(),
-                Category = f.Category,
-                Check = f.Check
-            })
-            .ToList();
-
-        string? storageRaw = merged["ArchLucid:StorageProvider"]?.Trim();
-        string storageSummary = string.IsNullOrWhiteSpace(storageRaw)
-            ? "Sql (default when ArchLucid:StorageProvider is unset)"
-            : storageRaw;
-
-        string? authMode = merged["ArchLucidAuth:Mode"]?.Trim();
-        string authSummary = string.IsNullOrWhiteSpace(authMode)
-            ? "unset — host template defaults (confirm ArchLucidAuth:Mode in appsettings)"
-            : authMode;
-
-        bool outboundKey = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY"));
-
-        return new SupportBundleConfigSummary
-        {
-            HasArchlucidJson = summary.HasArchlucidJson,
-            ProjectName = summary.ProjectName,
-            SchemaVersion = summary.SchemaVersion,
-            ApiBaseUrlRedacted = summary.ApiBaseUrlRedacted,
-            InputsBriefPath = summary.InputsBriefPath,
-            OutputsLocalCacheDir = summary.OutputsLocalCacheDir,
-            PluginsLockFile = summary.PluginsLockFile,
-            TerraformEnabled = summary.TerraformEnabled,
-            TerraformPath = summary.TerraformPath,
-            Architecture = summary.Architecture,
-            StorageProviderSummary = storageSummary,
-            HostAuthModeSummary = authSummary,
-            CliOutboundApiKeyEnvironmentPresent = outboundKey,
-            ValidateConfigAlerts = alerts
-        };
-    }
-
-    private static SupportBundleEnvironmentSection BuildEnvironmentSection()
-    {
-        return new SupportBundleEnvironmentSection
-        {
-            MachineName = Environment.MachineName,
-            OsDescription = RuntimeInformation.OSDescription,
-            OsArchitecture = RuntimeInformation.OSArchitecture.ToString(),
-            ProcessArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
-            DotnetRuntime = RuntimeInformation.FrameworkDescription,
-            TimeZone = TimeZoneInfo.Local.Id,
-            ArchlucidAndDotnetEnvironment = SupportBundleRedactor.SnapshotEnvironmentForBundle()
-        };
     }
 
     private static SupportBundleWorkspaceSection BuildWorkspaceSection(
