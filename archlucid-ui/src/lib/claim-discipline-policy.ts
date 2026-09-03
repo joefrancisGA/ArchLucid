@@ -134,6 +134,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "preferences-settings",
   "pricing-quote-aging",
   "product-learning",
+  "projects-recycle-bin",
   "provenance",
   "quick-scan",
   "rag-health",
