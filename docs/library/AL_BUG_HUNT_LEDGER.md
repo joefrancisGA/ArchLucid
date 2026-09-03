@@ -1866,7 +1866,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 242
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — string-encoded whole-number `schemaVersion` rejected in extractor manifest upgrader
+- **last-bug:** 2026-09-03 — Azure extractor manifest upgrader rejected on/off and 1.0 schemaVersion strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
