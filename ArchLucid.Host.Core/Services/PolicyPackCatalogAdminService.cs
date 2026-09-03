@@ -43,6 +43,8 @@ public sealed class PolicyPackCatalogAdminService(
 
         PolicyPackDistributionScopeRules.EnsureCanPromoteToGlobalCatalog(pack);
 
+        PolicyPackCatalogPromotionValidation.ValidateSnapshotOrThrow(pack.Name, pack.Description);
+
         return await _catalogRepository.UpsertPromotedFromSnapshotAsync(
             sourcePolicyPackId,
             pack.Name,

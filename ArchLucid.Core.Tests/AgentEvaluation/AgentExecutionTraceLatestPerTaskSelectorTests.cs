@@ -98,4 +98,32 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
         latest.Should().HaveCount(2);
         latest.Select(static t => t.TraceId).Should().BeEquivalentTo(["trace-a-topology", "trace-z-cost"]);
     }
+
+    [Fact]
+    public void Select_when_task_id_missing_chains_same_agent_retries_by_attempt_index()
+    {
+        DateTime sharedUtc = new(2026, 6, 1, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededRejected = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = string.Empty,
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace acceptedRetry = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = string.Empty,
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 2,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([supersededRejected, acceptedRetry]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-attempt-2");
+    }
 }

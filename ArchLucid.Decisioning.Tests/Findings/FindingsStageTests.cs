@@ -106,6 +106,38 @@ public sealed class FindingsMergeAndGateStageTests
         context.Snapshot!.Findings.Should().ContainSingle();
         context.DedupedFindingsCount.Should().Be(1);
     }
+
+    [Fact]
+    public async Task ExecuteAsync_adds_engine_failure_when_required_engine_type_did_not_succeed()
+    {
+        FindingAnalysisContext analysisContext = new()
+        {
+            RequiredEngineTypes = ["security-baseline", "declaration-security-baseline"],
+        };
+
+        FindingsStageContext context = new()
+        {
+            RunId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshot = new GraphSnapshot { GraphSnapshotId = Guid.NewGuid() },
+            AnalysisContext = analysisContext,
+        };
+        context.SuccessfulEngineTypes.Add("topology-structure");
+
+        FindingsMergeAndGateStage stage = new(
+            Options.Create(new HumanReviewFindingOptions()),
+            DeterministicInsightDensityGate.CreateDefault());
+
+        await stage.ExecuteAsync(context, CancellationToken.None);
+
+        context.Snapshot.Should().NotBeNull();
+        context.Snapshot!.EngineFailures.Should().HaveCount(2);
+        context.Snapshot.EngineFailures.Should().OnlyContain(failure => failure.EngineType == "policy-pack-coverage");
+        context.Snapshot.EngineFailures.Select(failure => failure.ErrorMessage)
+            .Should()
+            .Contain(message => message.Contains("security-baseline", StringComparison.Ordinal))
+            .And.Contain(message => message.Contains("declaration-security-baseline", StringComparison.Ordinal));
+    }
 }
 
 [Trait("Category", "Unit")]

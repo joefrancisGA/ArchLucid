@@ -176,6 +176,37 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset augustUtc = new(2026, 8, 15, 0, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider timeProvider = new(augustUtc);
+        int julyYearMonth = 202607;
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), "pi_july_1", julyYearMonth, [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), "pi_july_2", julyYearMonth, [], CancellationToken.None);
+
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, timeProvider: timeProvider);
+
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+
+        view.AutoRefillsThisUtcMonthCount.Should().Be(0, "wallet read must not surface prior-month refill counts after UTC month rollover");
+    }
+
+    [SkippableFact]
     public async Task TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap()
     {
         InMemoryLlmTenantWalletRepository repository = new();

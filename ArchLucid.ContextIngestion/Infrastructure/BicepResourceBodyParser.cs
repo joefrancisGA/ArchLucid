@@ -119,7 +119,7 @@ internal static class BicepResourceBodyParser
 
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
-            string scalarValue = UnquoteScalar(rawValue);
+            string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
 
             InfrastructureDeclarationSecurityPropertyWriter.TryAddTfPropertyWithArmAlias(properties, key, scalarValue);
             lineIndex++;
@@ -208,17 +208,6 @@ internal static class BicepResourceBodyParser
         }
 
         return newlineCount + 1;
-    }
-
-    private static string UnquoteScalar(string rawValue)
-    {
-        if (rawValue.Length >= 2 && rawValue[0] == '\'' && rawValue[^1] == '\'')
-            return rawValue[1..^1];
-
-        if (rawValue.Length >= 2 && rawValue[0] == '"' && rawValue[^1] == '"')
-            return rawValue[1..^1];
-
-        return rawValue;
     }
 
     private static bool TryConsumeBlockComment(ref string line, ref bool inBlockComment)

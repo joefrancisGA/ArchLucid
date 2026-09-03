@@ -178,15 +178,6 @@ public sealed class RunGraphQueryService(
         string runId,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-        {
-            return new RunInteractiveGraphQueryResult
-            {
-                Outcome = RunGraphQueryOutcome.BadRequest,
-                ProblemDetail = "Run id is required."
-            };
-        }
-
         if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
         {
             return new RunInteractiveGraphQueryResult

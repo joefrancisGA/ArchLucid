@@ -19,6 +19,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(RiskExceptionRecord), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: IRiskExceptionService logs RiskExceptionCreated via IAuditService.")]
     public async Task<IActionResult> CreateRiskException(
         [FromBody] CreateRiskExceptionRequest? request,
@@ -46,6 +47,10 @@ public sealed partial class GovernanceStickinessController
             RiskExceptionRecord record = await _facade.CreateRiskExceptionAsync(request!, cancellationToken);
 
             return Ok(record);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
@@ -117,6 +122,10 @@ public sealed partial class GovernanceStickinessController
 
             return NoContent();
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
@@ -162,6 +171,10 @@ public sealed partial class GovernanceStickinessController
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

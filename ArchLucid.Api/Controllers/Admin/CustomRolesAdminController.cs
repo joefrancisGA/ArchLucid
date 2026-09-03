@@ -118,6 +118,11 @@ public sealed class CustomRolesAdminController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (!IsValidUnicodeText(body.Name) || !IsValidUnicodeText(body.Description))
+            return this.BadRequestProblem(
+                "Role name and description must be valid Unicode text.",
+                ProblemTypes.ValidationFailed);
+
         try
         {
             CustomRoleRecord updated = await _customRoleService.UpdateAsync(

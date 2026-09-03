@@ -52,6 +52,32 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_treats_cloud_asset_full_name_as_same_resource_as_projects_path()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        const string cloudAssetName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{cloudAssetName}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void Analyze_reports_graph_only_and_inventory_only_resource_ids()
     {
         GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);

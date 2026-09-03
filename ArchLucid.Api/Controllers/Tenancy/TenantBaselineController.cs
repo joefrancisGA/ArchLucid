@@ -87,10 +87,10 @@ public sealed class TenantBaselineController(
         }
 
         if (!string.IsNullOrWhiteSpace(body.BaselineReviewCycleSourceNote)
-            && body.BaselineReviewCycleSourceNote.Trim().Length > 500)
+            && body.BaselineReviewCycleSourceNote.Trim().Length > BaselineReviewCycleSourceMarkers.MaxOperatorSettingsNoteLength)
         {
             return this.BadRequestProblem(
-                "Baseline review-cycle source note must be 500 characters or fewer.",
+                $"Baseline review-cycle source note must be {BaselineReviewCycleSourceMarkers.MaxOperatorSettingsNoteLength} characters or fewer.",
                 ProblemTypes.ValidationFailed);
         }
 

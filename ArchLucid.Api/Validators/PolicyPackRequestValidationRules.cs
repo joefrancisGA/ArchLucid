@@ -17,6 +17,11 @@ namespace ArchLucid.Api.Validators;
 /// </remarks>
 public static class PolicyPackRequestValidationRules
 {
+    public const int PackVersionMaxLength = 50;
+
+    public const string PackVersionSemVerMessage =
+        "Version must be SemVer 2 style (e.g. 1.0.0, 2.1.0-rc.1, optional leading 'v').";
+
     /// <summary>SemVer 2-style <c>MAJOR.MINOR.PATCH</c> with optional pre-release / build; optional leading <c>v</c>.</summary>
     /// <remarks>
     ///     Uses compiled <see cref="Regex" /> instead of source-generated regex so the project compiles when the

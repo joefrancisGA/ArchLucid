@@ -41,7 +41,7 @@ public sealed class RelationshipTypeJsonConverter : JsonConverter<RelationshipTy
             "publishes to" or "publish to" or "publishes" or "publish" or "emit" or "emits" => RelationshipType.PublishesTo,
             "subscribes to" or "subscribe to" or "subscribes" or "subscribe" or "consume" or "consumes" => RelationshipType.SubscribesTo,
             "authenticates with" or "authenticate with" or "auth" or "authenticates" => RelationshipType.AuthenticatesWith,
-            _ => RelationshipType.Calls,
+            _ => throw new JsonException($"Unknown relationship type value '{raw}'."),
         };
     }
 

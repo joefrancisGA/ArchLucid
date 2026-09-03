@@ -265,7 +265,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
     {
         foreach (string propertyName in MessagePropertyNames)
         {
-            if (!root.TryGetProperty(propertyName, out JsonElement property) ||
+            if (!TryGetPropertyIgnoreCase(root, propertyName, out JsonElement property) ||
                 property.ValueKind != JsonValueKind.String)
             {
                 continue;
@@ -277,7 +277,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
                 return text.Trim();
         }
 
-        if (root.TryGetProperty("recommendation", out JsonElement recommendation) &&
+        if (TryGetPropertyIgnoreCase(root, "recommendation", out JsonElement recommendation) &&
             recommendation.ValueKind == JsonValueKind.String)
         {
             string? text = recommendation.GetString();

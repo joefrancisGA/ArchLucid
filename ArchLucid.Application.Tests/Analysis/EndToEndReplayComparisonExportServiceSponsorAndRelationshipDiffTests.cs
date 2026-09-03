@@ -48,6 +48,28 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
     }
 
     [SkippableFact]
+    public void GenerateHtml_executive_profile_appends_interpretation_notes_when_summary_formatter_omits_them()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Exec summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "L",
+            RightRunId = "R",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            InterpretationNotes = ["Catalog model alias differs between the two reviews."],
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Sponsor);
+
+        html.Should().Contain("<h2>Interpretation Notes</h2>");
+        html.Should().Contain("Catalog model alias differs between the two reviews.");
+    }
+
+    [SkippableFact]
     public void GenerateHtml_executive_profile_includes_key_counts_and_omits_agent_result_headings()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();

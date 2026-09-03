@@ -109,6 +109,42 @@ public sealed class RetrievalQueryServiceTests
     }
 
     [Fact]
+    public async Task SearchAsync_RespectsTopK_above_twenty_five_when_reranking_disabled()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        float[] queryVector = [1f, 0f, 0f];
+        embeddings.Setup(e => e.EmbedAsync("q", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(queryVector);
+
+        InMemoryVectorIndex index = new();
+        List<RetrievalChunk> chunks = [];
+
+        for (int chunkIndex = 0; chunkIndex < 40; chunkIndex++)
+        {
+            chunks.Add(Chunk($"chunk-{chunkIndex:D2}", [1f, (float)chunkIndex * 0.01f, 0f], $"chunk {chunkIndex}"));
+        }
+
+        await index.UpsertChunksAsync(chunks, CancellationToken.None);
+
+        RetrievalQueryService sut = CreateService(embeddings.Object, index);
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(
+            new RetrievalQuery
+            {
+                TenantId = TenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                QueryText = "q",
+                TopK = 40,
+                SkipReranking = true,
+                SkipQueryExpansion = true,
+            },
+            CancellationToken.None);
+
+        hits.Should().HaveCount(40);
+    }
+
+    [Fact]
     public async Task SearchAsync_RespectsTopK()
     {
         Mock<IEmbeddingService> embeddings = new();

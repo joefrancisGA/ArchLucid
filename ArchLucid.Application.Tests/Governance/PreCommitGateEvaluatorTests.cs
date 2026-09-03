@@ -50,4 +50,34 @@ public sealed class PreCommitGateEvaluatorTests
         result.Blocked.Should().BeTrue();
         result.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-blocking");
     }
+
+    [Fact]
+    public void Evaluate_ignores_muted_findings_when_blocking_on_critical()
+    {
+        List<Finding> findings =
+        [
+            new Finding
+            {
+                FindingId = "f-muted-critical",
+                FindingType = "Compliance",
+                Category = "Compliance",
+                EngineType = "Compliance",
+                Severity = FindingSeverity.Critical,
+                Title = "Muted policy breach",
+                Rationale = "Muted policy breach",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                IsMuted = true,
+            },
+        ];
+
+        PreCommitGateResult result = PreCommitGateEvaluator.Evaluate(
+            findings,
+            blockCommitOnCritical: true,
+            blockCommitMinimumSeverity: (int)FindingSeverity.Critical,
+            policyPackIdLabel: "pack-test",
+            warnOnlySeverities: null);
+
+        result.Blocked.Should().BeFalse();
+        result.BlockingFindingIds.Should().BeEmpty();
+    }
 }

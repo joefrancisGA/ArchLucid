@@ -258,22 +258,48 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
 type AssertExtends<Base, Derived extends Base> = Derived;
 
 /** Compile-time guard: aliased DTOs remain assignable to their OpenAPI wire shapes. */
-type _AuthorityAliases = [
-  AssertExtends<components["schemas"]["DiffItemResponse"], import("@/types/authority").DiffItem>,
-  AssertExtends<components["schemas"]["ManifestComparisonResponse"], import("@/types/authority").ManifestComparison>,
-  AssertExtends<components["schemas"]["RunComparisonResponse"], import("@/types/authority").RunComparison>,
-  AssertExtends<components["schemas"]["ReplayValidationResponse"], import("@/types/authority").ReplayValidation>,
-  AssertExtends<components["schemas"]["ReplayResponse"], import("@/types/authority").ReplayResponse>,
-  AssertExtends<components["schemas"]["ProvenanceNode"], import("@/types/authority").ProvenanceNode>,
-  AssertExtends<components["schemas"]["ProvenanceEdge"], import("@/types/authority").ProvenanceEdge>,
+type _AuthorityRunSummaryWave11Aliases = [
+  AssertExtends<components["schemas"]["RunSummaryResponse"], import("@/types/authority-run-summary").RunSummary>,
+];
+
+type _AuthorityManifestWave11Aliases = [
+  AssertExtends<components["schemas"]["DiffItemResponse"], import("@/types/authority-manifest").DiffItem>,
+  AssertExtends<components["schemas"]["ManifestComparisonResponse"], import("@/types/authority-manifest").ManifestComparison>,
+  AssertExtends<components["schemas"]["RunComparisonResponse"], import("@/types/authority-manifest").RunComparison>,
+  AssertExtends<components["schemas"]["ReplayValidationResponse"], import("@/types/authority-manifest").ReplayValidation>,
+  AssertExtends<components["schemas"]["ReplayResponse"], import("@/types/authority-manifest").ReplayResponse>,
+  AssertExtends<
+    components["schemas"]["ManifestSummaryResponse"],
+    import("@/types/authority-manifest").ManifestSummary
+  >,
+  AssertExtends<
+    components["schemas"]["ArtifactDescriptorResponse"],
+    import("@/types/authority-manifest").ArtifactDescriptor
+  >,
+  AssertExtends<
+    components["schemas"]["RunAgentLlmCostEstimateResponse"],
+    import("@/types/authority-manifest").RunAgentExecutionLlmCostEstimate
+  >,
+];
+
+type _AuthorityRunDetailWave11Aliases = [
+  AssertExtends<components["schemas"]["ProvenanceNode"], import("@/types/authority-run-detail").ProvenanceNode>,
+  AssertExtends<components["schemas"]["ProvenanceEdge"], import("@/types/authority-run-detail").ProvenanceEdge>,
   AssertExtends<
     components["schemas"]["DecisionProvenanceGraph"],
-    import("@/types/authority").DecisionProvenanceGraph
+    import("@/types/authority-run-detail").DecisionProvenanceGraph
   >,
   AssertExtends<
     components["schemas"]["RunPipelineTimelineItemResponse"],
-    import("@/types/authority").PipelineTimelineItem
+    import("@/types/authority-run-detail").PipelineTimelineItem
   >,
+];
+
+/** Barrel re-exports preserve the public `@/types/authority` import surface. */
+type _AuthorityBarrelWave11Aliases = [
+  AssertExtends<import("@/types/authority-run-summary").RunSummary, import("@/types/authority").RunSummary>,
+  AssertExtends<import("@/types/authority-manifest").ManifestSummary, import("@/types/authority").ManifestSummary>,
+  AssertExtends<import("@/types/authority-run-detail").RunDetail, import("@/types/authority").RunDetail>,
 ];
 
 /** Wave 10 — run-detail wire shapes while OpenAPI `AgentResult` snapshot stays `{}`. */
@@ -284,7 +310,7 @@ type _AuthorityRunDetailWave10Aliases = [
   >,
   AssertExtends<
     components["schemas"]["RunRetrievalGroundingSummaryDto"],
-    import("@/types/authority").RunRetrievalGroundingSummary
+    import("@/types/authority-run-detail").RunRetrievalGroundingSummary
   >,
 ];
 
@@ -879,20 +905,20 @@ type _PilotScorecardAliases = [
 type _AuthorityTrustEvidenceAliases = [
   AssertExtends<
     components["schemas"]["TrustEvidenceFieldSnapshot"],
-    import("@/types/authority").TrustEvidenceFieldSnapshot
+    import("@/types/authority-run-detail").TrustEvidenceFieldSnapshot
   >,
   AssertExtends<
     components["schemas"]["RunTrustEvidenceRouteRef"],
-    import("@/types/authority").RunTrustEvidenceRouteRef
+    import("@/types/authority-run-detail").RunTrustEvidenceRouteRef
   >,
   AssertExtends<
     components["schemas"]["RunTrustEvidenceTopFindingRow"],
-    import("@/types/authority").RunTrustEvidenceTopFindingRow
+    import("@/types/authority-run-detail").RunTrustEvidenceTopFindingRow
   >,
-  AssertExtends<components["schemas"]["RunTrustEvidenceCard"], import("@/types/authority").RunTrustEvidenceCard>,
+  AssertExtends<components["schemas"]["RunTrustEvidenceCard"], import("@/types/authority-run-detail").RunTrustEvidenceCard>,
   AssertExtends<
     components["schemas"]["RunRetrievalGroundingSummaryDto"],
-    import("@/types/authority").RunRetrievalGroundingSummary
+    import("@/types/authority-run-detail").RunRetrievalGroundingSummary
   >,
 ];
 
@@ -924,7 +950,10 @@ type _PaginationWave9Aliases = [
 ];
 
 const _compileTimeAliasGuards: [
-  _AuthorityAliases,
+  _AuthorityRunSummaryWave11Aliases,
+  _AuthorityManifestWave11Aliases,
+  _AuthorityRunDetailWave11Aliases,
+  _AuthorityBarrelWave11Aliases,
   _AuthorityRunDetailWave10Aliases,
   _OperateRhythmAliases,
   _TechnologyLedgerAliases,
@@ -963,7 +992,10 @@ const _compileTimeAliasGuards: [
   _AuthorityTrustEvidenceAliases,
   _PaginationWave9Aliases,
 ] = [
-  [] as unknown as _AuthorityAliases,
+  [] as unknown as _AuthorityRunSummaryWave11Aliases,
+  [] as unknown as _AuthorityManifestWave11Aliases,
+  [] as unknown as _AuthorityRunDetailWave11Aliases,
+  [] as unknown as _AuthorityBarrelWave11Aliases,
   [] as unknown as _AuthorityRunDetailWave10Aliases,
   [] as unknown as _OperateRhythmAliases,
   [] as unknown as _TechnologyLedgerAliases,

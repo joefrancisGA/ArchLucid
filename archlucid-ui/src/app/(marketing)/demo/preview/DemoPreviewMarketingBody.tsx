@@ -2,6 +2,7 @@
 import type { PipelineTimelineItem } from "@/types/authority";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator/operator-static-demo";
+import { canShowcaseAnonymousVisitorOpenOperatorDeepLinks } from "@/lib/showcase-quick-nav-contract";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -58,7 +59,11 @@ export function DemoPreviewMarketingBody({
 }: DemoPreviewMarketingBodyProps) {
   const demoMode = buyerAudienceChrome || isBuyerSafeDemoMarketingChromeEnv();
   const payloadRunId = typeof payload.run?.runId === "string" ? payload.run.runId.trim() : "";
+  const signInReturnPath =
+    payloadRunId.length > 0 ? `/architecture/reviews/${encodeURIComponent(payloadRunId)}` : undefined;
   const isRunDetailAvailable = payloadRunId.length > 0 && isStaticDemoPayloadFallbackActiveForRun(payloadRunId);
+  const operatorDeepLinksAvailable =
+    payloadRunId.length > 0 && canShowcaseAnonymousVisitorOpenOperatorDeepLinks(payloadRunId);
   const pipelineItems = toAuthorityPipelineItems(payload.pipelineTimeline);
   const primaryFindingId =
     payloadRunId === SHOWCASE_STATIC_DEMO_RUN_ID ? SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID : undefined;
@@ -82,9 +87,19 @@ export function DemoPreviewMarketingBody({
     <div className="space-y-10" data-testid="demo-preview-marketing-body">
       <DemoPreviewArtifactNav showcaseTelemetry={showcaseTelemetry} />
       <DemoPreviewSponsorConclusion payload={payload} />
-      <DemoPreviewSignedReviewSection payload={payload} />
-      <DemoPreviewEvidenceGraphSection payload={payload} showcaseTelemetry={showcaseTelemetry} />
-      <DemoPreviewGovernanceSection payload={payload} />
+      <DemoPreviewSignedReviewSection
+        payload={payload}
+        operatorDeepLinksAvailable={operatorDeepLinksAvailable}
+      />
+      <DemoPreviewEvidenceGraphSection
+        payload={payload}
+        showcaseTelemetry={showcaseTelemetry}
+        operatorDeepLinksAvailable={operatorDeepLinksAvailable}
+      />
+      <DemoPreviewGovernanceSection
+        payload={payload}
+        operatorDeepLinksAvailable={operatorDeepLinksAvailable}
+      />
       <DemoPreviewCompactTimeline
         payload={payload}
         pipelineItems={pipelineItems}
@@ -93,8 +108,8 @@ export function DemoPreviewMarketingBody({
         showcaseTelemetry={showcaseTelemetry}
       />
       <DemoPreviewDeliverablesSection payload={payload} />
-      <DemoPreviewSignInCallout />
-      <DemoPreviewEvaluationCta />
+      <DemoPreviewSignInCallout signInReturnPath={signInReturnPath} />
+      <DemoPreviewEvaluationCta signInReturnPath={signInReturnPath} />
     </div>
   );
 }

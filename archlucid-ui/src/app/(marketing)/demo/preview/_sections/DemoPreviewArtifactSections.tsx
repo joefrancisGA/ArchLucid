@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import {
   DEMO_PREVIEW_CONDITIONS_LABEL,
@@ -22,7 +23,19 @@ import { cn } from "@/lib/utils";
 
 type DemoPreviewSponsorConclusionProps = {
   readonly payload: DemoCommitPagePreviewResponse;
+  readonly operatorDeepLinksAvailable?: boolean;
 };
+
+function resolveMarketingOperatorDeepLink(
+  operatorDeepLinksAvailable: boolean,
+  href: string,
+): string {
+  if (operatorDeepLinksAvailable) {
+    return href;
+  }
+
+  return buildAuthSignInHref({ returnPath: href });
+}
 
 export function DemoPreviewSponsorConclusion(props: DemoPreviewSponsorConclusionProps) {
   const runExplanation = props.payload.runExplanation;
@@ -90,6 +103,7 @@ export function DemoPreviewSponsorConclusion(props: DemoPreviewSponsorConclusion
 
 export function DemoPreviewSignedReviewSection(props: DemoPreviewSponsorConclusionProps) {
   const manifest = props.payload.manifest;
+  const operatorDeepLinksAvailable = props.operatorDeepLinksAvailable ?? true;
 
   return (
     <section
@@ -114,7 +128,10 @@ export function DemoPreviewSignedReviewSection(props: DemoPreviewSponsorConclusi
       {manifest?.manifestId ? (
         <p className="mt-4">
           <Link
-            href={signedRecordDetailPath(manifest.manifestId)}
+            href={resolveMarketingOperatorDeepLink(
+              operatorDeepLinksAvailable,
+              signedRecordDetailPath(manifest.manifestId),
+            )}
             className={MARKETING_SURFACES.inlineLink}
           >
             Open finalized review record
@@ -130,6 +147,11 @@ export function DemoPreviewEvidenceGraphSection(
 ) {
   const citations = Array.isArray(props.payload.runExplanation?.citations) ? props.payload.runExplanation.citations : [];
   const runId = props.payload.run?.runId ?? "";
+  const operatorDeepLinksAvailable = props.operatorDeepLinksAvailable ?? true;
+  const evidenceGraphHref = resolveMarketingOperatorDeepLink(
+    operatorDeepLinksAvailable,
+    `/insights/evidence-graph?runId=${encodeURIComponent(runId)}`,
+  );
 
   return (
     <section
@@ -157,7 +179,7 @@ export function DemoPreviewEvidenceGraphSection(
         <p className="mt-4">
           {props.showcaseTelemetry ? (
             <ShowcaseFunnelTelemetryAnchor
-              href={`/insights/evidence-graph?runId=${encodeURIComponent(runId)}`}
+              href={evidenceGraphHref}
               className={MARKETING_SURFACES.inlineLink}
               scenario={props.showcaseTelemetry.scenario}
               renderMode={props.showcaseTelemetry.renderMode}
@@ -166,10 +188,7 @@ export function DemoPreviewEvidenceGraphSection(
               View evidence graph
             </ShowcaseFunnelTelemetryAnchor>
           ) : (
-            <Link
-              href={`/insights/evidence-graph?runId=${encodeURIComponent(runId)}`}
-              className={MARKETING_SURFACES.inlineLink}
-            >
+            <Link href={evidenceGraphHref} className={MARKETING_SURFACES.inlineLink}>
               View evidence graph
             </Link>
           )}
@@ -182,6 +201,11 @@ export function DemoPreviewEvidenceGraphSection(
 export function DemoPreviewGovernanceSection(props: DemoPreviewSponsorConclusionProps) {
   const manifest = props.payload.manifest;
   const runId = props.payload.run?.runId ?? "";
+  const operatorDeepLinksAvailable = props.operatorDeepLinksAvailable ?? true;
+  const approvalHref = resolveMarketingOperatorDeepLink(
+    operatorDeepLinksAvailable,
+    `/governance/approval-queue?runId=${encodeURIComponent(runId)}`,
+  );
 
   return (
     <section
@@ -219,10 +243,7 @@ export function DemoPreviewGovernanceSection(props: DemoPreviewSponsorConclusion
       ) : null}
       {runId.length > 0 ? (
         <p className="mt-4">
-          <Link
-            href={`/governance/approval-queue?runId=${encodeURIComponent(runId)}`}
-            className={MARKETING_SURFACES.inlineLink}
-          >
+          <Link href={approvalHref} className={MARKETING_SURFACES.inlineLink}>
             View approval
           </Link>
         </p>

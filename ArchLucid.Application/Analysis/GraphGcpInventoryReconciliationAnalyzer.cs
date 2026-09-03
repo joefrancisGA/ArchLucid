@@ -118,6 +118,18 @@ public static class GraphGcpInventoryReconciliationAnalyzer
 
     internal static string NormalizeGcpResourceId(string resourceId)
     {
-        return resourceId.Trim().ToLowerInvariant();
+        string trimmed = resourceId.Trim().ToLowerInvariant();
+
+        if (trimmed.StartsWith("//", StringComparison.Ordinal))
+        {
+            int servicePathIndex = trimmed.IndexOf(".googleapis.com/", StringComparison.Ordinal);
+
+            if (servicePathIndex >= 0)
+            {
+                return trimmed[(servicePathIndex + ".googleapis.com/".Length)..];
+            }
+        }
+
+        return trimmed;
     }
 }
