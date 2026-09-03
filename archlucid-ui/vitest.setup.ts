@@ -36,6 +36,10 @@ vi.mock("@/components/shell/OperatorShellStatusQueryGate", () => ({
   useOperatorShellStatusConcernFetchEnabled: () => true,
 }));
 
+vi.mock("@/components/workspace-mode/WorkspaceModeSealDefaultEffect", () => ({
+  WorkspaceModeSealDefaultEffect: () => null,
+}));
+
 vi.mock("next/navigation", async (importOriginal) =>
   extendNextNavigationVitestMock(importOriginal),
 );

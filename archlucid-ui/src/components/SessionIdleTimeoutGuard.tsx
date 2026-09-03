@@ -5,9 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   readSharedSessionLastActivityAtMs,
   remainingSessionIdleMs,
+  resolveSessionIdleTimeoutMs,
   SESSION_CLEARED_AT_STORAGE_KEY,
   SESSION_IDLE_BROADCAST_CHANNEL,
   SESSION_IDLE_FOCUS_HEARTBEAT_MS,
@@ -33,7 +35,11 @@ function clearSessionAndRedirect(router: ReturnType<typeof useRouter>): void {
 /** Clears operator session after inactivity with cross-tab activity sharing and a 2-minute warning. */
 export function SessionIdleTimeoutGuard() {
   const router = useRouter();
+  const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const timerRef = useRef<number | null>(null);
+  const idleTimeoutMs = workspaceMounted && isWorkingMode
+    ? resolveSessionIdleTimeoutMs(true)
+    : resolveSessionIdleTimeoutMs(false);
   const [warningVisible, setWarningVisible] = useState(false);
   const [warningSecondsRemaining, setWarningSecondsRemaining] = useState(
     Math.ceil(SESSION_IDLE_WARNING_MS / 1000),
@@ -52,7 +58,7 @@ export function SessionIdleTimeoutGuard() {
       }
 
       const lastActivityAtMs = readSharedSessionLastActivityAtMs();
-      const remainingMs = remainingSessionIdleMs(lastActivityAtMs);
+      const remainingMs = remainingSessionIdleMs(lastActivityAtMs, undefined, idleTimeoutMs);
 
       if (remainingMs <= 0) {
         clearSessionAndRedirect(router);
@@ -120,7 +126,7 @@ export function SessionIdleTimeoutGuard() {
 
       broadcastChannel?.close();
     };
-  }, [router]);
+  }, [idleTimeoutMs, router]);
 
   useEffect(() => {
     if (!warningVisible) {
@@ -128,7 +134,7 @@ export function SessionIdleTimeoutGuard() {
     }
 
     const intervalId = window.setInterval(() => {
-      const remainingMs = remainingSessionIdleMs(readSharedSessionLastActivityAtMs());
+      const remainingMs = remainingSessionIdleMs(readSharedSessionLastActivityAtMs(), undefined, idleTimeoutMs);
 
       setWarningSecondsRemaining(Math.max(1, Math.ceil(remainingMs / 1000)));
     }, 1000);
@@ -136,7 +142,7 @@ export function SessionIdleTimeoutGuard() {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [warningVisible]);
+  }, [idleTimeoutMs, warningVisible]);
 
   return (
     <>
@@ -153,10 +159,10 @@ export function SessionIdleTimeoutGuard() {
             Your session will end soon
           </p>
           <p className="mt-2 text-sm text-al-text-secondary">
-            You have been inactive. Move your mouse or press a key to stay signed in. Session ends in about{" "}
-            {warningSecondsRemaining} seconds.
+            You have been inactive. Move your mouse, press a key, or extend your session for projector or reading
+            work. Session ends in about {warningSecondsRemaining} seconds.
           </p>
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap gap-2">
             <Button
               type="button"
               size="sm"
@@ -167,6 +173,19 @@ export function SessionIdleTimeoutGuard() {
               }}
             >
               Stay signed in
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="session-idle-warning-extend-meeting"
+              onClick={() => {
+                const meetingExtensionMs = 45 * 60 * 1000;
+                writeSharedSessionLastActivityAt(Date.now() - idleTimeoutMs + meetingExtensionMs);
+                setWarningVisible(false);
+              }}
+            >
+              Extend for meeting
             </Button>
           </div>
         </div>

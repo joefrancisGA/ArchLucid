@@ -51,7 +51,9 @@ import {
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { ReviewInPipelineBanner } from "@/components/reviews/ReviewInPipelineBanner";
+import { ReviewDefensibilityStrip } from "@/components/reviews/ReviewDefensibilityStrip";
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
+import { buildReviewDefensibilityStripProps } from "@/lib/reviews/build-review-defensibility-strip-props";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import { composeRunDetailEvidenceTab } from "./RunDetailEvidenceTabComposition";
 import { composeRunDetailGovernanceTab } from "./RunDetailGovernanceTabComposition";
@@ -184,10 +186,18 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
     />
   ) : null;
 
+  const defensibilityStripProps = buildReviewDefensibilityStripProps(
+    m.manifestSummaryForUi?.feasibilityVerdict ?? m.manifestSummary?.feasibilityVerdict,
+    m.showProgressTracker && m.resolvedDetail.run.completedUtc === null,
+  );
+  const defensibilityStripEl =
+    defensibilityStripProps !== null ? <ReviewDefensibilityStrip {...defensibilityStripProps} /> : null;
+
   return (
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
       <ReviewDetailWorkspaceDeferred
         runId={m.resolvedDetail.run.runId}
+        defensibilityStrip={defensibilityStripEl}
         tabSectionNav={
           <RunDetailTabbedSectionNavDeferred
             runId={m.resolvedDetail.run.runId}
