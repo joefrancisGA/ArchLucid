@@ -118,6 +118,86 @@ public sealed class PreCommitGovernanceGateTests
     }
 
     [SkippableFact]
+    public async Task EvaluateAsync_allows_when_only_blocking_findings_are_muted()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-1",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        Mock<IFindingsSnapshotRepository> findings = new();
+        findings
+            .Setup(s => s.GetByIdAsync(TestScope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-muted-critical",
+                        FindingType = "Compliance",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Critical,
+                        Title = "t",
+                        Rationale = "r",
+                        EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                        IsMuted = true,
+                    },
+                ],
+            });
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+        await assignments.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                ScopeLevel = GovernanceScopeLevel.Project,
+                PolicyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                PolicyPackVersion = "1.0.0",
+                IsEnabled = true,
+                BlockCommitOnCritical = true,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        PreCommitGovernanceGate sut = CreateGate(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            runs,
+            findings.Object,
+            assignments);
+
+        PreCommitGateResult r = await sut.EvaluateAsync(runId, CancellationToken.None);
+
+        r.Blocked.Should().BeFalse();
+        r.BlockingFindingIds.Should().BeEmpty();
+    }
+
+    [SkippableFact]
     public async Task EvaluateAsync_allows_when_no_critical_findings()
     {
         Guid runGuid = Guid.NewGuid();
