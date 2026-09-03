@@ -90,6 +90,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "help-model-governance",
   "help-notifications",
   "help-pilot-feedback",
+  "help-pilot-guide",
   "help-policy-packs",
   "help-prior-manifest-retrieval",
   "help-policy-pack-delta-demo",
