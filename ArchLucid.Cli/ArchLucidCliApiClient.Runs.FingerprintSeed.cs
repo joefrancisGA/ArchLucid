@@ -74,7 +74,35 @@ public sealed partial class ArchLucidApiClient
                 createTimePins = RunHeaderCreateTimePinCommitmentFactory.TryFromRunHeader(header);
             }
 
-            string sha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest, createTimePins);
+            IReadOnlyList<CommittedArtifactInventoryFingerprintRow>? inventoryRows = null;
+            string commitWireJson = JsonSerializer.Serialize(gen, gen.GetType(), _jsonOptions);
+            using JsonDocument commitDoc = JsonDocument.Parse(commitWireJson);
+
+            if (commitDoc.RootElement.TryGetProperty("committedArtifactInventory", out JsonElement inventoryElement)
+                && inventoryElement.ValueKind == JsonValueKind.Array)
+            {
+                inventoryRows = inventoryElement
+                    .EnumerateArray()
+                    .Select(static rowElement => new CommittedArtifactInventoryFingerprintRow(
+                        rowElement.TryGetProperty("artifactName", out JsonElement nameElement)
+                            ? nameElement.GetString() ?? string.Empty
+                            : string.Empty,
+                        rowElement.TryGetProperty("contentType", out JsonElement typeElement)
+                            ? typeElement.GetString() ?? string.Empty
+                            : string.Empty,
+                        rowElement.TryGetProperty("contentHashSha256", out JsonElement hashElement)
+                            ? hashElement.GetString() ?? string.Empty
+                            : string.Empty,
+                        rowElement.TryGetProperty("producer", out JsonElement producerElement)
+                            ? producerElement.GetString() ?? string.Empty
+                            : string.Empty,
+                        rowElement.TryGetProperty("capturedUtc", out JsonElement capturedElement)
+                            ? capturedElement.GetDateTime()
+                            : DateTime.MinValue))
+                    .ToList();
+            }
+
+            string sha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest, createTimePins, inventoryRows);
 
             return new GoldenManifestFingerprintResult(true, sha, null);
         }

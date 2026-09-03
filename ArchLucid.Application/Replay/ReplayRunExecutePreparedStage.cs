@@ -84,8 +84,13 @@ public sealed class ReplayRunExecutePreparedStage(
         {
             RunRecord? sourceHeader = await _runRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
 
-            if (sourceHeader is not null)
-                ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(scope, sourceHeader, originalRunId);
+            if (sourceHeader is null)
+            {
+                throw new ConflictException(
+                    $"Replay blocked for run '{originalRunId}': source run header was not found; evidence clone requires create-time pins.");
+            }
+
+            ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(scope, sourceHeader, originalRunId);
         }
 
         ArchitectureRun originalRun = sourceDetail.Run;

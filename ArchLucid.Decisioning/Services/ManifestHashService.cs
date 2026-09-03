@@ -21,7 +21,7 @@ public sealed class ManifestHashService : IManifestHashService
     ///     Canonical projection schema version. Increment only with deliberate baseline re-lock
     ///     (<c>MANIFEST_HASH_HASHER_BASELINE.md</c>, <c>TB-1157</c>).
     /// </summary>
-    public const string HasherSchemaVersion = "v9";
+    public const string HasherSchemaVersion = "v10";
 
     /// <inheritdoc />
     public string ComputeHash(ManifestDocument manifest)
@@ -131,6 +131,7 @@ public sealed class ManifestHashService : IManifestHashService
                     row.CapturedUtc,
                 })
                 .ToArray(),
+            manifest.CommittedDecisionReceiptHashSha256,
         });
 
         using SHA256 sha = SHA256.Create();

@@ -32,6 +32,15 @@ internal static class FindingPinnedEvidencePackageReferenceResolver
 
     private static IEnumerable<Guid> ExtractReferencedPackageIds(Finding finding)
     {
+        if (finding.EvidencePackageId is Guid typedPackageId && typedPackageId != Guid.Empty)
+            yield return typedPackageId;
+
+        if (finding.Properties.TryGetValue(FindingPropertyKeys.EvidencePackageId, out string? propertyPackageId))
+        {
+            foreach (Guid packageId in TryParsePackageId(propertyPackageId))
+                yield return packageId;
+        }
+
         foreach (string candidate in CollectCandidateStrings(finding))
         {
             foreach (Guid packageId in TryParsePackageId(candidate))

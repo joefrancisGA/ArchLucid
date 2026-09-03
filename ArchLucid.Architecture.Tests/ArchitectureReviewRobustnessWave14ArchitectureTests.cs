@@ -161,11 +161,11 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     }
 
     [Fact]
-    public void Suggestion133_hasher_v9()
+    public void Suggestion133_hasher_v9_baseline()
     {
-        string hasher = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
-
-        hasher.Should().Contain("HasherSchemaVersion = \"v9\"");
+        File.Exists(
+                Path.Combine(RepoRoot, "tests", "manifest-hash", "hasher-baseline-v9.json"))
+            .Should()
+            .BeTrue();
     }
 }

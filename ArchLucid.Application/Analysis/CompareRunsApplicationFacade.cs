@@ -196,7 +196,9 @@ public sealed class CompareRunsApplicationFacade(
             baseHeader,
             targetHeader,
             baseRun.GoldenManifest.ManifestHash,
-            targetRun.GoldenManifest.ManifestHash);
+            targetRun.GoldenManifest.ManifestHash,
+            CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(baseRun.GoldenManifest.CommittedArtifactInventory),
+            CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(targetRun.GoldenManifest.CommittedArtifactInventory));
 
         return new ManifestCompareLoadResult
         {

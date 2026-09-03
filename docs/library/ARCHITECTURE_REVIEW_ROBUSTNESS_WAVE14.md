@@ -20,3 +20,5 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE13.md`](ARCHITECTURE_REVIEW_RO
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave14ArchitectureTests.cs`.
 
 **Hasher baseline note:** suggestion 133 bumps production `h(M)` to **`v9`** (committed artifact inventory binds blob bytes, not content ids). Owner re-lock via `tests/manifest-hash/hasher-baseline-v9.json`.
+
+**Successor:** [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE15.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE15.md) (suggestions 141–150; Hasher A **`v10`** for bundle-body inventory + decision receipt hash).

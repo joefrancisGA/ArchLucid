@@ -49,11 +49,12 @@ public static class AuthorityCommitRecoveryVerifier
         }
     }
 
-    /// <summary>Wave-14 suggestion 139: verify sealed inventory rows match persisted snapshot pointers.</summary>
+    /// <summary>Wave-14 suggestion 139 / wave-15 suggestion 143: verify sealed inventory rows match persisted snapshot pointers and recomputed hashes.</summary>
     public static void EnsureInventoryConsistentOrThrow(
         ManifestDocument? persistedManifest,
         RunRecord header,
-        string runIdLabel)
+        string runIdLabel,
+        ManifestCommittedArtifactInventoryMaterial? recomputedMaterial = null)
     {
         ArgumentNullException.ThrowIfNull(header);
         ArgumentException.ThrowIfNullOrWhiteSpace(runIdLabel);
@@ -71,5 +72,13 @@ public static class AuthorityCommitRecoveryVerifier
             persistedManifest,
             header,
             runIdLabel);
+
+        if (recomputedMaterial is not null)
+        {
+            ManifestCommittedArtifactInventoryCapturer.EnsureStoredInventoryContentHashesMatchOrThrow(
+                persistedManifest,
+                recomputedMaterial,
+                runIdLabel);
+        }
     }
 }

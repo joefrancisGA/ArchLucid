@@ -5,13 +5,14 @@ using ArchLucid.Application;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
 
 namespace ArchLucid.Application.Runs.Finalization;
 
 /// <summary>
-///     Wave-14 suggestion 133: build canonical UTF-8 artifact bytes for inventory hashing.
+///     Wave-14 suggestion 133 / wave-15 suggestion 142: build canonical UTF-8 artifact bytes for inventory hashing.
 /// </summary>
 internal static class ManifestCommittedArtifactInventoryMaterialFactory
 {
@@ -38,8 +39,20 @@ internal static class ManifestCommittedArtifactInventoryMaterialFactory
 
         if (request.ExpectedArtifactBundleId is Guid bundleId)
         {
-            artifactBundleUtf8 = Encoding.UTF8.GetBytes(
-                JsonSerializer.Serialize(new { artifactBundleId = bundleId.ToString("D") }, ContractJson.Default));
+            if (request.PreloadedArtifactBundle is null)
+            {
+                throw new ConflictException(
+                    "Finalization blocked: artifact bundle bytes are required to seal committed artifact inventory.");
+            }
+
+            if (request.PreloadedArtifactBundle.BundleId != bundleId)
+            {
+                throw new ConflictException(
+                    "Finalization blocked: preloaded artifact bundle id does not match the expected bundle id.");
+            }
+
+            artifactBundleUtf8 = ManifestCommittedArtifactInventoryBundleMaterialSerializer.SerializeCanonicalUtf8(
+                request.PreloadedArtifactBundle);
         }
 
         return new ManifestCommittedArtifactInventoryMaterial

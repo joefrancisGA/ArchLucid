@@ -67,6 +67,13 @@ public sealed class DecisionReceiptDocument
         set;
     }
 
+    /// <summary>Wave-15 suggestion 150: canonical SHA-256 over exportable receipt fields.</summary>
+    public string? ReceiptHashSha256
+    {
+        get;
+        set;
+    }
+
     public DecisionReceiptCostStory CostStory
     {
         get;
