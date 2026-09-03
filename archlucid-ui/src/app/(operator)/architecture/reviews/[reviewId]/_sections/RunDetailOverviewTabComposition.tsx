@@ -11,7 +11,7 @@ import {
   RunDetailWorkspaceBlockingBannerDeferred,
   RunDetailWorkspaceSummaryStripDeferred,
 } from "./RunDetailTabbedWorkspaceDeferredImports";
-import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
+import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
 import { Suspense } from "react";
 
 export type RunDetailOverviewTabCompositionInput = {
@@ -71,6 +71,10 @@ export function composeRunDetailOverviewTab(
         materialSeverityLine={materialSeverityLine}
       />
       {executiveBottomLineEl}
+      <RunDetailOverviewTransparencyTrail
+        feasibilityVerdict={m.manifestSummary?.feasibilityVerdict ?? null}
+        runCompleted={m.resolvedDetail.run.legacyRunStatus === "Completed" || Boolean(m.manifestId)}
+      />
       <RunDetailOverviewPanelClientDeferred
         runId={m.resolvedDetail.run.runId}
         architectureTitle={p.architectureSummaryTitle}

@@ -98,6 +98,8 @@ public sealed partial class ManifestFinalizationService
                 request.PreloadedFindingsSnapshot);
         }
 
+        ManifestCommittedArtifactInventoryCapturer.ApplyToManifest(request.ManifestModel, request);
+
         if (connection is not null)
         {
             return await goldenManifestRepository.SaveAsync(

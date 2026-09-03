@@ -1,0 +1,19 @@
+{
+  "baseUrl": "https://staging-api.example.com",
+  "runId": "00000000-0000-0000-0000-000000000001",
+  "uiBaseUrl": "https://staging.example.com",
+  "uiBaseUrlSource": "ARCHLUCID_UI_BASE_URL",
+  "generatedUtc": "2026-09-03T12:00:00Z",
+  "gates": [
+    {
+      "gateNumber": 1,
+      "name": "First review completion",
+      "verdict": "Pass",
+      "evidence": "All completion signals satisfied.",
+      "fastestResolution": null
+    }
+  ],
+  "repositoryRoot": "/workspace",
+  "jsonArtifactPath": "artifacts/ship-gate-evidence/00000000-0000-0000-0000-000000000001/ship-gate-evidence.json",
+  "markdownArtifactPath": "artifacts/ship-gate-evidence/00000000-0000-0000-0000-000000000001/ship-gate-evidence.md"
+}

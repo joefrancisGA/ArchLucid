@@ -16,9 +16,11 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   patternLibraryDomainHrefFromSearch,
   patternLibraryPlatformHrefFromSearch,
+  patternLibraryTypeHrefFromSearch,
+  patternLibraryRiskHrefFromSearch,
 } from "@/lib/insights/pattern-library-filters-url";
 import { PATTERN_LIBRARY_SEARCH_PLACEHOLDER } from "@/lib/pattern-library-copy";
-import type { PatternDomainFilter, PatternLibraryFiltersState, PatternPlatformFilter } from "@/lib/pattern-library-types";
+import type { PatternDomainFilter, PatternLibraryFiltersState, PatternPlatformFilter, PatternRiskSignal, PatternTypeFilter } from "@/lib/pattern-library-types";
 
 const DOMAIN_CHIP_OPTIONS: readonly PatternDomainFilter[] = [
   "All domains",
@@ -29,6 +31,25 @@ const DOMAIN_CHIP_OPTIONS: readonly PatternDomainFilter[] = [
   "General",
   "Internal enterprise",
   "Other",
+];
+
+const TYPE_CHIP_OPTIONS: readonly PatternTypeFilter[] = [
+  "All types",
+  "Connectivity",
+  "Application",
+  "Data",
+  "Integration",
+  "Security",
+  "AI and knowledge",
+  "Resilience",
+  "Migration",
+];
+
+const RISK_CHIP_OPTIONS: readonly (PatternRiskSignal | "All risks")[] = [
+  "All risks",
+  "Low",
+  "Moderate",
+  "High",
 ];
 
 const PLATFORM_CHIP_OPTIONS: readonly PatternPlatformFilter[] = [
@@ -123,35 +144,49 @@ export function PatternLibraryFiltersPanel(props: PatternLibraryFiltersPanelProp
         </FilterChipGroup>
       </div>
 
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Pattern type</p>
+        <FilterChipGroup aria-label="Filter patterns by type" className="flex flex-wrap gap-2">
+          {TYPE_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option}
+              href={patternLibraryTypeHrefFromSearch(props.currentSearch, option)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.patternType === option, false)}
+              aria-current={filters.patternType === option ? "page" : undefined}
+              data-testid={`pattern-library-type-${option.toLowerCase().replace(/\s+/g, "-")}`}
+              onClick={() => {
+                onChange(updateFilter(filters, "patternType", option));
+              }}
+            >
+              {option}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      </div>
+
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Risk level</p>
+        <FilterChipGroup aria-label="Filter patterns by risk level" className="flex flex-wrap gap-2">
+          {RISK_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option}
+              href={patternLibraryRiskHrefFromSearch(props.currentSearch, option)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.risk === option, false)}
+              aria-current={filters.risk === option ? "page" : undefined}
+              data-testid={`pattern-library-risk-${option.toLowerCase().replace(/\s+/g, "-")}`}
+              onClick={() => {
+                onChange(updateFilter(filters, "risk", option));
+              }}
+            >
+              {option}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      </div>
+
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <FilterSelect
-          id="pattern-filter-type"
-          label="Pattern type"
-          value={filters.patternType}
-          options={[
-            "All types",
-            "Connectivity",
-            "Application",
-            "Data",
-            "Integration",
-            "Security",
-            "AI and knowledge",
-            "Resilience",
-            "Migration",
-          ]}
-          onChange={(value) => {
-            onChange(updateFilter(filters, "patternType", value as PatternLibraryFiltersState["patternType"]));
-          }}
-        />
-        <FilterSelect
-          id="pattern-filter-risk"
-          label="Risk level"
-          value={filters.risk}
-          options={["All risks", "Low", "Moderate", "High"]}
-          onChange={(value) => {
-            onChange(updateFilter(filters, "risk", value as PatternLibraryFiltersState["risk"]));
-          }}
-        />
         <FilterSelect
           id="pattern-filter-adoption"
           label="Adoption"
