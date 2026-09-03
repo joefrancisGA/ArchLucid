@@ -57,6 +57,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "fleet-llm-cogs",
   "get-started",
   "governance-findings",
+  "governance-assigned-to-me",
   "help-ai-usage",
   "help-advisory-scans",
   "help-api-contracts",
