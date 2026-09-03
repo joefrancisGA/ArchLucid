@@ -24,7 +24,9 @@ export function AppShellMainAffordances() {
   const isPreferencesSettingsPath = pathname === "/account/preferences";
   const isHelpTopicPath = pathname === "/help" || pathname.startsWith("/help/");
   const isArchitectureScorecardPath = pathname === "/insights/architecture-scorecard";
-  const hideShortcutCoaches = isPreferencesSettingsPath || isHelpTopicPath || isArchitectureScorecardPath;
+  const isSettingsHubPath = pathname === "/administration";
+  const hideShortcutCoaches =
+    isPreferencesSettingsPath || isHelpTopicPath || isArchitectureScorecardPath || isSettingsHubPath;
   const showPersistentWorkspaceNextActionStrip = isPersistentWorkspaceNextActionStripPath(pathname);
   const staticDemoEnv = isExplicitStaticDemoMarketingBuild();
 
