@@ -19,11 +19,13 @@ public sealed class CreateGovernancePromotionRequestValidator : AbstractValidato
 
         RuleFor(x => x.SourceEnvironment)
             .NotEmpty().WithMessage("SourceEnvironment is required.")
-            .MaximumLength(64).WithMessage("SourceEnvironment must not exceed 64 characters.");
+            .MaximumLength(GovernanceEnvironmentSlug.MaxLength)
+            .WithMessage($"SourceEnvironment must not exceed {GovernanceEnvironmentSlug.MaxLength} characters.");
 
         RuleFor(x => x.TargetEnvironment)
             .NotEmpty().WithMessage("TargetEnvironment is required.")
-            .MaximumLength(64).WithMessage("TargetEnvironment must not exceed 64 characters.");
+            .MaximumLength(GovernanceEnvironmentSlug.MaxLength)
+            .WithMessage($"TargetEnvironment must not exceed {GovernanceEnvironmentSlug.MaxLength} characters.");
 
         RuleFor(x => x)
             .Must(x => !string.Equals(x.SourceEnvironment, x.TargetEnvironment, StringComparison.OrdinalIgnoreCase))

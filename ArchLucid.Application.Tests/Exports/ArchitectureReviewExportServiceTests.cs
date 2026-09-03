@@ -48,6 +48,7 @@ public sealed class ArchitectureReviewExportServiceTests
             Run = run,
             Manifest = manifest,
             HasBrokenManifestReference = false,
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
             DecisionTraces = []
         };
     }
@@ -297,6 +298,24 @@ public sealed class ArchitectureReviewExportServiceTests
             await sut.GenerateReportAsync(detail.Run.RunId, ExportFormat.Docx, null, null, null, CancellationToken.None);
 
         await act.Should().ThrowAsync<ConflictException>().WithMessage("*broken manifest reference*");
+    }
+
+    [Fact]
+    public async Task GenerateReportAsync_throws_conflict_when_authority_lifecycle_not_complete()
+    {
+        const string runId = "ffffffffffffffffffffffffffffffff";
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+        detail.AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.InProgress;
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        ArchitectureReviewExportService sut = CreateSut(runDetailQuery.Object, Mock.Of<IArchitectureAnalysisService>());
+
+        Func<Task> act = async () =>
+            await sut.GenerateReportAsync(runId, ExportFormat.Docx, null, null, null, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>().WithMessage("*authority lifecycle phase*");
     }
 
     [Fact]

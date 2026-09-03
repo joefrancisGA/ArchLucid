@@ -26,6 +26,8 @@ public sealed class TenantErasureLegalHoldController(
     IScopeContextProvider scopeProvider,
     TimeProvider? timeProvider = null) : ControllerBase
 {
+    private const int LegalHoldReasonMaxLength = 500;
+
     private readonly ITenantErasureCommandService _tenantErasureCommands =
         tenantErasureCommands ?? throw new ArgumentNullException(nameof(tenantErasureCommands));
 
@@ -70,6 +72,27 @@ public sealed class TenantErasureLegalHoldController(
                 ProblemTypes.ValidationFailed);
         }
 
+        string? legalHoldReason = null;
+
+        if (body.Reason is not null)
+        {
+            legalHoldReason = body.Reason.Trim();
+
+            if (string.IsNullOrWhiteSpace(legalHoldReason))
+            {
+                return this.BadRequestProblem(
+                    "Reason cannot be empty or whitespace.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            if (legalHoldReason.Length > LegalHoldReasonMaxLength)
+            {
+                return this.BadRequestProblem(
+                    $"Reason must be at most {LegalHoldReasonMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         ClaimsPrincipal user = User;
         string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";
         string userName = user.Identity?.Name ?? "unknown";
@@ -78,7 +101,7 @@ public sealed class TenantErasureLegalHoldController(
         bool ok = await _tenantErasureCommands.TrySetLegalHoldAsync(
             scope.TenantId,
             body.UntilUtc,
-            body.Reason,
+            legalHoldReason,
             userId,
             userName,
             requireErasureQuarantine: true,

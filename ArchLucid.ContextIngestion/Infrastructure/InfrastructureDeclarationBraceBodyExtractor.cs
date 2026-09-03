@@ -38,6 +38,12 @@ internal static class InfrastructureDeclarationBraceBodyExtractor
 
             char character = content[index];
 
+            if (inDoubleQuotes && character == '\\' && index + 1 < content.Length)
+            {
+                index++;
+                continue;
+            }
+
             if (character == '"' && !inSingleQuotes)
                 inDoubleQuotes = !inDoubleQuotes;
 

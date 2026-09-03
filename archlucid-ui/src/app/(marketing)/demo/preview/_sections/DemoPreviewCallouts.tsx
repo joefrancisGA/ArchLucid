@@ -8,9 +8,16 @@ import {
   DEMO_PREVIEW_SIGNIN_CALLOUT_TEXT,
 } from "@/lib/demo-preview-page-copy";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { cn } from "@/lib/utils";
 
-export function DemoPreviewSignInCallout() {
+type DemoPreviewSignInCalloutProps = {
+  readonly signInReturnPath?: string;
+};
+
+export function DemoPreviewSignInCallout({ signInReturnPath }: DemoPreviewSignInCalloutProps) {
+  const signInHref = buildAuthSignInHref({ returnPath: signInReturnPath });
+
   return (
     <section
       className="rounded-xl border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -24,7 +31,7 @@ export function DemoPreviewSignInCallout() {
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Button asChild variant="outline" data-testid="demo-preview-signin-cta">
-          <Link href="/auth/signin">{DEMO_PREVIEW_SIGNIN_ACTION}</Link>
+          <Link href={signInHref}>{DEMO_PREVIEW_SIGNIN_ACTION}</Link>
         </Button>
         <Link
           href="/see-it"
@@ -37,7 +44,9 @@ export function DemoPreviewSignInCallout() {
   );
 }
 
-export function DemoPreviewEvaluationCta() {
+export function DemoPreviewEvaluationCta({ signInReturnPath }: DemoPreviewSignInCalloutProps) {
+  const signInHref = buildAuthSignInHref({ returnPath: signInReturnPath });
+
   return (
     <section
       className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 dark:border-neutral-800 dark:bg-neutral-900/50"
@@ -54,7 +63,7 @@ export function DemoPreviewEvaluationCta() {
           <Link href="/pricing#pricing-quote-request">Schedule enterprise demo</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/auth/signin">Sign in</Link>
+          <Link href={signInHref}>Sign in</Link>
         </Button>
       </div>
     </section>

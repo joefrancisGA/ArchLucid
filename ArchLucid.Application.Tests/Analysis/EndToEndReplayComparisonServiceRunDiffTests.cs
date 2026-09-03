@@ -321,6 +321,60 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
       && note.Contains("manifest was not compared", StringComparison.OrdinalIgnoreCase));
   }
 
+  [Fact]
+  public async Task BuildAsync_when_manifest_warnings_only_adds_material_manifest_interpretation_note()
+  {
+    GoldenManifest leftManifest = new() { RunId = "left-run", SystemName = "Sys" };
+    GoldenManifest rightManifest = new() { RunId = "right-run", SystemName = "Sys" };
+    ManifestDiffResult manifestDiff = new()
+    {
+      Warnings = ["SystemName differs between compared manifests."],
+    };
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("left-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(
+        "left-run",
+        DateTime.UtcNow,
+        leftManifest,
+        [new AgentResult { RunId = "left-run", TaskId = "t1", AgentType = AgentType.Topology }]));
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("right-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(
+        "right-run",
+        DateTime.UtcNow,
+        rightManifest,
+        [new AgentResult { RunId = "right-run", TaskId = "t1", AgentType = AgentType.Topology }]));
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+    Mock<IAgentResultDiffService> agentDiffService = new();
+    agentDiffService
+      .Setup(s => s.Compare("left-run", It.IsAny<IReadOnlyList<AgentResult>>(), "right-run", It.IsAny<IReadOnlyList<AgentResult>>()))
+      .Returns(new AgentResultDiffResult());
+
+    Mock<IManifestDiffService> manifestDiffService = new();
+    manifestDiffService
+      .Setup(s => s.Compare(leftManifest, rightManifest))
+      .Returns(manifestDiff);
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      manifestDiffService,
+      null,
+      agentDiffService);
+
+    EndToEndReplayComparisonReport report = await sut.BuildAsync("left-run", "right-run");
+
+    report.InterpretationNotes.Should().Contain(note =>
+      note.Contains("manifest changed without meaningful agent drift", StringComparison.OrdinalIgnoreCase));
+  }
+
   private static EndToEndReplayComparisonService CreateSut(
     Mock<IRunDetailQueryService> runDetailQuery,
     Mock<IRunExportRecordRepository> exportRecords,
@@ -393,7 +447,11 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
     return scopeProvider.Object;
   }
 
-  private static ArchitectureRunDetail CreateDetail(string runId, DateTime? completedUtc)
+  private static ArchitectureRunDetail CreateDetail(
+    string runId,
+    DateTime? completedUtc,
+    GoldenManifest? manifest = null,
+    IReadOnlyList<AgentResult>? results = null)
   {
     return new ArchitectureRunDetail
     {
@@ -403,6 +461,8 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
         RequestId = "req-" + runId,
         CompletedUtc = completedUtc,
       },
+      Manifest = manifest,
+      Results = results is null ? [] : [.. results],
     };
   }
 }

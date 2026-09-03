@@ -150,6 +150,50 @@ public sealed class AzureRetailPricesSkuMatchersTests
     }
 
     [Fact]
+    public void RowMatchesSku_rejects_letter_prefix_series_collision_against_ve_family()
+    {
+        AzureRetailPricesCatalogClient.RowMatchesSku("E2s_v5", "Standard_VE2s_v5")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void RowMatchesSku_accepts_standard_e_series_when_hint_omits_standard_prefix()
+    {
+        AzureRetailPricesCatalogClient.RowMatchesSku("E2s_v5", "Standard_E2s_v5")
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void LooksLikeConsumptionUsd_rejects_horsepower_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1 horsepower",
+            UnitPrice = 0.01m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
+    }
+
+    [Fact]
+    public void LooksLikeConsumptionUsd_rejects_moment_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1 moment",
+            UnitPrice = 12.34m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
+    }
+
+    [Fact]
     public void LooksLikeConsumptionUsd_rejects_health_unit_of_measure_false_positive()
     {
         AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
@@ -178,5 +222,81 @@ public sealed class AzureRetailPricesSkuMatchersTests
 
         ok.Should().BeFalse();
         monthly.Should().Be(0m);
+    }
+
+    [Fact]
+    public void LooksLikeConsumptionUsd_rejects_moment_slash_mo_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1/moment",
+            UnitPrice = 12.34m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
+    }
+
+    [Fact]
+    public void LooksLikeConsumptionUsd_rejects_hourglass_hour_word_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1 Hourglass",
+            UnitPrice = 0.01m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
+    }
+
+    [Fact]
+    public void LooksLikeConsumptionUsd_rejects_hrocket_slash_hr_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1/hrocket",
+            UnitPrice = 0.01m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryMonthlyUsdFromRow_rejects_hrocket_slash_hr_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1/hrocket",
+            UnitPrice = 0.01m,
+        };
+
+        bool ok = AzureRetailPricesCatalogClient.TryMonthlyUsdFromRow(dto, 1, out decimal monthly);
+
+        ok.Should().BeFalse();
+        monthly.Should().Be(0m);
+    }
+
+    [Fact]
+    public void TryMonthlyUsdFromRow_accepts_hours_unit_of_measure_synonym()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "10 Hours",
+            UnitPrice = 0.01m,
+        };
+
+        bool ok = AzureRetailPricesCatalogClient.TryMonthlyUsdFromRow(dto, 1, out decimal monthly);
+
+        ok.Should().BeTrue();
+        monthly.Should().Be(7.30m);
     }
 }

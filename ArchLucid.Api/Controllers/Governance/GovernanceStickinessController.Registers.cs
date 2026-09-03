@@ -180,6 +180,7 @@ public sealed partial class GovernanceStickinessController
             return queryProblem;
 
         category = category?.Trim();
+        buyerConfidenceSource = buyerConfidenceSource?.Trim();
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

@@ -79,6 +79,10 @@ public sealed partial class AzureRetailPricesCatalogClient
 
             if (previous is >= '0' and <= '9')
                 return false;
+
+            // Reject letter-variant prefixes such as Standard_VE2s_v5 matching E2s_v5.
+            if (char.IsUpper(previous))
+                return false;
         }
 
         return true;
@@ -168,14 +172,42 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         string trimmed = uom.Trim();
 
-        return trimmed.Contains("Hour", StringComparison.OrdinalIgnoreCase)
+        return ContainsHourWordToken(trimmed)
             || trimmed.Contains("hrs", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains(" hr", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("/hr", StringComparison.OrdinalIgnoreCase)
+            || ContainsSlashHrToken(trimmed)
             || ContainsSlashHourToken(trimmed)
-            || trimmed.Contains(" h", StringComparison.OrdinalIgnoreCase)
+            || ContainsBoundedToken(trimmed, " h")
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsHourWordToken(string trimmed)
+    {
+        return ContainsBoundedToken(trimmed, " hour")
+            || ContainsBoundedToken(trimmed, " hours");
+    }
+
+    private static bool ContainsSlashHrToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/hr", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterHr = index + 3;
+
+            if (afterHr >= trimmed.Length || !char.IsLetter(trimmed[afterHr]))
+                return true;
+
+            index = afterHr;
+        }
+
+        return false;
     }
 
     private static bool ContainsSlashHourToken(string trimmed)
@@ -209,9 +241,53 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return trimmed.Contains("Month", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("/Month", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("/mo", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains(" mo", StringComparison.OrdinalIgnoreCase)
+            || ContainsSlashMonthToken(trimmed)
+            || ContainsBoundedToken(trimmed, " mo")
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsSlashMonthToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/mo", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMo = index + 3;
+
+            if (afterMo >= trimmed.Length || !char.IsLetter(trimmed[afterMo]))
+                return true;
+
+            index = afterMo;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsBoundedToken(string trimmed, string token)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf(token, index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterToken = index + token.Length;
+
+            if (afterToken >= trimmed.Length || !char.IsLetter(trimmed[afterToken]))
+                return true;
+
+            index = afterToken;
+        }
+
+        return false;
     }
 
     internal static string OdataEscape(string literal)

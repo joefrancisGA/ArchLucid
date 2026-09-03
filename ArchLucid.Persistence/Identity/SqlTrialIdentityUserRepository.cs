@@ -209,8 +209,10 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
 
         string oid = entraOid.Trim();
 
-        if (oid.Length > 128)
-            throw new ArgumentException("Entra OID must be at most 128 characters.", nameof(entraOid));
+        if (oid.Length > TrialIdentityUserFieldLimits.LinkedEntraOidMaxLength)
+            throw new ArgumentException(
+                $"Entra OID must be at most {TrialIdentityUserFieldLimits.LinkedEntraOidMaxLength} characters.",
+                nameof(entraOid));
 
         TrialIdentityUserRecord? row = await GetByNormalizedEmailAsync(normalizedEmail, cancellationToken);
 

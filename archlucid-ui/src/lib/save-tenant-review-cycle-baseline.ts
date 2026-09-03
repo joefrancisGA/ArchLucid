@@ -1,3 +1,5 @@
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+
 export type SaveTenantReviewCycleBaselineInput = {
   baselineReviewCycleHours: number;
   baselineReviewCycleSourceNote: string | null;
@@ -11,15 +13,18 @@ export type SaveTenantReviewCycleBaselineResult =
 export async function saveTenantReviewCycleBaseline(
   input: SaveTenantReviewCycleBaselineInput,
 ): Promise<SaveTenantReviewCycleBaselineResult> {
-  const response = await fetch("/api/proxy/v1/tenant/baseline", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    credentials: "include",
-    body: JSON.stringify({
-      baselineReviewCycleHours: input.baselineReviewCycleHours,
-      baselineReviewCycleSourceNote: input.baselineReviewCycleSourceNote,
+  const response = await fetch(
+    "/api/proxy/v1/tenant/baseline",
+    mergeRegistrationScopeForProxy({
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        baselineReviewCycleHours: input.baselineReviewCycleHours,
+        baselineReviewCycleSourceNote: input.baselineReviewCycleSourceNote,
+      }),
     }),
-  });
+  );
 
   if (response.ok) {
     return { ok: true };
@@ -87,11 +92,14 @@ export function validateMandatoryWizardBaselineReviewCycleHours(raw: string): st
 
 /** Returns persisted review-cycle hours when the tenant already captured a baseline. */
 export async function getTenantReviewCycleBaselineHours(): Promise<number | null> {
-  const response = await fetch("/api/proxy/v1/tenant/baseline", {
-    method: "GET",
-    headers: { Accept: "application/json" },
-    credentials: "include",
-  });
+  const response = await fetch(
+    "/api/proxy/v1/tenant/baseline",
+    mergeRegistrationScopeForProxy({
+      method: "GET",
+      headers: { Accept: "application/json" },
+      credentials: "include",
+    }),
+  );
 
   if (!response.ok) {
     return null;

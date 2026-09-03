@@ -175,6 +175,32 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_question_prompt_exceeds_chat_intake_max_length()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "l0.actor.additional-kinds",
+                    QuestionPrompt = OverLimitIntakeText.Value,
+                    ExtractedAnswer = "Partner integrations and service accounts also call the API.",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_exceeds_chat_intake_max_length()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();

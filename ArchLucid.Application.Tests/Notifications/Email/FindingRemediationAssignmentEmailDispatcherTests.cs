@@ -79,6 +79,44 @@ public sealed class FindingRemediationAssignmentEmailDispatcherTests
         sendAttempts.Should().Be(2);
     }
 
+    [Theory]
+    [InlineData("finance@")]
+    [InlineData("finance-team")]
+    public async Task TryDispatchAsync_rejects_invalid_assignee_mailbox_without_sending(string assigneeMailbox)
+    {
+        InMemorySentEmailLedger ledger = new();
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        FindingRemediationAssignmentEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<FindingRemediationAssignmentEmailDispatcher>.Instance);
+
+        bool dispatched = await sut.TryDispatchAsync(
+            Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+            "finding-invalid-mailbox",
+            "Open ingress",
+            assigneeMailbox,
+            remediationDueUtc: null,
+            cancellationToken: CancellationToken.None);
+
+        dispatched.Should().BeFalse("malformed assignee mailboxes must not trigger remediation email dispatch");
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        renderer.Verify(
+            r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     [Fact]
     public async Task TryDispatchAsync_skips_duplicate_send_when_ledger_already_recorded()
     {

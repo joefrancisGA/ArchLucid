@@ -47,7 +47,8 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
                 sb.AppendLine("<p class=\"meta\">" + EscapeHtml(line) + "</p>");
 
         sb.AppendLine("<hr/>");
-        string summaryHtml = MarkdownToSimpleHtml(summaryFormatter.FormatMarkdown(report).Trim());
+        string summaryMarkdown = summaryFormatter.FormatMarkdown(report).Trim();
+        string summaryHtml = MarkdownToSimpleHtml(summaryMarkdown);
         sb.AppendLine(summaryHtml);
         sb.AppendLine();
         if (!EndToEndComparisonExportProfile.IsShort(p))
@@ -63,6 +64,12 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
                 AppendExportDiffs(sb, report);
             }
         }
+
+        if (!summaryMarkdown.Contains("## Interpretation Notes", StringComparison.Ordinal))
+            AppendList(sb, "Interpretation Notes", report.InterpretationNotes);
+
+        if (!summaryMarkdown.Contains("## Warnings", StringComparison.Ordinal))
+            AppendList(sb, "Warnings", report.Warnings);
 
         sb.AppendLine("</body></html>");
         return sb.ToString();

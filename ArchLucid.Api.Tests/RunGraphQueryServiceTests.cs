@@ -66,12 +66,34 @@ public sealed class RunGraphQueryServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task GetInteractiveGraphSnapshotAsync_returns_not_found_for_whitespace_run_id_like_GetRunDetail()
+    {
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        RunGraphQueryService sut = CreateService(Mock.Of<IRunDetailQueryService>(), Mock.Of<IRunRepository>(), authorityQuery.Object);
+
+        RunInteractiveGraphQueryResult result =
+            await sut.GetInteractiveGraphSnapshotAsync("   ", CancellationToken.None);
+
+        result.Outcome.Should().Be(RunGraphQueryOutcome.NotFound);
+        result.ProblemDetail.Should().ContainEquivalentOf("not found");
+        authorityQuery.Verify(
+            q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static RunGraphQueryService CreateService(IRunDetailQueryService runDetailQueryService) =>
         CreateService(runDetailQueryService, Mock.Of<IRunRepository>());
 
     private static RunGraphQueryService CreateService(
         IRunDetailQueryService runDetailQueryService,
         IRunRepository authorityRunRepository) =>
+        CreateService(runDetailQueryService, authorityRunRepository, Mock.Of<IAuthorityQueryService>());
+
+    private static RunGraphQueryService CreateService(
+        IRunDetailQueryService runDetailQueryService,
+        IRunRepository authorityRunRepository,
+        IAuthorityQueryService authorityQueryService) =>
         new(
             runDetailQueryService,
             Mock.Of<IRunRoiEstimator>(),
@@ -80,7 +102,7 @@ public sealed class RunGraphQueryServiceTests
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IRunTrustEvidenceCardBuilder>(),
             Mock.Of<ILlmCostEstimator>(),
-            Mock.Of<IAuthorityQueryService>(),
+            authorityQueryService,
             Mock.Of<IEffectiveAgentExecutionModeAccessor>(),
             Mock.Of<IAgentExecutionTraceRepository>(),
             Mock.Of<IDbConnectionFactory>());

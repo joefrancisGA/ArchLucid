@@ -114,6 +114,26 @@ public sealed class RunQueryControllerTests
     }
 
     [Fact]
+    public async Task GetInteractiveGraphSnapshot_returns_not_found_for_whitespace_run_id_like_GetRun()
+    {
+        Mock<IRunGraphQueryService> graph = new();
+        graph
+            .Setup(s => s.GetInteractiveGraphSnapshotAsync("   ", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunInteractiveGraphQueryResult
+            {
+                Outcome = RunGraphQueryOutcome.NotFound,
+                ProblemDetail = "Run '   ' was not found."
+            });
+
+        RunQueryController controller = CreateController(runGraphQueryService: graph.Object);
+
+        IActionResult action = await controller.GetInteractiveGraphSnapshot("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
     public async Task GetRunRoiEstimate_returns_scorecard_from_graph_service()
     {
         RunRoiScorecardDto scorecard = new()

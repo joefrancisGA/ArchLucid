@@ -35,7 +35,10 @@ public sealed class InMemoryPlatformUserRepository : IPlatformUserRepository
             AuthVersion = insert.AuthVersion != Guid.Empty ? insert.AuthVersion : Guid.NewGuid()
         };
 
-        _byId[row.Id] = row;
+        if (!_byId.TryAdd(row.Id, row))
+        {
+            throw new DuplicatePlatformUserException(row.Id);
+        }
 
         return Task.FromResult(row);
     }

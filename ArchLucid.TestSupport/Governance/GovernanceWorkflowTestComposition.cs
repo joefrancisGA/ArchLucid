@@ -41,7 +41,8 @@ public static class GovernanceWorkflowTestComposition
         IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
         IOptions<PreCommitGovernanceGateOptions> governanceGateOptions,
         IArchLucidUnitOfWorkFactory unitOfWorkFactory,
-        IUnifiedGoldenManifestReader? unifiedGoldenManifestReader = null)
+        IUnifiedGoldenManifestReader? unifiedGoldenManifestReader = null,
+        IGovernanceEnvironmentCatalogService? environmentCatalogService = null)
     {
         IUnifiedGoldenManifestReader manifestReader =
             unifiedGoldenManifestReader ?? CreateDefaultUnifiedManifestReader();
@@ -49,7 +50,8 @@ public static class GovernanceWorkflowTestComposition
         (GovernanceWorkflowAuditSupport auditSupport, GovernanceWorkflowIntegrationEventSupport integrationEvents) =
             CreateSupport(durableAudit, scopeContextProvider, integrationEventOutbox, integrationEventPublisher, integrationEventsOptions);
 
-        IGovernanceEnvironmentCatalogService environmentCatalogService = CreateDefaultEnvironmentCatalogService();
+        IGovernanceEnvironmentCatalogService catalogService =
+            environmentCatalogService ?? CreateDefaultEnvironmentCatalogService();
 
         return new GovernanceWorkflowFacade(
             new GovernanceWorkflowSubmitStage(
@@ -59,7 +61,7 @@ public static class GovernanceWorkflowTestComposition
                 baselineMutationAudit,
                 auditSupport,
                 integrationEvents,
-                environmentCatalogService,
+                catalogService,
                 governanceGateOptions,
                 NullLogger<GovernanceWorkflowSubmitStage>.Instance),
             new GovernanceWorkflowReviewStage(
@@ -75,7 +77,7 @@ public static class GovernanceWorkflowTestComposition
                     runDetailQueryService,
                     manifestReader,
                     auditSupport,
-                    environmentCatalogService,
+                    catalogService,
                     NullLogger<GovernanceWorkflowPromoteValidateStage>.Instance),
                 new GovernanceWorkflowPromotePersistStage(
                     approvalRepo,

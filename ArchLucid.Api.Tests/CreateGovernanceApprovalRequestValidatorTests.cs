@@ -47,6 +47,27 @@ public sealed class CreateGovernanceApprovalRequestValidatorTests
     }
 
     [Fact]
+    public void Validate_passes_for_custom_environment_slugs_up_to_sixty_four_characters()
+    {
+        string sourceSlug = "staging-" + new string('a', 32);
+        string targetSlug = "approved-" + new string('b', 31);
+
+        CreateGovernanceApprovalRequest request = new()
+        {
+            RunId = "run-1",
+            ManifestVersion = "v1",
+            SourceEnvironment = sourceSlug,
+            TargetEnvironment = targetSlug,
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+        sourceSlug.Length.Should().Be(40);
+        targetSlug.Length.Should().Be(40);
+    }
+
+    [Fact]
     public void Validate_passes_for_custom_environment_slugs()
     {
         CreateGovernanceApprovalRequest request = new()

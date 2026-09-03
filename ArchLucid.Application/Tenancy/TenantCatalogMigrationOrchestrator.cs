@@ -61,6 +61,8 @@ public sealed class TenantCatalogMigrationOrchestrator(
         if (tenant.OffboardedUtc is not null)
             return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, null);
 
+        DateTimeOffset startedUtc = _timeProvider.GetUtcNow();
+
         TenantSuspendOutcome suspendOutcome = await _tenantSuspendCommandService
             .TrySuspendAsync(tenantId, actorUserId, actorUserName, correlationId, cancellationToken)
             .ConfigureAwait(false);
@@ -71,7 +73,6 @@ public sealed class TenantCatalogMigrationOrchestrator(
             return (suspendBlocker.Value, null);
 
         Guid migrationId = Guid.NewGuid();
-        DateTimeOffset startedUtc = _timeProvider.GetUtcNow();
 
         TenantCatalogMigrationRecord record = new()
         {
@@ -270,9 +271,14 @@ public sealed class TenantCatalogMigrationOrchestrator(
 
         await _migrationRepository.CompleteAsync(active.MigrationId, completedUtc, cancellationToken).ConfigureAwait(false);
 
-        await _tenantSuspendCommandService
-            .TryUnsuspendAsync(tenantId, actorUserId, actorUserName, active.CorrelationId, cancellationToken)
-            .ConfigureAwait(false);
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant?.SuspendedUtc is { } suspendedUtc && suspendedUtc >= active.StartedUtc)
+        {
+            await _tenantSuspendCommandService
+                .TryUnsuspendAsync(tenantId, actorUserId, actorUserName, active.CorrelationId, cancellationToken)
+                .ConfigureAwait(false);
+        }
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantCatalogMigrationCompleted,

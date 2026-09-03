@@ -61,6 +61,35 @@ public sealed class InventoryTopologyResourceNodeIndexTests
     }
 
     [Fact]
+    public void Resolve_returns_matching_gcp_topology_node_ids_for_cloud_asset_inventory_name()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        const string cloudAssetName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "gcp-node-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "graph-vm",
+                    Properties = new Dictionary<string, string> { ["gcpResourceId"] = projectsPath },
+                },
+            ],
+        };
+
+        InventoryTopologyResourceNodeIndex index =
+            InventoryTopologyResourceNodeIndex.Build(graph, InventoryTopologyCloudProvider.Gcp);
+
+        index.Resolve(cloudAssetName).Should().ContainSingle().Which.Should().Be("gcp-node-1");
+    }
+
+    [Fact]
     public void Resolve_returns_empty_when_inventory_resource_has_no_graph_match()
     {
         GraphSnapshot graph = new()

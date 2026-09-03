@@ -106,7 +106,7 @@ internal static class BicepArrayLiteralConverter
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
-            string scalarValue = UnquoteScalar(rawValue);
+            string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
 
             if (string.IsNullOrWhiteSpace(scalarValue))
                 continue;
@@ -115,16 +115,5 @@ internal static class BicepArrayLiteralConverter
         }
 
         return properties;
-    }
-
-    private static string UnquoteScalar(string rawValue)
-    {
-        if (rawValue.Length >= 2 && rawValue[0] == '\'' && rawValue[^1] == '\'')
-            return rawValue[1..^1];
-
-        if (rawValue.Length >= 2 && rawValue[0] == '"' && rawValue[^1] == '"')
-            return rawValue[1..^1];
-
-        return rawValue;
     }
 }

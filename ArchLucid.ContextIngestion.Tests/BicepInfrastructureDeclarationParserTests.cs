@@ -295,6 +295,32 @@ public sealed class BicepInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_NestedSiteConfigWithEscapedQuoteBeforeClosingBrace_StillParsesTrailingScalars()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource app 'Microsoft.Web/sites@2022-03-01' = {
+                        properties: {
+                          siteConfig: {
+                            note: "has \"} char"
+                            publicNetworkAccess: 'Disabled'
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.note"].Should().Be(@"has ""} char");
+        result[0].Properties["tf.publicnetworkaccess"].Should().Be("disabled");
+    }
+
+    [Fact]
     public async Task ParseAsync_NestedSiteConfigWithClosingBraceInQuotedString_StillParsesTrailingScalars()
     {
         InfrastructureDeclarationReference declaration = new()

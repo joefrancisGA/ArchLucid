@@ -62,6 +62,49 @@ public sealed partial class SqlRiskExceptionRepository
         return row is null ? null : Map(row);
     }
 
+    public async Task<RiskExceptionRecord?> GetActiveForScopeFindingAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string findingId,
+        DateTimeOffset asOfUtc,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("Finding id is required.", nameof(findingId));
+
+        const string sql = """
+                           SELECT TOP 1 RiskExceptionId, TenantId, WorkspaceId, ProjectId, FindingId, RunId, ManifestId,
+                                  OwnerUserId, Rationale, EvidenceRef, ExpiresAtUtc, Status, CreatedAtUtc, CreatedByUserId,
+                                  RevokedAtUtc, RevokedByUserId
+                           FROM dbo.RiskExceptions
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND FindingId = @FindingId
+                             AND Status = N'Active'
+                             AND ExpiresAtUtc > @AsOfUtc
+                           ORDER BY ExpiresAtUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        RiskExceptionRow? row = await conn.QuerySingleOrDefaultAsync<RiskExceptionRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    FindingId = findingId.Trim(),
+                    AsOfUtc = asOfUtc.UtcDateTime,
+                },
+                cancellationToken: cancellationToken));
+
+        return row is null ? null : Map(row);
+    }
+
     public async Task<IReadOnlyList<RiskExceptionRecord>> ListActiveForTenantAsync(
         Guid tenantId,
         Guid? projectId,

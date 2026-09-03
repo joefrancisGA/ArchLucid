@@ -106,6 +106,49 @@ public static class CanonicalInfrastructurePropertyBag
         return rawValue.Trim().ToLowerInvariant();
     }
 
+    public static string UnquoteInfrastructureScalar(string rawValue)
+    {
+        if (string.IsNullOrWhiteSpace(rawValue))
+            return string.Empty;
+
+        if (rawValue.Length >= 2 && rawValue[0] == '"' && rawValue[^1] == '"')
+            return UnescapeDoubleQuotedInner(rawValue[1..^1]);
+
+        if (rawValue.Length >= 2 && rawValue[0] == '\'' && rawValue[^1] == '\'')
+            return rawValue[1..^1];
+
+        return rawValue;
+    }
+
+    private static string UnescapeDoubleQuotedInner(string inner)
+    {
+        if (string.IsNullOrEmpty(inner) || !inner.Contains('\\', StringComparison.Ordinal))
+            return inner;
+
+        System.Text.StringBuilder builder = new(inner.Length);
+
+        for (int index = 0; index < inner.Length; index++)
+        {
+            char character = inner[index];
+
+            if (character == '\\' && index + 1 < inner.Length)
+            {
+                char escaped = inner[index + 1];
+
+                if (escaped is '"' or '\\')
+                {
+                    builder.Append(escaped);
+                    index++;
+                    continue;
+                }
+            }
+
+            builder.Append(character);
+        }
+
+        return builder.ToString();
+    }
+
     public static string StripTrailingHclComment(string rawValue)
     {
         if (string.IsNullOrWhiteSpace(rawValue))
@@ -116,6 +159,12 @@ public static class CanonicalInfrastructurePropertyBag
 
         for (int index = 0; index < rawValue.Length; index++)
         {
+            if (inDoubleQuotes && rawValue[index] == '\\' && index + 1 < rawValue.Length)
+            {
+                index++;
+                continue;
+            }
+
             char character = rawValue[index];
 
             if (character == '"' && !inSingleQuotes)
@@ -141,6 +190,12 @@ public static class CanonicalInfrastructurePropertyBag
 
         for (int index = 0; index < rawValue.Length - 1; index++)
         {
+            if (inDoubleQuotes && rawValue[index] == '\\' && index + 1 < rawValue.Length)
+            {
+                index++;
+                continue;
+            }
+
             char character = rawValue[index];
 
             if (character == '"' && !inSingleQuotes)
@@ -166,6 +221,12 @@ public static class CanonicalInfrastructurePropertyBag
 
         for (int index = 0; index < rawValue.Length - 1; index++)
         {
+            if (inDoubleQuotes && rawValue[index] == '\\' && index + 1 < rawValue.Length)
+            {
+                index++;
+                continue;
+            }
+
             char character = rawValue[index];
 
             if (character == '"' && !inSingleQuotes)
