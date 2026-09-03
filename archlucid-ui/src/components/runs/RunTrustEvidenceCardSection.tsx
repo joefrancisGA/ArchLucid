@@ -195,10 +195,10 @@ export function RunTrustEvidenceCardSection(props: {
                 {buyerPolishedShell ? "Trust diagnostics routes" : "Evidence routes (trust diagnostics)"}
               </div>
               <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}>
-                {card.links.map((link) => (
+                {(card.links ?? []).map((link) => (
                   <li key={link.rel}>
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">{link.label}: </span>
-                    <Link className="underline" href={resolveTrustEvidenceDiagnosticsApiPath(link.path)}>
+                    <Link className="underline" href={resolveTrustEvidenceDiagnosticsApiPath(link.path ?? "")}>
                       {link.path}
                     </Link>
                   </li>

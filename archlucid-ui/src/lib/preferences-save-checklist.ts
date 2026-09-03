@@ -3,6 +3,7 @@ export type PreferencesSaveChecklistStepStatus = "default" | "done" | "pending";
 export type PreferencesSaveChecklistStep = {
   readonly id: string;
   readonly label: string;
+  readonly anchorId?: string;
   readonly status: PreferencesSaveChecklistStepStatus;
 };
 

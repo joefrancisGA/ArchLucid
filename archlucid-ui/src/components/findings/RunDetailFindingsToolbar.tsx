@@ -239,9 +239,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
               <FindingsProvenanceFilters
                 idPrefix="findings-compact"
                 originFilter={props.originFilter}
-                onOriginFilterChange={props.onOriginFilterChange}
                 groundingFilter={props.groundingFilter}
-                onGroundingFilterChange={props.onGroundingFilterChange}
               />
               <div>
                 <Label htmlFor="findings-owner-filter" className={OPERATOR_TYPOGRAPHY.helper}>
@@ -342,9 +340,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
             <FindingsProvenanceFilters
               idPrefix="findings"
               originFilter={props.originFilter}
-              onOriginFilterChange={props.onOriginFilterChange}
               groundingFilter={props.groundingFilter}
-              onGroundingFilterChange={props.onGroundingFilterChange}
             />
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

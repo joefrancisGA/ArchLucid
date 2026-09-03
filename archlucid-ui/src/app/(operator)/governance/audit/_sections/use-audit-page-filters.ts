@@ -16,7 +16,7 @@ import { useAuditSavedViews } from "./use-audit-saved-views";
 export type UseAuditPageFiltersResult = {
   readonly buyerPolishedShell: boolean;
   readonly viewMode: AuditTrailViewMode;
-  readonly onViewModeChange: (mode: AuditTrailViewMode) => void;
+  readonly currentSearch: string;
   readonly runId: string;
   readonly failure: ApiLoadFailureState | null;
   readonly setFailure: (failure: ApiLoadFailureState | null) => void;
@@ -56,7 +56,7 @@ export type UseAuditPageFiltersResult = {
 };
 
 export function useAuditPageFilters(serverLoad: AuditPageServerLoad): UseAuditPageFiltersResult {
-  const { buyerPolishedShell, viewMode, onViewModeChange } = useAuditPageViewMode();
+  const { buyerPolishedShell, viewMode, currentSearch } = useAuditPageViewMode();
   const search = useAuditPageSearch(serverLoad, buyerPolishedShell);
   const savedViews = useAuditSavedViews({
     currentFilters: search.currentFilters,
@@ -80,7 +80,7 @@ export function useAuditPageFilters(serverLoad: AuditPageServerLoad): UseAuditPa
   return {
     buyerPolishedShell,
     viewMode,
-    onViewModeChange,
+    currentSearch,
     runId: search.runId,
     failure: search.failure,
     setFailure: search.setFailure,

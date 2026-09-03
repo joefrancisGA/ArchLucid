@@ -53,6 +53,16 @@ vi.mock("@/components/WorkspaceActiveRunContext", () => ({
   useWorkspaceActiveRun: () => null,
 }));
 
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: "guided",
+    mounted: true,
+    accountSyncState: "synced",
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 vi.mock("@/hooks/use-pattern-library-nav-visible", () => ({
   usePatternLibraryNavVisible: () => true,
 }));
