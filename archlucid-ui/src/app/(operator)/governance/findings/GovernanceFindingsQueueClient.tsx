@@ -1,7 +1,7 @@
 ﻿"use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   GovernanceFindingsAssignedToMeHeaderActions,
@@ -68,11 +68,16 @@ import {
   resolveGovernanceFindingsSponsorHandoffHref,
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
+import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
 import {
   filterGovernanceFindingsHideGenericRows,
   sortGovernanceFindingsRowsBySignal,
 } from "@/lib/governance/governance-findings-density-sort";
+import {
+  governanceFindingsHideGenericHrefFromSearch,
+  parseGovernanceFindingsHideGenericFromSearch,
+} from "@/lib/governance/governance-findings-hide-generic-url";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
@@ -89,10 +94,15 @@ export type GovernanceFindingsQueueClientProps = {
 export default function GovernanceFindingsQueueClient({
   mode = "tenant",
 }: GovernanceFindingsQueueClientProps) {
-  const [hideGenericLowDensity, setHideGenericLowDensity] = useState(false);
+  const isAssignedToMe = mode === "assigned-to-me";
+  const router = useRouter();
+  const pathname = usePathname() ?? (isAssignedToMe ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH);
+  const searchParams = useSearchParams();
+  const [hideGenericLowDensity, setHideGenericLowDensity] = useState(() =>
+    parseGovernanceFindingsHideGenericFromSearch(searchParams.get("hideGeneric")),
+  );
   const { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters } =
     useGovernanceFindingsQueueFacets(mode);
-  const isAssignedToMe = mode === "assigned-to-me";
   const { currentPrincipal } = useOperatorNavAuthority();
   const scopeKey = useOperatorScopeQueryKey();
   const scopeRecord = useOperatorScopeRecord();
@@ -134,8 +144,7 @@ export default function GovernanceFindingsQueueClient({
   );
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const urlHideGeneric = parseGovernanceFindingsHideGenericFromSearch(searchParams.get("hideGeneric"));
   const { isWorkingMode } = useWorkspaceMode();
   const scopedRunFilterActive = scopedRunId !== null && scopedRunId.trim().length > 0;
   const workspaceScopeTeaching =
@@ -193,6 +202,20 @@ export default function GovernanceFindingsQueueClient({
   const pageTitle = resolveGovernanceFindingsPageTitle(isAssignedToMe, buyerPolishedShell);
   const pageSubtitle = resolveGovernanceFindingsPageSubtitle(isAssignedToMe, buyerPolishedShell);
   const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe);
+
+  useEffect(() => {
+    setHideGenericLowDensity(urlHideGeneric);
+  }, [urlHideGeneric]);
+
+  const onHideGenericLowDensityChange = useCallback(
+    (next: boolean) => {
+      setHideGenericLowDensity(next);
+      router.replace(governanceFindingsHideGenericHrefFromSearch(searchParams.toString(), next, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
   const clearAllFilters = useCallback((): void => {
     setRegisterFilter("all");
@@ -416,7 +439,7 @@ export default function GovernanceFindingsQueueClient({
         assignedToMeOldestFindingTarget={assignedToMeOldestFindingTarget}
         firstFindingTriageTarget={firstFindingTriageTarget}
         hideGenericLowDensity={hideGenericLowDensity}
-        onHideGenericLowDensityChange={setHideGenericLowDensity}
+        onHideGenericLowDensityChange={onHideGenericLowDensityChange}
         showInsightDensityScore={isWorkingMode}
         selectedFindingIds={bulkActions.selectedFindingIds}
         onSelectionChange={bulkActions.onSelectionChange}

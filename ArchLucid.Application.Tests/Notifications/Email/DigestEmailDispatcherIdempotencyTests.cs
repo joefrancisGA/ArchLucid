@@ -600,6 +600,108 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
+    public async Task ExecDigestEmailDispatcher_skips_invalid_recipient_mailboxes_without_sending()
+    {
+        InMemorySentEmailLedger ledger = new();
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>x</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("x");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        ExecDigestEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<ExecDigestEmailDispatcher>.Instance);
+
+        Guid tenantId = Guid.Parse("40404040-4040-4040-4040-404040404040");
+        const string isoWeek = "2026-W16";
+
+        bool sent = await sut.TryDispatchAsync(
+            tenantId,
+            isoWeek,
+            new ExecDigestComposition(
+                WeekLabel: "W16",
+                ComplianceDriftMarkdown: null,
+                CommittedManifestsInWeek: null,
+                TopManifestRuns: [],
+                FindingsDeltaSummary: null,
+                DashboardUrl: "https://example.test/d",
+                SponsorValueReportUrl: "https://example.test/sponsor",
+                LatestCommittedRunIdHex: null),
+            ["finance@", " "],
+            "https://example.test/unsub",
+            CancellationToken.None);
+
+        sent.Should().BeFalse("invalid recipient mailboxes must not trigger digest send");
+        bool recordedInvalid = await ledger.IsRecordedAsync(
+            tenantId,
+            $"exec-digest:{tenantId:N}:{isoWeek}:finance@",
+            CancellationToken.None);
+        recordedInvalid.Should().BeFalse("invalid recipient mailboxes must not reserve the exec digest ledger");
+
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecDigestEmailDispatcher_delivers_only_to_valid_recipients_when_list_is_mixed()
+    {
+        InMemorySentEmailLedger ledger = new();
+        List<EmailMessage> sentMessages = [];
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessages.Add(message))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>x</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("x");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        ExecDigestEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<ExecDigestEmailDispatcher>.Instance);
+
+        bool sent = await sut.TryDispatchAsync(
+            Guid.Parse("41414141-4141-4141-4141-414141414141"),
+            "2026-W16",
+            new ExecDigestComposition(
+                WeekLabel: "W16",
+                ComplianceDriftMarkdown: null,
+                CommittedManifestsInWeek: null,
+                TopManifestRuns: [],
+                FindingsDeltaSummary: null,
+                DashboardUrl: "https://example.test/d",
+                SponsorValueReportUrl: "https://example.test/sponsor",
+                LatestCommittedRunIdHex: null),
+            ["ops@example.test", "finance@"],
+            "https://example.test/unsub",
+            CancellationToken.None);
+
+        sent.Should().BeTrue();
+        sentMessages.Should().ContainSingle();
+        sentMessages[0].To.Should().Be("ops@example.test");
+    }
+
+    [Fact]
     public async Task WeeklySponsorReportEmailDispatcher_case_differing_duplicate_mailboxes_send_once()
     {
         InMemorySentEmailLedger ledger = new();

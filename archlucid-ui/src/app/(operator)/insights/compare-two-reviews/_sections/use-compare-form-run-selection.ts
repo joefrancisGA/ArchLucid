@@ -124,6 +124,7 @@ export function useCompareFormRunSelection(options: {
     isDemoClaimsIntakeComparePair,
     buyerPolished,
     finalizedCount,
+    insufficientForCompare,
     leftPickerLabel,
     rightPickerLabel,
     pickClaimsIntakePair,

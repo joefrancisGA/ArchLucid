@@ -71,7 +71,9 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
       subtitle={props.subtitle}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="digests-header-actions">
-          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+          {!buyerPolishedShell ? (
+            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+          ) : null}
           {props.actions}
           {showRefresh ? (
             <RefreshButton

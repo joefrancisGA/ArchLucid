@@ -8,6 +8,7 @@ import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Label } from "@/components/ui/label";
 import {
+  aiUsageFeatureHrefFromSearch,
   aiUsageStatusHrefFromSearch,
   aiUsageTriggerHrefFromSearch,
 } from "@/lib/administration/ai-usage-dashboard-filter-url";
@@ -85,22 +86,39 @@ export function AiUsageFiltersBar(props: Props) {
       data-testid="ai-usage-filters-bar"
       aria-label="AI usage filters"
     >
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Operation type</p>
+        <FilterChipGroup aria-label="Filter AI usage by operation type" className="flex flex-wrap gap-2">
+          <FilterChip
+            href={aiUsageFeatureHrefFromSearch(props.currentSearch, null, pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(props.filters.feature === null, false)}
+            aria-current={props.filters.feature === null ? "page" : undefined}
+            data-testid="ai-usage-feature-all"
+            onClick={() => {
+              props.onFiltersChange({ ...props.filters, feature: null });
+            }}
+          >
+            All operations
+          </FilterChip>
+          {features.map((feature) => (
+            <FilterChip
+              key={feature}
+              href={aiUsageFeatureHrefFromSearch(props.currentSearch, feature, pathname)}
+              scroll={false}
+              className={buyerFilterChipClass(props.filters.feature === feature, false)}
+              aria-current={props.filters.feature === feature ? "page" : undefined}
+              data-testid={`ai-usage-feature-${feature}`}
+              onClick={() => {
+                props.onFiltersChange({ ...props.filters, feature });
+              }}
+            >
+              {formatAiUsageFeatureLabel(feature)}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      </div>
       <div className="flex flex-wrap gap-3">
-        <SelectField
-          id="ai-usage-filter-feature"
-          label="Operation type"
-          value={props.filters.feature ?? "all"}
-          onChange={(value) =>
-            props.onFiltersChange({
-              ...props.filters,
-              feature: value === "all" ? null : value,
-            })
-          }
-          options={[
-            { value: "all", label: "All operations" },
-            ...features.map((feature) => ({ value: feature, label: formatAiUsageFeatureLabel(feature) })),
-          ]}
-        />
         <SelectField
           id="ai-usage-filter-user"
           label="User"

@@ -528,6 +528,131 @@ describe("wave18 filter url helpers", () => {
   });
 });
 
+describe("wave19 filter url helpers", () => {
+  it("pattern governance/source, ai usage feature/groupBy, and findings hide generic", async () => {
+    const {
+      parsePatternLibraryGovernanceFromSearch,
+      patternLibraryGovernanceHrefFromSearch,
+      parsePatternLibraryDataSourceFromSearch,
+      patternLibraryDataSourceHrefFromSearch,
+    } = await import("@/lib/insights/pattern-library-filters-url");
+    const { aiUsageFeatureHrefFromSearch, aiUsageGroupByHrefFromSearch } = await import(
+      "@/lib/administration/ai-usage-dashboard-filter-url"
+    );
+    const {
+      parseGovernanceFindingsHideGenericFromSearch,
+      governanceFindingsHideGenericHrefFromSearch,
+    } = await import("@/lib/governance/governance-findings-hide-generic-url");
+
+    expect(parsePatternLibraryGovernanceFromSearch("Usually approved")).toBe("Usually approved");
+    expect(patternLibraryGovernanceHrefFromSearch("q=vpc", "Needs evidence")).toBe(
+      "/insights/patterns?q=vpc&governance=Needs+evidence",
+    );
+    expect(parsePatternLibraryDataSourceFromSearch("Sample data")).toBe("Sample data");
+    expect(patternLibraryDataSourceHrefFromSearch("domain=SaaS", "Anonymized aggregate")).toBe(
+      "/insights/patterns?domain=SaaS&source=Anonymized+aggregate",
+    );
+    expect(aiUsageFeatureHrefFromSearch("", "chat", "/administration/ai-usage")).toBe(
+      "/administration/ai-usage?feature=chat",
+    );
+    expect(aiUsageGroupByHrefFromSearch("trigger=manual", "model", "/administration/ai-usage")).toBe(
+      "/administration/ai-usage?trigger=manual&groupBy=model",
+    );
+    expect(parseGovernanceFindingsHideGenericFromSearch("1")).toBe(true);
+    expect(governanceFindingsHideGenericHrefFromSearch("severity=critical", true)).toBe(
+      "/governance/findings?severity=critical&hideGeneric=1",
+    );
+  });
+
+  it("audit custom dates, operational errors, trial funnel, and impact preview selection", async () => {
+    const {
+      parseAuditTrailCustomDateFromSearch,
+      auditTrailCustomDateHrefFromSearch,
+    } = await import("@/lib/governance/audit-trail-custom-date-url");
+    const { auditTrailDateRangePresetHrefFromSearch } = await import("@/lib/governance/audit-trail-date-range-url");
+    const {
+      parseOperationalErrorsCategoryFromSearch,
+      operationalErrorsCategoryHrefFromSearch,
+      parseOperationalErrorsStatusFromSearch,
+      operationalErrorsStatusHrefFromSearch,
+    } = await import("@/lib/internal/operational-errors-filter-url");
+    const {
+      parseTrialFunnelPeriodDaysFromSearch,
+      trialFunnelPeriodHrefFromSearch,
+      parseTrialFunnelStageFromSearch,
+      trialFunnelStageHrefFromSearch,
+    } = await import("@/lib/internal/trial-funnel-filter-url");
+    const {
+      parseImpactPreviewCandidateIdFromSearch,
+      impactPreviewCandidateHrefFromSearch,
+      parseImpactPreviewBaselineFromSearch,
+      impactPreviewBaselineHrefFromSearch,
+    } = await import("@/lib/impact-preview/impact-preview-selection-url");
+
+    expect(parseAuditTrailCustomDateFromSearch("2026-04-10T08:30")).toBe("2026-04-10T08:30");
+    expect(auditTrailCustomDateHrefFromSearch("action=Login", "2026-04-10T08:30", "2026-05-01T12:00")).toBe(
+      "/governance/audit?action=Login&from=2026-04-10T08%3A30&to=2026-05-01T12%3A00",
+    );
+    expect(auditTrailDateRangePresetHrefFromSearch("from=2026-04-10T08:30", "24h")).toBe(
+      "/governance/audit?range=24h",
+    );
+    expect(parseOperationalErrorsCategoryFromSearch("HttpError")).toBe("HttpError");
+    expect(operationalErrorsCategoryHrefFromSearch("", "DatabaseError")).toBe(
+      "/internal/operational-errors?category=DatabaseError",
+    );
+    expect(parseOperationalErrorsStatusFromSearch("500")).toBe("500");
+    expect(operationalErrorsStatusHrefFromSearch("category=HttpError", "400")).toBe(
+      "/internal/operational-errors?category=HttpError&status=400",
+    );
+    expect(parseTrialFunnelPeriodDaysFromSearch("90")).toBe(90);
+    expect(trialFunnelPeriodHrefFromSearch("", 7)).toBe("/internal/trial-funnel?range=7");
+    expect(parseTrialFunnelStageFromSearch("converted")).toBe("converted");
+    expect(trialFunnelStageHrefFromSearch("range=90", "checkout-activity")).toBe(
+      "/internal/trial-funnel?range=90&stage=checkout-activity",
+    );
+    expect(parseImpactPreviewCandidateIdFromSearch("cand-1")).toBe("cand-1");
+    expect(impactPreviewCandidateHrefFromSearch("scope=findings", "cand-1")).toBe(
+      "/insights/impact-preview?scope=findings&candidateId=cand-1",
+    );
+    expect(parseImpactPreviewBaselineFromSearch("run-baseline")).toBe("run-baseline");
+    expect(impactPreviewBaselineHrefFromSearch("candidateId=cand-1", "run-baseline")).toBe(
+      "/insights/impact-preview?candidateId=cand-1&baseline=run-baseline",
+    );
+  });
+
+  it("sponsor report custom dates and findings NL title keywords", async () => {
+    const {
+      parseSponsorReportCustomDateFromSearch,
+      sponsorReportCustomDateHrefFromSearch,
+    } = await import("@/lib/insights/sponsor-report-custom-date-url");
+    const { sponsorReportPeriodHrefFromSearch } = await import("@/lib/insights/sponsor-report-period-url");
+    const {
+      parseGovernanceFindingsNlTitleKeywordsFromSearch,
+      governanceFindingsNlTitleHrefFromSearch,
+      governanceFindingsNlFacetsHrefFromSearch,
+    } = await import("@/lib/governance/governance-findings-queue-nl-facets-url");
+
+    expect(parseSponsorReportCustomDateFromSearch("2026-03-01T00:00")).toBe("2026-03-01T00:00");
+    expect(sponsorReportCustomDateHrefFromSearch("range=custom", "2026-03-01T00:00", "2026-04-01T00:00")).toBe(
+      "/insights/sponsor-report?range=custom&from=2026-03-01T00%3A00&to=2026-04-01T00%3A00",
+    );
+    expect(sponsorReportPeriodHrefFromSearch("from=2026-03-01T00:00&to=2026-04-01T00:00", "last-90")).toBe(
+      "/insights/sponsor-report?range=last-90",
+    );
+    expect(parseGovernanceFindingsNlTitleKeywordsFromSearch("tls endpoint")).toEqual(["tls", "endpoint"]);
+    expect(governanceFindingsNlTitleHrefFromSearch("severity=high", ["tls", "endpoint"])).toBe(
+      "/governance/findings?severity=high&title=tls+endpoint",
+    );
+    expect(
+      governanceFindingsNlFacetsHrefFromSearch("q=queue", {
+        severity: "critical",
+        status: "open",
+        titleKeywords: ["private"],
+      }),
+    ).toBe("/governance/findings?q=queue&severity=critical&status=open&title=private");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

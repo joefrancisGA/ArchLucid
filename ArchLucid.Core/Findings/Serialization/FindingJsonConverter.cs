@@ -137,9 +137,15 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         Dictionary<string, string> properties = new(value.Properties);
 
         if (value.EvidencePackageId is Guid syncedPackageId)
+        {
             properties[FindingPropertyKeys.EvidencePackageId] = syncedPackageId.ToString("D");
+            value.Properties[FindingPropertyKeys.EvidencePackageId] = syncedPackageId.ToString("D");
+        }
         else
+        {
             properties.Remove(FindingPropertyKeys.EvidencePackageId);
+            value.Properties.Remove(FindingPropertyKeys.EvidencePackageId);
+        }
 
         writer.WritePropertyName("properties");
         JsonSerializer.Serialize(writer, properties, options);

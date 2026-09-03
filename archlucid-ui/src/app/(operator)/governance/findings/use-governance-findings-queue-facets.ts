@@ -42,7 +42,7 @@ export function useGovernanceFindingsQueueFacets(mode: GovernanceFindingsQueueMo
   });
   const [nlFacets, setNlFacetsState] = useState<FindingsNaturalLanguageFacets>(
     () =>
-      urlNlFacets.severity !== null || urlNlFacets.status !== null
+      urlNlFacets.severity !== null || urlNlFacets.status !== null || urlNlFacets.titleKeywords.length > 0
         ? urlNlFacets
         : readGovernanceFindingsQueueFacets(mode).nlFacets,
   );
@@ -52,7 +52,7 @@ export function useGovernanceFindingsQueueFacets(mode: GovernanceFindingsQueueMo
   }, [urlJobView]);
 
   useEffect(() => {
-    if (urlNlFacets.severity !== null || urlNlFacets.status !== null) {
+    if (urlNlFacets.severity !== null || urlNlFacets.status !== null || urlNlFacets.titleKeywords.length > 0) {
       setNlFacetsState(urlNlFacets);
     }
   }, [urlNlFacets]);

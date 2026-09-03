@@ -57,7 +57,8 @@ function getFocusedFindingId(): string | null {
   return id;
 }
 
-function focusAdjacentFindingCard(delta: number, onFindingFocus?: (findingId: string) => void): void {
+/** Move keyboard focus to the next/previous `[data-finding-id]` card (palette + shortcut bridge). */
+export function focusAdjacentFindingCard(delta: number, onFindingFocus?: (findingId: string) => void): void {
   const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-finding-id]"));
 
   if (nodes.length === 0) {
@@ -88,6 +89,32 @@ function focusAdjacentFindingCard(delta: number, onFindingFocus?: (findingId: st
   if (nextId.length > 0) {
     onFindingFocus?.(nextId);
   }
+}
+
+/** Dispatch Alt+1/2/3 at the window so palette actions reuse the same shortcut handlers (WD-05). */
+export function dispatchFocusedFindingDispositionShortcut(
+  disposition: FindingCardShortcutDisposition,
+): boolean {
+  if (getFocusedFindingId() === null) {
+    return false;
+  }
+
+  const key =
+    disposition === FINDING_CARD_SHORTCUT_DISPOSITIONS.alt1
+      ? "1"
+      : disposition === FINDING_CARD_SHORTCUT_DISPOSITIONS.alt2
+        ? "2"
+        : "3";
+
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key,
+      altKey: true,
+      bubbles: true,
+    }),
+  );
+
+  return true;
 }
 
 /**

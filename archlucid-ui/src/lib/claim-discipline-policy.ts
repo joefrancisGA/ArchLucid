@@ -42,6 +42,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "demo-readiness",
   "deployment-status",
   "digest-sponsor",
+  "digests-browse",
   "digests-schedule",
   "developer-settings",
   "evidence-graph",

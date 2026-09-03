@@ -70,6 +70,7 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(appShellSource).toContain("AppShellTelemetryBundleDeferred");
     expect(appShellSource).toContain("AppShellSyncSessionIdleGuard");
     expect(appShellSource).toContain("AppShellSyncKeyboardShortcutListener");
+    expect(appShellSource).toContain("AppShellSyncCommandPaletteHost");
     expect(appShellSource).toContain("CommandPaletteWorkActionBridge");
     expect(appShellSource).not.toContain("SessionIdleTimeoutGuardDeferred");
     expect(appShellSource).toContain("AuthPanelDeferred");
@@ -145,8 +146,8 @@ describe("operator shell deferred imports (TB-2118)", () => {
     }
 
     expect(topBarSource).toContain("operator-shell-top-bar-deferred-chunks");
-    expect(topBarSource).toContain("GlobalSearchBarDeferred");
-    expect(topBarSource).toContain("MobileNavDrawerDeferred");
+    expect(topBarSource).toContain("CommandPaletteTopBarTrigger");
+    expect(topBarSource).not.toMatch(/<CommandPalette[\s/>]/);
   });
 
   it("keeps idle overlay and footer internals off static import graphs (wave 8)", () => {

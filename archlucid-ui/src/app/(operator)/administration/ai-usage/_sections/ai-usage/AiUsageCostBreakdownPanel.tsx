@@ -1,8 +1,15 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { usePathname } from "next/navigation";
 
+import { cn } from "@/lib/utils";
+
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { aiUsageGroupByHrefFromSearch } from "@/lib/administration/ai-usage-dashboard-filter-url";
+import type { AiUsageBreakdownRow } from "@/lib/ai-usage-dashboard-model";
+import type { AiUsageBreakdownGroupBy } from "@/lib/ai-usage-dashboard-filters";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   EnterpriseTable,
@@ -13,16 +20,16 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import type { AiUsageBreakdownRow } from "@/lib/ai-usage-dashboard-model";
-import type { AiUsageBreakdownGroupBy } from "@/lib/ai-usage-dashboard-filters";
+import Link from "next/link";
 import { formatCostReportingEstimatedUsd } from "@/app/(operator)/administration/ai-usage/_sections/cost-reporting-page-helpers";
-import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 
 type Props = {
   readonly rows: readonly AiUsageBreakdownRow[];
   readonly currency: string;
   readonly groupBy: AiUsageBreakdownGroupBy;
+  readonly currentSearch: string;
   readonly state: import("@/lib/ai-usage-dashboard-model").AiUsageSectionLoadState;
   readonly onGroupByChange: (groupBy: AiUsageBreakdownGroupBy) => void;
 };
@@ -41,6 +48,8 @@ function groupByLabel(groupBy: AiUsageBreakdownGroupBy): string {
 }
 
 export function AiUsageCostBreakdownPanel(props: Props) {
+  const pathname = usePathname() ?? "/administration/ai-usage";
+
   return (
     <Card data-testid="ai-usage-cost-breakdown-panel">
       <CardHeader className={OPERATOR_CARD.header}>
@@ -48,25 +57,23 @@ export function AiUsageCostBreakdownPanel(props: Props) {
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Estimated cost attribution for the selected grouping. Some dimensions require recent activity data.
         </p>
-        <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Breakdown grouping">
+        <FilterChipGroup aria-label="Breakdown grouping" className="mt-3 flex flex-wrap gap-2">
           {GROUP_OPTIONS.map((option) => (
-            <button
+            <FilterChip
               key={option.id}
-              type="button"
-              className={cn(
-                "rounded-md border px-2.5 py-1",
-                OPERATOR_TYPOGRAPHY.nativeControlLabel,
-                props.groupBy === option.id
-                  ? OPERATOR_SELECTION.tile
-                  : "border-neutral-200 text-al-text-secondary hover:text-al-text-primary dark:border-neutral-700",
-              )}
-              aria-pressed={props.groupBy === option.id}
-              onClick={() => props.onGroupByChange(option.id)}
+              href={aiUsageGroupByHrefFromSearch(props.currentSearch, option.id, pathname)}
+              scroll={false}
+              className={buyerFilterChipClass(props.groupBy === option.id, false)}
+              aria-current={props.groupBy === option.id ? "page" : undefined}
+              data-testid={`ai-usage-group-by-${option.id}`}
+              onClick={() => {
+                props.onGroupByChange(option.id);
+              }}
             >
               {option.label}
-            </button>
+            </FilterChip>
           ))}
-        </div>
+        </FilterChipGroup>
       </CardHeader>
       <CardContent className={OPERATOR_CARD.content}>
         <AiUsageSectionState
