@@ -5,6 +5,24 @@ export const ACCOUNT_SECURITY_PAGE_TITLE = "Sign-in methods" as const;
 export const ACCOUNT_SECURITY_PAGE_SUBTITLE =
   "View linked sign-in methods and add email one-time-code recovery while you are signed in. Email matches alone never link accounts." as const;
 
+export const ACCOUNT_SECURITY_PAGE_SUBTITLE_BUYER =
+  "Review linked sign-in methods, then add email one-time-code recovery while you are signed in." as const;
+
+export function accountSecurityPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? ACCOUNT_SECURITY_PAGE_SUBTITLE_BUYER : ACCOUNT_SECURITY_PAGE_SUBTITLE;
+}
+
+export const ACCOUNT_SECURITY_PRIMARY_CONTENT_ID = "account-security-primary-content" as const;
+
+export const ACCOUNT_SECURITY_FIRST_VIEWPORT_TEST_ID = "account-security-first-viewport" as const;
+
+export const ACCOUNT_SECURITY_SKIP_TARGET_ID = ACCOUNT_SECURITY_FIRST_VIEWPORT_TEST_ID;
+
+export const ACCOUNT_SECURITY_SKIP_LINK_LABEL = "Skip to sign-in methods" as const;
+
+export const ACCOUNT_SECURITY_HEADER_CLAIM_DISCIPLINE_TEST_ID =
+  "account-security-header-claim-discipline" as const;
+
 export const ACCOUNT_SECURITY_AUTH_GATE_MESSAGE =
   "Sign-in methods need a signed-in ArchLucid account. Sign in to continue." as const;
 
