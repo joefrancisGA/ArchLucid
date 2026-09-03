@@ -26,12 +26,14 @@ export function AppShellMainAffordances() {
   const isArchitectureScorecardPath = pathname === "/insights/architecture-scorecard";
   const isItsmOAuthCallbackPath = pathname === "/integrations/itsm/oauth/callback";
   const isDigestsHubPath = pathname === "/architecture/digests";
+  const isFirstReviewGuidePath = pathname === "/architecture/first-review-guide";
   const hideShortcutCoaches =
     isPreferencesSettingsPath ||
     isHelpTopicPath ||
     isArchitectureScorecardPath ||
     isItsmOAuthCallbackPath ||
-    isDigestsHubPath;
+    isDigestsHubPath ||
+    isFirstReviewGuidePath;
   const showPersistentWorkspaceNextActionStrip = isPersistentWorkspaceNextActionStripPath(pathname);
   const staticDemoEnv = isExplicitStaticDemoMarketingBuild();
 
