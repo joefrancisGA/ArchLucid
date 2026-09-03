@@ -60,7 +60,7 @@ internal static class BicepArrayLiteralConverter
 
         List<string>? primitiveValues = TryParsePrimitiveStrings(trimmed);
 
-        if (primitiveValues is null || primitiveValues.Count == 0)
+        if (primitiveValues is null)
             return false;
 
         string primitiveJson = JsonSerializer.Serialize(primitiveValues);
