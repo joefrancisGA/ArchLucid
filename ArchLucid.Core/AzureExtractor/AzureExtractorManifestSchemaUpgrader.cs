@@ -141,9 +141,8 @@ public static class AzureExtractorManifestSchemaUpgrader
                     return true;
                 }
 
-                if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion)
-                    && schemaVersion >= 0)
-                    return true;
+if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion))
+    return true;
 
                 break;
             }
