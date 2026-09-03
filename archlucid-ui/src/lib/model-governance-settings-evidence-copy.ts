@@ -18,6 +18,11 @@ export const AI_MODELS_SETTINGS_OPEN_CTA_LABEL = "Open AI models" as const;
 
 export const MODEL_GOVERNANCE_HELP_TOPIC_LABEL = "How model governance works";
 
+export const MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What AI models is not";
+
+export const MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE =
+  "Workspace execution profiles and allowed models on this page configure review tasks — they are not a sealed audit export or third-party model certification.";
+
 export const MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO =
