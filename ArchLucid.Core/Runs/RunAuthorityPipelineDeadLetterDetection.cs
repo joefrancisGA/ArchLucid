@@ -37,7 +37,7 @@ public static class RunAuthorityPipelineDeadLetterDetection
         return string.Equals(
             summary.FailureClass,
             AgentExecutionFailureClasses.PipelineDeadLetter,
-            StringComparison.Ordinal);
+            StringComparison.OrdinalIgnoreCase);
     }
 
     private static AgentExecutionFailureSummary? TryDeserialize(string? json)
