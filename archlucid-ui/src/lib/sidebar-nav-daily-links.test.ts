@@ -122,12 +122,12 @@ describe("splitSidebarLinksDailyVsMore", () => {
       "/insights/evidence-graph",
       "/insights/ask-review-questions",
       "/insights/search-review-evidence",
+      "/insights/sponsor-report",
       "/insights/compare-two-reviews",
-      "/insights/architecture-scorecard",
     ]);
     expect(split.more.map((row) => row.href)).toEqual([
       "/insights/patterns",
-      "/insights/sponsor-report",
+      "/insights/architecture-scorecard",
     ]);
   });
 
