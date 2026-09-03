@@ -262,4 +262,32 @@ public class ManifestDocument
         get;
         set;
     }
+
+    /// <summary>Wave-12 suggestion 120: package origin pinned at create, bound into h(M) v7.</summary>
+    public string? CreateTimePackageOrigin
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-12 suggestion 120: architecture request id pinned at create, bound into h(M) v7.</summary>
+    public string? CreateTimeArchitectureRequestId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-12 suggestion 120: structural execution mode pinned at create, bound into h(M) v7.</summary>
+    public int? CreateTimeStructuralExecutionMode
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-12 suggestion 120: pilot AOAI deployment snapshot pinned at create, bound into h(M) v7.</summary>
+    public string? CreateTimePilotAoaiDeploymentSnapshot
+    {
+        get;
+        set;
+    }
 }

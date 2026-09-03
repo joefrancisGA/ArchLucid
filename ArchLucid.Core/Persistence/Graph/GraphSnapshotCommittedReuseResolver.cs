@@ -173,6 +173,49 @@ public static class GraphSnapshotCommittedReuseResolver
         return true;
     }
 
+    /// <summary>
+    ///     Wave-12 suggestion 117: KM-aware graph clone must match run header create-time pin fingerprints.
+    /// </summary>
+    public static bool GraphPinFingerprintsMatchRunHeader(GraphSnapshot graph, RunRecord runHeader)
+    {
+        ArgumentNullException.ThrowIfNull(graph);
+        ArgumentNullException.ThrowIfNull(runHeader);
+
+        if (!PinFingerprintMatchesHeader(
+                graph,
+                PolicyPackPinsHashSha256HexKey,
+                runHeader.PinnedPolicyPackIdsHashSha256))
+        {
+            return false;
+        }
+
+        if (!PinFingerprintMatchesHeader(
+                graph,
+                EvidencePackagePinsHashSha256HexKey,
+                runHeader.PinnedEvidencePackagePinsHashSha256))
+        {
+            return false;
+        }
+
+        if (!PinFingerprintMatchesHeader(
+                graph,
+                ArchitectureVersionContentHashSha256HexKey,
+                runHeader.PinnedArchitectureVersionContentHashSha256))
+        {
+            return false;
+        }
+
+        if (!PinFingerprintMatchesHeader(
+                graph,
+                KnowledgeModelContentHashSha256HexKey,
+                runHeader.PinnedKnowledgeModelContentHashSha256))
+        {
+            return false;
+        }
+
+        return FocusedPilotPinMatchesHeader(graph, runHeader);
+    }
+
     private static bool FocusedPilotPinMatchesHeader(GraphSnapshot graph, RunRecord runHeader)
     {
         string? expectedMode = FormatFocusedPilotModeEnabled(runHeader.PinnedFocusedPilotModeEnabled);

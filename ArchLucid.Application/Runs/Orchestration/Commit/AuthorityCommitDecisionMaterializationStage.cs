@@ -29,6 +29,7 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentResultRepository agentResultRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
+    IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     ICommitPipelineManifestReuseService commitPipelineManifestReuseService,
     IDecisionEngine decisionEngine,
     IAuthorityCommitProjectionBuilder projectionBuilder,
@@ -46,6 +47,9 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
 
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+
+    private readonly IPolicyPackAssignmentRepository _policyPackAssignmentRepository =
+        policyPackAssignmentRepository ?? throw new ArgumentNullException(nameof(policyPackAssignmentRepository));
 
     private readonly ICommitPipelineManifestReuseService _commitPipelineManifestReuseService =
         commitPipelineManifestReuseService ?? throw new ArgumentNullException(nameof(commitPipelineManifestReuseService));
@@ -84,10 +88,14 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
         Task<IReadOnlyList<AgentResult>> agentResultsTask =
             _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
         Task<FindingsSnapshot?> findingsTask = _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, cancellationToken);
-        IReadOnlyList<PolicyPackAssignment> scopePolicyPackAssignments =
-            RunHeaderPinnedPolicyPackAssignmentFactory.BuildSyntheticAssignments(runRecord, scope);
+        Task<IReadOnlyList<PolicyPackAssignment>> scopePolicyPackAssignmentsTask =
+            RunHeaderPinnedPolicyPackAssignmentFactory.ResolveCommitTimeAssignmentsWithEnforcementAsync(
+                runRecord,
+                scope,
+                _policyPackAssignmentRepository,
+                cancellationToken);
 
-        await Task.WhenAll(evidenceTask, graphTask, agentResultsTask, findingsTask);
+        await Task.WhenAll(evidenceTask, graphTask, agentResultsTask, findingsTask, scopePolicyPackAssignmentsTask);
 
         AgentEvidencePackage evidencePackageForTelemetry = await evidenceTask;
         GraphSnapshot? graph = await graphTask;
@@ -102,6 +110,8 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
 
         if (findings is null)
             throw new InvalidOperationException($"Findings snapshot '{findingsId:D}' for run '{runId}' was not found.");
+
+        IReadOnlyList<PolicyPackAssignment> scopePolicyPackAssignments = await scopePolicyPackAssignmentsTask;
 
         ManifestDocument manifestModel;
         DecisionTraceDto traceDto;
