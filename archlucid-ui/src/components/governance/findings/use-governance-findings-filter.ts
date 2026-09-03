@@ -83,7 +83,14 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     }
 
     setScopedRunId(scopedRunIdFromQuery(searchParams.get("runId")));
-    setGroupByResource(parseGovernanceFindingsGroupByResourceFromSearch(searchParams.get("groupBy")));
+
+    const rawGroupBy = searchParams.get("groupBy");
+
+    if (rawGroupBy !== null && rawGroupBy.trim().length > 0) {
+      setGroupByResource(parseGovernanceFindingsGroupByResourceFromSearch(rawGroupBy));
+    } else {
+      setGroupByResource(readGroupByResourcePreference());
+    }
   }, [mode, searchParams]);
 
   const setRegisterFilter = useCallback((next: RiskRegisterFilter): void => {
