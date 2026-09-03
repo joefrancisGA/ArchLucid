@@ -9,7 +9,7 @@
 
 **Tracking:** Deferred engineering IDs live in **[`TECH_BACKLOG.md`](TECH_BACKLOG.md)**. This doc lists **cross-cutting structural refactors** that span multiple areas.
 
-**Note:** The 2026-09-01 items in the completed table shipped in PR #1098. The **2026-09-02** batch (items 1–30) shipped on **master** (2026-09-02). The **2026-09-02 pass-3** batch (items 1–10) shipped in PR **#1173**. The **2026-09-02 pass-4** batch (items 1–10) shipped in PR **#1178**. The **2026-09-02 pass-5** batch (items 1–10) shipped in PR **#1182**. The **2026-09-02 pass-6** batch (items 1–10) shipped in PR **#1186**. The **2026-09-02 pass-7** batch (items 1–10) shipped in PR **#1192**. The **2026-09-03 pass-8** batch (items 1–10) shipped in PR **#1231**. The **2026-09-03 pass-9** batch (items 1–10) shipped in PR **#1265**. The **2026-09-03 pass-10** batch (items 1–10) shipped in PR **#1307**. The **2026-09-03 pass-11** batch (items 1–10) shipped in PR **#TBD**.
+**Note:** The 2026-09-01 items in the completed table shipped in PR #1098. The **2026-09-02** batch (items 1–30) shipped on **master** (2026-09-02). The **2026-09-02 pass-3** batch (items 1–10) shipped in PR **#1173**. The **2026-09-02 pass-4** batch (items 1–10) shipped in PR **#1178**. The **2026-09-02 pass-5** batch (items 1–10) shipped in PR **#1182**. The **2026-09-02 pass-6** batch (items 1–10) shipped in PR **#1186**. The **2026-09-02 pass-7** batch (items 1–10) shipped in PR **#1192**. The **2026-09-03 pass-8** batch (items 1–10) shipped in PR **#1231**. The **2026-09-03 pass-9** batch (items 1–10) shipped in PR **#1265**. The **2026-09-03 pass-10** batch (items 1–10) shipped in PR **#1307**. The **2026-09-03 pass-11** batch (items 1–10) shipped in PR **#1318**.
 
 ## Completed (removed from active list)
 
