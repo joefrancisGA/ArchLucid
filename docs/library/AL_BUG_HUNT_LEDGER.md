@@ -1312,11 +1312,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 10
-- **bugs-found:** 16
+- **hunts:** 11
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — sponsor packet omitted top-level demo notice
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — board PDF/DOCX/HTML export omitted authority lifecycle Complete guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1341,6 +1341,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantReviewBoardCoverLogoStore.TryGetBytesAsync` — returned raw blob bytes without `ArchitectureReviewBoardCoverLogoValidator` re-check at export embed time — **hit 2026-08-27:** validate on read and return null for tampered payloads (`TenantReviewBoardCoverLogoStoreTests`).
 
 - [x] (proven) `SponsorReviewPacketComposer.ComposeMarkdown` — hardcoded `isDemoTenant: false` in `ExportSafetyNoticeMarkdown.Append` — **hit 2026-09-02 (#497):** demo runs showed evidence-badge demo labeling only inside nested review summary while board PDF/DOCX/HTML place demo notice at document start; fixed by resolving demo tenant from `ContosoRetailDemoIdentifiers` before header append (`ComposeMarkdown_includes_top_level_demo_notice_for_demo_run`).
+
+- [x] (proven) `ArchitectureReviewExportService.GenerateReportAsync` — committed run with manifest but `AuthorityLifecyclePhase != Complete` returned PDF/DOCX/HTML bytes instead of HTTP 409 — **hit 2026-09-03 (#543):** omitted `AuthorityLifecycleCompareExportGuard` present on one-pager/CSV/DOCX sibling paths; regression in `ArchitectureReviewExportServiceTests.GenerateReportAsync_throws_conflict_when_authority_lifecycle_not_complete`.
+- [ ] (candidate) `ArchitectureReviewExportService` / `ArchitectureReviewBoardExportDocumentFactory` — simulator-mode runs omit `SimulatorModeExportRehearsalMarkdown` notice on board PDF/DOCX/HTML while one-pager markdown embeds it — parity gap seeded hunt #543.
+
+2026-09-03 seed hunt #543: proved board export authority lifecycle Complete guard gap; cheap-disproved blob URL policy; seeded simulator-notice parity candidate.
 
 2026-09-02 seed hunt #497: reseeded from tenant export surfaces; proved sponsor packet top-level demo notice gap after master merge.
 
