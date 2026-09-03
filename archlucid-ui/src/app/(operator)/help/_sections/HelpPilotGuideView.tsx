@@ -27,6 +27,7 @@ import {
   PILOT_GUIDE_HELP_PRIMARY_ACTIONS,
 } from "@/lib/pilot-guide-help-guide-content";
 import {
+  PILOT_GUIDE_HELP_FIRST_VIEWPORT_ID,
   PILOT_GUIDE_HELP_FIRST_VIEWPORT_TEST_ID,
   PILOT_GUIDE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   PILOT_GUIDE_HELP_PRIMARY_CONTENT_ID,
@@ -115,7 +116,7 @@ export function HelpPilotGuideView(props: HelpPilotGuideViewProps): React.ReactE
         )}
 
         <div
-          id={PILOT_GUIDE_HELP_SKIP_TARGET_ID}
+          id={PILOT_GUIDE_HELP_FIRST_VIEWPORT_ID}
           data-testid={PILOT_GUIDE_HELP_FIRST_VIEWPORT_TEST_ID}
           className={cn(
             "scroll-mt-24 space-y-6 border-b border-neutral-200 pb-6 dark:border-neutral-800",
