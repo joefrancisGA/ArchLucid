@@ -64,8 +64,12 @@ public static class HostingEnvironmentNamePatterns
     {
         return trimmed.Contains("-reproduction-", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("_reproduction_", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("-reproduction_", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("_reproduction-", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("-reproductions-", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("_reproductions_", StringComparison.OrdinalIgnoreCase);
+            || trimmed.Contains("_reproductions_", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("-reproductions_", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("_reproductions-", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsStandaloneProdDelimiterToken(string trimmed)
