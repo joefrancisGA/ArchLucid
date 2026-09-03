@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Core.Persistence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Models;
