@@ -1866,11 +1866,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 242
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-<<<<<<< HEAD
 - **last-bug:** 2026-09-03 — boolean / `"on"` failure-summary `schemaVersion` tokens rejected dead-letter detection
-=======
-- **last-bug:** 2026-09-03 — string-encoded whole-number `schemaVersion` rejected in extractor manifest upgrader
->>>>>>> origin/bugsmash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
