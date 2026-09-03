@@ -2875,11 +2875,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 116
-- **bugs-found:** 271
+- **hunts:** 117
+- **bugs-found:** 272
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — bulk disposition Accepted trade-off acknowledgment forwarding
+- **last-bug:** 2026-09-03 — CreateRiskException null runId validation parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3406,6 +3406,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` — bulk `Accepted` omitted `TradeOffAcknowledgment` when rebuilding per-finding requests, so UI "Accept all" with shared rationale returned HTTP 400 after #560 single-item fix — **hit 2026-09-03 (#562):** optional `TradeOffAcknowledgment` on bulk contract; default to shared `Rationale` for Accepted; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_forwards_trade_off_acknowledgment_for_accepted_disposition` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_ok_when_accepted_and_shared_rationale_supplies_trade_off`.
 
 2026-09-03 thorough hunt #562: cheap-disproved two stale #561 picker rows; proved bulk disposition Accepted trade-off acknowledgment forwarding.
+
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessHttpMapper.ValidateCreateRiskException` — omitted `runId` (`null`) passed HTTP validation while `Guid.Empty` returned HTTP 400 and disposition routes reject both null and empty — **hit 2026-09-03 (#563):** require non-null non-empty `runId` before facade (disposition `ValidateRunId` parity); regression in `GovernanceStickinessControllerTests.CreateRiskException_returns_bad_request_when_run_id_is_null`.
+
+2026-09-03 seed hunt #563: promoted and proved CreateRiskException null runId validation parity; seeded product-feedback findingRef and bulk waive rationale candidates.
+
+- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `findingRef` longer than `NVARCHAR(512)` may reach SQL without HTTP 400 while `comment` is capped at 2000 (inspect gate may return 404 first).
+- [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — bulk `RejectedAsNotApplicable` with shared `rationale` shorter than 10 characters returns HTTP 400 while operator bulk UI only requires non-empty reason (Accepted trade-off fixed in #562).
 
 ---
 
