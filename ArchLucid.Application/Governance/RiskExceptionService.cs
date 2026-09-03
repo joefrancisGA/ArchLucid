@@ -217,6 +217,11 @@ public sealed class RiskExceptionService(
             throw new ConflictException("Revoked risk exceptions cannot be renewed.");
         }
 
+        IReadOnlyList<RiskExceptionRecord> expired =
+            await _repository.MarkExpiredAsync(tenantId, now, cancellationToken);
+
+        await AuditExpiredAsync(expired, cancellationToken);
+
         RiskExceptionRecord? siblingActive = await _repository.GetActiveForScopeFindingAsync(
             tenantId,
             existing.WorkspaceId,

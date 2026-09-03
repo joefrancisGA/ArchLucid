@@ -2880,11 +2880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 126
-- **bugs-found:** 283
+- **hunts:** 127
+- **bugs-found:** 284
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — renew sibling waiver conflict + create MarkExpired parity
+- **last-bug:** 2026-09-03 — renew MarkExpired parity before sibling guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3467,7 +3467,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `RiskExceptionService.CreateAsync` — stale `Status=Active` rows past `ExpiresAtUtc` were invisible to the duplicate guard until a background sweep ran, allowing a second create — **hit 2026-09-03 (#573):** `MarkExpiredAsync` + `AuditExpiredAsync` run before `GetActiveForScopeFindingAsync`; regression in `RiskExceptionServiceTests.CreateAsync_marks_expired_before_duplicate_active_guard`.
 
-2026-09-03 thorough hunt #573: proved renew sibling waiver conflict and create MarkExpired-before-guard parity; retired stale duplicate-create candidate.
+- [x] (proven) `RiskExceptionService.RenewAsync` / `GovernanceStickinessController.RenewRiskException` — renewing an `Expired` waiver without sweeping stale `Status=Active` rows past `ExpiresAtUtc` first left multiple `Active` rows in `ListActiveForTenantAsync` (which filters `Status` only) while sibling `GetActiveForScopeFindingAsync` ignored past-expiry rows — **hit 2026-09-03 (#574):** `MarkExpiredAsync` + `AuditExpiredAsync` before sibling guard (create #573 parity); regression in `RiskExceptionServiceTests.RenewAsync_marks_expired_before_sibling_active_guard`.
+
+- [ ] (candidate) `GovernanceStickinessController.RenewRiskException` — OpenAPI `ProducesResponseType` omits HTTP 409 while handler maps `ConflictException` (revoked/sibling/active-waiver paths); document drift only unless clients rely on generated stubs.
+
+- [ ] (candidate) `GovernanceStickinessController.ListRiskExceptions` — optional `projectId` query is validated for empty guid but not resolved through `GovernanceQueryProjectScope.TryResolve` like register reads (foreign project may return filtered empty list vs 400).
+
+2026-09-03 seed hunt #574: reseeded from controller sources; proved renew MarkExpired-before-sibling-guard parity.
 
 ---
 
