@@ -25,6 +25,9 @@ public static class PrivateNetworkAddressGuard
         if (IPAddress.IsLoopback(ip))
             return true;
 
+        if (ip.Equals(IPAddress.Any) || ip.Equals(IPAddress.IPv6Any))
+            return true;
+
         if (ip.IsIPv4MappedToIPv6)
         {
             return IsForbiddenIpAddress(ip.MapToIPv4());
