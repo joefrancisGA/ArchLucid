@@ -180,6 +180,30 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostSponsorDigestPreferences_returns_bad_request_when_recipient_emails_exceed_max_serialized_length()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantSponsorDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            Mock.Of<ITenantSponsorDigestPreferencesRepository>(),
+            Mock.Of<IAuditService>());
+
+        string longLocalPart = new('a', 1000);
+        SponsorDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = [$"{longLocalPart}@contoso.test", $"{longLocalPart}@fabrikam.test"],
+        };
+
+        IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PostSponsorDigestPreferences_persists_and_audits_on_success()
     {
         SponsorDigestPreferencesResponse saved = new()
