@@ -151,6 +151,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<IAuthorityCommitPersistenceStage>(),
             failureRecorder.Object,
             Mock.Of<IGoldenManifestRepository>(),
+            Mock.Of<IFindingsSnapshotRepository>(),
+            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<IArtifactBundleRepository>(),
+            Mock.Of<IAuthorityCommitProjectionBuilder>(),
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }

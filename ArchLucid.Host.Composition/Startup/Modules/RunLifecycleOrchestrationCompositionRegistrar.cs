@@ -90,6 +90,9 @@ internal static partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<ITechnologyLedgerRunCommandService, TechnologyLedgerRunCommandService>();
         services.AddScoped<Application.Runs.Query.IRunLifecycleCommandService, Application.Runs.Query.RunLifecycleCommandService>();
         services.AddScoped<Application.Runs.Query.IRunFindingsQueryService, Application.Runs.Query.RunFindingsQueryService>();
+        services.AddScoped<Application.Runs.Query.Stages.IRunFindingsListStage, Application.Runs.Query.Stages.RunFindingsListStage>();
+        services.AddScoped<Application.Runs.Query.Stages.IRunFindingsCsvExportStage, Application.Runs.Query.Stages.RunFindingsCsvExportStage>();
+        services.AddScoped<Application.Runs.Query.Stages.IRunFindingsInspectStage, Application.Runs.Query.Stages.RunFindingsInspectStage>();
         services.AddScoped<IArchitectureRunArchiveService, ArchitectureRunArchiveService>();
         services.Configure<RunExecuteOwnershipLeaseOptions>(
             configuration.GetSection(RunExecuteOwnershipLeaseOptions.SectionName));

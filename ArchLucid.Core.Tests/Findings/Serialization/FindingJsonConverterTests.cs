@@ -47,6 +47,31 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void RoundTrip_preservesEvidencePackageId()
+    {
+        Guid packageId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        Finding finding = new()
+        {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+            FindingId = "finding-002",
+            FindingType = "SecurityControlFinding",
+            Category = "Security",
+            EngineType = "SecurityCoverage",
+            Severity = FindingSeverity.Warning,
+            Title = "Missing control",
+            Rationale = "Control not applied.",
+            EvidencePackageId = packageId,
+        };
+
+        JsonSerializerOptions options = CreateOptions();
+        string json = JsonSerializer.Serialize(finding, options);
+        Finding? roundTripped = JsonSerializer.Deserialize<Finding>(json, options);
+
+        roundTripped.Should().NotBeNull();
+        roundTripped!.EvidencePackageId.Should().Be(packageId);
+    }
+
+    [Fact]
     public void RoundTrip_preservesInsightDensityFields()
     {
         Finding finding = new()

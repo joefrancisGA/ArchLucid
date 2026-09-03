@@ -178,6 +178,23 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
         if (string.IsNullOrWhiteSpace(item.PreparedReplayRunId))
             throw new InvalidOperationException("Replay work item is missing PreparedReplayRunId.");
 
+        if (!Guid.TryParse(item.RunId, out Guid replaySourceRunGuid))
+        {
+            throw new InvalidOperationException(
+                $"Replay blocked for run '{item.RunId}': source run id is not a valid GUID.");
+        }
+
+        IRunRepository replayRuns = scope.ServiceProvider.GetRequiredService<IRunRepository>();
+        RunRecord? replaySourceHeader = await replayRuns.GetByIdAsync(item.Scope, replaySourceRunGuid, cancellationToken);
+
+        if (replaySourceHeader is null)
+        {
+            throw new InvalidOperationException(
+                $"Replay blocked for run '{item.RunId}': source run header was not found.");
+        }
+
+        ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(item.Scope, replaySourceHeader, item.RunId);
+
         await scope.ServiceProvider
             .GetRequiredService<IReplayRunService>()
             .ExecutePreparedReplayAsync(

@@ -73,12 +73,15 @@ public static class AuthorityCommitRecoveryVerifier
             header,
             runIdLabel);
 
-        if (recomputedMaterial is not null)
+        if (recomputedMaterial is null)
         {
-            ManifestCommittedArtifactInventoryCapturer.EnsureStoredInventoryContentHashesMatchOrThrow(
-                persistedManifest,
-                recomputedMaterial,
-                runIdLabel);
+            throw new ConflictException(
+                $"Commit recovery blocked for run '{runIdLabel}': recomputed artifact inventory material is required.");
         }
+
+        ManifestCommittedArtifactInventoryCapturer.EnsureStoredInventoryContentHashesMatchOrThrow(
+            persistedManifest,
+            recomputedMaterial,
+            runIdLabel);
     }
 }

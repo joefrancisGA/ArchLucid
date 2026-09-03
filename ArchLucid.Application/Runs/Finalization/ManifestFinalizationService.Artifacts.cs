@@ -89,14 +89,6 @@ public sealed partial class ManifestFinalizationService
             request.Contract.Metadata.ManifestVersion,
             manifestHashService);
 
-        if (request.SkipPersistingPipelineArtifacts)
-            return request.ManifestModel;
-
-        await decisionTraceRepository.SaveAsync(
-            DecisionTraceRecordMapper.ToDto(request.Trace),
-            cancellationToken,
-            connection,
-            transaction);
         await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(
             request.ManifestModel,
             BuildGovernanceSnapshotCaptureOptions(request),
@@ -109,6 +101,15 @@ public sealed partial class ManifestFinalizationService
                 request.PreloadedArchitectureRequest,
                 request.PreloadedFindingsSnapshot);
         }
+
+        if (request.SkipPersistingPipelineArtifacts)
+            return request.ManifestModel;
+
+        await decisionTraceRepository.SaveAsync(
+            DecisionTraceRecordMapper.ToDto(request.Trace),
+            cancellationToken,
+            connection,
+            transaction);
 
         if (connection is not null)
         {
