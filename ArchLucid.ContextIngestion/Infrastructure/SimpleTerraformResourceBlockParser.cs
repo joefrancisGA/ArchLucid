@@ -149,6 +149,8 @@ internal static class SimpleTerraformResourceBlockParser
                 continue;
 
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
             string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
 
             CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, key, scalarValue);

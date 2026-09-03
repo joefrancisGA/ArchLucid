@@ -2686,4 +2686,71 @@ public sealed class InfrastructureDeclarationConnectorTests
         delta.AddedCount.Should().Be(0);
         delta.RemovedCount.Should().Be(0);
     }
+
+    [Fact]
+    public async Task DeltaAsync_SimpleTerraformInlineSlashSlashCommentChange_ReportsUnchanged()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([new SimpleTerraformDeclarationParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        const string contentWithComment = """
+                                          resource "azurerm_resource_group" "rg" {
+                                            location = "eastus" // primary region
+                                          }
+                                          """;
+
+        const string contentWithoutComment = """
+                                             resource "azurerm_resource_group" "rg" {
+                                               location = "eastus"
+                                             }
+                                             """;
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-tf-comment",
+                    Name = "core.tf",
+                    Format = "simple-terraform",
+                    Content = contentWithComment,
+                }
+            ]
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-tf-comment",
+                    Name = "core.tf",
+                    Format = "simple-terraform",
+                    Content = contentWithoutComment,
+                }
+            ]
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.ModifiedCount.Should().Be(0);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
 }

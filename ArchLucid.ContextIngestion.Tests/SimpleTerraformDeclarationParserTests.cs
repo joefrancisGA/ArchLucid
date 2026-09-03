@@ -362,6 +362,26 @@ public sealed class SimpleTerraformDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_InlineSlashSlashComment_DoesNotChangeTfLocation()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_resource_group" "rg" {
+                        location = "eastus" // primary region
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.location"].Should().Be("eastus");
+    }
+
+    [Fact]
     public async Task ParseAsync_EscapedQuoteBeforeHash_DoesNotTruncateScalarValue()
     {
         InfrastructureDeclarationReference declaration = new()
