@@ -70,4 +70,39 @@ public sealed class InMemoryPlatformUserRepositoryCoverageTests
         await emailMissing.Should().ThrowAsync<PlatformUserNotFoundException>();
         await rotateMissing.Should().ThrowAsync<PlatformUserNotFoundException>();
     }
+
+    [Fact]
+    public async Task InsertAsync_throws_when_user_id_already_exists()
+    {
+        InMemoryPlatformUserRepository sut = new();
+        Guid userId = Guid.NewGuid();
+
+        await sut.InsertAsync(
+            new PlatformUserInsert
+            {
+                Id = userId,
+                PrimaryEmail = "first@example.com",
+                NormalizedPrimaryEmail = "first@example.com",
+                DisplayName = "First User",
+                Status = PlatformUserStatus.Active,
+            },
+            CancellationToken.None);
+
+        Func<Task> duplicate = () => sut.InsertAsync(
+            new PlatformUserInsert
+            {
+                Id = userId,
+                PrimaryEmail = "second@example.com",
+                NormalizedPrimaryEmail = "second@example.com",
+                DisplayName = "Second User",
+                Status = PlatformUserStatus.Active,
+            },
+            CancellationToken.None);
+
+        await duplicate.Should().ThrowAsync<DuplicatePlatformUserException>();
+
+        PlatformUserRecord? row = await sut.GetByIdAsync(userId, CancellationToken.None);
+        row.Should().NotBeNull();
+        row!.PrimaryEmail.Should().Be("first@example.com");
+    }
 }
