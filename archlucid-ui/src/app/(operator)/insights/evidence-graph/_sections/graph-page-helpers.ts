@@ -117,13 +117,18 @@ export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions
   return GRAPH_IDLE;
 }
 
-/** Resolve Trace vs Graph tab from the URL, defaulting Graph for buyer-polished shells. */
+/** Resolve Trace vs Graph tab from the URL; Working defaults to trace (list-first). */
 export function resolveEvidenceTrailPresentationView(
   urlPresentation: string | null | undefined,
   buyerPolished: boolean,
+  workingMode: boolean = false,
 ): EvidenceTrailPresentationView {
   if (urlPresentation === "trace" || urlPresentation === "graph") {
     return urlPresentation;
+  }
+
+  if (workingMode) {
+    return "trace";
   }
 
   return buyerPolished ? "graph" : "trace";

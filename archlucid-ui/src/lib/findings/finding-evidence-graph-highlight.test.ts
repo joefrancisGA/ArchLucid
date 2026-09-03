@@ -4,6 +4,7 @@ import {
   applyFindingEvidenceGraphHighlight,
   buildExaminedNodeIdSet,
   defaultFindingEvidenceGraphViewMode,
+  defaultFindingEvidenceGraphPresentationMode,
   resolveFindingEvidenceGraphViewModel,
 } from "@/lib/findings/finding-evidence-graph-highlight";
 import type { GraphViewModel } from "@/types/graph";
@@ -70,5 +71,10 @@ describe("finding-evidence-graph-highlight", () => {
     expect(defaultFindingEvidenceGraphViewMode(4)).toBe("reasoningPath");
     expect(defaultFindingEvidenceGraphViewMode(1)).toBe("reasoningPath");
     expect(defaultFindingEvidenceGraphViewMode(0)).toBe("context");
+  });
+
+  it("defaults Working mode to outline and Guided to graph presentation", () => {
+    expect(defaultFindingEvidenceGraphPresentationMode(true)).toBe("outline");
+    expect(defaultFindingEvidenceGraphPresentationMode(false)).toBe("graph");
   });
 });

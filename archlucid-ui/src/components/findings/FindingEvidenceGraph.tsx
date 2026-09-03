@@ -18,14 +18,17 @@ import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator
 import { Button } from "@/components/ui/button";
 import {
   applyFindingEvidenceGraphHighlight,
+  defaultFindingEvidenceGraphPresentationMode,
   defaultFindingEvidenceGraphViewMode,
   resolveFindingEvidenceGraphViewModel,
+  type FindingEvidenceGraphPresentationMode,
   type FindingEvidenceGraphViewMode,
 } from "@/lib/findings/finding-evidence-graph-highlight";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { loadArchitectureGraphViewModel } from "@/lib/load-architecture-graph-view-model";
 import { mapGraphToReactFlow } from "@/lib/graph-mapper";
 import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { GraphViewModel } from "@/types/graph";
 
 export type FindingEvidenceGraphProps = {
@@ -152,6 +155,8 @@ function FindingEvidenceGraphCanvas(props: {
  */
 export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
   const { runId, graphNodeIdsExamined } = props;
+  const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
+  const workingMode = workspaceMounted && isWorkingMode;
   const [graph, setGraph] = useState<GraphViewModel | null>(null);
   const [loadNote, setLoadNote] = useState<string | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -159,7 +164,13 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
   const [viewMode, setViewMode] = useState<FindingEvidenceGraphViewMode>(
     defaultFindingEvidenceGraphViewMode(graphNodeIdsExamined.length),
   );
-  const [presentationMode, setPresentationMode] = useState<"graph" | "outline">("graph");
+  const [presentationMode, setPresentationMode] = useState<FindingEvidenceGraphPresentationMode>(
+    defaultFindingEvidenceGraphPresentationMode(workingMode),
+  );
+
+  useEffect(() => {
+    setPresentationMode(defaultFindingEvidenceGraphPresentationMode(workingMode));
+  }, [workingMode]);
 
   useEffect(() => {
     let canceled = false;

@@ -1,3 +1,7 @@
+"use client";
+
+import type { JSX } from "react";
+
 import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigationGuardDialog";
 import { useInAppNavigationGuard } from "@/hooks/use-in-app-navigation-guard";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
@@ -38,7 +42,7 @@ export function LivelihoodDocumentGuardDialog(props: {
   readonly message: string;
   readonly onConfirm: () => void;
   readonly onCancel: () => void;
-}): React.JSX.Element {
+}): JSX.Element {
   return (
     <InAppNavigationGuardDialog
       open={props.open}

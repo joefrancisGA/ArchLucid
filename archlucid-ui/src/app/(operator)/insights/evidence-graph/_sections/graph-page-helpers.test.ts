@@ -72,4 +72,10 @@ describe("resolveEvidenceTrailPresentationView", () => {
     expect(resolveEvidenceTrailPresentationView("trace", true)).toBe("trace");
     expect(resolveEvidenceTrailPresentationView("graph", false)).toBe("graph");
   });
+
+  it("defaults Working mode to trace even on buyer-polished shells", () => {
+    expect(resolveEvidenceTrailPresentationView(null, true, true)).toBe("trace");
+    expect(resolveEvidenceTrailPresentationView(null, true, false)).toBe("graph");
+    expect(resolveEvidenceTrailPresentationView("graph", true, true)).toBe("graph");
+  });
 });

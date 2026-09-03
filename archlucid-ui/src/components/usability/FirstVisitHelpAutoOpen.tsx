@@ -16,6 +16,7 @@ import {
 } from "@/lib/usability/first-visit-help";
 import { FIRST_VISIT_HELP_THREE_THINGS } from "@/lib/onboarding-secondary-surfaces";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 
 /**
  * Auto-surfaces a one-time tip on operator home for buyer-default shells.
@@ -23,6 +24,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
  */
 export function FirstVisitHelpAutoOpen() {
   const pathname = usePathname() ?? "/";
+  const teachingChromeVisible = useTeachingChromeVisible();
   const [visible, setVisible] = useState(false);
   const slug = firstVisitHelpSlugForPathname(pathname);
   const isOperatorHome = pathname === "/";
@@ -31,6 +33,7 @@ export function FirstVisitHelpAutoOpen() {
 
   useEffect(() => {
     if (
+      !teachingChromeVisible ||
       fullOperatorShell ||
       !isOperatorHome ||
       slug === null ||
@@ -43,9 +46,9 @@ export function FirstVisitHelpAutoOpen() {
     }
 
     setVisible(true);
-  }, [fullOperatorShell, isOperatorHome, pathname, slug]);
+  }, [fullOperatorShell, isOperatorHome, pathname, slug, teachingChromeVisible]);
 
-  if (fullOperatorShell || !visible || slug === null || !isOperatorHome) {
+  if (!teachingChromeVisible || fullOperatorShell || !visible || slug === null || !isOperatorHome) {
     return null;
   }
 
