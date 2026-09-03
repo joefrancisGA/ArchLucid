@@ -23,6 +23,7 @@ using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Application.Governance.Coverage.Stages;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Application.Governance.Posture;
@@ -85,6 +86,8 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<TechnologyLedgerTopologyProposalSeeder>();
         services.AddScoped<ITechnologyLedgerRunCommandService, TechnologyLedgerRunCommandService>();
         services.AddScoped<ICoverageQueryService, CoverageQueryService>();
+        services.AddScoped<ICoveragePreviewLoadStage, CoveragePreviewLoadStage>();
+        services.AddScoped<ICoveragePreviewEmitStage, CoveragePreviewEmitStage>();
         services.AddScoped<ICoveragePreviewService, CoveragePreviewService>();
         services.AddSingleton<IExaminationStateResolver, ExaminationStateResolver>();
         services.AddScoped<IArchitecturePostureService, ArchitecturePostureService>();

@@ -9,6 +9,7 @@ using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Alerts.Tuning;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks.Stages;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Host.Composition.Alerts;
 using ArchLucid.Host.Core.Services;
@@ -77,6 +78,10 @@ public static class AlertsCompositionModule
         services.AddScoped<ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackResolver>(static sp =>
             new CorePolicyPackResolverAdapter(sp.GetRequiredService<CachingPolicyPackResolver>()));
         services.AddScoped<IPolicyPackResolverCacheInvalidator, PolicyPackResolverCacheInvalidator>();
+        services.AddScoped<IPolicyPackChangeLogAppender, PolicyPackChangeLogAppender>();
+        services.AddScoped<IPolicyPackCreateStage, PolicyPackCreateStage>();
+        services.AddScoped<IPolicyPackPublishStage, PolicyPackPublishStage>();
+        services.AddScoped<IPolicyPackAssignStage, PolicyPackAssignStage>();
         services.AddScoped<IPolicyPackManagementService, PolicyPackManagementService>();
         services.AddScoped<ArchLucid.Core.Governance.Resolution.IEffectiveGovernanceResolver, EffectiveGovernanceResolver>();
         services.AddScoped<IEffectiveGovernanceResolver, EffectiveGovernanceResolver>();
