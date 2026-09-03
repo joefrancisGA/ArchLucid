@@ -2871,11 +2871,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 111
-- **bugs-found:** 265
+- **hunts:** 112
+- **bugs-found:** 266
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — recurrence schedule name/cron max-length validation
+- **last-bug:** 2026-09-03 — link-entra entraOid max-length validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3380,6 +3380,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` / `RecurrenceScheduleValidation` — `Name` (`NVARCHAR(300)`) and `CronExpression` (`NVARCHAR(100)`) lacked max-length guards before `ArchitectureReviewRecurrenceSchedules` insert/update (cron format only) — **hit 2026-09-03 (#556):** `RecurrenceScheduleValidation` rejects over-length after trim in create/update facade paths; update controller maps `ArgumentException` to HTTP 400; regression in `RecurrenceScheduleValidationTests`, `GovernanceStickinessFacadeScopeTests.CreateRecurrenceScheduleAsync_throws_when_name_exceeds_sql_max_length`, and `GovernanceStickinessControllerTests` create/update bad-request cases.
 
 2026-09-03 thorough hunt #556: proved recurrence schedule name and cron expression max-length validation before SQL persist.
+
+- [x] (proven) `TenantTrialController.LinkEntraAsync` / `TenantTrialAbuseGuard.ValidateIdentityLinkAsync` — `entraOid` longer than `LinkedEntraOid NVARCHAR(128)` reached `SqlTrialIdentityUserRepository.TryLinkLocalIdentityToEntraAsync` without HTTP 400 (unhandled `ArgumentException` → HTTP 500) — **hit 2026-09-03 (#557):** reject over-length after trim in abuse guard before directory bind/link; shared `TrialIdentityUserFieldLimits.LinkedEntraOidMaxLength`; regression in `TenantTrialAbuseGuardTests` and `TenantTrialControllerTests.LinkEntraAsync_returns_bad_request_when_entra_oid_exceeds_max_length`.
+
+2026-09-03 seed hunt #557: proved link-entra entraOid max-length validation before identity handoff; seeded preview cron and policy-pack version read parity candidates.
+
+- [ ] (candidate) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — `cronExpression` longer than `NVARCHAR(100)` returns HTTP 200 `{ isValid: false }` instead of HTTP 400 parity with create/update (`RecurrenceScheduleValidation`).
+- [ ] (candidate) `PolicyPacksController.GetVersion` — route `packVersion` longer than `NVARCHAR(50)` returns HTTP 404 instead of HTTP 400 parity with publish/assign validators.
 
 ---
 
