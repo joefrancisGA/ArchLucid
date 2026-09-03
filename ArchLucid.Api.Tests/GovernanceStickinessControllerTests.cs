@@ -656,6 +656,61 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RevokeRiskException_returns_conflict_when_waiver_is_already_revoked()
+    {
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        RiskExceptionRecord revokedRecord = new()
+        {
+            RiskExceptionId = exceptionId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            FindingId = "finding-1",
+            OwnerUserId = "owner",
+            Rationale = "rationale",
+            Status = RiskExceptionStatus.Revoked,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+            CreatedByUserId = "creator",
+        };
+
+        Mock<IRiskExceptionRepository> repository = new();
+        repository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(revokedRecord);
+
+        RiskExceptionService riskExceptionService = new(
+            repository.Object,
+            Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(s => s.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(revokedRecord);
+        riskExceptions
+            .Setup(s => s.RevokeAsync(
+                Scope.TenantId,
+                exceptionId,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((
+                Guid tenantId,
+                Guid riskExceptionId,
+                string revokedByUserId,
+                CancellationToken cancellationToken) =>
+                riskExceptionService.RevokeAsync(tenantId, riskExceptionId, revokedByUserId, cancellationToken));
+
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        IActionResult action = await controller.RevokeRiskException(exceptionId, CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
     public async Task RenewRiskException_returns_bad_request_when_risk_exception_id_is_empty()
     {
         GovernanceStickinessController controller = BuildSut();

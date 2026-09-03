@@ -120,6 +120,19 @@ public sealed class RiskExceptionService(
         if (string.IsNullOrWhiteSpace(revokedByUserId))
             throw new ArgumentException("Revoked-by user id is required.", nameof(revokedByUserId));
 
+        RiskExceptionRecord? existing = await _repository.GetByIdAsync(tenantId, riskExceptionId, cancellationToken);
+
+        if (existing is null)
+            throw new InvalidOperationException("Risk exception was not found.");
+
+        if (existing.Status != RiskExceptionStatus.Active)
+        {
+            throw new ConflictException(
+                existing.Status == RiskExceptionStatus.Revoked
+                    ? "Revoked risk exceptions cannot be revoked again."
+                    : "Only active risk exceptions can be revoked.");
+        }
+
         await _repository.RevokeAsync(
             tenantId,
             riskExceptionId,
