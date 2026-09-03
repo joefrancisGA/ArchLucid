@@ -58,7 +58,8 @@ public sealed partial class RunsController
             CommitRunResponse response = RunResponseMapper.ToCommitRunResponse(
                 result.Manifest,
                 result.DecisionTraces,
-                result.Warnings);
+                result.Warnings,
+                result.CommittedArtifactInventory);
 
             if (outcome.IdempotentReplay)
             {

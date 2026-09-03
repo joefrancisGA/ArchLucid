@@ -11,7 +11,13 @@ public static class ManifestCreateTimePinCanonicalProjection
         rows
             .OrderBy(static row => row.PolicyPackId, StringComparer.OrdinalIgnoreCase)
             .ThenBy(static row => row.PolicyPackVersion, StringComparer.Ordinal)
-            .Select(static row => new { row.PolicyPackId, row.PolicyPackVersion })
+            .Select(static row => new
+            {
+                row.PolicyPackId,
+                row.PolicyPackVersion,
+                row.BlockCommitOnCritical,
+                row.BlockCommitMinimumSeverity,
+            })
             .ToArray();
 
     public static object[] ProjectEvidencePackagePins(IReadOnlyList<PinnedEvidencePackageRow> rows) =>

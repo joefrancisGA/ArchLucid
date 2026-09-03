@@ -1,6 +1,7 @@
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+
+using ArchLucid.Core.Explanation;
 
 namespace ArchLucid.Core.AzureExtractor;
 
@@ -133,14 +134,14 @@ public static class AzureExtractorManifestSchemaUpgrader
 
                 string? raw = jsonValue.GetValue<string>();
 
-                if (TryParseBooleanString(raw, out bool booleanSchema))
+                if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanSchema))
                 {
                     schemaVersion = booleanSchema ? 1 : 0;
 
                     return true;
                 }
 
-                if (TryParseWholeNumberString(raw, out schemaVersion))
+                if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion))
                     return true;
 
                 break;
@@ -183,38 +184,5 @@ public static class AzureExtractorManifestSchemaUpgrader
         schemaVersion = default;
 
         return false;
-    }
-
-    private static bool TryParseWholeNumberString(string? raw, out int value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
-        {
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryParseBooleanString(string? raw, out bool value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        return bool.TryParse(raw.Trim(), out value);
     }
 }

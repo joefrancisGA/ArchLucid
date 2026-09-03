@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { SealedReviewRecordSummary } from "@/lib/core-pilot-commit-context";
 import {
@@ -58,9 +59,21 @@ const loadingHeaderActions: FirstReviewGuideHeaderActions = {
   primaryHref: "/architecture/reviews/new",
   primaryDisabled: true,
   primaryDisabledReason: null,
-  secondaryLabel: "Explore sample review",
-  secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+  secondaryLabel: null,
+  secondaryHref: null,
 };
+
+function resolveLoadingHeaderActions(): FirstReviewGuideHeaderActions {
+  if (isLiveOperatorShellRecoveryContext()) {
+    return loadingHeaderActions;
+  }
+
+  return {
+    ...loadingHeaderActions,
+    secondaryLabel: "Explore sample review",
+    secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+  };
+}
 
 export function useFirstReviewGuideState(): FirstReviewGuideViewState {
   const canExecute = useOperateCapability();
@@ -87,7 +100,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
         readiness: loadingReadiness,
         progress: loadingProgress,
         steps: [],
-        headerActions: loadingHeaderActions,
+        headerActions: resolveLoadingHeaderActions(),
         requiredBlockers: [],
         canExecute,
         readyToFinalize: false,

@@ -1862,11 +1862,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 125
-- **bugs-found:** 240
+- **hunts:** 127
+- **bugs-found:** 242
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — null failure-summary `schemaVersion` JSON token rejected dead-letter detection
+- **last-bug:** 2026-09-03 — string-encoded whole-number `schemaVersion` rejected in extractor manifest upgrader
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1896,7 +1896,34 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #604: proved null failure-summary schemaVersion gap; re-disproved Application-layer candidate.
 
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` — boolean / `on` synonym `schemaVersion` JSON tokens rejected — **hit 2026-09-03 (#619):** `{"schemaVersion":true,"failureClass":"PipelineDeadLetter"}` and `"schemaVersion":"on"` failed after #600 string/number coercion while sibling readers already accept boolean synonyms; fixed with `TryParseBooleanString` and `JsonValueKind.True`/`False` handling (`IsDeadLettered_returns_true_for_boolean_true_schema_version`, `IsDeadLettered_returns_true_for_on_synonym_string_schema_version`).
+
+2026-09-03 seed hunt #619: reseeded from `RunAuthorityPipelineDeadLetterDetection`; proved boolean / on-off synonym schemaVersion parity gap after #604 null-token fix.
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` — boolean / `on` synonym `schemaVersion` JSON tokens rejected — **hit 2026-09-03 (#616):** `{"schemaVersion":true,"failureClass":"PipelineDeadLetter"}` and `"schemaVersion":"on"` failed after #600 string/number coercion while sibling readers already accept boolean synonyms; fixed with `TryParseBooleanString` and `JsonValueKind.True`/`False` handling (`IsDeadLettered_returns_true_for_boolean_true_schema_version`, `IsDeadLettered_returns_true_for_on_synonym_string_schema_version`).
+
+2026-09-03 seed hunt #616: reseeded from `RunAuthorityPipelineDeadLetterDetection`; proved boolean / on-off synonym schemaVersion parity gap after #604 null-token fix.
+
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — PascalCase `FailureClass` property name missed — case-insensitive property lookup already reads `FailureClass`; regression `IsDeadLettered_returns_true_for_PascalCase_failure_class_property_name`.
+
+- [x] (invalid) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"true"` / boolean `true` schemaVersion at current version not idempotent upgrade path — `TryReadSchemaVersion` maps boolean `true` to v1; `schemaVersion == CurrentSchemaVersion` returns success without mutation (re-confirmed hunt #636).
+- [x] (invalid) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` — decimal IPv4 literals (`3232235777`) bypass host-literal guard — `IPAddress.TryParse` accepts decimal notation as `192.168.1.1`; guard blocks RFC1918 (re-confirmed hunt #636).
+
+
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
+- [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryParseWholeNumberString` — string-encoded whole-number `schemaVersion` rejected — **hit 2026-09-03 (#618):** `"schemaVersion":"1.0"` and `"0.0"` failed upgrade while sibling `AzureExtractorPackageZipValidator` already accepts decimal-string whole numbers via `double` floor coercion; fixed by delegating to `RunExplanationAggregateJsonReader.TryParseWholeNumberString` (`TryUpgradeManifestJson_accepts_string_whole_number_current_schema_version`, `TryUpgradeManifestJson_upgrades_string_whole_number_zero_schema_version`).
+
+2026-09-03 seed hunt #618: reseeded from `AzureExtractorManifestSchemaUpgrader`; proved string whole-number schemaVersion parity gap after #595 string-zero/PascalCase fix.
+- [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryReadSchemaVersion` — boolean synonym / string-double `schemaVersion` tokens rejected — **hit 2026-09-03 (#612):** `"on"` / `"off"` and `"1.0"` failed `bool.TryParse` / integer-only string parse while `AzureExtractorPackageZipValidator` already accepts synonym and whole-number-double tokens; in-memory upgrade path rejected manifests the ZIP validator would accept; fixed with validator-parity boolean synonyms and fractional whole-number string coercion (`TryUpgradeManifestJson_accepts_on_synonym_for_current_schema_version`, `TryUpgradeManifestJson_upgrades_off_synonym_for_legacy_zero_schema_version`, `TryUpgradeManifestJson_accepts_string_whole_number_double_schema_version`).
+
+2026-09-03 seed hunt #612: reseeded Azure extractor manifest coercion after #595; proved upgrader boolean-synonym and string-double parity gap.
+
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — boolean / string-boolean `schemaVersion` rejected — fixed in #616; regressions `IsDeadLettered_returns_true_for_boolean_true_schema_version` and `IsDeadLettered_returns_true_for_on_synonym_string_schema_version` (re-confirmed hunt #636).
+- [x] (invalid) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — decimal IPv4 literals bypass host-literal guard — same `IPAddress.TryParse` decimal notation as `3232235777` → `192.168.1.1`; guard blocks (re-confirmed hunt #636).
+
+- [x] (proven) `CloudInventoryExtractorPackageZipValidator.Validate` — zip-slip / zip-bomb archives accepted without `ZipArchiveSafety` — **hit 2026-09-03 (#636):** AWS/GCP inventory ingest validator skipped `ZipArchiveSafety.ValidateArchive` while sibling `AzureExtractorPackageZipValidator` already rejects unsafe entry paths; fixed with Azure parity safety gate (`Validate_zip_slip_entry_path_is_invalid_archive`).
+
+2026-09-03 thorough hunt #636: proved cloud inventory ZIP safety parity gap; disproved boolean-true current-schema upgrader path, decimal IPv4 literals, and duplicate dead-letter boolean `schemaVersion` candidate.
+
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
@@ -2768,7 +2795,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — trial lifecycle email/scanner used Ordinal for TrialStatus after Core parity fixes
+- **last-bug:** 2026-09-03 — trial lifecycle email gate rejected lowercase `TrialStatus`
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2808,12 +2835,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DigestSubscriptionFacade.CreateAsync` persisted non-canonical `ChannelType` casing — **hit 2026-09-03 (#540):** lowercase `email` stored as-is instead of `DigestDeliveryChannelType.Email`; fixed with `CanonicalizeChannelType` (`DigestSubscriptionsControllerTests.Create_canonicalizes_email_channel_type_to_contract_constant`).
 - [x] (proven) `ExecDigestUnsubscribeController` success text copied from sponsor digest — **hit 2026-09-03 (#540):** valid exec-digest unsubscribe returned `"Sponsor digest email has been turned off..."`; fixed copy to `"Exec digest email..."` (`ExecDigestUnsubscribeControllerTests.UnsubscribeAsync_valid_token_disables_email_and_returns_plain_text`).
 - [x] (proven) `FindingRemediationAssignmentEmailDispatcher` accepted malformed assignee mailboxes — **hit 2026-09-03 (#583):** `IsMailboxAddress` only required `@` with index > 0, so `finance@` rendered and sent while digest subscriptions reject via `IdentityEmailNormalizer`; fixed with shared normalizer; regression in `FindingRemediationAssignmentEmailDispatcherTests.TryDispatchAsync_rejects_invalid_assignee_mailbox_without_sending`.
-- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` subject capitalizes "Sponsor" while summary email uses lowercase "sponsor" — subject-line copy inconsistency only; no delivery/idempotency impact observed (cheap-disproved hunt #625).
-- [x] (proven) `TrialLifecycleEmailDispatcher` / `TrialScheduledLifecycleEmailScanner` — lowercase `TrialStatus` not treated as active/converted — **hit 2026-09-03 (#625):** after Core #600/#601 `OrdinalIgnoreCase` parity, notifications pipeline still used `Ordinal` so `trialStatus:"active"` skipped scheduled scans and lifecycle dispatch; fixed with `OrdinalIgnoreCase` (`DispatchAsync_sends_welcome_when_trial_status_is_lowercase_active`, `DispatchAsync_sends_converted_email_when_trial_status_is_lowercase_converted`, `PublishDueAsync_publishes_mid_trial_for_lowercase_active_trial_status`).
-
-2026-09-03 thorough hunt #625: proved trial lifecycle TrialStatus casing gap; cheap-disproved sponsor subject capitalization as copy-only.
-
+- [x] (invalid) `WeeklySponsorReportEmailDispatcher` subject capitalizes "Sponsor" while summary email uses lowercase "sponsor" — intentional product copy distinction (`weekly Sponsor report` vs `weekly sponsor summary`); no delivery/idempotency impact.
+- [x] (proven) `TrialLifecycleEmailDispatcher.PassesTriggerGate` — lowercase `TrialStatus` suppresses lifecycle mail — **hit 2026-09-03 (#613):** `trialStatus:"active"` failed `Ordinal` compare against `TrialLifecycleStatus.Active` after #600–#601 fixed sibling Core tenancy helpers; mid-trial/expiring/limit emails silently skipped; fixed with `OrdinalIgnoreCase` for Active/Converted gates (`DispatchAsync_sends_mid_trial_email_when_trial_status_is_lowercase_active`).
 - [x] (invalid) `ExecDigestUnsubscribeController` class XML summary still says sponsor digest — wrong developer-doc `<summary>` on exec controller; user-visible unsubscribe response copy fixed in #540.
+
+2026-09-03 thorough hunt #613: cheap-disproved sponsor subject capitalization candidate; proved trial lifecycle TrialStatus casing gap.
 
 2026-09-03 seed hunt #583: reseeded notifications-pipeline; proved remediation-assignment mailbox validation gap vs digest subscription parity; cheap-disproved exec unsubscribe XML summary as non-user-facing.
 
