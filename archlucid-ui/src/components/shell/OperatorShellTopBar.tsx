@@ -16,6 +16,7 @@ import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { CommandPaletteTopBarTrigger } from "@/components/CommandPaletteTopBarTrigger";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
+import { GuidedModeTopBarChip } from "@/components/workspace-mode/GuidedModeTopBarChip";
 import { SimulatorModeTopBarChip } from "@/components/usability/SimulatorModeTopBarChip";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { Button } from "@/components/ui/button";
@@ -101,6 +102,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             </div>
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2.5 border-l border-neutral-200 pl-3 dark:border-neutral-700">
+              <GuidedModeTopBarChip />
               <SimulatorModeTopBarChip />
               <ShellInFlightOperationsAffordanceDeferred />
               <ToolbarHelpTooltip
