@@ -5,6 +5,7 @@ import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-
 export const operatorQueryKeys = {
   /** Account-wide preferences — shared across root ColorModePreferenceProvider and operator shell (TB-2303). */
   userPreferences: ["user", "preferences"] as const,
+  userAttentionSummary: ["user", "attention-summary"] as const,
   tenantTrialStatus: ["operator", "tenant", "trial-status"] as const,
   tenantWorkspacesList: (scope: OperatorScopeQueryKey) =>
     ["operator", "tenant", "workspaces", scope] as const,

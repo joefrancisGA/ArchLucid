@@ -5,6 +5,7 @@ using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
@@ -21,6 +22,7 @@ public static class KnowledgeModelAwareGraphSnapshotResolver
         Guid runId,
         ArchitectureKnowledgeModel? knowledgeModel,
         ArchitectureKnowledgeModel? priorKnowledgeModel,
+        RunRecord runHeader,
         IKnowledgeGraphService knowledgeGraphService,
         IArchitectureKnowledgeModelGraphProjector knowledgeModelGraphProjector,
         IGraphSnapshotRepository graphSnapshotRepository,
@@ -44,7 +46,8 @@ public static class KnowledgeModelAwareGraphSnapshotResolver
                 GraphSnapshot? priorGraph = await graphSnapshotRepository
                     .GetLatestByContextSnapshotIdAsync(scope, priorCommittedContext.SnapshotId, ct);
 
-                if (priorGraph is not null)
+                if (priorGraph is not null
+                    && GraphSnapshotCommittedReuseResolver.GraphPinFingerprintsMatchRunHeader(priorGraph, runHeader))
                 {
                     GraphSnapshot cloned = GraphSnapshotCloner.CloneForNewRun(priorGraph, contextSnapshot, runId);
 

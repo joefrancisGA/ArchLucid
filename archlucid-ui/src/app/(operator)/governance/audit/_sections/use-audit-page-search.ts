@@ -15,6 +15,7 @@ import { OPERATOR_QUERY_GC_MS } from "@/lib/query/operator-query-stale-time";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { auditTrailDateRangePresetHrefFromSearch, parseAuditTrailDateRangePresetFromSearch } from "@/lib/governance/audit-trail-date-range-url";
 import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
 import {
   CTO_DEMO_AUDIT_FILTER_QUERY_PARAM,
@@ -106,12 +107,27 @@ export function useAuditPageSearch(
   const [loadingMore, setLoadingMore] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(null);
+  const urlDatePreset = parseAuditTrailDateRangePresetFromSearch(searchParams.get("range"));
+  const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(urlDatePreset);
   const initialAutoSearchPrimedRef = useRef(false);
   const lastAutoSearchUrlRunIdRef = useRef<string | null>(null);
   const ctoDemoAuditFilterActive = isCtoDemoAuditFilterActive(searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM));
 
   useAuditPageUrlState({ runId, setRunId });
+
+  useEffect(() => {
+    setAuditDatePreset(urlDatePreset);
+
+    if (urlDatePreset === null) {
+      return;
+    }
+
+    const hours = urlDatePreset === "24h" ? 24 : 168;
+    const fromStr = toDatetimeLocalInputValue(new Date(Date.now() - hours * 3600 * 1000));
+
+    setFromUtc(fromStr);
+    setToUtc("");
+  }, [urlDatePreset]);
 
   const onClearCtoDemoAuditFilter = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -239,6 +255,10 @@ export function useAuditPageSearch(
       setAuditDatePreset(preset);
       setFromUtc(fromStr);
       setToUtc("");
+      router.replace(
+        auditTrailDateRangePresetHrefFromSearch(searchParams.toString(), preset, pathname ?? GOVERNANCE_AUDIT_PATH),
+        { scroll: false },
+      );
       setFailure(null);
       setSearching(true);
 
@@ -265,13 +285,17 @@ export function useAuditPageSearch(
         setSearching(false);
       }
     },
-    [actorUserId, applyDemoAuditFallback, applySearchPageToState, correlationId, eventType, executeSearch, runId],
+    [actorUserId, applyDemoAuditFallback, applySearchPageToState, correlationId, eventType, executeSearch, pathname, router, runId, searchParams],
   );
 
   const clearDateRangeAndSearch = useCallback(async () => {
     setAuditDatePreset(null);
     setFromUtc("");
     setToUtc("");
+    router.replace(
+      auditTrailDateRangePresetHrefFromSearch(searchParams.toString(), null, pathname ?? GOVERNANCE_AUDIT_PATH),
+      { scroll: false },
+    );
     setFailure(null);
     setSearching(true);
 
@@ -297,7 +321,7 @@ export function useAuditPageSearch(
     } finally {
       setSearching(false);
     }
-  }, [actorUserId, applyDemoAuditFallback, applySearchPageToState, correlationId, eventType, executeSearch, runId]);
+  }, [actorUserId, applyDemoAuditFallback, applySearchPageToState, correlationId, eventType, executeSearch, pathname, router, runId, searchParams]);
 
   useEffect(() => {
     const urlRunIdParam = searchParams.get("runId")?.trim() ?? "";

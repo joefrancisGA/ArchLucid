@@ -2054,6 +2054,12 @@ export interface components {
             /** Format: int32 */
             unsupportedAssumptionsBefore?: number;
         };
+        ComparisonDuplicateKeyConflict: {
+            /** Format: int32 */
+            count?: number;
+            key?: string;
+            section?: string;
+        };
         ComparisonExplanationResult: {
             highLevelSummary?: string;
             keyTradeoffs?: string[];
@@ -2131,6 +2137,7 @@ export interface components {
             baseRunId?: string;
             costChanges?: components["schemas"]["CostDelta"][];
             decisionChanges?: components["schemas"]["DecisionDelta"][];
+            duplicateKeyConflicts?: components["schemas"]["ComparisonDuplicateKeyConflict"][];
             requirementChanges?: components["schemas"]["RequirementDelta"][];
             securityChanges?: components["schemas"]["SecurityDelta"][];
             summaryHighlights?: string[];
@@ -5023,7 +5030,13 @@ export interface components {
             /** Format: uuid */
             contextSnapshotId?: string;
             cost?: components["schemas"]["CostSection"];
+            createTimeArchitectureVersionContentHashSha256?: null | string;
             createTimeEvidencePackagePins?: components["schemas"]["PinnedEvidencePackageRow"][];
+            createTimeEvidencePackagePinsHashSha256?: null | string;
+            /** Format: int32 */
+            createTimeFocusedPilotCloudProvider?: null | number;
+            createTimeFocusedPilotModeEnabled?: null | boolean;
+            createTimeKnowledgeModelContentHashSha256?: null | string;
             createTimePolicyPackPins?: components["schemas"]["PinnedPolicyPackRow"][];
             /** Format: date-time */
             createdUtc?: string;
@@ -7775,12 +7788,22 @@ export interface components {
             otelTraceId?: null | string;
             packageOrigin?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
+            /**
+             * Format: byte
+             * @description Read-only SHA-256 κ artifact content hash pinned at run create (wave-9/10).
+             */
+            pinnedArchitectureVersionContentHashSha256?: null | string;
             /** Format: byte */
             pinnedEvidencePackagePinsHashSha256?: null | string;
             pinnedEvidencePackagePinsJson?: null | string;
             /** Format: int32 */
             pinnedFocusedPilotCloudProvider?: null | number;
             pinnedFocusedPilotModeEnabled?: null | boolean;
+            /**
+             * Format: byte
+             * @description Read-only SHA-256 κ model content hash pinned at run create (wave-10).
+             */
+            pinnedKnowledgeModelContentHashSha256?: null | string;
             /** Format: byte */
             pinnedPolicyPackIdsHashSha256?: null | string;
             pinnedPolicyPackIdsJson?: null | string;
@@ -8027,6 +8050,12 @@ export interface components {
         };
         SetWhereToGoNextVisibilityRequest: {
             enabled?: boolean;
+        };
+        SetWorkspaceModeGraduationOfferRequest: {
+            state?: string;
+        };
+        SetWorkspaceModeRequest: {
+            mode?: string;
         };
         SignInMethodConfirmedResponse: {
             /** Format: uuid */
@@ -9394,6 +9423,16 @@ export interface components {
         };
         /** @enum {string} */
         UsageMeterKind: "LlmPromptTokens" | "LlmCompletionTokens" | "ApiRequest" | "ArchitectureRun" | "ArtifactStorageBytes" | "AgentExecution";
+        UserAttentionSummaryResponse: {
+            /** Format: int32 */
+            alertsOpenCount?: number;
+            /** Format: int32 */
+            assignedToMeFindingsCount?: number;
+            /** Format: int32 */
+            awaitingApprovalCount?: number;
+            /** Format: date-time */
+            checkedAtUtc?: string;
+        };
         UserInvitationListResponse: {
             invitations?: components["schemas"]["UserInvitationResponse"][];
         };
@@ -9427,6 +9466,10 @@ export interface components {
             sampleReviewsOnOverviewIsExplicit?: boolean;
             whereToGoNextEnabled?: boolean;
             whereToGoNextIsExplicit?: boolean;
+            workspaceMode?: string;
+            workspaceModeGraduationOffer?: string;
+            workspaceModeGraduationOfferIsExplicit?: boolean;
+            workspaceModeIsExplicit?: boolean;
         };
         WeeklyDigestHealthResponse: {
             /** Format: int32 */

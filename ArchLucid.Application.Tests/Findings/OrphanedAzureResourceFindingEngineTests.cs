@@ -217,9 +217,6 @@ public sealed class OrphanedAzureResourceFindingEngineTests
     {
         Guid packageId = Guid.NewGuid();
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
-        packageRepository
-            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(DateTime.UtcNow.AddDays(-120));
 
         OrphanedAzureResourceFindingEngine sut = new(
             CreateScopeProvider().Object,
@@ -227,7 +224,9 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
 
-        FindingAnalysisContext context = EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(packageId);
+        FindingAnalysisContext context = EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(
+            packageId,
+            DateTime.UtcNow.AddDays(-120));
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 

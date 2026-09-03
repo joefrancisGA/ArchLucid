@@ -247,7 +247,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
   return (
     <OperatorHomeGateDeferred>
       <OperatorHomeRefreshProvider>
-        <OperatorHomeDeferredOnboarding />
+        {isWorkingMode ? null : <OperatorHomeDeferredOnboarding />}
         {buyerPolishedShell ? (
           <a
             href={`#${OPERATOR_HOME_PRIMARY_CONTENT_ID}`}

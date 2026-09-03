@@ -36,6 +36,8 @@ export type GovernanceFindingQueueRow = {
   systemName?: string | null;
   /** Affected cloud resource identifier when returned by the risk register API. */
   resourceId?: string | null;
+  /** Advisory insight-density score when returned by explainability (sort only; never demotes). */
+  insightDensityScore?: number | null;
 };
 
 export function formatGovernanceQueueRecordKind(

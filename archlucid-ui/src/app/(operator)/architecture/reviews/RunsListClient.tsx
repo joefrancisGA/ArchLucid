@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { cn } from "@/lib/utils";
@@ -18,12 +19,19 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Label } from "@/components/ui/label";
 import { RunsListCompareSelectionBar } from "@/components/usability/RunsListCompareSelectionBar";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { resolveContinueLastRunsListRow } from "@/lib/resolve-continue-last-runs-list-row";
+import {
+  parseRunsListSortFromSearch,
+  runsListSortHrefFromSearch,
+} from "@/lib/runs/runs-list-sort-url";
 
-import type { RunsListClientProps, SortOrder } from "./runs-list-types";
+import type { RunsListClientProps } from "./runs-list-types";
 import { useRunsList } from "./use-runs-list";
 import { RunsListContinueLastViewedRow } from "./RunsListContinueLastViewedRow";
 import { BuyerPackageScopeFilterChips } from "./BuyerPackageScopeFilterChips";
@@ -37,6 +45,10 @@ export type { RunsListClientProps } from "./runs-list-types";
  * Large viewports show an inline inspector; smaller viewports use a slide-over sheet.
  */
 export function RunsListClient(props: RunsListClientProps) {
+  const pathname = usePathname() ?? "/architecture/reviews";
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const activeSort = parseRunsListSortFromSearch(searchParams.get("sort"));
   const {
     projectId,
     page,
@@ -50,7 +62,7 @@ export function RunsListClient(props: RunsListClientProps) {
     clearFilterText,
     buyerPackageScope,
     sortOrder,
-    setSortOrder,
+    setSortOrder: _setSortOrder,
     selectedRun,
     compareSelection,
     compareSelectionNotice,
@@ -89,22 +101,26 @@ export function RunsListClient(props: RunsListClientProps) {
 
   const runsSortControl = (
     <div className="flex flex-col gap-1">
-      <Label htmlFor="runs-sort-select">Sort by created</Label>
-      <select
-        id="runs-sort-select"
-        value={sortOrder}
-        onChange={(event) => {
-          setSortOrder(event.target.value as SortOrder);
-        }}
-        className={cn(
-          "rounded-md border border-neutral-300 bg-white px-3 py-2 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
-          OPERATOR_TYPOGRAPHY.body,
-        )}
-        aria-label="Sort reviews by created date"
-      >
-        <option value="createdDesc">Newest first</option>
-        <option value="createdAsc">Oldest first</option>
-      </select>
+      <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>Sort by created</span>
+      <FilterChipGroup aria-label="Sort reviews by created date" className="flex flex-wrap gap-2">
+        {(
+          [
+            { id: "created-desc" as const, label: "Newest first" },
+            { id: "created-asc" as const, label: "Oldest first" },
+          ] as const
+        ).map((option) => (
+          <FilterChip
+            key={option.id}
+            href={runsListSortHrefFromSearch(currentSearch, option.id, pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(activeSort === option.id, false)}
+            aria-current={activeSort === option.id ? "page" : undefined}
+            data-testid={`runs-list-sort-${option.id}`}
+          >
+            {option.label}
+          </FilterChip>
+        ))}
+      </FilterChipGroup>
     </div>
   );
 

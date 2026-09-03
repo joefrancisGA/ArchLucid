@@ -117,6 +117,8 @@ public sealed class ReplayRunServiceTests
             _scopeContextProvider.Object,
             _taskRepository.Object,
             EmptyStageOutcomesRepository(),
+            Mock.Of<IRunPolicyPackPinService>(),
+            Mock.Of<IRunEvidencePackagePinService>(),
             cloneStage);
         IReplayRunCommitStage commitStage = new ReplayRunCommitStage(
             _decisionEngine.Object,
@@ -129,6 +131,9 @@ public sealed class ReplayRunServiceTests
             UnitTestActor(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             Mock.Of<ICommitRunIdempotencyCoordinator>(),
+            _authorityRunRepository.Object,
+            Mock.Of<IRunPolicyPackPinService>(),
+            Mock.Of<IRunEvidencePackagePinService>(),
             cloneStage,
             NullLogger<ReplayRunCommitStage>.Instance);
         IReplayRunExecutePreparedStage executePreparedStage = new ReplayRunExecutePreparedStage(

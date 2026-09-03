@@ -13,6 +13,7 @@ import {
   trustEvidenceGoldenManifestFieldDetail,
   trustEvidenceGoldenManifestFieldTitle,
 } from "@/lib/trust-evidence-display";
+import { trustEvidenceFieldOrUnavailable } from "@/lib/trust-evidence-field-snapshot";
 import type { RunTrustEvidenceCard } from "@/types/authority";
 
 /** One Evidence-basis field plus the diagnostics clauses withheld from primary content. */
@@ -38,9 +39,17 @@ function evidenceBasisField(
 }
 
 export function buildEvidenceBasisFields(card: RunTrustEvidenceCard, buyerPolishedShell: boolean): EvidenceBasisField[] {
+  const executionMode = trustEvidenceFieldOrUnavailable(card.executionMode, "Execution mode");
+  const goldenManifest = trustEvidenceFieldOrUnavailable(card.goldenManifest, "Golden manifest");
+  const auditTrail = trustEvidenceFieldOrUnavailable(card.auditTrail, "Audit trail");
+  const agentTraces = trustEvidenceFieldOrUnavailable(card.agentTraces, "Agent traces");
+  const artifactBundlePointer = trustEvidenceFieldOrUnavailable(card.artifactBundlePointer, "Artifact bundle");
+  const traceabilityExport = trustEvidenceFieldOrUnavailable(card.traceabilityExport, "Traceability export");
+  const aiExplainability = trustEvidenceFieldOrUnavailable(card.aiExplainability, "AI explainability");
+
   const proofConfidenceLabel = buyerPolishedShell
-    ? formatProofConfidenceBuyerLabelFromTrustStatus(card.executionMode.status)
-    : formatProofConfidenceLabelFromTrustStatus(card.executionMode.status);
+    ? formatProofConfidenceBuyerLabelFromTrustStatus(executionMode.status)
+    : formatProofConfidenceLabelFromTrustStatus(executionMode.status);
 
   return [
     {
@@ -51,20 +60,20 @@ export function buildEvidenceBasisFields(card: RunTrustEvidenceCard, buyerPolish
       detail: proofConfidenceFieldDetail(proofConfidenceLabel),
       technical: null,
     },
-    evidenceBasisField("execution", card.executionMode.title, card.executionMode),
+    evidenceBasisField("execution", executionMode.title, executionMode),
     evidenceBasisField(
       "manifest",
-      trustEvidenceGoldenManifestFieldTitle(card.goldenManifest.title, buyerPolishedShell),
+      trustEvidenceGoldenManifestFieldTitle(goldenManifest.title, buyerPolishedShell),
       {
-        ...card.goldenManifest,
-        detail: trustEvidenceGoldenManifestFieldDetail(card.goldenManifest.detail),
+        ...goldenManifest,
+        detail: trustEvidenceGoldenManifestFieldDetail(goldenManifest.detail),
       },
     ),
-    evidenceBasisField("audit", card.auditTrail.title, card.auditTrail),
-    evidenceBasisField("traces", card.agentTraces.title, card.agentTraces),
-    evidenceBasisField("bundle", card.artifactBundlePointer.title, card.artifactBundlePointer),
-    evidenceBasisField("zip", card.traceabilityExport.title, card.traceabilityExport),
-    evidenceBasisField("ai", card.aiExplainability.title, card.aiExplainability),
+    evidenceBasisField("audit", auditTrail.title, auditTrail),
+    evidenceBasisField("traces", agentTraces.title, agentTraces),
+    evidenceBasisField("bundle", artifactBundlePointer.title, artifactBundlePointer),
+    evidenceBasisField("zip", traceabilityExport.title, traceabilityExport),
+    evidenceBasisField("ai", aiExplainability.title, aiExplainability),
   ];
 }
 

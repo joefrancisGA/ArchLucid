@@ -1,6 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import {
   AlertsInboxControls,
   shouldShowAlertsInboxControls,
@@ -9,6 +13,7 @@ import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator/operator-last-refre
 
 const baseProps = {
   status: "Open",
+  severity: "",
   page: 1,
   loading: false,
   buyerPolishedShell: true,

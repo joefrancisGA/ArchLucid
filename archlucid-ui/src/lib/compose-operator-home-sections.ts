@@ -95,8 +95,6 @@ function workingModeOperatorShellSections(phase: OperatorHomeWorkspacePhase): Op
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
     { id: "start-something", testId: "operator-home-start-something" },
-    { id: "below-fold", testId: "operator-home-below-fold" },
-    { id: "sponsor-roi", testId: "operator-home-sponsor-roi" },
   ];
 }
 

@@ -1,5 +1,28 @@
+import type { SignedRecordsListDateRangePreset } from "@/lib/signed-records/signed-records-list-date-range-url";
+
 import type { SignedRecordsListIntegrityFilter } from "./SignedRecordsListToolbar";
 import type { SignedRecordsListRow } from "./signed-records-list-row";
+
+function rowMatchesDateRange(
+  row: SignedRecordsListRow,
+  dateRangePreset: SignedRecordsListDateRangePreset | null,
+): boolean {
+  if (dateRangePreset === null) {
+    return true;
+  }
+
+  const committedMs = Date.parse(row.committedUtc);
+
+  if (Number.isNaN(committedMs)) {
+    return false;
+  }
+
+  const dayMs = 24 * 60 * 60 * 1000;
+  const windowDays = dateRangePreset === "7d" ? 7 : 30;
+  const cutoffMs = Date.now() - windowDays * dayMs;
+
+  return committedMs >= cutoffMs;
+}
 
 function rowMatchesIntegrityFilter(
   row: SignedRecordsListRow,
@@ -34,6 +57,7 @@ export function filterSignedRecordsListRows(
   searchQuery: string,
   integrityFilter: SignedRecordsListIntegrityFilter,
   scopedRunId: string | null = null,
+  dateRangePreset: SignedRecordsListDateRangePreset | null = null,
 ): SignedRecordsListRow[] {
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const scopedTrim = scopedRunId?.trim() ?? "";
@@ -44,6 +68,10 @@ export function filterSignedRecordsListRows(
     }
 
     if (!rowMatchesIntegrityFilter(row, integrityFilter)) {
+      return false;
+    }
+
+    if (!rowMatchesDateRange(row, dateRangePreset)) {
       return false;
     }
 

@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using ArchLucid.Application.Rendering;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
@@ -46,6 +47,10 @@ public sealed class SponsorOnePagerPdfBuilder(
         ArchitectureRunDetail? detail = await _runDetailQuery.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
             return null;
+
+        if (detail.IsCommitted && !detail.HasBrokenManifestReference)
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId);
+
         PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
         DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
