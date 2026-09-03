@@ -152,6 +152,24 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
         result.ErrorDetail.Should().Contain("valid JSON");
     }
 
+    [Fact]
+    public void Validate_rejects_zip_slip_entry_paths()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 1,
+            includeResources: true,
+            extraEntryPath: "../outside/evil.txt");
+
+        using MemoryStream stream = new(zipBytes);
+
+        CloudInventoryExtractorZipValidationResult result = CloudInventoryExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsInvalidArchive.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("Unsafe ZIP entry path");
+    }
+
     private static byte[] BuildZip(
         bool includeManifest,
         int schemaVersion,
@@ -160,7 +178,8 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
         bool stringSchemaVersion = false,
         bool booleanSchemaVersion = false,
         bool stringBooleanSchemaVersion = false,
-        bool stringOnSchemaVersion = false)
+        bool stringOnSchemaVersion = false,
+        string? extraEntryPath = null)
     {
         using MemoryStream ms = new();
 
@@ -197,6 +216,15 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
                 using StreamWriter writer = new(resources.Open());
 
                 writer.Write("[]");
+            }
+
+            if (!string.IsNullOrWhiteSpace(extraEntryPath))
+            {
+                ZipArchiveEntry extra = zip.CreateEntry(extraEntryPath);
+
+                using StreamWriter writer = new(extra.Open());
+
+                writer.Write("x");
             }
         }
 

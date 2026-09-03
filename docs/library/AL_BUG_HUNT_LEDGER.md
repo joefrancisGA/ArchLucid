@@ -1862,11 +1862,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 126
-- **bugs-found:** 241
+- **hunts:** 127
+- **bugs-found:** 242
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — boolean / `on` synonym `schemaVersion` JSON tokens rejected dead-letter detection
+- **last-bug:** 2026-09-03 — cloud inventory extractor ZIP accepted zip-slip entry paths without ZipArchiveSafety validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
