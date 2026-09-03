@@ -1,7 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Core.Runs;
@@ -52,17 +52,60 @@ public static class RunAuthorityPipelineDeadLetterDetection
 
         try
         {
-            AgentExecutionFailureSummary? parsed =
-                JsonSerializer.Deserialize<AgentExecutionFailureSummary>(json, ContractJson.Default);
+            using JsonDocument document = JsonDocument.Parse(json);
 
-            if (parsed is null || parsed.SchemaVersion != SupportedSchemaVersion)
+            if (!TryReadSupportedSchemaVersion(document.RootElement, out _))
                 return null;
 
-            return parsed;
+            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(
+                    document.RootElement,
+                    "failureClass",
+                    out JsonElement failureClassElement)
+                || failureClassElement.ValueKind != JsonValueKind.String)
+            {
+                return null;
+            }
+
+            string? failureClass = failureClassElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(failureClass))
+                return null;
+
+            return new AgentExecutionFailureSummary
+            {
+                SchemaVersion = SupportedSchemaVersion,
+                FailureClass = failureClass,
+            };
         }
         catch (JsonException)
         {
             return null;
         }
+    }
+
+    private static bool TryReadSupportedSchemaVersion(JsonElement root, out int schemaVersion)
+    {
+        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "schemaVersion", out JsonElement element))
+        {
+            schemaVersion = default;
+
+            return false;
+        }
+
+        if (element.ValueKind == JsonValueKind.String
+            && RunExplanationAggregateJsonReader.TryParseWholeNumberString(element.GetString(), out schemaVersion))
+        {
+            return schemaVersion == SupportedSchemaVersion;
+        }
+
+        if (element.ValueKind == JsonValueKind.Number
+            && RunExplanationAggregateJsonReader.TryReadWholeNumber(element, out schemaVersion))
+        {
+            return schemaVersion == SupportedSchemaVersion;
+        }
+
+        schemaVersion = default;
+
+        return false;
     }
 }
