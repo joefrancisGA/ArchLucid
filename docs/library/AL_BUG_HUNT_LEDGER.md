@@ -1862,11 +1862,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 125
-- **bugs-found:** 240
+- **hunts:** 126
+- **bugs-found:** 241
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — null failure-summary `schemaVersion` JSON token rejected dead-letter detection
+- **last-bug:** 2026-09-03 — Azure extractor manifest upgrader rejected boolean synonym / string-double schemaVersion tokens
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1897,6 +1897,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-03 thorough hunt #604: proved null failure-summary schemaVersion gap; re-disproved Application-layer candidate.
 
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
+- [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryReadSchemaVersion` — boolean synonym / string-double `schemaVersion` tokens rejected — **hit 2026-09-03 (#615):** `"on"` / `"off"` and `"1.0"` failed `bool.TryParse` / integer-only string parse while `AzureExtractorPackageZipValidator` accepts synonym and whole-number-double tokens; in-memory upgrade path rejected manifests the ZIP validator would accept; fixed with validator-parity boolean synonyms and fractional whole-number string coercion (`TryUpgradeManifestJson_accepts_on_synonym_for_current_schema_version`, `TryUpgradeManifestJson_upgrades_off_synonym_for_legacy_zero_schema_version`, `TryUpgradeManifestJson_accepts_string_whole_number_double_schema_version`).
+
+2026-09-03 seed hunt #615: reseeded Azure extractor manifest coercion after #595; proved upgrader boolean-synonym and string-double parity gap.
+
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — boolean / synonym-string `schemaVersion` rejected — validator parity gap sibling to #600–#604; cheap-disproof before repro.
+
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
