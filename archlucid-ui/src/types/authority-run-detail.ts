@@ -1,15 +1,26 @@
 import type { components } from "@/lib/openapi-schemas";
 import type { RunDetailAgentFinding, RunDetailAgentResult } from "@/types/authority-run-detail-wire";
+import type {
+  RunRetrievalGroundingSummary,
+  RunTrustEvidenceCard,
+} from "@/types/authority-run-detail-trust";
 
 export type { RunDetailAgentFinding, RunDetailAgentResult } from "@/types/authority-run-detail-wire";
 
-export type TrustEvidenceFieldSnapshot = components["schemas"]["TrustEvidenceFieldSnapshot"];
+export type {
+  TrustEvidenceFieldSnapshot,
+  RunTrustEvidenceRouteRef,
+  RunTrustEvidenceTopFindingRow,
+  RunTrustEvidenceCard,
+  RunRetrievalGroundingSummary,
+} from "@/types/authority-run-detail-trust";
 
-export type RunTrustEvidenceRouteRef = components["schemas"]["RunTrustEvidenceRouteRef"];
-
-export type RunTrustEvidenceTopFindingRow = components["schemas"]["RunTrustEvidenceTopFindingRow"];
-
-export type RunTrustEvidenceCard = components["schemas"]["RunTrustEvidenceCard"];
+export type {
+  ProvenanceNode,
+  ProvenanceEdge,
+  DecisionProvenanceGraph,
+  PipelineTimelineItem,
+} from "@/types/authority-run-detail-provenance";
 
 /** Optional fields sporadically merged onto authority run detail JSON beside `RunDetailDto`. */
 type RunDetailOptionalWireExtras = {
@@ -45,8 +56,6 @@ type RunDetailOptionalWireExtras = {
     readonly degradationReasonCode?: string | null;
   }[] | null;
 };
-
-export type RunRetrievalGroundingSummary = components["schemas"]["RunRetrievalGroundingSummaryDto"];
 
 type RunDetailDtoBase = components["schemas"]["RunDetailDto"];
 
@@ -94,36 +103,3 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
     artifactBundle?: unknown;
     results?: readonly RunDetailAgentResult[] | null;
   };
-
-type ProvenanceNodeSchema = components["schemas"]["ProvenanceNode"];
-
-/** Node in decision provenance graph (`GET …/provenance`). */
-export type ProvenanceNode = ProvenanceNodeSchema &
-  Required<Pick<ProvenanceNodeSchema, "id" | "referenceId" | "name">> & {
-    /** OpenAPI `ProvenanceNodeType` string enum; legacy numeric wire values tolerated. */
-    type: NonNullable<ProvenanceNodeSchema["type"]> | number;
-  };
-
-type ProvenanceEdgeSchema = components["schemas"]["ProvenanceEdge"];
-
-export type ProvenanceEdge = ProvenanceEdgeSchema &
-  Required<Pick<ProvenanceEdgeSchema, "id" | "fromNodeId" | "toNodeId">> & {
-    /** OpenAPI `ProvenanceEdgeType` string enum; legacy numeric wire values tolerated. */
-    type: NonNullable<ProvenanceEdgeSchema["type"]> | number;
-  };
-
-type DecisionProvenanceGraphSchema = components["schemas"]["DecisionProvenanceGraph"];
-
-export type DecisionProvenanceGraph = DecisionProvenanceGraphSchema &
-  Required<Pick<DecisionProvenanceGraphSchema, "id" | "runId">> & {
-    nodes: ProvenanceNode[];
-    edges: ProvenanceEdge[];
-  };
-
-type RunPipelineTimelineItemResponseSchema = components["schemas"]["RunPipelineTimelineItemResponse"];
-
-/** Pipeline audit timeline row (`GET …/pipeline-timeline`). */
-export type PipelineTimelineItem = RunPipelineTimelineItemResponseSchema &
-  Required<
-    Pick<RunPipelineTimelineItemResponseSchema, "eventId" | "occurredUtc" | "eventType" | "actorUserName">
-  >;

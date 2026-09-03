@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -31,419 +30,51 @@ public sealed partial class FindingJsonConverter
         }
     }
 
-    private static string? ReadOptionalString(JsonElement root, string name)
-    {
-        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind is JsonValueKind.Null)
-            return null;
+    private static string? ReadOptionalString(JsonElement root, string name) =>
+        FindingJsonStringReaders.ReadOptionalString(root, name);
 
-        if (el.ValueKind == JsonValueKind.String)
-        {
-            string? raw = el.GetString();
+    private static string ReadRequiredString(JsonElement root, string name) =>
+        FindingJsonStringReaders.ReadRequiredString(root, name);
 
-            if (!string.IsNullOrWhiteSpace(raw)
-                && TryCoerceStringTokenToRawText(raw, out string? coerced))
-                return coerced;
+    private static void WriteOptionalString(Utf8JsonWriter writer, string name, string? value) =>
+        FindingJsonStringReaders.WriteOptionalString(writer, name, value);
 
-            return raw;
-        }
+    private static List<string> ReadStringList(JsonElement root, string name) =>
+        FindingJsonStringReaders.ReadStringList(root, name);
 
-        if (el.ValueKind == JsonValueKind.Number && el.TryGetInt64(out long numeric))
-            return numeric.ToString(CultureInfo.InvariantCulture);
+    private static Dictionary<string, string> ReadStringDict(JsonElement root, string name) =>
+        FindingJsonStringReaders.ReadStringDict(root, name);
 
-        if (el.ValueKind == JsonValueKind.Number
-            && el.TryGetDouble(out double wholeNumber)
-            && double.IsFinite(wholeNumber)
-            && wholeNumber >= 0
-            && wholeNumber == Math.Floor(wholeNumber))
-            return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value) =>
+        FindingJsonStringReaders.TryGetPropertyCaseInsensitive(element, propertyName, out value);
 
-        if (el.ValueKind is JsonValueKind.True or JsonValueKind.False)
-            return el.GetRawText();
+    private static string ReadStringDictValue(JsonElement element) =>
+        FindingJsonStringReaders.ReadStringDictValue(element);
 
-        return null;
-    }
+    private static bool TryReadWholeNumberInt32(JsonElement element, out int value) =>
+        FindingJsonNumericReaders.TryReadWholeNumberInt32(element, out value);
 
-    private static string ReadRequiredString(JsonElement root, string name)
-    {
-        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el))
-            throw new KeyNotFoundException("The given key was not present in the dictionary.");
+    private static bool TryReadFiniteDouble(JsonElement element, out double value) =>
+        FindingJsonNumericReaders.TryReadFiniteDouble(element, out value);
 
-        return ReadStringDictValue(el);
-    }
+    private static bool TryReadInt32(JsonElement element, out int value) =>
+        FindingJsonNumericReaders.TryReadInt32(element, out value);
 
-    private static void WriteOptionalString(Utf8JsonWriter writer, string name, string? value)
-    {
-        if (value is null)
-        {
-            writer.WriteNull(name);
+    private static bool TryParseWholeNumberString(string? raw, out int value) =>
+        FindingJsonNumericReaders.TryParseWholeNumberString(raw, out value);
 
-            return;
-        }
+    private static bool TryCoerceStringTokenToRawText(string raw, out string? value) =>
+        FindingJsonStringReaders.TryCoerceStringTokenToRawText(raw, out value);
 
-        writer.WriteString(name, value);
-    }
+    private static bool TryParseWholeNumberLongString(string? raw, out long value) =>
+        FindingJsonNumericReaders.TryParseWholeNumberLongString(raw, out value);
 
-    private static List<string> ReadStringList(JsonElement root, string name)
-    {
-        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind != JsonValueKind.Array)
-            return [];
+    private static bool TryReadDecimal(JsonElement element, out decimal value) =>
+        FindingJsonNumericReaders.TryReadDecimal(element, out value);
 
-        return el.EnumerateArray().Select(ReadStringDictValue).Where(s => s.Length > 0).ToList();
-    }
+    private static bool TryParseBooleanString(string? raw, out bool value) =>
+        FindingJsonStringReaders.TryParseBooleanString(raw, out value);
 
-    private static Dictionary<string, string> ReadStringDict(JsonElement root, string name)
-    {
-        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind != JsonValueKind.Object)
-            return new Dictionary<string, string>();
-        Dictionary<string, string> d = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (JsonProperty p in el.EnumerateObject())
-            d[p.Name] = ReadStringDictValue(p.Value);
-
-        return d;
-    }
-
-    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
-    {
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-            {
-                value = property.Value;
-
-                return true;
-            }
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static string ReadStringDictValue(JsonElement element)
-    {
-        if (element.ValueKind == JsonValueKind.String)
-        {
-            string? raw = element.GetString() ?? "";
-
-            if (!string.IsNullOrWhiteSpace(raw)
-                && TryCoerceStringTokenToRawText(raw, out string? coerced))
-                return coerced ?? "";
-
-            return raw;
-        }
-
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numeric))
-            return numeric.ToString(CultureInfo.InvariantCulture);
-
-        if (element.ValueKind == JsonValueKind.Number
-            && element.TryGetDouble(out double wholeNumber)
-            && double.IsFinite(wholeNumber)
-            && wholeNumber >= 0
-            && wholeNumber == Math.Floor(wholeNumber))
-            return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
-
-        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
-            return element.GetRawText();
-
-        return "";
-    }
-
-    private static bool TryReadWholeNumberInt32(JsonElement element, out int value)
-    {
-        if (element.ValueKind != JsonValueKind.Number)
-        {
-            value = default;
-
-            return false;
-        }
-
-        if (element.TryGetInt32(out value))
-        {
-            return true;
-        }
-
-        if (element.TryGetDouble(out double numeric)
-            && double.IsFinite(numeric)
-            && numeric >= 0
-            && numeric == Math.Floor(numeric))
-        {
-            value = (int)numeric;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryReadFiniteDouble(JsonElement element, out double value)
-    {
-        if (element.ValueKind == JsonValueKind.Number
-            && element.TryGetDouble(out double numeric)
-            && double.IsFinite(numeric))
-        {
-            value = numeric;
-
-            return true;
-        }
-
-        if (element.ValueKind == JsonValueKind.String)
-        {
-            string? raw = element.GetString();
-
-            if (TryParseBooleanString(raw, out bool boolean))
-            {
-                value = boolean ? 1.0 : 0.0;
-
-                return true;
-            }
-
-            if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
-                && double.IsFinite(parsed))
-            {
-                value = parsed;
-
-                return true;
-            }
-        }
-
-        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
-        {
-            value = element.ValueKind == JsonValueKind.True ? 1.0 : 0.0;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryReadInt32(JsonElement element, out int value)
-    {
-        if (TryReadWholeNumberInt32(element, out value))
-            return true;
-
-        if (element.ValueKind == JsonValueKind.String)
-        {
-            string? raw = element.GetString();
-
-            if (TryParseBooleanString(raw, out bool boolean))
-            {
-                value = boolean ? 1 : 0;
-
-                return true;
-            }
-
-            if (TryParseWholeNumberString(raw, out value))
-                return true;
-        }
-
-        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
-        {
-            value = element.ValueKind == JsonValueKind.True ? 1 : 0;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryParseWholeNumberString(string? raw, out int value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
-        {
-            return true;
-        }
-
-        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
-            && double.IsFinite(numeric)
-            && numeric >= 0
-            && numeric == Math.Floor(numeric))
-        {
-            value = (int)numeric;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryCoerceStringTokenToRawText(string raw, out string? value)
-    {
-        if (TryParseBooleanString(raw, out bool boolean))
-        {
-            value = boolean ? "true" : "false";
-
-            return true;
-        }
-
-        if (TryParseWholeNumberLongString(raw, out long numericFromString))
-        {
-            value = numericFromString.ToString(CultureInfo.InvariantCulture);
-
-            return true;
-        }
-
-        value = null;
-
-        return false;
-    }
-
-    private static bool TryParseWholeNumberLongString(string? raw, out long value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (long.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
-        {
-            return true;
-        }
-
-        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
-            && double.IsFinite(numeric)
-            && numeric >= 0
-            && numeric == Math.Floor(numeric))
-        {
-            value = (long)numeric;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryReadDecimal(JsonElement element, out decimal value)
-    {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetDecimal(out value))
-            return true;
-
-        if (element.ValueKind == JsonValueKind.String)
-        {
-            string? raw = element.GetString();
-
-            if (TryParseBooleanString(raw, out bool boolean))
-            {
-                value = boolean ? 1m : 0m;
-
-                return true;
-            }
-
-            if (decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out value))
-                return true;
-        }
-
-        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
-        {
-            value = element.ValueKind == JsonValueKind.True ? 1m : 0m;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryParseBooleanString(string? raw, out bool value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("1", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("yes", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("on", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("enabled", StringComparison.OrdinalIgnoreCase))
-        {
-            value = true;
-
-            return true;
-        }
-
-        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("0", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("no", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("off", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("disabled", StringComparison.OrdinalIgnoreCase))
-        {
-            value = false;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryReadReviewedAtUtc(JsonElement element, out DateTimeOffset value)
-    {
-        if (element.ValueKind == JsonValueKind.String)
-        {
-            string? raw = element.GetString();
-
-            if (!string.IsNullOrWhiteSpace(raw)
-                && DateTimeOffset.TryParse(
-                    raw,
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.RoundtripKind,
-                    out value))
-            {
-                return true;
-            }
-
-            if (!string.IsNullOrWhiteSpace(raw)
-                && long.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out long unixMilliseconds))
-            {
-                value = DateTimeOffset.FromUnixTimeMilliseconds(unixMilliseconds);
-
-                return true;
-            }
-
-            value = default;
-
-            return false;
-        }
-
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numericUnixMilliseconds))
-        {
-            value = DateTimeOffset.FromUnixTimeMilliseconds(numericUnixMilliseconds);
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
+    private static bool TryReadReviewedAtUtc(JsonElement element, out DateTimeOffset value) =>
+        FindingJsonDateReaders.TryReadReviewedAtUtc(element, out value);
 }
