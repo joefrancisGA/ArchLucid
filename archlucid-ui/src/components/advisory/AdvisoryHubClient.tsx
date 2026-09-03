@@ -7,14 +7,20 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { ADVISORY_SCANS_PAGE_LEAD } from "@/lib/advisory-copy";
 import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
+import {
+  ADVISORY_HUB_FIRST_VIEWPORT_ID,
+  ADVISORY_HUB_PRIMARY_CONTENT_ID,
+  ADVISORY_HUB_SKIP_LINK_LABEL,
+  ADVISORY_HUB_SKIP_TARGET_ID,
+} from "@/lib/advisory-hub-page-copy";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
 import { scopedRunIdFromQuery } from "@/lib/architecture/architecture-risk-register-page";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { AdvisoryScansContent } from "./AdvisoryScansContent";
@@ -75,19 +81,34 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
 
   return (
     <div className="px-0" data-testid="advisory-hub">
+      <a
+        href={`#${ADVISORY_HUB_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {ADVISORY_HUB_SKIP_LINK_LABEL}
+      </a>
+
       <OperatorPageHeader
         navHref={ADVISORY_SCANS_HREF}
         title={OPERATOR_NAV_LINK_LABELS.architectureAdvisory}
-        actions={<PageContextualHelpButton />}
         titleTestId="advisory-scans-page-title"
+      />
+
+      <div
+        id={ADVISORY_HUB_PRIMARY_CONTENT_ID}
+        data-testid={ADVISORY_HUB_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24")}
       >
+        <div
+          id={ADVISORY_HUB_FIRST_VIEWPORT_ID}
+          data-testid={ADVISORY_HUB_FIRST_VIEWPORT_ID}
+        >
         <p
           data-testid="advisory-scans-page-lead"
-          className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+          className={cn("m-0 mb-6 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
         >
           {ADVISORY_SCANS_PAGE_LEAD}
         </p>
-      </OperatorPageHeader>
 
       <Tabs value={activeTab} onValueChange={onSelectTab} variant="line" className="mb-6">
         <TabsList aria-label="Advisory hub sections" data-testid="advisory-hub-tablist">
@@ -120,6 +141,8 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
           <AdvisorySchedulesContent initialRunId={scopedRunId} />
         </TabsContent>
       </Tabs>
+        </div>
+      </div>
     </div>
   );
 }
