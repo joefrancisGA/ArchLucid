@@ -12,6 +12,7 @@ const sectionsDir = join(routeDir, "..", "_sections");
 const pageSource = readFileSync(join(routeDir, "page.tsx"), "utf8");
 const pageContentSource = readFileSync(join(sectionsDir, "GovernanceWorkflowPageContent.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "governance-workflow-deferred-chunks.tsx"), "utf8");
+const mutationHostSource = readFileSync(join(sectionsDir, "GovernanceWorkflowMutationHost.tsx"), "utf8");
 const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 const bannedStaticImports = [
@@ -50,7 +51,8 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(pageContentSource).toContain("GovernanceWorkflowSubmitSectionDeferred");
     expect(pageContentSource).toContain("GovernanceWorkflowApprovalsListDeferred");
     expect(pageContentSource).toContain("GovernanceWorkflowPromotionsActivationsSectionDeferred");
-    expect(pageContentSource).toContain("GovernanceWorkflowDialogsDeferred");
+    expect(pageContentSource).not.toContain("GovernanceWorkflowDialogsDeferred");
+    expect(mutationHostSource).toContain("GovernanceWorkflowDialogsDeferred");
     expect(pageContentSource).toContain("CtoDemoBuyerValueStripDeferred");
     expect(pageContentSource).toContain("CtoDemoSegregationCalloutDeferred");
     expect(pageContentSource).toContain("CtoDemoGovernancePreviewHintDeferred");
