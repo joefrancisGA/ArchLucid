@@ -2875,11 +2875,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 115
-- **bugs-found:** 270
+- **hunts:** 116
+- **bugs-found:** 271
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — PromoteCatalogEntry optional version SemVer and max-length validation parity
+- **last-bug:** 2026-09-03 — bulk disposition Accepted trade-off acknowledgment forwarding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3398,13 +3398,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #560: promoted and proved RecordDisposition trade-off acknowledgment drop; seeded renew evidenceRef length and promote catalog version SemVer parity candidates.
 
-- [ ] (candidate) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionValidation.ValidateRenew` — overlong body `evidenceRef` may reach SQL `EvidenceRef NVARCHAR(500)` without HTTP 400 while create path enforces `EvidenceRefMaxLength` (hunt #552 parity).
-- [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPackCatalogAdminService.TryPromoteFromSourcePackAsync` — optional body `version` lacks SemVer and `SnapshotVersion NVARCHAR(50)` max-length guard before catalog lookup (GetVersion/publish parity hunt #559).
-
-- [x] (proven) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionValidation.ValidateRenew` — overlong body `evidenceRef` reached SQL `EvidenceRef NVARCHAR(500)` without HTTP 400 while create path enforced `EvidenceRefMaxLength` — **hit 2026-09-03 (#561):** validate optional `EvidenceRef` length in `ValidateRenew` when provided; regression in `RiskExceptionValidationTests.ValidateRenew_rejects_evidence_ref_over_max_length` and `GovernanceStickinessControllerTests.RenewRiskException_returns_bad_request_when_evidence_ref_exceeds_max_length`.
-- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPacksHttpMapper.ValidatePromoteCatalogEntry` — optional body `version` longer than `NVARCHAR(50)` or non-SemVer returned HTTP 404 version-not-found while publish/assign/GetVersion return HTTP 400 — **hit 2026-09-03 (#561):** reuse `ValidatePackVersion` when optional `Version` is supplied; regression in `PolicyPacksHttpMapperTests` and `PolicyPacksControllerListScopeTests.PromoteCatalogEntry_returns_bad_request_when_version_exceeds_max_length` / `PromoteCatalogEntry_returns_bad_request_when_version_is_not_semver`.
-
 2026-09-03 thorough hunt #561: proved renew waiver evidenceRef max-length validation parity and promote-catalog optional version SemVer/max-length validation parity.
+
+- [x] (invalid) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionValidation.ValidateRenew` — overlong body `evidenceRef` — **cheap-disproof 2026-09-03 (#562):** stale picker row; already proven in hunt #561 (`ValidateRenew_rejects_evidence_ref_over_max_length`).
+- [x] (invalid) `PolicyPacksController.PromoteCatalogEntry` optional body `version` SemVer/max-length — **cheap-disproof 2026-09-03 (#562):** stale picker row; already proven in hunt #561 (`PromoteCatalogEntry_returns_bad_request_when_version_is_not_semver`).
+
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` — bulk `Accepted` omitted `TradeOffAcknowledgment` when rebuilding per-finding requests, so UI "Accept all" with shared rationale returned HTTP 400 after #560 single-item fix — **hit 2026-09-03 (#562):** optional `TradeOffAcknowledgment` on bulk contract; default to shared `Rationale` for Accepted; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_forwards_trade_off_acknowledgment_for_accepted_disposition` and `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_ok_when_accepted_and_shared_rationale_supplies_trade_off`.
+
+2026-09-03 thorough hunt #562: cheap-disproved two stale #561 picker rows; proved bulk disposition Accepted trade-off acknowledgment forwarding.
 
 ---
 
