@@ -40,7 +40,7 @@ public static class TeamsNotificationTriggerCatalog
 
     /// <summary>O(1) membership test backing <see cref="IsKnown" />.</summary>
     private static readonly FrozenSet<string> AllSet =
-        All.ToFrozenSet(StringComparer.Ordinal);
+        All.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Default JSON payload for the SQL column when a tenant has not explicitly chosen \u2014 mirrors the migration
@@ -50,14 +50,43 @@ public static class TeamsNotificationTriggerCatalog
         JsonSerializer.Serialize(All);
 
     /// <summary>True when <paramref name="eventType" /> is one of the v1 catalog triggers.</summary>
-    public static bool IsKnown(string eventType)
+    public static bool IsKnown(string eventType) =>
+        TryResolveCatalogTrigger(eventType, out _);
+
+    /// <summary>
+    ///     Maps <paramref name="eventType" /> to the canonical lowercase catalog trigger when recognized.
+    /// </summary>
+    internal static bool TryResolveCatalogTrigger(string eventType, out string canonicalTrigger)
     {
         if (string.IsNullOrWhiteSpace(eventType))
+        {
+            canonicalTrigger = string.Empty;
+
             return false;
+        }
 
-        string canonical = IntegrationEventTypes.MapToCanonical(eventType);
+        string mapped = IntegrationEventTypes.MapToCanonical(eventType);
 
-        return AllSet.Contains(canonical);
+        if (!AllSet.Contains(mapped))
+        {
+            canonicalTrigger = string.Empty;
+
+            return false;
+        }
+
+        foreach (string trigger in All)
+        {
+            if (string.Equals(trigger, mapped, StringComparison.OrdinalIgnoreCase))
+            {
+                canonicalTrigger = trigger;
+
+                return true;
+            }
+        }
+
+        canonicalTrigger = string.Empty;
+
+        return false;
     }
 
     /// <summary>
@@ -82,8 +111,13 @@ public static class TeamsNotificationTriggerCatalog
                 return All;
 
             string[] filtered = parsed
-                .Select(IntegrationEventTypes.MapToCanonical)
-                .Where(IsKnown)
+                .Select(entry =>
+                {
+                    TryResolveCatalogTrigger(entry, out string canonical);
+
+                    return canonical;
+                })
+                .Where(canonical => !string.IsNullOrEmpty(canonical))
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
 
@@ -108,7 +142,13 @@ public static class TeamsNotificationTriggerCatalog
             return DefaultEnabledTriggersJson;
 
         FrozenSet<string> requested = enabledTriggers
-            .Where(IsKnown)
+            .Select(entry =>
+            {
+                TryResolveCatalogTrigger(entry, out string canonical);
+
+                return canonical;
+            })
+            .Where(canonical => !string.IsNullOrEmpty(canonical))
             .ToFrozenSet(StringComparer.Ordinal);
 
         if (requested.Count == 0)

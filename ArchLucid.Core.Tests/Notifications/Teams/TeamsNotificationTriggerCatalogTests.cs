@@ -127,4 +127,26 @@ public sealed class TeamsNotificationTriggerCatalogTests
     {
         TeamsNotificationTriggerCatalog.Unknown(null).Should().BeEmpty();
     }
+
+    [Fact]
+    public void IsKnown_returns_true_for_uppercase_canonical_trigger_names()
+    {
+        TeamsNotificationTriggerCatalog.IsKnown("COM.ARCHLUCID.AUTHORITY.RUN.COMPLETED").Should().BeTrue();
+    }
+
+    [Fact]
+    public void ParseOrDefault_preserves_uppercase_canonical_trigger_names()
+    {
+        string json = JsonSerializer.Serialize(new[]
+        {
+            "COM.ARCHLUCID.ALERT.FIRED",
+            IntegrationEventTypes.AuthorityRunCompletedV1,
+        });
+
+        IReadOnlyList<string> parsed = TeamsNotificationTriggerCatalog.ParseOrDefault(json);
+
+        parsed.Should().BeEquivalentTo(
+            IntegrationEventTypes.AlertFiredV1,
+            IntegrationEventTypes.AuthorityRunCompletedV1);
+    }
 }
