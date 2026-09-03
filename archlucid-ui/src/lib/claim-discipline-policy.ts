@@ -79,6 +79,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "help-integration-readiness",
   "help-evidence-graph",
   "help-evidence-intake",
+  "help-evidence-trail",
   "help-engineering-troubleshooting",
   "help-first-review",
   "help-first-value-20-minutes",
