@@ -1,6 +1,7 @@
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   ACCESSIBILITY_FOLLOW_UPS_TITLE,
   ACCESSIBILITY_SOURCES,
@@ -16,7 +17,7 @@ export function AccessibilityMarketingClaimOrientationStrip(): React.JSX.Element
       sourcesTitle={ACCESSIBILITY_FOLLOW_UPS_TITLE}
       sourcesIntro={ACCESSIBILITY_SOURCES_INTRO}
       sources={ACCESSIBILITY_SOURCES}
-      sourcesStyle="evaluationMutedAccentLink"
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
     />
   );
 }
