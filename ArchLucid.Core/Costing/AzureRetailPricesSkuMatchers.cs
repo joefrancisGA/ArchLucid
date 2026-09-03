@@ -9,10 +9,11 @@ public sealed partial class AzureRetailPricesCatalogClient
                 StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if ((row.Type ?? string.Empty)
-                .
-                Contains("Reservation",
-                    StringComparison.OrdinalIgnoreCase))
+        string type = row.Type ?? string.Empty;
+
+        if (!type.Contains("non-reservation", StringComparison.OrdinalIgnoreCase)
+            && !type.Contains("nonreservation", StringComparison.OrdinalIgnoreCase)
+            && type.Contains("Reservation", StringComparison.OrdinalIgnoreCase))
             return false;
 
         if ((row.MeterTier ?? string.Empty).Contains("Government",
