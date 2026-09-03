@@ -49,12 +49,23 @@ internal static class BicepArrayLiteralConverter
             searchIndex = openBraceIndex + objectBody.Length;
         }
 
-        if (objects.Count == 0)
+        if (objects.Count > 0)
+        {
+            string objectJson = JsonSerializer.Serialize(objects);
+            using JsonDocument objectDocument = JsonDocument.Parse(objectJson);
+            element = objectDocument.RootElement.Clone();
+
+            return true;
+        }
+
+        List<string>? primitiveValues = TryParsePrimitiveStrings(trimmed);
+
+        if (primitiveValues is null || primitiveValues.Count == 0)
             return false;
 
-        string json = JsonSerializer.Serialize(objects);
-        using JsonDocument document = JsonDocument.Parse(json);
-        element = document.RootElement.Clone();
+        string primitiveJson = JsonSerializer.Serialize(primitiveValues);
+        using JsonDocument primitiveDocument = JsonDocument.Parse(primitiveJson);
+        element = primitiveDocument.RootElement.Clone();
 
         return true;
     }
@@ -65,6 +76,12 @@ internal static class BicepArrayLiteralConverter
         JsonElement arrayElement)
     {
         ArgumentNullException.ThrowIfNull(properties);
+
+        if (CanonicalInfrastructurePropertyBag.IsSecurityPriorityProperty(rawKey)
+            && !IsObjectArray(arrayElement))
+        {
+            return;
+        }
 
         if (!CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(properties, rawKey, arrayElement))
             return;
@@ -79,6 +96,57 @@ internal static class BicepArrayLiteralConverter
             return;
 
         properties[rawKey] = serialized;
+    }
+
+    private static bool IsObjectArray(JsonElement arrayElement)
+    {
+        if (arrayElement.ValueKind != JsonValueKind.Array || arrayElement.GetArrayLength() == 0)
+            return false;
+
+        foreach (JsonElement item in arrayElement.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object)
+                return false;
+        }
+
+        return true;
+    }
+
+    private static List<string>? TryParsePrimitiveStrings(string arrayBody)
+    {
+        string trimmed = arrayBody.Trim();
+
+        if (trimmed.Length < 2 || trimmed[0] != '[' || trimmed[^1] != ']')
+            return null;
+
+        string inner = trimmed[1..^1].Trim();
+
+        if (inner.Length == 0)
+            return [];
+
+        if (inner.Contains('{', StringComparison.Ordinal))
+            return null;
+
+        List<string> values = [];
+
+        foreach (string segment in EnumerateCommaSeparatedAssignmentSegments(inner))
+        {
+            string rawValue = segment.Trim();
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
+            string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
+
+            if (string.IsNullOrWhiteSpace(scalarValue))
+                continue;
+
+            if (scalarValue.Contains('=', StringComparison.Ordinal))
+                return null;
+
+            values.Add(CanonicalInfrastructurePropertyBag.CanonicalizeScalarValue(scalarValue));
+        }
+
+        return values.Count > 0 ? values : null;
     }
 
     private static Dictionary<string, string> ParseObjectScalars(string objectBody)

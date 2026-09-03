@@ -2538,11 +2538,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 70
-- **bugs-found:** 132
+- **hunts:** 71
+- **bugs-found:** 133
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `/*` inside quoted array-object scalars stripped as block comment
+- **last-bug:** 2026-09-03 — primitive `list(string)` array literals silently dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2724,9 +2724,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `BicepArrayLiteralConverter.TryConsumeBlockComment` — `/*` inside quoted array-object scalars stripped as block comment — **hit 2026-09-03 (#634):** `name = 'Allow /* All'` in inline `ip_security_restrictions` array truncated at `/*`, dropped `ip_address`/`action`, and broke App Service network-rule expander; fixed with quote-aware `/*` detection honoring `''` escapes (`ParseAsync_InlineArrayObjectWithBlockCommentSequenceInsideSingleQuotedName_PreservesFullRuleName`, `ParseAsync_InlineArrayObjectWithBlockCommentSequenceInsideDoubleQuotedName_PreservesFullRuleName`).
 
-- [ ] (candidate) `BicepArrayLiteralConverter.TryParseToJsonElement` — primitive string `ip_security_restrictions` arrays silently dropped — `["0.0.0.0/0"]` yields no `tf.ip_security_restrictions`; may be invalid HCL vs parity gap; cheap-disproof before repro.
+- [x] (invalid) `BicepArrayLiteralConverter.TryParseToJsonElement` — primitive string `ip_security_restrictions` arrays silently dropped — `ip_security_restrictions = ["0.0.0.0/0"]` is invalid HCL/Bicep (object blocks required); object-only converter correctly omits malformed security-rule arrays; regression `ParseAsync_PrimitiveStringIpSecurityRestrictionsArray_DoesNotEmitTfProperty` (cheap-disproof hunt #643).
 
-2026-09-03 seed hunt #634: reseeded from `BicepArrayLiteralConverter`; proved quote-unaware block-comment strip in inline array-object scalars; seeded primitive-string array candidate.
+- [x] (proven) `BicepArrayLiteralConverter.TryParseToJsonElement` — primitive `list(string)` array literals silently dropped — **hit 2026-09-03 (#643):** `address_prefixes = ["10.0.1.0/24"]` and Bicep `addressPrefixes: ['10.0.1.0/24']` consumed array lines but emitted no `tf.*` JSON because converter only parsed `{` object elements; fixed with primitive string array fallback and security-priority object-only guard (`ParseAsync_PrimitiveStringAddressPrefixesArray_PreservesTfProperty`, `ParseAsync_PrimitiveStringAddressPrefixesArray_PreservesMultipleValues`, `ParseAsync_BicepPrimitiveStringAddressPrefixesArray_PreservesTfProperty`).
+
+2026-09-03 thorough hunt #643: cheap-disproved primitive-string `ip_security_restrictions` candidate (invalid HCL); proved valid `list(string)` primitive array gap.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
