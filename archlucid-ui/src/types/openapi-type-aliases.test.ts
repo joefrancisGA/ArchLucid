@@ -359,6 +359,133 @@ type _DraftIntakeActorsWave12BarrelAliases = [
   AssertExtends<import("@/types/draft-intake-actors").ActorSet, import("@/types/draft-intake").ActorSet>,
 ];
 
+/** Wave 13 — draft-intake document, lifecycle/status, branch, workflow, and request modules. */
+type _DraftIntakeWave13ModuleAliases = [
+  AssertExtends<components["schemas"]["DraftRequestStatus"], import("@/types/draft-intake-status").DraftRequestStatus>,
+  AssertExtends<
+    components["schemas"]["DraftBranchOverrideKind"],
+    import("@/types/draft-intake-status").DraftBranchOverrideKind
+  >,
+  AssertExtends<components["schemas"]["BranchDraftRequest"], import("@/types/draft-intake-branch").BranchDraftRequest>,
+  AssertExtends<
+    components["schemas"]["DraftBranchQuotaResponse"],
+    import("@/types/draft-intake-branch").DraftBranchQuotaResponse
+  >,
+  AssertExtends<
+    components["schemas"]["DraftRequestDocument"],
+    import("@/types/draft-intake-document").DraftRequestDocument
+  >,
+  AssertExtends<
+    components["schemas"]["DraftRequestResponse"],
+    import("@/types/draft-intake-workflow").DraftRequestResponse
+  >,
+  AssertExtends<
+    components["schemas"]["DraftRequestSummaryResponse"],
+    import("@/types/draft-intake-workflow").DraftRequestSummary
+  >,
+  AssertExtends<
+    components["schemas"]["CreateDraftRequest"],
+    import("@/types/draft-intake-requests").CreateDraftRequest
+  >,
+  AssertExtends<
+    components["schemas"]["PatchDraftRequest"],
+    import("@/types/draft-intake-requests").PatchDraftRequest
+  >,
+  AssertExtends<
+    components["schemas"]["DraftIntakeReasonRequest"],
+    import("@/types/draft-intake-requests").DraftIntakeReasonRequest
+  >,
+];
+
+/** Wave 13 — draft-intake barrel re-exports document, lifecycle, and workflow slices. */
+type _DraftIntakeWave13BarrelAliases = [
+  AssertExtends<
+    import("@/types/draft-intake-document").DraftRequestDocument,
+    import("@/types/draft-intake").DraftRequestDocument
+  >,
+  AssertExtends<import("@/types/draft-intake-status").DraftRequestStatus, import("@/types/draft-intake").DraftRequestStatus>,
+  AssertExtends<
+    import("@/types/draft-intake-branch").BranchDraftResponse,
+    import("@/types/draft-intake").BranchDraftResponse
+  >,
+  AssertExtends<
+    import("@/types/draft-intake-workflow").DraftAdmissionResponse,
+    import("@/types/draft-intake").DraftAdmissionResponse
+  >,
+  AssertExtends<
+    import("@/types/draft-intake-requests").CreateDraftRequest,
+    import("@/types/draft-intake").CreateDraftRequest
+  >,
+];
+
+/** Wave 13 — agent-forensics trace and evaluation score modules. */
+type _AgentForensicsWave13ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["AgentExecutionTraceSummary"],
+    import("@/types/agent-forensics-traces").AgentExecutionTraceRow
+  >,
+  AssertExtends<
+    components["schemas"]["AgentExecutionTraceResponse"],
+    import("@/types/agent-forensics-traces").AgentExecutionTraceListPayload
+  >,
+  AssertExtends<
+    components["schemas"]["AgentOutputSemanticScore"],
+    import("@/types/agent-forensics-scores").AgentOutputSemanticScoreRow
+  >,
+  AssertExtends<
+    components["schemas"]["AgentOutputEvaluationScore"],
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationScoreRow
+  >,
+  AssertExtends<
+    components["schemas"]["RunRetrievalGroundingResponse"],
+    import("@/types/agent-forensics-scores").RunRetrievalGroundingPayload
+  >,
+];
+
+/** Wave 13 — agent-forensics barrel re-exports trace and score slices. */
+type _AgentForensicsWave13BarrelAliases = [
+  AssertExtends<
+    import("@/types/agent-forensics-traces").AgentExecutionTraceRow,
+    import("@/types/agent-forensics").AgentExecutionTraceRow
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationSummaryPayload,
+    import("@/types/agent-forensics").AgentOutputEvaluationSummaryPayload
+  >,
+];
+
+/** Wave 13 — explanation confidence helpers and structured envelope modules. */
+type _ExplanationWave13ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["StructuredExplanation"],
+    import("@/types/explanation-structured-envelope").StructuredExplanation
+  >,
+  AssertExtends<
+    components["schemas"]["FindingExplainabilityResult"],
+    import("@/types/explanation-structured-envelope").FindingExplainability
+  >,
+  AssertExtends<
+    NonNullable<components["schemas"]["FindingConfidenceLevel"]>,
+    import("@/types/explanation-confidence").FindingConfidenceLevel
+  >,
+];
+
+/** Wave 13 — explanation-structured barrel re-exports confidence and envelope slices. */
+type _ExplanationWave13BarrelAliases = [
+  AssertExtends<
+    import("@/types/explanation-confidence").FindingConfidenceLevel,
+    import("@/types/explanation-structured").FindingConfidenceLevel
+  >,
+  AssertExtends<
+    import("@/types/explanation-structured-envelope").StructuredExplanation,
+    import("@/types/explanation-structured").StructuredExplanation
+  >,
+  AssertExtends<
+    import("@/types/explanation-confidence").normalizeFindingConfidenceLevel,
+    typeof import("@/types/explanation-structured").normalizeFindingConfidenceLevel
+  >,
+];
+
 /** Wave 12 — authority run-detail trust-evidence module. */
 type _AuthorityRunDetailWave12TrustModuleAliases = [
   AssertExtends<
@@ -1083,6 +1210,12 @@ const _compileTimeAliasGuards: [
   _ExplanationWave12BarrelAliases,
   _DraftIntakeActorsWave12ModuleAliases,
   _DraftIntakeActorsWave12BarrelAliases,
+  _DraftIntakeWave13ModuleAliases,
+  _DraftIntakeWave13BarrelAliases,
+  _AgentForensicsWave13ModuleAliases,
+  _AgentForensicsWave13BarrelAliases,
+  _ExplanationWave13ModuleAliases,
+  _ExplanationWave13BarrelAliases,
   _AuthorityRunDetailWave12TrustModuleAliases,
   _AuthorityRunDetailWave12ProvenanceModuleAliases,
   _AuthorityRunDetailWave12BarrelAliases,
@@ -1132,6 +1265,12 @@ const _compileTimeAliasGuards: [
   [] as unknown as _ExplanationWave12BarrelAliases,
   [] as unknown as _DraftIntakeActorsWave12ModuleAliases,
   [] as unknown as _DraftIntakeActorsWave12BarrelAliases,
+  [] as unknown as _DraftIntakeWave13ModuleAliases,
+  [] as unknown as _DraftIntakeWave13BarrelAliases,
+  [] as unknown as _AgentForensicsWave13ModuleAliases,
+  [] as unknown as _AgentForensicsWave13BarrelAliases,
+  [] as unknown as _ExplanationWave13ModuleAliases,
+  [] as unknown as _ExplanationWave13BarrelAliases,
   [] as unknown as _AuthorityRunDetailWave12TrustModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12ProvenanceModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12BarrelAliases,

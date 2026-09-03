@@ -5,10 +5,6 @@ import {
 } from "@/lib/correlation";
 import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
 import { buildProxyUpstreamPath } from "@/lib/proxy-upstream-path";
-import { declaredPostBodyExceedsLimit, readRequestBodyBytesWithLimit } from "@/lib/proxy-body-read";
-import {
-  resolveProxyMaxBodyBytes,
-} from "@/lib/proxy-constants";
 import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
 import {
   buildProxyUpstreamHeaders,
@@ -19,9 +15,7 @@ import {
 } from "@/lib/proxy/proxy-problem-response";
 import { passThrough } from "@/lib/proxy/proxy-passthrough";
 import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
-import { resolveProxyUpstreamFetchTimeout } from "@/lib/resolve-proxy-upstream-fetch-timeout";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
-import { formatProxyUpstreamUnreachableDetail, isProxyUpstreamTimeoutFailure } from "@/lib/proxy-upstream-unreachable-detail";
 import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
 import { shouldTraceProxyInteractiveReadHang } from "@/lib/proxy/should-trace-proxy-interactive-read-hang";
 import { normalizeProxyPathForTelemetry } from "@/lib/telemetry/normalize-proxy-path-for-telemetry";
@@ -32,134 +26,11 @@ import {
   shouldLogSlowOrFailedRequest,
 } from "@/lib/telemetry/server-request-timing";
 
-/** Forwards JSON/binary calls to the upstream C# API (`GET`/`POST`/`PUT`/`PATCH`/`DELETE`). */
-export type ForwardMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+import { forwardMutatingWithBody } from "./proxy-forward-mutating-body";
+import { logUpstreamNonSuccess, respondWithUpstreamFetchFailure } from "./proxy-forward-upstream-errors";
+import type { ForwardMethod } from "./proxy-forward-types";
 
-/** Forwards `POST`/`PUT`/`PATCH` with JSON or multipart body; multipart evidence uploads allow up to 100 MB. */
-async function forwardMutatingWithBody(
-  request: NextRequest,
-  method: "POST" | "PUT" | "PATCH",
-  pathForLog: string,
-  correlationId: string,
-  targetUrl: string,
-  headers: Headers,
-): Promise<NextResponse> {
-  const contentType = request.headers.get("content-type");
-  const maxBodyBytes = resolveProxyMaxBodyBytes(pathForLog, contentType);
-  const upstreamTimeout = resolveProxyUpstreamFetchTimeout(pathForLog, contentType);
-  const upstreamTimeoutMs = upstreamTimeout.timeoutMs;
-
-  const tooLargeByHeader = declaredPostBodyExceedsLimit(
-    request.headers.get("content-length"),
-    maxBodyBytes,
-  );
-
-  if (tooLargeByHeader !== false) {
-    logProxyDiagnostic("body_too_large", {
-      method,
-      path: pathForLog,
-      declaredLength: tooLargeByHeader.declaredLength,
-      maxBytes: maxBodyBytes,
-      correlationId,
-    });
-    return respondWithProxyProblem(
-      413,
-      {
-        type: "about:blank",
-        title: "Payload too large",
-        status: 413,
-        detail: `Request body (${tooLargeByHeader.declaredLength} bytes) exceeds the proxy limit of ${maxBodyBytes} bytes.`,
-      },
-      correlationId,
-    );
-  }
-
-  if (contentType) {
-    headers.set("Content-Type", contentType);
-  }
-
-  // Binary-safe buffer so DOCX/PDF/ZIP multipart parts are not UTF-8 mangled.
-  const body = await readRequestBodyBytesWithLimit(request.body, maxBodyBytes);
-
-  if (body === null) {
-    logProxyDiagnostic("body_too_large_streaming", {
-      method,
-      path: pathForLog,
-      maxBytes: maxBodyBytes,
-      correlationId,
-    });
-    return respondWithProxyProblem(
-      413,
-      {
-        type: "about:blank",
-        title: "Payload too large",
-        status: 413,
-        detail: `Request body exceeded the proxy limit of ${maxBodyBytes} bytes during streaming read.`,
-      },
-      correlationId,
-    );
-  }
-
-  // DOM BodyInit expects Uint8Array<ArrayBuffer>; stream chunks may be ArrayBufferLike.
-  const fetchBody: BodyInit | undefined =
-    body.byteLength === 0 ? undefined : new Uint8Array(body);
-
-  let res: Response;
-
-  try {
-    res = await fetch(targetUrl, {
-      method,
-      headers,
-      body: fetchBody,
-      cache: "no-store",
-      signal: AbortSignal.timeout(upstreamTimeoutMs),
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    const detail = formatProxyUpstreamUnreachableDetail({
-      method,
-      path: pathForLog,
-      timeoutMs: upstreamTimeoutMs,
-      causeMessage: message,
-    });
-    logProxyDiagnostic("upstream_fetch_failed", {
-      method,
-      path: pathForLog,
-      message,
-      timeoutMs: upstreamTimeoutMs,
-      timeoutKind: upstreamTimeout.kind,
-      timedOut: isProxyUpstreamTimeoutFailure(message) ? 1 : 0,
-      correlationId,
-    });
-    return respondWithProxyProblem(
-      502,
-      {
-        type: "about:blank",
-        title: "Upstream API unreachable",
-        status: 502,
-        detail,
-        instance: `${method} /${pathForLog}`,
-        upstreamMethod: method,
-        upstreamPath: pathForLog,
-        upstreamTimeoutMs: upstreamTimeoutMs,
-        supportHint:
-          "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/runbooks/TROUBLESHOOTING.md.",
-      },
-      correlationId,
-    );
-  }
-
-  if (!res.ok) {
-    logProxyDiagnostic("upstream_non_success", {
-      method,
-      path: pathForLog,
-      status: res.status,
-      correlationId,
-    });
-  }
-
-  return await passThrough(res);
-}
+export type { ForwardMethod } from "./proxy-forward-types";
 
 /** Forwards GET/POST/PUT/PATCH/DELETE after applying rate limits, sandbox mocks, and upstream config validation. */
 async function forward(
@@ -245,44 +116,18 @@ async function forward(
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      const detail = formatProxyUpstreamUnreachableDetail({
+
+      return respondWithUpstreamFetchFailure({
         method,
-        path: pathForLog,
+        pathForLog,
+        correlationId,
         timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
         causeMessage: message,
       });
-      logProxyDiagnostic("upstream_fetch_failed", {
-        method,
-        path: pathForLog,
-        message,
-        timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
-        correlationId,
-      });
-      return respondWithProxyProblem(
-        502,
-        {
-          type: "about:blank",
-          title: "Upstream API unreachable",
-          status: 502,
-          detail,
-          instance: `${method} /${pathForLog}`,
-          upstreamMethod: method,
-          upstreamPath: pathForLog,
-          upstreamTimeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
-          supportHint:
-            "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/runbooks/TROUBLESHOOTING.md.",
-        },
-        correlationId,
-      );
     }
 
     if (!res.ok) {
-      logProxyDiagnostic("upstream_non_success", {
-        method,
-        path: pathForLog,
-        status: res.status,
-        correlationId,
-      });
+      logUpstreamNonSuccess(method, pathForLog, res.status, correlationId);
     }
 
     return await passThrough(res);
@@ -325,12 +170,6 @@ async function forward(
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    const detail = formatProxyUpstreamUnreachableDetail({
-      method,
-      path: pathForLog,
-      timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
-      causeMessage: message,
-    });
 
     if (traceInteractiveReadHang) {
       logProxyDiagnostic("upstream_fetch_timed_out", {
@@ -343,38 +182,17 @@ async function forward(
       });
     }
 
-    logProxyDiagnostic("upstream_fetch_failed", {
+    return respondWithUpstreamFetchFailure({
       method,
-      path: pathForLog,
-      message,
+      pathForLog,
+      correlationId,
       timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
-      correlationId,
+      causeMessage: message,
     });
-    return respondWithProxyProblem(
-      502,
-      {
-        type: "about:blank",
-        title: "Upstream API unreachable",
-        status: 502,
-        detail,
-        instance: `${method} /${pathForLog}`,
-        upstreamMethod: method,
-        upstreamPath: pathForLog,
-        upstreamTimeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
-        supportHint:
-          "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/runbooks/TROUBLESHOOTING.md.",
-      },
-      correlationId,
-    );
   }
 
   if (!res.ok) {
-    logProxyDiagnostic("upstream_non_success", {
-      method,
-      path: pathForLog,
-      status: res.status,
-      correlationId,
-    });
+    logUpstreamNonSuccess(method, pathForLog, res.status, correlationId);
   }
 
   if (traceInteractiveReadHang) {
