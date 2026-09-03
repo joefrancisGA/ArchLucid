@@ -279,6 +279,15 @@ public sealed class CorePackageCoverageBatchRc27Tests
         PrivateNetworkAddressGuard.IsForbiddenHostLiteral(host).Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData("0.0.0.0")]
+    [InlineData("0")]
+    [InlineData("::")]
+    public void IsForbiddenHostLiteral_unspecified_addresses_are_forbidden(string host)
+    {
+        PrivateNetworkAddressGuard.IsForbiddenHostLiteral(host).Should().BeTrue();
+    }
+
     [Fact]
     public void WarmTenantCatalogNaming_and_TenantDatabaseNaming_use_fixed_guid_format()
     {
