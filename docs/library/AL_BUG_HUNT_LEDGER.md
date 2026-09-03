@@ -1881,11 +1881,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 132
-- **bugs-found:** 250
+- **hunts:** 133
+- **bugs-found:** 252
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `product` environment names misclassified as production-like; `Non-Reservation` retail type rejected
+- **last-bug:** 2026-09-03 — `produce` environment names misclassified as production-like; `Non-Government` retail tier rejected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1968,6 +1968,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd` — `Non-Reservation` retail `Type` rejected as reservation — **hit 2026-09-03 (#647):** unbounded `Contains("Reservation")` matched `Non-Reservation` consumption rows and excluded valid hourly/monthly SKUs from cost estimates; fixed with non-reservation exclusions before reservation rejection (`LooksLikeConsumptionUsd_accepts_non_reservation_type_with_hourly_unit`).
 
 2026-09-03 seed hunt #647: reseeded from `HostingEnvironmentNamePatterns` and `AzureRetailPricesSkuMatchers`; proved product environment `prod` false positive and `Non-Reservation` retail type rejection after #646 reproduce fix.
+
+- [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — `produce` environment names misclassified as production-like — **hit 2026-09-03 (#648):** after #647 product exclusion, unbounded `Contains("prod")` still matched `Produce` / `produce-dev` environment names; production-like config lint and bypass-auth guards applied incorrectly; fixed by excluding produce-like environment name prefixes (`EnvironmentNameImpliesProductionLike_rejects_produce_environment_names`).
+
+- [x] (proven) `AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd` — `Non-Government` retail `MeterTier` rejected as government — **hit 2026-09-03 (#648):** unbounded `Contains("Government")` matched `Non-Government` consumption rows and excluded valid hourly/monthly SKUs from cost estimates; fixed with non-government exclusions before government rejection (`LooksLikeConsumptionUsd_accepts_non_government_meter_tier_with_hourly_unit`).
+
+- [x] (invalid) `AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd` — `Rsv` substring false-positive on observability meter names — `Observability` does not contain contiguous `Rsv`; cheap-disproof on hunt #648.
+
+2026-09-03 seed hunt #648: reseeded from `HostingEnvironmentNamePatterns` and `AzureRetailPricesSkuMatchers`; proved produce environment `prod` false positive and `Non-Government` retail tier rejection; disproved `Rsv` observability false positive.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
