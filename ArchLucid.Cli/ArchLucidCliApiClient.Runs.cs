@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Application;
 using ArchLucid.Cli.Commands;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -343,6 +344,15 @@ public sealed partial class ArchLucidApiClient
         catch (TaskCanceledException)
         {
             return new GoldenManifestFingerprintResult(false, null, "Request timed out.");
+        }
+        catch (ConflictException ex)
+        {
+            return new GoldenManifestFingerprintResult(false, null, ex.Message);
+        }
+        catch (FormatException ex)
+        {
+            return new GoldenManifestFingerprintResult(false, null,
+                $"Run header pins could not be decoded: {ex.Message}");
         }
     }
 
