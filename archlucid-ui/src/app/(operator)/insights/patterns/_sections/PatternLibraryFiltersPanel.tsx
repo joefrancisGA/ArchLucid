@@ -4,13 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -20,11 +13,15 @@ import {
   patternLibraryRiskHrefFromSearch,
   patternLibraryAdoptionHrefFromSearch,
   patternLibraryTimeRangeHrefFromSearch,
+  patternLibraryGovernanceHrefFromSearch,
+  patternLibraryDataSourceHrefFromSearch,
 } from "@/lib/insights/pattern-library-filters-url";
 import { PATTERN_LIBRARY_SEARCH_PLACEHOLDER } from "@/lib/pattern-library-copy";
 import type {
   PatternAdoptionSignal,
+  PatternDataSourceFilter,
   PatternDomainFilter,
+  PatternGovernanceSignal,
   PatternLibraryFiltersState,
   PatternPlatformFilter,
   PatternRiskSignal,
@@ -74,6 +71,20 @@ const ADOPTION_CHIP_OPTIONS: readonly (PatternAdoptionSignal | "All adoption")[]
   "Emerging",
   "Rare",
   "Declining",
+];
+
+const GOVERNANCE_CHIP_OPTIONS: readonly (PatternGovernanceSignal | "All governance")[] = [
+  "All governance",
+  "Usually approved",
+  "Often requires exception",
+  "Needs evidence",
+  "Frequently flagged",
+];
+
+const SOURCE_CHIP_OPTIONS: readonly PatternDataSourceFilter[] = [
+  "All sources",
+  "Sample data",
+  "Anonymized aggregate",
 ];
 
 const PLATFORM_CHIP_OPTIONS: readonly PatternPlatformFilter[] = [
@@ -231,31 +242,46 @@ export function PatternLibraryFiltersPanel(props: PatternLibraryFiltersPanelProp
         </FilterChipGroup>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <FilterSelect
-          id="pattern-filter-governance"
-          label="Approval impact"
-          value={filters.governance}
-          options={[
-            "All governance",
-            "Usually approved",
-            "Often requires exception",
-            "Needs evidence",
-            "Frequently flagged",
-          ]}
-          onChange={(value) => {
-            onChange(updateFilter(filters, "governance", value as PatternLibraryFiltersState["governance"]));
-          }}
-        />
-        <FilterSelect
-          id="pattern-filter-source"
-          label="Data source"
-          value={filters.dataSource}
-          options={["All sources", "Sample data", "Anonymized aggregate"]}
-          onChange={(value) => {
-            onChange(updateFilter(filters, "dataSource", value as PatternLibraryFiltersState["dataSource"]));
-          }}
-        />
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Approval impact</p>
+        <FilterChipGroup aria-label="Filter patterns by approval impact" className="flex flex-wrap gap-2">
+          {GOVERNANCE_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option}
+              href={patternLibraryGovernanceHrefFromSearch(props.currentSearch, option)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.governance === option, false)}
+              aria-current={filters.governance === option ? "page" : undefined}
+              data-testid={`pattern-library-governance-${option.toLowerCase().replace(/\s+/g, "-")}`}
+              onClick={() => {
+                onChange(updateFilter(filters, "governance", option));
+              }}
+            >
+              {option}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      </div>
+
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Data source</p>
+        <FilterChipGroup aria-label="Filter patterns by data source" className="flex flex-wrap gap-2">
+          {SOURCE_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option}
+              href={patternLibraryDataSourceHrefFromSearch(props.currentSearch, option)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.dataSource === option, false)}
+              aria-current={filters.dataSource === option ? "page" : undefined}
+              data-testid={`pattern-library-source-${option.toLowerCase().replace(/\s+/g, "-")}`}
+              onClick={() => {
+                onChange(updateFilter(filters, "dataSource", option));
+              }}
+            >
+              {option}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
       </div>
 
       <div className="space-y-2">
@@ -279,34 +305,6 @@ export function PatternLibraryFiltersPanel(props: PatternLibraryFiltersPanelProp
         </FilterChipGroup>
       </div>
     </section>
-  );
-}
-
-type FilterSelectProps = {
-  readonly id: string;
-  readonly label: string;
-  readonly value: string;
-  readonly options: readonly string[];
-  readonly onChange: (value: string) => void;
-};
-
-function FilterSelect(props: FilterSelectProps): React.JSX.Element {
-  return (
-    <div className="grid gap-2">
-      <Label htmlFor={props.id}>{props.label}</Label>
-      <Select value={props.value} onValueChange={props.onChange}>
-        <SelectTrigger id={props.id}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {props.options.map((option) => (
-            <SelectItem key={option} value={option}>
-              {option}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
   );
 }
 
