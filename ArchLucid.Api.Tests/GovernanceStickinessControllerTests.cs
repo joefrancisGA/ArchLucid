@@ -2273,6 +2273,105 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRiskException_returns_conflict_when_active_waiver_exists_for_finding()
+    {
+        const string findingId = "finding-1";
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid existingExceptionId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = findingId,
+                RunId = runId,
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(repo => repo.ListByFindingAsync(Scope.TenantId, findingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IRiskExceptionRepository> repository = new();
+        repository
+            .Setup(r => r.GetActiveForScopeFindingAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                findingId,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RiskExceptionRecord
+            {
+                RiskExceptionId = existingExceptionId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                FindingId = findingId,
+                OwnerUserId = "owner",
+                Rationale = "existing waiver",
+                Status = RiskExceptionStatus.Active,
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+                CreatedByUserId = "creator",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+            });
+
+        RiskExceptionService riskExceptionService = new(
+            repository.Object,
+            trail.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(r => r.CreateAsync(
+                It.IsAny<CreateRiskExceptionRequest>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((
+                CreateRiskExceptionRequest request,
+                ScopeContext scope,
+                string actor,
+                CancellationToken cancellationToken) =>
+                riskExceptionService.CreateAsync(request, scope, actor, cancellationToken));
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            riskExceptions: riskExceptions,
+            runRepository: runs);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = findingId,
+            RunId = runId,
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "attempt second waiver",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+
+        repository.Verify(
+            r => r.CreateAsync(It.IsAny<RiskExceptionRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_bad_request_when_finding_latest_disposition_is_remediated()
     {
         const string findingId = "finding-remediated";
@@ -2409,6 +2508,8 @@ public sealed class GovernanceStickinessControllerTests
     [Fact]
     public async Task CreateRiskException_returns_ok_when_finding_id_is_padded()
     {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
         Mock<IFindingInspectReadRepository> findingInspect = new();
         findingInspect
             .Setup(r => r.GetInspectAsync(
@@ -2416,7 +2517,16 @@ public sealed class GovernanceStickinessControllerTests
                 "finding-1",
                 It.IsAny<CancellationToken>(),
                 It.IsAny<FindingInspectReadOptions?>()))
-            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = "finding-1",
+                RunId = runId,
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
 
         Mock<IRiskExceptionService> riskExceptions = new();
         riskExceptions
@@ -2429,13 +2539,16 @@ public sealed class GovernanceStickinessControllerTests
 
         GovernanceStickinessController controller = BuildSut(
             findingInspect: findingInspect,
+            runRepository: runs,
             riskExceptions: riskExceptions);
 
         CreateRiskExceptionRequest request = new()
         {
             FindingId = " finding-1 ",
+            RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
             OwnerUserId = "owner",
             Rationale = "accepted risk",
+            EvidenceRef = "artifact://evidence/1",
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
         };
 

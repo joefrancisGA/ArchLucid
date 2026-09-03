@@ -73,6 +73,66 @@ public sealed class RiskExceptionServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_throws_conflict_when_active_waiver_exists_for_finding()
+    {
+        const string findingId = "finding-1";
+        Guid existingExceptionId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(repo => repo.ListByFindingAsync(Scope.TenantId, findingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IRiskExceptionRepository> repository = new();
+        repository
+            .Setup(r => r.GetActiveForScopeFindingAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                findingId,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RiskExceptionRecord
+            {
+                RiskExceptionId = existingExceptionId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                FindingId = findingId,
+                OwnerUserId = "owner",
+                Rationale = "existing waiver",
+                Status = RiskExceptionStatus.Active,
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+                CreatedByUserId = "creator",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+            });
+
+        RiskExceptionService sut = new(
+            repository.Object,
+            trail.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<ILogger<RiskExceptionService>>());
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = findingId,
+            RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "attempt second waiver",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        Func<Task> act = () => sut.CreateAsync(request, Scope, "reviewer@test", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>().WithMessage("*active waiver*");
+
+        repository.Verify(
+            r => r.CreateAsync(It.IsAny<RiskExceptionRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RenewAsync_throws_conflict_when_risk_exception_status_is_revoked()
     {
         Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");

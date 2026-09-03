@@ -52,6 +52,19 @@ public sealed class RiskExceptionService(
             request.FindingId.Trim(),
             cancellationToken);
 
+        RiskExceptionRecord? existingActive = await _repository.GetActiveForScopeFindingAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            request.FindingId.Trim(),
+            now,
+            cancellationToken);
+
+        if (existingActive is not null)
+        {
+            throw new ConflictException("An active waiver already exists for this finding.");
+        }
+
         RiskExceptionRecord record = new()
         {
             RiskExceptionId = Guid.NewGuid(),
