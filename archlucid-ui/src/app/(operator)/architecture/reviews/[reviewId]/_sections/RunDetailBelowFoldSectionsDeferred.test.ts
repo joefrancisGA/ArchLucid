@@ -10,10 +10,28 @@ function readSectionSource(fileName: string): string {
   return readFileSync(join(sectionsDir, fileName), "utf8");
 }
 
+const deferredChunkFamilyFiles = [
+  "run-detail-page-view-deferred-chunks.tsx",
+  "run-detail-page-view-deferred-chunks-workspace.ts",
+  "run-detail-page-view-deferred-chunks-governance.ts",
+  "run-detail-page-view-deferred-chunks-evidence.ts",
+  "run-detail-page-view-deferred-chunks-review-package.ts",
+  "run-detail-page-view-deferred-chunks-diagnostics.ts",
+  "run-detail-page-view-deferred-chunks-compare.ts",
+  "run-detail-page-view-deferred-chunks-modals.ts",
+  "run-detail-page-view-deferred-chunks-architecture.ts",
+] as const;
+
+function readDeferredChunkFamilySource(): string {
+  return deferredChunkFamilyFiles
+    .map((fileName) => readSectionSource(fileName))
+    .join("\n");
+}
+
 describe("RunDetailBelowFoldSectionsDeferred", () => {
   it("keeps timelines-bundle on the server instead of a client dynamic chunk", () => {
     const wrapperSource = readSectionSource("RunDetailBelowFoldSectionsDeferred.tsx");
-    const deferredChunksSource = readSectionSource("run-detail-page-view-deferred-chunks.tsx");
+    const deferredChunksSource = readDeferredChunkFamilySource();
     const pageViewSource = readSectionSource("RunDetailPageView.tsx");
     const tabbedWorkspaceSource = readSectionSource("RunDetailTabbedWorkspace.tsx");
 
