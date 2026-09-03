@@ -81,16 +81,15 @@ public static class TeamsNotificationTriggerCatalog
             if (parsed is null || parsed.Length == 0)
                 return All;
 
-            string[] filtered = parsed
+            HashSet<string> filtered = parsed
                 .Select(IntegrationEventTypes.MapToCanonical)
-                .Where(IsKnown)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToArray();
+                .Where(AllSet.Contains)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            if (filtered.Length == 0)
+            if (filtered.Count == 0)
                 return All;
 
-            return All.Where(trigger => filtered.Contains(trigger, StringComparer.OrdinalIgnoreCase)).ToArray();
+            return All.Where(filtered.Contains).ToArray();
         }
         catch (JsonException)
         {
