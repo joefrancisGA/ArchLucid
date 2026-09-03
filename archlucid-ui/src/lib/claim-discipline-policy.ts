@@ -16,6 +16,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "ai-usage-settings",
   "alerts-inbox",
   "alert-rules-hub",
+  "approval-queue",
   "api-keys-settings",
   "architecture-draft-detail",
   "architecture-intelligence",

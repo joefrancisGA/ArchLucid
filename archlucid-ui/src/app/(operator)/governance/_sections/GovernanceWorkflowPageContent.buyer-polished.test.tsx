@@ -58,12 +58,21 @@ vi.mock("@/lib/api", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/api/policy-governance-api", () => ({
-  listApprovalRequests: apiHoisted.listApprovalRequests,
-  listPromotions: apiHoisted.listPromotions,
-  listActivations: apiHoisted.listActivations,
-  getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
-}));
+vi.mock("@/lib/api/policy-governance-api", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/api/policy-governance-api")>();
+
+  return {
+    ...mod,
+    listApprovalRequests: apiHoisted.listApprovalRequests,
+    listPromotions: apiHoisted.listPromotions,
+    listActivations: apiHoisted.listActivations,
+    getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
+    fetchGovernanceEnvironmentCatalog: vi.fn().mockResolvedValue({
+      isAdministratorConfigured: false,
+      environments: [],
+    }),
+  };
+});
 
 vi.mock("@/lib/api/governance-stickiness-api", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/api/governance-stickiness-api")>();
@@ -209,6 +218,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
       GOVERNANCE_WORKSPACE_HEALTH_HREF,
     );
     expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
+    expect(screen.getByTestId("approval-queue-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-interactive-quickstart")).not.toBeInTheDocument();
     expect(screen.queryAllByText("How governance approval works")).toHaveLength(1);
     expect(screen.queryByTestId("governance-sample-overview-banner")).not.toBeInTheDocument();
