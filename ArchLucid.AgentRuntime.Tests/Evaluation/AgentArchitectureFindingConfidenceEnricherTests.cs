@@ -131,7 +131,7 @@ public sealed class AgentArchitectureFindingConfidenceEnricherTests
             new AgentOutputEvaluator(),
             semanticFacade,
             new AgentOutputQualityGate(Options.Create(gateOptions)),
-            Options.Create(gateOptions),
+            CreateGateOptionsResolver(gateOptions),
             referenceEvaluator,
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
             new NoOpLlmFaithfulnessEvaluator(),
@@ -177,5 +177,13 @@ public sealed class AgentArchitectureFindingConfidenceEnricherTests
             AgentEvidencePackage evidencePackage,
             CancellationToken cancellationToken) =>
             Task.FromResult<double?>(null);
+    }
+
+    private static IAgentOutputQualityGateOptionsResolver CreateGateOptionsResolver(AgentOutputQualityGateOptions gateOptions)
+    {
+        Mock<IAgentOutputQualityGateOptionsResolver> resolver = new();
+        resolver.Setup(r => r.Resolve(It.IsAny<CancellationToken>())).Returns(gateOptions);
+
+        return resolver.Object;
     }
 }
