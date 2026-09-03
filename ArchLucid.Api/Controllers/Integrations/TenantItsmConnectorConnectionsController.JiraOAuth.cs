@@ -93,8 +93,8 @@ public sealed partial class TenantItsmConnectorConnectionsController
                         provider = "Jira",
                         authMode = "OAuth2RefreshToken",
                         oauthConsentCompleted = true,
-                        credentialKeyVaultSecretNameLength = 0,
-                        hasOAuthClientIdSecretName = true,
+                        credentialKeyVaultSecretNameLength = response.Connection.CredentialKeyVaultSecretName?.Length ?? 0,
+                        hasOAuthClientIdSecretName = response.Connection.OAuthClientIdKeyVaultSecretName is not null,
                         hasInboundWebhookSecretName = response.Connection.InboundWebhookKeyVaultSecretName is not null,
                         isEnabled = response.Connection.IsEnabled
                     })
