@@ -38,6 +38,8 @@ vi.mock("@/lib/jira-atlassian-oauth-connect", () => ({
 
 import { JiraIntegrationPageClient } from "./JiraIntegrationPageClient";
 import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { JIRA_INTEGRATION_SOURCES } from "@/lib/jira-integration-evidence-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -203,13 +205,13 @@ describe("JiraIntegrationPageClient", () => {
 
     const sources = screen.getByTestId("jira-integration-sources");
 
-    for (const link of JIRA_INTEGRATION_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    for (const link of filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
+      expect(within(sources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
     }
 
-    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
-    expect(readinessLinks).toHaveLength(1);
-    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
+    expect(within(sources).queryByRole("link", { name: "Open Integration readiness" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("jira-readiness-link")).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
   });
 
   it("states credentials-not-configured exactly once in not-configured state", async () => {

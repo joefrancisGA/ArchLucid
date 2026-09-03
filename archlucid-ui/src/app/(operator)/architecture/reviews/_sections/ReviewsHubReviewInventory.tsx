@@ -50,6 +50,7 @@ import {
   reviewsHubInventoryClearFilterHrefFromSearch,
   reviewsHubInventoryClearSearchHrefFromSearch,
   reviewsHubInventoryHrefFromSearch,
+  reviewsHubInventoryFilterEmptyReason,
   countRunsMatchingInventoryFilter,
   resolveInventoryFilterCountRuns,
   INVENTORY_FILTER_OPTIONS,
@@ -85,24 +86,36 @@ function ReviewFilterChip(props: {
   readonly count: number;
   readonly href: string;
 }): React.JSX.Element {
+  const disabled = props.option.id !== "all" && props.count === 0;
+  const disabledReasonId = `reviews-hub-filter-${props.option.id}-disabled-reason`;
+
   return (
-    <FilterChip
-      href={props.href}
-      scroll={false}
-      className={buyerFilterChipClass(props.selected, false)}
-      aria-current={props.selected ? "page" : undefined}
-      aria-label={`Filter reviews: ${props.option.label}${props.count > 0 ? ` (${props.count})` : ""}`}
-    >
-      <span>{props.option.label}</span>
-      {props.count > 0 ? (
-        <span
-          className="ml-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-100"
-          aria-hidden
-        >
-          {props.count}
+    <span className="inline-flex">
+      <FilterChip
+        href={disabled ? undefined : props.href}
+        scroll={false}
+        className={buyerFilterChipClass(props.selected, disabled, props.count === 0)}
+        aria-current={props.selected ? "page" : undefined}
+        aria-label={`Filter reviews: ${props.option.label}${props.count > 0 ? ` (${props.count})` : ""}`}
+        aria-describedby={disabled ? disabledReasonId : undefined}
+        disabled={disabled}
+      >
+        <span>{props.option.label}</span>
+        {props.count > 0 ? (
+          <span
+            className="ml-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-100"
+            aria-hidden
+          >
+            {props.count}
+          </span>
+        ) : null}
+      </FilterChip>
+      {disabled ? (
+        <span id={disabledReasonId} className="sr-only">
+          {reviewsHubInventoryFilterEmptyReason(props.option.id)}
         </span>
       ) : null}
-    </FilterChip>
+    </span>
   );
 }
 

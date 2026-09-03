@@ -1,21 +1,61 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { useSyncExternalStore, type ReactElement, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  buyerPolishedShellVitestOverride,
-  extendBuyerPolishedShellVitestMock,
-} from "@/testing/buyer-polished-shell-vitest-override";
+const runsListSearchParamsHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { query: "" };
+
+  return {
+    state,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyHref(href: string): void {
+      try {
+        const url = new URL(href, "http://localhost/");
+        state.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+      } catch {
+        const qIndex = href.indexOf("?");
+        state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+      }
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.query = "";
+    },
+  };
+});
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useSearchParams: () => new URLSearchParams(),
-  redirect: vi.fn(),
+    useSearchParams: () => new URLSearchParams(runsListSearchParamsHarness.state.query),
+    usePathname: () => "/architecture/reviews",
+    useRouter: () => ({
+      replace: (href: string) => {
+        runsListSearchParamsHarness.applyHref(href);
+      },
+      push: vi.fn(),
+    }),
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
 });
+
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
@@ -29,6 +69,7 @@ import type { RunSummary } from "@/types/authority";
 
 beforeEach(() => {
   buyerPolishedShellVitestOverride.value = false;
+  runsListSearchParamsHarness.reset();
 });
 
 afterEach(() => {
@@ -45,6 +86,22 @@ const sampleRun: RunSummary = {
   hasFindingsSnapshot: true,
   hasGoldenManifest: false,
 };
+
+function RunsListSearchParamsRerenderHost({ children }: { readonly children: ReactNode }): ReactElement {
+  useSyncExternalStore(
+    runsListSearchParamsHarness.subscribe,
+    () => runsListSearchParamsHarness.state.query,
+    () => "",
+  );
+
+  return <>{children}</>;
+}
+
+function renderRunsList(ui: ReactElement, searchQuery = "") {
+  runsListSearchParamsHarness.state.query = searchQuery;
+
+  return render(<RunsListSearchParamsRerenderHost>{ui}</RunsListSearchParamsRerenderHost>);
+}
 
 describe("RunsListClient inspector", () => {
   it("collapses showcase alias + canonical rows into one table row (unique data-testid)", () => {
@@ -204,12 +261,12 @@ describe("RunsListClient inspector", () => {
       hasGoldenManifest: true,
     };
 
-    render(
+    renderRunsList(
       <RunsListClient runs={[committed, committed2]} projectId="default" page={1} pageSize={20} totalCount={2} />,
     );
 
     expect(screen.getByRole("heading", { name: /finalized architecture reviews/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /show:\s*finalized packages/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /show:\s*finalized packages/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Search reviews by title or description/i)).toBeInTheDocument();
   });
 
@@ -242,14 +299,10 @@ describe("RunsListClient inspector", () => {
       hasGoldenManifest: true,
     };
 
-    render(
+    renderRunsList(
       <RunsListClient runs={[inFlight, committed]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "scope=finalized",
     );
-
-    expect(screen.getByTestId(`runs-row-${inFlight.runId}`)).toBeInTheDocument();
-    expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /show:\s*finalized packages/i }));
 
     expect(screen.queryByTestId(`runs-row-${inFlight.runId}`)).toBeNull();
     expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();

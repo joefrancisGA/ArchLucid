@@ -107,10 +107,17 @@ describe("GcpCloudConnectionDetailClient", () => {
       );
     }
     const sources = screen.getByTestId("cloud-connections-gcp-sources");
-    expect(within(sources).getByRole("link", { name: "Open Connection status" })).toHaveAttribute(
+    expect(within(sources).getByRole("link", { name: "Open Cloud connections" })).toHaveAttribute(
       "href",
-      "/administration/connection-status",
+      "/integrations/cloud-connections",
     );
+    expect(within(sources).getByRole("link", { name: "Read Connect GCP securely" })).toHaveAttribute(
+      "href",
+      "/help/cloud-connections/gcp",
+    );
+    expect(
+      within(sources).queryByRole("link", { name: "Open Connection status" }),
+    ).not.toBeInTheDocument();
     expect(
       within(sources).queryByRole("link", { name: /integrations\/cloud-connections\/gcp/i }),
     ).not.toBeInTheDocument();
