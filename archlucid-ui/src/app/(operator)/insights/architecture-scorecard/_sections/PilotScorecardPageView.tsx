@@ -7,12 +7,10 @@ import { useCallback, useMemo } from "react";
 
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { DocumentLayout } from "@/components/DocumentLayout";
-import { ArchitectureScorecardBreadcrumb } from "@/components/insights/ArchitectureScorecardBreadcrumb";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
-import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import {
   ARCHITECTURE_SCORECARD_PRIMARY_CONTENT_ID,
@@ -213,7 +211,6 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             navHref={ARCHITECTURE_SCORECARD_PATH}
             title={REVIEW_SCORECARD_PAGE_TITLE}
             headingLevel="h1"
-            breadcrumb={buyerPolishedShell ? <ArchitectureScorecardBreadcrumb /> : undefined}
             subtitle={REVIEW_SCORECARD_PAGE_SUBTITLE}
             claimDiscipline={ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}
             claimDisciplineTestId="architecture-scorecard-claim-discipline"
@@ -238,36 +235,31 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               </>
             }
             actions={
-              buyerPolishedShell ? (
-                <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
-              ) : (
-                <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end print:hidden">
-                  <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
-                  <nav
-                    aria-label="Related value reports"
-                    className={cn(
-                      "flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary",
-                      OPERATOR_TYPOGRAPHY.helper,
-                    )}
-                  >
-                    <Link href={SPONSOR_REPORT_ROI_SUMMARY_PATH} className={OPERATOR_LINK.inline}>
-                      ROI summary
-                    </Link>
-                    <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
-                      Baseline settings
-                    </Link>
-                    <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
-                      Workspace health
-                    </Link>
-                  </nav>
-                </div>
+              buyerPolishedShell ? null : (
+                <nav
+                  aria-label="Related value reports"
+                  className={cn(
+                    "flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary print:hidden",
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                >
+                  <Link href={SPONSOR_REPORT_ROI_SUMMARY_PATH} className={OPERATOR_LINK.inline}>
+                    ROI summary
+                  </Link>
+                  <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
+                    Baseline settings
+                  </Link>
+                  <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
+                    Workspace health
+                  </Link>
+                </nav>
               )
             }
           />
 
           <div
             id={ARCHITECTURE_SCORECARD_FIRST_VIEWPORT_ID}
-            className="scroll-mt-24 space-y-4"
+            className="scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
             data-testid={ARCHITECTURE_SCORECARD_FIRST_VIEWPORT_ID}
           >
       {sampleMode ? (
