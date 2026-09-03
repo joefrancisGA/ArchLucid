@@ -5,6 +5,7 @@ import {
   AccountSecuritySettingsEvidenceOrientationStrip,
   AiUsageSettingsEvidenceOrientationStrip,
   AuthDomainsSettingsEvidenceOrientationStrip,
+  DeveloperSettingsEvidenceOrientationStrip,
   IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip,
   IdentityProvidersOidcSettingsEvidenceOrientationStrip,
   IdentityProvidersSamlSettingsEvidenceOrientationStrip,
@@ -25,6 +26,7 @@ const ADMIN_SETTINGS_SOURCES_ONLY_STRIPS: ReadonlyArray<{
 }> = [
   { testId: "account-security-settings-claim-discipline", Strip: AccountSecuritySettingsEvidenceOrientationStrip },
   { testId: "auth-domains-settings-claim-discipline", Strip: AuthDomainsSettingsEvidenceOrientationStrip },
+  { testId: "developer-settings-claim-discipline", Strip: DeveloperSettingsEvidenceOrientationStrip },
   { testId: "model-governance-settings-claim-discipline", Strip: ModelGovernanceSettingsEvidenceOrientationStrip },
   { testId: "ai-usage-settings-claim-discipline", Strip: AiUsageSettingsEvidenceOrientationStrip },
   { testId: "identity-providers-settings-claim-discipline", Strip: IdentityProvidersSettingsEvidenceOrientationStrip },

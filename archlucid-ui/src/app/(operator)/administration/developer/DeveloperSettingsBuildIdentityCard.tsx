@@ -1,22 +1,25 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import {
   formatCiBuildNumberLabel,
   formatShortCommitSha,
+  isKnownFingerprintValue,
   readClientDeploymentFingerprint,
 } from "@/lib/deployment-fingerprint";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readPublicBrowserApiBaseDefault } from "@/lib/legacy-arch-env";
-import {
-  isUiAuthorityThemeEvalEnabledEnv,
-  resolveAuthorityThemeFromEnv,
-} from "@/lib/ui-authority-theme";
 import { cn } from "@/lib/utils";
 
-const envDefaultTheme = resolveAuthorityThemeFromEnv(process.env.NEXT_PUBLIC_UI_AUTHORITY_THEME);
-const authorityThemeEvalEnabled = isUiAuthorityThemeEvalEnabledEnv();
+const DEVELOPER_SETTINGS_FINGERPRINT_UNAVAILABLE = "Not set in this build" as const;
+
+function formatDeveloperFingerprintValue(value: string): string {
+  if (!isKnownFingerprintValue(value)) {
+    return DEVELOPER_SETTINGS_FINGERPRINT_UNAVAILABLE;
+  }
+
+  return value;
+}
 
 /** Build and environment facts for internal developer diagnostics (SDX-P0-6). */
 export function DeveloperSettingsBuildIdentityCard(): React.JSX.Element {
@@ -38,44 +41,31 @@ export function DeveloperSettingsBuildIdentityCard(): React.JSX.Element {
           <div>
             <dt className="text-al-text-secondary">CI build</dt>
             <dd className={cn("m-0 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-              {formatCiBuildNumberLabel(fingerprint.ciBuildNumber) ?? "—"}
+              {formatCiBuildNumberLabel(fingerprint.ciBuildNumber) ?? DEVELOPER_SETTINGS_FINGERPRINT_UNAVAILABLE}
             </dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">UI commit</dt>
             <dd className={cn("m-0 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-              {formatShortCommitSha(fingerprint.frontendCommitSha)}
+              {isKnownFingerprintValue(fingerprint.frontendCommitSha)
+                ? formatShortCommitSha(fingerprint.frontendCommitSha)
+                : DEVELOPER_SETTINGS_FINGERPRINT_UNAVAILABLE}
             </dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Environment</dt>
-            <dd className="m-0 text-al-text-primary">{fingerprint.environment}</dd>
+            <dd className="m-0 text-al-text-primary">{formatDeveloperFingerprintValue(fingerprint.environment)}</dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Build timestamp</dt>
-            <dd className="m-0 text-al-text-primary">{fingerprint.buildTimestamp}</dd>
+            <dd className="m-0 text-al-text-primary">
+              {formatDeveloperFingerprintValue(fingerprint.buildTimestamp)}
+            </dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">API base URL</dt>
             <dd className={cn("m-0 break-all font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-              {apiBaseUrl.length > 0 ? apiBaseUrl : " — "}
-            </dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="text-al-text-secondary">Authority theme</dt>
-            <dd className="m-0 flex flex-wrap items-center gap-2 text-al-text-primary">
-              <span data-testid="developer-settings-authority-theme-default">
-                Build default: {envDefaultTheme}
-              </span>
-              <StatusTag
-                kind={authorityThemeEvalEnabled ? "ready" : "neutral"}
-                label={
-                  authorityThemeEvalEnabled
-                    ? "Shell theme toggle enabled"
-                    : "Shell theme toggle off"
-                }
-                data-testid="developer-settings-authority-theme-eval-flag"
-              />
+              {apiBaseUrl.length > 0 ? apiBaseUrl : DEVELOPER_SETTINGS_FINGERPRINT_UNAVAILABLE}
             </dd>
           </div>
         </dl>
