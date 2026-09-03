@@ -2880,11 +2880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 120
-- **bugs-found:** 276
+- **hunts:** 121
+- **bugs-found:** 277
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — bulk NeedsEvidence evidenceRequestText parity
+- **last-bug:** 2026-09-03 — CreateRiskException remediated disposition guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3434,6 +3434,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Digest `ianaTimeZoneId` longer than SQL `NVARCHAR(128)` — `IanaTimeZonePreferenceValues.NormalizeOrNull` rejects unknown ids before persist (#2962–#2963); valid IANA ids are well under 128 chars.
 
 2026-09-03 seed hunt #567: promoted and proved bulk `NeedsEvidence` `EvidenceRequestText` contract parity; cheap-disproved manifestId empty-guid, bulk RunId, and digest timezone length candidates.
+
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `RiskExceptionService.CreateAsync` — waiver create returned HTTP 200 when latest finding disposition was `Remediated` while renew already rejected via `RiskExceptionDispositionGuard` — **hit 2026-09-03 (#568):** call `EnsureWaiverAllowedForFindingAsync` on create (parity with renew); regression in `RiskExceptionServiceTests.CreateAsync_rejects_when_finding_latest_disposition_is_remediated` and `GovernanceStickinessControllerTests.CreateRiskException_returns_bad_request_when_finding_latest_disposition_is_remediated`.
+
+2026-09-03 seed hunt #568: promoted and proved CreateRiskException remediated-disposition guard parity with renew.
 
 ---
 
