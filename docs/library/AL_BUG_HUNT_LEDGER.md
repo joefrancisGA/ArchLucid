@@ -2880,11 +2880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 123
-- **bugs-found:** 279
+- **hunts:** 124
+- **bugs-found:** 280
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — RevokeRiskException double-revoke HTTP 409
+- **last-bug:** 2026-09-03 — finding/run authority binding on waiver create and disposition
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3456,6 +3456,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantBaselineController` / `TenantWorkspacesController` / `TenantHomepageSettingsController` ghost-tenant and empty-guid route validation — tenant preflight and empty-guid guards on proven read/mutate paths (ledger hunts #102–#303, #3096).
 
 2026-09-03 seed hunt #570: promoted and proved RevokeRiskException lifecycle conflict mapping for revoked/expired waivers.
+
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `RecordDisposition` / `GovernanceStickinessFacade` — in-scope `findingId` with body `runId` from a different in-scope authority run returned HTTP 200 while inspect exposes the finding's authority `RunId` — **hit 2026-09-03 (#571):** `EnsureRunMatchesFindingAuthorityRun` compares inspect `RunId` before scoped run preflight; controller maps `ArgumentException` → HTTP 400; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
+
+- [ ] (candidate) `GovernanceStickinessController.CreateRiskException` / `RiskExceptionService.CreateAsync` — second active waiver for the same finding returns HTTP 200 (no uniqueness guard on `(TenantId, FindingId, Active)`).
+
+2026-09-03 seed hunt #571: promoted and proved finding/run authority binding on waiver create and disposition record; seeded duplicate-active-waiver candidate.
 
 ---
 

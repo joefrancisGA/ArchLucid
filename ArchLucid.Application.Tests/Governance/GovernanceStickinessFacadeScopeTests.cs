@@ -100,6 +100,57 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task RecordDispositionAsync_throws_when_run_id_does_not_match_finding_authority_run()
+    {
+        Guid authorityRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid otherInScopeRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = "finding-1",
+                RunId = authorityRunId,
+            });
+
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, otherInScopeRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord { RunId = otherInScopeRunId });
+
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: findings.Object,
+            runRepository: runs.Object,
+            dispositionService: dispositions.Object);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = otherInScopeRunId,
+            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+            Rationale = "accepted with mismatched run",
+            TradeOffAcknowledgment = "accepted with mismatched run",
+        };
+
+        Func<Task> act = () => sut.RecordDispositionAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*authority run*");
+
+        dispositions.VerifyNoOtherCalls();
+        runs.Verify(
+            r => r.GetByIdAsync(CallerScope, otherInScopeRunId, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RecordDispositionAsync_throws_when_run_id_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -423,6 +474,58 @@ public sealed class GovernanceStickinessFacadeScopeTests
             .WithMessage("*Finding was not found*");
 
         riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CreateRiskExceptionAsync_throws_when_run_id_does_not_match_finding_authority_run()
+    {
+        Guid authorityRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid otherInScopeRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = "finding-1",
+                RunId = authorityRunId,
+            });
+
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, otherInScopeRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord { RunId = otherInScopeRunId });
+
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: findings.Object,
+            runRepository: runs.Object,
+            riskExceptionService: riskExceptions.Object);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = otherInScopeRunId,
+            OwnerUserId = "owner",
+            Rationale = "accepted risk",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        Func<Task> act = () => sut.CreateRiskExceptionAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*authority run*");
+
+        riskExceptions.VerifyNoOtherCalls();
+        runs.Verify(
+            r => r.GetByIdAsync(CallerScope, otherInScopeRunId, It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

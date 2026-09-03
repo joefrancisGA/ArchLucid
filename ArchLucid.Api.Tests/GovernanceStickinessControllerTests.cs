@@ -1505,6 +1505,111 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_run_id_does_not_match_finding_authority_run()
+    {
+        Guid authorityRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid otherInScopeRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = "finding-1",
+                RunId = authorityRunId,
+            });
+
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, otherInScopeRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = otherInScopeRunId });
+
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            runRepository: runs,
+            riskExceptions: riskExceptions);
+        SetIdempotencyKey(controller);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = otherInScopeRunId,
+            OwnerUserId = "owner",
+            Rationale = "accepted risk",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        riskExceptions.VerifyNoOtherCalls();
+        runs.Verify(
+            r => r.GetByIdAsync(Scope, otherInScopeRunId, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_run_id_does_not_match_finding_authority_run()
+    {
+        Guid authorityRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid otherInScopeRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = "finding-1",
+                RunId = authorityRunId,
+            });
+
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, otherInScopeRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = otherInScopeRunId });
+
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            runRepository: runs,
+            dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = otherInScopeRunId,
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "accepted with mismatched run",
+            TradeOffAcknowledgment = "accepted with mismatched run",
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        dispositions.VerifyNoOtherCalls();
+        runs.Verify(
+            r => r.GetByIdAsync(Scope, otherInScopeRunId, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_not_found_when_run_id_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
