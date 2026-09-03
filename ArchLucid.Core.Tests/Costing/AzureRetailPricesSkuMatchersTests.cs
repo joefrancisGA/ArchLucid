@@ -223,4 +223,35 @@ public sealed class AzureRetailPricesSkuMatchersTests
         ok.Should().BeFalse();
         monthly.Should().Be(0m);
     }
+
+    [Fact]
+    public void LooksLikeConsumptionUsd_rejects_moment_slash_mo_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1/moment",
+            UnitPrice = 12.34m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryMonthlyUsdFromRow_rejects_moment_slash_mo_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1/moment",
+            UnitPrice = 12.34m,
+        };
+
+        bool ok = AzureRetailPricesCatalogClient.TryMonthlyUsdFromRow(dto, 1, out decimal monthly);
+
+        ok.Should().BeFalse();
+        monthly.Should().Be(0m);
+    }
 }
