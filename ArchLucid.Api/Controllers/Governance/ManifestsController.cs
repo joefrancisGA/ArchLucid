@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
@@ -47,6 +48,7 @@ public sealed partial class ManifestsController(
     IScopeContextProvider scopeContextProvider,
     IRunRepository runRepository,
     IAuthorityQueryService authorityQueryService,
+    ICompareRunsApplicationFacade compareRunsFacade,
     ITenantRepository tenantRepository)
     : ControllerBase
 {
@@ -66,6 +68,9 @@ public sealed partial class ManifestsController(
 
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly ICompareRunsApplicationFacade _compareRunsFacade =
+        compareRunsFacade ?? throw new ArgumentNullException(nameof(compareRunsFacade));
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));

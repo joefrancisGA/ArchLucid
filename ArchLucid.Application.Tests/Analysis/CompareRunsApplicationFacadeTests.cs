@@ -4,7 +4,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -96,6 +96,7 @@ public sealed class CompareRunsApplicationFacadeTests
             authority ?? new Mock<IAuthorityQueryService>().Object,
             runDetail ?? new Mock<IRunDetailQueryService>().Object,
             new Mock<IRunRepository>().Object,
+            new Mock<IUnifiedGoldenManifestReader>().Object,
             comparison ?? new Mock<IComparisonService>().Object,
             agentResultDiff ?? new Mock<IAgentResultDiffService>().Object,
             scopeProvider.Object);
