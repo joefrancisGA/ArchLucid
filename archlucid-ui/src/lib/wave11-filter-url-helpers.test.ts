@@ -416,3 +416,230 @@ describe("wave15 filter url helpers", () => {
     );
   });
 });
+
+describe("wave17 filter url helpers", () => {
+  it("sealed records search/sort and standards evidence/enforcement params", async () => {
+    const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
+      "@/lib/signed-records/signed-records-list-search"
+    );
+    const {
+      parseSignedRecordsListSortKeyFromSearch,
+      signedRecordsListSortHrefFromSearch,
+    } = await import("@/lib/signed-records/signed-records-list-sort-url");
+    const {
+      parseStandardsRulesEvidenceCoverageFromSearch,
+      standardsRulesEvidenceCoverageHrefFromSearch,
+      parseStandardsRulesEnforcementFromSearch,
+      standardsRulesEnforcementHrefFromSearch,
+    } = await import("@/lib/governance/standards-rules-filters-url");
+
+    expect(parseSignedRecordsListSearchQuery("manifest-1")).toBe("manifest-1");
+    expect(signedRecordsListSearchHrefFromSearch("integrity=sealed", "phi")).toBe(
+      "/governance/sealed-records?integrity=sealed&q=phi",
+    );
+    expect(parseSignedRecordsListSortKeyFromSearch("reviewTitle")).toBe("reviewTitle");
+    expect(signedRecordsListSortHrefFromSearch("q=phi", "reviewTitle", true)).toBe(
+      "/governance/sealed-records?q=phi&sort=reviewTitle&dir=asc",
+    );
+    expect(parseStandardsRulesEvidenceCoverageFromSearch("unevidenced")).toBe("unevidenced");
+    expect(standardsRulesEvidenceCoverageHrefFromSearch("q=vpc", "evidenced")).toBe(
+      "/governance/standards-and-rules?q=vpc&evidenceCoverage=evidenced",
+    );
+    expect(parseStandardsRulesEnforcementFromSearch("Required")).toBe("Required");
+    expect(standardsRulesEnforcementHrefFromSearch("severity=High", "Required")).toBe(
+      "/governance/standards-and-rules?severity=High&enforcement=Required",
+    );
+  });
+
+  it("pattern library type/risk, planning theme, and provenance table params", async () => {
+    const {
+      parsePatternLibraryTypeFromSearch,
+      patternLibraryTypeHrefFromSearch,
+      parsePatternLibraryRiskFromSearch,
+      patternLibraryRiskHrefFromSearch,
+    } = await import("@/lib/insights/pattern-library-filters-url");
+    const { parsePlanningThemeIdFromSearch, planningThemeHrefFromSearch } = await import(
+      "@/lib/planning/planning-theme-filter-url"
+    );
+    const {
+      parseProvenanceTableSearchQueryFromSearch,
+      provenanceTableSearchHrefFromSearch,
+      parseProvenanceTableNodeTypeFromSearch,
+      provenanceTableNodeTypeHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-workspace-filters-url");
+
+    expect(parsePatternLibraryTypeFromSearch("Security")).toBe("Security");
+    expect(patternLibraryTypeHrefFromSearch("q=vpc", "Data")).toBe("/insights/patterns?q=vpc&type=Data");
+    expect(parsePatternLibraryRiskFromSearch("High")).toBe("High");
+    expect(patternLibraryRiskHrefFromSearch("domain=SaaS", "Moderate")).toBe(
+      "/insights/patterns?domain=SaaS&risk=Moderate",
+    );
+    expect(parsePlanningThemeIdFromSearch("theme-1")).toBe("theme-1");
+    expect(planningThemeHrefFromSearch("runId=r1", "theme-1")).toBe(
+      "/insights/improvement-planning?runId=r1&theme=theme-1",
+    );
+    expect(parseProvenanceTableSearchQueryFromSearch("node-1")).toBe("node-1");
+    expect(
+      provenanceTableSearchHrefFromSearch("view=table", "evidence", "/architecture/reviews/r1/provenance"),
+    ).toBe("/architecture/reviews/r1/provenance?view=table&q=evidence");
+    expect(parseProvenanceTableNodeTypeFromSearch("Finding")).toBe("Finding");
+    expect(
+      provenanceTableNodeTypeHrefFromSearch("q=phi", "Decision", "/architecture/reviews/r1/provenance"),
+    ).toBe("/architecture/reviews/r1/provenance?q=phi&nodeType=Decision");
+  });
+
+  it("graph node/decision id, cloud platform, and impact preview scope params", async () => {
+    const { parseGraphNodeIdFromSearch, graphNodeIdHrefFromSearch, parseGraphDecisionIdFromSearch, graphDecisionIdHrefFromSearch } =
+      await import("@/lib/insights/graph-node-decision-id-url");
+    const { parseCloudConnectionsPlatformFromSearch, cloudConnectionsPlatformHrefFromSearch } = await import(
+      "@/lib/integrations/cloud-connections-platform-url"
+    );
+    const {
+      parseImpactPreviewComparisonScopeFromSearch,
+      impactPreviewComparisonScopeHrefFromSearch,
+      impactPreviewComparisonScopeToggleHrefFromSearch,
+    } = await import("@/lib/impact-preview/impact-preview-comparison-scope-url");
+
+    expect(parseGraphNodeIdFromSearch("node-42")).toBe("node-42");
+    expect(graphNodeIdHrefFromSearch("runId=r1&graphMode=node-neighborhood", "node-42")).toBe(
+      "/insights/evidence-graph?runId=r1&graphMode=node-neighborhood&nodeId=node-42",
+    );
+    expect(parseGraphDecisionIdFromSearch("claims.boundary")).toBe("claims.boundary");
+    expect(graphDecisionIdHrefFromSearch("runId=r1", "claims.boundary")).toBe(
+      "/insights/evidence-graph?runId=r1&decisionId=claims.boundary",
+    );
+    expect(parseCloudConnectionsPlatformFromSearch("aws")).toBe("aws");
+    expect(cloudConnectionsPlatformHrefFromSearch("", "azure")).toBe("/integrations/cloud-connections?platform=azure");
+    expect(parseImpactPreviewComparisonScopeFromSearch("findings,risk")).toEqual({
+      findings: true,
+      risk: true,
+      cost: false,
+      governance: false,
+      evidence: false,
+    });
+    expect(impactPreviewComparisonScopeHrefFromSearch("", { findings: true, risk: true, cost: false, governance: false, evidence: false })).toBe(
+      "/insights/impact-preview?scope=findings%2Crisk",
+    );
+    expect(
+      impactPreviewComparisonScopeToggleHrefFromSearch(
+        "scope=findings,risk",
+        "cost",
+        { findings: true, risk: true, cost: false, governance: false, evidence: false },
+      ),
+    ).toBe("/insights/impact-preview?scope=findings%2Crisk%2Ccost");
+  });
+});
+
+describe("wave16 filter url helpers", () => {
+  it("audit trail action, actor, and search params", async () => {
+    const {
+      parseAuditTrailActionFromSearch,
+      auditTrailActionHrefFromSearch,
+      parseAuditTrailActorFromSearch,
+      auditTrailActorHrefFromSearch,
+      parseAuditTrailSearchQueryFromSearch,
+      auditTrailSearchHrefFromSearch,
+    } = await import("@/lib/governance/audit-trail-filters-url");
+
+    expect(parseAuditTrailActionFromSearch("ReviewCompleted")).toBe("ReviewCompleted");
+    expect(auditTrailActionHrefFromSearch("range=24h", "ReviewCompleted")).toBe(
+      "/governance/audit?range=24h&action=ReviewCompleted",
+    );
+    expect(parseAuditTrailActorFromSearch("architect@contoso.com")).toBe("architect@contoso.com");
+    expect(auditTrailActorHrefFromSearch("action=ReviewCompleted", "architect@contoso.com")).toBe(
+      "/governance/audit?action=ReviewCompleted&actor=architect%40contoso.com",
+    );
+    expect(parseAuditTrailSearchQueryFromSearch("correlation-1")).toBe("correlation-1");
+    expect(auditTrailSearchHrefFromSearch("runId=r1", "phi")).toBe("/governance/audit?runId=r1&q=phi");
+  });
+
+  it("governance findings nl severity/status and assigned-to-me sort params", async () => {
+    const {
+      parseGovernanceFindingsNlSeverityFromSearch,
+      governanceFindingsNlSeverityHrefFromSearch,
+      parseGovernanceFindingsNlStatusFromSearch,
+      governanceFindingsNlStatusHrefFromSearch,
+    } = await import("@/lib/governance/governance-findings-queue-nl-facets-url");
+    const {
+      parseGovernanceAssignedToMeSortKeyFromSearch,
+      governanceAssignedToMeSortHrefFromSearch,
+    } = await import("@/lib/governance/governance-assigned-to-me-queue-sort-url");
+
+    expect(parseGovernanceFindingsNlSeverityFromSearch("high")).toBe("high");
+    expect(governanceFindingsNlSeverityHrefFromSearch("findingJobView=verify-hypotheses", "critical")).toBe(
+      "/governance/findings?findingJobView=verify-hypotheses&severity=critical",
+    );
+    expect(parseGovernanceFindingsNlStatusFromSearch("open")).toBe("open");
+    expect(governanceFindingsNlStatusHrefFromSearch("severity=high", "disposed")).toBe(
+      "/governance/findings?severity=high&status=disposed",
+    );
+    expect(parseGovernanceAssignedToMeSortKeyFromSearch("due")).toBe("due");
+    expect(governanceAssignedToMeSortHrefFromSearch("", "due", false)).toBe(
+      "/governance/findings/assigned-to-me?sort=due&dir=desc",
+    );
+  });
+
+  it("standards linked findings, decision confidence band, and provenance filters", async () => {
+    const {
+      parseStandardsRulesLinkedFindingsFromSearch,
+      standardsRulesLinkedFindingsHrefFromSearch,
+    } = await import("@/lib/governance/standards-rules-filters-url");
+    const {
+      parseDecisionRegisterMinConfidenceFromSearch,
+      decisionRegisterMinConfidenceHrefFromSearch,
+      decisionRegisterMaxConfidenceHrefFromSearch,
+    } = await import("@/lib/governance/decision-register-confidence-band-url");
+    const {
+      parseProvenanceViewModeFromSearch,
+      provenanceViewModeHrefFromSearch,
+      parseProvenanceCategoryFromSearch,
+      provenanceCategoryHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-workspace-filters-url");
+
+    expect(parseStandardsRulesLinkedFindingsFromSearch("unlinked")).toBe("unlinked");
+    expect(standardsRulesLinkedFindingsHrefFromSearch("q=vpc", "linked")).toBe(
+      "/governance/standards-and-rules?q=vpc&linkedFindings=linked",
+    );
+    expect(parseDecisionRegisterMinConfidenceFromSearch("0.5")).toBe("0.5");
+    expect(decisionRegisterMinConfidenceHrefFromSearch("category=Security", "0.75")).toBe(
+      "/governance/decision-register?category=Security&minConfidence=0.75",
+    );
+    expect(decisionRegisterMaxConfidenceHrefFromSearch("minConfidence=0.5", "0.9")).toBe(
+      "/governance/decision-register?minConfidence=0.5&maxConfidence=0.9",
+    );
+    expect(parseProvenanceViewModeFromSearch("table")).toBe("table");
+    expect(provenanceViewModeHrefFromSearch("runId=r1", "timeline", "/architecture/reviews/r1/provenance")).toBe(
+      "/architecture/reviews/r1/provenance?runId=r1&view=timeline",
+    );
+    expect(parseProvenanceCategoryFromSearch("findings")).toBe("findings");
+    expect(provenanceCategoryHrefFromSearch("", "evidence", "/architecture/reviews/r1/provenance")).toBe(
+      "/architecture/reviews/r1/provenance?category=evidence",
+    );
+  });
+
+  it("sponsor roi range, graph depth, and help troubleshooting search params", async () => {
+    const { parseSponsorRoiTrendRangeFromSearch, sponsorRoiTrendRangeHrefFromSearch } = await import(
+      "@/lib/sponsor/sponsor-roi-trend-range-url"
+    );
+    const { parseGraphNeighborhoodDepthFromSearch, graphNeighborhoodDepthHrefFromSearch } = await import(
+      "@/lib/insights/graph-neighborhood-depth-url"
+    );
+    const {
+      parseHelpTroubleshootingSearchQuery,
+      helpTroubleshootingSearchHrefFromSearch,
+    } = await import("@/lib/help/help-troubleshooting-search-url");
+
+    expect(parseSponsorRoiTrendRangeFromSearch("year")).toBe("year");
+    expect(sponsorRoiTrendRangeHrefFromSearch("runId=r1", "30d")).toBe(
+      "/architecture/sponsor-dashboard?runId=r1&range=30d",
+    );
+    expect(parseGraphNeighborhoodDepthFromSearch("3")).toBe(3);
+    expect(graphNeighborhoodDepthHrefFromSearch("runId=r1&graphMode=node-neighborhood", 2)).toBe(
+      "/insights/evidence-graph?runId=r1&graphMode=node-neighborhood&depth=2",
+    );
+    expect(parseHelpTroubleshootingSearchQuery("export failed")).toBe("export failed");
+    expect(helpTroubleshootingSearchHrefFromSearch("", "workspace empty")).toBe(
+      "/help/troubleshooting?q=workspace+empty",
+    );
+  });
+});

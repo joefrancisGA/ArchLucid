@@ -67,6 +67,12 @@ public sealed class ArchitectureReviewExportService(
             throw new ConflictException(
                 "This finalized review references an architecture snapshot that could not be loaded from storage. Resolve the broken manifest reference before exporting.");
 
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
+
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
+
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
+
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());

@@ -127,6 +127,12 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                     allowAnonymousAttribute))
                 continue;
 
+            if (MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain(
+                    method,
+                    authorizeAttribute,
+                    allowAnonymousAttribute))
+                continue;
+
             Location? location = method.Locations.FirstOrDefault();
 
             if (location is null)
@@ -271,6 +277,22 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         for (INamedTypeSymbol? current = attributeClass; current is not null; current = current.BaseType)
         {
             if (SymbolEqualityComparer.Default.Equals(current, targetAttribute))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain(
+        IMethodSymbol method,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute)
+    {
+        for (IMethodSymbol? overridden = method.OverriddenMethod;
+             overridden is not null;
+             overridden = overridden.OverriddenMethod)
+        {
+            if (SymbolHasAuthorizeOrAllowAnonymous(overridden, authorizeAttribute, allowAnonymousAttribute))
                 return true;
         }
 

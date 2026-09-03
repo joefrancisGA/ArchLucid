@@ -98,6 +98,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
                 if (!MethodSpecifiesTrackedVerb(methodDeclaredSymbol)) continue;
 
+                if (IsShadowedVirtualMutatingAction(methodDeclaredSymbol, compilationScoped))
+                    continue;
+
                 string fqAllowlistKeyScoped = FormatAllowlistKey(methodDeclaredSymbol);
 
                 if (allowFqEntries.Contains(fqAllowlistKeyScoped))
@@ -140,8 +143,107 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (nonActionAttributeTypeSymbolScoped is null)
             return true;
 
-        return !methodDeclaredSymbol.GetAttributes().Any(a =>
-            SymbolEqualityComparer.Default.Equals(a.AttributeClass, nonActionAttributeTypeSymbolScoped));
+        if (MethodHasAttribute(methodDeclaredSymbol, nonActionAttributeTypeSymbolScoped))
+            return false;
+
+        if (!MethodHasTrackedVerbAttribute(methodDeclaredSymbol))
+        {
+            for (IMethodSymbol? overriddenMethod = methodDeclaredSymbol.OverriddenMethod;
+                 overriddenMethod is not null;
+                 overriddenMethod = overriddenMethod.OverriddenMethod)
+            {
+                if (MethodHasAttribute(overriddenMethod, nonActionAttributeTypeSymbolScoped))
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool MethodHasAttribute(IMethodSymbol method, INamedTypeSymbol attributeType) =>
+        method.GetAttributes().Any(attribute =>
+            SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeType));
+
+    private static bool IsShadowedVirtualMutatingAction(IMethodSymbol method, Compilation compilation)
+    {
+        if (!method.IsVirtual || method.IsAbstract || method.IsOverride)
+            return false;
+
+        if (!MethodHasTrackedVerbAttribute(method))
+            return false;
+
+        INamedTypeSymbol containingType = method.ContainingType;
+
+        foreach (INamedTypeSymbol candidateType in GetNamedTypesInAssembly(compilation.Assembly))
+        {
+            if (SymbolEqualityComparer.Default.Equals(candidateType, containingType) ||
+                !TypeExtends(candidateType, containingType))
+            {
+                continue;
+            }
+
+            foreach (ISymbol member in candidateType.GetMembers(method.Name))
+            {
+                if (member is not IMethodSymbol derivedMethod || !derivedMethod.IsOverride)
+                    continue;
+
+                if (OverridesMethod(derivedMethod, method))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool OverridesMethod(IMethodSymbol derivedMethod, IMethodSymbol targetMethod)
+    {
+        for (IMethodSymbol? overriddenMethod = derivedMethod.OverriddenMethod;
+             overriddenMethod is not null;
+             overriddenMethod = overriddenMethod.OverriddenMethod)
+        {
+            if (SymbolEqualityComparer.Default.Equals(overriddenMethod, targetMethod))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TypeExtends(INamedTypeSymbol derivedType, INamedTypeSymbol baseType)
+    {
+        for (INamedTypeSymbol? walker = derivedType.BaseType;
+             walker is not null;
+             walker = walker.BaseType)
+        {
+            if (SymbolEqualityComparer.Default.Equals(walker, baseType))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<INamedTypeSymbol> GetNamedTypesInAssembly(IAssemblySymbol assembly)
+    {
+        foreach (INamespaceSymbol namespaceSymbol in GetNamespaces(assembly.GlobalNamespace))
+        {
+            foreach (INamedTypeSymbol type in namespaceSymbol.GetTypeMembers())
+            {
+                yield return type;
+
+                foreach (INamedTypeSymbol nestedType in type.GetTypeMembers())
+                    yield return nestedType;
+            }
+        }
+    }
+
+    private static IEnumerable<INamespaceSymbol> GetNamespaces(INamespaceSymbol root)
+    {
+        yield return root;
+
+        foreach (INamespaceSymbol child in root.GetNamespaceMembers())
+        {
+            foreach (INamespaceSymbol nested in GetNamespaces(child))
+                yield return nested;
+        }
     }
 
     private static bool InheritsControllerBase(
@@ -198,6 +300,22 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
     private static bool MethodSpecifiesTrackedVerb(IMethodSymbol methodDeclaredSymbolScoped)
     {
+        if (MethodHasTrackedVerbAttribute(methodDeclaredSymbolScoped))
+            return true;
+
+        for (IMethodSymbol? overriddenMethod = methodDeclaredSymbolScoped.OverriddenMethod;
+             overriddenMethod is not null;
+             overriddenMethod = overriddenMethod.OverriddenMethod)
+        {
+            if (MethodHasTrackedVerbAttribute(overriddenMethod))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool MethodHasTrackedVerbAttribute(IMethodSymbol methodDeclaredSymbolScoped)
+    {
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (AttributeData attributeDataScoped in methodDeclaredSymbolScoped.GetAttributes())
         {
@@ -232,6 +350,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
              overriddenMethod is not null;
              overriddenMethod = overriddenMethod.OverriddenMethod)
         {
+            if (MethodHasTrackedVerbAttribute(methodDeclaredSymbolScoped))
+                break;
+
             foreach (AttributeData baseMethodExcluded in overriddenMethod.GetAttributes())
             {
                 if (SymbolEqualityComparer.Default.Equals(baseMethodExcluded.AttributeClass,
