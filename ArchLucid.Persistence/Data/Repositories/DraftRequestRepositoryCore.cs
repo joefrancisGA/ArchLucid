@@ -4,7 +4,7 @@ using ArchLucid.Contracts.Drafts;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
-internal static class DraftRequestRepositoryCore
+internal static partial class DraftRequestRepositoryCore
 {
     public const int MaxPriorDraftsCap = 25;
     public const int MaxReaperBatchSize = 10000;

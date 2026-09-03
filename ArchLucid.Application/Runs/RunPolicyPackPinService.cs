@@ -41,7 +41,9 @@ public sealed class RunPolicyPackPinService(IPolicyPackAssignmentRepository poli
             .Where(static assignment => assignment.IsEnabled)
             .Select(static assignment => new PinnedPolicyPackRow(
                 assignment.PolicyPackId.ToString("D"),
-                assignment.PolicyPackVersion))
+                assignment.PolicyPackVersion,
+                assignment.BlockCommitOnCritical,
+                assignment.BlockCommitMinimumSeverity))
             .DistinctBy(static row => row.PolicyPackId, StringComparer.OrdinalIgnoreCase)
             .OrderBy(static row => row.PolicyPackId, StringComparer.OrdinalIgnoreCase)
             .ToArray();
