@@ -50,7 +50,10 @@ public class RetrievalQuery
         set;
     } = null!;
 
-    /// <summary>Maximum hits to return (callers may clamp, e.g. HTTP search caps at 50).</summary>
+    /// <summary>Maximum hits callers may request (HTTP search and MCP tools clamp to this ceiling).</summary>
+    public const int MaxTopK = 50;
+
+    /// <summary>Maximum hits to return (callers may clamp, e.g. HTTP search caps at <see cref="MaxTopK" />).</summary>
     public int TopK
     {
         get;
