@@ -1845,21 +1845,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 121
-- **bugs-found:** 234
+- **hunts:** 122
+- **bugs-found:** 237
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — IPv4-mapped RFC1918 addresses bypass private-network guard
+- **last-bug:** 2026-09-03 — dead-letter schemaVersion coercion; lowercase TrialStatus; trimmed TaskId retry grouping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
 - [x] (proven) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` — IPv4-mapped RFC1918 addresses bypass private-network guard — **hit 2026-09-03 (#597):** `::ffff:10.0.0.1` / `::ffff:192.168.1.1` stayed on the IPv6 branch after #223 ULA fix and returned allowed; SSRF policies missed mapped private literals; fixed by unmapping with `MapToIPv4()` before RFC1918 checks (`PrivateNetworkAddressGuard_IsForbiddenIpAddress_blocks_ipv4_mapped_private_addresses`).
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — string-encoded `schemaVersion` rejected — `"schemaVersion":"1"` or `1.0` fails strict `int` equality and drops dead-letter detection; parity gap after #596 failureClass casing fix.
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — committed run without `GoldenManifestId` resolves `NotStarted` — `LegacyRunStatus=Committed` with null manifest/context ids falls through to `NotStarted` on list surfaces.
-- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — lowercase `TrialStatus` treated as non-active — `trialStatus:"active"` uses `Ordinal` compare against `TrialLifecycleStatus.Active` and returns a tier label during active trial.
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector` — whitespace-only `TaskId` groups with empty task id — `"   "` task ids chain under `agent:{AgentType}` with empty-task retries.
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — string-encoded / whole-number-double `schemaVersion` rejected — **hit 2026-09-03 (#600):** `"schemaVersion":"1"` and `1.0` failed strict `int` deserialize and dropped dead-letter detection after #596 failureClass casing fix; fixed with case-insensitive schemaVersion coercion and direct `failureClass` read (`IsDeadLettered_returns_true_for_string_encoded_schema_version`, `IsDeadLettered_returns_true_for_whole_number_double_schema_version`).
+- [x] (invalid) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — committed run without `GoldenManifestId` resolves `NotStarted` — `dbo.Runs` CHECK (`LegacyRunStatus <> Committed OR GoldenManifestId IS NOT NULL`) prevents persisted rows; in-memory fixtures only; wave-9 Complete requires commit + golden manifest by design.
+- [x] (proven) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — lowercase `TrialStatus` treated as non-active — **hit 2026-09-03 (#600):** `trialStatus:"active"` used `Ordinal` compare against `TrialLifecycleStatus.Active` and returned a tier label during active trial; fixed with `OrdinalIgnoreCase` (`ResolveCommercialTierLabel_returns_null_for_lowercase_active_trial_status`).
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector` — whitespace-only `TaskId` groups with empty task id — `IsNullOrWhiteSpace` intentionally treats whitespace-only ids as missing so same-agent retries chain; regression `Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`.
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — padded `TaskId` breaks retry supersession — **hit 2026-09-03 (#600):** `" task-1 "` and `task-1` grouped separately so stale attempt 0 survived; fixed by trimming before keying (`Select_when_task_id_differs_only_by_outer_whitespace_chains_retries`).
+
+2026-09-03 thorough hunt #600: proved schemaVersion coercion, lowercase trial status, and TaskId trim gaps; disproved committed-without-manifest (SQL CHECK) and whitespace-only TaskId chaining (intentional).
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized

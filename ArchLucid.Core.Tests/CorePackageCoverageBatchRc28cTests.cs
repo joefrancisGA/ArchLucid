@@ -46,6 +46,19 @@ public sealed class CorePackageCoverageBatchRc28cTests
     }
 
     [Fact]
+    public void CommercialTenantEligibility_blocks_lowercase_active_trial_from_standard_gates()
+    {
+        TenantRecord trial = new()
+        {
+            Tier = TenantTier.Standard,
+            TrialStatus = "active",
+        };
+
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(trial, TenantTier.Standard).Should().BeFalse();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(trial).Should().BeFalse();
+    }
+
+    [Fact]
     public void TenantErasureEligibility_quarantine_and_hard_purge_predicates()
     {
         DateTimeOffset now = DateTimeOffset.Parse("2026-08-10T12:00:00Z");
