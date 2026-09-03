@@ -2880,11 +2880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 118
-- **bugs-found:** 274
+- **hunts:** 119
+- **bugs-found:** 275
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — product feedback findingRef max length + bulk waive rationale UI gate
+- **last-bug:** 2026-09-03 — bulk defer revisitDueUtc validation parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3420,6 +3420,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceFindingsBulkActions` — bulk `RejectedAsNotApplicable` with shared `rationale` shorter than 10 characters returned HTTP 400 while operator bulk UI only required non-empty reason — **hit 2026-09-03 (#565):** align bulk accept/waive UI with `DISPOSITION_RATIONALE_MIN_CHARS` (defer still non-empty only); API regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_waive_rationale_shorter_than_minimum`; UI regression in `GovernanceFindingsBulkActions.test.tsx`.
 
 2026-09-03 thorough hunt #565: proved product-feedback `findingRef` max-length validation and bulk waive rationale UI/API contract alignment.
+
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` / `GovernanceFindingsBulkActions` — bulk `Deferred` without `revisitDueUtc` auto-filled `now + 30 days` and returned HTTP 200 while single-item `FindingDispositionValidation` requires explicit revisit due — **hit 2026-09-03 (#566):** remove facade auto-fill; bulk UI sends `defaultDeferredRevisitDueUtc()` (+30 days); API regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_deferred_without_revisit_due`; UI regression in `GovernanceFindingsBulkActions.test.tsx`.
+
+2026-09-03 seed hunt #566: promoted and proved bulk defer `revisitDueUtc` validation parity with single-item disposition path.
 
 ---
 

@@ -1755,6 +1755,58 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_deferred_without_revisit_due()
+    {
+        const string findingId = "finding-bulk-defer-missing-revisit";
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<RecordFindingDispositionRequest, ScopeContext, string, CancellationToken>(
+                static (request, _, _, _) => FindingDispositionValidation.Validate(request))
+            .ReturnsAsync((RecordFindingDispositionRequest request, ScopeContext _, string __, CancellationToken ___) =>
+                new FindingDispositionEventDto { FindingId = request.FindingId });
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId],
+            Disposition = FindingDisposition.Deferred,
+            Rationale = "defer until next architecture review",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        dispositions.Verify(
+            d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RecordBulkDisposition_returns_bad_request_when_waive_rationale_shorter_than_minimum()
     {
         const string findingId = "finding-bulk-waive-short";

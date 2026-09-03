@@ -22,7 +22,11 @@ import {
   DISPOSITION_RATIONALE_REQUIRED_MESSAGE,
   isDispositionRationaleSatisfied,
 } from "@/lib/review-quality/finding-governance-gates";
-import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
+import {
+  defaultDeferredRevisitDueUtc,
+  recordBulkFindingDisposition,
+  type FindingDispositionKind,
+} from "@/lib/api/governance-stickiness-api";
 
 type GovernanceFindingsBulkActionsProps = {
   readonly selectedFindingIds: readonly string[];
@@ -89,6 +93,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
           findingIds,
           disposition,
           rationale: trimmedReason,
+          revisitDueUtc: disposition === "Deferred" ? defaultDeferredRevisitDueUtc() : undefined,
         },
         { idempotencyKey },
       );
@@ -109,6 +114,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
             findingIds,
             disposition: "Deferred",
             rationale: undoRationale,
+            revisitDueUtc: defaultDeferredRevisitDueUtc(),
           },
           { idempotencyKey: createGovernanceMutationIdempotencyKey() },
         );

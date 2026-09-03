@@ -6,6 +6,7 @@ import { GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED } from "@/lib/governance/go
 import { DISPOSITION_RATIONALE_REQUIRED_MESSAGE } from "@/lib/review-quality/finding-governance-gates";
 
 const recordBulkFindingDisposition = vi.fn();
+const defaultDeferredRevisitDueUtc = vi.fn(() => "2026-10-03T00:00:00.000Z");
 const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
@@ -13,6 +14,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
+  defaultDeferredRevisitDueUtc: () => defaultDeferredRevisitDueUtc(),
   recordBulkFindingDisposition: (...args: unknown[]) => recordBulkFindingDisposition(...args),
 }));
 
@@ -96,5 +98,37 @@ describe("GovernanceFindingsBulkActions", () => {
     expect(refresh).toHaveBeenCalled();
     expect(showError).not.toHaveBeenCalled();
     expect(showSuccess).not.toHaveBeenCalled();
+  });
+
+  it("sends default revisit due when bulk deferring", async () => {
+    recordBulkFindingDisposition.mockResolvedValue({ processedCount: 2 });
+    const onApplied = vi.fn();
+    const onDispositionSucceeded = vi.fn();
+
+    render(
+      <GovernanceFindingsBulkActions
+        selectedFindingIds={["f1", "f2"]}
+        onApplied={onApplied}
+        onDispositionSucceeded={onDispositionSucceeded}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Shared reason"), {
+      target: { value: "Defer until next quarter planning." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Defer all" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply disposition" }));
+
+    await waitFor(() => {
+      expect(recordBulkFindingDisposition).toHaveBeenCalledWith(
+        expect.objectContaining({
+          disposition: "Deferred",
+          revisitDueUtc: "2026-10-03T00:00:00.000Z",
+        }),
+        expect.any(Object),
+      );
+    });
+
+    expect(defaultDeferredRevisitDueUtc).toHaveBeenCalled();
   });
 });
