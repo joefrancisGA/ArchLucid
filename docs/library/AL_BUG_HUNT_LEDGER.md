@@ -2328,11 +2328,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 12
-- **bugs-found:** 20
+- **hunts:** 13
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — finding JSON treatment/classification ordinal + PascalCase parity; confidence-level ordinal guard; comma-delimited unknown quality-attribute chip
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — relationship-type unknown alias silent downgrade; architecture-finding PascalCase message alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2363,6 +2363,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureFindingJsonConverter.ReadSeverity` still downgraded unknown labels to `Info` in default switch arm — **hit 2026-09-02 (#426):** regression against 2026-08-24 fix; `_ => FindingSeverity.Info` restored silent downgrade for labels like `"blocker"`; fixed to throw like `EvalCorpusFindingSeverityJsonConverter`.
 
 2026-09-02 thorough hunt #426: proved treatment/classification ordinal + PascalCase parity, confidence-level ordinal guard, comma-delimited unknown quality-attribute chip, and severity unknown-label regression.
+
+- [x] (proven) `RelationshipTypeJsonConverter.Read` — unknown LLM alias labels (`"feeds into"`) silently downgraded to `RelationshipType.Calls` via default switch arm — **hit 2026-09-03 (#542):** throw `JsonException` on unknown labels (severity parity); regression in `RelationshipTypeJsonConverterTests.Read_unknown_relationship_label_throws`.
+- [x] (proven) `ArchitectureFindingJsonConverter.ReadMessage` — PascalCase `Description` / `Message` / `Title` / `Detail` ignored while `severity`/`treatment`/`classification` already used `TryGetPropertyIgnoreCase` — **hit 2026-09-03 (#542):** case-insensitive lookup for message aliases and `recommendation`; regression in `ArchitectureFindingJsonConverterTests.Deserialize_pascal_case_description_maps_message`.
+
+2026-09-03 seed hunt #542: proved relationship-type unknown-alias downgrade and architecture-finding PascalCase message alias gap.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 
