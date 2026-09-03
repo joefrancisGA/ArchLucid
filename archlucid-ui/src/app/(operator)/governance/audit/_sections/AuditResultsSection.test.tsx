@@ -26,7 +26,7 @@ describe("AuditResultsSection buyer completion download", () => {
       <AuditResultsSection
         buyerPolishedShell
         viewMode="story"
-        onViewModeChange={vi.fn()}
+        currentSearch=""
         callerAuthorityRank={100}
         events={[
           {

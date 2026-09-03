@@ -50,7 +50,7 @@ function buildProps(overrides: Partial<AuditPageViewProps> = {}): AuditPageViewP
   return {
     buyerPolishedShell: true,
     viewMode: "story",
-    onViewModeChange: vi.fn(),
+    currentSearch: "",
     runId: "sample-review",
     buyerAuditTrailSummaryLine: null,
     buyerAuditTrailMetrics: null,
