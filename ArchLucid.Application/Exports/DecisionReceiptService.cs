@@ -1,10 +1,12 @@
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Feasibility;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Exports;
@@ -14,6 +16,7 @@ public sealed class DecisionReceiptService(
     IDraftRequestService draftRequestService,
     IAuthorityQueryService authorityQueryService,
     IRunDetailQueryService runDetailQueryService,
+    IManifestHashService manifestHashService,
     FeasibilityVerdictBuilder feasibilityVerdictBuilder) : IDecisionReceiptService
 {
     private readonly IAuthorityQueryService _authorityQueryService =
@@ -21,6 +24,9 @@ public sealed class DecisionReceiptService(
 
     private readonly IDraftRequestService _draftRequestService =
         draftRequestService ?? throw new ArgumentNullException(nameof(draftRequestService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -86,21 +92,30 @@ public sealed class DecisionReceiptService(
             summary.GoldenManifestId.Value,
             cancellationToken);
 
-        FeasibilityVerdict? verdict = manifestSummary?.FeasibilityVerdict;
+        if (manifestSummary is null)
+            return null;
+
+        FeasibilityVerdict? verdict = manifestSummary.FeasibilityVerdict;
 
         if (verdict is null)
             return null;
 
-        if (string.IsNullOrWhiteSpace(manifestSummary!.ManifestHash)
-            || string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion))
-        {
+        if (string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion))
             return null;
-        }
 
-        return DecisionReceiptComposer.BuildForRun(
+        RunDetailDto? compareDetail = await _authorityQueryService.GetRunDetailForManifestCompareAsync(
+            scope,
             runId,
+            cancellationToken);
+
+        if (compareDetail?.GoldenManifest is null)
+            return null;
+
+        return ManifestDecisionReceiptExportBinder.TryBuildVerifiedExportReceiptOrNull(
+            runId,
+            compareDetail.GoldenManifest,
             verdict,
-            manifestSummary!.ManifestHash,
-            detail.Run.CurrentManifestVersion);
+            detail.Run.CurrentManifestVersion,
+            _manifestHashService);
     }
 }

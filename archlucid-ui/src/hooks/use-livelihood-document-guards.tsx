@@ -1,3 +1,5 @@
+"use client";
+
 import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigationGuardDialog";
 import { useInAppNavigationGuard } from "@/hooks/use-in-app-navigation-guard";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";

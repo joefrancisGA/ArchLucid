@@ -8,6 +8,7 @@ import { EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS } from "@/lib/findings/findings-
 
 export const GOVERNANCE_FINDINGS_NL_SEVERITY_PARAM = "severity";
 export const GOVERNANCE_FINDINGS_NL_STATUS_PARAM = "status";
+export const GOVERNANCE_FINDINGS_NL_TITLE_PARAM = "title";
 
 const NL_SEVERITY_IDS = new Set<string>(["critical", "high", "medium", "low"]);
 const NL_STATUS_IDS = new Set<string>(["open", "disposed"]);
@@ -44,13 +45,29 @@ export function parseGovernanceFindingsNlStatusFromSearch(
   return trimmed as FindingsNaturalLanguageStatus;
 }
 
+export function parseGovernanceFindingsNlTitleKeywordsFromSearch(raw: string | null | undefined): string[] {
+  if (raw === null || raw === undefined) {
+    return [];
+  }
+
+  const trimmed = raw.trim();
+
+  if (trimmed.length === 0) {
+    return [];
+  }
+
+  return trimmed.split(/\s+/).filter((keyword) => keyword.length > 0);
+}
+
 export function governanceFindingsNlFacetsFromSearchParams(searchParams: {
   get: (name: string) => string | null;
 }): FindingsNaturalLanguageFacets {
   return {
     severity: parseGovernanceFindingsNlSeverityFromSearch(searchParams.get(GOVERNANCE_FINDINGS_NL_SEVERITY_PARAM)),
     status: parseGovernanceFindingsNlStatusFromSearch(searchParams.get(GOVERNANCE_FINDINGS_NL_STATUS_PARAM)),
-    titleKeywords: [],
+    titleKeywords: parseGovernanceFindingsNlTitleKeywordsFromSearch(
+      searchParams.get(GOVERNANCE_FINDINGS_NL_TITLE_PARAM),
+    ),
   };
 }
 
@@ -90,6 +107,25 @@ export function governanceFindingsNlStatusHrefFromSearch(
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
 
+export function governanceFindingsNlTitleHrefFromSearch(
+  currentSearch: string,
+  titleKeywords: readonly string[],
+  pathname: string = GOVERNANCE_FINDINGS_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+  const normalized = titleKeywords.map((keyword) => keyword.trim()).filter((keyword) => keyword.length > 0);
+
+  if (normalized.length === 0) {
+    params.delete(GOVERNANCE_FINDINGS_NL_TITLE_PARAM);
+  } else {
+    params.set(GOVERNANCE_FINDINGS_NL_TITLE_PARAM, normalized.join(" "));
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
 export function governanceFindingsNlFacetsHrefFromSearch(
   currentSearch: string,
   facets: FindingsNaturalLanguageFacets,
@@ -100,6 +136,12 @@ export function governanceFindingsNlFacetsHrefFromSearch(
   href = governanceFindingsNlStatusHrefFromSearch(
     href.includes("?") ? href.split("?")[1] ?? "" : "",
     facets.status,
+    pathname,
+  );
+
+  href = governanceFindingsNlTitleHrefFromSearch(
+    href.includes("?") ? href.split("?")[1] ?? "" : "",
+    facets.titleKeywords,
     pathname,
   );
 

@@ -1,5 +1,9 @@
 import type { PilotOutcomesPeriodPresetId } from "@/lib/pilot-outcomes-period-presets";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
+import {
+  SPONSOR_REPORT_FROM_PARAM,
+  SPONSOR_REPORT_TO_PARAM,
+} from "@/lib/insights/sponsor-report-custom-date-url";
 
 export const SPONSOR_REPORT_PERIOD_PARAM = "range";
 
@@ -41,6 +45,11 @@ export function sponsorReportPeriodHrefFromSearch(
     params.delete(SPONSOR_REPORT_PERIOD_PARAM);
   } else {
     params.set(SPONSOR_REPORT_PERIOD_PARAM, period);
+  }
+
+  if (period !== "custom") {
+    params.delete(SPONSOR_REPORT_FROM_PARAM);
+    params.delete(SPONSOR_REPORT_TO_PARAM);
   }
 
   const nextQuery = params.toString();

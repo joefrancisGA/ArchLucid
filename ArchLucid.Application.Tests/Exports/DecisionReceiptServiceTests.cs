@@ -1,13 +1,18 @@
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Feasibility;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Services;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -34,6 +39,7 @@ public sealed class DecisionReceiptServiceTests
     private readonly Mock<IDraftRequestService> _drafts = new();
     private readonly Mock<IAuthorityQueryService> _authority = new();
     private readonly Mock<IRunDetailQueryService> _runDetails = new();
+    private readonly ManifestHashService _manifestHashService = new();
     private readonly FeasibilityVerdictBuilder _verdictBuilder = new(new FeasibilityVerdictValidator());
 
     [Fact]
@@ -82,10 +88,11 @@ public sealed class DecisionReceiptServiceTests
     }
 
     [Fact]
-    public async Task BuildForRunAsync_FeasibleManifest_ReturnsReceipt()
+    public async Task BuildForRunAsync_FeasibleManifest_ReturnsReceiptMatchingSealedHash()
     {
         SetupCommittedRunDetail();
-        SetupFeasibleManifestSummary();
+        FeasibilityVerdict verdict = CreateFeasibleVerdict();
+        SetupVerifiedCommittedManifest(verdict, out string sealedReceiptHash);
 
         DecisionReceiptService sut = CreateSut();
 
@@ -95,13 +102,15 @@ public sealed class DecisionReceiptServiceTests
         receipt!.RunId.Should().Be(RunId);
         receipt.Source.Should().Be(DecisionReceiptSource.CommittedRun);
         receipt.Verdict.Kind.Should().Be(FeasibilityVerdictKind.Feasible);
+        receipt.ReceiptHashSha256.Should().Be(sealedReceiptHash);
     }
 
     [Fact]
-    public async Task BuildForRunAsync_InfeasibleManifest_ReturnsReceipt()
+    public async Task BuildForRunAsync_InfeasibleManifest_ReturnsReceiptMatchingSealedHash()
     {
         SetupCommittedRunDetail();
-        SetupInfeasibleManifestSummary();
+        FeasibilityVerdict verdict = CreateInfeasibleVerdict();
+        SetupVerifiedCommittedManifest(verdict, out string sealedReceiptHash);
 
         DecisionReceiptService sut = CreateSut();
 
@@ -110,6 +119,57 @@ public sealed class DecisionReceiptServiceTests
         receipt.Should().NotBeNull();
         receipt!.RunId.Should().Be(RunId);
         receipt.Source.Should().Be(DecisionReceiptSource.CommittedRun);
+        receipt.ReceiptHashSha256.Should().Be(sealedReceiptHash);
+    }
+
+    [Fact]
+    public async Task BuildForRunAsync_MissingFeasibilityVerdict_ReturnsNull()
+    {
+        SetupCommittedRunDetail();
+        SetupVerifiedCommittedManifest(CreateFeasibleVerdict(), out _);
+
+        _authority
+            .Setup(static s => s.GetManifestSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ManifestSummaryDto
+            {
+                ManifestId = ManifestId,
+                RunId = RunId,
+                ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+                FeasibilityVerdict = null,
+            });
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptDocument? receipt = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        receipt.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task BuildForRunAsync_SealedReceiptHashMismatch_ReturnsNull()
+    {
+        SetupCommittedRunDetail();
+        SetupVerifiedCommittedManifest(CreateFeasibleVerdict(), out _);
+
+        _authority
+            .Setup(static s => s.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) =>
+            {
+                ManifestDocument manifest = CreateCommittedManifest(runId, CreateFeasibleVerdict());
+                manifest.CommittedDecisionReceiptHashSha256 = new string('A', 64);
+
+                return new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = runId },
+                    GoldenManifest = manifest,
+                };
+            });
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptDocument? receipt = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        receipt.Should().BeNull();
     }
 
     [Fact]
@@ -137,7 +197,7 @@ public sealed class DecisionReceiptServiceTests
                 GoldenManifestId = ManifestId,
             });
 
-        SetupInfeasibleManifestSummary();
+        SetupVerifiedCommittedManifest(CreateInfeasibleVerdict(), out _);
 
         DecisionReceiptService sut = CreateSut();
 
@@ -176,7 +236,7 @@ public sealed class DecisionReceiptServiceTests
                 GoldenManifestId = ManifestId,
             });
 
-        SetupInfeasibleManifestSummary();
+        SetupVerifiedCommittedManifest(CreateInfeasibleVerdict(), out _);
 
         DecisionReceiptService sut = CreateSut();
 
@@ -216,8 +276,18 @@ public sealed class DecisionReceiptServiceTests
             .ReturnsAsync(detail);
     }
 
-    private void SetupInfeasibleManifestSummary()
+    private void SetupVerifiedCommittedManifest(FeasibilityVerdict verdict, out string sealedReceiptHash)
     {
+        ManifestDocument manifest = CreateCommittedManifest(RunId, verdict);
+        string hashBeforeReceipt = ManifestDecisionReceiptExportBinder.ComputeHashBeforeReceipt(manifest, _manifestHashService);
+        DecisionReceiptDocument sealedReceipt = DecisionReceiptComposer.BuildForRun(
+            RunId,
+            verdict,
+            hashBeforeReceipt,
+            "v1");
+        manifest.CommittedDecisionReceiptHashSha256 = sealedReceipt.ReceiptHashSha256;
+        sealedReceiptHash = sealedReceipt.ReceiptHashSha256!;
+
         _authority
             .Setup(static s => s.GetRunSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunSummaryDto
@@ -232,50 +302,61 @@ public sealed class DecisionReceiptServiceTests
             {
                 ManifestId = ManifestId,
                 RunId = RunId,
-                ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
-                FeasibilityVerdict = new FeasibilityVerdict
-                {
-                    Kind = FeasibilityVerdictKind.SoftInfeasible,
-                    Summary = "Policy controls are not satisfied.",
-                    TransparencyTrail = new TransparencyTrail(),
-                    SoftEnvelope = new SoftInfeasibilityEnvelope
-                    {
-                        ConfidenceLow = 50,
-                        ConfidenceHigh = 80,
-                        EnvelopeDescription = "Holds for this manifest snapshot.",
-                        SoftAssumption = "Operator intent matches asserted inputs.",
-                        CostOfBeingWrong = "Shipping policy gaps to production.",
-                    },
-                },
+                ManifestHash = manifest.ManifestHash ?? "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+                FeasibilityVerdict = verdict,
+                CommittedDecisionReceiptHashSha256 = sealedReceiptHash,
+            });
+
+        _authority
+            .Setup(static s => s.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = RunId },
+                GoldenManifest = manifest,
             });
     }
 
-    private void SetupFeasibleManifestSummary()
+    private ManifestDocument CreateCommittedManifest(Guid runId, FeasibilityVerdict verdict)
     {
-        _authority
-            .Setup(static s => s.GetRunSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunSummaryDto
-            {
-                RunId = RunId,
-                GoldenManifestId = ManifestId,
-            });
-
-        _authority
-            .Setup(static s => s.GetManifestSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ManifestSummaryDto
-            {
-                ManifestId = ManifestId,
-                RunId = RunId,
-                ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
-                FeasibilityVerdict = new FeasibilityVerdict
-                {
-                    Kind = FeasibilityVerdictKind.Feasible,
-                    Summary = "Architecture satisfies policy controls.",
-                    TransparencyTrail = new TransparencyTrail(),
-                },
-            });
+        return new ManifestDocument
+        {
+            ManifestId = ManifestId,
+            RunId = runId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            RuleSetId = "default",
+            RuleSetVersion = "1",
+            RuleSetHash = "hash",
+            ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+            FeasibilityVerdict = verdict,
+        };
     }
+
+    private static FeasibilityVerdict CreateFeasibleVerdict() =>
+        new()
+        {
+            Kind = FeasibilityVerdictKind.Feasible,
+            Summary = "Architecture satisfies policy controls.",
+            TransparencyTrail = new TransparencyTrail(),
+        };
+
+    private static FeasibilityVerdict CreateInfeasibleVerdict() =>
+        new()
+        {
+            Kind = FeasibilityVerdictKind.SoftInfeasible,
+            Summary = "Policy controls are not satisfied.",
+            TransparencyTrail = new TransparencyTrail(),
+            SoftEnvelope = new SoftInfeasibilityEnvelope
+            {
+                ConfidenceLow = 50,
+                ConfidenceHigh = 80,
+                EnvelopeDescription = "Holds for this manifest snapshot.",
+                SoftAssumption = "Operator intent matches asserted inputs.",
+                CostOfBeingWrong = "Shipping policy gaps to production.",
+            },
+        };
 
     private DecisionReceiptService CreateSut() =>
-        new(_drafts.Object, _authority.Object, _runDetails.Object, _verdictBuilder);
+        new(_drafts.Object, _authority.Object, _runDetails.Object, _manifestHashService, _verdictBuilder);
 }

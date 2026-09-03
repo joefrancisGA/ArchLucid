@@ -101,4 +101,11 @@ public class ManifestSummaryDto
         get;
         set;
     }
+
+    /// <summary>Canonical decision receipt hash sealed on the committed manifest (wave-15 suggestion 150).</summary>
+    public string? CommittedDecisionReceiptHashSha256
+    {
+        get;
+        set;
+    }
 }

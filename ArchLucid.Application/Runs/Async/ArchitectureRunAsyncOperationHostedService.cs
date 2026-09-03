@@ -145,7 +145,11 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
                     $"Execute blocked for run '{item.RunId}': run header was not found.");
             }
 
-            ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(item.Scope, executeHeader, item.RunId);
+            RunScopeAssertionGuard.EnsureCallerScopeMatchesRunOrThrow(
+                item.Scope,
+                executeHeader,
+                item.RunId,
+                "Execute");
 
             await scope.ServiceProvider
                 .GetRequiredService<IArchitectureRunExecuteOrchestrator>()
@@ -173,7 +177,11 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
                     $"Create blocked for run '{item.RunId}': run header was not found.");
             }
 
-            ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(item.Scope, createHeader, item.RunId);
+            RunScopeAssertionGuard.EnsureCallerScopeMatchesRunOrThrow(
+                item.Scope,
+                createHeader,
+                item.RunId,
+                "Create");
 
             await scope.ServiceProvider
                 .GetRequiredService<IArchitectureRunCreateOrchestrator>()

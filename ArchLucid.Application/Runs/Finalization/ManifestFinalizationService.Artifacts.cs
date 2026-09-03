@@ -89,19 +89,28 @@ public sealed partial class ManifestFinalizationService
             BuildGovernanceSnapshotCaptureOptions(request),
             cancellationToken);
 
-        if (request.PreloadedArchitectureRequest is not null && request.PreloadedFindingsSnapshot is not null)
+        if (request.PreloadedArchitectureRequest is null || request.PreloadedFindingsSnapshot is null)
         {
-            _committedReviewStandardsSnapshotCapturer.ApplyToManifest(
-                request.ManifestModel,
-                request.PreloadedArchitectureRequest,
-                request.PreloadedFindingsSnapshot);
+            throw new ConflictException(
+                "Finalization blocked: review standards snapshot requires preloaded architecture request and findings snapshot.");
         }
+
+        _committedReviewStandardsSnapshotCapturer.ApplyToManifest(
+            request.ManifestModel,
+            request.PreloadedArchitectureRequest,
+            request.PreloadedFindingsSnapshot);
 
         ManifestDecisionReceiptHashCapturer.ApplyToManifest(
             request.ManifestModel,
             request.RunId,
             request.Contract.Metadata.ManifestVersion,
             manifestHashService);
+
+        await decisionTraceRepository.SaveAsync(
+            DecisionTraceRecordMapper.ToDto(request.Trace),
+            cancellationToken,
+            connection,
+            transaction);
 
         if (request.SkipPersistingPipelineArtifacts)
         {
@@ -126,12 +135,6 @@ public sealed partial class ManifestFinalizationService
                 cancellationToken,
                 authorityPersistBody: request.ManifestModel);
         }
-
-        await decisionTraceRepository.SaveAsync(
-            DecisionTraceRecordMapper.ToDto(request.Trace),
-            cancellationToken,
-            connection,
-            transaction);
 
         if (connection is not null)
         {

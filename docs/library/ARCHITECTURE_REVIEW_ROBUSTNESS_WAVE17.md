@@ -2,7 +2,7 @@
 
 # Architecture create/review robustness — wave 17
 
-Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE16.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE16.md) (suggestions 151–160).
+Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE16.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE16.md) (suggestions 151–160). Successor: [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE18.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE18.md) (171–180).
 
 | # | Control | Primary wiring |
 |---|---------|----------------|

@@ -14,11 +14,10 @@ import {
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import { CommandPalette } from "@/components/CommandPaletteLazy";
 import { CommandPaletteTopBarTrigger } from "@/components/CommandPaletteTopBarTrigger";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
+import { GuidedModeTopBarChip } from "@/components/workspace-mode/GuidedModeTopBarChip";
 import { SimulatorModeTopBarChip } from "@/components/usability/SimulatorModeTopBarChip";
-import { useCommandPaletteChunkPreload } from "@/hooks/use-command-palette-chunk-preload";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
@@ -54,7 +53,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
   const showMoreMenu = showAuthorityThemeToggle;
 
   useSearchShortcut();
-  useCommandPaletteChunkPreload();
 
   return (
     <header
@@ -104,6 +102,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             </div>
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2.5 border-l border-neutral-200 pl-3 dark:border-neutral-700">
+              <GuidedModeTopBarChip />
               <SimulatorModeTopBarChip />
               <ShellInFlightOperationsAffordanceDeferred />
               <ToolbarHelpTooltip
@@ -142,7 +141,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
           </div>
         </div>
       </div>
-      <CommandPalette />
     </header>
   );
 }
