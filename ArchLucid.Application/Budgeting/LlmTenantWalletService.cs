@@ -35,7 +35,7 @@ public sealed class LlmTenantWalletService(
         LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
         RecordBalanceGauge(tenantId, state.BalanceUsd);
 
-        return MapView(state);
+        return MapView(state, GetUtcYearMonth());
     }
 
     public async Task<LlmTenantWalletView?> UpdateWalletAsync(
@@ -73,7 +73,7 @@ public sealed class LlmTenantWalletService(
 
         RecordBalanceGauge(tenantId, updated.BalanceUsd);
 
-        return MapView(updated);
+        return MapView(updated, GetUtcYearMonth());
     }
 
     public async Task<bool> TryAuthorizeOverageSpendAsync(
@@ -267,14 +267,17 @@ public sealed class LlmTenantWalletService(
             return false;
 
         int utcYearMonth = GetUtcYearMonth();
-        int monthRefillCount = state.AutoRefillsThisUtcMonthYearMonth == utcYearMonth
-            ? state.AutoRefillsThisUtcMonthCount
-            : 0;
+        int monthRefillCount = GetAutoRefillsThisUtcMonthCount(state, utcYearMonth);
 
         decimal spentThisMonth = monthRefillCount * state.RefillIncrementUsd;
 
         return spentThisMonth + state.RefillIncrementUsd <= state.MonthlyCapUsd + 0.0001m;
     }
+
+    private static int GetAutoRefillsThisUtcMonthCount(LlmTenantWalletStateReadModel state, int utcYearMonth) =>
+        state.AutoRefillsThisUtcMonthYearMonth == utcYearMonth
+            ? state.AutoRefillsThisUtcMonthCount
+            : 0;
 
     private static bool IsValidMonthlyCap(decimal capUsd)
     {
@@ -301,7 +304,7 @@ public sealed class LlmTenantWalletService(
         ArchLucidInstrumentation.RecordLlmWalletBalanceUsd(tenantId, balanceUsd);
     }
 
-    private static LlmTenantWalletView MapView(LlmTenantWalletStateReadModel state)
+    private static LlmTenantWalletView MapView(LlmTenantWalletStateReadModel state, int utcYearMonth)
     {
         return new LlmTenantWalletView
         {
@@ -310,7 +313,7 @@ public sealed class LlmTenantWalletService(
             MonthlyCapUsd = state.MonthlyCapUsd,
             RefillIncrementUsd = state.RefillIncrementUsd,
             RefillTriggerThresholdUsd = state.RefillTriggerThresholdUsd,
-            AutoRefillsThisUtcMonthCount = state.AutoRefillsThisUtcMonthCount,
+            AutoRefillsThisUtcMonthCount = GetAutoRefillsThisUtcMonthCount(state, utcYearMonth),
             LastRefillUtc = state.LastRefillUtc,
             HasPaymentMethod = !string.IsNullOrWhiteSpace(state.StripePaymentMethodId),
             RowVersion = state.RowVersion,
