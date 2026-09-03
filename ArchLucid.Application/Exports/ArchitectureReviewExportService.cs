@@ -75,6 +75,8 @@ public sealed class ArchitectureReviewExportService(
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
+
         ArchitectureAnalysisRequest analysisRequest = new()
         {
             RunId = detail.Run.RunId,

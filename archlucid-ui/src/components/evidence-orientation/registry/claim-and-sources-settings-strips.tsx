@@ -332,6 +332,7 @@ export function IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip(): 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-diagnostics-settings"
+      sourcesTestId="identity-providers-diagnostics-settings-sources"
       sourcesTitle={IDENTITY_PROVIDERS_DIAGNOSTICS_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES_INTRO}
       sources={IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES}

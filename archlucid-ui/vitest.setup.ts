@@ -40,6 +40,21 @@ vi.mock("@/components/workspace-mode/WorkspaceModeSealDefaultEffect", () => ({
   WorkspaceModeSealDefaultEffect: () => null,
 }));
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => ({
+      mode: "guided",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: false,
+      setAndPersist: vi.fn(),
+    }),
+  };
+});
+
 vi.mock("next/navigation", async (importOriginal) =>
   extendNextNavigationVitestMock(importOriginal),
 );
