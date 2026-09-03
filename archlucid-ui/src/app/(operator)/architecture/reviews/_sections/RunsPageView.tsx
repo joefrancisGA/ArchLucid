@@ -130,7 +130,7 @@ export function RunsPageView(props: Props) {
         <div
           id={REVIEWS_HUB_FIRST_VIEWPORT_ID}
           data-testid={REVIEWS_HUB_FIRST_VIEWPORT_ID}
-          className={REVIEWS_HUB_BODY_STACK_CLASS}
+          className={cn("scroll-mt-24", REVIEWS_HUB_BODY_STACK_CLASS)}
         >
         {hubLoadOk ? (
           <>
