@@ -160,14 +160,14 @@ export function AlertSimulationCompareTab(props: AlertSimulationCompareTabProps)
           <div className="mt-2">
             <h4 className="mb-2">Comparison notes</h4>
             <ul>
-              {(props.compareResult.summaryNotes ?? []).map((n, i) => (
+              {props.compareResult.summaryNotes.map((n, i) => (
                 <li key={i}>{n}</li>
               ))}
             </ul>
             <h4 className="mb-2 mt-4">Candidate A</h4>
-            <AlertSimulationSummaryBlock result={props.compareResult.candidateA ?? null} />
+            <AlertSimulationSummaryBlock result={props.compareResult.candidateA} />
             <h4 className="mb-2 mt-4">Candidate B</h4>
-            <AlertSimulationSummaryBlock result={props.compareResult.candidateB ?? null} />
+            <AlertSimulationSummaryBlock result={props.compareResult.candidateB} />
           </div>
         ) : (
           <SimulationBehaviorEmpty />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type RefObject } from "react";
 
 import { useFocusTrap } from "@/hooks/useFocusTrap";
@@ -17,6 +17,16 @@ import { runsListPageFilterStatusLine } from "@/lib/runs-list-filter-status-line
 import type { RunSummary } from "@/types/authority";
 
 import type { BuyerPackageScopeFilter, RunsListClientProps, SortOrder } from "./runs-list-types";
+import { parseBuyerPackageScopeFilter } from "./buyer-package-scope-url";
+import {
+  parseRunsListSearchQuery,
+  runsListClearSearchHrefFromSearch,
+  runsListSearchHrefFromSearch,
+} from "@/lib/runs/runs-list-search-url";
+import {
+  parseRunsListSortFromSearch,
+  sortOrderFromRunsListSort,
+} from "@/lib/runs/runs-list-sort-url";
 
 function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
@@ -32,8 +42,8 @@ export type UseRunsListResult = {
   buyerCollapseFilters: boolean;
   filterText: string;
   setFilterText: (value: string) => void;
+  clearFilterText: () => void;
   buyerPackageScope: BuyerPackageScopeFilter;
-  setBuyerPackageScope: (scope: BuyerPackageScopeFilter) => void;
   sortOrder: SortOrder;
   setSortOrder: (order: SortOrder) => void;
   selectedRun: RunSummary | null;
@@ -60,8 +70,13 @@ export type UseRunsListResult = {
 /** Page controller: runs list filter, sort, inspector, and pagination state. */
 export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const { runs, projectId, page, pageSize, totalCount, nextCursor = null } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews";
   const searchParams = useSearchParams();
   const listContextFilter = searchParams.get("filter");
+  const urlBuyerPackageScope = parseBuyerPackageScopeFilter(searchParams.get("scope"));
+  const urlFilterText = parseRunsListSearchQuery(searchParams.get("q"));
+  const urlSortOrder = sortOrderFromRunsListSort(parseRunsListSortFromSearch(searchParams.get("sort")));
   const safeRuns = useMemo(() => {
     const filtered = runs.filter((run) => {
       if (typeof run.runId !== "string" || run.runId.trim().length === 0) {
@@ -82,9 +97,9 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const buyerPipelineLabels = isBuyerVocabularyPassActive();
   const buyerCollapseFilters = buyerPolished && totalCount <= 1;
 
-  const [filterText, setFilterText] = useState("");
-  const [buyerPackageScope, setBuyerPackageScope] = useState<BuyerPackageScopeFilter>("all");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
+  const [filterText, setFilterTextState] = useState(urlFilterText);
+  const buyerPackageScope = urlBuyerPackageScope;
+  const [sortOrder, setSortOrderState] = useState<SortOrder>(urlSortOrder);
   const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
   const [compareSelection, setCompareSelection] = useState<string[]>([]);
   const [compareSelectionNotice, setCompareSelectionNotice] = useState<string | null>(null);
@@ -94,6 +109,41 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const mobileInspectorTrapActive = viewportNarrow && selectedRun !== null;
 
   useFocusTrap(mobileInspectorShellRef, mobileInspectorTrapActive);
+
+  useEffect(() => {
+    setFilterTextState(urlFilterText);
+  }, [urlFilterText]);
+
+  useEffect(() => {
+    setSortOrderState(urlSortOrder);
+  }, [urlSortOrder]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = runsListSearchHrefFromSearch(searchParams.toString(), filterText, pathname);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [filterText, pathname, router, searchParams]);
+
+  const setFilterText = useCallback((value: string): void => {
+    setFilterTextState(value);
+  }, []);
+
+  const clearFilterText = useCallback(() => {
+    setFilterTextState("");
+    router.replace(runsListClearSearchHrefFromSearch(searchParams.toString(), pathname), { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const setSortOrder = useCallback((order: SortOrder): void => {
+    setSortOrderState(order);
+  }, []);
 
   useEffect(() => {
     if (safeRuns.length === 0) {
@@ -258,8 +308,8 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     buyerCollapseFilters,
     filterText,
     setFilterText,
+    clearFilterText,
     buyerPackageScope,
-    setBuyerPackageScope,
     sortOrder,
     setSortOrder,
     selectedRun,

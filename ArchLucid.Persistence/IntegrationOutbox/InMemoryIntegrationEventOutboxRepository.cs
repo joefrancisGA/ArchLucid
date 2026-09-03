@@ -1,7 +1,5 @@
 using System.Data;
 
-using ArchLucid.Core.Integration;
-
 namespace ArchLucid.Persistence.IntegrationOutbox;
 
 /// <summary>In-memory outbox for tests and <c>StorageProvider=InMemory</c>.</summary>
@@ -52,28 +50,18 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         Guid workspaceId,
         Guid projectId)
     {
-        IntegrationEventOutboxEntry entry = new()
-        {
-            OutboxId = Guid.NewGuid(),
-            RunId = runId,
-            EventType = eventType,
-            MessageId = messageId,
-            PayloadUtf8 = payloadUtf8.ToArray(),
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
-            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            Priority = IntegrationEventOutboxPriority.ForEventType(eventType),
-            RetryCount = 0,
-            NextRetryUtc = null,
-            LastErrorMessage = null,
-            DeadLetteredUtc = null
-        };
+        IntegrationEventOutboxEntry entry = IntegrationEventOutboxRepositoryCore.CreateEnqueueEntry(
+            runId,
+            eventType,
+            messageId,
+            payloadUtf8,
+            tenantId,
+            workspaceId,
+            projectId,
+            TimeProvider.System.UtcNowDateTime());
 
         lock (_gate)
-
             _rows.Add(entry);
-
 
         return Task.CompletedTask;
     }
@@ -86,7 +74,10 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
 
         lock (_gate)
         {
-            List<IntegrationEventOutboxEntry> batch = IntegrationEventOutboxRepositoryCore.OrderPendingForDequeue(_rows, utcNow).Take(take).ToList();
+            List<IntegrationEventOutboxEntry> batch = IntegrationEventOutboxRepositoryCore
+                .OrderPendingForDequeue(_rows, utcNow)
+                .Take(take)
+                .ToList();
 
             return Task.FromResult<IReadOnlyList<IntegrationEventOutboxEntry>>(batch);
         }
@@ -96,9 +87,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     public Task MarkProcessedAsync(Guid outboxId, CancellationToken ct)
     {
         lock (_gate)
-
-            _rows.RemoveAll(e => e.OutboxId == outboxId);
-
+            _rows.RemoveAll(entry => entry.OutboxId == outboxId);
 
         return Task.CompletedTask;
     }
@@ -114,31 +103,17 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     {
         lock (_gate)
         {
-            int idx = _rows.FindIndex(e => e.OutboxId == outboxId);
+            int idx = _rows.FindIndex(entry => entry.OutboxId == outboxId);
 
             if (idx < 0)
                 return Task.CompletedTask;
 
-
-            IntegrationEventOutboxEntry e = _rows[idx];
-
-            _rows[idx] = new IntegrationEventOutboxEntry
-            {
-                OutboxId = e.OutboxId,
-                RunId = e.RunId,
-                EventType = e.EventType,
-                MessageId = e.MessageId,
-                PayloadUtf8 = e.PayloadUtf8,
-                TenantId = e.TenantId,
-                WorkspaceId = e.WorkspaceId,
-                ProjectId = e.ProjectId,
-                CreatedUtc = e.CreatedUtc,
-                Priority = e.Priority,
-                RetryCount = newRetryCount,
-                NextRetryUtc = nextRetryUtc,
-                DeadLetteredUtc = deadLetteredUtc,
-                LastErrorMessage = lastErrorMessage
-            };
+            _rows[idx] = IntegrationEventOutboxRepositoryCore.WithPublishFailure(
+                _rows[idx],
+                newRetryCount,
+                nextRetryUtc,
+                deadLetteredUtc,
+                lastErrorMessage);
         }
 
         return Task.CompletedTask;
@@ -149,9 +124,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     {
         lock (_gate)
         {
-            long n = _rows.LongCount(e => e.DeadLetteredUtc is null);
-
-            return Task.FromResult(n);
+            long count = _rows.LongCount(IntegrationEventOutboxRepositoryCore.IsPublishPending);
+            return Task.FromResult(count);
         }
     }
 
@@ -160,9 +134,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     {
         lock (_gate)
         {
-            long n = _rows.LongCount(e => e.DeadLetteredUtc is not null);
-
-            return Task.FromResult(n);
+            long count = _rows.LongCount(IntegrationEventOutboxRepositoryCore.IsDeadLetter);
+            return Task.FromResult(count);
         }
     }
 
@@ -178,23 +151,12 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
 
         lock (_gate)
         {
-            List<IntegrationEventOutboxDeadLetterRow> list = _rows
-                .Where(e => e.DeadLetteredUtc is not null)
-                .Where(e => tenantId is null || e.TenantId == tenantId)
-                .OrderByDescending(e => e.DeadLetteredUtc)
+            List<IntegrationEventOutboxDeadLetterRow> list = IntegrationEventOutboxRepositoryCore
+                .OrderDeadLettersForList(_rows)
+                .Where(entry => IntegrationEventOutboxRepositoryCore.MatchesDeadLetterScope(entry, tenantId))
                 .Skip(offset)
                 .Take(take)
-                .Select(
-                    e => new IntegrationEventOutboxDeadLetterRow
-                    {
-                        OutboxId = e.OutboxId,
-                        RunId = e.RunId,
-                        TenantId = e.TenantId,
-                        EventType = e.EventType,
-                        DeadLetteredUtc = e.DeadLetteredUtc!.Value,
-                        RetryCount = e.RetryCount,
-                        LastErrorMessage = e.LastErrorMessage
-                    })
+                .Select(IntegrationEventOutboxRepositoryCore.MapDeadLetterRow)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>>(list);
@@ -207,34 +169,14 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         lock (_gate)
         {
             int idx = _rows.FindIndex(
-                e => e.OutboxId == outboxId
-                     && e.DeadLetteredUtc is not null
-                     && (tenantId is null || e.TenantId == tenantId));
+                entry => entry.OutboxId == outboxId
+                         && IntegrationEventOutboxRepositoryCore.IsDeadLetter(entry)
+                         && IntegrationEventOutboxRepositoryCore.MatchesDeadLetterScope(entry, tenantId));
 
             if (idx < 0)
                 return Task.FromResult(false);
 
-
-            IntegrationEventOutboxEntry e = _rows[idx];
-
-            _rows[idx] = new IntegrationEventOutboxEntry
-            {
-                OutboxId = e.OutboxId,
-                RunId = e.RunId,
-                EventType = e.EventType,
-                MessageId = e.MessageId,
-                PayloadUtf8 = e.PayloadUtf8,
-                TenantId = e.TenantId,
-                WorkspaceId = e.WorkspaceId,
-                ProjectId = e.ProjectId,
-                CreatedUtc = e.CreatedUtc,
-                Priority = e.Priority,
-                RetryCount = 0,
-                NextRetryUtc = null,
-                DeadLetteredUtc = null,
-                LastErrorMessage = null
-            };
-
+            _rows[idx] = IntegrationEventOutboxRepositoryCore.ResetDeadLetterForRetry(_rows[idx]);
             return Task.FromResult(true);
         }
     }
@@ -245,16 +187,14 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         lock (_gate)
         {
             int idx = _rows.FindIndex(
-                e => e.OutboxId == outboxId
-                     && e.DeadLetteredUtc is not null
-                     && (tenantId is null || e.TenantId == tenantId));
+                entry => entry.OutboxId == outboxId
+                         && IntegrationEventOutboxRepositoryCore.IsDeadLetter(entry)
+                         && IntegrationEventOutboxRepositoryCore.MatchesDeadLetterScope(entry, tenantId));
 
             if (idx < 0)
                 return Task.FromResult(false);
 
-
             _rows.RemoveAt(idx);
-
             return Task.FromResult(true);
         }
     }
@@ -267,52 +207,35 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         CancellationToken ct)
     {
         int take = IntegrationEventOutboxRepositoryCore.ClampDeadLetterRows(maxRows);
-        string? normalizedEventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim();
+        string? normalizedEventType = IntegrationEventOutboxRepositoryCore.NormalizeEventTypeFilter(eventType);
 
         lock (_gate)
         {
             List<Guid> retried = [];
 
-            foreach (IntegrationEventOutboxEntry candidate in _rows
-                         .Where(e => e.DeadLetteredUtc is not null)
-                         .Where(e => tenantId is null || e.TenantId == tenantId)
-                         .Where(e => normalizedEventType is null
-                                     || string.Equals(e.EventType, normalizedEventType, StringComparison.Ordinal))
-                         .OrderByDescending(e => e.DeadLetteredUtc)
+            foreach (IntegrationEventOutboxEntry candidate in IntegrationEventOutboxRepositoryCore
+                         .OrderDeadLettersForList(_rows)
+                         .Where(entry => IntegrationEventOutboxRepositoryCore.MatchesDeadLetterForBulkRetry(
+                             entry,
+                             tenantId,
+                             normalizedEventType))
                          .Take(take))
             {
-                int idx = _rows.FindIndex(e => e.OutboxId == candidate.OutboxId && e.DeadLetteredUtc is not null);
+                int idx = _rows.FindIndex(
+                    entry => entry.OutboxId == candidate.OutboxId
+                             && IntegrationEventOutboxRepositoryCore.IsDeadLetter(entry));
 
                 if (idx < 0)
                     continue;
 
-                IntegrationEventOutboxEntry e = _rows[idx];
-
-                _rows[idx] = new IntegrationEventOutboxEntry
-                {
-                    OutboxId = e.OutboxId,
-                    RunId = e.RunId,
-                    EventType = e.EventType,
-                    MessageId = e.MessageId,
-                    PayloadUtf8 = e.PayloadUtf8,
-                    TenantId = e.TenantId,
-                    WorkspaceId = e.WorkspaceId,
-                    ProjectId = e.ProjectId,
-                    CreatedUtc = e.CreatedUtc,
-                    Priority = e.Priority,
-                    RetryCount = 0,
-                    NextRetryUtc = null,
-                    DeadLetteredUtc = null,
-                    LastErrorMessage = null
-                };
-
-                retried.Add(e.OutboxId);
+                _rows[idx] = IntegrationEventOutboxRepositoryCore.ResetDeadLetterForRetry(_rows[idx]);
+                retried.Add(candidate.OutboxId);
             }
 
             return Task.FromResult(new IntegrationOutboxDeadLetterBulkRetryResult
             {
                 RetriedCount = retried.Count,
-                RetriedOutboxIds = retried
+                RetriedOutboxIds = retried,
             });
         }
     }
@@ -325,14 +248,12 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     {
         lock (_gate)
         {
-            IntegrationEventOutboxEntry? entry =
-                _rows.FirstOrDefault(
-                    e => e.OutboxId == outboxId
-                         && e.DeadLetteredUtc is not null
-                         && (tenantId is null || e.TenantId == tenantId));
+            IntegrationEventOutboxEntry? entry = _rows.FirstOrDefault(
+                candidate => candidate.OutboxId == outboxId
+                             && IntegrationEventOutboxRepositoryCore.IsDeadLetter(candidate)
+                             && IntegrationEventOutboxRepositoryCore.MatchesDeadLetterScope(candidate, tenantId));
 
             return Task.FromResult(entry);
         }
     }
-
 }

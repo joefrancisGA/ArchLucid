@@ -107,7 +107,7 @@ export function RecommendationLearningOpsStatusPanel(props: Props) {
             <details open>
               <summary className="cursor-pointer">Active profile weights</summary>
               <RecommendationLearningWeightTable
-                deltas={Object.entries(profile.categoryWeights ?? {}).map(([feature, proposedWeight]) => ({
+                deltas={Object.entries(profile.categoryWeights).map(([feature, proposedWeight]) => ({
                   featureGroup: "Category",
                   feature,
                   currentWeight: proposedWeight,

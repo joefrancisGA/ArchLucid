@@ -4,7 +4,8 @@ import { RunsDashboardAttentionTab } from "@/components/operator-home/RunsDashbo
 import { RunsDashboardFilters } from "@/components/operator-home/RunsDashboardFilters";
 import { RunsDashboardOutcomesTab } from "@/components/operator-home/RunsDashboardOutcomesTab";
 import { RunsDashboardRecentTab } from "@/components/operator-home/RunsDashboardRecentTab";
-import type { RunsDashboardLoadPhase, RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
+import type { RunsDashboardLoadPhase } from "@/components/operator-home/runs-dashboard-load-phase";
+import { TabsContent } from "@/components/ui/tabs";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
   BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES,
@@ -14,7 +15,6 @@ import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import type { RunSummary } from "@/types/authority";
 
 export type RunsDashboardPanelTableProps = {
-  readonly tab: RunsDashboardTabId;
   readonly buyerPolishedShell: boolean;
   readonly hideHeading: boolean;
   readonly phase: RunsDashboardLoadPhase;
@@ -30,9 +30,8 @@ export type RunsDashboardPanelTableProps = {
   readonly homeAttentionPartitionLabel: string | undefined;
   readonly governanceWarningsOnly: boolean;
   readonly showArchived: boolean;
-  readonly archivedFieldSupported: boolean;
-  readonly archivedCount: number;
-  readonly archivedFilterDisabled: boolean;
+  readonly onGovernanceWarningsOnlyChange: (value: boolean) => void;
+  readonly onShowArchivedChange: (value: boolean) => void;
   readonly allTabShowcase: RunSummary | undefined;
   readonly approvedTabShowcase: RunSummary | undefined;
   readonly attentionTabShowcase: RunSummary | undefined;
@@ -40,14 +39,13 @@ export type RunsDashboardPanelTableProps = {
   readonly showcaseDemoRun: RunSummary | undefined;
   readonly showcasePrimaryCta: PrimaryReviewExploreLink | null;
   readonly buyerSafeHighlight: boolean;
+  readonly archivedFieldSupported: boolean;
   readonly restoreBusyRequestId: string | null;
   readonly onRestoreArchivedRequest: (requestId: string) => void;
   readonly onClearGovernanceWarningsFilter: () => void;
-  readonly onClearStatusFilter: () => void;
 };
 
 export function RunsDashboardPanelTable({
-  tab,
   buyerPolishedShell,
   hideHeading,
   phase,
@@ -63,9 +61,8 @@ export function RunsDashboardPanelTable({
   homeAttentionPartitionLabel,
   governanceWarningsOnly,
   showArchived,
-  archivedFieldSupported,
-  archivedCount,
-  archivedFilterDisabled,
+  onGovernanceWarningsOnlyChange,
+  onShowArchivedChange,
   allTabShowcase,
   approvedTabShowcase,
   attentionTabShowcase,
@@ -73,10 +70,10 @@ export function RunsDashboardPanelTable({
   showcaseDemoRun,
   showcasePrimaryCta,
   buyerSafeHighlight,
+  archivedFieldSupported,
   restoreBusyRequestId,
   onRestoreArchivedRequest,
   onClearGovernanceWarningsFilter,
-  onClearStatusFilter,
 }: RunsDashboardPanelTableProps) {
   return (
     <>
@@ -84,126 +81,114 @@ export function RunsDashboardPanelTable({
         buyerPolishedShell={buyerPolishedShell}
         governanceWarningsOnly={governanceWarningsOnly}
         showArchived={showArchived}
-        archivedFieldSupported={archivedFieldSupported}
-        archivedCount={archivedCount}
-        archivedFilterDisabled={archivedFilterDisabled}
+        onGovernanceWarningsOnlyChange={onGovernanceWarningsOnlyChange}
+        onShowArchivedChange={onShowArchivedChange}
       />
 
-      {tab === "all" ? (
-        <div className="pt-0" data-testid="runs-dashboard-panel-all">
+      <TabsContent value="all" className="pt-0" data-testid="runs-dashboard-panel-all">
+        <RunsDashboardRecentTab
+          phase={phase}
+          showInitialLoadingSkeleton={showInitialLoadingSkeleton}
+          failure={failure}
+          runListError={runListError}
+          filteredItems={filteredItems}
+          effectiveItems={displayItems}
+          buyerPolishedShell={buyerPolishedShell}
+          showcaseDemoRun={allTabShowcase}
+          showcasePrimaryCta={allTabShowcase !== undefined ? showcasePrimaryCta : null}
+          buyerSafeHighlight={allTabShowcase !== undefined && buyerSafeHighlight}
+          showArchived={showArchived}
+          archivedFieldSupported={archivedFieldSupported}
+          restoreBusyRequestId={restoreBusyRequestId}
+          contentTestId="runs-dashboard-tab-all"
+          governanceWarningsOnly={governanceWarningsOnly}
+          onClearGovernanceWarningsFilter={onClearGovernanceWarningsFilter}
+          onRestoreArchivedRequest={onRestoreArchivedRequest}
+          pagePrimaryOwnedElsewhere={hideHeading}
+        />
+      </TabsContent>
+
+      <TabsContent value="approved" className="pt-0" data-testid="runs-dashboard-panel-approved">
+        <RunsDashboardRecentTab
+          phase={phase}
+          showInitialLoadingSkeleton={showInitialLoadingSkeleton}
+          failure={failure}
+          runListError={runListError}
+          filteredItems={approvedTabItems}
+          effectiveItems={displayItems}
+          buyerPolishedShell={buyerPolishedShell}
+          showcaseDemoRun={approvedTabShowcase}
+          showcasePrimaryCta={approvedTabShowcase !== undefined ? showcasePrimaryCta : null}
+          buyerSafeHighlight={approvedTabShowcase !== undefined && buyerSafeHighlight}
+          showArchived={showArchived}
+          archivedFieldSupported={archivedFieldSupported}
+          restoreBusyRequestId={restoreBusyRequestId}
+          contentTestId="runs-dashboard-tab-approved"
+          statusFilterEmptyMessage={BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES}
+          onRestoreArchivedRequest={onRestoreArchivedRequest}
+          pagePrimaryOwnedElsewhere={hideHeading}
+        />
+      </TabsContent>
+
+      <TabsContent value="attention" className="pt-0" data-testid="runs-dashboard-panel-attention">
+        {buyerPolishedShell ? (
           <RunsDashboardRecentTab
             phase={phase}
             showInitialLoadingSkeleton={showInitialLoadingSkeleton}
             failure={failure}
             runListError={runListError}
-            filteredItems={filteredItems}
+            filteredItems={attentionTabItems}
             effectiveItems={displayItems}
             buyerPolishedShell={buyerPolishedShell}
-            showcaseDemoRun={allTabShowcase}
-            showcasePrimaryCta={allTabShowcase !== undefined ? showcasePrimaryCta : null}
-            buyerSafeHighlight={allTabShowcase !== undefined && buyerSafeHighlight}
+            showcaseDemoRun={attentionTabShowcase}
+            showcasePrimaryCta={attentionTabShowcase !== undefined ? showcasePrimaryCta : null}
+            buyerSafeHighlight={attentionTabShowcase !== undefined && buyerSafeHighlight}
             showArchived={showArchived}
             archivedFieldSupported={archivedFieldSupported}
             restoreBusyRequestId={restoreBusyRequestId}
-            contentTestId="runs-dashboard-tab-all"
-            governanceWarningsOnly={governanceWarningsOnly}
-            onClearGovernanceWarningsFilter={onClearGovernanceWarningsFilter}
+            contentTestId="runs-dashboard-tab-attention"
+            statusFilterEmptyMessage={RUNS_DASHBOARD_LABELS.noReviewsNeedAttention}
             onRestoreArchivedRequest={onRestoreArchivedRequest}
             pagePrimaryOwnedElsewhere={hideHeading}
           />
-        </div>
-      ) : null}
+        ) : (
+          <RunsDashboardAttentionTab
+            phase={phase}
+            failure={failure}
+            runListError={runListError}
+            filteredItems={homeAttentionPreviewItems}
+            attentionPartitionLabel={homeAttentionPartitionLabel}
+            attentionPartitionId={hideHeading ? "unfinished-work" : undefined}
+            totalAttentionCount={hideHeading ? attentionTabItems.length : undefined}
+          />
+        )}
+      </TabsContent>
 
-      {tab === "approved" ? (
-        <div className="pt-0" data-testid="runs-dashboard-panel-approved">
+      <TabsContent value="outcomes" className="pt-0" data-testid="runs-dashboard-panel-outcomes">
+        {buyerPolishedShell ? (
           <RunsDashboardRecentTab
             phase={phase}
             showInitialLoadingSkeleton={showInitialLoadingSkeleton}
             failure={failure}
             runListError={runListError}
-            filteredItems={approvedTabItems}
+            filteredItems={monitoringTabItems}
             effectiveItems={displayItems}
             buyerPolishedShell={buyerPolishedShell}
-            showcaseDemoRun={approvedTabShowcase}
-            showcasePrimaryCta={approvedTabShowcase !== undefined ? showcasePrimaryCta : null}
-            buyerSafeHighlight={approvedTabShowcase !== undefined && buyerSafeHighlight}
+            showcaseDemoRun={monitoringTabShowcase}
+            showcasePrimaryCta={monitoringTabShowcase !== undefined ? showcasePrimaryCta : null}
+            buyerSafeHighlight={monitoringTabShowcase !== undefined && buyerSafeHighlight}
             showArchived={showArchived}
             archivedFieldSupported={archivedFieldSupported}
             restoreBusyRequestId={restoreBusyRequestId}
-            contentTestId="runs-dashboard-tab-approved"
+            contentTestId="runs-dashboard-tab-outcomes"
             statusFilterEmptyMessage={BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES}
-            onClearStatusFilter={onClearStatusFilter}
             onRestoreArchivedRequest={onRestoreArchivedRequest}
             pagePrimaryOwnedElsewhere={hideHeading}
           />
-        </div>
-      ) : null}
-
-      {tab === "attention" ? (
-        <div className="pt-0" data-testid="runs-dashboard-panel-attention">
-          {buyerPolishedShell ? (
-            <RunsDashboardRecentTab
-              phase={phase}
-              showInitialLoadingSkeleton={showInitialLoadingSkeleton}
-              failure={failure}
-              runListError={runListError}
-              filteredItems={attentionTabItems}
-              effectiveItems={displayItems}
-              buyerPolishedShell={buyerPolishedShell}
-              showcaseDemoRun={attentionTabShowcase}
-              showcasePrimaryCta={attentionTabShowcase !== undefined ? showcasePrimaryCta : null}
-              buyerSafeHighlight={attentionTabShowcase !== undefined && buyerSafeHighlight}
-              showArchived={showArchived}
-              archivedFieldSupported={archivedFieldSupported}
-              restoreBusyRequestId={restoreBusyRequestId}
-              contentTestId="runs-dashboard-tab-attention"
-              statusFilterEmptyMessage={RUNS_DASHBOARD_LABELS.noReviewsNeedAttention}
-              onClearStatusFilter={onClearStatusFilter}
-              onRestoreArchivedRequest={onRestoreArchivedRequest}
-              pagePrimaryOwnedElsewhere={hideHeading}
-            />
-          ) : (
-            <RunsDashboardAttentionTab
-              phase={phase}
-              failure={failure}
-              runListError={runListError}
-              filteredItems={homeAttentionPreviewItems}
-              attentionPartitionLabel={homeAttentionPartitionLabel}
-              attentionPartitionId={hideHeading ? "unfinished-work" : undefined}
-              totalAttentionCount={hideHeading ? attentionTabItems.length : undefined}
-            />
-          )}
-        </div>
-      ) : null}
-
-      {tab === "outcomes" ? (
-        <div className="pt-0" data-testid="runs-dashboard-panel-outcomes">
-          {buyerPolishedShell ? (
-            <RunsDashboardRecentTab
-              phase={phase}
-              showInitialLoadingSkeleton={showInitialLoadingSkeleton}
-              failure={failure}
-              runListError={runListError}
-              filteredItems={monitoringTabItems}
-              effectiveItems={displayItems}
-              buyerPolishedShell={buyerPolishedShell}
-              showcaseDemoRun={monitoringTabShowcase}
-              showcasePrimaryCta={monitoringTabShowcase !== undefined ? showcasePrimaryCta : null}
-              buyerSafeHighlight={monitoringTabShowcase !== undefined && buyerSafeHighlight}
-              showArchived={showArchived}
-              archivedFieldSupported={archivedFieldSupported}
-              restoreBusyRequestId={restoreBusyRequestId}
-              contentTestId="runs-dashboard-tab-outcomes"
-              statusFilterEmptyMessage={BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES}
-              onClearStatusFilter={onClearStatusFilter}
-              onRestoreArchivedRequest={onRestoreArchivedRequest}
-              pagePrimaryOwnedElsewhere={hideHeading}
-            />
-          ) : (
-            <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />
-          )}
-        </div>
-      ) : null}
+        ) : (
+          <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />
+        )}
+      </TabsContent>
     </>
   );
 }

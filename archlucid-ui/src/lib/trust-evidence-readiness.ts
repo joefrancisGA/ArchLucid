@@ -83,5 +83,5 @@ export function trustEvidenceReadinessField(
   title: string,
   snapshot: TrustEvidenceFieldSnapshot,
 ): TrustEvidenceReadinessField {
-  return { key, title, status: snapshot.status, detail: snapshot.detail ?? null };
+  return { key, title, status: snapshot.status ?? "Unavailable", detail: snapshot.detail ?? null };
 }

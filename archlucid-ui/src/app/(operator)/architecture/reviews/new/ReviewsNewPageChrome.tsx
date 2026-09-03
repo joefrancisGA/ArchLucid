@@ -1,25 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
-import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
-import { ReviewsNewStarterTemplateGallery } from "@/components/review-intake/ReviewsNewStarterTemplateGallery";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { ReviewsNewWizardResumeStrip } from "@/components/usability/ReviewsNewWizardResumeStrip";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reviewsNewPageSubtitle } from "@/lib/reviews-new-page-copy";
-import {
-  resolveReviewsNewPathModeFromQuery,
-  reviewsNewShowsPathTabChrome,
-} from "@/lib/reviews-new-page-resume-hero";
+import { reviewsNewShowsPathTabChrome } from "@/lib/reviews-new-page-resume-hero";
 import {
   REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_HREF,
   REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_LINK_LABEL,
@@ -28,9 +19,11 @@ import {
   REVIEWS_NEW_OPTIONAL_CLOUD_LEAD,
   type ReviewsNewPathMode,
 } from "@/lib/reviews-new-path-copy";
+import { REVIEWS_NEW_CLAIM_DISCIPLINE } from "@/lib/reviews-new-evidence-copy";
 import { cn } from "@/lib/utils";
 
 import { ReviewsNewBreadcrumb } from "./ReviewsNewBreadcrumb";
+import { ReviewsNewHeaderActions } from "./ReviewsNewHeaderActions";
 import { useReviewsNewSpecimenPreviewPresentation } from "./use-reviews-new-specimen-preview-presentation";
 
 type ReviewsNewPageSubtitleProps = {
@@ -103,37 +96,33 @@ function ReviewsNewPageSubtitle(props: ReviewsNewPageSubtitleProps): React.JSX.E
   );
 }
 
-/** Hero + Evidence chrome for `/architecture/reviews/new` (RNX). */
-export function ReviewsNewPageChrome(): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const searchParams = useSearchParams();
-  const pathQuery = searchParams?.get("path")?.trim() ?? "";
-  const activePath = resolveReviewsNewPathModeFromQuery(pathQuery);
-  const onPathTab = reviewsNewShowsPathTabChrome(buyerPolishedShell, activePath);
-  const showContextualHelp = !(buyerPolishedShell && onPathTab);
+type ReviewsNewPageChromeProps = {
+  readonly buyerPolishedShell: boolean;
+  readonly activePath: ReviewsNewPathMode | null;
+};
+
+/** Hero chrome for `/architecture/reviews/new` (RNX). */
+export function ReviewsNewPageChrome(props: ReviewsNewPageChromeProps): React.JSX.Element {
   const specimenPreviewPresentation = useReviewsNewSpecimenPreviewPresentation();
 
   return (
-    <>
-      <OperatorPageHeader
-        navHref={REVIEWS_NEW_PATH}
-        title={START_REVIEW_LABEL}
-        titleTestId="reviews-new-page-title"
-        breadcrumb={buyerPolishedShell ? <ReviewsNewBreadcrumb activePath={activePath} /> : undefined}
-        subtitle={
-          <ReviewsNewPageSubtitle
-            buyerPolishedShell={buyerPolishedShell}
-            activePath={activePath}
-            showSpecimenHeaderLinks={specimenPreviewPresentation.showHeaderLinks}
-          />
-        }
-        subtitleTestId="reviews-new-page-lead"
-        headingLevel="h1"
-        actions={showContextualHelp ? <PageContextualHelpButton /> : undefined}
-      />
-      {!onPathTab ? <ReviewsNewWizardResumeStrip /> : null}
-      {!onPathTab ? <PathChooserCreateObjectVocabularyRail currentSurfaceId="reviews-new" /> : null}
-      {!onPathTab ? <ReviewsNewStarterTemplateGallery /> : null}
-    </>
+    <OperatorPageHeader
+      navHref={REVIEWS_NEW_PATH}
+      title={START_REVIEW_LABEL}
+      titleTestId="reviews-new-page-title"
+      breadcrumb={props.buyerPolishedShell ? <ReviewsNewBreadcrumb activePath={props.activePath} /> : undefined}
+      subtitle={
+        <ReviewsNewPageSubtitle
+          buyerPolishedShell={props.buyerPolishedShell}
+          activePath={props.activePath}
+          showSpecimenHeaderLinks={specimenPreviewPresentation.showHeaderLinks}
+        />
+      }
+      subtitleTestId="reviews-new-page-lead"
+      headingLevel="h1"
+      claimDiscipline={REVIEWS_NEW_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="reviews-new-claim-discipline"
+      actions={<ReviewsNewHeaderActions activePath={props.activePath} />}
+    />
   );
 }

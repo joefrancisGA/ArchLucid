@@ -197,6 +197,15 @@ function getExpiresAtMs(): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+/** Access token expiry (epoch ms), or 0 when unknown. */
+export function getAccessTokenExpiresAtMs(): number {
+  if (typeof sessionStorage === "undefined") {
+    return 0;
+  }
+
+  return getExpiresAtMs();
+}
+
 /**
  * Access token for Authorization: Bearer (undefined if missing or past skewed expiry).
  */

@@ -35,7 +35,7 @@ import { DecisionRegisterContinueLastViewedRow } from "./DecisionRegisterContinu
 import { DecisionRegisterViewEmptyShell } from "./DecisionRegisterViewEmptyShell";
 import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
-import { DecisionRegisterViewSwitcher, type DecisionRegisterViewMode } from "./DecisionRegisterViewSwitcher";
+import { DecisionRegisterViewSwitcher } from "./DecisionRegisterViewSwitcher";
 import { DecisionRegisterWorkspaceActiveApprovalStrip } from "./DecisionRegisterWorkspaceActiveApprovalStrip";
 import { DecisionRegisterPickReviewBeforeFilteringStrip } from "./DecisionRegisterPickReviewBeforeFilteringStrip";
 import { DecisionRegisterNextReviewFooterClient } from "./DecisionRegisterNextReviewFooterClient";
@@ -60,12 +60,16 @@ import { DECISION_REGISTER_CLAIM_DISCIPLINE } from "@/lib/decision-register-evid
 import {
   DEFAULT_DECISION_REGISTER_DATE_PRESET,
   resolveDecisionRegisterDateRange,
-  type DecisionRegisterDatePreset,
 } from "./decision-register-date-range";
+import { parseDecisionRegisterDatePresetFromSearch } from "@/lib/governance/decision-register-date-range-url";
+import { parseDecisionRegisterViewModeFromSearch } from "@/lib/governance/decision-register-view-url";
+import {
+  decisionRegisterCategoryHrefFromSearch,
+  parseDecisionRegisterCategoryFromSearch,
+  parseDecisionRegisterConfidenceBasisFromSearch,
+} from "@/lib/governance/decision-register-advanced-filters-url";
 import { deriveDecisionRegisterSummary } from "./decision-register-summary";
 import { resolveContinueLastDecisionRegisterEntry } from "@/lib/resolve-continue-last-decision-register-entry";
-
-const defaultDateRange = resolveDecisionRegisterDateRange(DEFAULT_DECISION_REGISTER_DATE_PRESET);
 
 function matchesDecisionRegisterRunScope(
   decision: ArchitectureDecisionRegisterEntry,
@@ -82,21 +86,56 @@ export default function DecisionRegisterClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const datePreset = parseDecisionRegisterDatePresetFromSearch(searchParams.get("range"));
+  const viewMode = parseDecisionRegisterViewModeFromSearch(searchParams.get("view"));
+  const urlCategory = parseDecisionRegisterCategoryFromSearch(searchParams.get("category"));
+  const urlConfidenceBasis = parseDecisionRegisterConfidenceBasisFromSearch(searchParams.get("basis"));
+  const initialDateRange = useMemo(
+    () => resolveDecisionRegisterDateRange(datePreset),
+    [datePreset],
+  );
   const projectId = useMemo(
     () => projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders()),
     [],
   );
-  const [category, setCategory] = useState("");
-  const [recordedAfter, setRecordedAfter] = useState(defaultDateRange.recordedAfter);
-  const [recordedBefore, setRecordedBefore] = useState(defaultDateRange.recordedBefore);
-  const [datePreset, setDatePreset] = useState<DecisionRegisterDatePreset>(DEFAULT_DECISION_REGISTER_DATE_PRESET);
+  const [category, setCategory] = useState(urlCategory);
+  const [recordedAfter, setRecordedAfter] = useState(initialDateRange.recordedAfter);
+  const [recordedBefore, setRecordedBefore] = useState(initialDateRange.recordedBefore);
   const [minConfidence, setMinConfidence] = useState("");
   const [maxConfidence, setMaxConfidence] = useState("");
-  const [confidenceBasis, setConfidenceBasis] = useState("");
-  const [viewMode, setViewMode] = useState<DecisionRegisterViewMode>("cards");
+  const [confidenceBasis, setConfidenceBasis] = useState(urlConfidenceBasis);
   const [reloadToken, setReloadToken] = useState(0);
+
+  useEffect(() => {
+    setCategory(urlCategory);
+  }, [urlCategory]);
+
+  useEffect(() => {
+    setConfidenceBasis(urlConfidenceBasis);
+  }, [urlConfidenceBasis]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = decisionRegisterCategoryHrefFromSearch(searchParams.toString(), category);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [category, router, searchParams]);
+
+  useEffect(() => {
+    const range = resolveDecisionRegisterDateRange(datePreset);
+    setRecordedAfter(range.recordedAfter);
+    setRecordedBefore(range.recordedBefore);
+  }, [datePreset]);
 
   const retryLoad = useCallback(() => {
     setReloadToken((value) => value + 1);
@@ -215,17 +254,23 @@ export default function DecisionRegisterClient() {
     setCategory("");
     setRecordedAfter(range.recordedAfter);
     setRecordedBefore(range.recordedBefore);
-    setDatePreset(DEFAULT_DECISION_REGISTER_DATE_PRESET);
     setMinConfidence("");
     setMaxConfidence("");
     setConfidenceBasis("");
-  }, []);
 
-  const applyDatePreset = useCallback((preset: DecisionRegisterDatePreset) => {
-    const range = resolveDecisionRegisterDateRange(preset);
-    setDatePreset(preset);
-    setRecordedAfter(range.recordedAfter);
-    setRecordedBefore(range.recordedBefore);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("range");
+    params.delete("category");
+    params.delete("basis");
+    const nextQuery = params.toString();
+    router.replace(
+      nextQuery.length === 0 ? GOVERNANCE_DECISION_REGISTER_PATH : `${GOVERNANCE_DECISION_REGISTER_PATH}?${nextQuery}`,
+      { scroll: false },
+    );
+  }, [router, searchParams]);
+
+  const clearCustomDatePreset = useCallback(() => {
+    // recordedAfter/recordedBefore aren't URL-bound; don't force ?range=all (it clears the typed dates via the datePreset effect).
   }, []);
 
   return (
@@ -240,7 +285,7 @@ export default function DecisionRegisterClient() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <PageContextualHelpButton />
-            <DecisionRegisterViewSwitcher viewMode={viewMode} onViewModeChange={setViewMode} />
+            <DecisionRegisterViewSwitcher viewMode={viewMode} currentSearch={currentSearch} />
           </div>
         }
       />
@@ -295,20 +340,20 @@ export default function DecisionRegisterClient() {
           maxConfidence={maxConfidence}
           confidenceBasis={confidenceBasis}
           datePreset={datePreset}
+          currentSearch={currentSearch}
           collapseAdvanced={collapseAdvancedFilters}
           onCategoryChange={setCategory}
           onRecordedAfterChange={(value) => {
             setRecordedAfter(value);
-            setDatePreset("all");
+            clearCustomDatePreset();
           }}
           onRecordedBeforeChange={(value) => {
             setRecordedBefore(value);
-            setDatePreset("all");
+            clearCustomDatePreset();
           }}
           onMinConfidenceChange={setMinConfidence}
           onMaxConfidenceChange={setMaxConfidence}
           onConfidenceBasisChange={setConfidenceBasis}
-          onDatePresetChange={applyDatePreset}
           onClearFilters={resetFilters}
         />
       ) : null}

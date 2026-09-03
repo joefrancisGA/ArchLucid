@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { TrustCenterEvidenceOrientationStrip } from "@/components/marketing/TrustCenterEvidenceOrientationStrip";
 import { TrustCenterRevisionHistory } from "@/components/marketing/trust-center/TrustCenterRevisionHistory";
 import { TrustCenterVocabularyDisclosure } from "@/components/marketing/trust-center/TrustCenterVocabularyDisclosure";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -21,6 +22,7 @@ import {
   type TrustAssuranceClassification,
 } from "@/lib/trust-center-buyer-content";
 import { TRUST_CENTER_REVISION_HISTORY } from "@/lib/trust-center-marketing-revision-history";
+import { TRUST_CENTER_CLAIM_DISCIPLINE } from "@/lib/trust-center-evidence-copy";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import {
   TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF,
@@ -73,7 +75,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
       <div
         id={TRUST_CENTER_PUBLIC_LAYOUT.firstViewportId}
         data-testid={TRUST_CENTER_PUBLIC_LAYOUT.firstViewportId}
-        className="scroll-mt-24 space-y-12"
+        className="scroll-mt-24 space-y-12 border-b border-neutral-200 pb-8 dark:border-neutral-800"
       >
       <header className="space-y-5" data-testid="trust-center-hero">
         <div className="max-w-3xl">
@@ -92,6 +94,11 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           >
             {TRUST_CENTER_PAGE_PURPOSE}
           </p>
+          <PageHeaderClaimDiscipline
+            text={TRUST_CENTER_CLAIM_DISCIPLINE}
+            testId={TRUST_CENTER_PUBLIC_LAYOUT.headerClaimDisciplineTestId}
+            className="max-w-prose text-left"
+          />
           <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="trust-center-hero-meta">
             <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
               Last reviewed{" "}

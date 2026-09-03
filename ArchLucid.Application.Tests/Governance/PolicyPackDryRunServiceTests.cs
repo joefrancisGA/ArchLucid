@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.PolicyPackDryRun.Stages;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -648,13 +649,10 @@ public sealed class PolicyPackDryRunServiceTests
             .ReturnsAsync(visiblePack);
 
         return new PolicyPackDryRunService(
-            runDetailQueryService,
-            pilotRunDeltaComputer,
-            redactor,
-            auditService,
+            new PolicyPackDryRunLoadStage(runDetailQueryService, pilotRunDeltaComputer, NullLogger<PolicyPackDryRunLoadStage>.Instance),
+            new PolicyPackDryRunRedactAuditStage(redactor, auditService, NullLogger<PolicyPackDryRunRedactAuditStage>.Instance),
             scopeProvider.Object,
-            packs.Object,
-            NullLogger<PolicyPackDryRunService>.Instance);
+            packs.Object);
     }
 
     private sealed class StubRedactor : IPromptRedactor

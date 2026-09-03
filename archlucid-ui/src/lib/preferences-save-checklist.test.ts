@@ -36,7 +36,7 @@ describe("preferences-save-checklist", () => {
     ]);
   });
 
-  it("shows In use until a preference is explicitly chosen and saved", () => {
+  it("shows Default until a preference is explicitly chosen", () => {
     const steps = resolvePreferencesSaveSteps({
       appearance: implicitDefault,
       timeZone: implicitDefault,

@@ -1,4 +1,4 @@
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
   ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW,
   ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_INTRO,
@@ -26,17 +26,17 @@ export function HelpEngineeringTroubleshootingHeaderMetadata(
         </span>
       </p>
 
-      <HelpStaticSection
+      <CollapsibleSection
         title={ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_TITLE}
-        intro={ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_INTRO}
-        testId="help-engineering-troubleshooting-sources"
+        summaryLine={ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_INTRO}
+        sectionTestId="help-engineering-troubleshooting-sources"
       >
         <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
           {entry.sourcePaths.map((sourcePath) => (
             <li key={sourcePath}>{humanizeMarkdownFileReference(sourcePath)}</li>
           ))}
         </ul>
-      </HelpStaticSection>
+      </CollapsibleSection>
     </div>
   );
 }

@@ -393,6 +393,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             requestRepo.Object,
             runRepo.Object,
             scopeProvider.Object,
+            Mock.Of<IRunGovernanceScopePinService>(),
             new RunStateTransitionService(),
             NullLogger<IncompleteAuthorityPipelineExecuteHandler>.Instance);
 

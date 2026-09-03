@@ -8,12 +8,27 @@ import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chu
 
 const sectionsDir = dirname(fileURLToPath(import.meta.url));
 
+const deferredChunkFamilyFiles = [
+  "run-detail-page-view-deferred-chunks.tsx",
+  "run-detail-page-view-deferred-chunks-workspace.tsx",
+  "run-detail-page-view-deferred-chunks-governance.tsx",
+  "run-detail-page-view-deferred-chunks-evidence.tsx",
+  "run-detail-page-view-deferred-chunks-review-package.ts",
+  "run-detail-page-view-deferred-chunks-diagnostics.ts",
+  "run-detail-page-view-deferred-chunks-compare.ts",
+  "run-detail-page-view-deferred-chunks-modals.ts",
+  "run-detail-page-view-deferred-chunks-architecture.ts",
+] as const;
+
+function readDeferredChunkFamilySource(): string {
+  return deferredChunkFamilyFiles
+    .map((fileName) => readFileSync(join(sectionsDir, fileName), "utf8"))
+    .join("\n");
+}
+
 const pageViewSource = readFileSync(join(sectionsDir, "RunDetailPageView.tsx"), "utf8");
 
-const deferredChunksSource = readFileSync(
-  join(sectionsDir, "run-detail-page-view-deferred-chunks.tsx"),
-  "utf8",
-);
+const deferredChunksSource = readDeferredChunkFamilySource();
 
 const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 

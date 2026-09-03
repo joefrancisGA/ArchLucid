@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
 import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
@@ -13,6 +14,8 @@ import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/Operato
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
@@ -23,6 +26,16 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import {
+  searchReviewEvidenceClearQueryHrefFromSearch,
+  searchReviewEvidenceQueryHrefFromSearch,
+} from "@/lib/insights/search-review-evidence-query-url";
+import {
+  SEARCH_REVIEW_EVIDENCE_CONFIDENCE_OPTIONS,
+  searchReviewEvidenceConfidenceHrefFromSearch,
+} from "@/lib/insights/search-review-evidence-confidence-url";
+import { retrievalHitRelevanceLabel } from "./retrieval-hit-display";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 import {
   resolveSearchReviewEvidenceEmphasizedStepId,
@@ -64,8 +77,13 @@ function searchEmptyStateActions(scopedRunId: string) {
 }
 
 export function SearchPageView({ model }: SearchPageViewProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? SEARCH_REVIEW_EVIDENCE_PATH;
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
   const {
     buyerShell,
+    confidence,
     failure,
     hasSearched,
     isDemo,
@@ -78,6 +96,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     onClearRecentQueries,
     setQuery,
     setRunId,
+    totalResultCount,
   } = model;
 
   const pageTitle = searchPageTitle(runId);
@@ -186,6 +205,15 @@ export function SearchPageView({ model }: SearchPageViewProps) {
               id="semantic-search-query"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && query.trim().length > 0) {
+                  event.preventDefault();
+                  setQuery("");
+                  router.replace(searchReviewEvidenceClearQueryHrefFromSearch(currentSearch, pathname), {
+                    scroll: false,
+                  });
+                }
+              }}
               placeholder={SEARCH_QUERY_PLACEHOLDER}
               autoComplete="off"
             />
@@ -204,25 +232,21 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
           <div className="space-y-2" data-testid="search-example-query-chips">
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Example queries</p>
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Example search queries">
+            <FilterChipGroup aria-label="Example search queries" className="flex flex-wrap gap-2">
               {SEARCH_EXAMPLE_QUERY_CHIPS.map((chip) => (
-                <Button
+                <FilterChip
                   key={chip.id}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-auto max-w-full whitespace-normal py-1"
-                  data-testid={`search-example-query-chip-${chip.id}`}
+                  href={searchReviewEvidenceQueryHrefFromSearch(currentSearch, chip.query, pathname)}
+                  scroll={false}
+                  className={buyerFilterChipClass(query.trim() === chip.query.trim(), loading)}
+                  aria-current={query.trim() === chip.query.trim() ? "page" : undefined}
                   disabled={loading}
-                  onClick={() => {
-                    setQuery(chip.query);
-                    void onSearch(chip.query);
-                  }}
+                  data-testid={`search-example-query-chip-${chip.id}`}
                 >
                   {chip.label}
-                </Button>
+                </FilterChip>
               ))}
-            </div>
+            </FilterChipGroup>
           </div>
 
           {recentQueries.length > 0 ? (
@@ -240,25 +264,21 @@ export function SearchPageView({ model }: SearchPageViewProps) {
                   Clear
                 </Button>
               </div>
-              <div className="flex flex-wrap gap-2" role="group" aria-label="Recent search queries">
+              <FilterChipGroup aria-label="Recent search queries" className="flex flex-wrap gap-2">
                 {recentQueries.map((recentQuery) => (
-                  <Button
+                  <FilterChip
                     key={recentQuery}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-auto max-w-full whitespace-normal py-1"
-                    data-testid={`search-recent-query-chip-${recentQuery}`}
+                    href={searchReviewEvidenceQueryHrefFromSearch(currentSearch, recentQuery, pathname)}
+                    scroll={false}
+                    className={buyerFilterChipClass(query.trim() === recentQuery.trim(), loading)}
+                    aria-current={query.trim() === recentQuery.trim() ? "page" : undefined}
                     disabled={loading}
-                    onClick={() => {
-                      setQuery(recentQuery);
-                      void onSearch(recentQuery);
-                    }}
+                    data-testid={`search-recent-query-chip-${recentQuery}`}
                   >
                     {recentQuery}
-                  </Button>
+                  </FilterChip>
                 ))}
-              </div>
+              </FilterChipGroup>
             </div>
           ) : null}
         </CardContent>
@@ -281,7 +301,42 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         <EnterpriseCompactEmptyState
           {...SEARCH_EMPTY_COMPACT}
           actions={searchEmptyStateActions(scopedRunId)}
+          description={
+            confidence !== null && totalResultCount > 0
+              ? `No hits match ${retrievalHitRelevanceLabel(confidence).toLowerCase()}. Try another confidence tier or broaden your query.`
+              : SEARCH_EMPTY_COMPACT.description
+          }
         />
+      ) : null}
+
+      {hasSearched && failure === null && totalResultCount > 0 ? (
+        <FilterChipGroup
+          aria-label="Filter search results by confidence"
+          className="flex flex-wrap gap-2"
+          data-testid="search-review-evidence-confidence-chips"
+        >
+          <FilterChip
+            href={searchReviewEvidenceConfidenceHrefFromSearch(currentSearch, null, pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(confidence === null, loading)}
+            aria-current={confidence === null ? "page" : undefined}
+            disabled={loading}
+          >
+            All confidence
+          </FilterChip>
+          {SEARCH_REVIEW_EVIDENCE_CONFIDENCE_OPTIONS.map((tier) => (
+            <FilterChip
+              key={tier}
+              href={searchReviewEvidenceConfidenceHrefFromSearch(currentSearch, tier, pathname)}
+              scroll={false}
+              className={buyerFilterChipClass(confidence === tier, loading)}
+              aria-current={confidence === tier ? "page" : undefined}
+              disabled={loading}
+            >
+              {retrievalHitRelevanceLabel(tier)}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
       ) : null}
 
       <div className="grid gap-3" data-testid="search-review-evidence-results">

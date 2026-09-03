@@ -28,13 +28,10 @@ internal static class CloudCostRecommendationFindingAnalyzer
         ArgumentException.ThrowIfNullOrWhiteSpace(request.DecisionTaken);
 
         ScopeContext scope = request.ScopeContextProvider.GetCurrentScope();
-        DateTime? collectionUtc = request.AnalysisContext?.EvidencePin?.CollectionUtc
-            ?? await request.PackageRepository
-                .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, request.CloudProvider, cancellationToken)
-                .ConfigureAwait(false);
 
-        if (InventoryCollectionFreshnessGate.ShouldSuppressInventoryFindings(
-                collectionUtc,
+        if (EffectfulFindingEngineCollectionFreshness.ShouldSuppressInventoryFindingsForCloud(
+                request.AnalysisContext,
+                request.CloudProvider,
                 request.Clock.GetUtcNow().UtcDateTime,
                 request.FreshnessOptions.StaleAfterDays))
         {

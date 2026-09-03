@@ -1,10 +1,10 @@
 import Link from "next/link";
 
+import { HelpEnterpriseOnboardingClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingClaimOrientationStrip";
+import { HelpEnterpriseOnboardingHeaderActions } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
-import { EnterpriseOnboardingHelpClaimDisciplineStrip } from "@/components/help/EnterpriseOnboardingHelpClaimDisciplineStrip";
-import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
 import { EnterpriseOnboardingHubSteps } from "@/components/help/EnterpriseOnboardingHubSteps";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -15,12 +15,22 @@ import {
 } from "@/lib/design-tokens";
 import {
   ENTERPRISE_ONBOARDING_HELP_HERO_OVERVIEW,
-  ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION,
+  ENTERPRISE_ONBOARDING_HELP_PAGE_SUBTITLE,
+  ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE,
   ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS,
 } from "@/lib/enterprise-onboarding-help-copy";
 import {
+  ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH,
+  ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
   ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID,
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
+import {
+  ENTERPRISE_ONBOARDING_HELP_FIRST_VIEWPORT_TEST_ID,
+  ENTERPRISE_ONBOARDING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ENTERPRISE_ONBOARDING_HELP_PRIMARY_CONTENT_ID,
+  ENTERPRISE_ONBOARDING_HELP_SKIP_LINK_LABEL,
+  ENTERPRISE_ONBOARDING_HELP_SKIP_TARGET_ID,
+} from "@/lib/enterprise-onboarding-help-page-copy";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -66,76 +76,97 @@ export function HelpEnterpriseOnboardingGuideView(
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-enterprise-onboarding-guide"
     >
+      <a href={`#${ENTERPRISE_ONBOARDING_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {ENTERPRISE_ONBOARDING_HELP_SKIP_LINK_LABEL}
+      </a>
       <HelpTopicHashScroll />
 
-      <HelpTopicMarkdownPageHeader
-        entry={entry}
-        showContextualHelp
-        primaryAction={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION}
-      />
+      <div
+        id={ENTERPRISE_ONBOARDING_HELP_PRIMARY_CONTENT_ID}
+        data-testid={ENTERPRISE_ONBOARDING_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <HelpTopicGuidePageHeader
+          title={ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE}
+          titleTestId="help-topic-page-title"
+          subtitle={ENTERPRISE_ONBOARDING_HELP_PAGE_SUBTITLE}
+          navHref={ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH}
+          headingLevel="h1"
+          claimDiscipline={ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE}
+          claimDisciplineTestId={ENTERPRISE_ONBOARDING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          actions={<HelpEnterpriseOnboardingHeaderActions entry={entry} />}
+        />
 
-      <EnterpriseOnboardingHelpClaimDisciplineStrip />
-
-      <div className="space-y-6" data-testid="help-enterprise-onboarding-first-viewport">
-        <section
-          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-          data-testid="help-enterprise-onboarding-action-panel"
-          aria-labelledby="help-enterprise-onboarding-action-panel-heading"
+        <div
+          id={ENTERPRISE_ONBOARDING_HELP_SKIP_TARGET_ID}
+          data-testid={ENTERPRISE_ONBOARDING_HELP_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
         >
-          <h2
-            id="help-enterprise-onboarding-action-panel-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-enterprise-onboarding-action-panel"
+            aria-labelledby="help-enterprise-onboarding-action-panel-heading"
           >
-            Start tenant onboarding
-          </h2>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-enterprise-onboarding-overview">
-            {ENTERPRISE_ONBOARDING_HELP_HERO_OVERVIEW}
-          </p>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button asChild size="sm" variant="outline">
-              <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.href}>
-                {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openIdentityProviders.href}>
-                {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openIdentityProviders.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openUsersAndRoles.href}>
-                {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openUsersAndRoles.label}
-              </Link>
-            </Button>
-            <Link
-              href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCloudConnections.href}
-              className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            <h2
+              id="help-enterprise-onboarding-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
             >
-              {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCloudConnections.label}
-            </Link>
-          </div>
-        </section>
-      </div>
-
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-topic-content">
-          <EnterpriseOnboardingHelpEvidenceOrientationStrip />
-
-          <EnterpriseOnboardingHubSteps />
-
-          <div className="min-w-0">
-            <MarketingAccessibilityMarkdownFragment
-              markdownBody={markdown}
-              tableCaption={`${entry.title} reference table`}
-              presentation="help"
-              sourceDocPath={sourceDocPath}
-              helpTopicSlug={entry.slug}
-              preparedMarkdownOverride={preparedMarkdown}
-            />
-          </div>
+              Start tenant onboarding
+            </h2>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-enterprise-onboarding-overview">
+              {ENTERPRISE_ONBOARDING_HELP_HERO_OVERVIEW}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="outline">
+                <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.href}>
+                  {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openIdentityProviders.href}>
+                  {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openIdentityProviders.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openUsersAndRoles.href}>
+                  {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openUsersAndRoles.label}
+                </Link>
+              </Button>
+              <Link
+                href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCloudConnections.href}
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              >
+                {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCloudConnections.label}
+              </Link>
+            </div>
+          </section>
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-topic-content">
+            <EnterpriseOnboardingHubSteps />
+
+            <div className="min-w-0">
+              <MarketingAccessibilityMarkdownFragment
+                markdownBody={markdown}
+                tableCaption={`${entry.title} reference table`}
+                presentation="help"
+                sourceDocPath={sourceDocPath}
+                helpTopicSlug={entry.slug}
+                preparedMarkdownOverride={preparedMarkdown}
+              />
+            </div>
+          </div>
+
+          {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
+        </div>
+
+        <div data-testid="help-enterprise-onboarding-orientation-bottom">
+          <HelpEnterpriseOnboardingClaimOrientationStrip />
+        </div>
       </div>
     </article>
   );

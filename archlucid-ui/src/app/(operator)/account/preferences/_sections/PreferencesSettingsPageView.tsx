@@ -14,7 +14,6 @@ import { PreferencesSettingsEvidenceOrientationStrip } from "@/components/eviden
 import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 import { PREFERENCES_CLOUD_PLATFORMS_HEADING } from "@/lib/cloud-platform-scope-copy";
 import { PREFERENCES_TIME_ZONE_HEADING } from "@/lib/iana-time-zone-preference-copy";
-import { PREFERENCES_DISPLAY_ON_OPERATOR_PAGES_HEADING } from "@/lib/preferences-display-on-operator-pages-copy";
 import {
   PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID,
   PREFERENCES_WHERE_TO_GO_NEXT_HEADING,
@@ -35,7 +34,10 @@ import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { useUserPreferencesExplicitFlags } from "@/lib/use-user-preferences-explicit-flags";
 import { useSampleReviewsOnOverviewPreference } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { useWhereToGoNextPreference } from "@/components/WhereToGoNextPreferenceProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { WorkspaceModePreferencePanel } from "@/components/preferences/WorkspaceModePreferencePanel";
 import { cn } from "@/lib/utils";
+import { WORKSPACE_MODE_PREFERENCE_HEADING } from "@/lib/workspace-mode/workspace-mode-copy";
 
 export function PreferencesSettingsPageView() {
   const { mounted: appearanceMounted, accountSyncState: appearanceAccountSyncState } = useUserAppearancePreference();
@@ -59,6 +61,12 @@ export function PreferencesSettingsPageView() {
     setAndPersist: setTimeZoneAndPersist,
   } = useIanaTimeZonePreference();
   const explicitFlags = useUserPreferencesExplicitFlags();
+  const {
+    mode: workspaceMode,
+    mounted: workspaceModeMounted,
+    accountSyncState: workspaceModeAccountSyncState,
+    setAndPersist: setWorkspaceModeAndPersist,
+  } = useWorkspaceMode();
 
   const preferencesSaveSteps = resolvePreferencesSaveSteps({
     appearance: {
@@ -86,6 +94,11 @@ export function PreferencesSettingsPageView() {
       mounted: whereToGoNextMounted,
       accountSyncState: whereToGoNextAccountSyncState,
     },
+    workspaceMode: {
+      isExplicit: explicitFlags.workspaceModeIsExplicit,
+      mounted: workspaceModeMounted,
+      accountSyncState: workspaceModeAccountSyncState,
+    },
   });
   const preferencesSaveEmphasizedStepId = resolvePreferencesSaveEmphasizedStepId(preferencesSaveSteps);
 
@@ -98,12 +111,30 @@ export function PreferencesSettingsPageView() {
         actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
       />
       <PreferencesSaveChecklist
-        title="Your preferences"
-        description="Changes save to your account automatically."
+        title="Save preferences checklist"
         steps={preferencesSaveSteps}
         emphasizedStepId={preferencesSaveEmphasizedStepId}
         testIdPrefix="preferences-save"
       />
+      <Card id="workspace-mode" data-testid="preferences-workspace-mode-card">
+        <CardHeader>
+          <CardTitle id="preferences-workspace-mode-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {WORKSPACE_MODE_PREFERENCE_HEADING}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {workspaceModeMounted ? (
+            <WorkspaceModePreferencePanel
+              mode={workspaceMode}
+              onModeChange={setWorkspaceModeAndPersist}
+              accountSyncState={workspaceModeAccountSyncState}
+              labelledById="preferences-workspace-mode-heading"
+            />
+          ) : (
+            <div aria-hidden="true" className="h-24 w-full" data-testid="workspace-mode-preference-loading" />
+          )}
+        </CardContent>
+      </Card>
       <Card id="appearance" data-testid="preferences-appearance-card">
         <CardHeader>
           <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
@@ -158,54 +189,53 @@ export function PreferencesSettingsPageView() {
           )}
         </CardContent>
       </Card>
-      <Card data-testid="preferences-display-on-operator-pages-card">
+      <Card
+        id={PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID}
+        data-testid="preferences-sample-reviews-on-overview-card"
+      >
         <CardHeader>
-          <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            {PREFERENCES_DISPLAY_ON_OPERATOR_PAGES_HEADING}
+          <CardTitle
+            id="preferences-sample-reviews-on-overview-heading"
+            as="h2"
+            className={OPERATOR_TYPOGRAPHY.cardTitle}
+          >
+            {PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div id={PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID} data-testid="preferences-sample-reviews-on-overview-card">
-            <h3
-              id="preferences-sample-reviews-on-overview-heading"
-              className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
-            >
-              {PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING}
-            </h3>
-            <div className="mt-3">
-              {sampleReviewsOnOverviewMounted ? (
-                <SampleReviewsOnOverviewPreferencePanel
-                  enabled={sampleReviewsOnOverviewEnabled}
-                  onEnabledChange={setSampleReviewsOnOverviewAndPersist}
-                  accountSyncState={sampleReviewsOnOverviewAccountSyncState}
-                  labelledById="preferences-sample-reviews-on-overview-heading"
-                />
-              ) : (
-                <div
-                  aria-hidden="true"
-                  className="h-16 w-full"
-                  data-testid="sample-reviews-on-overview-preference-loading"
-                />
-              )}
-            </div>
-          </div>
-          <div id={PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID} data-testid="preferences-follow-up-link-strips-card">
-            <h3 id="preferences-follow-up-strips-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
-            </h3>
-            <div className="mt-3">
-              {whereToGoNextMounted ? (
-                <WhereToGoNextPreferencePanel
-                  enabled={whereToGoNextEnabled}
-                  onEnabledChange={setWhereToGoNextAndPersist}
-                  accountSyncState={whereToGoNextAccountSyncState}
-                  labelledById="preferences-follow-up-strips-heading"
-                />
-              ) : (
-                <div aria-hidden="true" className="h-16 w-full" data-testid="where-to-go-next-preference-loading" />
-              )}
-            </div>
-          </div>
+        <CardContent>
+          {sampleReviewsOnOverviewMounted ? (
+            <SampleReviewsOnOverviewPreferencePanel
+              enabled={sampleReviewsOnOverviewEnabled}
+              onEnabledChange={setSampleReviewsOnOverviewAndPersist}
+              accountSyncState={sampleReviewsOnOverviewAccountSyncState}
+              labelledById="preferences-sample-reviews-on-overview-heading"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="h-16 w-full"
+              data-testid="sample-reviews-on-overview-preference-loading"
+            />
+          )}
+        </CardContent>
+      </Card>
+      <Card id={PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID} data-testid="preferences-follow-up-link-strips-card">
+        <CardHeader>
+          <CardTitle id="preferences-follow-up-strips-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {whereToGoNextMounted ? (
+            <WhereToGoNextPreferencePanel
+              enabled={whereToGoNextEnabled}
+              onEnabledChange={setWhereToGoNextAndPersist}
+              accountSyncState={whereToGoNextAccountSyncState}
+              labelledById="preferences-follow-up-strips-heading"
+            />
+          ) : (
+            <div aria-hidden="true" className="h-16 w-full" data-testid="where-to-go-next-preference-loading" />
+          )}
         </CardContent>
       </Card>
       <PreferencesSettingsEvidenceOrientationStrip />

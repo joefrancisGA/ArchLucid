@@ -197,6 +197,50 @@ def set_score_dimension(row: dict[str, str], index: int, value: int) -> str:
     return row["score"]
 
 
+def cap_ux_score(row: dict[str, str], max_value: int) -> bool:
+    """Clamp UX quality (Scores position 2) to max_value. Preserve Evidence.
+
+    Legacy single-number Scores cells are the UX headline, so the sole value is
+    clamped instead of expanding the cell into Evidence,UX.
+
+    Returns True when the Scores cell changed.
+    """
+    if max_value < 0:
+        raise ValueError("max_value must be >= 0")
+
+    current = parse_ux_score(row)
+
+    if current <= max_value:
+        return False
+
+    series = parse_score_series(row)
+
+    if len(series) <= 1:
+        row["score"] = format_score_cell([max_value])
+        return True
+
+    set_score_dimension(row, UX_INDEX, max_value)
+    return True
+
+
+def cap_ux_scores(rows: list[dict[str, str]], max_value: int) -> list[tuple[dict[str, str], str]]:
+    """Clamp every row whose UX score is above max_value.
+
+    Returns (row, previous Scores cell) for each row that changed.
+    """
+    changed: list[tuple[dict[str, str], str]] = []
+
+    for row in rows:
+        previous = row.get("score", "")
+
+        if not cap_ux_score(row, max_value):
+            continue
+
+        changed.append((row, previous))
+
+    return changed
+
+
 def weight(row: dict[str, str]) -> float:
     return parse_hit_pct(row["pct"]) * parse_ux_score(row)
 

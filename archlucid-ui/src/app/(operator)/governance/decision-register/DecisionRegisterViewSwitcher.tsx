@@ -1,8 +1,10 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { decisionRegisterViewModeHrefFromSearch } from "@/lib/governance/decision-register-view-url";
+import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 
 import {
   DECISION_REGISTER_VIEW_CARDS_LABEL,
@@ -14,7 +16,7 @@ export type DecisionRegisterViewMode = "cards" | "timeline";
 
 type DecisionRegisterViewSwitcherProps = {
   readonly viewMode: DecisionRegisterViewMode;
-  readonly onViewModeChange: (mode: DecisionRegisterViewMode) => void;
+  readonly currentSearch: string;
 };
 
 export function DecisionRegisterViewSwitcher(props: DecisionRegisterViewSwitcherProps): React.JSX.Element {
@@ -24,36 +26,27 @@ export function DecisionRegisterViewSwitcher(props: DecisionRegisterViewSwitcher
   ];
 
   return (
-    <div
+    <FilterChipGroup
+      aria-label={DECISION_REGISTER_VIEW_SWITCHER_GROUP_LABEL}
       className="inline-flex rounded-md border border-neutral-200 bg-neutral-50 p-0.5 dark:border-neutral-700 dark:bg-neutral-900"
       data-testid="decision-register-view-switcher"
-      role="group"
-      aria-label={DECISION_REGISTER_VIEW_SWITCHER_GROUP_LABEL}
     >
-      {tabs.map((tab) => {
-        const active = props.viewMode === tab.id;
-
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            aria-pressed={active}
-            data-testid={`decision-register-view-${tab.id}`}
-            className={cn(
-              "rounded px-3 py-1.5 transition-colors",
-              OPERATOR_TYPOGRAPHY.nativeControlLabel,
-              active
-                ? "bg-white text-al-text-primary shadow-sm dark:bg-neutral-950"
-                : "bg-transparent text-al-text-secondary hover:text-al-text-primary",
-            )}
-            onClick={() => {
-              props.onViewModeChange(tab.id);
-            }}
-          >
-            {tab.label}
-          </button>
-        );
-      })}
-    </div>
+      {tabs.map((tab) => (
+        <FilterChip
+          key={tab.id}
+          href={decisionRegisterViewModeHrefFromSearch(
+            props.currentSearch,
+            tab.id,
+            GOVERNANCE_DECISION_REGISTER_PATH,
+          )}
+          scroll={false}
+          className={buyerFilterChipClass(props.viewMode === tab.id, false)}
+          aria-current={props.viewMode === tab.id ? "page" : undefined}
+          data-testid={`decision-register-view-${tab.id}`}
+        >
+          {tab.label}
+        </FilterChip>
+      ))}
+    </FilterChipGroup>
   );
 }

@@ -32,11 +32,10 @@ export function OperatorHomeGovernanceWarningsMetricLink(
       scroll={false}
       className={cn(
         OPERATOR_LINK.inline,
-        "no-underline hover:underline",
         warningsFilterActive ? "font-semibold text-al-text-primary" : undefined,
         props.className,
       )}
-      aria-current={warningsFilterActive ? "page" : undefined}
+aria-current={warningsFilterActive ? "page" : undefined}
       data-testid="operator-home-governance-warnings-metric"
       data-active={warningsFilterActive ? "true" : "false"}
     >

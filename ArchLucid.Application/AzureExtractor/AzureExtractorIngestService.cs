@@ -11,18 +11,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using ArchLucid.Application.AzureExtractor.Stages;
+
 namespace ArchLucid.Application.AzureExtractor;
 
 public sealed partial class AzureExtractorIngestService(
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     IAuditService auditService,
-    IAzureExtractorPackageRepository packageRepository,
-    IRunRepository runRepository,
-    IAgentTaskRepository agentTaskRepository,
-    IEvidenceBundleRepository evidenceBundleRepository,
-    IAzureExtractorResultEnricher inventoryEnricher,
-    IOptions<AzureExtractorEnrichmentOptions> enrichmentOptions,
+    IAzureExtractorPreparedZipValidateStage preparedZipValidateStage,
+    IAzureExtractorPreparedZipPersistStage preparedZipPersistStage,
     ILogger<AzureExtractorIngestService> logger) : IAzureExtractorIngestService
 {
     internal const long MaxUploadedZipBytes = AzureExtractorUploadLimits.MaxZipBytes;

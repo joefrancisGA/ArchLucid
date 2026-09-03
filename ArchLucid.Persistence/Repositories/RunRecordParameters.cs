@@ -59,7 +59,9 @@ internal static class RunRecordParameters
             run.PinnedEvidencePackagePinsJson,
             run.PinnedEvidencePackagePinsHashSha256,
             run.PinnedFocusedPilotModeEnabled,
-            run.PinnedFocusedPilotCloudProvider
+            run.PinnedFocusedPilotCloudProvider,
+            run.PinnedArchitectureVersionContentHashSha256,
+            run.PinnedKnowledgeModelContentHashSha256
         };
     }
 
@@ -111,6 +113,8 @@ internal static class RunRecordParameters
             run.PinnedEvidencePackagePinsHashSha256,
             run.PinnedFocusedPilotModeEnabled,
             run.PinnedFocusedPilotCloudProvider,
+            run.PinnedArchitectureVersionContentHashSha256,
+            run.PinnedKnowledgeModelContentHashSha256,
             run.RowVersion
         };
     }

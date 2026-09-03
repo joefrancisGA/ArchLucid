@@ -221,6 +221,20 @@ public class ManifestDocument
         set;
     } = [];
 
+    /// <summary>Wave-10 suggestion 92: κ content hash hex pinned at create, bound into h(M) v5.</summary>
+    public string? CreateTimeArchitectureVersionContentHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-10 suggestion 95/92: κ model content hash hex pinned at create, bound into h(M) v5.</summary>
+    public string? CreateTimeKnowledgeModelContentHashSha256
+    {
+        get;
+        set;
+    }
+
     /// <summary>Wave-6 suggestion 57: evidence package ids pinned at run create, bound into h(M).</summary>
     public List<Contracts.Governance.PolicyPacks.PinnedEvidencePackageRow> CreateTimeEvidencePackagePins
     {
@@ -230,6 +244,48 @@ public class ManifestDocument
 
     /// <summary>Wave-7 suggestion 69: SHA-256 hex over canonical evidence pin JSON at create time.</summary>
     public string? CreateTimeEvidencePackagePinsHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-11 suggestion 106: focused pilot mode pinned at create, bound into h(M) v6.</summary>
+    public bool? CreateTimeFocusedPilotModeEnabled
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-11 suggestion 106: focused pilot cloud provider pinned at create, bound into h(M) v6.</summary>
+    public int? CreateTimeFocusedPilotCloudProvider
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-12 suggestion 120: package origin pinned at create, bound into h(M) v7.</summary>
+    public string? CreateTimePackageOrigin
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-12 suggestion 120: architecture request id pinned at create, bound into h(M) v7.</summary>
+    public string? CreateTimeArchitectureRequestId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-12 suggestion 120: structural execution mode pinned at create, bound into h(M) v7.</summary>
+    public int? CreateTimeStructuralExecutionMode
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-12 suggestion 120: pilot AOAI deployment snapshot pinned at create, bound into h(M) v7.</summary>
+    public string? CreateTimePilotAoaiDeploymentSnapshot
     {
         get;
         set;

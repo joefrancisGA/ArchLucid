@@ -7,6 +7,11 @@ export const AI_USAGE_SETTINGS_CANONICAL_PATH = AI_USAGE_SETTINGS_PATH;
 
 export const AI_USAGE_HELP_TOPIC_LABEL = "How AI usage and cost work";
 
+export const AI_USAGE_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What AI usage and cost is not";
+
+export const AI_USAGE_SETTINGS_CLAIM_DISCIPLINE =
+  "Estimated AI usage and cost on this page are directional workspace telemetry — not invoice-accurate financial reporting or a sealed audit export.";
+
 export const AI_USAGE_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const AI_USAGE_SETTINGS_SOURCES_INTRO =

@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
@@ -48,9 +49,10 @@ public sealed class GraphGcpInventoryReconciliationFindingEngineTests
             ]
             """;
 
-        GraphGcpInventoryReconciliationFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+        (GraphGcpInventoryReconciliationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.EngineType.Should().Be("gcp-inventory-reconciliation");
@@ -62,13 +64,20 @@ public sealed class GraphGcpInventoryReconciliationFindingEngineTests
     }
 
     [Fact]
-    public async Task AnalyzeAsync_reports_graph_only_when_download_row_is_missing()
+    public async Task AnalyzeAsync_reports_graph_only_when_pinned_package_has_empty_bytes()
     {
         GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
 
-        GraphGcpInventoryReconciliationFindingEngine sut = CreateSut(null);
+        CloudInventoryExtractorPackageDownloadRecord package = new()
+        {
+            PackageId = Guid.NewGuid(),
+            OriginalFileName = "gcp-inventory.zip",
+            PackageBytes = [],
+        };
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+        (GraphGcpInventoryReconciliationFindingEngine sut, FindingAnalysisContext context) = CreateSut(package);
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");
@@ -78,8 +87,8 @@ public sealed class GraphGcpInventoryReconciliationFindingEngineTests
         payload.InventoryOnlyResourceIds.Should().BeEmpty();
     }
 
-    private static GraphGcpInventoryReconciliationFindingEngine CreateSut(
-        CloudInventoryExtractorPackageDownloadRecord? package)
+    private static (GraphGcpInventoryReconciliationFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
+        CloudInventoryExtractorPackageDownloadRecord package)
     {
         Mock<ICloudInventoryExtractorPackageRepository> packageRepository = new();
         packageRepository
@@ -88,21 +97,25 @@ public sealed class GraphGcpInventoryReconciliationFindingEngineTests
                 CloudProvider.Gcp,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(DateTime.UtcNow);
-        packageRepository
-            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(
-                TestScope,
-                CloudProvider.Gcp,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(package);
+        EffectfulFindingEngineTestSupport.SetupCloudPinnedDownload(
+            packageRepository,
+            TestScope,
+            CloudProvider.Gcp,
+            package);
+
+        FindingAnalysisContext context =
+            EffectfulFindingEngineTestSupport.CreateCloudPinnedContext(CloudProvider.Gcp, package.PackageId);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
 
-        return new GraphGcpInventoryReconciliationFindingEngine(
+        GraphGcpInventoryReconciliationFindingEngine engine = new(
             scopeProvider.Object,
             packageRepository.Object,
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        return (engine, context);
     }
 
     private static CloudInventoryExtractorPackageDownloadRecord CreatePackage(string resourcesJson)

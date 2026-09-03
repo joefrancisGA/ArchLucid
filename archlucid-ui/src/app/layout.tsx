@@ -14,6 +14,8 @@ import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
 import { ColorModePreferenceProvider } from "@/components/ColorModePreferenceProvider";
 import { SampleReviewsOnOverviewPreferenceProvider } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
+import { WorkspaceModeProvider } from "@/components/WorkspaceModeProvider";
+import { WorkspaceModeSealDefaultEffect } from "@/components/workspace-mode/WorkspaceModeSealDefaultEffect";
 
 import "./globals.css";
 
@@ -75,9 +77,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="min-h-screen font-sans">
         <ColorModePreferenceProvider>
-          <WhereToGoNextPreferenceProvider>
-            <SampleReviewsOnOverviewPreferenceProvider>{children}</SampleReviewsOnOverviewPreferenceProvider>
-          </WhereToGoNextPreferenceProvider>
+          <WorkspaceModeProvider>
+            <WorkspaceModeSealDefaultEffect />
+            <WhereToGoNextPreferenceProvider>
+              <SampleReviewsOnOverviewPreferenceProvider>{children}</SampleReviewsOnOverviewPreferenceProvider>
+            </WhereToGoNextPreferenceProvider>
+          </WorkspaceModeProvider>
         </ColorModePreferenceProvider>
       </body>
     </html>

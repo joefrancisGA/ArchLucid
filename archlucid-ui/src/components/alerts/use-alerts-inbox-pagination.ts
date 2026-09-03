@@ -28,8 +28,13 @@ export function useAlertsInboxPagination(initialModel: AlertsInboxPageModel | nu
   const [cursorStack, setCursorStack] = useState<string[]>(() => initialCursorStack(initialModel));
 
   useEffect(() => {
+    if (status === urlStatus) {
+      return;
+    }
+
     setStatus(urlStatus);
-  }, [urlStatus]);
+    setCursorStack([""]);
+  }, [status, urlStatus]);
 
   const cursor = cursorStack[cursorStack.length - 1] ?? "";
   const page = cursorStack.length;

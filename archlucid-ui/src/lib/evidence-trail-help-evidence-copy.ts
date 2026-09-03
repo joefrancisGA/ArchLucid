@@ -15,6 +15,8 @@ export const EVIDENCE_TRAIL_HELP_PRIMARY_ACTION = {
 export const EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE =
   "This Evidence graph guide explains how to trace findings, artifacts, and provenance — not a full audit export. Open the live Evidence graph, Validate review, or Audit when you need official records.";
 
+export const EVIDENCE_TRAIL_HELP_FOLLOW_UPS_TITLE = "Where to go next" as const;
+
 export const EVIDENCE_TRAIL_HELP_SOURCES_INTRO =
   "Use these follow-ups when evidence-trail vocabulary turns into the live graph, search, provenance validation, or findings triage.";
 

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -7,6 +7,19 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 vi.mock("@/lib/resolve-nav-link-for-pathname", () => ({
   resolveNavIconForHref: () => null,
+}));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -18,7 +31,6 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpDpaTemplateGuideView } from "@/app/(operator)/help/_sections/HelpDpaTemplateGuideView";
-import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import {
   DPA_TEMPLATE_HELP_CLAIM_DISCIPLINE,
   DPA_TEMPLATE_HELP_DOWNLOAD_ACTION,
@@ -27,7 +39,13 @@ import {
   DPA_TEMPLATE_HELP_PROVENANCE,
   formatDpaTemplateHelpProvenanceLine,
 } from "@/lib/dpa-template-help-guide-content";
+import {
+  DPA_TEMPLATE_HELP_CANONICAL_PATH,
+  DPA_TEMPLATE_HELP_FOLLOW_UPS_TITLE,
+  DPA_TEMPLATE_HELP_SOURCES,
+} from "@/lib/dpa-template-help-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { resolvePublicHelpTopicPdfHref } from "@/lib/product-documentation-pdf-href";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -40,7 +58,7 @@ describe("HelpDpaTemplateGuideView", () => {
     expect(loaded?.entry.title).toBe("Data Processing Agreement (template)");
   });
 
-  it("renders specialty diligence chrome with first-viewport key terms and corrected hierarchy", () => {
+  it("renders specialty diligence chrome with header claim discipline and sources at the bottom", () => {
     if (loaded === null) {
       throw new Error("Expected dpa-template documentation to load.");
     }
@@ -67,20 +85,16 @@ describe("HelpDpaTemplateGuideView", () => {
     expect(visible).toContain("not a countersigned");
     expect(screen.getByTestId("help-dpa-template-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-dpa-template-claim-discipline-strip")).toHaveTextContent(
-      DPA_TEMPLATE_HELP_CLAIM_DISCIPLINE,
-    );
-    expectClaimDisciplineBandContent(
-      screen,
-      "help-dpa-template",
-      "help-dpa-template-claim-discipline",
+    expect(screen.getByTestId("help-dpa-template-header-claim-discipline")).toHaveTextContent(
       DPA_TEMPLATE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.queryByTestId("help-dpa-template-claim-discipline")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-dpa-template-orientation")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-dpa-template-claim-discipline-strip")).toBeNull();
+    expect(screen.queryByTestId("help-dpa-template-claim-discipline")).toBeNull();
+    expect(screen.getByTestId("help-dpa-template-how-to-use")).toBeInTheDocument();
     expect(screen.getByTestId("help-dpa-template-full-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("help-dpa-template-key-terms")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-dpa-template-sources")).toBeNull();
+    expect(screen.getByTestId("help-dpa-template-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: DPA_TEMPLATE_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     expect(visible).toContain("90 days");
     expect(visible).toContain("72 hours");
@@ -133,10 +147,11 @@ describe("HelpDpaTemplateGuideView", () => {
     expect(overview.className).toContain("leading-6");
     expect(overview.className).toContain(HELP_PAGE_LAYOUT.readingBody);
 
-    const contentColumn = overview.parentElement;
-    expect(contentColumn?.className).toContain("max-w-[52rem]");
+    const firstViewport = screen.getByTestId("help-dpa-template-first-viewport");
+    expect(firstViewport).toContainElement(overview);
 
-    expect(screen.getByTestId("help-dpa-template-claim-discipline-strip").tagName).toBe("ASIDE");
+    const contentColumn = screen.getByTestId("help-dpa-template-key-terms").closest("[class*='max-w-[52rem]']");
+    expect(contentColumn).not.toBeNull();
 
     const actionPanelLinks = within(actionPanel).getAllByRole("link");
     expect(actionPanelLinks).toHaveLength(3);
@@ -147,10 +162,19 @@ describe("HelpDpaTemplateGuideView", () => {
     const allPrimaryStyled = container.querySelectorAll('[class*="--al-primary-action-bg"]');
     expect(allPrimaryStyled).toHaveLength(1);
 
-    expect(screen.getByTestId("help-dpa-template-full-disclosure")).toBeInTheDocument();
+    const followUps = screen.getByTestId("help-dpa-template-sources");
+    for (const source of DPA_TEMPLATE_HELP_SOURCES) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(followUps).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
+
+    expect(screen.getByTestId("help-dpa-template-page-title").closest("[data-nav-href]")).toHaveAttribute(
+      "data-nav-href",
+      DPA_TEMPLATE_HELP_CANONICAL_PATH,
+    );
   });
 
-  it("renders the full DPA markdown body without a collapsible wrapper", async () => {
+  it("renders the full DPA markdown body without a collapsible wrapper", () => {
     if (loaded === null) {
       throw new Error("Expected dpa-template documentation to load.");
     }

@@ -104,12 +104,9 @@ describe("HelpContactSupportGuideView", () => {
     const primaryContent = screen.getByTestId("help-contact-support-primary-content");
     const body = screen.getByTestId("help-contact-support-primary");
     const orientation = screen.getByTestId("contact-support-help-orientation");
-    const actionsSection = screen.getByTestId("help-contact-support-actions-section");
 
-    expect(primaryContent).toContainElement(actionsSection);
     expect(primaryContent).toContainElement(orientation);
-    expect(actionsSection.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(body.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("shows execute requirement when caller rank is below Execute", () => {

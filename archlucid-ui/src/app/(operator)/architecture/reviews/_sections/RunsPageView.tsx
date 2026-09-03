@@ -17,6 +17,14 @@ import {
 import { isApiNotFoundFailure } from "@/lib/api-load-failure";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { REVIEWS_HUB_CLAIM_DISCIPLINE } from "@/lib/reviews-hub-evidence-copy";
+import {
+  REVIEWS_HUB_FIRST_VIEWPORT_ID,
+  REVIEWS_HUB_PRIMARY_CONTENT_ID,
+  REVIEWS_HUB_SKIP_LINK_LABEL,
+  REVIEWS_HUB_SKIP_TARGET_ID,
+} from "@/lib/reviews-hub-page-copy";
 
 import {
   REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE,
@@ -32,6 +40,7 @@ import {
   REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE,
 } from "./reviews-hub-copy";
 import { ReviewsHubHeaderActions } from "./ReviewsHubHeaderActions";
+import { ReviewsHubBuyerChrome } from "./ReviewsHubBuyerChrome";
 import {
   OperatorWelcomeOnboardingDeferred,
   ReviewsHubBeforeAfterDeltaPanelDeferred,
@@ -81,11 +90,23 @@ export function RunsPageView(props: Props) {
 
   return (
     <OperatorPageContainer variant="full">
+      <a
+        href={`#${REVIEWS_HUB_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {REVIEWS_HUB_SKIP_LINK_LABEL}
+      </a>
+
       <OperatorWelcomeOnboardingDeferred serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
         navHref={REVIEWS_LIST_PATH}
         title={REVIEWS_HUB_PAGE_TITLE}
         subtitle={REVIEWS_HUB_PAGE_SUBTITLE}
+        claimDiscipline={REVIEWS_HUB_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="reviews-hub-claim-discipline"
+        headingLevel="h1"
+        titleTestId="reviews-hub-page-title"
+        subtitleTestId="reviews-hub-page-subtitle"
         metadata={
           <>
             {m.projectId !== "default" ? (
@@ -101,7 +122,16 @@ export function RunsPageView(props: Props) {
         }
         actions={<ReviewsHubHeaderActions />}
       />
-      <div className={REVIEWS_HUB_BODY_STACK_CLASS} data-testid="reviews-hub-body">
+      <div
+        id={REVIEWS_HUB_PRIMARY_CONTENT_ID}
+        data-testid={REVIEWS_HUB_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", REVIEWS_HUB_BODY_STACK_CLASS)}
+      >
+        <div
+          id={REVIEWS_HUB_FIRST_VIEWPORT_ID}
+          data-testid={REVIEWS_HUB_FIRST_VIEWPORT_ID}
+          className={cn("scroll-mt-24", REVIEWS_HUB_BODY_STACK_CLASS)}
+        >
         {hubLoadOk ? (
           <>
             <ReviewsHubReviewInventoryDeferred runs={m.runs} summary={workspaceSummary} />
@@ -109,60 +139,12 @@ export function RunsPageView(props: Props) {
               <ReviewsHubContinueReviewStrip candidate={continueReviewCandidate} />
             ) : null}
             <ReviewsHubResumeDrafts />
-            {hasReviews ? (
-              <section
-                aria-label="Reviews hub guidance"
-                className={REVIEWS_HUB_GUIDANCE_STACK_CLASS}
-                data-testid="reviews-hub-guidance"
-              >
-                <OperatorAttentionKindStrip variant="compact" />
-                <ArchitectureObjectMapStrip focus="review" />
-                <CollapsibleSection
-                  title={REVIEWS_HUB_MORE_WAYS_TITLE}
-                  summaryLine={REVIEWS_HUB_MORE_WAYS_SUMMARY}
-                  defaultOpen={false}
-                  sectionTestId="reviews-hub-more-ways"
-                  className="mb-0 p-4"
-                >
-                  <ReviewsHubExploreSamplesDeferred />
-                  <ReviewsHubPackageIncludesDeferred />
-                </CollapsibleSection>
-              </section>
-            ) : null}
           </>
         ) : null}
 
         {m.usedStaticRunsFallback && isOperatorExperienceFullShellEnv() ? (
           <div className="max-w-5xl">
             <OperatorDemoStaticBanner />
-          </div>
-        ) : null}
-
-        {hubLoadOk && hasReviews ? (
-          <div className={REVIEWS_HUB_ANALYTICS_STACK_CLASS} data-testid="reviews-hub-analytics">
-            <CollapsibleSection
-              title={REVIEWS_HUB_MEDIAN_DELTA_TITLE}
-              summaryLine={REVIEWS_HUB_MEDIAN_DELTA_SUMMARY}
-              defaultOpen={false}
-              sectionTestId="reviews-hub-median-delta"
-              className="mb-0"
-            >
-              <ReviewsHubBeforeAfterDeltaPanelDeferred embeddedInCollapsible />
-            </CollapsibleSection>
-            {m.firstCommittedRunId !== null ? (
-              <CollapsibleSection
-                title={REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE}
-                summaryLine={REVIEWS_HUB_REVIEW_CYCLE_DELTA_SUMMARY}
-                defaultOpen={false}
-                sectionTestId="reviews-hub-review-cycle-delta"
-                className="mb-0"
-              >
-                <RunsIndexBeforeAfterPanelDeferred
-                  committedRunId={m.firstCommittedRunId}
-                  embeddedInCollapsible
-                />
-              </CollapsibleSection>
-            ) : null}
           </div>
         ) : null}
 
@@ -217,6 +199,58 @@ export function RunsPageView(props: Props) {
             </div>
           </section>
         ) : null}
+        </div>
+
+        {hubLoadOk && hasReviews ? (
+          <section
+            aria-label="Reviews hub guidance"
+            className={REVIEWS_HUB_GUIDANCE_STACK_CLASS}
+            data-testid="reviews-hub-guidance"
+          >
+            <OperatorAttentionKindStrip variant="compact" />
+            <ArchitectureObjectMapStrip focus="review" />
+            <CollapsibleSection
+              title={REVIEWS_HUB_MORE_WAYS_TITLE}
+              summaryLine={REVIEWS_HUB_MORE_WAYS_SUMMARY}
+              defaultOpen={false}
+              sectionTestId="reviews-hub-more-ways"
+              className="mb-0 p-4"
+            >
+              <ReviewsHubExploreSamplesDeferred />
+              <ReviewsHubPackageIncludesDeferred />
+            </CollapsibleSection>
+          </section>
+        ) : null}
+
+        {hubLoadOk && hasReviews ? (
+          <div className={REVIEWS_HUB_ANALYTICS_STACK_CLASS} data-testid="reviews-hub-analytics">
+            <CollapsibleSection
+              title={REVIEWS_HUB_MEDIAN_DELTA_TITLE}
+              summaryLine={REVIEWS_HUB_MEDIAN_DELTA_SUMMARY}
+              defaultOpen={false}
+              sectionTestId="reviews-hub-median-delta"
+              className="mb-0"
+            >
+              <ReviewsHubBeforeAfterDeltaPanelDeferred embeddedInCollapsible />
+            </CollapsibleSection>
+            {m.firstCommittedRunId !== null ? (
+              <CollapsibleSection
+                title={REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE}
+                summaryLine={REVIEWS_HUB_REVIEW_CYCLE_DELTA_SUMMARY}
+                defaultOpen={false}
+                sectionTestId="reviews-hub-review-cycle-delta"
+                className="mb-0"
+              >
+                <RunsIndexBeforeAfterPanelDeferred
+                  committedRunId={m.firstCommittedRunId}
+                  embeddedInCollapsible
+                />
+              </CollapsibleSection>
+            ) : null}
+          </div>
+        ) : null}
+
+        <ReviewsHubBuyerChrome />
       </div>
     </OperatorPageContainer>
   );

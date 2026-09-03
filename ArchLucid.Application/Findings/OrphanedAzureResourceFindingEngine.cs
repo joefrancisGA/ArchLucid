@@ -42,18 +42,15 @@ public sealed class OrphanedAzureResourceFindingEngine(
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        DateTime? collectionUtc = await _packageRepository
-            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, ct)
-            .ConfigureAwait(false);
-
-        if (InventoryCollectionFreshnessGate.ShouldSuppressInventoryFindings(
-                collectionUtc,
+        if (EffectfulFindingEngineCollectionFreshness.ShouldSuppressInventoryFindingsForAzure(
+                analysisContext,
                 _clock.GetUtcNow().UtcDateTime,
                 _freshnessOptions.StaleAfterDays))
         {
             return [];
         }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         AzureExtractorPackageDownloadRecord? download =
             await EffectfulFindingEngineEvidenceLoader.TryResolveAzureDownloadAsync(

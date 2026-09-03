@@ -1,19 +1,14 @@
 ﻿"use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FilterChip } from "@/components/ui/filter-chip";
-import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatFindingsVisibilitySummaryLine } from "@/lib/findings/finding-confidence-filter";
-import { reviewFindingsToolbarFilterHrefFromSearch } from "@/lib/findings/review-findings-toolbar-filter-url";
-import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
@@ -35,7 +30,7 @@ import {
 } from "@/components/findings/run-detail-findings-toolbar-presentation";
 
 import { FindingsProvenanceFilters } from "./FindingsProvenanceFilters";
-import { FindingsSortSelect } from "./FindingsSortSelect";
+import { FindingsSortChips } from "./FindingsSortChips";
 
 export type {
   RunDetailFindingsFilterKind,
@@ -67,8 +62,10 @@ export type RunDetailFindingsToolbarProps = {
   readonly onJobViewChange: (jobView: FindingJobView) => void;
   readonly ownerFilter: string;
   readonly onOwnerFilterChange: (value: string) => void;
+  readonly onClearOwnerFilter?: () => void;
   readonly domainFilter: string;
   readonly onDomainFilterChange: (value: string) => void;
+  readonly onClearDomainFilter?: () => void;
   readonly searchQuery: string;
   readonly onSearchQueryChange: (value: string) => void;
   readonly sort: RunDetailFindingsSortKind;
@@ -85,9 +82,6 @@ export type RunDetailFindingsToolbarProps = {
 
 export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
   const layout = props.layout ?? "full";
-  const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const currentSearch = searchParams.toString();
   const severityCounts = useMemo(
     () => deriveFindingsToolbarSeverityCounts(props.findings),
     [props.findings],
@@ -114,26 +108,29 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
     />
   );
 
-  const filterChips = (
-    <FilterChipGroup aria-label="Finding severity and status filters" className="flex flex-wrap gap-1">
-      {FILTER_OPTIONS.map((option) => {
-        const active = props.filter === option.id;
-        const count = countFindingsForToolbarFilter(props.findings, option.id, props.jobView);
+  const filterChips = FILTER_OPTIONS.map((option) => {
+    const active = props.filter === option.id;
+    const count = countFindingsForToolbarFilter(props.findings, option.id, props.jobView);
 
-        return (
-          <FilterChip
-            key={option.id}
-            href={reviewFindingsToolbarFilterHrefFromSearch(currentSearch, pathname, option.id)}
-            scroll={false}
-            className={buyerFilterChipClass(active, false)}
-            aria-current={active ? "page" : undefined}
-          >
-            {option.label} ({count})
-          </FilterChip>
-        );
-      })}
-    </FilterChipGroup>
-  );
+    return (
+      <button
+        key={option.id}
+        type="button"
+        className={cn(
+          "rounded-md px-2 py-1 text-sm",
+          active
+            ? "bg-neutral-900 font-semibold text-white dark:bg-neutral-100 dark:text-neutral-900"
+            : "bg-white text-neutral-700 ring-1 ring-neutral-200 hover:bg-neutral-100 dark:bg-neutral-950 dark:text-neutral-200 dark:ring-neutral-700",
+        )}
+        aria-pressed={active}
+        onClick={() => {
+          props.onFilterChange(option.id);
+        }}
+      >
+        {option.label} ({count})
+      </button>
+    );
+  });
 
   if (layout === "compact") {
     const suppressZeroStatusChips = props.packageCommitted === false;
@@ -191,7 +188,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
             />
           </div>
           <div className="min-w-[12rem]">
-            <FindingsSortSelect id="findings-sort" sort={props.sort} onSortChange={props.onSortChange} />
+            <FindingsSortChips sort={props.sort} />
           </div>
         </div>
 
@@ -231,8 +228,10 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
           <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             Filter findings
           </summary>
-            <div className="mt-3 space-y-3">
+          <div className="mt-3 space-y-3">
+            <div className="flex flex-wrap gap-1" role="group" aria-label="Finding severity and status filters">
               {filterChips}
+            </div>
       {props.onNaturalLanguageFilterApply !== undefined ? (
         <div data-testid="findings-nl-filter-toolbar">
           <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />
@@ -242,9 +241,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
               <FindingsProvenanceFilters
                 idPrefix="findings-compact"
                 originFilter={props.originFilter}
-                onOriginFilterChange={props.onOriginFilterChange}
                 groundingFilter={props.groundingFilter}
-                onGroundingFilterChange={props.onGroundingFilterChange}
               />
               <div>
                 <Label htmlFor="findings-owner-filter" className={OPERATOR_TYPOGRAPHY.helper}>
@@ -255,6 +252,12 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                   value={props.ownerFilter}
                   onChange={(event) => {
                     props.onOwnerFilterChange(event.target.value);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape" && props.ownerFilter.trim().length > 0) {
+                      event.preventDefault();
+                      props.onClearOwnerFilter?.();
+                    }
                   }}
                   placeholder="Owner"
                   className="mt-1 h-9"
@@ -269,6 +272,12 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                   value={props.domainFilter}
                   onChange={(event) => {
                     props.onDomainFilterChange(event.target.value);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape" && props.domainFilter.trim().length > 0) {
+                      event.preventDefault();
+                      props.onClearDomainFilter?.();
+                    }
                   }}
                   placeholder="Policy or category"
                   className="mt-1 h-9"
@@ -332,8 +341,10 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
         <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           Filter findings
         </summary>
-            <div className="mt-3 space-y-3">
-              {filterChips}
+        <div className="mt-3 space-y-3">
+          <div className="flex flex-wrap gap-1" role="group" aria-label="Finding severity and status filters">
+            {filterChips}
+          </div>
           {props.onNaturalLanguageFilterApply !== undefined ? (
             <div data-testid="findings-nl-filter-toolbar">
               <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />
@@ -343,9 +354,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
             <FindingsProvenanceFilters
               idPrefix="findings"
               originFilter={props.originFilter}
-              onOriginFilterChange={props.onOriginFilterChange}
               groundingFilter={props.groundingFilter}
-              onGroundingFilterChange={props.onGroundingFilterChange}
             />
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -358,6 +367,12 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                 value={props.ownerFilter}
                 onChange={(event) => {
                   props.onOwnerFilterChange(event.target.value);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape" && props.ownerFilter.trim().length > 0) {
+                    event.preventDefault();
+                    props.onClearOwnerFilter?.();
+                  }
                 }}
                 placeholder="Owner"
                 className="mt-1 h-9"
@@ -372,6 +387,12 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                 value={props.domainFilter}
                 onChange={(event) => {
                   props.onDomainFilterChange(event.target.value);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape" && props.domainFilter.trim().length > 0) {
+                    event.preventDefault();
+                    props.onClearDomainFilter?.();
+                  }
                 }}
                 placeholder="Policy or category"
                 className="mt-1 h-9"
@@ -391,7 +412,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                 className="mt-1 h-9"
               />
             </div>
-            <FindingsSortSelect id="findings-sort" sort={props.sort} onSortChange={props.onSortChange} />
+            <FindingsSortChips sort={props.sort} />
           </div>
         </div>
       </details>

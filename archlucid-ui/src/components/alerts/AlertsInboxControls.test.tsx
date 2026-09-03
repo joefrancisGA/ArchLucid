@@ -1,34 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import {
   AlertsInboxControls,
   shouldShowAlertsInboxControls,
 } from "@/components/alerts/AlertsInboxControls";
 import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator/operator-last-refreshed-label";
 
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(),
-}));
-
-vi.mock("next/link", () => ({
-  default: ({
-    href,
-    children,
-    ...rest
-  }: {
-    href: string;
-    children: unknown;
-    [key: string]: unknown;
-  }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
-
 const baseProps = {
   status: "Open",
+  severity: "",
   page: 1,
   loading: false,
   buyerPolishedShell: true,
@@ -62,7 +47,7 @@ describe("AlertsInboxControls", () => {
 
     expect(container).toBeEmptyDOMElement();
     expect(screen.queryByTestId("alerts-inbox-controls")).toBeNull();
-    expect(screen.queryByRole("group", { name: "Alert status" })).toBeNull();
+    expect(screen.queryByLabelText("Status")).toBeNull();
     expect(screen.queryByRole("button", { name: "Refresh" })).toBeNull();
     expect(screen.queryByTestId("alerts-inbox-last-updated")).toBeNull();
     expect(screen.queryByTestId("alerts-inbox-bulk-select")).toBeNull();
@@ -72,8 +57,7 @@ describe("AlertsInboxControls", () => {
     render(<AlertsInboxControls {...baseProps} hasAlertRules={true} workspaceContextLoading={false} />);
 
     expect(screen.getByTestId("alerts-inbox-controls")).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "Alert status" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Status: Open" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByLabelText("Status")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.getByTestId("alerts-inbox-last-updated")).toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
   });

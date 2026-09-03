@@ -15,6 +15,7 @@ export type UserPreferencesExplicitFlags = {
   readonly ianaTimeZoneIsExplicit: boolean;
   readonly whereToGoNextIsExplicit: boolean;
   readonly sampleReviewsOnOverviewIsExplicit: boolean;
+  readonly workspaceModeIsExplicit: boolean;
   readonly loaded: boolean;
 };
 
@@ -25,6 +26,7 @@ function resolveExplicitFlags(data: UserPreferencesResponse | undefined): UserPr
     ianaTimeZoneIsExplicit: data?.ianaTimeZoneIsExplicit ?? false,
     whereToGoNextIsExplicit: data?.whereToGoNextIsExplicit ?? false,
     sampleReviewsOnOverviewIsExplicit: data?.sampleReviewsOnOverviewIsExplicit ?? false,
+    workspaceModeIsExplicit: data?.workspaceModeIsExplicit ?? false,
     loaded: data !== undefined,
   };
 }

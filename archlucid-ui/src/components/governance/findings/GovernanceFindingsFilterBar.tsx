@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
-import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { governanceFindingsGroupByHrefFromSearch } from "@/lib/governance/governance-findings-group-by-url";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture/architecture-risk-register-csv";
 import {
   matchesRiskRegisterFilter,
@@ -15,7 +15,6 @@ import {
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
 import { downloadGovernanceFindingsItsmJsonExport } from "@/lib/runs/run-findings-itsm-export";
-import { governanceFindingsRegisterFilterHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -53,7 +52,7 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
     onSaveCurrentFilterAsPreset,
     onRemovePreset,
     groupByResource,
-    onToggleGroupByResource,
+    onToggleGroupByResource: _onToggleGroupByResource,
     displayedRows,
   } = props;
   const pathname = usePathname() ?? "";
@@ -73,38 +72,38 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
         governanceRows={props.filterableRows}
       />
       <BulkTriageRemainingProgress openCount={openCount} totalInView={totalInView} />
-      <FilterChipGroup
-        aria-label="Findings register filter"
+      <div
         className="flex flex-wrap items-center gap-2"
         data-testid="architecture-risk-register-filters"
+        aria-label="Findings filters"
       >
-        <FilterChip
-          href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, "all", pathname)}
-          scroll={false}
-          className={buyerFilterChipClass(registerFilter === "all", false)}
-          aria-current={registerFilter === "all" ? "page" : undefined}
+        <Button
+          type="button"
+          size="sm"
+          variant={registerFilter === "all" ? "default" : "outline"}
+          onClick={() => onRegisterFilterChange("all")}
         >
           {RISK_REGISTER_FILTER_LABELS.all}
-        </FilterChip>
+        </Button>
         {RISK_REGISTER_QUICK_FILTERS.map((filter) => (
-          <FilterChip
+          <Button
             key={filter}
-            href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, filter, pathname)}
-            scroll={false}
-            className={buyerFilterChipClass(registerFilter === filter, false)}
-            aria-current={registerFilter === filter ? "page" : undefined}
+            type="button"
+            size="sm"
+            variant={registerFilter === filter ? "default" : "outline"}
+            onClick={() => onRegisterFilterChange(filter)}
           >
             {RISK_REGISTER_FILTER_LABELS[filter]}
-          </FilterChip>
+          </Button>
         ))}
-        <FilterChip
-          href={governanceFindingsRegisterFilterHrefFromSearch(currentSearch, "stale", pathname)}
-          scroll={false}
-          className={buyerFilterChipClass(registerFilter === "stale", false)}
-          aria-current={registerFilter === "stale" ? "page" : undefined}
+        <Button
+          type="button"
+          size="sm"
+          variant={registerFilter === "stale" ? "default" : "outline"}
+          onClick={() => onRegisterFilterChange("stale")}
         >
           {RISK_REGISTER_FILTER_LABELS.stale}
-        </FilterChip>
+        </Button>
         {registerFilter !== "all" && !savedPresets.some((preset) => preset.filter === registerFilter) ? (
           <Button
             type="button"
@@ -138,16 +137,17 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
         >
           Export JSON (work items)
         </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={groupByResource ? "default" : "outline"}
+        <FilterChip
+          href={governanceFindingsGroupByHrefFromSearch(currentSearch, !groupByResource, pathname)}
+          scroll={false}
+          className={buyerFilterChipClass(groupByResource, false)}
           aria-pressed={groupByResource}
-          onClick={onToggleGroupByResource}
+          aria-current={groupByResource ? "page" : undefined}
+          data-testid="governance-findings-group-by-resource"
         >
           Group by resource
-        </Button>
-      </FilterChipGroup>
+        </FilterChip>
+      </div>
 
       {props.onNaturalLanguageFilterApply !== undefined ? (
         <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />

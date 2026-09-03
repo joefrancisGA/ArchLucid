@@ -6,10 +6,13 @@ import { HelpConnectAwsSecurelyHeaderActions } from "@/app/(operator)/help/_sect
 import { HelpConnectAwsSecurelyTrustPolicyPanel } from "@/app/(operator)/help/_sections/HelpConnectAwsSecurelyTrustPolicyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AwsCloudConnectionPermissionsTable } from "@/components/help/AwsCloudConnectionPermissionsTable";
+import { ConnectAwsSecurelyHelpClaimDisciplineStrip } from "@/components/help/ConnectAwsSecurelyHelpClaimDisciplineStrip";
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
+import { HelpConnectAwsSecurelyBreadcrumb } from "@/components/help/HelpConnectAwsSecurelyBreadcrumb";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   AWS_CLOUD_CONNECTION_API_PREREQUISITES,
   AWS_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS,
@@ -21,15 +24,15 @@ import {
   CONNECT_AWS_SECURELY_CONNECTION_STATUS_HREF,
   CONNECT_AWS_SECURELY_CONNECTION_STATUS_LINK_LABEL,
   CONNECT_AWS_SECURELY_CREDENTIALS_ITEMS,
-  CONNECT_AWS_SECURELY_DATA_HANDLING_HEADING,
   CONNECT_AWS_SECURELY_DETAILED_SETUP_LINK,
   CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_BODY,
   CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_HEADING,
+  CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_STATUS_LABEL,
   CONNECT_AWS_SECURELY_OPTIONAL_ZIP_NOTE,
   CONNECT_AWS_SECURELY_PAGE_LEAD,
   CONNECT_AWS_SECURELY_PERMISSIONS_AUTHORITY_NOTE,
   CONNECT_AWS_SECURELY_PERMISSIONS_HEADING,
-  CONNECT_AWS_SECURELY_PERMISSIONS_NOT_REQUIRED_NOTE,
+  CONNECT_AWS_SECURELY_PERMISSIONS_ITEMS,
   CONNECT_AWS_SECURELY_RETAINED_ITEMS,
   CONNECT_AWS_SECURELY_SECURITY_HEADING,
   CONNECT_AWS_SECURELY_SECURITY_ITEMS,
@@ -45,7 +48,11 @@ import {
   CONNECT_AWS_SECURELY_WRITE_ACCESS_NOTE,
   buildConnectAwsSecurelyVerifyHref,
 } from "@/lib/connect-aws-securely-help-content";
-import { CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE } from "@/lib/connect-aws-securely-help-evidence-copy";
+import {
+  CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING,
+  CONNECT_AWS_SECURELY_CLAIM_HEADING_ID,
+  CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE,
+} from "@/lib/connect-aws-securely-help-evidence-copy";
 import {
   CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID,
   CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL,
@@ -64,11 +71,14 @@ import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 const CONNECT_AWS_SECURELY_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
+  { id: CONNECT_AWS_SECURELY_CLAIM_HEADING_ID, title: CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING, level: 2 },
   { id: "security-model", title: CONNECT_AWS_SECURELY_SECURITY_HEADING, level: 2 },
   { id: "setup-aws-connection", title: CONNECT_AWS_SECURELY_SETUP_HEADING, level: 2 },
   { id: "aws-permissions", title: CONNECT_AWS_SECURELY_PERMISSIONS_HEADING, level: 2 },
   { id: "verification", title: CONNECT_AWS_SECURELY_VERIFICATION_HEADING, level: 2 },
-  { id: "data-handling", title: CONNECT_AWS_SECURELY_DATA_HANDLING_HEADING, level: 2 },
+  { id: "information-retained", title: "Information retained", level: 2 },
+  { id: "credentials-not-retained", title: "Credentials not retained", level: 2 },
+  { id: "permissions-not-required", title: "Permissions not required", level: 2 },
   { id: "troubleshoot", title: AWS_PERMISSIONS_TROUBLESHOOT_HEADING, level: 2 },
   { id: "where-to-go-next", title: CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE, level: 2 },
 ];
@@ -110,7 +120,10 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-connect-aws-securely-guide"
     >
-      <a href="#security-model" className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+      <a
+        href={`#${CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
         {CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL}
       </a>
 
@@ -119,14 +132,15 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
       <OperatorPageHeader
         title={entry.title}
         titleTestId="help-connect-aws-securely-page-title"
-        subtitle={`${CONNECT_AWS_SECURELY_PAGE_LEAD} ${CONNECT_AWS_SECURELY_WITHOUT_CONNECTION_NOTE}`}
+        subtitle={entry.summary}
         headingLevel="h1"
         navHref="/help/cloud-connections/aws"
+        breadcrumb={<HelpConnectAwsSecurelyBreadcrumb topicTitle={entry.title} />}
         metadata={
           <div className="space-y-2">
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               <Link href={returnHref} className={OPERATOR_LINK.nav} data-testid="connect-aws-back-to-connections">
-                {CONNECT_AWS_SECURELY_BACK_TO_CONNECTIONS}
+                ← {CONNECT_AWS_SECURELY_BACK_TO_CONNECTIONS}
               </Link>
               <span aria-hidden="true"> · </span>
               <a href="#troubleshoot" className={OPERATOR_LINK.nav}>
@@ -139,20 +153,33 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
         actions={<HelpConnectAwsSecurelyHeaderActions entry={entry} />}
       />
 
+      <ConnectAwsSecurelyHelpClaimDisciplineStrip />
+
       <div
         id={CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID}
-        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
         data-testid="help-connect-aws-securely-primary-content"
       >
+        <ConnectAwsSecurelyHelpEvidenceOrientationStrip />
+
+        <div className="space-y-3">
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {CONNECT_AWS_SECURELY_PAGE_LEAD}
+          </p>
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {CONNECT_AWS_SECURELY_WITHOUT_CONNECTION_NOTE}
+          </p>
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {CONNECT_AWS_SECURELY_OPTIONAL_ZIP_NOTE}
+          </p>
+        </div>
+
         <div className={HELP_PAGE_LAYOUT.contentGrid}>
-          <div className="min-w-0 space-y-4" data-testid="help-connect-aws-securely-primary">
+          <div className="min-w-0 space-y-8" data-testid="help-connect-aws-securely-primary">
             <section aria-labelledby="security-model" className="space-y-3">
               <HelpSectionHeading id="security-model">{CONNECT_AWS_SECURELY_SECURITY_HEADING}</HelpSectionHeading>
-              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {CONNECT_AWS_SECURELY_OPTIONAL_ZIP_NOTE}
-              </p>
               <div
-                className="space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700"
+                className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
                 data-testid="connect-aws-securely-security-panel"
               >
                 <ul className="m-0 list-none space-y-3 p-0">
@@ -170,7 +197,7 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
 
             <section
               aria-labelledby="setup-aws-connection"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
               data-testid="connect-aws-securely-setup-section"
             >
               <HelpSectionHeading id="setup-aws-connection">{CONNECT_AWS_SECURELY_SETUP_HEADING}</HelpSectionHeading>
@@ -198,7 +225,15 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
                         <Link href={verifyHref} className={OPERATOR_LINK.nav}>
                           run Re-poll now
                         </Link>{" "}
-                        to confirm federated assume-role and inventory access.
+                        to confirm federated assume-role and inventory access. See{" "}
+                        <a href="#verification" className={OPERATOR_LINK.nav}>
+                          {CONNECT_AWS_SECURELY_VERIFICATION_HEADING}
+                        </a>{" "}
+                        below. Review{" "}
+                        <Link href={CONNECT_AWS_SECURELY_CONNECTION_STATUS_HREF} className={OPERATOR_LINK.nav}>
+                          {CONNECT_AWS_SECURELY_CONNECTION_STATUS_LINK_LABEL}
+                        </Link>{" "}
+                        for workspace-wide integration health.
                       </>
                     ) : (
                       step.text
@@ -211,7 +246,7 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
 
             <section
               aria-labelledby="aws-permissions"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
               data-testid="connect-aws-securely-permissions-section"
             >
               <HelpSectionHeading id="aws-permissions">{CONNECT_AWS_SECURELY_PERMISSIONS_HEADING}</HelpSectionHeading>
@@ -240,12 +275,15 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
                   aria-hidden
                 />
                 <div className="min-w-0 space-y-2">
-                  <h3
-                    id="connect-aws-securely-forbidden-policies-heading"
-                    className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
-                  >
-                    {CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_HEADING}
-                  </h3>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3
+                      id="connect-aws-securely-forbidden-policies-heading"
+                      className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+                    >
+                      {CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_HEADING}
+                    </h3>
+                    <StatusTag kind="needs-attention" label={CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_STATUS_LABEL} />
+                  </div>
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                     {CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_BODY}
                   </p>
@@ -255,7 +293,7 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
 
             <section
               aria-labelledby="verification"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
               data-testid="connect-aws-securely-verification-section"
             >
               <HelpSectionHeading id="verification">{CONNECT_AWS_SECURELY_VERIFICATION_HEADING}</HelpSectionHeading>
@@ -264,16 +302,6 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
                 className={cn(DESIGN_TOKENS.callout.info, "space-y-3 scroll-mt-24")}
                 data-testid="connect-aws-securely-verification-callout"
               >
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  <Link href={verifyHref} className={OPERATOR_LINK.nav} data-testid="connect-aws-verify-action">
-                    Run Re-poll now
-                  </Link>{" "}
-                  on AWS connection settings after you save the role ARN. Review{" "}
-                  <Link href={CONNECT_AWS_SECURELY_CONNECTION_STATUS_HREF} className={OPERATOR_LINK.nav}>
-                    {CONNECT_AWS_SECURELY_CONNECTION_STATUS_LINK_LABEL}
-                  </Link>{" "}
-                  for workspace-wide integration health.
-                </p>
                 <div className="space-y-2">
                   <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>
                     {CONNECT_AWS_SECURELY_VERIFICATION_CHECKS_LABEL}
@@ -298,29 +326,35 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
             </section>
 
             <section
-              aria-labelledby="data-handling"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-              data-testid="connect-aws-securely-data-handling-section"
+              aria-labelledby="information-retained"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="connect-aws-securely-information-retained-section"
             >
-              <HelpSectionHeading id="data-handling">{CONNECT_AWS_SECURELY_DATA_HANDLING_HEADING}</HelpSectionHeading>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2" data-testid="connect-aws-securely-information-retained-section">
-                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Information retained</h3>
-                  <ClassificationList items={CONNECT_AWS_SECURELY_RETAINED_ITEMS} />
-                </div>
-                <div className="space-y-2" data-testid="connect-aws-securely-credentials-not-retained-section">
-                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Credentials not retained</h3>
-                  <ClassificationList items={CONNECT_AWS_SECURELY_CREDENTIALS_ITEMS} />
-                </div>
-              </div>
-              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {CONNECT_AWS_SECURELY_PERMISSIONS_NOT_REQUIRED_NOTE}
-              </p>
+              <HelpSectionHeading id="information-retained">Information retained</HelpSectionHeading>
+              <ClassificationList items={CONNECT_AWS_SECURELY_RETAINED_ITEMS} />
+            </section>
+
+            <section
+              aria-labelledby="credentials-not-retained"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="connect-aws-securely-credentials-not-retained-section"
+            >
+              <HelpSectionHeading id="credentials-not-retained">Credentials not retained</HelpSectionHeading>
+              <ClassificationList items={CONNECT_AWS_SECURELY_CREDENTIALS_ITEMS} />
+            </section>
+
+            <section
+              aria-labelledby="permissions-not-required"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="connect-aws-securely-permissions-not-required-section"
+            >
+              <HelpSectionHeading id="permissions-not-required">Permissions not required</HelpSectionHeading>
+              <ClassificationList items={CONNECT_AWS_SECURELY_PERMISSIONS_ITEMS} />
             </section>
 
             <section
               aria-labelledby="troubleshoot"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
               data-testid="connect-aws-securely-troubleshoot-section"
             >
               <HelpSectionHeading id="troubleshoot">{AWS_PERMISSIONS_TROUBLESHOOT_HEADING}</HelpSectionHeading>
@@ -330,8 +364,6 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
                 ))}
               </ul>
             </section>
-
-            <ConnectAwsSecurelyHelpEvidenceOrientationStrip />
           </div>
           <HelpTopicTableOfContents headings={CONNECT_AWS_SECURELY_TOC_HEADINGS} enableScrollSpy />
         </div>

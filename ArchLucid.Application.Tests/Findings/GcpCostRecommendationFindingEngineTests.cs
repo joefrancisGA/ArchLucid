@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
@@ -52,9 +53,10 @@ public sealed class GcpCostRecommendationFindingEngineTests
             }
             """;
 
-        GcpCostRecommendationFindingEngine sut = CreateSut(CreatePackage("recommender-cost.json", costJson));
+        (GcpCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage("recommender-cost.json", costJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("GcpCostRecommendation");
@@ -70,14 +72,16 @@ public sealed class GcpCostRecommendationFindingEngineTests
     [Fact]
     public async Task AnalyzeAsync_returns_empty_when_cost_json_missing()
     {
-        GcpCostRecommendationFindingEngine sut = CreateSut(CreatePackage("manifest.json", "{}"));
+        (GcpCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage("manifest.json", "{}"));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
 
-    private static GcpCostRecommendationFindingEngine CreateSut(CloudInventoryExtractorPackageDownloadRecord package)
+    private static (GcpCostRecommendationFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
+        CloudInventoryExtractorPackageDownloadRecord package)
     {
         Mock<ICloudInventoryExtractorPackageRepository> packageRepository = new();
         packageRepository
@@ -86,21 +90,25 @@ public sealed class GcpCostRecommendationFindingEngineTests
                 CloudProvider.Gcp,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(DateTime.UtcNow);
-        packageRepository
-            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(
-                TestScope,
-                CloudProvider.Gcp,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(package);
+        EffectfulFindingEngineTestSupport.SetupCloudPinnedDownload(
+            packageRepository,
+            TestScope,
+            CloudProvider.Gcp,
+            package);
+
+        FindingAnalysisContext context =
+            EffectfulFindingEngineTestSupport.CreateCloudPinnedContext(CloudProvider.Gcp, package.PackageId);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
 
-        return new GcpCostRecommendationFindingEngine(
+        GcpCostRecommendationFindingEngine engine = new(
             scopeProvider.Object,
             packageRepository.Object,
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        return (engine, context);
     }
 
     private static CloudInventoryExtractorPackageDownloadRecord CreatePackage(string entryName, string content)

@@ -52,5 +52,24 @@ public static class AuthorityCommitCreateTimePinBinder
             manifest.CreateTimeEvidencePackagePinsHashSha256 =
                 Convert.ToHexString(runRecord.PinnedEvidencePackagePinsHashSha256);
         }
+
+        if (runRecord.PinnedArchitectureVersionContentHashSha256 is { Length: > 0 })
+        {
+            manifest.CreateTimeArchitectureVersionContentHashSha256 =
+                Convert.ToHexString(runRecord.PinnedArchitectureVersionContentHashSha256);
+        }
+
+        if (runRecord.PinnedKnowledgeModelContentHashSha256 is { Length: > 0 })
+        {
+            manifest.CreateTimeKnowledgeModelContentHashSha256 =
+                Convert.ToHexString(runRecord.PinnedKnowledgeModelContentHashSha256);
+        }
+
+        manifest.CreateTimeFocusedPilotModeEnabled = runRecord.PinnedFocusedPilotModeEnabled;
+        manifest.CreateTimeFocusedPilotCloudProvider = runRecord.PinnedFocusedPilotCloudProvider;
+        manifest.CreateTimePackageOrigin = runRecord.PackageOrigin;
+        manifest.CreateTimeArchitectureRequestId = runRecord.ArchitectureRequestId;
+        manifest.CreateTimeStructuralExecutionMode = (int)runRecord.StructuralExecutionMode;
+        manifest.CreateTimePilotAoaiDeploymentSnapshot = runRecord.PilotAoaiDeploymentSnapshot;
     }
 }

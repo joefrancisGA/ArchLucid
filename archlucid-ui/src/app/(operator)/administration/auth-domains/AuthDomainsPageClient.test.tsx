@@ -1,5 +1,14 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
 
 import { AuthDomainsPageClient } from "./AuthDomainsPageClient";
 import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
@@ -33,7 +42,17 @@ import {
   authDomainsJourneyStepAriaLabel,
 } from "@/lib/auth-domains-page-copy";
 import { AUTH_DOMAINS_ZERO_DOMAIN_ENFORCEMENT_CALLOUT } from "@/lib/auth-domains-confirm-copy";
-import { AUTH_DOMAINS_SETTINGS_SOURCES } from "@/lib/auth-domains-settings-evidence-copy";
+import {
+  AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
+  AUTH_DOMAINS_SETTINGS_SOURCES,
+} from "@/lib/auth-domains-settings-evidence-copy";
+import {
+  AUTH_DOMAINS_SETTINGS_FIRST_VIEWPORT_TEST_ID,
+  AUTH_DOMAINS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  AUTH_DOMAINS_PAGE_SUBTITLE_OPERATOR,
+} from "@/lib/auth-domains-settings-page-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -155,11 +174,29 @@ describe("AuthDomainsPageClient", () => {
       "href",
       inAppHelpHref("authentication-sign-in"),
     );
+    expect(screen.getByText(AUTH_DOMAINS_PAGE_SUBTITLE_OPERATOR)).toBeInTheDocument();
+    expect(screen.getByTestId(AUTH_DOMAINS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
+      AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
+    );
     expectClaimDisciplineBand(screen, "auth-domains-settings", "auth-domains-settings-claim-discipline");
 
-    for (const source of AUTH_DOMAINS_SETTINGS_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+    const firstViewport = await screen.findByTestId(AUTH_DOMAINS_SETTINGS_FIRST_VIEWPORT_TEST_ID);
+    const orientationBottom = screen.getByTestId("auth-domains-orientation-bottom");
+    expect(firstViewport).toContainElement(screen.getByTestId("auth-domains-journey-strip"));
+    expect(
+      firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    const sources = screen.getByTestId("auth-domains-settings-sources");
+    for (const source of filterWhereToGoNextFollowUpLinks(AUTH_DOMAINS_SETTINGS_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
+    expect(within(sources).queryByRole("link", { name: "Open SSO and identity" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("auth-domains-identity-providers-vocabulary-peer-link")).toHaveAttribute(
+      "href",
+      "/administration/identity-providers",
+    );
   });
 
   it("does not show sign-in posture until domains finish loading", async () => {

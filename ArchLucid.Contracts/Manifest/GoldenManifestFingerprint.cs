@@ -31,7 +31,15 @@ public static class GoldenManifestFingerprint
     ///     Uppercase hex SHA-256 over structural manifest content only (excludes <c>RunId</c>,
     ///     <c>Metadata.CreatedUtc</c>, and <c>Metadata.DecisionTraceIds</c>).
     /// </summary>
-    public static string ComputeContentSha256Hex(GoldenManifest manifest)
+    public static string ComputeContentSha256Hex(GoldenManifest manifest) =>
+        ComputeContentSha256Hex(manifest, createTimePins: null);
+
+    /// <summary>
+    ///     Wave-9 suggestion 86: structural projection plus optional create-time pin commitment (Hasher A subset).
+    /// </summary>
+    public static string ComputeContentSha256Hex(
+        GoldenManifest manifest,
+        GoldenManifestCreateTimePinCommitment? createTimePins)
     {
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
@@ -104,7 +112,18 @@ public static class GoldenManifestFingerprint
                 metadata.ManifestVersion,
                 metadata.ParentManifestVersion,
                 metadata.ChangeDescription
-            }
+            },
+            createTimePolicyPackPins = createTimePins is null
+                ? null
+                : ManifestCreateTimePinCanonicalProjection.ProjectPolicyPackPins(createTimePins.PolicyPackPins),
+            createTimeEvidencePackagePins = createTimePins is null
+                ? null
+                : ManifestCreateTimePinCanonicalProjection.ProjectEvidencePackagePins(createTimePins.EvidencePackagePins),
+            createTimeEvidencePackagePinsHashSha256 = createTimePins?.EvidencePackagePinsHashSha256Hex,
+            createTimeArchitectureVersionContentHashSha256 = createTimePins?.ArchitectureVersionContentHashSha256Hex,
+            createTimeKnowledgeModelContentHashSha256 = createTimePins?.KnowledgeModelContentHashSha256Hex,
+            createTimeFocusedPilotModeEnabled = createTimePins?.FocusedPilotModeEnabled,
+            createTimeFocusedPilotCloudProvider = createTimePins?.FocusedPilotCloudProvider
         };
 
         byte[] utf8 = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(canonical, ContractJson.Default));

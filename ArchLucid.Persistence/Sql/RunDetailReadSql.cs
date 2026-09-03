@@ -18,6 +18,8 @@ internal static class RunDetailReadSql
                                             PinnedPolicyPackIdsJson, PinnedPolicyPackIdsHashSha256,
                                             PinnedEvidencePackagePinsJson, PinnedEvidencePackagePinsHashSha256,
                                             PinnedFocusedPilotModeEnabled, PinnedFocusedPilotCloudProvider,
+                                            PinnedArchitectureVersionContentHashSha256,
+                                            PinnedKnowledgeModelContentHashSha256,
                                             RowVersionStamp AS RowVersion
                                             """;
 

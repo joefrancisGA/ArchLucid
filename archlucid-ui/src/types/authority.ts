@@ -1,10 +1,16 @@
 import type { components } from "@/lib/openapi-schemas";
 import type { CompareEffectiveGovernanceAtCommitSnapshot } from "@/lib/compare-effective-governance-diff";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import type { RunDetailAgentFinding, RunDetailAgentResult } from "@/types/authority-run-detail-wire";
+
+export type { RunDetailAgentFinding, RunDetailAgentResult } from "@/types/authority-run-detail-wire";
 
 /**
  * Intentional UI-only list enrichments merged onto OpenAPI `RunSummaryResponse` after fetch.
- * These keys are not part of the generated schema; keep them here rather than parallel DTO structs.
+ *
+ * Wave 9: **not** an OpenAPI alias — no `RunSummaryWireExtensions` schema exists. Keys are sporadic
+ * list/detail merges the shell treats as present after fetch; document new extensions here instead of
+ * widening `RunSummaryResponse` in hand-authored DTOs.
  */
 export type RunSummaryWireExtensions = {
   /** Golden manifest id when list/summary already resolved it (avoids N× getRunDetail). */
@@ -139,43 +145,6 @@ export type ReplayResponse = ReplayResponseSchema &
 
 /** LLM usage rollup — **OpenAPI** `RunAgentLlmCostEstimateResponse`. */
 export type RunAgentExecutionLlmCostEstimate = components["schemas"]["RunAgentLlmCostEstimateResponse"];
-
-/** Agent pipeline result row on authority run detail (`RunDetailDto.results`). */
-export type RunDetailAgentFinding = {
-  category?: string;
-  findingId?: string;
-  message?: string;
-  reasoningTrace?: string | null;
-  severity?: string;
-};
-
-/** Explicit shape — OpenAPI snapshot emits `AgentResult` as `{}` so generated type is `unknown`. */
-export type RunDetailAgentResult = {
-  agentType: components["schemas"]["AgentType"];
-  cacheServed?: boolean;
-  /** Format: double */
-  calibratedConfidence?: null | number | string;
-  citations?: null | components["schemas"]["Citation"][];
-  claims: string[];
-  /** Format: double */
-  confidence?: number | string;
-  /** Format: date-time */
-  createdUtc?: string;
-  degradationReasonCode?: null | string;
-  evidenceRefs: string[];
-  findings?: RunDetailAgentFinding[] | null;
-  insightDensityCuration?: null | components["schemas"]["InsightDensityCurationSummary"];
-  proposedChanges?: unknown;
-  reasoningTrace?: null | string;
-  resultId: string;
-  retrievalGroundingTrace?: unknown;
-  runId: string;
-  taskId: string;
-  taskStructuralExecutionMode?: null | components["schemas"]["StructuralExecutionMode"];
-  upstreamResultFingerprints?: null | {
-    [key: string]: string;
-  };
-};
 
 export type TrustEvidenceFieldSnapshot = components["schemas"]["TrustEvidenceFieldSnapshot"];
 

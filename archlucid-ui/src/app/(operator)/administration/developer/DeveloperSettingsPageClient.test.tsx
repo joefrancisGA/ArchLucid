@@ -12,6 +12,15 @@ import {
 } from "./developer-settings-copy";
 import { DEVELOPER_API_CONTRACTS_API_KEYS_COMPACT_LINE } from "@/lib/vocabulary/developer-api-contracts-api-keys-vocabulary";
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
@@ -34,7 +43,7 @@ describe("DeveloperSettingsPageClient", () => {
     expect(screen.getByTestId("authority-theme-dev-selector")).toBeInTheDocument();
     expect(screen.getByTestId("try-cli-demo-card")).toBeInTheDocument();
     expect(screen.getByTestId("developer-settings-build-identity-card")).toBeInTheDocument();
-    expect(screen.queryByTestId("developer-settings-sources")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("developer-settings-sources")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /^Diagnostics$/i })).not.toBeInTheDocument();
   });
 
@@ -61,6 +70,7 @@ describe("DeveloperSettingsPageClient", () => {
     const themeSelector = screen.getByTestId("authority-theme-dev-selector");
     const cliCard = screen.getByTestId("try-cli-demo-card");
     const accessNote = screen.getByTestId("developer-settings-access-note");
+    const orientationBottom = screen.getByTestId("developer-settings-orientation-bottom");
 
     expect(vocabularyRail.textContent ?? "").toContain(DEVELOPER_API_CONTRACTS_API_KEYS_COMPACT_LINE);
     expect(
@@ -74,6 +84,9 @@ describe("DeveloperSettingsPageClient", () => {
     ).toBeTruthy();
     expect(
       cliCard.compareDocumentPosition(accessNote) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      accessNote.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Related surfaces" })).not.toBeInTheDocument();
   });

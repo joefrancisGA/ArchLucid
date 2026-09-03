@@ -58,15 +58,15 @@ import {
   CONTACT_SUPPORT_PRIMARY_ACTIONS,
 } from "@/lib/contact-support-help-guide-content";
 import {
+  CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID,
   CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL,
-  CONTACT_SUPPORT_HELP_SKIP_TARGET_ID,
 } from "@/lib/contact-support-help-page-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpContactSupportGuideView buyer-polished shell", () => {
   const entry = getProductDocumentationEntry("contact-support");
 
-  it("renders skip link to support actions and orientation after body", () => {
+  it("renders skip link, breadcrumb, and claim orientation above body", () => {
     if (entry === undefined) {
       throw new Error("Expected contact-support documentation entry.");
     }
@@ -74,7 +74,7 @@ describe("HelpContactSupportGuideView buyer-polished shell", () => {
     render(<HelpContactSupportGuideView entry={entry} />);
 
     const skipLink = screen.getByRole("link", { name: CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL });
-    expect(skipLink).toHaveAttribute("href", `#${CONTACT_SUPPORT_HELP_SKIP_TARGET_ID}`);
+    expect(skipLink).toHaveAttribute("href", `#${CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID}`);
 
     expect(screen.getByTestId("contact-support-help-claim-discipline").textContent).toContain(
       CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE.slice(0, 40),
@@ -83,19 +83,18 @@ describe("HelpContactSupportGuideView buyer-polished shell", () => {
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
     expect(screen.queryByTestId("help-topic-print-button")).toBeNull();
-    expect(screen.queryByTestId("help-contact-support-email-action")).toBeNull();
-    expect(screen.getByTestId(CONTACT_SUPPORT_PRIMARY_ACTIONS.emailSupport.testId)).toHaveAttribute(
-      "href",
-      CONTACT_SUPPORT_PRIMARY_ACTIONS.emailSupport.href,
-    );
+    expect(screen.getByTestId("help-contact-support-email-action")).toBeInTheDocument();
 
-    const actionsSection = screen.getByTestId("help-contact-support-actions-section");
     const primaryContent = screen.getByTestId("help-contact-support-primary-content");
     const body = screen.getByTestId("help-contact-support-primary");
     const orientation = screen.getByTestId("contact-support-help-orientation");
 
-    expect(primaryContent).toContainElement(actionsSection);
-    expect(actionsSection.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(body.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(primaryContent).toContainElement(orientation);
+    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    expect(screen.getByTestId("help-contact-support-email-action")).toHaveAttribute(
+      "href",
+      CONTACT_SUPPORT_PRIMARY_ACTIONS.emailSupport.href,
+    );
   });
 });

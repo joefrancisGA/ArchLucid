@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
@@ -63,9 +64,10 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
             ]
             """;
 
-        GraphAzureInventoryReconciliationFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+        (GraphAzureInventoryReconciliationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.EngineType.Should().Be("azure-inventory-reconciliation");
@@ -105,42 +107,9 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
             PackageBytes = [],
         };
 
-        GraphAzureInventoryReconciliationFindingEngine sut = CreateSut(package);
+        (GraphAzureInventoryReconciliationFindingEngine sut, FindingAnalysisContext context) = CreateSut(package);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
-
-        Finding finding = findings.Should().ContainSingle().Subject;
-        finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");
-        InventoryReconciliationFindingPayload payload =
-            finding.Payload.Should().BeOfType<InventoryReconciliationFindingPayload>().Subject;
-        payload.GraphOnlyResourceIds.Should().ContainSingle();
-        payload.InventoryOnlyResourceIds.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task AnalyzeAsync_reports_graph_only_when_download_row_is_missing()
-    {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "t1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "vm-graph",
-                    Properties = new Dictionary<string, string>
-                    {
-                        ["resourceId"] =
-                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph"
-                    }
-                }
-            ]
-        };
-
-        GraphAzureInventoryReconciliationFindingEngine sut = CreateSut(null);
-
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");
@@ -178,9 +147,9 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
             PackageBytes = [0x00, 0x01, 0x02, 0x03],
         };
 
-        GraphAzureInventoryReconciliationFindingEngine sut = CreateSut(package);
+        (GraphAzureInventoryReconciliationFindingEngine sut, FindingAnalysisContext context) = CreateSut(package);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");
@@ -190,24 +159,27 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
         payload.InventoryOnlyResourceIds.Should().BeEmpty();
     }
 
-    private static GraphAzureInventoryReconciliationFindingEngine CreateSut(AzureExtractorPackageDownloadRecord? package)
+    private static (GraphAzureInventoryReconciliationFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
+        AzureExtractorPackageDownloadRecord package)
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository
             .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync(DateTime.UtcNow);
-        packageRepository
-            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(package);
+        EffectfulFindingEngineTestSupport.SetupAzurePinnedDownload(packageRepository, TestScope, package);
+
+        FindingAnalysisContext context = EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(package.PackageId);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
 
-        return new GraphAzureInventoryReconciliationFindingEngine(
+        GraphAzureInventoryReconciliationFindingEngine engine = new(
             scopeProvider.Object,
             packageRepository.Object,
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        return (engine, context);
     }
 
     private static AzureExtractorPackageDownloadRecord CreatePackage(string resourcesJson)

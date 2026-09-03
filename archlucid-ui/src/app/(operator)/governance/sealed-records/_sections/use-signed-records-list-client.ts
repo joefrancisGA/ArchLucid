@@ -11,12 +11,16 @@ import { areSpineStaticDemoPayloadsAvailable, tryStaticDemoRunSummariesPaged } f
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { resolveContinueLastSignedRecordsListRow } from "@/lib/resolve-continue-last-signed-record";
-import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import {
-  parseSignedRecordsListSearchQuery,
-  signedRecordsListSearchHrefFromSearch,
-  SIGNED_RECORDS_LIST_SEARCH_PARAM,
-} from "@/lib/signed-records/signed-records-list-search";
+  parseSignedRecordsListDateRangeFromSearch,
+  signedRecordsListDateRangeHrefFromSearch,
+  type SignedRecordsListDateRangePreset,
+} from "@/lib/signed-records/signed-records-list-date-range-url";
+import {
+  parseSignedRecordsListIntegrityFilter,
+  signedRecordsListIntegrityHrefFromSearch,
+} from "@/lib/signed-records/signed-records-list-integrity-url";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import {
   resolveSignedRecordsFilterEmphasizedStepId,
   resolveSignedRecordsFilterSteps,
@@ -51,6 +55,9 @@ export type UseSignedRecordsListClientResult = {
   readonly setSearchQuery: Dispatch<SetStateAction<string>>;
   readonly integrityFilter: SignedRecordsListIntegrityFilter;
   readonly setIntegrityFilter: Dispatch<SetStateAction<SignedRecordsListIntegrityFilter>>;
+  readonly dateRangePreset: SignedRecordsListDateRangePreset | null;
+  readonly onIntegrityFilterChange: (value: SignedRecordsListIntegrityFilter) => void;
+  readonly onDateRangePresetChange: (value: SignedRecordsListDateRangePreset | null) => void;
   readonly page: number;
   readonly cursor: string;
   readonly hasMore: boolean;
@@ -85,7 +92,8 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
-  const urlSearchQuery = parseSignedRecordsListSearchQuery(searchParams.get(SIGNED_RECORDS_LIST_SEARCH_PARAM));
+  const urlDateRange = parseSignedRecordsListDateRangeFromSearch(searchParams.get("range"));
+  const urlIntegrity = parseSignedRecordsListIntegrityFilter(searchParams.get("integrity"));
 
   const [rows, setRows] = useState<readonly SignedRecordsListRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,8 +104,9 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   const [retryingRunId, setRetryingRunId] = useState<string | null>(null);
   const [retryFailedRunId, setRetryFailedRunId] = useState<string | null>(null);
   const [retrySucceededRunId, setRetrySucceededRunId] = useState<string | null>(null);
-  const [searchQuery, setSearchQueryState] = useState(urlSearchQuery);
-  const [integrityFilter, setIntegrityFilter] = useState<SignedRecordsListIntegrityFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [integrityFilter, setIntegrityFilter] = useState<SignedRecordsListIntegrityFilter>(urlIntegrity);
+  const [dateRangePreset, setDateRangePreset] = useState<SignedRecordsListDateRangePreset | null>(urlDateRange);
   const [page, setPage] = useState(1);
   const [cursor, setCursor] = useState("");
   const [cursorHistory, setCursorHistory] = useState<readonly string[]>([]);
@@ -113,29 +122,12 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   }, []);
 
   useEffect(() => {
-    setSearchQueryState(urlSearchQuery);
-  }, [urlSearchQuery]);
+    setIntegrityFilter(urlIntegrity);
+  }, [urlIntegrity]);
 
   useEffect(() => {
-    const handle = window.setTimeout(() => {
-      const nextHref = signedRecordsListSearchHrefFromSearch(searchParams.toString(), searchQuery);
-
-      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-        router.replace(nextHref, { scroll: false });
-      }
-    }, 250);
-
-    return () => {
-      window.clearTimeout(handle);
-    };
-  }, [router, searchParams, searchQuery]);
-
-  const setSearchQuery = useCallback(
-    (value: SetStateAction<string>): void => {
-      setSearchQueryState(value);
-    },
-    [],
-  );
+    setDateRangePreset(urlDateRange);
+  }, [urlDateRange]);
 
   const onPickReviewForFiltering = useCallback(
     (reviewId: string) => {
@@ -299,10 +291,9 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     setCursorHistory((history) => [...history, cursor]);
     setCursor(nextCursor);
     setPage((currentPage) => currentPage + 1);
-    setSearchQueryState("");
-    router.replace(signedRecordsListSearchHrefFromSearch(searchParams.toString(), ""), { scroll: false });
+    setSearchQuery("");
     setIntegrityFilter("all");
-  }, [cursor, nextCursor, router, searchParams]);
+  }, [cursor, nextCursor]);
 
   const goToPreviousPage = useCallback(() => {
     if (cursorHistory.length === 0) {
@@ -314,26 +305,56 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     setCursorHistory((history) => history.slice(0, -1));
     setCursor(previousCursor);
     setPage((currentPage) => Math.max(1, currentPage - 1));
-    setSearchQueryState("");
-    router.replace(signedRecordsListSearchHrefFromSearch(searchParams.toString(), ""), { scroll: false });
+    setSearchQuery("");
     setIntegrityFilter("all");
-  }, [cursorHistory, router, searchParams]);
+  }, [cursorHistory]);
 
   const clearFilters = useCallback(() => {
-    setSearchQueryState("");
+    setSearchQuery("");
     setIntegrityFilter("all");
-    router.replace(signedRecordsListSearchHrefFromSearch(searchParams.toString(), ""), { scroll: false });
+    setDateRangePreset(null);
+    router.replace(
+      signedRecordsListDateRangeHrefFromSearch(
+        signedRecordsListIntegrityHrefFromSearch(searchParams.toString(), "all"),
+        null,
+      ),
+      { scroll: false },
+    );
   }, [router, searchParams]);
+
+  const onIntegrityFilterChange = useCallback(
+    (value: SignedRecordsListIntegrityFilter) => {
+      setIntegrityFilter(value);
+      router.replace(signedRecordsListIntegrityHrefFromSearch(searchParams.toString(), value), { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const onDateRangePresetChange = useCallback(
+    (value: SignedRecordsListDateRangePreset | null) => {
+      setDateRangePreset(value);
+      router.replace(signedRecordsListDateRangeHrefFromSearch(searchParams.toString(), value), { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const hasRows = rows.length > 0;
   const isInitialLoad = loading && !hasRows;
   const isPageRefresh = loading && hasRows;
   const filteredRows = useMemo(
-    () => filterSignedRecordsListRows(rows, searchQuery, integrityFilter, scopedRunFilterActive ? scopedRunId : null),
-    [integrityFilter, rows, scopedRunFilterActive, scopedRunId, searchQuery],
+    () =>
+      filterSignedRecordsListRows(
+        rows,
+        searchQuery,
+        integrityFilter,
+        scopedRunFilterActive ? scopedRunId : null,
+        dateRangePreset,
+      ),
+    [dateRangePreset, integrityFilter, rows, scopedRunFilterActive, scopedRunId, searchQuery],
   );
   const continueLastViewedRow = useMemo(() => resolveContinueLastSignedRecordsListRow(rows), [rows]);
-  const filtersActive = searchQuery.trim().length > 0 || integrityFilter !== "all";
+  const filtersActive =
+    searchQuery.trim().length > 0 || integrityFilter !== "all" || dateRangePreset !== null;
   const showFilterNoMatch = !loading && hasRows && filtersActive && filteredRows.length === 0;
   const showEmptyState = !loading && !hasRows && loadFailure === null;
   const showPagination = loadFailure === null && (loading || hasRows || page > 1 || hasMore);
@@ -376,6 +397,9 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     setSearchQuery,
     integrityFilter,
     setIntegrityFilter,
+    dateRangePreset,
+    onIntegrityFilterChange,
+    onDateRangePresetChange,
     page,
     cursor,
     hasMore,

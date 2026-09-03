@@ -1,14 +1,20 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import { Label } from "@/components/ui/label";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ALERTS_INBOX_ALL_STATUSES_VALUE,
 } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
@@ -16,15 +22,15 @@ import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator/operator-last-refreshed-label";
 import { formatRelativeTime } from "@/lib/relative-time";
-import {
-  ALERTS_INBOX_STATUS_CHIP_LABELS,
-  ALERTS_INBOX_STATUS_CHIP_OPTIONS,
-  alertsInboxStatusHrefFromSearch,
-} from "@/lib/governance/alerts-inbox-status-url";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import {
+  alertsInboxSeverityHrefFromSearch,
+  ALERTS_INBOX_SEVERITY_CHIP_OPTIONS,
+} from "@/lib/governance/alerts-inbox-severity-url";
 
 export type AlertsInboxControlsProps = {
   readonly status: string;
+  readonly severity: string;
   readonly page: number;
   readonly loading: boolean;
   readonly buyerPolishedShell: boolean;
@@ -84,26 +90,21 @@ export function AlertsInboxControls(props: AlertsInboxControlsProps) {
         data-testid="alerts-inbox-controls"
       >
         <div className="flex flex-wrap items-end gap-3">
-          <FilterChipGroup aria-label="Alert status" className="flex flex-wrap gap-1.5">
-            {ALERTS_INBOX_STATUS_CHIP_OPTIONS.map((statusValue) => {
-              const selected = props.status === statusValue;
-              const label = ALERTS_INBOX_STATUS_CHIP_LABELS[statusValue];
-
-              return (
-                <FilterChip
-                  key={statusValue}
-                  href={alertsInboxStatusHrefFromSearch(currentSearch, statusValue)}
-                  scroll={false}
-                  className={buyerFilterChipClass(selected, false)}
-                  aria-current={selected ? "page" : undefined}
-                  aria-label={`Status: ${label}`}
-                  data-testid={`alerts-inbox-status-${statusValue.toLowerCase()}`}
-                >
-                  {label}
-                </FilterChip>
-              );
-            })}
-          </FilterChipGroup>
+          <div className="grid gap-2">
+            <Label htmlFor="alerts-status-filter">Status</Label>
+            <Select value={props.status} onValueChange={props.onStatusChange}>
+              <SelectTrigger id="alerts-status-filter" className="w-[200px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALERTS_INBOX_ALL_STATUSES_VALUE}>All</SelectItem>
+                <SelectItem value="Open">Open</SelectItem>
+                <SelectItem value="Acknowledged">Acknowledged</SelectItem>
+                <SelectItem value="Resolved">Resolved</SelectItem>
+                <SelectItem value="Suppressed">Suppressed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <RefreshButton busy={props.loading} size="default" onClick={props.onRefresh} />
           {props.canMutateAlertInbox && props.visibleAlertCount > 0 ? (
             <Button
@@ -130,6 +131,32 @@ export function AlertsInboxControls(props: AlertsInboxControlsProps) {
           </p>
         ) : null}
       </div>
+
+      <FilterChipGroup
+        aria-label="Filter alerts by severity"
+        className="mb-3 flex flex-wrap gap-2"
+        data-testid="alerts-inbox-severity-chips"
+      >
+        <FilterChip
+          href={alertsInboxSeverityHrefFromSearch(currentSearch, "")}
+          scroll={false}
+          className={buyerFilterChipClass(props.severity.trim().length === 0, false)}
+          aria-current={props.severity.trim().length === 0 ? "page" : undefined}
+        >
+          All severities
+        </FilterChip>
+        {ALERTS_INBOX_SEVERITY_CHIP_OPTIONS.map((option) => (
+          <FilterChip
+            key={option}
+            href={alertsInboxSeverityHrefFromSearch(currentSearch, option)}
+            scroll={false}
+            className={buyerFilterChipClass(props.severity === option, false)}
+            aria-current={props.severity === option ? "page" : undefined}
+          >
+            {option}
+          </FilterChip>
+        ))}
+      </FilterChipGroup>
 
       {props.pageMixSummary !== null && props.status === ALERTS_INBOX_ALL_STATUSES_VALUE && !props.hasLoadFailure ? (
         <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)} data-testid="alerts-inbox-page-mix">

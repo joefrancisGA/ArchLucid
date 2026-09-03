@@ -57,11 +57,9 @@ internal static class TenantIsolationNegativeTestCommand
                 return CliExitCode.ConfigurationError;
             }
 
-            (string tenantId, string workspaceId, string projectId) = TenantIsolationNegativeTestRunner.ResolveAlternateScope(options);
-
             using HttpClient primaryClient = CliAuthorizedHttpClient.Create(baseUrl, config);
             using HttpClient alternateClient = CliAuthorizedHttpClient.Create(baseUrl, config);
-            CliScopeHeaders.ApplyExplicit(alternateClient, tenantId, workspaceId, projectId);
+            TenantIsolationNegativeTestLiveRunner.ApplyAlternateScopeHeaders(alternateClient, options);
 
             report = await runner.RunLiveAsync(repositoryRoot, primaryClient, alternateClient, options, cancellationToken);
         }

@@ -26,7 +26,9 @@ import {
   CUSTOMER_GLOSSARY_SEARCH_LABEL,
 } from "@/lib/customer-glossary-copy";
 import { CUSTOMER_GLOSSARY_CONTRACT_VERSION } from "@/lib/customer-glossary-manifest";
-import { GLOSSARY_HELP_CLAIM_DISCIPLINE, GLOSSARY_HELP_FOLLOW_UP_LINKS } from "@/lib/glossary-help-evidence-copy";
+import { GLOSSARY_HELP_CLAIM_DISCIPLINE_LEAD, GLOSSARY_HELP_FOLLOW_UP_LINKS, GLOSSARY_HELP_FOLLOW_UPS_TITLE, GLOSSARY_HELP_HEADER_CLAIM_DISCIPLINE } from "@/lib/glossary-help-evidence-copy";
+import { GLOSSARY_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID } from "@/lib/glossary-help-page-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { GLOSSARY_HELP_PRIMARY_ACTIONS } from "@/lib/glossary-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
@@ -78,7 +80,14 @@ describe("HelpGlossaryPageView", () => {
 
     expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
-    expect(screen.getByTestId("glossary-help-claim-discipline")).toHaveTextContent(GLOSSARY_HELP_CLAIM_DISCIPLINE);
+    expect(screen.getByTestId(GLOSSARY_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
+      GLOSSARY_HELP_HEADER_CLAIM_DISCIPLINE,
+    );
+    expect(screen.getByTestId(GLOSSARY_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
+      GLOSSARY_HELP_CLAIM_DISCIPLINE_LEAD,
+    );
+    expect(screen.queryByTestId("glossary-help-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: GLOSSARY_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-glossary-action-panel")).toBeInTheDocument();
     const actionPanel = screen.getByTestId("help-glossary-action-panel");
     expect(within(actionPanel).getByRole("link", { name: GLOSSARY_HELP_PRIMARY_ACTIONS.openReviews.label })).toHaveAttribute(
@@ -93,7 +102,8 @@ describe("HelpGlossaryPageView", () => {
     ).toHaveAttribute("href", GLOSSARY_HELP_PRIMARY_ACTIONS.openFirstReviewGuide.href);
 
     for (const link of GLOSSARY_HELP_FOLLOW_UP_LINKS) {
-      expect(within(screen.getByTestId("glossary-help-claim-discipline")).getByRole("link", { name: link.label })).toHaveAttribute(
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
+      expect(within(screen.getByTestId("help-glossary-sources")).getByRole("link", { name: accessibleName })).toHaveAttribute(
         "href",
         link.href,
       );

@@ -8,7 +8,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE, FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_REVIEW_GUIDE_STEP_COUNT } from "@/lib/first-review-guide-steps";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type {
@@ -140,18 +140,6 @@ export function FirstReviewGuideWalkthrough({
   if (isCompletedState) {
     return (
       <div className="space-y-3" data-testid="first-review-guide-walkthrough-completed-summary">
-        <div
-          className={cn(OPERATOR_SURFACE_CARD_CLASS, "border border-neutral-200 p-4 dark:border-neutral-800")}
-          data-testid="first-review-guide-walkthrough-summary"
-        >
-          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-            {completionLabel}
-          </p>
-          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Every step in your first review is complete.
-          </p>
-        </div>
-
         <div>
           <Button
             type="button"
@@ -193,7 +181,7 @@ export function FirstReviewGuideWalkthrough({
 
         {announceProgress ? (
           <span className="sr-only" aria-live="polite" data-testid="first-review-guide-walkthrough-live">
-            {completionLabel}
+            {FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE}
           </span>
         ) : null}
       </div>

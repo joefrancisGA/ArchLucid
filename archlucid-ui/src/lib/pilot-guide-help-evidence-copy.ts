@@ -8,6 +8,8 @@ export const PILOT_GUIDE_HELP_TOPIC_LABEL = "How the pilot guide works" as const
 export const PILOT_GUIDE_HELP_CLAIM_DISCIPLINE =
   "This pilot guide is orientation for running an evaluation pilot — not a full audit export. Open Reviews, Audit, or Assurance status for live records.";
 
+export const PILOT_GUIDE_HELP_FOLLOW_UPS_TITLE = "Where to go next" as const;
+
 export const PILOT_GUIDE_HELP_SOURCES_INTRO =
   "Use these follow-ups when pilot prep turns into starting a review, first-run onboarding, or sponsor outcomes.";
 

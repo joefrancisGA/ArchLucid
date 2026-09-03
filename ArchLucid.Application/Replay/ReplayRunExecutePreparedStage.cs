@@ -9,7 +9,10 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Replay;
 
@@ -22,7 +25,10 @@ public sealed class ReplayRunExecutePreparedStage(
     IAuthorityRunOrchestrator authorityRunOrchestrator,
     IReplayRunPrepareStage prepareStage,
     IReplayRunCloneStage cloneStage,
-    IReplayRunCommitStage commitStage) : IReplayRunExecutePreparedStage
+    IReplayRunCommitStage commitStage,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
+    IRunGovernanceScopePinService runGovernanceScopePinService) : IReplayRunExecutePreparedStage
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -47,6 +53,15 @@ public sealed class ReplayRunExecutePreparedStage(
 
     private readonly IReplayRunCommitStage _commitStage =
         commitStage ?? throw new ArgumentNullException(nameof(commitStage));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunGovernanceScopePinService _runGovernanceScopePinService =
+        runGovernanceScopePinService ?? throw new ArgumentNullException(nameof(runGovernanceScopePinService));
 
     /// <inheritdoc />
     public async Task<ReplayRunResult> ExecuteAsync(
@@ -151,6 +166,13 @@ public sealed class ReplayRunExecutePreparedStage(
     {
         ContextIngestionRequest ingestionRequest = ContextIngestionRequestMapper.FromArchitectureRequest(request);
         ingestionRequest.RunId = Guid.Parse(preparedReplayRunId);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? replayHeader = await _runRepository
+            .GetByIdAsync(scope, Guid.Parse(preparedReplayRunId), cancellationToken)
+            .ConfigureAwait(false);
+
+        using IDisposable restoredPilotScope = _runGovernanceScopePinService.BeginRestoredScope(replayHeader);
 
         await _authorityRunOrchestrator
             .CompleteQueuedAuthorityPipelineAsync(ingestionRequest, cancellationToken)

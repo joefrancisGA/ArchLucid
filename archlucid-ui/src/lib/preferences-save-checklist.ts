@@ -3,8 +3,8 @@ export type PreferencesSaveChecklistStepStatus = "default" | "done" | "pending";
 export type PreferencesSaveChecklistStep = {
   readonly id: string;
   readonly label: string;
+  readonly anchorId?: string;
   readonly status: PreferencesSaveChecklistStepStatus;
-  readonly anchorId: string;
 };
 
 export type PreferenceSaveStepInput = {
@@ -35,36 +35,38 @@ export function resolvePreferencesSaveSteps(input: {
   readonly cloudPlatforms: PreferenceSaveStepInput;
   readonly sampleReviewsOnOverview: PreferenceSaveStepInput;
   readonly followUpLinkStrips: PreferenceSaveStepInput;
+  readonly workspaceMode: PreferenceSaveStepInput;
 }): readonly PreferencesSaveChecklistStep[] {
   return [
     {
+      id: "workspace-mode",
+      label: "Workspace mode",
+      anchorId: "workspace-mode",
+      status: resolvePreferenceStepStatus(input.workspaceMode),
+    },
+    {
       id: "appearance",
-      label: "Appearance",
-      anchorId: "appearance",
+      label: "Choose appearance theme",
       status: resolvePreferenceStepStatus(input.appearance),
     },
     {
       id: "time-zone",
-      label: "Time zone",
-      anchorId: "time-zone",
+      label: "Choose time zone",
       status: resolvePreferenceStepStatus(input.timeZone),
     },
     {
       id: "cloud-platforms",
-      label: "Cloud platforms shown",
-      anchorId: "cloud-platforms-shown",
+      label: "Choose cloud platform scope",
       status: resolvePreferenceStepStatus(input.cloudPlatforms),
     },
     {
       id: "sample-reviews-on-overview",
-      label: "Sample reviews on Overview",
-      anchorId: "sample-reviews-on-overview",
+      label: "Choose sample reviews on Overview",
       status: resolvePreferenceStepStatus(input.sampleReviewsOnOverview),
     },
     {
       id: "follow-up-link-strips",
-      label: "Follow-up link strips",
-      anchorId: "follow-up-link-strips",
+      label: "Choose follow-up link strips",
       status: resolvePreferenceStepStatus(input.followUpLinkStrips),
     },
   ];

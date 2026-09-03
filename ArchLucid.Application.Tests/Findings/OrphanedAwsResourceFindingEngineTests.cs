@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
@@ -43,16 +44,17 @@ public sealed class OrphanedAwsResourceFindingEngineTests
             ]
             """;
 
-        OrphanedAwsResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+        (OrphanedAwsResourceFindingEngine sut, FindingAnalysisContext context) = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("OrphanedAwsResource");
         findings[0].EngineType.Should().Be("orphaned-aws-resource");
     }
 
-    private static OrphanedAwsResourceFindingEngine CreateSut(CloudInventoryExtractorPackageDownloadRecord package)
+    private static (OrphanedAwsResourceFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
+        CloudInventoryExtractorPackageDownloadRecord package)
     {
         Mock<ICloudInventoryExtractorPackageRepository> packageRepository = new();
         packageRepository
@@ -61,18 +63,22 @@ public sealed class OrphanedAwsResourceFindingEngineTests
                 CloudProvider.Aws,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(DateTime.UtcNow);
-        packageRepository
-            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(
-                TestScope,
-                CloudProvider.Aws,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(package);
+        EffectfulFindingEngineTestSupport.SetupCloudPinnedDownload(
+            packageRepository,
+            TestScope,
+            CloudProvider.Aws,
+            package);
 
-        return new OrphanedAwsResourceFindingEngine(
+        FindingAnalysisContext context =
+            EffectfulFindingEngineTestSupport.CreateCloudPinnedContext(CloudProvider.Aws, package.PackageId);
+
+        OrphanedAwsResourceFindingEngine engine = new(
             CreateScopeProvider().Object,
             packageRepository.Object,
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        return (engine, context);
     }
 
     private static Mock<IScopeContextProvider> CreateScopeProvider()

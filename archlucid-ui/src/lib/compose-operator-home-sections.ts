@@ -27,6 +27,7 @@ export type ComposeOperatorHomeSectionsInput = {
   readonly phaseSignals: OperatorHomeWorkspacePhaseSignals;
   readonly buyerPolishedShell: boolean;
   readonly metrics: OperatorHomeWorkspaceMetricsSnapshot;
+  readonly workingMode?: boolean;
 };
 
 function earlyPhaseSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
@@ -83,6 +84,20 @@ function operatorShellSections(phase: OperatorHomeWorkspacePhase): OperatorHomeS
   return sections;
 }
 
+function workingModeOperatorShellSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
+  if (phase === "eval-empty" || phase === "eval-with-drafts") {
+    return earlyPhaseSections(phase);
+  }
+
+  return [
+    { id: "metrics-strip", testId: "operator-home-metrics-strip" },
+    { id: "attention-taxonomy", testId: "operator-home-attention-taxonomy" },
+    { id: "unfinished", testId: "operator-home-unfinished-work" },
+    { id: "recent-reviews", testId: "operator-home-recent-reviews" },
+    { id: "start-something", testId: "operator-home-start-something" },
+  ];
+}
+
 /** TB-2368 — single layout matrix for buyer-polished and operator home shells. */
 export function composeOperatorHomeSections(
   input: ComposeOperatorHomeSectionsInput,
@@ -91,6 +106,10 @@ export function composeOperatorHomeSections(
 
   if (input.buyerPolishedShell) {
     return buyerPolishedSections(phase);
+  }
+
+  if (input.workingMode === true) {
+    return workingModeOperatorShellSections(phase);
   }
 
   return operatorShellSections(phase);

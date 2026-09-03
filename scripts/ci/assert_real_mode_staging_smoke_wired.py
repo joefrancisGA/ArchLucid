@@ -9,7 +9,7 @@ from pathlib import Path
 _WORKFLOW = Path(".github/workflows/real-mode-staging-smoke-nightly.yml")
 _RUNBOOK = Path("docs/runbooks/REAL_MODE_STAGING_SMOKE.md")
 _PROGRAM = Path("ArchLucid.Cli/Program.cs")
-_COMMAND_REGISTRY = Path("ArchLucid.Cli/CommandRegistry.cs")
+_COMMAND_REGISTRY = Path("ArchLucid.Cli/CommandRegistry.Diagnostics.cs")
 _CLI_HANDLERS = Path("ArchLucid.Cli/CliCommandHandlers.Misc.cs")
 _CLI_COMMAND = Path("ArchLucid.Cli/Commands/RealModeSmokeCommand.cs")
 

@@ -6,6 +6,9 @@ export const CONNECTION_STATUS_CANONICAL_PATH = "/administration/connection-stat
 
 export const CONNECTION_STATUS_HELP_TOPIC_LABEL = "How connection status works";
 
+export const CONNECTION_STATUS_CLAIM_DISCIPLINE =
+  "This page shows which integrations are configured or recommended for this workspace — not a sealed review record or audit export by itself.";
+
 export const CONNECTION_STATUS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const CONNECTION_STATUS_SOURCES_INTRO =

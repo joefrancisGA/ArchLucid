@@ -42,6 +42,24 @@ class TestAdoptionBatch5AI(unittest.TestCase):
             / "reviews"
             / "new"
             / "NewRunWizardClient.tsx",
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "reviews"
+            / "new"
+            / "NewRunWizardStepPanels.tsx",
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "reviews"
+            / "new"
+            / "use-new-run-wizard-client.tsx",
         )
         text = "".join(path.read_text(encoding="utf-8") for path in wizard_paths)
         self.assertIn("WizardStepEvidenceUpload", text)

@@ -13,7 +13,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 describe("PostCommitHabitLoopCard", () => {
-  it("hides the sponsor primary when the page Do-this-next strip owns primary", () => {
+  it("demotes the sponsor primary to optional links when the page Do-this-next strip owns primary", () => {
     render(
       <PostCommitHabitLoopCard
         runId="run-1"
@@ -23,6 +23,6 @@ describe("PostCommitHabitLoopCard", () => {
     );
 
     expect(screen.queryByTestId("post-commit-habit-primary")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("post-commit-habit-primary-as-optional")).not.toBeInTheDocument();
+    expect(screen.getByTestId("post-commit-habit-primary-as-optional")).toBeInTheDocument();
   });
 });

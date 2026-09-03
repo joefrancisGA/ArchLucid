@@ -13,20 +13,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
+import {
+  buildDispositionRestoreRevisitDueUtc,
+  recordFindingDispositionRestoreSnapshot,
+} from "@/lib/findings/finding-disposition-restore-snapshot";
 import {
   GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
   GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
   governanceBulkDispositionSuccessMessage,
 } from "@/lib/governance/governance-mutation-outcome-copy";
-import {
-  DISPOSITION_RATIONALE_REQUIRED_MESSAGE,
-  isDispositionRationaleSatisfied,
-} from "@/lib/review-quality/finding-governance-gates";
-import {
-  defaultDeferredRevisitDueUtc,
-  recordBulkFindingDisposition,
-  type FindingDispositionKind,
-} from "@/lib/api/governance-stickiness-api";
+import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 
 type GovernanceFindingsBulkActionsProps = {
   readonly selectedFindingIds: readonly string[];
@@ -35,16 +32,6 @@ type GovernanceFindingsBulkActionsProps = {
 };
 
 type BulkDisposition = Extract<FindingDispositionKind, "Accepted" | "RejectedAsNotApplicable" | "Deferred">;
-
-function isBulkDispositionReasonReady(disposition: BulkDisposition, reason: string): boolean {
-  const trimmedReason = reason.trim();
-
-  if (disposition === "Deferred") {
-    return trimmedReason.length > 0;
-  }
-
-  return isDispositionRationaleSatisfied(reason);
-}
 
 const BULK_DISPOSITION_CONFIRM_LABELS: Record<BulkDisposition, string> = {
   Accepted: "Accept all selected findings",
@@ -59,16 +46,16 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
   const [pendingDisposition, setPendingDisposition] = useState<BulkDisposition | null>(null);
   const router = useRouter();
-  const trimmedReason = reason.trim();
-  const acceptWaiveReasonReady = isDispositionRationaleSatisfied(reason);
-  const deferReasonReady = trimmedReason.length > 0;
+  const reasonReady = reason.trim().length > 0;
 
   if (props.selectedFindingIds.length === 0) {
     return null;
   }
 
   function requestDisposition(disposition: BulkDisposition): void {
-    if (!isBulkDispositionReasonReady(disposition, reason)) {
+    const trimmedReason = reason.trim();
+
+    if (trimmedReason.length === 0) {
       return;
     }
 
@@ -77,7 +64,9 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
   }
 
   async function applyDisposition(disposition: BulkDisposition): Promise<void> {
-    if (!isBulkDispositionReasonReady(disposition, reason)) {
+    const trimmedReason = reason.trim();
+
+    if (trimmedReason.length === 0) {
       return;
     }
 
@@ -88,15 +77,31 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
     const findingIds = [...props.selectedFindingIds];
 
     try {
+      const revisitDueUtc = computeFindingDispositionRevisitDueUtc();
+
       const result = await recordBulkFindingDisposition(
         {
           findingIds,
           disposition,
           rationale: trimmedReason,
-          revisitDueUtc: disposition === "Deferred" ? defaultDeferredRevisitDueUtc() : undefined,
+          revisitDueUtc: disposition === "Deferred" ? revisitDueUtc : undefined,
         },
         { idempotencyKey },
       );
+
+      if (disposition === "Accepted" || disposition === "RejectedAsNotApplicable") {
+        const appliedAtUtc = new Date().toISOString();
+
+        for (const findingId of findingIds) {
+          recordFindingDispositionRestoreSnapshot({
+            findingId,
+            previousDisposition: null,
+            appliedDisposition: disposition,
+            appliedAtUtc,
+            revisitDueUtc: buildDispositionRestoreRevisitDueUtc(),
+          });
+        }
+      }
 
       const successMessage = governanceBulkDispositionSuccessMessage(result.processedCount, disposition);
 
@@ -114,7 +119,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
             findingIds,
             disposition: "Deferred",
             rationale: undoRationale,
-            revisitDueUtc: defaultDeferredRevisitDueUtc(),
+            revisitDueUtc: computeFindingDispositionRevisitDueUtc(),
           },
           { idempotencyKey: createGovernanceMutationIdempotencyKey() },
         );
@@ -168,23 +173,21 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
             }}
             placeholder="Applies to all selected findings"
             disabled={busy}
-            aria-describedby={acceptWaiveReasonReady ? undefined : "bulk-disposition-reason-helper"}
+            aria-describedby={reasonReady ? undefined : "bulk-disposition-reason-helper"}
           />
-          {!acceptWaiveReasonReady ? (
+          {!reasonReady ? (
             <p
               id="bulk-disposition-reason-helper"
               className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             >
-              {trimmedReason.length === 0
-                ? GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED
-                : DISPOSITION_RATIONALE_REQUIRED_MESSAGE}
+              {GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED}
             </p>
           ) : null}
         </div>
         <Button
           type="button"
           size="sm"
-          disabled={busy || !acceptWaiveReasonReady}
+          disabled={busy || !reasonReady}
           onClick={() => requestDisposition("Accepted")}
         >
           Accept all
@@ -193,7 +196,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
           type="button"
           size="sm"
           variant="outline"
-          disabled={busy || !acceptWaiveReasonReady}
+          disabled={busy || !reasonReady}
           onClick={() => requestDisposition("RejectedAsNotApplicable")}
         >
           Waive all
@@ -202,7 +205,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
           type="button"
           size="sm"
           variant="outline"
-          disabled={busy || !deferReasonReady}
+          disabled={busy || !reasonReady}
           onClick={() => requestDisposition("Deferred")}
         >
           Defer all

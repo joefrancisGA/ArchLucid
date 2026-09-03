@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -9,12 +11,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  patternLibraryDomainHrefFromSearch,
+  patternLibraryPlatformHrefFromSearch,
+} from "@/lib/insights/pattern-library-filters-url";
 import { PATTERN_LIBRARY_SEARCH_PLACEHOLDER } from "@/lib/pattern-library-copy";
-import type { PatternLibraryFiltersState } from "@/lib/pattern-library-types";
+import type { PatternDomainFilter, PatternLibraryFiltersState, PatternPlatformFilter } from "@/lib/pattern-library-types";
+
+const DOMAIN_CHIP_OPTIONS: readonly PatternDomainFilter[] = [
+  "All domains",
+  "Financial services",
+  "Healthcare",
+  "Public sector",
+  "SaaS",
+  "General",
+  "Internal enterprise",
+  "Other",
+];
+
+const PLATFORM_CHIP_OPTIONS: readonly PatternPlatformFilter[] = [
+  "All platforms",
+  "AWS",
+  "Azure",
+  "GCP",
+  "Multi-cloud",
+  "Evidence-only",
+];
 
 type PatternLibraryFiltersPanelProps = {
   readonly filters: PatternLibraryFiltersState;
+  readonly currentSearch: string;
+  readonly searchQuery: string;
+  readonly onSearchQueryChange: (value: string) => void;
+  readonly onClearSearch: () => void;
   readonly onChange: (next: PatternLibraryFiltersState) => void;
 };
 
@@ -36,9 +67,16 @@ export function PatternLibraryFiltersPanel(props: PatternLibraryFiltersPanelProp
         <input
           id="pattern-library-search"
           type="search"
-          value={filters.query}
+          value={props.searchQuery}
           onChange={(event) => {
+            props.onSearchQueryChange(event.target.value);
             onChange(updateFilter(filters, "query", event.target.value));
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && props.searchQuery.trim().length > 0) {
+              event.preventDefault();
+              props.onClearSearch();
+            }
           }}
           placeholder={PATTERN_LIBRARY_SEARCH_PLACEHOLDER}
           className={cn(
@@ -49,34 +87,43 @@ export function PatternLibraryFiltersPanel(props: PatternLibraryFiltersPanelProp
         />
       </div>
 
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Domain</p>
+        <FilterChipGroup aria-label="Filter patterns by domain" className="flex flex-wrap gap-2">
+          {DOMAIN_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option}
+              href={patternLibraryDomainHrefFromSearch(props.currentSearch, option)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.domain === option, false)}
+              aria-current={filters.domain === option ? "page" : undefined}
+              data-testid={`pattern-library-domain-${option.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              {option}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      </div>
+
+      <div className="space-y-2">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Platform</p>
+        <FilterChipGroup aria-label="Filter patterns by platform" className="flex flex-wrap gap-2">
+          {PLATFORM_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option}
+              href={patternLibraryPlatformHrefFromSearch(props.currentSearch, option)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.platform === option, false)}
+              aria-current={filters.platform === option ? "page" : undefined}
+              data-testid={`pattern-library-platform-${option.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              {option}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      </div>
+
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <FilterSelect
-          id="pattern-filter-domain"
-          label="Domain"
-          value={filters.domain}
-          options={[
-            "All domains",
-            "Financial services",
-            "Healthcare",
-            "Public sector",
-            "SaaS",
-            "General",
-            "Internal enterprise",
-            "Other",
-          ]}
-          onChange={(value) => {
-            onChange(updateFilter(filters, "domain", value as PatternLibraryFiltersState["domain"]));
-          }}
-        />
-        <FilterSelect
-          id="pattern-filter-platform"
-          label="Platform"
-          value={filters.platform}
-          options={["All platforms", "AWS", "Azure", "GCP", "Multi-cloud", "Evidence-only"]}
-          onChange={(value) => {
-            onChange(updateFilter(filters, "platform", value as PatternLibraryFiltersState["platform"]));
-          }}
-        />
         <FilterSelect
           id="pattern-filter-type"
           label="Pattern type"

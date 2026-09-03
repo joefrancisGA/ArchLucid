@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -6,16 +6,13 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpImpactPreviewGuideView } from "@/app/(operator)/help/_sections/HelpImpactPreviewGuideView";
-import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import {
   IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
-  IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING,
   IMPACT_PREVIEW_HELP_SOURCES,
 } from "@/lib/impact-preview-help-evidence-copy";
 import {
   IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION,
   IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION_TAG,
-  IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID,
   IMPACT_PREVIEW_HELP_GUIDE_HEADINGS,
   IMPACT_PREVIEW_HELP_INPUT_TILE_ITEMS,
   IMPACT_PREVIEW_HELP_OUTPUT_TILE_ITEMS,
@@ -30,7 +27,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("HelpImpactPreviewGuideView", () => {
   const entry = getProductDocumentationEntry("impact-preview");
 
-  it("renders provenance, baseline precondition, readingBody, and claim discipline", () => {
+  it("renders provenance, baseline precondition, readingBody, and header claim discipline", () => {
     if (entry === undefined) {
       throw new Error("Expected impact-preview documentation entry.");
     }
@@ -46,28 +43,15 @@ describe("HelpImpactPreviewGuideView", () => {
     expect(screen.getByTestId("help-impact-preview-baseline-precondition-tag")).toHaveTextContent(
       IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION_TAG,
     );
-    expect(screen.getByTestId("help-impact-preview-claim-discipline-strip")).toHaveTextContent(
+    expect(screen.getByTestId("help-impact-preview-header-claim-discipline")).toHaveTextContent(
       IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
     );
-    expectClaimDisciplineBandContent(
-      screen,
-      "help-impact-preview",
-      "help-impact-preview-claim-discipline",
-      IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE.slice(0, 40),
-    );
-    expect(screen.getByRole("heading", { name: IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
-      IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID,
-    );
+    expect(screen.queryByTestId("help-impact-preview-claim-discipline-strip")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-impact-preview-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-impact-preview-overview").textContent?.toLowerCase()).not.toContain(
       "sources package",
     );
-    expect(screen.getByRole("link", { name: IMPACT_PREVIEW_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
-      "href",
-      IMPACT_PREVIEW_HELP_PRIMARY_ACTION.href,
-    );
-    expect(screen.getAllByRole("link", { name: IMPACT_PREVIEW_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: IMPACT_PREVIEW_HELP_PRIMARY_ACTION.label })).toHaveLength(2);
     expect(
       screen.getByRole("heading", { level: 2, name: IMPACT_PREVIEW_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
@@ -84,9 +68,11 @@ describe("HelpImpactPreviewGuideView", () => {
       expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
     }
 
+    const sourcesSection = screen.getByTestId("help-impact-preview-sources");
+
     for (const source of IMPACT_PREVIEW_HELP_SOURCES) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
     for (const heading of IMPACT_PREVIEW_HELP_GUIDE_HEADINGS) {

@@ -90,9 +90,8 @@ describe("PreferencesSettingsPage", () => {
     expect(screen.getByRole("heading", { name: "Appearance" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Time zone" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Cloud platforms shown" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Display on operator pages" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING, level: 3 })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: PREFERENCES_WHERE_TO_GO_NEXT_HEADING, level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: PREFERENCES_WHERE_TO_GO_NEXT_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("preferences-sample-reviews-on-overview-card")).toBeInTheDocument();
     expect(screen.getByTestId("preferences-follow-up-link-strips-card")).toHaveAttribute("id", "follow-up-link-strips");
     expect(screen.queryByRole("link", { name: "← Settings" })).not.toBeInTheDocument();

@@ -27,14 +27,16 @@ import {
   CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
 } from "@/lib/connect-aws-securely-help-evidence-copy";
 import {
+  CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID,
   CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL,
 } from "@/lib/connect-aws-securely-help-page-copy";
+import { CLOUD_CONNECTIONS_HELP_PAGE_TITLE } from "@/lib/cloud-connections-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpConnectAwsSecurelyGuideView buyer-polished shell", () => {
   const entry = getProductDocumentationEntry("cloud-connections-aws");
 
-  it("renders skip link to security model and claim orientation after body", () => {
+  it("renders skip link, breadcrumb, and claim orientation above body", () => {
     if (entry === undefined) {
       throw new Error("Expected cloud-connections-aws documentation entry.");
     }
@@ -42,7 +44,7 @@ describe("HelpConnectAwsSecurelyGuideView buyer-polished shell", () => {
     render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
 
     const skipLink = screen.getByRole("link", { name: CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL });
-    expect(skipLink).toHaveAttribute("href", "#security-model");
+    expect(skipLink).toHaveAttribute("href", `#${CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID}`);
 
     expect(screen.getByTestId("connect-aws-securely-help-claim-discipline").textContent).toContain(
       CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE.slice(0, 40),
@@ -58,6 +60,6 @@ describe("HelpConnectAwsSecurelyGuideView buyer-polished shell", () => {
     const orientation = screen.getByTestId("connect-aws-securely-help-orientation");
 
     expect(primaryContent).toContainElement(orientation);
-    expect(body.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

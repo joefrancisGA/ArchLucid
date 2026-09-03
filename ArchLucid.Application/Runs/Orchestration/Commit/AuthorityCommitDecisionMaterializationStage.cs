@@ -29,11 +29,11 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentResultRepository agentResultRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
+    IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     ICommitPipelineManifestReuseService commitPipelineManifestReuseService,
     IDecisionEngine decisionEngine,
     IAuthorityCommitProjectionBuilder projectionBuilder,
     ICommitOutputIntegrityService commitOutputIntegrityService,
-    IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     IGraphMergeRuntimeInvariantReporter graphMergeRuntimeInvariantReporter) : IAuthorityCommitDecisionMaterializationStage
 {
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
@@ -48,6 +48,9 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
 
+    private readonly IPolicyPackAssignmentRepository _policyPackAssignmentRepository =
+        policyPackAssignmentRepository ?? throw new ArgumentNullException(nameof(policyPackAssignmentRepository));
+
     private readonly ICommitPipelineManifestReuseService _commitPipelineManifestReuseService =
         commitPipelineManifestReuseService ?? throw new ArgumentNullException(nameof(commitPipelineManifestReuseService));
 
@@ -59,9 +62,6 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
 
     private readonly ICommitOutputIntegrityService _commitOutputIntegrityService =
         commitOutputIntegrityService ?? throw new ArgumentNullException(nameof(commitOutputIntegrityService));
-
-    private readonly IPolicyPackAssignmentRepository _policyPackAssignmentRepository =
-        policyPackAssignmentRepository ?? throw new ArgumentNullException(nameof(policyPackAssignmentRepository));
 
     private readonly IGraphMergeRuntimeInvariantReporter _graphMergeRuntimeInvariantReporter =
         graphMergeRuntimeInvariantReporter ?? throw new ArgumentNullException(nameof(graphMergeRuntimeInvariantReporter));
@@ -88,10 +88,14 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
         Task<IReadOnlyList<AgentResult>> agentResultsTask =
             _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
         Task<FindingsSnapshot?> findingsTask = _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, cancellationToken);
-        Task<IReadOnlyList<PolicyPackAssignment>> scopeAssignmentsTask =
-            _policyPackAssignmentRepository.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
+        Task<IReadOnlyList<PolicyPackAssignment>> scopePolicyPackAssignmentsTask =
+            RunHeaderPinnedPolicyPackAssignmentFactory.ResolveCommitTimeAssignmentsWithEnforcementAsync(
+                runRecord,
+                scope,
+                _policyPackAssignmentRepository,
+                cancellationToken);
 
-        await Task.WhenAll(evidenceTask, graphTask, agentResultsTask, findingsTask, scopeAssignmentsTask);
+        await Task.WhenAll(evidenceTask, graphTask, agentResultsTask, findingsTask, scopePolicyPackAssignmentsTask);
 
         AgentEvidencePackage evidencePackageForTelemetry = await evidenceTask;
         GraphSnapshot? graph = await graphTask;
@@ -103,10 +107,11 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
         GraphSnapshot graphForDecision = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResultsForTelemetry);
         await _graphMergeRuntimeInvariantReporter.ReportAfterMergeAsync(scope, graphForDecision, cancellationToken);
         FindingsSnapshot? findings = await findingsTask;
-        IReadOnlyList<PolicyPackAssignment> scopePolicyPackAssignments = await scopeAssignmentsTask;
 
         if (findings is null)
             throw new InvalidOperationException($"Findings snapshot '{findingsId:D}' for run '{runId}' was not found.");
+
+        IReadOnlyList<PolicyPackAssignment> scopePolicyPackAssignments = await scopePolicyPackAssignmentsTask;
 
         ManifestDocument manifestModel;
         DecisionTraceDto traceDto;

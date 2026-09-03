@@ -16,8 +16,9 @@ vi.mock("next/navigation", async (importOriginal) => {
 });
 
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
+import { SESSION_IDLE_TIMEOUT_MS } from "@/lib/auth/session-idle-timeout";
 
-const IDLE_MS = 30 * 60 * 1000;
+const IDLE_MS = SESSION_IDLE_TIMEOUT_MS;
 
 describe("SessionIdleTimeoutGuard", () => {
   beforeEach(() => {
