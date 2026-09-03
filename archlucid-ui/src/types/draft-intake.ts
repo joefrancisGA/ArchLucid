@@ -1,5 +1,15 @@
+import type { ActorSet } from "@/types/draft-intake-actors";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import type { ElicitationAnswerKind, ElicitationQuestionTier } from "@/types/policy-packs";
+
+export type {
+  ActorKind,
+  TrustOrigin,
+  InteractionContract,
+  ActorOrigin,
+  ActorDescriptor,
+  ActorSet,
+} from "@/types/draft-intake-actors";
 
 /** Lifecycle state for a draft request (ADR 0048). */
 export type DraftRequestStatus =
@@ -9,24 +19,6 @@ export type DraftRequestStatus =
   | "RunSpawned"
   | "Redirected"
   | "Abandoned";
-
-export type ActorKind = "Human" | "Machine" | "Both";
-export type TrustOrigin = "Internal" | "External" | "PublicAnonymous";
-export type InteractionContract = "Sync" | "AsyncBatch" | "Event" | "Streaming";
-export type ActorOrigin = "Asserted" | "Inferred";
-
-export type ActorDescriptor = {
-  label?: string;
-  kind: ActorKind;
-  trustOrigin: TrustOrigin;
-  contract: InteractionContract;
-  origin: ActorOrigin;
-  confidence: number;
-};
-
-export type ActorSet = {
-  actors: ActorDescriptor[];
-};
 
 export type DraftBranchOverrideKind =
   | "QuestionAnswer"

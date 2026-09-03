@@ -10,11 +10,11 @@ export function useTeachingChromeVisible(): boolean {
   const context = useContext(WorkspaceModeContext);
 
   if (context === null) {
-    return true;
+    return false;
   }
 
   if (!context.mounted) {
-    return true;
+    return false;
   }
 
   return isGuidedWorkspaceMode(context.mode);

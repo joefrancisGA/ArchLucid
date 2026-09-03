@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
+import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   dismissFirstVisitHelp,
@@ -25,7 +26,8 @@ export function FirstVisitHelpAutoOpen() {
   const [visible, setVisible] = useState(false);
   const slug = firstVisitHelpSlugForPathname(pathname);
   const isOperatorHome = pathname === "/";
-  const fullOperatorShell = isOperatorExperienceFullShellEnv();
+  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const fullOperatorShell = isOperatorExperienceFullShellEnv() || architectWorkspaceChrome;
 
   useEffect(() => {
     if (

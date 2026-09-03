@@ -33,6 +33,8 @@ import {
   parsePatternLibraryDomainFromSearch,
   parsePatternLibraryPlatformFromSearch,
   parsePatternLibrarySearchQuery,
+  parsePatternLibraryTypeFromSearch,
+  parsePatternLibraryRiskFromSearch,
   patternLibraryClearSearchHrefFromSearch,
   patternLibrarySearchHrefFromSearch,
 } from "@/lib/insights/pattern-library-filters-url";
@@ -75,6 +77,8 @@ export function PatternLibraryPageClient(): React.JSX.Element {
   const urlQuery = parsePatternLibrarySearchQuery(searchParams.get("q"));
   const urlDomain = parsePatternLibraryDomainFromSearch(searchParams.get("domain"));
   const urlPlatform = parsePatternLibraryPlatformFromSearch(searchParams.get("platform"));
+  const urlPatternType = parsePatternLibraryTypeFromSearch(searchParams.get("type"));
+  const urlRisk = parsePatternLibraryRiskFromSearch(searchParams.get("risk"));
 
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<PatternLibraryFiltersState>(() => ({
@@ -82,6 +86,8 @@ export function PatternLibraryPageClient(): React.JSX.Element {
     query: urlQuery,
     domain: urlDomain,
     platform: urlPlatform,
+    patternType: urlPatternType,
+    risk: urlRisk,
   }));
   const [searchQuery, setSearchQuery] = useState(urlQuery);
 
@@ -91,9 +97,11 @@ export function PatternLibraryPageClient(): React.JSX.Element {
       query: urlQuery,
       domain: urlDomain,
       platform: urlPlatform,
+      patternType: urlPatternType,
+      risk: urlRisk,
     }));
     setSearchQuery(urlQuery);
-  }, [urlDomain, urlPlatform, urlQuery]);
+  }, [urlDomain, urlPatternType, urlPlatform, urlQuery, urlRisk]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {

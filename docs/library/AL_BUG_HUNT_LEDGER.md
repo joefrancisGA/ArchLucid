@@ -540,11 +540,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 5
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — property SQL initializers bypassed ARCH006 static resolution
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — hash-line SQL comments bypassed `StripSqlComments`, false-binding tenant predicates
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -559,6 +559,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `QueryMultiple`/`QueryMultipleAsync` with string SQL bypassed ARCH006 — **hit 2026-08-24:** methods missing from `DapperQueryMethodNames`; regression in `ARCH006_reports_unscoped_static_sql_for_query_multiple_async`
 - [x] (proven) Non-const local / static readonly SQL variable references bypassed ARCH006 — **hit 2026-08-24:** resolver only folded `const` symbols, not declarator initializers; regressions in `ARCH006_reports_unscoped_sql_for_non_const_local_variable` and `ARCH006_reports_unscoped_sql_for_static_readonly_field`
 - [x] (proven) Property SQL initializers bypassed ARCH006 static resolution — **hit 2026-08-25:** `TenantScopedSqlExpressionResolver` resolved locals/fields from declarators but ignored `PropertyDeclarationSyntax` initializers, so `private string Sql { get; } = "SELECT … dbo.Runs …"` passed through unanalyzed; fixed by folding property initializers; regression in `ARCH006_reports_unscoped_sql_for_property_with_initializer`
+- [x] (proven) Hash-line SQL comments (`# …`) treated as tenant scope predicates — **hit 2026-09-03:** `StripSqlComments` stripped `--` and `/* */` but not full-line `#` comments, so `# TenantId = @TenantId …` false-bound `dbo.Runs`; fixed with `HashLineCommentRegex`; regression in `Tenant_id_predicate_in_hash_sql_comment_does_not_bind_runs`
+- [ ] (candidate) `Execute`/`ExecuteAsync` with `CommandType.StoredProcedure` may still be analyzed as raw SQL when procedure name is a string literal — needs hunt-ready locus in `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgument`
+- [ ] (candidate) `string.Format` / `nameof` / non-literal verbatim concatenation in SQL expressions may bypass static resolution — resolver returns non-static for unrecognized expression shapes
+- [x] (valid-no-repro) `const` field SQL initializers already fold via `IFieldSymbol.IsConst` in `ResolveFromSymbol` — same path as proven local/readonly fixes; no separate property-vs-field gap
 
 ---
 
@@ -1482,11 +1486,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — AL0003 ignored inherited `[MutatingAuditExcluded]` on base controller classes
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — AL0003 inherited base `[MutatingAuditExcluded]` when override declared its own HTTP verb
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1500,6 +1504,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) AL0001 reported controller when every public action had `[AllowAnonymous]` — type-level fallback fired after all actions were skipped; regression in `Does_not_report_controller_when_all_public_actions_have_AllowAnonymous`
 - [x] (proven) AL0001 ignores `[Authorize]` on implemented interface methods — **hit 2026-08-24:** controller actions implementing interface methods with interface-level or method-level `[Authorize]` were flagged (or controller type reported when all actions were interface-authorized); fixed by walking `AllInterfaces` / `FindImplementationForInterfaceMember`; regressions in `Does_not_report_when_interface_method_has_Authorize` / `Does_not_report_when_implemented_interface_has_Authorize`
 - [x] (proven) AL0003 ignores inherited `[MutatingAuditExcluded]` on base controller — **hit 2026-08-25:** `MutatingAuditExcludeApplies` walked only `ContainingType` nesting, not `BaseType` inheritance; derived controller actions false-positive AL0003; fixed by walking base types per nested declaring type; regression in `Mutating_audit_excluded_on_base_controller_suppresses_AL0003_on_derived_action`
+- [x] (proven) AL0001 ignores `[NonAction]` on overridden base helper — **hit 2026-09-03:** `RequireAuthorizationAnalyzer` checked `NonActionAttribute` only on the derived `IMethodSymbol`, not `OverriddenMethod` chain; `public override IActionResult Helper()` false-positive AL0001; fixed by walking override chain; regression in `Does_not_report_NonAction_helper_inherited_from_base_method`
+- [x] (proven) AL0003 ignores `[MutatingAuditExcluded]` on overridden base mutating action — **hit 2026-09-03:** `MutatingAuditExcludeApplies` skipped method-level exclusion on `OverriddenMethod` when derived action re-declared `[HttpPost]`; false-positive AL0003; fixed by walking override chain; regression in `Mutating_audit_excluded_on_base_method_suppresses_AL0003_on_override`
+- [x] (valid-no-repro) `HttpContext? ctx = default` in inner layer — type name in declaration is intentional ARCH001 signal, not a `default` expression false positive
+- [x] (proven) ARCH001 emitted duplicate diagnostics when a generic had multiple banned type arguments — **hit 2026-09-03:** `AnalyzeGenericName` reported once per matching `TypeArguments` entry; fixed to emit a single diagnostic per generic; regression in `Reports_single_diagnostic_when_generic_has_multiple_banned_type_arguments`
+- [x] (proven) ARCH001 missed nested banned types inside generic type arguments — **hit 2026-09-03:** `IsOrUsesBannedType` did not recurse into `INamedTypeSymbol.TypeArguments`, so `Dictionary<string, List<IHttpContextAccessor>>` slipped through; fixed with recursive type-argument walk; regression in `Reports_nested_generic_type_argument_in_inner_layer_assembly`
+- [x] (proven) AL0001 ignored `[AllowAnonymous]` on overridden base helper — **hit 2026-09-03:** `RequireAuthorizationAnalyzer` checked auth attributes only on the derived `IMethodSymbol`, not `OverriddenMethod`; false-positive AL0001 on overrides; fixed by walking override chain; regression in `Does_not_report_AllowAnonymous_helper_inherited_from_base_method`
+- [x] (proven) AL0003 missed tracked HTTP verbs on overridden mutating actions — **hit 2026-09-03:** `MethodSpecifiesTrackedVerb` read only derived `IMethodSymbol` attributes, so `[HttpPost]` on a virtual base with an unaudited override skipped AL0003; fixed by walking `OverriddenMethod` and suppressing shadowed virtual bases; regressions in `AL0003_reports_when_overridden_action_inherits_HttpPost_from_base` and `AL0003_reports_when_override_adds_HttpPost_to_base_NonAction_helper`
+- [x] (valid-no-repro) `IHttpContextAccessor[]` array parameters — element-type `IdentifierName` already triggers ARCH001; no separate array-type gap
+- [x] (valid-no-repro) AL0001 `[Authorize]` on overridden base helper — already covered by `MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain`; regression in `Does_not_report_Authorize_helper_inherited_from_base_method`
+- [x] (proven) AL0003 inherited base `[MutatingAuditExcluded]` when override declared its own HTTP verb — **hit 2026-09-03:** `MutatingAuditExcludeApplies` walked `OverriddenMethod` without checking whether the derived action re-declared `[HttpPost]`/`[HttpPut]`/etc., so a derived mutating override skipped AL0003; fixed by skipping method-level exclusion inheritance when `MethodHasTrackedVerbAttribute` is true on the override; regression in `AL0003_reports_when_override_adds_HttpPost_despite_base_MutatingAuditExcluded`
+- [x] (valid-no-repro) ARCH001 `Action<HttpContext>` delegate parameters — recursive `IsOrUsesBannedType` already flags nested generic arguments; regression in `Reports_delegate_type_argument_with_banned_type_in_inner_layer_assembly`
+- [x] (valid-no-repro) AL0003 `LogAsync` inside local functions — `DescendantNodesAndSelf` already finds nested invocations; regression in `AL0003_is_absent_when_LogAsync_is_in_local_function`
 
 ---
 
@@ -2472,11 +2488,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 68
-- **bugs-found:** 130
+- **hunts:** 69
+- **bugs-found:** 131
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — comma-separated inline array object properties parsed as single scalar; App Service network expander missed open-internet rules
+- **last-bug:** 2026-09-03 — HCL single-quoted `''` escape not honored in brace scanning or scalar unquote
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2649,9 +2665,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #599: reseeded from array-literal converter; proved comma-separated inline array-object scalar gap beyond #598 block-comment fix.
 
-- [ ] (candidate) `BicepArrayLiteralConverter.ParseObjectScalars` — full-line `#` HCL comments inside array objects may be mis-parsed if comment text resembles assignments
-- [ ] (candidate) `InfrastructureDeclarationBraceBodyExtractor` — single-quoted strings containing unescaped `'` may prematurely close delimiter scanning
-- [ ] (candidate) `PlainTextDocumentTopologyHintExtractor.EnumerateHintNames` — tab-indented `TOP:` lines after `TrimEntries` split may differ from parser line handling for mixed whitespace
+- [x] (invalid) `BicepArrayLiteralConverter.ParseObjectScalars` — full-line `#` HCL comments inside array objects may be mis-parsed if comment text resembles assignments — full-line `#` lines skipped; inline `#` is EOL comment per HCL so trailing segments are intentionally ignored (`ParseAsync_InlineArrayObjectWithFullLineHashComment_DoesNotParseCommentedAssignment`).
+- [x] (proven) `InfrastructureDeclarationBraceBodyExtractor` / `CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar` — HCL single-quoted `''` escape not honored — **hit 2026-09-03 (#605):** `owner''s rule` and `token''s } literal` left doubled apostrophes in `tf.*` values; `''` inside single-quoted strings could prematurely toggle delimiter depth; fixed with `''` skip in brace/bracket scanning and `UnescapeSingleQuotedInner` (`ParseAsync_SingleQuotedDoubledApostropheInNestedBlock_ParsesTrailingScalar`, `ParseAsync_SingleQuotedDoubledApostropheBeforeClosingBraceInNestedBlock_ParsesTrailingScalar`, `ParseAsync_SingleQuotedApostropheInArrayRuleName_ParsesIpAddress`).
+- [x] (valid-no-repro) `InfrastructureDeclarationBraceBodyExtractor` — lone unescaped `'` in single-quoted scalars (`'O'Brien'`) — invalid HCL; delimiter scan still breaks and leaks array scalars to top level; Terraform requires `''` escaping (`ParseAsync_UnescapedSingleQuotedApostrophe_LeaksArrayScalarsToTopLevel`).
+- [x] (valid-no-repro) `PlainTextDocumentTopologyHintExtractor.EnumerateHintNames` — tab-indented `TOP:` lines — extractor and `PlainTextContextDocumentParser` both use `TrimEntries` split; regression `EnumerateHintNames_TabIndentedTopLine_MatchesParser`.
+
+2026-09-03 thorough hunt #605: proved HCL `''` single-quote escape gap; disproved hash-comment mis-parse, tab-indent mismatch, and unescaped lone apostrophe (invalid HCL).
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).

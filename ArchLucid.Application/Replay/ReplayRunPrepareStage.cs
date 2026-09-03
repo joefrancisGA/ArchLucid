@@ -90,6 +90,9 @@ public sealed class ReplayRunPrepareStage(
         if (Guid.TryParse(originalRunId, out Guid originalGuid))
             sourceAuthorityRun = await _authorityRunRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
 
+        if (sourceAuthorityRun is not null)
+            ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(scope, sourceAuthorityRun, originalRunId);
+
         RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(replayGuid, scope, sourceAuthorityRun, request);
         await _authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);
         await _runPolicyPackPinService

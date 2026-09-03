@@ -68,6 +68,12 @@ import {
   parseDecisionRegisterCategoryFromSearch,
   parseDecisionRegisterConfidenceBasisFromSearch,
 } from "@/lib/governance/decision-register-advanced-filters-url";
+import {
+  decisionRegisterMaxConfidenceHrefFromSearch,
+  decisionRegisterMinConfidenceHrefFromSearch,
+  parseDecisionRegisterMaxConfidenceFromSearch,
+  parseDecisionRegisterMinConfidenceFromSearch,
+} from "@/lib/governance/decision-register-confidence-band-url";
 import { deriveDecisionRegisterSummary } from "./decision-register-summary";
 import { resolveContinueLastDecisionRegisterEntry } from "@/lib/resolve-continue-last-decision-register-entry";
 
@@ -93,6 +99,8 @@ export default function DecisionRegisterClient() {
   const viewMode = parseDecisionRegisterViewModeFromSearch(searchParams.get("view"));
   const urlCategory = parseDecisionRegisterCategoryFromSearch(searchParams.get("category"));
   const urlConfidenceBasis = parseDecisionRegisterConfidenceBasisFromSearch(searchParams.get("basis"));
+  const urlMinConfidence = parseDecisionRegisterMinConfidenceFromSearch(searchParams.get("minConfidence"));
+  const urlMaxConfidence = parseDecisionRegisterMaxConfidenceFromSearch(searchParams.get("maxConfidence"));
   const initialDateRange = useMemo(
     () => resolveDecisionRegisterDateRange(datePreset),
     [datePreset],
@@ -104,8 +112,8 @@ export default function DecisionRegisterClient() {
   const [category, setCategory] = useState(urlCategory);
   const [recordedAfter, setRecordedAfter] = useState(initialDateRange.recordedAfter);
   const [recordedBefore, setRecordedBefore] = useState(initialDateRange.recordedBefore);
-  const [minConfidence, setMinConfidence] = useState("");
-  const [maxConfidence, setMaxConfidence] = useState("");
+  const [minConfidence, setMinConfidence] = useState(urlMinConfidence);
+  const [maxConfidence, setMaxConfidence] = useState(urlMaxConfidence);
   const [confidenceBasis, setConfidenceBasis] = useState(urlConfidenceBasis);
   const [reloadToken, setReloadToken] = useState(0);
 
@@ -116,6 +124,32 @@ export default function DecisionRegisterClient() {
   useEffect(() => {
     setConfidenceBasis(urlConfidenceBasis);
   }, [urlConfidenceBasis]);
+
+  useEffect(() => {
+    setMinConfidence(urlMinConfidence);
+  }, [urlMinConfidence]);
+
+  useEffect(() => {
+    setMaxConfidence(urlMaxConfidence);
+  }, [urlMaxConfidence]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      let nextHref = decisionRegisterMinConfidenceHrefFromSearch(searchParams.toString(), minConfidence);
+      nextHref = decisionRegisterMaxConfidenceHrefFromSearch(
+        nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
+        maxConfidence,
+      );
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [maxConfidence, minConfidence, router, searchParams]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
