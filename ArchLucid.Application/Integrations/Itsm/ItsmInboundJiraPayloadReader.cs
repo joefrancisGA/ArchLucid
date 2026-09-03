@@ -62,10 +62,10 @@ public sealed class ItsmInboundJiraPayloadReader : IItsmInboundPayloadReader
 
     private static string? TryReadJiraIssueKey(JsonElement root)
     {
-        if (!TryGetPropertyCaseInsensitive(root, "issue", out JsonElement issue))
+        if (!ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(root, "issue", out JsonElement issue))
             return null;
 
-        if (!TryGetPropertyCaseInsensitive(issue, "key", out JsonElement keyEl))
+        if (!ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(issue, "key", out JsonElement keyEl))
             return null;
 
         return keyEl.GetString();
@@ -73,35 +73,18 @@ public sealed class ItsmInboundJiraPayloadReader : IItsmInboundPayloadReader
 
     private static string? TryReadJiraStatusName(JsonElement root)
     {
-        if (!TryGetPropertyCaseInsensitive(root, "issue", out JsonElement issue))
+        if (!ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(root, "issue", out JsonElement issue))
             return null;
 
-        if (!TryGetPropertyCaseInsensitive(issue, "fields", out JsonElement fields))
+        if (!ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(issue, "fields", out JsonElement fields))
             return null;
 
-        if (!TryGetPropertyCaseInsensitive(fields, "status", out JsonElement status))
+        if (!ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(fields, "status", out JsonElement status))
             return null;
 
-        if (!TryGetPropertyCaseInsensitive(status, "name", out JsonElement name))
+        if (!ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(status, "name", out JsonElement name))
             return null;
 
         return name.GetString();
-    }
-
-    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
-    {
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            value = property.Value;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
     }
 }
