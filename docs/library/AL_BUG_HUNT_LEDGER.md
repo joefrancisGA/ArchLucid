@@ -3631,11 +3631,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — architecture-intelligence-api omitted operator scope on source-context and reasoning proxy calls
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — wizard baseline save/get omitted operator scope on `/api/proxy/v1/tenant/baseline`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3651,7 +3651,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PlanningBridgePanel` POST `/api/proxy/v1/learning/planning/materialize` omitted `mergeRegistrationScopeForProxy` — draft plan materialization hit proxy dev-default tenant instead of operator-selected scope — **hit 2026-08-25:** fixed with scoped fetch init; regression in `PlanningBridgePanel.test.tsx`.
 - [x] (proven) `ScimProvisioningSettingsPageClient.verifyConnection` GET `/api/proxy/scim/v2/ServiceProviderConfig` omitted `mergeRegistrationScopeForProxy` — **hit 2026-08-26:** token list/create/revoke were scoped but connectivity verification hit proxy dev-default tenant, so verify could fail or validate the wrong tenant SCIM endpoint after scope switch; fixed by wrapping verify fetch with `mergeRegistrationScopeForProxy` (`ScimProvisioningSettingsPageClient.test.tsx`).
 - [x] (proven) `architecture-intelligence-api.ts` `getJson`/`postJson` omitted `mergeRegistrationScopeForProxy` while `architecture-intelligence-client-api.ts` was scoped — **hit 2026-09-02:** `RunDetailAiRefinePanel`, `ArchitectureDraftAiRefinePanel`, and `useArchitectureIntelligenceSourceContextQuery` still called unscoped lib helpers for product source-context GET and reasoning POST, so refine/publish and hydrated intake hit proxy dev-default tenant after scope switch; fixed by wrapping lib fetch with `mergeRegistrationScopeForProxy` (`architecture-intelligence-api.test.ts`).
-- [ ] (candidate) `save-tenant-review-cycle-baseline.ts` GET/PUT `/api/proxy/v1/tenant/baseline` omits `mergeRegistrationScopeForProxy` while `use-baseline-settings.ts` is scoped — new-run wizard baseline step may persist/read dev-default tenant when operator scope differs
+- [x] (proven) `save-tenant-review-cycle-baseline.ts` GET/PUT `/api/proxy/v1/tenant/baseline` omitted `mergeRegistrationScopeForProxy` while `use-baseline-settings.ts` was scoped — **hit 2026-09-03:** new-run wizard baseline step (`useWizardBaselineMetricsActions`) read/persisted review-cycle hours on proxy dev-default tenant after scope switch; fixed by wrapping GET/PUT with `mergeRegistrationScopeForProxy` (`save-tenant-review-cycle-baseline.test.ts`).
+
+2026-09-03 thorough hunt #580 (hit): proved wizard baseline helper scope gap on tenant baseline GET/PUT.
 
 2026-09-02 seed hunt #8: reseeded proxy-scope audit; proved shared `architecture-intelligence-api` scope gap on refine/source-context paths.
 
