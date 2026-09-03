@@ -16,6 +16,15 @@ import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { auditTrailDateRangePresetHrefFromSearch, parseAuditTrailDateRangePresetFromSearch } from "@/lib/governance/audit-trail-date-range-url";
+import {
+  auditTrailActionHrefFromSearch,
+  auditTrailActorHrefFromSearch,
+  auditTrailClearFiltersHrefFromSearch,
+  auditTrailSearchHrefFromSearch,
+  parseAuditTrailActionFromSearch,
+  parseAuditTrailActorFromSearch,
+  parseAuditTrailSearchQueryFromSearch,
+} from "@/lib/governance/audit-trail-filters-url";
 import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
 import {
   CTO_DEMO_AUDIT_FILTER_QUERY_PARAM,
@@ -90,14 +99,18 @@ export function useAuditPageSearch(
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const workspaceRun = useWorkspaceActiveRun();
+  const urlDatePreset = parseAuditTrailDateRangePresetFromSearch(searchParams.get("range"));
+  const urlAction = parseAuditTrailActionFromSearch(searchParams.get("action"));
+  const urlActor = parseAuditTrailActorFromSearch(searchParams.get("actor"));
+  const urlSearchQuery = parseAuditTrailSearchQueryFromSearch(searchParams.get("q"));
   const [advancedAuditFiltersOpen, setAdvancedAuditFiltersOpen] = useState(!buyerPolishedShell);
   const [buyerPrimaryFiltersOpen, setBuyerPrimaryFiltersOpen] = useState(false);
   const [eventTypes, setEventTypes] = useState<string[]>(serverLoad.eventTypes);
-  const [eventType, setEventType] = useState<string>("");
+  const [eventType, setEventType] = useState<string>(urlAction);
   const [fromUtc, setFromUtc] = useState<string>("");
   const [toUtc, setToUtc] = useState<string>("");
-  const [correlationId, setCorrelationId] = useState<string>("");
-  const [actorUserId, setActorUserId] = useState<string>("");
+  const [correlationId, setCorrelationId] = useState<string>(urlSearchQuery);
+  const [actorUserId, setActorUserId] = useState<string>(urlActor);
   const [runId, setRunId] = useState<string>(() => searchParams.get("runId")?.trim() ?? "");
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [hasMoreResults, setHasMoreResults] = useState(false);
@@ -107,13 +120,48 @@ export function useAuditPageSearch(
   const [loadingMore, setLoadingMore] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const urlDatePreset = parseAuditTrailDateRangePresetFromSearch(searchParams.get("range"));
   const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(urlDatePreset);
   const initialAutoSearchPrimedRef = useRef(false);
   const lastAutoSearchUrlRunIdRef = useRef<string | null>(null);
   const ctoDemoAuditFilterActive = isCtoDemoAuditFilterActive(searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM));
 
   useAuditPageUrlState({ runId, setRunId });
+
+  useEffect(() => {
+    setEventType(urlAction);
+  }, [urlAction]);
+
+  useEffect(() => {
+    setActorUserId(urlActor);
+  }, [urlActor]);
+
+  useEffect(() => {
+    setCorrelationId(urlSearchQuery);
+  }, [urlSearchQuery]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      let nextHref = auditTrailActionHrefFromSearch(searchParams.toString(), eventType, pathname ?? GOVERNANCE_AUDIT_PATH);
+      nextHref = auditTrailActorHrefFromSearch(
+        nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
+        actorUserId,
+        pathname ?? GOVERNANCE_AUDIT_PATH,
+      );
+      nextHref = auditTrailSearchHrefFromSearch(
+        nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
+        correlationId,
+        pathname ?? GOVERNANCE_AUDIT_PATH,
+      );
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [actorUserId, correlationId, eventType, pathname, router, searchParams]);
 
   useEffect(() => {
     setAuditDatePreset(urlDatePreset);
@@ -356,6 +404,9 @@ export function useAuditPageSearch(
     setCorrelationId("");
     setActorUserId("");
     setRunId("");
+    router.replace(auditTrailClearFiltersHrefFromSearch(searchParams.toString(), pathname ?? GOVERNANCE_AUDIT_PATH), {
+      scroll: false,
+    });
     setSearching(true);
     setFailure(null);
 
@@ -381,7 +432,7 @@ export function useAuditPageSearch(
     } finally {
       setSearching(false);
     }
-  }, [applyDemoAuditFallback, applySearchPageToState, executeSearch]);
+  }, [applyDemoAuditFallback, applySearchPageToState, executeSearch, pathname, router, searchParams]);
 
   const loadMore = useCallback(async () => {
     if (events.length === 0) {

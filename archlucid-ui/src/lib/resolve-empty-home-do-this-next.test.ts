@@ -25,7 +25,22 @@ describe("resolveEmptyHomeDoThisNext", () => {
     }
   });
 
-  it("returns sample package action when setup readiness can begin", () => {
+  it("returns new review action for working mode when setup readiness can begin", () => {
+    const action = resolveEmptyHomeDoThisNext({
+      setupContext: {
+        healthReady: true,
+        healthLoadFailed: false,
+        principalAdmin: true,
+      },
+      workingMode: true,
+    });
+
+    expect(action.kind).toBe("work");
+    expect(action.label).toBe("New review");
+    expect(action.href).toBe("/architecture/reviews/new");
+  });
+
+  it("returns sample package action when setup readiness can begin in guided mode", () => {
     const action = resolveEmptyHomeDoThisNext({
       setupContext: {
         healthReady: true,

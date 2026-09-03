@@ -22,6 +22,7 @@ import { useCommandPaletteChunkPreload } from "@/hooks/use-command-palette-chunk
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
+import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
 import {
@@ -45,7 +46,8 @@ type OperatorShellTopBarProps = {
  * Eval-only theme toggle uses the overflow menu when enabled.
  */
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
-  const showDevOperatorChrome = isOperatorExperienceFullShellEnv();
+  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const showDevOperatorChrome = isOperatorExperienceFullShellEnv() || architectWorkspaceChrome;
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const showLlmBudgetPill =
     showDevOperatorChrome && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;

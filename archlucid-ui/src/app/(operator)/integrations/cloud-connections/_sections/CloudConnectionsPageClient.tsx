@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
@@ -24,6 +25,11 @@ import {
   CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_LINK_LABEL,
 } from "@/lib/cloud-platform-scope-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import {
+  cloudConnectionsPlatformHrefFromSearch,
+  parseCloudConnectionsPlatformFromSearch,
+  type CloudConnectionsPlatformFilter,
+} from "@/lib/integrations/cloud-connections-platform-url";
 import {
   cloudConnectionIndicatesSuccessfulPull,
 } from "@/lib/cloud-first-inventory-coach";
@@ -49,6 +55,9 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { CloudConnectionsContinueLastViewedRow } from "./CloudConnectionsContinueLastViewedRow";
 import { CloudConnectionsHubVocabularyDisclosure } from "./CloudConnectionsHubVocabularyDisclosure";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { isCloudProviderSummaryConfigured } from "./is-cloud-provider-summary-configured";
 import {
   resolveCloudConnectionsConnectSteps,
@@ -98,7 +107,17 @@ const DEFAULT_PROVIDER_SUMMARY: ProviderSummaryState = {
 
 const CLOUD_PROVIDER_COUNT = CLOUD_PROVIDER_NEUTRAL_ORDER.length;
 
+const CLOUD_PLATFORM_CHIP_OPTIONS: readonly { readonly id: CloudConnectionsPlatformFilter; readonly label: string }[] = [
+  { id: "all", label: "All platforms" },
+  { id: "aws", label: "AWS" },
+  { id: "azure", label: "Azure" },
+  { id: "gcp", label: "GCP" },
+];
+
 export function CloudConnectionsPageClient() {
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlPlatform = parseCloudConnectionsPlatformFromSearch(searchParams.get("platform"));
   const [platformScope, setPlatformScope] = useState(() => resolveLandingCloudPlatformScope());
   const [isLoading, setIsLoading] = useState(true);
   const [successfulPullByProvider, setSuccessfulPullByProvider] = useState<Record<CloudProviderId, boolean>>({
@@ -273,7 +292,19 @@ export function CloudConnectionsPageClient() {
     [],
   );
 
-  const visibleProviders = useMemo(() => visibleCloudProviders(platformScope), [platformScope]);
+  const visibleProviders = useMemo(() => {
+    const preferenceScoped = visibleCloudProviders(platformScope);
+
+    if (urlPlatform === "all") {
+      return preferenceScoped;
+    }
+
+    if (preferenceScoped.includes(urlPlatform)) {
+      return [urlPlatform];
+    }
+
+    return [urlPlatform];
+  }, [platformScope, urlPlatform]);
 
   const hasSuccessfulPull = useMemo(
     () => CLOUD_PROVIDER_NEUTRAL_ORDER.some((provider) => successfulPullByProvider[provider]),
@@ -392,6 +423,25 @@ export function CloudConnectionsPageClient() {
         {showConnectionContent && continueLastProvider !== null ? (
           <CloudConnectionsContinueLastViewedRow target={continueLastProvider} />
         ) : null}
+
+        <FilterChipGroup
+          aria-label="Filter cloud connections by platform"
+          className="flex flex-wrap gap-2"
+          data-testid="cloud-connections-platform-chips"
+        >
+          {CLOUD_PLATFORM_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option.id}
+              href={cloudConnectionsPlatformHrefFromSearch(currentSearch, option.id)}
+              scroll={false}
+              className={buyerFilterChipClass(urlPlatform === option.id, false)}
+              aria-current={urlPlatform === option.id ? "page" : undefined}
+              data-testid={`cloud-connections-platform-${option.id}`}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
           {visibleProviders.map((providerId: CloudProviderId) => {
