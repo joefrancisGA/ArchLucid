@@ -350,6 +350,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
              overriddenMethod is not null;
              overriddenMethod = overriddenMethod.OverriddenMethod)
         {
+            if (MethodHasTrackedVerbAttribute(methodDeclaredSymbolScoped))
+                break;
+
             foreach (AttributeData baseMethodExcluded in overriddenMethod.GetAttributes())
             {
                 if (SymbolEqualityComparer.Default.Equals(baseMethodExcluded.AttributeClass,

@@ -58,7 +58,10 @@ namespace Microsoft.AspNetCore.Mvc
         public HttpPutAttribute(string? template = null) { }
     }
 
-    public sealed class HttpDeleteAttribute : System.Attribute { }
+    public sealed class HttpDeleteAttribute : System.Attribute
+    {
+        public HttpDeleteAttribute(string? template = null) { }
+    }
 
     public sealed class HttpPatchAttribute : System.Attribute
     {
@@ -296,13 +299,13 @@ using Microsoft.AspNetCore.Mvc;
 
 public abstract class ExcludedMethodBaseController : ControllerBase
 {
+    [HttpPost]
     [MutatingAuditExcluded("base method excluded")]
     public virtual IActionResult Post() => Ok();
 }
 
 public sealed class DerivedExcludedMethodController : ExcludedMethodBaseController
 {
-    [HttpPost]
     public override IActionResult Post() => Ok();
 }
 }
@@ -460,6 +463,119 @@ public sealed class DerivedMutatingHelperController : NonActionBaseController
                     Al0003MutatingControllerAuditDescriptor.Rule)
                 .WithLocation(0)
                 .WithArguments("ArchLucid.Api.Probe.DerivedMutatingHelperController.Helper");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_is_absent_when_LogAsync_is_in_local_function()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class LocalFunctionAuditedController(IAuditService auditService) : ControllerBase
+{
+    [HttpPost]
+    public async System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        return await LogAndReturnAsync(cancellationToken);
+
+        async System.Threading.Tasks.Task<IActionResult> LogAndReturnAsync(System.Threading.CancellationToken ct)
+        {
+            await auditService.LogAsync(new AuditEvent { EventType = "Probe" }, ct);
+            return Ok();
+        }
+    }
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_HttpDelete_action_lacks_IAudit_LogAsync()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class DeleteIgnoresAuditController(IAuditService auditService) : ControllerBase
+{
+    [HttpDelete("x")]
+    public System.Threading.Tasks.Task<IActionResult> {|#0:Delete|}(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.DeleteIgnoresAuditController.Delete");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_override_adds_HttpPost_despite_base_MutatingAuditExcluded()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public abstract class ExcludedVirtualBaseController : ControllerBase
+{
+    [MutatingAuditExcluded("base virtual excluded")]
+    public virtual IActionResult Post() => Ok();
+}
+
+public sealed class DerivedMutatingPostController : ExcludedVirtualBaseController
+{
+    [HttpPost]
+    public override IActionResult {|#0:Post|}() => Ok();
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.DerivedMutatingPostController.Post");
 
         await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
         {
