@@ -58,9 +58,21 @@ const loadingHeaderActions: FirstReviewGuideHeaderActions = {
   primaryHref: "/architecture/reviews/new",
   primaryDisabled: true,
   primaryDisabledReason: null,
-  secondaryLabel: "Explore sample review",
-  secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+  secondaryLabel: null,
+  secondaryHref: null,
 };
+
+function resolveLoadingHeaderActions(): FirstReviewGuideHeaderActions {
+  if (isLiveOperatorShellRecoveryContext()) {
+    return loadingHeaderActions;
+  }
+
+  return {
+    ...loadingHeaderActions,
+    secondaryLabel: "Explore sample review",
+    secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+  };
+}
 
 export function useFirstReviewGuideState(): FirstReviewGuideViewState {
   const canExecute = useOperateCapability();
@@ -87,7 +99,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
         readiness: loadingReadiness,
         progress: loadingProgress,
         steps: [],
-        headerActions: loadingHeaderActions,
+        headerActions: resolveLoadingHeaderActions(),
         requiredBlockers: [],
         canExecute,
         readyToFinalize: false,

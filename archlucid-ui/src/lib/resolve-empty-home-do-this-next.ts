@@ -22,7 +22,7 @@ export type EmptyHomeDoThisNextAction = {
   readonly label: string;
   readonly href: string;
   readonly bridgeCopy: string;
-  readonly kind: "setup" | "sample";
+  readonly kind: "setup" | "sample" | "work";
 };
 
 function toSetupAction(
@@ -76,6 +76,17 @@ function resolveBlockingSetupAction(
   return toSetupAction(nextRequired, bridgeCopy);
 }
 
+const NEW_REVIEW_HREF = "/architecture/reviews/new";
+
+function resolveWorkingModeNewReviewAction(): EmptyHomeDoThisNextAction {
+  return {
+    kind: "work",
+    label: "New review",
+    href: NEW_REVIEW_HREF,
+    bridgeCopy: "Open the draft editor and start a new architecture review.",
+  };
+}
+
 function resolveSampleHref(sampleHref: string | null | undefined): string {
   if (typeof sampleHref === "string" && sampleHref.trim().length > 0) {
     return sampleHref.trim();
@@ -122,6 +133,7 @@ export function resolveEmptyHomeDoThisNext(input: {
   readonly setupContext: FinishSetupWizardContext | null;
   readonly sampleHref?: string | null;
   readonly demoSeededOverview?: boolean;
+  readonly workingMode?: boolean;
 }): EmptyHomeDoThisNextAction {
   if (input.demoSeededOverview === true) {
     return resolveDemoSeededSampleAction(input.sampleHref);
@@ -133,6 +145,10 @@ export function resolveEmptyHomeDoThisNext(input: {
     if (setupAction !== null) {
       return setupAction;
     }
+  }
+
+  if (input.workingMode === true) {
+    return resolveWorkingModeNewReviewAction();
   }
 
   return resolveSampleAction(input.sampleHref);

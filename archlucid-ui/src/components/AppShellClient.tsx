@@ -231,6 +231,7 @@ function AppShellInner({ children }: AppShellClientProps) {
             <a href="#main-content" className="skip-to-main">
               Skip to main content
             </a>
+            <AppShellKeyboardShortcutBoundaryDeferred onHelpRequested={openHelpSearch}>
             <div
               ref={shellRootRef}
               key={chromeMode}
@@ -295,7 +296,6 @@ function AppShellInner({ children }: AppShellClientProps) {
                 className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_MAIN_PADDING_CLASS, "flex flex-1 flex-col")}
               >
                 <AppShellStatusBannersDeferred variant="minimal" />
-                <AppShellKeyboardShortcutBoundaryDeferred onHelpRequested={openHelpSearch}>
                   <main
                     id="main-content"
                     tabIndex={-1}
@@ -304,9 +304,9 @@ function AppShellInner({ children }: AppShellClientProps) {
                     <SyncActiveRunFromPathnameDeferred />
                     <AppShellMainContentGateDeferred>{children}</AppShellMainContentGateDeferred>
                   </main>
-                </AppShellKeyboardShortcutBoundaryDeferred>
               </div>
             </div>
+            </AppShellKeyboardShortcutBoundaryDeferred>
             <AppToasterDeferred />
             <RouteAnnouncerDeferred />
             <TrialLimitModalHostDeferred />
@@ -335,6 +335,7 @@ function AppShellInner({ children }: AppShellClientProps) {
         <a href="#main-content" className="skip-to-main">
           Skip to main content
         </a>
+        <AppShellKeyboardShortcutBoundaryDeferred onHelpRequested={openHelpSearch}>
         <div ref={shellRootRef} key={chromeMode} className="flex min-h-dvh flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
           {/* Sticky budget: optional trial strip + one-row top bar only. Journey caption scrolls with the page. */}
           <div
@@ -363,7 +364,6 @@ function AppShellInner({ children }: AppShellClientProps) {
               className={cn("flex min-h-0 min-w-0 flex-1 flex-col print:px-0", OPERATOR_SHELL_MAIN_PADDING_CLASS)}
             >
               <AppShellStatusBannersDeferred variant="full" />
-              <AppShellKeyboardShortcutBoundaryDeferred onHelpRequested={openHelpSearch}>
                 <main
                   id="main-content"
                   tabIndex={-1}
@@ -373,13 +373,13 @@ function AppShellInner({ children }: AppShellClientProps) {
                   <SyncActiveRunFromPathnameDeferred />
                   <AppShellMainContentGateDeferred>{children}</AppShellMainContentGateDeferred>
                 </main>
-              </AppShellKeyboardShortcutBoundaryDeferred>
             </div>
           </div>
           <div className="mt-auto shrink-0">
             <AppShellWorkspaceFooterDeferred hideWorkspaceHealthFooter={hideWorkspaceHealthFooter} />
           </div>
         </div>
+        </AppShellKeyboardShortcutBoundaryDeferred>
         <AppToasterDeferred />
         <RouteAnnouncerDeferred />
         <TrialLimitModalHostDeferred />
