@@ -1866,11 +1866,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 242
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — string-encoded whole-number `schemaVersion` rejected in extractor manifest upgrader
+- **last-bug:** 2026-09-03 — boolean / `"on"` failure-summary `schemaVersion` tokens rejected dead-letter detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` — boolean / string-boolean `schemaVersion` tokens rejected — **hit 2026-09-03 (#622):** `{"schemaVersion":true,...}` and `"schemaVersion":"on"` failed after #604 null-token fix while sibling `AzureExtractorPackageZipValidator` already coerces boolean tokens; fixed with validator-parity boolean coercion (`IsDeadLettered_returns_true_for_boolean_true_schema_version`, `IsDeadLettered_returns_true_for_string_on_schema_version_synonym`).
+
+2026-09-03 seed hunt #622: proved boolean/on schemaVersion coercion gap in dead-letter detection.
 
 - [x] (proven) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` — IPv4-mapped RFC1918 addresses bypass private-network guard — **hit 2026-09-03 (#597):** `::ffff:10.0.0.1` / `::ffff:192.168.1.1` stayed on the IPv6 branch after #223 ULA fix and returned allowed; SSRF policies missed mapped private literals; fixed by unmapping with `MapToIPv4()` before RFC1918 checks (`PrivateNetworkAddressGuard_IsForbiddenIpAddress_blocks_ipv4_mapped_private_addresses`).
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — string-encoded / whole-number-double `schemaVersion` rejected — **hit 2026-09-03 (#600):** `"schemaVersion":"1"` and `1.0` failed strict `int` deserialize and dropped dead-letter detection after #596 failureClass casing fix; fixed with case-insensitive schemaVersion coercion and direct `failureClass` read (`IsDeadLettered_returns_true_for_string_encoded_schema_version`, `IsDeadLettered_returns_true_for_whole_number_double_schema_version`).
