@@ -2820,11 +2820,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 10
-- **bugs-found:** 15
+- **hunts:** 11
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — stage-timeline whitespace runId 404 parity; ExplainStructuredBriefSuggestion SuggestionText max length
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — rephrase QuestionPrompt max length; export/interactive graph whitespace 404 parity; custom role update Unicode guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2843,6 +2843,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RephraseClarificationAnswers` omitted per-item `ExtractedAnswer` max length — **hit 2026-08-28:** per-item `DraftIntakeValidation` guard; regression in `RunsControllerTests.RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_exceeds_chat_intake_max_length`.
 - [x] (proven) `GetRunStageTimeline` whitespace `runId` returned 400 while sibling `GetRun` / `GetRunRoiEstimate` returned 404 — **hit 2026-09-02 (#424):** removed whitespace `BadRequest` pre-check; rely on `AuthorityRunIdentifier.TryParse`; regression in `RunGraphQueryServiceTests` and `RunQueryControllerTests`.
 - [x] (proven) `ExplainStructuredBriefSuggestion` omitted `MaximumChatIntakeTextLength` on `SuggestionText` — **hit 2026-09-02 (#424):** `DraftIntakeValidation` guard on `SuggestionText`; regression in `RunsControllerTests.ExplainStructuredBriefSuggestion_returns_bad_request_when_suggestion_text_exceeds_chat_intake_max_length`.
+- [x] (proven) `RephraseClarificationAnswers` omitted `MaximumChatIntakeTextLength` on `QuestionPrompt` — **hit 2026-09-03 (#546):** per-item guard alongside `ExtractedAnswer`; regression in `RunsControllerTests.RephraseClarificationAnswers_returns_bad_request_when_question_prompt_exceeds_chat_intake_max_length`.
+- [x] (proven) `GetInteractiveGraphSnapshot` / `RunGraphQueryService.GetInteractiveGraphSnapshotAsync` — whitespace `runId` returned 400 while sibling reads returned 404 — **hit 2026-09-03 (#546):** rely on `AuthorityRunIdentifier.TryParse`; regression in `RunGraphQueryServiceTests` and `RunQueryControllerTests`.
+- [x] (proven) `RunsExportController.Export` / `ArchitectureExportController.ExportRunSummary` — whitespace `runId` returned 400 while export paths map invalid ids to 404 — **hit 2026-09-03 (#546):** `AuthorityRunIdentifier.TryParse` NotFound parity; regression in `RunsExportControllerTests` and `ArchitectureExportControllerTests`.
+- [x] (proven) `CustomRolesAdminController.UpdateAsync` — omitted `IsValidUnicodeText` surrogate guard present on `CreateAsync` — **hit 2026-09-03 (#546):** reject lone surrogates before service call; regression in `CustomRolesAdminControllerTests`.
+- [ ] (candidate) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — megabyte answer values reach persistence without per-answer max-length guard.
+- [ ] (candidate) `RunQueryController.GetProvenanceNodeExplanation` — whitespace `runId` still returns 400 while sibling provenance reads return 404.
+
+2026-09-03 seed hunt #546: proved rephrase `QuestionPrompt` max length, interactive-graph and export whitespace 404 parity, and custom-role update Unicode guard; seeded knowledge-model clarification answer length and provenance-node whitespace candidates.
 
 2026-09-02 thorough hunt #424: closed three stale ledger candidates (already fixed 2026-08-28); proved stage-timeline whitespace 404 parity and explain `SuggestionText` max-length gap.
 

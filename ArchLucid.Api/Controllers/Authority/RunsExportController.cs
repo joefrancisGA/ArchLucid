@@ -4,6 +4,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Runs;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -52,8 +53,8 @@ public sealed class RunsExportController(
         [FromRoute] string format,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+        if (!AuthorityRunIdentifier.TryParse(runId, out _))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         if (!TryParseFormat(format, out ExportFormat exportFormat))
         {
