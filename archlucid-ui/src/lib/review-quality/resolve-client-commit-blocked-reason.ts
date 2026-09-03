@@ -1,5 +1,7 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
+import { countSkippedMustQuestions } from "./count-skipped-must-questions";
 import { evaluateFinalizeQualityScorecard } from "./finalize-quality-scorecard";
 import {
   deriveFinalizeQualityScorecardInput,
@@ -13,6 +15,7 @@ export type ResolveClientAwareCommitBlockedReasonInput = {
   readonly blockingFindingCount: number;
   readonly acknowledgedAssumptionIds: ReadonlySet<string>;
   readonly requestAssumptionTexts: readonly string[];
+  readonly transparencyTrail?: TransparencyTrail | null;
 };
 
 /** Recompute finalize scorecard on the client when assumption acks change (TB-2314). */
@@ -32,7 +35,10 @@ export function resolveClientAwareCommitBlockedReason(
     input.blockingFindingCount,
     scorecardOptions,
   );
-  const scorecard = evaluateFinalizeQualityScorecard(scorecardInput);
+  const scorecard = evaluateFinalizeQualityScorecard({
+    ...scorecardInput,
+    skippedMustCount: countSkippedMustQuestions(input.transparencyTrail),
+  });
 
   return scorecard.ready ? null : scorecard.blockingReasons.join(" ");
 }

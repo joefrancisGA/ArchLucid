@@ -24,6 +24,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { roleClaimCaption, roleDisplayLabel } from "@/lib/role-display-labels";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 
 import {
   BUILTIN_ROLE_SUMMARIES,
@@ -80,6 +84,7 @@ export function SettingsRolesMatrixSection() {
     pendingHighRiskLabels,
     createBlockedReason,
   } = useSettingsRolesMatrix();
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedEdits });
 
   if (loading)
     return <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading role matrix…</p>;
@@ -224,6 +229,12 @@ export function SettingsRolesMatrixSection() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        <LivelihoodDocumentGuardDialog
+          open={documentGuards.dialogOpen}
+          message={documentGuards.dialogMessage}
+          onConfirm={documentGuards.confirmLeave}
+          onCancel={documentGuards.cancelLeave}
+        />
       </section>
   );
 }

@@ -1,12 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  SESSION_IDLE_FOCUS_HEARTBEAT_MS,
+  writeSharedSessionLastActivityAt,
+} from "@/lib/auth/session-idle-timeout";
+import { ensureAccessTokenFresh } from "@/lib/oidc/session";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
@@ -26,6 +31,20 @@ type PackagePrintPageClientProps = {
 export function PackagePrintPageClient(props: PackagePrintPageClientProps): React.JSX.Element {
   const { runId, listScopedRunId = null } = props;
   const summaryQuery = useRunSummaryQuery(runId);
+
+  useEffect(() => {
+    writeSharedSessionLastActivityAt();
+    void ensureAccessTokenFresh();
+
+    const heartbeatId = window.setInterval(() => {
+      writeSharedSessionLastActivityAt();
+      void ensureAccessTokenFresh();
+    }, SESSION_IDLE_FOCUS_HEARTBEAT_MS);
+
+    return () => {
+      window.clearInterval(heartbeatId);
+    };
+  }, []);
 
   const failure: ApiLoadFailureState | null = useMemo(
     () => (summaryQuery.isError ? toApiLoadFailure(summaryQuery.error) : null),

@@ -44,6 +44,10 @@ public sealed partial class UserPreferencesController
             userId,
             UserSettingKeys.WorkspaceModeGraduationOffer,
             cancellationToken);
+        string? professionalWorkbenchStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.ProfessionalWorkbenchEnabled,
+            cancellationToken);
 
         string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(appearanceStored)
             ?? AppearancePreferenceValues.Default;
@@ -53,6 +57,7 @@ public sealed partial class UserPreferencesController
         string ianaTimeZoneId = IanaTimeZonePreferenceValues.NormalizeOrDefault(ianaTimeZoneStored);
         string workspaceMode = WorkspaceModeValues.ParseOrDefault(workspaceModeStored);
         string workspaceModeGraduationOffer = WorkspaceModeGraduationOfferValues.ParseOrDefault(workspaceModeGraduationOfferStored);
+        bool professionalWorkbenchEnabled = ProfessionalWorkbenchEnabledValues.ParseOrDefault(professionalWorkbenchStored);
 
         return Ok(new UserPreferencesResponse
         {
@@ -73,6 +78,8 @@ public sealed partial class UserPreferencesController
             WorkspaceModeIsExplicit = WorkspaceModeValues.IsExplicitValue(workspaceModeStored),
             WorkspaceModeGraduationOffer = workspaceModeGraduationOffer,
             WorkspaceModeGraduationOfferIsExplicit = WorkspaceModeGraduationOfferValues.IsExplicitValue(workspaceModeGraduationOfferStored),
+            ProfessionalWorkbenchEnabled = professionalWorkbenchEnabled,
+            ProfessionalWorkbenchEnabledIsExplicit = ProfessionalWorkbenchEnabledValues.IsExplicitValue(professionalWorkbenchStored),
         });
     }
 

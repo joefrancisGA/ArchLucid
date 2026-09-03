@@ -3,6 +3,7 @@
 import { useCallback, useState, type ReactElement } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
 import { DispositionExportBeforeAfterPreview } from "@/components/operator/DispositionExportBeforeAfterPreview";
 import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -45,6 +46,7 @@ const CONFIRM_LABELS: Record<FindingCardShortcutDisposition, string> = {
  */
 export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps): ReactElement | null {
   const canMutate = useOperateCapability();
+  const workbenchSelection = useReviewWorkbenchSelection();
   const [pending, setPending] = useState<PendingKeyboardDisposition | null>(null);
   const [rationale, setRationale] = useState("");
   const [busy, setBusy] = useState(false);
@@ -65,7 +67,11 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     [props],
   );
 
-  useFindingCardShortcuts({ onAction, mutationsEnabled: canMutate });
+  useFindingCardShortcuts({
+    onAction,
+    mutationsEnabled: canMutate,
+    onFindingFocus: workbenchSelection?.setSelectedFindingId,
+  });
 
   async function applyPending(): Promise<void> {
     if (pending === null) {

@@ -20,12 +20,16 @@ import { useIncrementalReviewFindingsRefresh } from "@/hooks/use-incremental-rev
 import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import {
   REVIEW_DETAIL_DEFAULT_TAB,
+  REVIEW_DETAIL_FINDING_PARAM,
   REVIEW_DETAIL_TAB_LABELS,
   REVIEW_DETAIL_TAB_PARAM,
+  REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM,
   type ReviewDetailTabId,
+  readPresenterModeFromSearchParams,
   readReviewDetailTabFromWindowLocation,
   resolveReviewDetailTab,
   resolveReviewDetailTabFromHash,
+  resolveReviewWorkbenchFocusColumn,
   writeReviewDetailTabToUrl,
 } from "@/lib/review-detail-workspace-tabs";
 import {
@@ -38,9 +42,16 @@ import {
 } from "@/lib/resolve-review-workspace-visible-tabs";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 import { ReviewWorkbenchLayout, type ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
+import { ReviewPresenterSurface } from "@/components/reviews/ReviewPresenterSurface";
+import {
+  ReviewWorkbenchSelectionProvider,
+} from "@/components/reviews/ReviewWorkbenchSelectionContext";
+import { WorkbenchFindingSelectionSync } from "@/components/reviews/WorkbenchFindingSelectionSync";
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { useReviewWorkbenchShortcuts } from "@/hooks/use-review-workbench-shortcuts";
 import { useProfessionalWorkbenchEnabled } from "@/lib/workspace-mode/use-professional-workbench-enabled";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { Button } from "@/components/ui/button";
 
 export type ReviewDetailTabCounts = {
   readonly findings?: number | null;
@@ -73,6 +84,10 @@ export type ReviewDetailWorkspaceProps = {
   readonly tabSectionNav?: ReactNode | null;
   /** Asserted / inferred / skipped summary above workspace chrome. */
   readonly defensibilityStrip?: ReactNode | null;
+  /** Primary finding title for presenter mode when a finding is selected. */
+  readonly presenterFindingTitle?: string | null;
+  readonly presenterFindingBody?: ReactNode | null;
+  readonly presenterFindingActions?: ReactNode | null;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {
@@ -140,6 +155,13 @@ function isWorkbenchTab(tabId: ReviewDetailTabId): tabId is ReviewWorkbenchColum
 /** Tabbed review workspace with URL-backed `reviewTab` selection. */
 export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.JSX.Element {
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
+  const urlFindingId = searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+  const initialFindingId = urlFindingId.length > 0 ? urlFindingId : null;
+  const initialWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
+    searchParams.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
+  );
+  const presenterMode = readPresenterModeFromSearchParams(searchParams);
   const [hashResolved, setHashResolved] = useState(false);
   const lifecycle = resolveWorkspaceLifecycle(props);
   const resolved = useMemo(() => {
@@ -184,12 +206,17 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
   }, []);
 
   const navigateTab = useCallback(
-    (tab: ReviewDetailTabId) => {
+    (tab: ReviewDetailTabId, options?: { readonly findingId?: string | null; readonly workbenchFocus?: ReviewWorkbenchColumnId | null }) => {
       setActiveTab(tab);
-      writeReviewDetailTabToUrl(tab, { hash: null });
+      writeReviewDetailTabToUrl(tab, {
+        hash: null,
+        findingId: options?.findingId,
+        workbenchFocus: options?.workbenchFocus ?? (isWorkbenchTab(tab) ? tab : null),
+        presenter: presenterMode ? true : null,
+      });
       markTabSeen(tab);
     },
-    [markTabSeen],
+    [markTabSeen, presenterMode],
   );
 
   useEffect(() => {
@@ -268,13 +295,42 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
 
   useReviewWorkbenchShortcuts({
     enabled: workbenchVisible,
-    onFocusColumn: (column) => navigateTab(column),
+    onFocusColumn: (column) => navigateTab(column, { workbenchFocus: column }),
   });
 
-  return (
+  const exitPresenter = useCallback(() => {
+    writeReviewDetailTabToUrl(activeTab, {
+      findingId: initialFindingId,
+      workbenchFocus: initialWorkbenchFocus,
+      presenter: null,
+    });
+    window.location.reload();
+  }, [activeTab, initialFindingId, initialWorkbenchFocus]);
+
+  const workspaceBody = (
     <ReviewDetailWorkspaceTabContext.Provider value={{ navigateTab }}>
       <div className="min-w-0 space-y-4" data-testid="review-detail-workspace">
         {props.defensibilityStrip ?? null}
+        {isWorkingMode ? (
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="review-presenter-enter"
+              onClick={() => {
+                writeReviewDetailTabToUrl(activeTab, {
+                  findingId: initialFindingId,
+                  workbenchFocus: initialWorkbenchFocus,
+                  presenter: true,
+                });
+                window.location.reload();
+              }}
+            >
+              Presenter
+            </Button>
+          </div>
+        ) : null}
         <ReviewWorkspaceTabStrip
           lifecycle={lifecycle}
           activeTab={activeTab}
@@ -307,10 +363,11 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
               panelWithInPipelineBanner("evidence", props.panels.evidence, inPipelineBanner),
             )}
             focusColumn={workbenchFocusColumn}
-            onFocusColumn={(column) => navigateTab(column)}
+            onFocusColumn={(column) => navigateTab(column, { workbenchFocus: column })}
             onExitWorkbench={() => workbench.setEnabled(false)}
           />
         ) : null}
+        <WorkbenchFindingSelectionSync />
 
         <div
           className="min-w-0 overflow-visible"
@@ -395,6 +452,40 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
         </div>
       </div>
     </ReviewDetailWorkspaceTabContext.Provider>
+  );
+
+  if (presenterMode && isWorkingMode) {
+    return (
+      <ReviewPresenterSurface
+        title={props.presenterFindingTitle ?? "Review in progress"}
+        body={props.presenterFindingBody ?? props.panels.overview}
+        actions={props.presenterFindingActions}
+        onExit={exitPresenter}
+      />
+    );
+  }
+
+  return (
+    <ReviewWorkbenchSelectionProvider
+      initialFindingId={initialFindingId}
+      initialFocusColumn={initialWorkbenchFocus}
+      onFindingIdChange={(findingId) => {
+        writeReviewDetailTabToUrl(activeTab, {
+          findingId,
+          workbenchFocus: workbenchFocusColumn,
+          presenter: null,
+        });
+      }}
+      onFocusColumnChange={(column) => {
+        writeReviewDetailTabToUrl(activeTab, {
+          findingId: initialFindingId,
+          workbenchFocus: column,
+          presenter: null,
+        });
+      }}
+    >
+      {workspaceBody}
+    </ReviewWorkbenchSelectionProvider>
   );
 }
 
