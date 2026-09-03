@@ -55,7 +55,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   return {
     buyerPolishedShell: viewMode.buyerPolishedShell,
     viewMode: viewMode.viewMode,
-    onViewModeChange: viewMode.onViewModeChange,
+    currentSearch: viewMode.currentSearch,
     runId: search.runId,
     buyerAuditTrailSummaryLine: lifecycle.buyerAuditTrailSummaryLine,
     buyerAuditTrailMetrics: lifecycle.buyerAuditTrailMetrics,

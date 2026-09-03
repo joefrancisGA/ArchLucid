@@ -16,6 +16,10 @@ import {
   parseReviewFindingsToolbarSearchQuery,
   reviewFindingsToolbarSearchHrefFromSearch,
 } from "@/lib/findings/review-findings-toolbar-search-url";
+import {
+  parseFindingsGroundingFilterFromSearch,
+  parseFindingsOriginFilterFromSearch,
+} from "@/lib/findings/findings-provenance-url";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
 import type {
   RunDetailFindingsFilterKind,
@@ -50,6 +54,8 @@ export function useRunDetailFindingsToolbarState(options?: {
     options?.initialFilter ??
     resolveReviewFindingsToolbarFilterFromSearchParam(searchParams?.get("findingsFilter"));
   const urlSearchQuery = parseReviewFindingsToolbarSearchQuery(searchParams?.get("q"));
+  const urlOriginFilter = parseFindingsOriginFilterFromSearch(searchParams?.get("origin"));
+  const urlGroundingFilter = parseFindingsGroundingFilterFromSearch(searchParams?.get("grounding"));
   const [filter, setFilterState] = useState<RunDetailFindingsFilterKind>(initialFilter);
   const setFilter = useCallback((next: RunDetailFindingsFilterKind): void => {
     setFilterState(next);
@@ -66,12 +72,20 @@ export function useRunDetailFindingsToolbarState(options?: {
   const [domainFilter, setDomainFilter] = useState("");
   const [searchQuery, setSearchQueryState] = useState(urlSearchQuery);
   const [sort, setSort] = useState<RunDetailFindingsSortKind>("trust-then-severity");
-  const [originFilter, setOriginFilter] = useState<FindingOriginFilter>("all");
-  const [groundingFilter, setGroundingFilter] = useState<FindingGroundingFilter>("all");
+  const [originFilter, setOriginFilterState] = useState<FindingOriginFilter>(urlOriginFilter);
+  const [groundingFilter, setGroundingFilterState] = useState<FindingGroundingFilter>(urlGroundingFilter);
 
   useEffect(() => {
     setSearchQueryState(urlSearchQuery);
   }, [urlSearchQuery]);
+
+  useEffect(() => {
+    setOriginFilterState(urlOriginFilter);
+  }, [urlOriginFilter]);
+
+  useEffect(() => {
+    setGroundingFilterState(urlGroundingFilter);
+  }, [urlGroundingFilter]);
 
   useEffect(() => {
     if (pathname.length === 0) {
@@ -93,6 +107,14 @@ export function useRunDetailFindingsToolbarState(options?: {
 
   const setSearchQuery = useCallback((value: string): void => {
     setSearchQueryState(value);
+  }, []);
+
+  const setOriginFilter = useCallback((value: FindingOriginFilter): void => {
+    setOriginFilterState(value);
+  }, []);
+
+  const setGroundingFilter = useCallback((value: FindingGroundingFilter): void => {
+    setGroundingFilterState(value);
   }, []);
 
   return {

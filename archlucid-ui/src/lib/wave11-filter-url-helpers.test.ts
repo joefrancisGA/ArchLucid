@@ -127,3 +127,81 @@ describe("wave12 filter url helpers", () => {
     );
   });
 });
+
+describe("wave13 filter url helpers", () => {
+  it("decision register date range and view params", async () => {
+    const { parseDecisionRegisterDatePresetFromSearch, decisionRegisterDatePresetHrefFromSearch } = await import(
+      "@/lib/governance/decision-register-date-range-url"
+    );
+    const { parseDecisionRegisterViewModeFromSearch, decisionRegisterViewModeHrefFromSearch } = await import(
+      "@/lib/governance/decision-register-view-url"
+    );
+
+    expect(parseDecisionRegisterDatePresetFromSearch("30")).toBe("30");
+    expect(decisionRegisterDatePresetHrefFromSearch("runId=r1", "30")).toBe(
+      "/governance/decision-register?runId=r1&range=30",
+    );
+    expect(parseDecisionRegisterViewModeFromSearch("timeline")).toBe("timeline");
+    expect(decisionRegisterViewModeHrefFromSearch("runId=r1", "timeline")).toBe(
+      "/governance/decision-register?runId=r1&view=timeline",
+    );
+  });
+
+  it("audit trail view and ai usage metric params", async () => {
+    const { parseAuditTrailViewModeFromSearch, auditTrailViewModeHrefFromSearch } = await import(
+      "@/lib/governance/audit-trail-view-url"
+    );
+    const { parseAiUsageDailyMetricFromSearch, aiUsageDailyMetricHrefFromSearch } = await import(
+      "@/lib/administration/ai-usage-daily-metric-url"
+    );
+
+    expect(parseAuditTrailViewModeFromSearch("story", false)).toBe("story");
+    expect(auditTrailViewModeHrefFromSearch("", "story", false)).toBe("/governance/audit?view=story");
+    expect(parseAiUsageDailyMetricFromSearch("tokens")).toBe("tokens");
+    expect(aiUsageDailyMetricHrefFromSearch("", "tokens")).toBe("/administration/ai-usage?metric=tokens");
+  });
+
+  it("findings provenance, runs list search, architectures sort", async () => {
+    const {
+      parseFindingsOriginFilterFromSearch,
+      findingsOriginFilterHrefFromSearch,
+      parseFindingsGroundingFilterFromSearch,
+      findingsGroundingFilterHrefFromSearch,
+    } = await import("@/lib/findings/findings-provenance-url");
+    const { parseRunsListSearchQuery, runsListSearchHrefFromSearch } = await import("@/lib/runs/runs-list-search-url");
+    const { parseArchitecturesHubSort, architecturesHubSortHrefFromSearch } = await import(
+      "@/lib/architecture/architectures-hub-filters"
+    );
+
+    expect(parseFindingsOriginFilterFromSearch("AI-generated")).toBe("AI-generated");
+    expect(findingsOriginFilterHrefFromSearch("tab=findings", "/architecture/reviews/r1", "AI-generated")).toBe(
+      "/architecture/reviews/r1?tab=findings&origin=AI-generated",
+    );
+    expect(parseFindingsGroundingFilterFromSearch("Evidence-backed")).toBe("Evidence-backed");
+    expect(parseRunsListSearchQuery("vpc")).toBe("vpc");
+    expect(runsListSearchHrefFromSearch("scope=finalized", "vpc", "/architecture/reviews")).toBe(
+      "/architecture/reviews?scope=finalized&q=vpc",
+    );
+    expect(parseArchitecturesHubSort("name-asc")).toBe("name-asc");
+    expect(architecturesHubSortHrefFromSearch("filter=draft", "name-asc")).toBe(
+      "/architecture/architectures?filter=draft&sort=name-asc",
+    );
+  });
+
+  it("graph path only and search review evidence query params", async () => {
+    const { parseGraphPathOnlyFromSearch, graphPathOnlyHrefFromSearch } = await import(
+      "@/lib/insights/graph-path-only-url"
+    );
+    const { parseSearchReviewEvidenceQueryFromSearch, searchReviewEvidenceQueryHrefFromSearch } = await import(
+      "@/lib/insights/search-review-evidence-query-url"
+    );
+
+    expect(parseGraphPathOnlyFromSearch("1")).toBe(true);
+    expect(graphPathOnlyHrefFromSearch("runId=r1", true)).toBe("/insights/evidence-graph?runId=r1&pathOnly=1");
+    expect(parseSearchReviewEvidenceQueryFromSearch("phi")).toBe("phi");
+    expect(searchReviewEvidenceQueryHrefFromSearch("runId=r1", "phi")).toBe(
+      "/insights/search-review-evidence?runId=r1&q=phi",
+    );
+  });
+});
+
