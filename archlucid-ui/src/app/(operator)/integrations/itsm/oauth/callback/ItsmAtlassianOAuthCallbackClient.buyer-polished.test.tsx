@@ -5,13 +5,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ItsmAtlassianOAuthCallbackClient } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackClient";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
 import {
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_TARGET_ID,
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-page-copy";
 import {
-  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING,
+  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE,
   ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE,
 } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 
@@ -79,6 +80,11 @@ describe("ItsmAtlassianOAuthCallbackClient buyer-polished shell", () => {
       INTEGRATIONS_JIRA_PATH,
     );
 
+    expect(screen.getByTestId(ITSM_ATLASSIAN_OAUTH_CALLBACK_HEADER_CLAIM_DISCIPLINE_TEST_ID).textContent).toContain(
+      ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.queryByTestId("itsm-oauth-callback-claim-discipline")).toBeNull();
+
     const primaryContent = screen.getByTestId("itsm-oauth-callback-primary-content");
     const firstViewport = screen.getByTestId("itsm-oauth-callback-first-viewport");
     const orientation = screen.getByTestId("itsm-oauth-callback-orientation-bottom");
@@ -90,9 +96,7 @@ describe("ItsmAtlassianOAuthCallbackClient buyer-polished shell", () => {
     expect(firstViewport.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     expect(screen.getByRole("heading", { level: 2, name: ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
     expect(screen.queryByTestId("itsm-oauth-callback-orientation-top")).toBeNull();
+    expect(screen.queryByTestId("itsm-oauth-callback-claim-discipline")).toBeNull();
   });
 });
