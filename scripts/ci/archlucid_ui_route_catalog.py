@@ -39,9 +39,6 @@ PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/architecture/reviews/[reviewId]?archTab=overview": "REO",
     "/insights/pilot-outcomes": "SPP",
     "/insights/sponsor-report": "SPE",
-    "/accessibility": "AXX",
-    "/account/security": "ADS",
-    "/administration/baseline": "ADA",
 }
 
 # When workbook path migrations collide, keep the canonical tab/hub row id (ADV hub retired → ADT).
