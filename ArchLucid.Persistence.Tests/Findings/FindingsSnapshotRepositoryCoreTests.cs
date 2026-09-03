@@ -26,12 +26,12 @@ public sealed class FindingsSnapshotRepositoryCoreTests
             FindingType = "SecurityGap",
             Category = "Security",
             EngineType = "Compliance",
-            Severity = FindingSeverity.High,
+            Severity = FindingSeverity.Error,
             Title = "Gap",
         };
 
         FindingsSnapshotRepositoryCore
-            .MatchesFindingFilters(finding, "High", "Security", "SecurityGap")
+            .MatchesFindingFilters(finding, "Error", "Security", "SecurityGap")
             .Should()
             .BeTrue();
 

@@ -131,10 +131,20 @@
 | Split leftover help-topic traffic catalog and operator page-help remainder | Done (2026-09-03 pass-8) — `help-topic-rows-{governance,integrations,pilot}.ts`; `page-help-topic-rows-operator-{architecture,pilot}.ts` |
 | Alias remaining hand-authored UI types to OpenAPI (wave 9) | Done (2026-09-03 pass-8) — pagination concrete aliases; documented UI-only `RunSummaryWireExtensions` and `ArchLucidRole`; `openapi-type-aliases.test.ts` ~245 keys |
 | Split leftover Host.Composition `RetrievalCompositionModule` and Quick Scan concurrency | Done (2026-09-03 pass-8) — `RetrievalCompositionModule.Agents` / `.Indexing`; `QuickScanDistributedConcurrencyAdmissionResult` + lease-renewal helper |
+| Split leftover `PolicyPacksController` CRUD vs assignment and `RunComparisonController` route families | Done (2026-09-03 pass-9) — `PolicyPacksController.Crud` / `.Assignment`; `RunComparisonController.Agents` / `.Replay` partials |
+| Split `PipelineExtensions` pre/post-Serilog vs health/docs | Done (2026-09-03 pass-9) — `PipelineExtensions.BeforeSerilog` / `.HealthDocs`; `InfrastructureExtensions.RateLimiting.Rejection` sub-split |
+| Decompose `PolicyPackDryRunService` and `AzureExtractorIngestService.PreparedZip` into stages | Done (2026-09-03 pass-9) — `PolicyPackDryRun/Stages/*`, `AzureExtractor/Stages/*`; services are thin sequencers |
+| Extend leftover persistence twin cores (drafts, findings snapshots, outbox, ITSM connector) | Done (2026-09-03 pass-9) — extended `DraftRequestRepositoryCore`, `FindingsSnapshotRepositoryCore`, `IntegrationEventOutboxRepositoryCore`, `TenantItsmConnectorConnectionRepositoryCore` |
+| Split `RealLlmOutputStructuralValidator` and `DeclarationPremiseConflictClassifier` | Done (2026-09-03 pass-9) — validator partials (`TopLevelKeys` / `Findings` / `Trace`); classifier partials by conflict kind |
+| Finish leftover CLI tenant-isolation + deployment-evidence probe gods | Done (2026-09-03 pass-9) — `TenantIsolationNegativeTestOfflineRunner` / `LiveRunner`; `DeploymentEvidenceProbeRunner.*` gate partials |
+| Continue UI mega-client split (new-run wizard, admin tenants, run-detail deferred chunks) | Done (2026-09-03 pass-9) — wizard stage hooks, `AdminTenantsTableShell`, run-detail deferred chunk family modules |
+| Split leftover UI fetch client and design-token shell catalog | Done (2026-09-03 pass-9) — `http-auth` / `http-proxy`; `design-tokens-shell-{layout,typography,chrome}` |
+| Alias remaining hand-authored UI types to OpenAPI (wave 10) | Done (2026-09-03 pass-9) — `authority-run-detail-wire.ts`; `RunDetailAgentResult` mapping; `openapi-type-aliases.test.ts` ~245 keys |
+| Split leftover Host.Composition `CoordinatorArtifactsCompositionModule` and reference-data hot path | Done (2026-09-03 pass-9) — `CoordinatorArtifactsCompositionModule.Artifacts` / `.Explanation`; `ArchLucidReferenceDataHotPathRegistrar.*` family partials |
 
 ## Active items (remaining)
 
-_None — generate the next pass-9 suggestion batch when ready._
+_None — generate the next pass-10 suggestion batch when ready._
 
 ## Completed (2026-08-24 pass)
 

@@ -23,9 +23,15 @@ public sealed class TenantItsmConnectorConnectionRepositoryCoreTests
 
         TenantItsmConnectorConnectionRepositoryCore.ResolveIsEnabled(command).Should().BeTrue();
 
-        command.CredentialKeyVaultSecretName = "";
+        TenantItsmConnectorConnectionUpsertCommand missingSecret = new()
+        {
+            InstanceBaseUrl = "https://example.service-now.com",
+            AuthMode = ItsmConnectorAuthMode.BasicApiToken,
+            CredentialKeyVaultSecretName = "",
+            IsEnabled = true,
+        };
 
-        TenantItsmConnectorConnectionRepositoryCore.ResolveIsEnabled(command).Should().BeFalse();
+        TenantItsmConnectorConnectionRepositoryCore.ResolveIsEnabled(missingSecret).Should().BeFalse();
     }
 
     [Fact]
