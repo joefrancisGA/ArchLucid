@@ -7,12 +7,13 @@ using ArchLucid.Decisioning.Interfaces;
 namespace ArchLucid.Application.Runs.Finalization;
 
 /// <summary>
-///     Wave-18 suggestion 171: rebuild committed-run decision receipts using the pre-receipt manifest hash
-///     and verify they match the sealed <see cref="ManifestDocument.CommittedDecisionReceiptHashSha256" />.
+///     Wave-18 suggestion 171 / wave-19 suggestions 181–182–188: rebuild committed-run decision receipts using the
+///     pre-receipt manifest hash and verify they match the sealed
+///     <see cref="ManifestDocument.CommittedDecisionReceiptHashSha256" />.
 /// </summary>
 internal static class ManifestDecisionReceiptExportBinder
 {
-    public static DecisionReceiptDocument? TryBuildVerifiedExportReceiptOrNull(
+    public static DecisionReceiptRunBuildResult BuildVerifiedExportReceipt(
         Guid runId,
         ManifestDocument manifest,
         FeasibilityVerdict verdict,
@@ -25,7 +26,12 @@ internal static class ManifestDecisionReceiptExportBinder
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
         if (string.IsNullOrWhiteSpace(manifest.CommittedDecisionReceiptHashSha256))
-            return null;
+        {
+            return new DecisionReceiptRunBuildResult
+            {
+                Outcome = DecisionReceiptRunBuildOutcome.NotFound,
+            };
+        }
 
         string manifestHashBeforeReceipt = ComputeHashBeforeReceipt(manifest, manifestHashService);
 
@@ -40,10 +46,17 @@ internal static class ManifestDecisionReceiptExportBinder
                 manifest.CommittedDecisionReceiptHashSha256,
                 StringComparison.OrdinalIgnoreCase))
         {
-            return null;
+            return new DecisionReceiptRunBuildResult
+            {
+                Outcome = DecisionReceiptRunBuildOutcome.SealedHashMismatch,
+            };
         }
 
-        return receipt;
+        return new DecisionReceiptRunBuildResult
+        {
+            Outcome = DecisionReceiptRunBuildOutcome.Success,
+            Receipt = receipt,
+        };
     }
 
     public static void EnsureSealedReceiptHashMatchesOrThrow(
@@ -72,17 +85,48 @@ internal static class ManifestDecisionReceiptExportBinder
                 $"Commit recovery blocked for run '{runIdLabel}': feasibility verdict is required to verify sealed decision receipt hash.");
         }
 
-        DecisionReceiptDocument? receipt = TryBuildVerifiedExportReceiptOrNull(
+        DecisionReceiptRunBuildResult buildResult = BuildVerifiedExportReceipt(
             runId,
             manifest,
             verdict,
             manifestVersion,
             manifestHashService);
 
-        if (receipt is null)
+        if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedHashMismatch)
         {
             throw new ConflictException(
                 $"Commit recovery blocked for run '{runIdLabel}': sealed decision receipt hash does not match recomputed receipt.");
+        }
+
+        if (buildResult.Outcome != DecisionReceiptRunBuildOutcome.Success)
+        {
+            throw new ConflictException(
+                $"Commit recovery blocked for run '{runIdLabel}': sealed decision receipt hash could not be verified.");
+        }
+    }
+
+    /// <summary>Wave-19 suggestion 188: verify sealed manifest hash without mutating receipt fields on the live document.</summary>
+    public static void EnsureSealedManifestHashMatchesOrThrow(
+        ManifestDocument manifest,
+        string runIdLabel,
+        IManifestHashService manifestHashService)
+    {
+        ArgumentNullException.ThrowIfNull(manifest);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runIdLabel);
+        ArgumentNullException.ThrowIfNull(manifestHashService);
+
+        if (string.IsNullOrWhiteSpace(manifest.ManifestHash))
+        {
+            throw new ConflictException(
+                $"Commit recovery blocked for run '{runIdLabel}': sealed manifest hash is missing.");
+        }
+
+        string recomputedHash = manifestHashService.ComputeHash(manifest);
+
+        if (!string.Equals(recomputedHash, manifest.ManifestHash, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ConflictException(
+                $"Commit recovery blocked for run '{runIdLabel}': sealed manifest hash does not match recomputed hash.");
         }
     }
 
@@ -91,16 +135,7 @@ internal static class ManifestDecisionReceiptExportBinder
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
-        string? savedReceiptHash = manifest.CommittedDecisionReceiptHashSha256;
-        manifest.CommittedDecisionReceiptHashSha256 = null;
-
-        try
-        {
-            return manifestHashService.ComputeHash(manifest);
-        }
-        finally
-        {
-            manifest.CommittedDecisionReceiptHashSha256 = savedReceiptHash;
-        }
+        ManifestDocument scratch = ManifestDocumentHashScratch.WithCommittedDecisionReceiptHashCleared(manifest);
+        return manifestHashService.ComputeHash(scratch);
     }
 }

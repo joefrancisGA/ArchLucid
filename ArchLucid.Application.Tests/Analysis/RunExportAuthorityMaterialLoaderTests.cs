@@ -1,8 +1,10 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Services;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
@@ -34,12 +36,17 @@ public sealed class RunExportAuthorityMaterialLoaderTests
             .Setup(q => q.GetRunDetailForExportAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
-                Run = new RunRecord { RunId = runId },
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = manifestId,
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                },
                 GoldenManifest = manifest,
                 AuthorityTrace = null
             });
 
-        RunExportAuthorityMaterialLoader sut = new(authority.Object);
+        RunExportAuthorityMaterialLoader sut = new(authority.Object, new ManifestHashService());
 
         RunExportAuthorityMaterialLoadResult result = await sut.LoadAsync(
             new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() },
@@ -63,7 +70,7 @@ public sealed class RunExportAuthorityMaterialLoaderTests
             .Setup(q => q.GetRunDetailForExportAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 
-        RunExportAuthorityMaterialLoader sut = new(authority.Object);
+        RunExportAuthorityMaterialLoader sut = new(authority.Object, new ManifestHashService());
 
         RunExportAuthorityMaterialLoadResult result = await sut.LoadAsync(
             new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() },

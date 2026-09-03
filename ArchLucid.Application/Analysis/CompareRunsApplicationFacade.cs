@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
@@ -23,6 +24,7 @@ public sealed class CompareRunsApplicationFacade(
     IRunDetailQueryService runDetailQueryService,
     IRunRepository authorityRunRepository,
     IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
+    IAuthorityCommitProjectionBuilder projectionBuilder,
     IComparisonService comparison,
     IAgentResultDiffService agentResultDiffService,
     IScopeContextProvider scopeProvider) : ICompareRunsApplicationFacade
@@ -38,6 +40,9 @@ public sealed class CompareRunsApplicationFacade(
 
     private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader =
         unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
+
+    private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
+        projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
 
     private readonly IComparisonService _comparison =
         comparison ?? throw new ArgumentNullException(nameof(comparison));
@@ -77,6 +82,104 @@ public sealed class CompareRunsApplicationFacade(
             {
                 Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
                 MissingRunId = rightRunId,
+            };
+        }
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        if (!TryParseRunId(leftRunId, out Guid leftGuid))
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.LeftRunNotFound,
+                MissingRunId = leftRunId,
+            };
+        }
+
+        if (!TryParseRunId(rightRunId, out Guid rightGuid))
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
+                MissingRunId = rightRunId,
+            };
+        }
+
+        RunRecord? leftHeader = await _authorityRunRepository.GetByIdAsync(scope, leftGuid, ct);
+        RunRecord? rightHeader = await _authorityRunRepository.GetByIdAsync(scope, rightGuid, ct);
+
+        if (leftHeader is null)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.LeftRunNotFound,
+                MissingRunId = leftRunId,
+            };
+        }
+
+        if (rightHeader is null)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
+                MissingRunId = rightRunId,
+            };
+        }
+
+        try
+        {
+            RunComparePinFingerprintGuard.EnsureCreateTimePinFingerprintsMatchOrThrow(leftHeader, rightHeader);
+        }
+        catch (ConflictException)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.PinFingerprintMismatch,
+                RunId = leftGuid,
+            };
+        }
+
+        Task<RunDetailDto?> leftCompareTask =
+            _authorityQuery.GetRunDetailForManifestCompareAsync(scope, leftGuid, ct);
+        Task<RunDetailDto?> rightCompareTask =
+            _authorityQuery.GetRunDetailForManifestCompareAsync(scope, rightGuid, ct);
+        await Task.WhenAll(leftCompareTask, rightCompareTask);
+
+        RunDetailDto? leftCompare = await leftCompareTask;
+        RunDetailDto? rightCompare = await rightCompareTask;
+
+        if (leftCompare?.GoldenManifest is null)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.LeftRunNotFound,
+                MissingRunId = leftRunId,
+            };
+        }
+
+        if (rightCompare?.GoldenManifest is null)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
+                MissingRunId = rightRunId,
+            };
+        }
+
+        try
+        {
+            RunComparePinFingerprintGuard.EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow(
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    leftCompare.GoldenManifest.CommittedArtifactInventory),
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    rightCompare.GoldenManifest.CommittedArtifactInventory));
+        }
+        catch (ConflictException)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch,
+                RunId = leftGuid,
             };
         }
 
@@ -400,8 +503,17 @@ public sealed class CompareRunsApplicationFacade(
         return new VersionManifestCompareLoadResult
         {
             Outcome = ManifestCompareLoadOutcome.Success,
-            Left = left,
-            Right = right,
+            Left = await ProjectCompareManifestAsync(leftDetail.GoldenManifest, leftHeader, ct),
+            Right = await ProjectCompareManifestAsync(rightDetail.GoldenManifest, rightHeader, ct),
+            InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints(
+                leftHeader,
+                rightHeader,
+                leftDetail.GoldenManifest.ManifestHash,
+                rightDetail.GoldenManifest.ManifestHash,
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    leftDetail.GoldenManifest.CommittedArtifactInventory),
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    rightDetail.GoldenManifest.CommittedArtifactInventory)),
         };
     }
 
@@ -470,4 +582,22 @@ public sealed class CompareRunsApplicationFacade(
 
         return (true, null, runGuid);
     }
+
+    private async Task<GoldenManifest> ProjectCompareManifestAsync(
+        ManifestDocument manifest,
+        RunRecord runHeader,
+        CancellationToken ct)
+    {
+        string systemName = runHeader.ScopeProjectId == Guid.Empty
+            ? "Unknown"
+            : runHeader.ScopeProjectId.ToString("D");
+
+        return await _projectionBuilder.BuildAsync(
+            manifest,
+            new AuthorityCommitProjectionInput { SystemName = systemName },
+            ct);
+    }
+
+    private static bool TryParseRunId(string runId, out Guid runGuid) =>
+        Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
 }

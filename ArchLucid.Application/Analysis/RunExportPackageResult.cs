@@ -9,6 +9,12 @@ public sealed class RunExportPackageResult
         init;
     }
 
+    public bool IsConflict
+    {
+        get;
+        init;
+    }
+
     public string? NotFoundReason
     {
         get;
@@ -50,6 +56,18 @@ public sealed class RunExportPackageResult
         return new RunExportPackageResult
         {
             Found = false,
+            IsConflict = false,
+            NotFoundReason = reason,
+            ProblemType = problemType
+        };
+    }
+
+    public static RunExportPackageResult Conflict(string reason, string problemType)
+    {
+        return new RunExportPackageResult
+        {
+            Found = false,
+            IsConflict = true,
             NotFoundReason = reason,
             ProblemType = problemType
         };

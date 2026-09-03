@@ -161,8 +161,15 @@ public sealed partial class ManifestsController
         {
             Left = result.Left!,
             Right = result.Right!,
-            Diff = manifestDiffService.Compare(result.Left!, result.Right!),
+            Diff = BuildVersionCompareDiff(result),
         };
+    }
+
+    private ManifestDiffResult BuildVersionCompareDiff(VersionManifestCompareLoadResult result)
+    {
+        ManifestDiffResult diff = manifestDiffService.Compare(result.Left!, result.Right!);
+        diff.InputFingerprints = result.InputFingerprints;
+        return diff;
     }
 
     private IActionResult? MapVersionManifestCompareOutcome(VersionManifestCompareLoadResult result) =>

@@ -119,10 +119,13 @@ public static class RunComparePinFingerprintGuard
         bool leftEmpty = left is null || left.Length == 0;
         bool rightEmpty = right is null || right.Length == 0;
 
-        if (leftEmpty && rightEmpty)
-            return;
+        if (leftEmpty || rightEmpty)
+        {
+            throw new ConflictException(
+                $"Compare blocked: create-time {label} is required for both runs.");
+        }
 
-        if (leftEmpty || rightEmpty || !left.AsSpan().SequenceEqual(right))
+        if (!left.AsSpan().SequenceEqual(right))
         {
             throw new ConflictException(
                 $"Compare blocked: create-time {label} differs between the selected runs.");
