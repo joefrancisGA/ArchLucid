@@ -1896,6 +1896,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #604: proved null failure-summary schemaVersion gap; re-disproved Application-layer candidate.
 
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — boolean / string-boolean `schemaVersion` rejected — **hit 2026-09-03 (#611):** `{"schemaVersion":true,...}` and `"schemaVersion":"true"` failed after #600–#604 numeric/string coercion fixes while sibling `AzureExtractorPackageZipValidator` already maps boolean tokens to v1; pipeline dead-letter runs showed not dead-lettered; fixed with validator-parity boolean coercion (`IsDeadLettered_returns_true_for_boolean_true_schema_version`, `IsDeadLettered_returns_true_for_string_encoded_boolean_true_schema_version`).
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — PascalCase `FailureClass` property name missed — case-insensitive property lookup already reads `FailureClass`; regression `IsDeadLettered_returns_true_for_PascalCase_failure_class_property_name`.
+
+2026-09-03 seed hunt #611: reseeded dead-letter JSON coercion after #604; proved boolean schemaVersion gap; disproved PascalCase property-name candidate.
+
+- [ ] (candidate) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"true"` / boolean `true` schemaVersion at current version not idempotent upgrade path — validator accepts but upgrader may treat as legacy zero; cheap-disproof before repro.
+- [ ] (candidate) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` — decimal IPv4 literals (`3232235777`) bypass host-literal guard — `TryParse` may not accept; verify before repro.
+
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryReadSchemaVersion` — boolean synonym / string-double `schemaVersion` tokens rejected — **hit 2026-09-03 (#612):** `"on"` / `"off"` and `"1.0"` failed `bool.TryParse` / integer-only string parse while `AzureExtractorPackageZipValidator` already accepts synonym and whole-number-double tokens; in-memory upgrade path rejected manifests the ZIP validator would accept; fixed with validator-parity boolean synonyms and fractional whole-number string coercion (`TryUpgradeManifestJson_accepts_on_synonym_for_current_schema_version`, `TryUpgradeManifestJson_upgrades_off_synonym_for_legacy_zero_schema_version`, `TryUpgradeManifestJson_accepts_string_whole_number_double_schema_version`).
 
