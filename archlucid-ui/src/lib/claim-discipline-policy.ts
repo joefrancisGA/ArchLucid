@@ -19,6 +19,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "architecture-draft-detail",
   "architecture-intelligence",
   "architecture-scorecard",
+  "architecture-sponsor-dashboard",
   "architectures-hub",
   "architectures-new",
   "audit-trail",
