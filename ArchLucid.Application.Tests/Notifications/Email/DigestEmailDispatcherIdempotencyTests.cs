@@ -622,27 +622,35 @@ public sealed class DigestEmailDispatcherIdempotencyTests
             options.Object,
             NullLogger<ExecDigestEmailDispatcher>.Instance);
 
-        bool sent = await sut.TryDispatchAsync(
-            Guid.Parse("40404040-4040-4040-4040-404040404040"),
-            "2026-W16",
-            new ExecDigestComposition(
-                WeekLabel: "W16",
-                ComplianceDriftMarkdown: null,
-                CommittedManifestsInWeek: null,
-                TopManifestRuns: [],
-                FindingsDeltaSummary: null,
-                DashboardUrl: "https://example.test/d",
-                SponsorValueReportUrl: "https://example.test/sponsor",
-                LatestCommittedRunIdHex: null),
-            ["finance@", " "],
-            "https://example.test/unsub",
-            CancellationToken.None);
+Guid tenantId = Guid.Parse("40404040-4040-4040-4040-404040404040");
+const string isoWeek = "2026-W16";
 
-        sent.Should().BeFalse("invalid recipient mailboxes must not trigger digest send or ledger reservation");
-        provider.Verify(
-            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
+bool sent = await sut.TryDispatchAsync(
+    tenantId,
+    isoWeek,
+    new ExecDigestComposition(
+        WeekLabel: "W16",
+        ComplianceDriftMarkdown: null,
+        CommittedManifestsInWeek: null,
+        TopManifestRuns: [],
+        FindingsDeltaSummary: null,
+        DashboardUrl: "https://example.test/d",
+        SponsorValueReportUrl: "https://example.test/sponsor",
+        LatestCommittedRunIdHex: null),
+    ["finance@", " "],
+    "https://example.test/unsub",
+    CancellationToken.None);
+
+sent.Should().BeFalse("invalid recipient mailboxes must not trigger digest send");
+bool recordedInvalid = await ledger.IsRecordedAsync(
+    tenantId,
+    $"exec-digest:{tenantId:N}:{isoWeek}:finance@",
+    CancellationToken.None);
+recordedInvalid.Should().BeFalse("invalid recipient mailboxes must not reserve the exec digest ledger");
+
+provider.Verify(
+    p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+    Times.Never);
 
     [Fact]
     public async Task ExecDigestEmailDispatcher_delivers_only_to_valid_recipients_when_list_is_mixed()
