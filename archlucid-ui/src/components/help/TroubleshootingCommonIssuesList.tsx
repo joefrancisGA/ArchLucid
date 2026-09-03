@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,10 @@ import {
   groupTroubleshootingIssuesByKind,
 } from "@/lib/troubleshooting-common-issues-triage";
 import { resolveTroubleshootingIssueKindStatus } from "@/lib/troubleshooting-issue-kind-status";
+import {
+  helpTroubleshootingSearchHrefFromSearch,
+  parseHelpTroubleshootingSearchQuery,
+} from "@/lib/help/help-troubleshooting-search-url";
 import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -80,7 +85,29 @@ function TroubleshootingIssueCard(props: { readonly issue: TroubleshootingIssue 
 
 /** Filterable, owner-grouped Common issues list for `/help/troubleshooting`. */
 export function TroubleshootingCommonIssuesList(): React.ReactElement {
-  const [query, setQuery] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlQuery = parseHelpTroubleshootingSearchQuery(searchParams.get("q"));
+  const [query, setQuery] = useState(urlQuery);
+
+  useEffect(() => {
+    setQuery(urlQuery);
+  }, [urlQuery]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = helpTroubleshootingSearchHrefFromSearch(searchParams.toString(), query);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [query, router, searchParams]);
 
   const filtered = useMemo(
     () => filterTroubleshootingIssues(TROUBLESHOOTING_COMMON_ISSUES, query),

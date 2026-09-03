@@ -39,7 +39,16 @@ public static class GoldenManifestFingerprint
     /// </summary>
     public static string ComputeContentSha256Hex(
         GoldenManifest manifest,
-        GoldenManifestCreateTimePinCommitment? createTimePins)
+        GoldenManifestCreateTimePinCommitment? createTimePins) =>
+        ComputeContentSha256Hex(manifest, createTimePins, committedArtifactInventory: null);
+
+    /// <summary>
+    ///     Wave-14 suggestion 134: optional committed artifact inventory rows bound into Hasher B.
+    /// </summary>
+    public static string ComputeContentSha256Hex(
+        GoldenManifest manifest,
+        GoldenManifestCreateTimePinCommitment? createTimePins,
+        IReadOnlyList<CommittedArtifactInventoryFingerprintRow>? committedArtifactInventory)
     {
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
@@ -123,7 +132,20 @@ public static class GoldenManifestFingerprint
             createTimeArchitectureVersionContentHashSha256 = createTimePins?.ArchitectureVersionContentHashSha256Hex,
             createTimeKnowledgeModelContentHashSha256 = createTimePins?.KnowledgeModelContentHashSha256Hex,
             createTimeFocusedPilotModeEnabled = createTimePins?.FocusedPilotModeEnabled,
-            createTimeFocusedPilotCloudProvider = createTimePins?.FocusedPilotCloudProvider
+            createTimeFocusedPilotCloudProvider = createTimePins?.FocusedPilotCloudProvider,
+            committedArtifactInventory = committedArtifactInventory is null
+                ? null
+                : committedArtifactInventory
+                    .OrderBy(row => row.ArtifactName, StringComparer.Ordinal)
+                    .Select(row => new
+                    {
+                        row.ArtifactName,
+                        row.ContentType,
+                        row.ContentHashSha256,
+                        row.Producer,
+                        row.CapturedUtc,
+                    })
+                    .ToArray(),
         };
 
         byte[] utf8 = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(canonical, ContractJson.Default));

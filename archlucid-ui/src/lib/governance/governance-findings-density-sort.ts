@@ -19,6 +19,28 @@ function stableRowId(row: GovernanceFindingQueueRow): string {
   return `${row.runId}:${row.findingId}`;
 }
 
+/** Matches server DemotionThreshold default — advisory only; typed engines are never auto-hidden. */
+export const INSIGHT_DENSITY_GENERIC_THRESHOLD = 50;
+
+export function isLowInsightDensityScore(score: number | null | undefined): boolean {
+  if (score === null || score === undefined || !Number.isFinite(score)) {
+    return false;
+  }
+
+  return score < INSIGHT_DENSITY_GENERIC_THRESHOLD;
+}
+
+export function filterGovernanceFindingsHideGenericRows(
+  rows: readonly GovernanceFindingQueueRow[],
+  hideGeneric: boolean,
+): GovernanceFindingQueueRow[] {
+  if (!hideGeneric) {
+    return [...rows];
+  }
+
+  return rows.filter((row) => !isLowInsightDensityScore(row.insightDensityScore));
+}
+
 /** Working-mode default: highest signal first without dropping rows (density score when present). */
 export function sortGovernanceFindingsRowsBySignal(
   rows: readonly GovernanceFindingQueueRow[],

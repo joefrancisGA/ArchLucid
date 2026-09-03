@@ -53,6 +53,27 @@ public sealed class DecisionReceiptDocument
         set;
     } = new();
 
+    /// <summary>Wave-13 suggestion 123: SHA-256 over canonical committed manifest hash at receipt time.</summary>
+    public string? ManifestHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Committed golden manifest contract version bound into the receipt.</summary>
+    public string? ManifestVersion
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-15 suggestion 150: canonical SHA-256 over exportable receipt fields.</summary>
+    public string? ReceiptHashSha256
+    {
+        get;
+        set;
+    }
+
     public DecisionReceiptCostStory CostStory
     {
         get;

@@ -1,8 +1,5 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 
 using Json.Schema;
@@ -27,19 +24,10 @@ public sealed class SchemaValidationService : ISchemaValidationService
     private static readonly Histogram<double> SValidationDurationMs =
         SMeter.CreateHistogram<double>("schema_validation_duration_ms", "ms", "Schema validation duration.");
 
-    private readonly Lazy<JsonSchema> _agentResultSchema;
-    private readonly Lazy<JsonSchema> _comparisonExplanationSchema;
-    private readonly Lazy<JsonSchema> _explanationRunSchema;
-    private readonly Lazy<JsonSchema> _goldenManifestSchema;
-
+    private readonly SchemaValidationCache _cache;
     private readonly ILogger<SchemaValidationService> _logger;
     private readonly SchemaValidationOptions _options;
-
-    /// <summary>
-    ///     Optional LRU-style result cache keyed by SHA-256(json).
-    ///     Cleared when it reaches <see cref="SchemaValidationOptions.ResultCacheMaxSize" /> to bound memory.
-    /// </summary>
-    private readonly ConcurrentDictionary<string, SchemaValidationResult>? _resultCache;
+    private readonly SchemaValidationRegistry _registry;
 
     public SchemaValidationService(
         ILogger<SchemaValidationService> logger,
@@ -47,94 +35,42 @@ public sealed class SchemaValidationService : ISchemaValidationService
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-
-        _agentResultSchema = new Lazy<JsonSchema>(() =>
-            LoadSchema(_options.AgentResultSchemaPath, "AgentResult"));
-        _goldenManifestSchema = new Lazy<JsonSchema>(() =>
-            LoadSchema(_options.GoldenManifestSchemaPath, "GoldenManifest"));
-        _explanationRunSchema = new Lazy<JsonSchema>(() =>
-            LoadSchema(_options.ExplanationRunSchemaPath, "ExplanationRun"));
-        _comparisonExplanationSchema = new Lazy<JsonSchema>(() =>
-            LoadSchema(_options.ComparisonExplanationSchemaPath, "ComparisonExplanation"));
-
-        if (_options.EnableResultCaching)
-
-            _resultCache = new ConcurrentDictionary<string, SchemaValidationResult>(StringComparer.Ordinal);
+        _registry = new SchemaValidationRegistry(_logger, _options);
+        _cache = new SchemaValidationCache(_options);
     }
 
     public SchemaValidationResult ValidateAgentResultJson(string json)
     {
-        return Validate(json, _agentResultSchema.Value, "AgentResult");
+        return Validate(json, _registry.AgentResultSchema, "AgentResult");
     }
 
     public SchemaValidationResult ValidateGoldenManifestJson(string json)
     {
-        return Validate(json, _goldenManifestSchema.Value, "GoldenManifest");
+        return Validate(json, _registry.GoldenManifestSchema, "GoldenManifest");
     }
 
     public SchemaValidationResult ValidateExplanationRunJson(string json)
     {
-        return Validate(json, _explanationRunSchema.Value, "ExplanationRun");
+        return Validate(json, _registry.ExplanationRunSchema, "ExplanationRun");
     }
 
     public SchemaValidationResult ValidateComparisonExplanationJson(string json)
     {
-        return Validate(json, _comparisonExplanationSchema.Value, "ComparisonExplanation");
+        return Validate(json, _registry.ComparisonExplanationSchema, "ComparisonExplanation");
     }
 
     public Task<SchemaValidationResult> ValidateAgentResultJsonAsync(
         string json,
         CancellationToken cancellationToken = default)
     {
-        return ValidateAsync(json, _agentResultSchema.Value, "AgentResult", cancellationToken);
+        return ValidateAsync(json, _registry.AgentResultSchema, "AgentResult", cancellationToken);
     }
 
     public Task<SchemaValidationResult> ValidateGoldenManifestJsonAsync(
         string json,
         CancellationToken cancellationToken = default)
     {
-        return ValidateAsync(json, _goldenManifestSchema.Value, "GoldenManifest", cancellationToken);
-    }
-
-    private JsonSchema LoadSchema(string relativePath, string schemaName)
-    {
-        try
-        {
-            string fullPath = Path.Combine(AppContext.BaseDirectory, relativePath);
-
-            if (!File.Exists(fullPath))
-            {
-
-                if (_logger.IsEnabled(LogLevel.Error))
-
-                    _logger.LogError("Schema file not found: {FullPath} for {SchemaName}", fullPath, schemaName);
-
-                throw new FileNotFoundException($"Schema file not found: {fullPath}", fullPath);
-            }
-
-            if (_logger.IsEnabled(LogLevel.Information))
-
-                _logger.LogInformation("Loading schema {SchemaName} from {FullPath}", schemaName, fullPath);
-
-            string schemaText = File.ReadAllText(fullPath);
-            JsonSchema schema = JsonSchema.FromText(schemaText);
-
-            if (_logger.IsEnabled(LogLevel.Information))
-
-                _logger.LogInformation("Successfully loaded schema {SchemaName}", schemaName);
-
-            return schema;
-        }
-        catch (Exception ex) when (ex is not FileNotFoundException)
-        {
-
-            if (_logger.IsEnabled(LogLevel.Error))
-
-                _logger.LogError(ex, "Failed to load or parse schema {SchemaName} from {RelativePath}", schemaName,
-                    relativePath);
-
-            throw;
-        }
+        return ValidateAsync(json, _registry.GoldenManifestSchema, "GoldenManifest", cancellationToken);
     }
 
     private SchemaValidationResult Validate(
@@ -142,16 +78,14 @@ public sealed class SchemaValidationService : ISchemaValidationService
         JsonSchema schema,
         string objectName)
     {
-        if (_resultCache is null)
+        if (!_cache.IsEnabled)
             return ValidateCore(json, schema, objectName);
 
-        string cacheKey = ComputeHash(objectName, json);
-
-        if (_resultCache.TryGetValue(cacheKey, out SchemaValidationResult? cached))
+        if (_cache.TryGet(objectName, json, out SchemaValidationResult? cached))
             return cached;
 
         SchemaValidationResult fresh = ValidateCore(json, schema, objectName);
-        AddToCache(cacheKey, fresh);
+        _cache.Add(objectName, json, fresh);
         return fresh;
     }
 
@@ -225,25 +159,6 @@ public sealed class SchemaValidationService : ISchemaValidationService
         }
     }
 
-    private void AddToCache(string key, SchemaValidationResult result)
-    {
-        if (_resultCache is null)
-            return;
-
-        if (_resultCache.Count >= _options.ResultCacheMaxSize)
-
-            _resultCache.Clear();
-
-        _resultCache.TryAdd(key, result);
-    }
-
-    /// <summary>Computes a SHA-256 hash over schemaName + json to use as a cache key.</summary>
-    private static string ComputeHash(string schemaName, string json)
-    {
-        byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(schemaName + "|" + json));
-        return Convert.ToHexString(bytes);
-    }
-
     private static void EmitMetrics(string objectName, bool valid, double elapsedMs)
     {
         TagList tags = new() { { "schema", objectName }, { "outcome", valid ? "valid" : "invalid" } };
@@ -298,4 +213,3 @@ public sealed class SchemaValidationService : ISchemaValidationService
             CollectErrors(detail, result, objectName);
     }
 }
-

@@ -102,6 +102,9 @@ public static partial class AuditEventTypes
 
         /// <summary>Incremental re-review completed after selective agent re-execute.</summary>
         public const string IncrementalReReviewCompleted = "Run.IncrementalReReviewCompleted";
+
+        /// <summary>Wave-13 suggestion 128: append-only authority lifecycle phase transition.</summary>
+        public const string LifecycleTransition = "Run.LifecycleTransition";
     }
 
     /// <summary>Unified long-running operation lifecycle events (TB-2074 / TB-2076).</summary>

@@ -152,6 +152,51 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
         result.ErrorDetail.Should().Contain("valid JSON");
     }
 
+    [Fact]
+    public void Validate_zip_slip_entry_path_is_invalid_archive()
+    {
+        byte[] zipBytes = BuildZipWithZipSlipEntry();
+
+        using MemoryStream stream = new(zipBytes);
+
+        CloudInventoryExtractorZipValidationResult result = CloudInventoryExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsInvalidArchive.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("Unsafe ZIP entry path");
+    }
+
+    private static byte[] BuildZipWithZipSlipEntry()
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry slip = zip.CreateEntry("../manifest.json");
+
+            using (StreamWriter writer = new(slip.Open()))
+            {
+                writer.Write("""{"schemaVersion":1,"cloudProvider":"Aws","accountId":"123456789012"}""");
+            }
+
+            ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
+
+            using (StreamWriter writer = new(manifest.Open()))
+            {
+                writer.Write("""{"schemaVersion":1,"cloudProvider":"Aws","accountId":"123456789012"}""");
+            }
+
+            ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+            using (StreamWriter writer = new(resources.Open()))
+            {
+                writer.Write("[]");
+            }
+        }
+
+        return ms.ToArray();
+    }
+
     private static byte[] BuildZip(
         bool includeManifest,
         int schemaVersion,
