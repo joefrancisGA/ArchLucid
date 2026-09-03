@@ -5,6 +5,7 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -129,7 +130,12 @@ public sealed class ManifestsControllerTests
         Mock<IRunRepository> runs = new();
         runs
             .Setup(r => r.GetByIdAsync(CallerScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunRecord { RunId = runId });
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunRecord
+            {
+                RunId = runId,
+                GoldenManifestId = Guid.NewGuid(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed)
+            });
 
         Mock<ITenantRepository> tenants = new();
         tenants
