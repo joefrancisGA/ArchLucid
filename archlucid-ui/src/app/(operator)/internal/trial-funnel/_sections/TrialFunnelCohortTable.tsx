@@ -2,10 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import type { Dispatch, ReactElement, SetStateAction } from "react";
+import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -16,6 +18,8 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { trialFunnelStageHrefFromSearch } from "@/lib/internal/trial-funnel-filter-url";
 import { TRIAL_FUNNEL_CONVERSION_NOTE } from "@/lib/trial-funnel-metric-contract";
 import type { TrialFunnelCohortRow, TrialFunnelOperationalSummary, TrialFunnelPeriodDays } from "@/lib/trial-funnel-ops";
 
@@ -37,9 +41,11 @@ type Props = {
   readonly data: TrialFunnelOperationalSummary | null;
   readonly loadState: LoadState;
   readonly periodDays: TrialFunnelPeriodDays;
+  readonly currentSearch: string;
+  readonly pathname: string;
   readonly filteredCohortRows: TrialFunnelCohortRow[];
   readonly stageFilter: string;
-  readonly setStageFilter: Dispatch<SetStateAction<string>>;
+  readonly setStageFilter: (stage: string) => void;
   readonly attentionOnly: boolean;
   readonly setAttentionOnly: Dispatch<SetStateAction<boolean>>;
   readonly sortKey: CohortSortKey;
@@ -51,9 +57,11 @@ type Props = {
 export function TrialFunnelCohortTable(props: Props): ReactElement {
   const {
     attentionOnly,
+    currentSearch,
     data,
     filteredCohortRows,
     loadState,
+    pathname,
     periodDays,
     setAttentionOnly,
     setSortAsc,
@@ -71,23 +79,35 @@ export function TrialFunnelCohortTable(props: Props): ReactElement {
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Trial cohort</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-3">
-            <label className={cn("inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
-              <span>Stage</span>
-              <select
-                className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-950"
-                value={stageFilter}
-                onChange={(event) => setStageFilter(event.target.value)}
-                aria-label="Filter by stage"
+          <div className="space-y-2">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Stage</p>
+            <FilterChipGroup aria-label="Filter trial cohort by stage" className="flex flex-wrap gap-2">
+              <FilterChip
+                href={trialFunnelStageHrefFromSearch(currentSearch, "all", pathname)}
+                scroll={false}
+                className={buyerFilterChipClass(stageFilter === "all", false)}
+                aria-current={stageFilter === "all" ? "page" : undefined}
+                data-testid="trial-funnel-stage-all"
+                onClick={() => setStageFilter("all")}
               >
-                <option value="all">All stages</option>
-                {(data?.stages ?? []).map((stage) => (
-                  <option key={stage.stageId} value={stage.stageId}>
-                    {stage.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                All stages
+              </FilterChip>
+              {(data?.stages ?? []).map((stage) => (
+                <FilterChip
+                  key={stage.stageId}
+                  href={trialFunnelStageHrefFromSearch(currentSearch, stage.stageId, pathname)}
+                  scroll={false}
+                  className={buyerFilterChipClass(stageFilter === stage.stageId, false)}
+                  aria-current={stageFilter === stage.stageId ? "page" : undefined}
+                  data-testid={`trial-funnel-stage-${stage.stageId}`}
+                  onClick={() => setStageFilter(stage.stageId)}
+                >
+                  {stage.label}
+                </FilterChip>
+              ))}
+            </FilterChipGroup>
+          </div>
+          <div className="flex flex-wrap gap-3">
             <label className={cn("inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
               <input type="checkbox" checked={attentionOnly} onChange={(event) => setAttentionOnly(event.target.checked)} />
               Needs attention only

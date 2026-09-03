@@ -37,6 +37,8 @@ import {
   parsePatternLibraryRiskFromSearch,
   parsePatternLibraryAdoptionFromSearch,
   parsePatternLibraryTimeRangeFromSearch,
+  parsePatternLibraryGovernanceFromSearch,
+  parsePatternLibraryDataSourceFromSearch,
   patternLibraryClearSearchHrefFromSearch,
   patternLibrarySearchHrefFromSearch,
 } from "@/lib/insights/pattern-library-filters-url";
@@ -83,6 +85,8 @@ export function PatternLibraryPageClient(): React.JSX.Element {
   const urlRisk = parsePatternLibraryRiskFromSearch(searchParams.get("risk"));
   const urlAdoption = parsePatternLibraryAdoptionFromSearch(searchParams.get("adoption"));
   const urlTimeRange = parsePatternLibraryTimeRangeFromSearch(searchParams.get("time"));
+  const urlGovernance = parsePatternLibraryGovernanceFromSearch(searchParams.get("governance"));
+  const urlDataSource = parsePatternLibraryDataSourceFromSearch(searchParams.get("source"));
 
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<PatternLibraryFiltersState>(() => ({
@@ -94,6 +98,8 @@ export function PatternLibraryPageClient(): React.JSX.Element {
     risk: urlRisk,
     adoption: urlAdoption,
     timeRange: urlTimeRange,
+    governance: urlGovernance,
+    dataSource: urlDataSource,
   }));
   const [searchQuery, setSearchQuery] = useState(urlQuery);
 
@@ -107,9 +113,11 @@ export function PatternLibraryPageClient(): React.JSX.Element {
       risk: urlRisk,
       adoption: urlAdoption,
       timeRange: urlTimeRange,
+      governance: urlGovernance,
+      dataSource: urlDataSource,
     }));
     setSearchQuery(urlQuery);
-  }, [urlAdoption, urlDomain, urlPatternType, urlPlatform, urlQuery, urlRisk, urlTimeRange]);
+  }, [urlAdoption, urlDataSource, urlDomain, urlGovernance, urlPatternType, urlPlatform, urlQuery, urlRisk, urlTimeRange]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
