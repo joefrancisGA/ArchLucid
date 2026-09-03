@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { DEFAULT_AI_USAGE_DASHBOARD_FILTERS } from "@/lib/ai-usage-dashboard-filters";
 import { buildAiUsageDashboardDerived } from "@/lib/ai-usage-dashboard-model";
-import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy";
+import { AI_USAGE_HELP_TOPIC_LABEL, AI_USAGE_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/ai-usage-settings-evidence-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { resolveNavLinkForPathname } from "@/lib/resolve-nav-link-for-pathname";
@@ -13,6 +13,15 @@ import { AI_USAGE_BILLING_ESTIMATES_HONESTY } from "@/lib/vocabulary/ai-usage-bi
 
 import { CostReportingSettingsPageView } from "./CostReportingSettingsPageView";
 import type { CostReportingSettingsPageViewModel } from "./cost-reporting-settings-page-view-model";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
@@ -199,13 +208,16 @@ describe("CostReportingSettingsPageView (TB-1216–1219)", () => {
     expect(screen.queryByRole("heading", { level: 1, name: /AI usage and cost/i })).not.toBeInTheDocument();
   });
 
-  it("exposes PageHeading icon and contextual help (TB-1218)", () => {
+  it("exposes PageHeading icon, contextual help, and header claim discipline (TB-1218)", () => {
     render(<CostReportingSettingsPageView model={buildQuietEmptyModel()} />);
 
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("ai-usage-settings-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("ai-usage-settings-claim-discipline")).toHaveTextContent(
+      AI_USAGE_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(pageHelpTopicForPathname(AI_USAGE_SETTINGS_PATH)?.label).toBe(AI_USAGE_HELP_TOPIC_LABEL);
+    expect(screen.getByTestId("ai-usage-settings-orientation-bottom")).toBeInTheDocument();
   });
 
   it("keeps a single primary edit-budget affordance and distinct budget destinations (TB-1219)", () => {
