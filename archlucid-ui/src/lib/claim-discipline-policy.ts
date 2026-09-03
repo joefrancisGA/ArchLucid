@@ -30,6 +30,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "baseline-settings",
   "cloud-connections",
   "cloud-connections-gcp",
+  "connect-aws-securely-help",
   "comparison-replay-help",
   "compliance-journey",
   "connection-status",

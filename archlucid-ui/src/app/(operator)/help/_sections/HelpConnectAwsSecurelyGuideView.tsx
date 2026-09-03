@@ -45,10 +45,15 @@ import {
   CONNECT_AWS_SECURELY_WRITE_ACCESS_NOTE,
   buildConnectAwsSecurelyVerifyHref,
 } from "@/lib/connect-aws-securely-help-content";
-import { CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE } from "@/lib/connect-aws-securely-help-evidence-copy";
 import {
+  CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
+  CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE,
+} from "@/lib/connect-aws-securely-help-evidence-copy";
+import {
+  CONNECT_AWS_SECURELY_HELP_FIRST_VIEWPORT_TEST_ID,
   CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID,
   CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL,
+  CONNECT_AWS_SECURELY_HELP_SKIP_TARGET_ID,
 } from "@/lib/connect-aws-securely-help-page-copy";
 import {
   DESIGN_TOKENS,
@@ -110,7 +115,10 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-connect-aws-securely-guide"
     >
-      <a href="#security-model" className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+      <a
+        href={`#${CONNECT_AWS_SECURELY_HELP_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
         {CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL}
       </a>
 
@@ -119,7 +127,9 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
       <OperatorPageHeader
         title={entry.title}
         titleTestId="help-connect-aws-securely-page-title"
-        subtitle={`${CONNECT_AWS_SECURELY_PAGE_LEAD} ${CONNECT_AWS_SECURELY_WITHOUT_CONNECTION_NOTE}`}
+        subtitle={CONNECT_AWS_SECURELY_PAGE_LEAD}
+        claimDiscipline={CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="connect-aws-securely-help-header-claim-discipline"
         headingLevel="h1"
         navHref="/help/cloud-connections/aws"
         metadata={
@@ -141,77 +151,85 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
 
       <div
         id={CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID}
-        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
         data-testid="help-connect-aws-securely-primary-content"
       >
-        <div className={HELP_PAGE_LAYOUT.contentGrid}>
-          <div className="min-w-0 space-y-4" data-testid="help-connect-aws-securely-primary">
-            <section aria-labelledby="security-model" className="space-y-3">
-              <HelpSectionHeading id="security-model">{CONNECT_AWS_SECURELY_SECURITY_HEADING}</HelpSectionHeading>
-              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {CONNECT_AWS_SECURELY_OPTIONAL_ZIP_NOTE}
-              </p>
-              <div
-                className="space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700"
-                data-testid="connect-aws-securely-security-panel"
-              >
-                <ul className="m-0 list-none space-y-3 p-0">
-                  {CONNECT_AWS_SECURELY_SECURITY_ITEMS.map((item) => (
-                    <li key={item.id}>
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                        {item.title}
-                      </p>
-                      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.detail}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-
-            <section
-              aria-labelledby="setup-aws-connection"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-              data-testid="connect-aws-securely-setup-section"
+        <div
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid={CONNECT_AWS_SECURELY_HELP_FIRST_VIEWPORT_TEST_ID}
+        >
+          <section aria-labelledby="security-model" className="space-y-3">
+            <HelpSectionHeading id="security-model">{CONNECT_AWS_SECURELY_SECURITY_HEADING}</HelpSectionHeading>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {CONNECT_AWS_SECURELY_OPTIONAL_ZIP_NOTE}
+            </p>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {CONNECT_AWS_SECURELY_WITHOUT_CONNECTION_NOTE}
+            </p>
+            <div
+              className="space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700"
+              data-testid="connect-aws-securely-security-panel"
             >
-              <HelpSectionHeading id="setup-aws-connection">{CONNECT_AWS_SECURELY_SETUP_HEADING}</HelpSectionHeading>
-              <ol className={cn("m-0 list-decimal space-y-2 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {CONNECT_AWS_SECURELY_SETUP_STEPS.map((step) => (
-                  <li key={step.id}>
-                    {step.id === "open-cloud-connections" ? (
-                      <>
-                        Open{" "}
-                        <Link href={CONNECT_AWS_SECURELY_CONFIGURE_HREF} className={OPERATOR_LINK.nav}>
-                          {CONNECT_AWS_SECURELY_STEP_AWS_CONNECTION_SETTINGS_LINK}
-                        </Link>{" "}
-                        and begin an AWS connection.
-                      </>
-                    ) : step.id === "configure-trust" ? (
-                      <>
-                        Create a read-only IAM role with an OIDC trust policy for ArchLucid&apos;s federated identity.{" "}
-                        <a href="#connect-aws-securely-federation-panel" className={OPERATOR_LINK.nav}>
-                          {CONNECT_AWS_SECURELY_DETAILED_SETUP_LINK}
-                        </a>
-                      </>
-                    ) : step.id === "verify" ? (
-                      <>
-                        Save the connection, then{" "}
-                        <Link href={verifyHref} className={OPERATOR_LINK.nav}>
-                          run Re-poll now
-                        </Link>{" "}
-                        to confirm federated assume-role and inventory access.
-                      </>
-                    ) : (
-                      step.text
-                    )}
+              <ul className="m-0 list-none space-y-3 p-0">
+                {CONNECT_AWS_SECURELY_SECURITY_ITEMS.map((item) => (
+                  <li key={item.id}>
+                    <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                      {item.title}
+                    </p>
+                    <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.detail}</p>
                   </li>
                 ))}
-              </ol>
-              <HelpConnectAwsSecurelyTrustPolicyPanel />
-            </section>
+              </ul>
+            </div>
+          </section>
 
+          <section
+            aria-labelledby="setup-aws-connection"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            data-testid="connect-aws-securely-setup-section"
+          >
+            <HelpSectionHeading id="setup-aws-connection">{CONNECT_AWS_SECURELY_SETUP_HEADING}</HelpSectionHeading>
+            <ol className={cn("m-0 list-decimal space-y-2 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {CONNECT_AWS_SECURELY_SETUP_STEPS.map((step) => (
+                <li key={step.id}>
+                  {step.id === "open-cloud-connections" ? (
+                    <>
+                      Open{" "}
+                      <Link href={CONNECT_AWS_SECURELY_CONFIGURE_HREF} className={OPERATOR_LINK.nav}>
+                        {CONNECT_AWS_SECURELY_STEP_AWS_CONNECTION_SETTINGS_LINK}
+                      </Link>{" "}
+                      and begin an AWS connection.
+                    </>
+                  ) : step.id === "configure-trust" ? (
+                    <>
+                      Create a read-only IAM role with an OIDC trust policy for ArchLucid&apos;s federated identity.{" "}
+                      <a href="#connect-aws-securely-federation-panel" className={OPERATOR_LINK.nav}>
+                        {CONNECT_AWS_SECURELY_DETAILED_SETUP_LINK}
+                      </a>
+                    </>
+                  ) : step.id === "verify" ? (
+                    <>
+                      Save the connection, then{" "}
+                      <Link href={verifyHref} className={OPERATOR_LINK.nav}>
+                        run Re-poll now
+                      </Link>{" "}
+                      to confirm federated assume-role and inventory access.
+                    </>
+                  ) : (
+                    step.text
+                  )}
+                </li>
+              ))}
+            </ol>
+            <HelpConnectAwsSecurelyTrustPolicyPanel />
+          </section>
+        </div>
+
+        <div className={HELP_PAGE_LAYOUT.contentGrid}>
+          <div className="min-w-0 space-y-4" data-testid="help-connect-aws-securely-primary">
             <section
               aria-labelledby="aws-permissions"
-              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              className="space-y-3"
               data-testid="connect-aws-securely-permissions-section"
             >
               <HelpSectionHeading id="aws-permissions">{CONNECT_AWS_SECURELY_PERMISSIONS_HEADING}</HelpSectionHeading>
@@ -330,11 +348,11 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
                 ))}
               </ul>
             </section>
-
-            <ConnectAwsSecurelyHelpEvidenceOrientationStrip />
           </div>
           <HelpTopicTableOfContents headings={CONNECT_AWS_SECURELY_TOC_HEADINGS} enableScrollSpy />
         </div>
+
+        <ConnectAwsSecurelyHelpEvidenceOrientationStrip />
       </div>
     </article>
   );
