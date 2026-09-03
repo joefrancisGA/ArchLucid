@@ -17,33 +17,17 @@ const COLUMN_BY_KEY: Record<string, ReviewWorkbenchColumnId> = {
   "3": "evidence",
 };
 
-/** Workbench verbs: Alt+1–3 focus columns; Ctrl+Shift+S save draft when provided. */
 export function useReviewWorkbenchShortcuts(options: UseReviewWorkbenchShortcutsOptions): void {
-  const shortcuts = options.enabled
-    ? {
-        "alt+1": {
-          handler: () => options.onFocusColumn("architecture"),
-          description: "Focus architecture column",
-        },
-        "alt+2": {
-          handler: () => options.onFocusColumn("findings"),
-          description: "Focus findings column",
-        },
-        "alt+3": {
-          handler: () => options.onFocusColumn("evidence"),
-          description: "Focus evidence column",
-        },
-        ...(options.onSaveDraft !== undefined
-          ? {
-              "ctrl+shift+s": {
-                handler: options.onSaveDraft,
-                description: "Save architecture draft",
-                allowInInput: true,
-              },
-            }
-          : {}),
-      }
-    : {};
+  const shortcuts =
+    options.enabled && options.onSaveDraft !== undefined
+      ? {
+          "ctrl+shift+s": {
+            handler: options.onSaveDraft,
+            description: "Save architecture draft",
+            allowInInput: true,
+          },
+        }
+      : {};
 
   useKeyboardShortcuts(shortcuts);
 
