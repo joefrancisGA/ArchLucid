@@ -5,20 +5,12 @@ import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/
 
 const sampleRows: NavGroupWithVisibleLinks[] = [
   {
-    id: "outcomes",
-    label: "Outcomes",
+    id: "analysis",
+    label: "Analysis",
     visibleLinks: [
-      { href: "/value-report/pilot", label: "Pilot value" },
+      { href: "/insights/sponsor-report", label: "Outcomes" },
+      { href: "/insights/roi-summary", label: "ROI summary" },
       { href: "/insights/architecture-scorecard", label: "Scorecard" },
-      { href: "/value-report/roi", label: "ROI" },
-    ],
-  },
-  {
-    id: "governance",
-    label: "Governance",
-    visibleLinks: [
-      { href: "/governance/dashboard", label: "Dashboard" },
-      { href: "/governance/needs-attention", label: "Needs attention" },
     ],
   },
 ];
@@ -28,8 +20,6 @@ describe("filterNavGroupsForWorkingProfessionalMode", () => {
     const filtered = filterNavGroupsForWorkingProfessionalMode(sampleRows);
 
     expect(filtered).toHaveLength(1);
-    expect(filtered[0]?.visibleLinks.map((link) => link.href)).toEqual([
-      "/governance/needs-attention",
-    ]);
+    expect(filtered[0]?.visibleLinks.map((link) => link.href)).toEqual(["/insights/sponsor-report"]);
   });
 });
