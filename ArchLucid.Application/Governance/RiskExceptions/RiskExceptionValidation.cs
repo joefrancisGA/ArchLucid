@@ -9,6 +9,10 @@ public static class RiskExceptionValidation
 
     public const int MaxDurationDays = 365;
 
+    public const int OwnerUserIdMaxLength = 256;
+
+    public const int EvidenceRefMaxLength = 500;
+
     public static void Validate(CreateRiskExceptionRequest request, DateTimeOffset nowUtc)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -19,11 +23,29 @@ public static class RiskExceptionValidation
         if (string.IsNullOrWhiteSpace(request.OwnerUserId))
             throw new ArgumentException("Owner user id is required.", nameof(request));
 
+        string ownerUserId = request.OwnerUserId.Trim();
+
+        if (ownerUserId.Length > OwnerUserIdMaxLength)
+        {
+            throw new ArgumentException(
+                $"Owner user id must be at most {OwnerUserIdMaxLength} characters.",
+                nameof(request));
+        }
+
         if (string.IsNullOrWhiteSpace(request.Rationale))
             throw new ArgumentException("Rationale is required.", nameof(request));
 
         if (string.IsNullOrWhiteSpace(request.EvidenceRef))
             throw new ArgumentException("Evidence reference is required.", nameof(request));
+
+        string evidenceRef = request.EvidenceRef.Trim();
+
+        if (evidenceRef.Length > EvidenceRefMaxLength)
+        {
+            throw new ArgumentException(
+                $"Evidence reference must be at most {EvidenceRefMaxLength} characters.",
+                nameof(request));
+        }
 
         if (request.ExpiresAtUtc <= nowUtc)
             throw new ArgumentException("Expiration must be in the future.", nameof(request));
@@ -48,5 +70,17 @@ public static class RiskExceptionValidation
 
         if (request.ExpiresAtUtc > maxExpiry)
             throw new ArgumentException($"Waiver duration cannot exceed {MaxDurationDays} days.", nameof(request));
+
+        if (!string.IsNullOrWhiteSpace(request.EvidenceRef))
+        {
+            string evidenceRef = request.EvidenceRef.Trim();
+
+            if (evidenceRef.Length > EvidenceRefMaxLength)
+            {
+                throw new ArgumentException(
+                    $"Evidence reference must be at most {EvidenceRefMaxLength} characters.",
+                    nameof(request));
+            }
+        }
     }
 }

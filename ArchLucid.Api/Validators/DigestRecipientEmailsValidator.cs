@@ -8,6 +8,9 @@ namespace ArchLucid.Api.Validators;
 /// </summary>
 public static partial class DigestRecipientEmailsValidator
 {
+    /// <summary>Matches <c>dbo.TenantExecDigestPreferences.RecipientEmails</c> / sponsor sibling column.</summary>
+    public const int SerializedRecipientEmailsMaxLength = 2000;
+
     private static readonly Regex UnsupportedGroupMailboxPattern = UnsupportedGroupMailboxRegex();
 
     /// <summary>
@@ -63,6 +66,15 @@ public static partial class DigestRecipientEmailsValidator
             }
 
             normalized.Add(mailbox);
+        }
+
+        string serialized = string.Join(';', normalized);
+
+        if (serialized.Length > SerializedRecipientEmailsMaxLength)
+        {
+            errorMessage =
+                $"Recipient emails exceed maximum serialized length ({SerializedRecipientEmailsMaxLength}).";
+            return false;
         }
 
         normalizedRecipients = normalized;

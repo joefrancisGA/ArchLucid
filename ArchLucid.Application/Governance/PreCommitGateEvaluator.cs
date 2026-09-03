@@ -36,7 +36,7 @@ public static class PreCommitGateEvaluator
             return PreCommitGateResult.Allowed();
 
         IReadOnlyList<Finding> gateFindings = findings
-            .Where(static f => f.EnforcementTier != FindingEnforcementTier.Advisory)
+            .Where(static f => !f.IsMuted && f.EnforcementTier != FindingEnforcementTier.Advisory)
             .ToList();
 
         int effectiveMinSeverity = blockCommitMinimumSeverity ?? (int)FindingSeverity.Critical;

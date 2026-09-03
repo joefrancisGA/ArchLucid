@@ -46,6 +46,30 @@ public sealed class RiskExceptionService(
         DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
         RiskExceptionValidation.Validate(request, now);
 
+        await RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync(
+            _findingReviewTrailRepository,
+            scope.TenantId,
+            request.FindingId.Trim(),
+            cancellationToken);
+
+        IReadOnlyList<RiskExceptionRecord> expired =
+            await _repository.MarkExpiredAsync(scope.TenantId, now, cancellationToken);
+
+        await AuditExpiredAsync(expired, cancellationToken);
+
+        RiskExceptionRecord? existingActive = await _repository.GetActiveForScopeFindingAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            request.FindingId.Trim(),
+            now,
+            cancellationToken);
+
+        if (existingActive is not null)
+        {
+            throw new ConflictException("An active waiver already exists for this finding.");
+        }
+
         RiskExceptionRecord record = new()
         {
             RiskExceptionId = Guid.NewGuid(),
@@ -57,7 +81,7 @@ public sealed class RiskExceptionService(
             ManifestId = request.ManifestId,
             OwnerUserId = request.OwnerUserId.Trim(),
             Rationale = request.Rationale.Trim(),
-            EvidenceRef = request.EvidenceRef,
+            EvidenceRef = request.EvidenceRef!.Trim(),
             ExpiresAtUtc = request.ExpiresAtUtc,
             Status = RiskExceptionStatus.Active,
             CreatedAtUtc = now,
@@ -113,6 +137,19 @@ public sealed class RiskExceptionService(
 
         if (string.IsNullOrWhiteSpace(revokedByUserId))
             throw new ArgumentException("Revoked-by user id is required.", nameof(revokedByUserId));
+
+        RiskExceptionRecord? existing = await _repository.GetByIdAsync(tenantId, riskExceptionId, cancellationToken);
+
+        if (existing is null)
+            throw new InvalidOperationException("Risk exception was not found.");
+
+        if (existing.Status != RiskExceptionStatus.Active)
+        {
+            throw new ConflictException(
+                existing.Status == RiskExceptionStatus.Revoked
+                    ? "Revoked risk exceptions cannot be revoked again."
+                    : "Only active risk exceptions can be revoked.");
+        }
 
         await _repository.RevokeAsync(
             tenantId,
@@ -174,6 +211,29 @@ public sealed class RiskExceptionService(
 
         if (existing is null)
             throw new InvalidOperationException("Risk exception was not found.");
+
+        if (existing.Status == RiskExceptionStatus.Revoked)
+        {
+            throw new ConflictException("Revoked risk exceptions cannot be renewed.");
+        }
+
+        IReadOnlyList<RiskExceptionRecord> expired =
+            await _repository.MarkExpiredAsync(tenantId, now, cancellationToken);
+
+        await AuditExpiredAsync(expired, cancellationToken);
+
+        RiskExceptionRecord? siblingActive = await _repository.GetActiveForScopeFindingAsync(
+            tenantId,
+            existing.WorkspaceId,
+            existing.ProjectId,
+            existing.FindingId,
+            now,
+            cancellationToken);
+
+        if (siblingActive is not null && siblingActive.RiskExceptionId != riskExceptionId)
+        {
+            throw new ConflictException("An active waiver already exists for this finding.");
+        }
 
         await RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync(
             _findingReviewTrailRepository,

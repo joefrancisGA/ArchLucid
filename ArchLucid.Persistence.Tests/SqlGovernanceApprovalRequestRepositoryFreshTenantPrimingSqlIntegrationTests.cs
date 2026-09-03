@@ -168,4 +168,52 @@ public sealed class SqlGovernanceApprovalRequestRepositoryFreshTenantPrimingSqlI
         loaded.Should().NotBeNull();
         loaded!.TenantId.Should().Be(tenantId);
     }
+
+    [SkippableFact]
+    public async Task CreateAsync_persists_environment_slugs_up_to_sixty_four_characters()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        Guid freshTenantId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = freshTenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        GovernanceApprovalRequestRepository repository = new(
+            new GovernanceContractScopeDbConnectionFactory(fixture.ConnectionString),
+            new FixedTestScopeContextProvider(scope));
+
+        string sourceEnvironment = "staging-" + new string('a', 32);
+        string targetEnvironment = "approved-" + new string('b', 31);
+        string approvalId = "apr-long-env-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+
+        GovernanceApprovalRequest approval = new()
+        {
+            ApprovalRequestId = approvalId,
+            RunId = runId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            ManifestVersion = "v1",
+            SourceEnvironment = sourceEnvironment,
+            TargetEnvironment = targetEnvironment,
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "alice",
+            RequestedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await repository.CreateAsync(approval, CancellationToken.None);
+
+        GovernanceApprovalRequest? loaded = await repository.GetByIdAsync(approvalId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.SourceEnvironment.Should().Be(sourceEnvironment);
+        loaded.TargetEnvironment.Should().Be(targetEnvironment);
+        sourceEnvironment.Length.Should().Be(40);
+        targetEnvironment.Length.Should().Be(40);
+    }
 }

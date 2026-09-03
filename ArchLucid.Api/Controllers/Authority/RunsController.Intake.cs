@@ -136,6 +136,8 @@ public sealed partial class RunsController
                 return this.BadRequestProblem("Each item must include QuestionKey.", ProblemTypes.ValidationFailed);
             if (string.IsNullOrWhiteSpace(item.QuestionPrompt) || item.QuestionPrompt.Trim().Length < 10)
                 return this.BadRequestProblem("Each item must include QuestionPrompt with at least 10 characters.", ProblemTypes.ValidationFailed);
+            if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(item.QuestionPrompt))
+                return this.BadRequestProblem($"Each item QuestionPrompt must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.", ProblemTypes.ValidationFailed);
             if (string.IsNullOrWhiteSpace(item.ExtractedAnswer) || item.ExtractedAnswer.Trim().Length < 3)
                 return this.BadRequestProblem("Each item must include ExtractedAnswer with at least 3 characters.", ProblemTypes.ValidationFailed);
             if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(item.ExtractedAnswer))

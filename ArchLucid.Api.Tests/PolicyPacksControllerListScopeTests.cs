@@ -373,6 +373,76 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task PromoteCatalogEntry_returns_bad_request_when_version_exceeds_max_length()
+    {
+        PolicyPacksController sut = CreateSut(
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.PromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                Version = new string('1', PolicyPackRequestValidationRules.PackVersionMaxLength + 1),
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task PromoteCatalogEntry_returns_bad_request_when_version_is_not_semver()
+    {
+        PolicyPacksController sut = CreateSut(
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.PromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                Version = "latest",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task PromoteCatalogEntry_returns_bad_request_when_snapshot_exceeds_catalog_limits()
+    {
+        Guid sourcePackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.PromoteCatalogEntryAsync(
+                It.Is<PolicyPackPromoteCatalogBody>(body => body.SourcePolicyPackId == sourcePackId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackHttpResult<PolicyPackCatalogEntryDetail>
+                {
+                    Outcome = PolicyPackHttpOutcome.ValidationFailed,
+                    Message =
+                        $"Policy pack name must be at most {PolicyPackCatalogEntryLimits.DisplayNameMaxLength} characters for catalog promotion.",
+                });
+
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
+
+        IActionResult result = await sut.PromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = sourcePackId,
+                Version = "1.0.0",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task PromoteCatalogEntry_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
@@ -460,6 +530,38 @@ public sealed class PolicyPacksControllerListScopeTests
         PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
 
         IActionResult result = await sut.GetVersion(Guid.Empty, "1.0.0", CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetVersion_returns_bad_request_when_pack_version_exceeds_max_length()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
+
+        IActionResult result = await sut.GetVersion(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new string('1', PolicyPackRequestValidationRules.PackVersionMaxLength + 1),
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetVersion_returns_bad_request_when_pack_version_is_not_semver()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
+
+        IActionResult result = await sut.GetVersion(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            "latest",
+            CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);

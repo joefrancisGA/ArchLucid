@@ -8,6 +8,14 @@ public interface IRiskExceptionRepository
 
     Task<RiskExceptionRecord?> GetByIdAsync(Guid tenantId, Guid riskExceptionId, CancellationToken cancellationToken = default);
 
+    Task<RiskExceptionRecord?> GetActiveForScopeFindingAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string findingId,
+        DateTimeOffset asOfUtc,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<RiskExceptionRecord>> ListActiveForTenantAsync(
         Guid tenantId,
         Guid? projectId,

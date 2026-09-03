@@ -93,6 +93,14 @@ public sealed partial class PolicyPackHttpFacade
                 Message = ex.Message,
             };
         }
+        catch (ArgumentException ex)
+        {
+            return new PolicyPackHttpResult<PolicyPackCatalogEntryDetail>
+            {
+                Outcome = PolicyPackHttpOutcome.ValidationFailed,
+                Message = ex.Message,
+            };
+        }
     }
 
     /// <inheritdoc />

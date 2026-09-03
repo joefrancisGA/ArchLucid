@@ -33,4 +33,13 @@ public sealed class RelationshipTypeJsonConverterTests
         act.Should().Throw<JsonException>()
             .WithMessage("*Unknown relationship type value*");
     }
+
+    [Fact]
+    public void Read_unknown_relationship_label_throws()
+    {
+        Action act = () => JsonSerializer.Deserialize<RelationshipType>("\"feeds into\"", Options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown relationship type value*");
+    }
 }

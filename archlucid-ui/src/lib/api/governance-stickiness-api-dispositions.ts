@@ -28,6 +28,13 @@ export async function recordFindingDisposition(
   );
 }
 
+/** Default revisit horizon (30 days) when bulk-deferring without an explicit operator date. */
+export function defaultDeferredRevisitDueUtc(): string {
+  const revisitDue = new Date();
+  revisitDue.setUTCDate(revisitDue.getUTCDate() + 30);
+  return revisitDue.toISOString();
+}
+
 export async function recordBulkFindingDisposition(
   body: {
     findingIds: readonly string[];

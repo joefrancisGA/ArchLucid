@@ -10,6 +10,15 @@ public sealed class NoOpRiskExceptionRepository : IRiskExceptionRepository
     public Task<RiskExceptionRecord?> GetByIdAsync(Guid tenantId, Guid riskExceptionId, CancellationToken cancellationToken = default) =>
         Task.FromResult<RiskExceptionRecord?>(null);
 
+    public Task<RiskExceptionRecord?> GetActiveForScopeFindingAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string findingId,
+        DateTimeOffset asOfUtc,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<RiskExceptionRecord?>(null);
+
     public Task<IReadOnlyList<RiskExceptionRecord>> ListActiveForTenantAsync(
         Guid tenantId,
         Guid? projectId,

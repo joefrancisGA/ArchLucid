@@ -72,7 +72,8 @@ public sealed class ExecDigestUnsubscribeControllerTests
 
         ContentResult content = action.Should().BeOfType<ContentResult>().Subject;
         content.ContentType.Should().Be("text/plain; charset=utf-8");
-        content.Content.Should().Contain("turned off");
+        content.Content.Should().Contain("Exec digest");
+        content.Content.Should().NotContain("Sponsor digest");
 
         preferences.Verify(
             r => r.TryDisableEmailAsync(tenantId, It.IsAny<CancellationToken>()),

@@ -21,6 +21,57 @@ namespace ArchLucid.Api.Tests;
 public sealed class DigestSubscriptionsControllerTests
 {
     [Theory]
+    [InlineData("finance-team")]
+    [InlineData("finance@")]
+    public async Task Create_rejects_invalid_email_destination(string destination)
+    {
+        Mock<IDigestSubscriptionRepository> subscriptions = new();
+        DigestSubscriptionsController sut = CreateController(subscriptions.Object);
+
+        IActionResult action = await sut.Create(
+            new DigestSubscription
+            {
+                ChannelType = DigestDeliveryChannelType.Email,
+                Destination = destination,
+            },
+            CancellationToken.None);
+
+        ObjectResult problem = action.Should().BeOfType<ObjectResult>().Subject;
+        problem.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        subscriptions.Verify(
+            repository => repository.CreateAsync(
+                It.IsAny<DigestSubscription>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Create_canonicalizes_email_channel_type_to_contract_constant()
+    {
+        DigestSubscription? captured = null;
+        Mock<IDigestSubscriptionRepository> subscriptions = new();
+        subscriptions
+            .Setup(repository => repository.CreateAsync(It.IsAny<DigestSubscription>(), It.IsAny<CancellationToken>()))
+            .Callback<DigestSubscription, CancellationToken>((subscription, _) => captured = subscription)
+            .Returns(Task.CompletedTask);
+
+        DigestSubscriptionsController sut = CreateController(subscriptions.Object);
+
+        IActionResult action = await sut.Create(
+            new DigestSubscription
+            {
+                ChannelType = "email",
+                Destination = "user@example.com",
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        captured.Should().NotBeNull();
+        captured!.ChannelType.Should().Be(DigestDeliveryChannelType.Email);
+        captured.Destination.Should().Be("user@example.com");
+    }
+
+    [Theory]
     [InlineData("", "user@example.com")]
     [InlineData(DigestDeliveryChannelType.Email, "")]
     [InlineData("   ", "user@example.com")]

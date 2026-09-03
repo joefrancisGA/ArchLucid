@@ -35,7 +35,8 @@ public static class AgentExecutionTraceLatestPerTaskSelector
         if (!string.IsNullOrWhiteSpace(trace.TaskId))
             return trace.TaskId;
 
-        // Missing TaskId must not collapse unrelated agent traces into one retry chain.
-        return trace.TraceId;
+        // Missing TaskId must not collapse unrelated agent traces into one retry chain, but retries for the
+        // same agent type within a run should still prefer the highest AttemptIndex.
+        return FormattableString.Invariant($"agent:{trace.AgentType}");
     }
 }

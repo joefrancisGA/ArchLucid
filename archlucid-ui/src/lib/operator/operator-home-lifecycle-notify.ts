@@ -11,6 +11,15 @@ export function markOperatorHomeRunsSnapshotStale(): void {
   window.sessionStorage.setItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY, "1");
 }
 
+/** Clears lifecycle stale marker on tenant/workspace scope change (parity with other session clears). */
+export function clearOperatorHomeRunsSnapshotStale(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.removeItem(OPERATOR_HOME_RUNS_STALE_STORAGE_KEY);
+}
+
 /** True once after lifecycle writes; cleared when the runs dashboard reloads. */
 export function consumeOperatorHomeRunsSnapshotStale(): boolean {
   if (typeof window === "undefined") {

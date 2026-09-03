@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -157,6 +158,50 @@ public sealed class TenantBaselineControllerTests
                 It.IsAny<decimal?>(),
                 It.IsAny<int?>(),
                 It.IsAny<DateTimeOffset?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_bad_request_when_review_cycle_source_note_exceeds_persisted_max_length()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+            BaselineReviewCycleHours = 40m,
+            BaselineReviewCycleSource = "baseline_settings: old note",
+            BaselineReviewCycleCapturedUtc = DateTimeOffset.Parse("2026-05-01T10:00:00Z")
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        string overLengthNote = new('x', BaselineReviewCycleSourceMarkers.MaxOperatorSettingsNoteLength + 1);
+        TenantBaselinePutRequest body = new() { BaselineReviewCycleSourceNote = overLengthNote };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenants.Verify(
+            r => r.PersistTrialSignupBaselineReviewCycleAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<decimal>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }

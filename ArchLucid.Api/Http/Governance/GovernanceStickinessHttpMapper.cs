@@ -33,7 +33,7 @@ public static class GovernanceStickinessHttpMapper
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (request.RunId == Guid.Empty)
+        if (request.RunId is null || request.RunId == Guid.Empty)
             return new GovernanceHttpValidation("runId is required.", ProblemTypes.ValidationFailed);
 
         if (string.IsNullOrWhiteSpace(request.FindingId))
@@ -74,6 +74,20 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        if (recordedAfterUtc is not null && recordedAfterUtc.Value.Year < 1970)
+        {
+            return new GovernanceHttpValidation(
+                "recordedAfterUtc must be on or after 1970-01-01.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (recordedBeforeUtc is not null && recordedBeforeUtc.Value.Year < 1970)
+        {
+            return new GovernanceHttpValidation(
+                "recordedBeforeUtc must be on or after 1970-01-01.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (minConfidence is not null && maxConfidence is not null && minConfidence > maxConfidence)
         {
             return new GovernanceHttpValidation(
@@ -81,7 +95,32 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        GovernanceHttpValidation? minConfidenceValidation = ValidateConfidenceBound(minConfidence, "minConfidence");
+
+        if (minConfidenceValidation is not null)
+            return minConfidenceValidation;
+
+        GovernanceHttpValidation? maxConfidenceValidation = ValidateConfidenceBound(maxConfidence, "maxConfidence");
+
+        if (maxConfidenceValidation is not null)
+            return maxConfidenceValidation;
+
         return ValidateBuyerConfidenceSource(buyerConfidenceSource);
+    }
+
+    private static GovernanceHttpValidation? ValidateConfidenceBound(double? confidence, string parameterName)
+    {
+        if (confidence is null)
+            return null;
+
+        if (confidence < 0 || confidence > 1)
+        {
+            return new GovernanceHttpValidation(
+                $"{parameterName} must be between 0 and 1.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
     }
 
     public static GovernanceHttpValidation? ValidateBuyerConfidenceSource(string? buyerConfidenceSource)
@@ -89,14 +128,16 @@ public static class GovernanceStickinessHttpMapper
         if (buyerConfidenceSource is null)
             return null;
 
-        if (string.IsNullOrWhiteSpace(buyerConfidenceSource))
+        string normalizedBuyerConfidenceSource = buyerConfidenceSource.Trim();
+
+        if (string.IsNullOrWhiteSpace(normalizedBuyerConfidenceSource))
         {
             return new GovernanceHttpValidation(
                 "buyerConfidenceSource cannot be empty or whitespace.",
                 ProblemTypes.ValidationFailed);
         }
 
-        if (!IsKnownBuyerConfidenceSource(buyerConfidenceSource))
+        if (!IsKnownBuyerConfidenceSource(normalizedBuyerConfidenceSource))
         {
             return new GovernanceHttpValidation(
                 $"buyerConfidenceSource must be one of: {BuyerDecisionConfidenceSource.EvidenceBacked}, {BuyerDecisionConfidenceSource.ModelAssisted}, or {BuyerDecisionConfidenceSource.Unknown}.",

@@ -62,28 +62,20 @@ public sealed class ItsmInboundServiceNowPayloadReader : IItsmInboundPayloadRead
         externalKey = null;
         state = null;
 
-        if (root.TryGetProperty("sys_id", out JsonElement sid))
+        if (ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(root, "sys_id", out JsonElement sid))
             externalKey = sid.GetString();
 
-        if (externalKey is null && root.TryGetProperty("sysId", out JsonElement sid2))
+        if (externalKey is null && ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(root, "sysId", out JsonElement sid2))
             externalKey = sid2.GetString();
 
-        if (root.TryGetProperty("state", out JsonElement st))
-        {
-            if (st.ValueKind == JsonValueKind.Null)
-                state = null;
-            else if (st.ValueKind == JsonValueKind.String)
-                state = st.GetString();
-            else
-                state = st.GetRawText();
-        }
+        if (ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(root, "state", out JsonElement st))
+            state = ItsmInboundJsonElementReader.ReadStringOrRawText(st);
 
-        if (string.IsNullOrWhiteSpace(state) && root.TryGetProperty("incident_state", out JsonElement ist))
-            state = ist.ValueKind == JsonValueKind.Null
-                ? null
-                : ist.ValueKind == JsonValueKind.String
-                    ? ist.GetString()
-                    : ist.GetRawText();
+        if (string.IsNullOrWhiteSpace(state) &&
+            ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(root, "incident_state", out JsonElement ist))
+        {
+            state = ItsmInboundJsonElementReader.ReadStringOrRawText(ist);
+        }
 
         return !string.IsNullOrWhiteSpace(externalKey);
     }

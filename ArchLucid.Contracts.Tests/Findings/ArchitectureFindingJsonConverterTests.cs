@@ -276,6 +276,26 @@ public sealed class ArchitectureFindingJsonConverterTests
             .WithMessage("*Unknown finding severity value*");
     }
 
+    [Fact]
+    public void Deserialize_pascal_case_description_maps_message()
+    {
+        const string json = """
+                            {
+                              "Severity": "High",
+                              "Category": "Compliance",
+                              "Description": "Private endpoints required."
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.Severity.Should().Be(FindingSeverity.Error);
+        finding.Message.Should().Be("Private endpoints required.");
+    }
+
     private static JsonSerializerOptions CreateOptions()
     {
         return new JsonSerializerOptions(JsonSerializerDefaults.Web)

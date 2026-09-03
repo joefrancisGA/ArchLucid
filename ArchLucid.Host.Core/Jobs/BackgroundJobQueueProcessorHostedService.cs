@@ -188,6 +188,16 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         int maxPendingJobs,
         CancellationToken stoppingToken)
     {
+        BackgroundJobRow? current = await repository.GetAsync(jobId, stoppingToken);
+
+        if (current is not null
+            && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+        {
+            await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+            return;
+        }
+
         int nextRetry = row.RetryCount + 1;
 
         if (nextRetry <= row.MaxRetries)
@@ -206,7 +216,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
             int delayMs = baseDelayMs + Random.Shared.Next(-jitterSpan, jitterSpan + 1);
             await Task.Delay(delayMs, stoppingToken);
 
-            BackgroundJobRow? current = await repository.GetAsync(jobId, stoppingToken);
+            current = await repository.GetAsync(jobId, stoppingToken);
 
             if (current is not null
                 && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))

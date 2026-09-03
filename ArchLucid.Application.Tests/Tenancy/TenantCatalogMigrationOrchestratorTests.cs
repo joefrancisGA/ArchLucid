@@ -236,6 +236,115 @@ public sealed class TenantCatalogMigrationOrchestratorTests
     }
 
     [Fact]
+    public async Task CompleteAsync_preserves_admin_suspend_when_tenant_was_suspended_before_migration_start()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        InMemoryTenantRepository tenants = new();
+        DateTimeOffset migrationStartUtc = DateTimeOffset.UtcNow.AddHours(2);
+        FakeTimeProvider clock = new(migrationStartUtc);
+
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Acme",
+            "acme",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+        await tenants.SuspendTenantAsync(TenantId, CancellationToken.None);
+
+        TenantRecord? suspendedTenant = await tenants.GetByIdAsync(TenantId, CancellationToken.None);
+        Assert.NotNull(suspendedTenant?.SuspendedUtc);
+        Assert.True(suspendedTenant.SuspendedUtc < migrationStartUtc);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Loose);
+        TenantSuspendCommandService suspend = new(tenants, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(
+            migrations,
+            tenants,
+            suspend,
+            projectionRefreshService: CreateDefaultProjectionRefresh(),
+            verificationProbe: CreateDefaultVerificationProbe());
+
+        (TenantCatalogMigrationCommandOutcome startOutcome, Guid? migrationId) =
+            await sut.StartAsync(TenantId, "corr-pre-suspended", "admin", "Admin", CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, startOutcome);
+        Assert.NotNull(migrationId);
+
+        Assert.Equal(
+            TenantCatalogMigrationCommandOutcome.Applied,
+            await sut.AcknowledgeCatalogAttachDetachAsync(TenantId, "admin", "Admin", CancellationToken.None));
+
+        (TenantCatalogMigrationCommandOutcome refreshOutcome, _) =
+            await sut.RunProjectionRefreshAsync(TenantId, WorkspaceId, ProjectId, "admin", "Admin", CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, refreshOutcome);
+
+        (TenantCatalogMigrationCommandOutcome verifyOutcome, _) =
+            await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, verifyOutcome);
+
+        TenantCatalogMigrationCommandOutcome completeOutcome =
+            await sut.CompleteAsync(TenantId, "admin", "Admin", CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, completeOutcome);
+
+        TenantRecord? tenantAfterComplete = await tenants.GetByIdAsync(TenantId, CancellationToken.None);
+        Assert.NotNull(tenantAfterComplete?.SuspendedUtc);
+        Assert.Equal(suspendedTenant.SuspendedUtc, tenantAfterComplete.SuspendedUtc);
+        Assert.True(tenantAfterComplete.SuspendedUtc < migrationStartUtc);
+    }
+
+    [Fact]
+    public async Task CompleteAsync_unsuspends_when_migration_applied_scope_freeze_suspend()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        InMemoryTenantRepository tenants = new();
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Acme",
+            "acme",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Loose);
+        TenantSuspendCommandService suspend = new(tenants, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(
+            migrations,
+            tenants,
+            suspend,
+            projectionRefreshService: CreateDefaultProjectionRefresh(),
+            verificationProbe: CreateDefaultVerificationProbe());
+
+        (TenantCatalogMigrationCommandOutcome startOutcome, _) =
+            await sut.StartAsync(TenantId, "corr-migration-suspend", "admin", "Admin", CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, startOutcome);
+
+        TenantRecord? suspendedByMigration = await tenants.GetByIdAsync(TenantId, CancellationToken.None);
+        Assert.NotNull(suspendedByMigration?.SuspendedUtc);
+
+        Assert.Equal(
+            TenantCatalogMigrationCommandOutcome.Applied,
+            await sut.AcknowledgeCatalogAttachDetachAsync(TenantId, "admin", "Admin", CancellationToken.None));
+        (TenantCatalogMigrationCommandOutcome refreshOutcome, _) =
+            await sut.RunProjectionRefreshAsync(TenantId, WorkspaceId, ProjectId, "admin", "Admin", CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, refreshOutcome);
+        (TenantCatalogMigrationCommandOutcome verifyOutcome, _) =
+            await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, verifyOutcome);
+
+        TenantCatalogMigrationCommandOutcome completeOutcome =
+            await sut.CompleteAsync(TenantId, "admin", "Admin", CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, completeOutcome);
+
+        TenantRecord? tenantAfterComplete = await tenants.GetByIdAsync(TenantId, CancellationToken.None);
+        Assert.NotNull(tenantAfterComplete);
+        Assert.Null(tenantAfterComplete.SuspendedUtc);
+    }
+
+    [Fact]
     public async Task RunVerificationAsync_allows_retry_after_failed_verification()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();

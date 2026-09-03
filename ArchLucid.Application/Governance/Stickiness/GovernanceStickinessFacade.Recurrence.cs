@@ -30,6 +30,8 @@ public sealed partial class GovernanceStickinessFacade
             ? "0 8 * * 1"
             : request.CronExpression.Trim();
 
+        RecurrenceScheduleValidation.ValidateCronExpressionLengthOrThrow(cronExpression);
+
         Persistence.Models.RunRecord? sourceRun = await _runRepository
             .GetByIdAsync(scope, request.SourceRunId, ct)
             .ConfigureAwait(false);
@@ -48,6 +50,9 @@ public sealed partial class GovernanceStickinessFacade
         if (request.IsEnabled.Value && nextRunUtc is null)
             throw new ArgumentException(RecurrenceScheduleCronValidation.InvalidCronMessage);
 
+        string name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim();
+        RecurrenceScheduleValidation.ValidateNameOrThrow(name);
+
         ArchitectureReviewRecurrenceSchedule schedule = new()
         {
             ScheduleId = Guid.NewGuid(),
@@ -56,7 +61,7 @@ public sealed partial class GovernanceStickinessFacade
             ProjectId = scope.ProjectId,
             SourceRunId = request.SourceRunId,
             ArchitectureId = sourceRun.ArchitectureId,
-            Name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim(),
+            Name = name,
             CronExpression = cronExpression,
             IsEnabled = request.IsEnabled.Value,
             CreatedUtc = now,
@@ -167,13 +172,18 @@ public sealed partial class GovernanceStickinessFacade
             existing.IsEnabled = request.IsEnabled.Value;
 
         if (!string.IsNullOrWhiteSpace(request.Name))
-            existing.Name = request.Name.Trim();
+        {
+            string trimmedName = request.Name.Trim();
+            RecurrenceScheduleValidation.ValidateNameOrThrow(trimmedName);
+            existing.Name = trimmedName;
+        }
 
         string cron = existing.CronExpression;
 
         if (!string.IsNullOrWhiteSpace(request.CronExpression))
         {
             cron = request.CronExpression.Trim();
+            RecurrenceScheduleValidation.ValidateCronExpressionLengthOrThrow(cron);
 
             if (!_recurrenceNextRunCalculator.IsSupportedCronExpression(cron))
                 return new RecurrenceScheduleUpdateResult(RecurrenceScheduleUpdateOutcome.InvalidCron, null);
