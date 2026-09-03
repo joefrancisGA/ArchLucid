@@ -39,3 +39,39 @@ export function writeProfessionalWorkbenchEnabledToStorage(enabled: boolean): vo
     /* ignore */
   }
 }
+
+export async function syncProfessionalWorkbenchFromServer(): Promise<boolean | null> {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const { getUserPreferences } = await import("@/lib/api/user-preferences");
+    const remote = await getUserPreferences();
+
+    writeProfessionalWorkbenchEnabledToStorage(remote.professionalWorkbenchEnabled);
+
+    return remote.professionalWorkbenchEnabled;
+  }
+  catch {
+    return null;
+  }
+}
+
+export async function persistProfessionalWorkbenchToServer(enabled: boolean): Promise<boolean> {
+  try {
+    const { setUserProfessionalWorkbenchEnabled } = await import("@/lib/api/user-preferences");
+    await setUserProfessionalWorkbenchEnabled(enabled);
+
+    return true;
+  }
+  catch {
+    return false;
+  }
+}
+
+export async function persistProfessionalWorkbenchEnabled(enabled: boolean): Promise<boolean> {
+  writeProfessionalWorkbenchEnabledToStorage(enabled);
+
+  return persistProfessionalWorkbenchToServer(enabled);
+}

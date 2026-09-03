@@ -9,6 +9,8 @@ ArchLucid sells a **seat for a repeat professional**. Production UX still treats
 
 **Run order:** Wave 1 independent; prefer **01 → 02** first. Wave 2 independent of wave 1 except **12** after **11** if both run, and **17** after **08** if both run. **04** / **11** / **12** must not reintroduce a desktop **More** menu for review workspace tabs. **07** / **17** must not change `typed-engine-protected`.
 
+**Structural companion (do not implement from this paragraph):** [`working-desk-00-index.md`](working-desk-00-index.md) — twelve prompts for eval-spine identity, finding-desk honesty, in-flight queue, ops leakage, one-lifecycle IA, and eight-hour a11y. Each WD file names the PT owner where it overlaps; do not fork.
+
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-645** vocabulary must stay; **TB-135** / **TB-136** stay closed).
 
 ## Already shipped — do not re-open

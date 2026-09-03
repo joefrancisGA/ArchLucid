@@ -6,6 +6,7 @@ export type FinalizeQualityScorecardInput = {
   readonly openCannotDetermineCount: number;
   readonly lowExtractionConfidenceCount: number;
   readonly unresolvedHighSeverityDispositionCount: number;
+  readonly skippedMustCount: number;
 };
 
 export type FinalizeQualityScorecardResult = {
@@ -64,6 +65,14 @@ export function evaluateFinalizeQualityScorecard(input: FinalizeQualityScorecard
 
     blockingReasons.push(
       `${input.unresolvedHighSeverityDispositionCount} high-severity ${noun} still need an accepted-risk disposition or decision-register row before finalize.`,
+    );
+  }
+
+  if (input.skippedMustCount > 0) {
+    const noun = input.skippedMustCount === 1 ? "question is" : "questions are";
+
+    blockingReasons.push(
+      `${input.skippedMustCount} required ${noun} unanswered.`,
     );
   }
 

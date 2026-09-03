@@ -105,6 +105,7 @@ export function deriveFinalizeQualityScorecardInput(
     openCannotDetermineCount,
     lowExtractionConfidenceCount,
     unresolvedHighSeverityDispositionCount,
+    skippedMustCount: 0,
   };
 }
 

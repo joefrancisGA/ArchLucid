@@ -3,6 +3,48 @@ import { resolveUnifiedReviewWorkspaceTab, ARCH_TAB_TO_REVIEW_TAB } from "@/lib/
 
 export const REVIEW_DETAIL_TAB_PARAM = "reviewTab" as const;
 
+export const REVIEW_DETAIL_FINDING_PARAM = "findingId" as const;
+
+export const REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM = "workbenchFocus" as const;
+
+export const REVIEW_WORKBENCH_FOCUS_COLUMN_IDS = ["architecture", "findings", "evidence"] as const;
+
+export type ReviewWorkbenchFocusColumnId = (typeof REVIEW_WORKBENCH_FOCUS_COLUMN_IDS)[number];
+
+export function isReviewWorkbenchFocusColumnId(
+  value: string | null | undefined,
+): value is ReviewWorkbenchFocusColumnId {
+  if (value === null || value === undefined || value.trim().length === 0) {
+    return false;
+  }
+
+  return (REVIEW_WORKBENCH_FOCUS_COLUMN_IDS as readonly string[]).includes(value);
+}
+
+export function resolveReviewWorkbenchFocusColumn(
+  paramValue: string | null | undefined,
+): ReviewWorkbenchFocusColumnId | null {
+  if (isReviewWorkbenchFocusColumnId(paramValue)) {
+    return paramValue;
+  }
+
+  return null;
+}
+
+export function readPresenterModeFromSearchParams(
+  searchParams: Pick<URLSearchParams, "get">,
+): boolean {
+  return searchParams.get("presenter") === "1";
+}
+
+export function readPresenterModeFromWindowLocation(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return readPresenterModeFromSearchParams(new URLSearchParams(window.location.search));
+}
+
 export const REVIEW_DETAIL_TAB_IDS = [
   "overview",
   "findings",
@@ -70,9 +112,28 @@ export function resolveReviewDetailTabFromHash(hash: string | null | undefined):
 export function buildReviewDetailTabHref(
   runId: string,
   tab: ReviewDetailTabId,
-  options?: { readonly hash?: string | null },
+  options?: {
+    readonly hash?: string | null;
+    readonly findingId?: string | null;
+    readonly workbenchFocus?: ReviewWorkbenchFocusColumnId | null;
+    readonly presenter?: boolean;
+  },
 ): string {
   const params = new URLSearchParams({ [REVIEW_DETAIL_TAB_PARAM]: tab });
+  const findingId = options?.findingId?.trim() ?? "";
+
+  if (findingId.length > 0) {
+    params.set(REVIEW_DETAIL_FINDING_PARAM, findingId);
+  }
+
+  if (options?.workbenchFocus !== undefined && options.workbenchFocus !== null) {
+    params.set(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM, options.workbenchFocus);
+  }
+
+  if (options?.presenter === true) {
+    params.set("presenter", "1");
+  }
+
   const base = `/architecture/reviews/${encodeURIComponent(runId.trim())}?${params.toString()}`;
   const hash = options?.hash?.trim() ?? "";
 
@@ -88,7 +149,12 @@ export function buildReviewDetailTabHref(
 /** Updates `reviewTab` in the address bar without a Next.js soft navigation. */
 export function writeReviewDetailTabToUrl(
   tab: ReviewDetailTabId,
-  options?: { readonly hash?: string | null },
+  options?: {
+    readonly hash?: string | null;
+    readonly findingId?: string | null;
+    readonly workbenchFocus?: ReviewWorkbenchFocusColumnId | null;
+    readonly presenter?: boolean | null;
+  },
 ): void {
   if (typeof window === "undefined") {
     return;
@@ -96,6 +162,30 @@ export function writeReviewDetailTabToUrl(
 
   const url = new URL(window.location.href);
   url.searchParams.set(REVIEW_DETAIL_TAB_PARAM, tab);
+
+  if (options?.findingId === null) {
+    url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+  } else if (options?.findingId !== undefined) {
+    const trimmed = options.findingId.trim();
+
+    if (trimmed.length > 0) {
+      url.searchParams.set(REVIEW_DETAIL_FINDING_PARAM, trimmed);
+    } else {
+      url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+    }
+  }
+
+  if (options?.workbenchFocus === null) {
+    url.searchParams.delete(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM);
+  } else if (options?.workbenchFocus !== undefined) {
+    url.searchParams.set(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM, options.workbenchFocus);
+  }
+
+  if (options?.presenter === null) {
+    url.searchParams.delete("presenter");
+  } else if (options?.presenter === true) {
+    url.searchParams.set("presenter", "1");
+  }
 
   if (options?.hash === null) {
     url.hash = "";

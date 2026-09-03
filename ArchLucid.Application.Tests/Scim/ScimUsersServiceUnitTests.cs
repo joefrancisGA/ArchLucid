@@ -352,6 +352,95 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task ReplaceAsync_tombstoned_external_id_throws_conflict()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord removed = await users.InsertAsync(
+            tenantId,
+            "ext-removed",
+            "removed@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        await sut.DeactivateAsync(tenantId, removed.Id, CancellationToken.None);
+
+        ScimUserRecord active = await users.InsertAsync(
+            tenantId,
+            "ext-active",
+            "active@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument body = JsonDocument.Parse(
+            """
+            {
+              "userName": "active@example.com",
+              "externalId": "ext-removed",
+              "active": true
+            }
+            """);
+
+        Func<Task> act = () => sut.ReplaceAsync(tenantId, active.Id, body.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimConflictException>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_tombstoned_external_id_throws_conflict()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord removed = await users.InsertAsync(
+            tenantId,
+            "ext-removed",
+            "removed@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        await sut.DeactivateAsync(tenantId, removed.Id, CancellationToken.None);
+
+        ScimUserRecord active = await users.InsertAsync(
+            tenantId,
+            "ext-active",
+            "active@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [
+                { "op": "replace", "path": "externalId", "value": "ext-removed" }
+              ]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, active.Id, patch.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimConflictException>();
+    }
+
+    [Fact]
     public async Task ListAsync_normalizes_start_index_below_one()
     {
         Guid tenantId = Guid.NewGuid();

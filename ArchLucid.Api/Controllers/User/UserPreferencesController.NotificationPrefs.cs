@@ -161,4 +161,29 @@ public sealed partial class UserPreferencesController
 
         return NoContent();
     }
+
+    /// <summary>Persists the authenticated user's professional workbench layout preference.</summary>
+    [HttpPut("professional-workbench")]
+    [MutatingAuditExcluded("Personal professional workbench preference stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetProfessionalWorkbenchEnabled(
+        [FromBody] SetProfessionalWorkbenchEnabledRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.ProfessionalWorkbenchEnabled,
+            ProfessionalWorkbenchEnabledValues.Serialize(body.Enabled),
+            cancellationToken);
+
+        return NoContent();
+    }
 }
