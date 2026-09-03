@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text.Json;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
@@ -52,10 +53,14 @@ public sealed partial class ManifestFinalizationService
         }
     }
 
-    private static CommittedEffectiveGovernanceSnapshotCaptureOptions? BuildGovernanceSnapshotCaptureOptions(ManifestFinalizationRequest request)
+    private static CommittedEffectiveGovernanceSnapshotCaptureOptions BuildGovernanceSnapshotCaptureOptions(
+        ManifestFinalizationRequest request)
     {
         if (request.PreloadedScopePolicyPackAssignments is null)
-            return null;
+        {
+            throw new ConflictException(
+                "Finalization blocked: pin-derived policy pack assignments are required.");
+        }
 
         return new CommittedEffectiveGovernanceSnapshotCaptureOptions
         {

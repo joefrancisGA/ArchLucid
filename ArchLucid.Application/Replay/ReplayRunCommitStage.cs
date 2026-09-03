@@ -18,6 +18,7 @@ using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
 
@@ -35,6 +36,9 @@ public sealed class ReplayRunCommitStage(
     IActorContext actorContext,
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     ICommitRunIdempotencyCoordinator commitRunIdempotencyCoordinator,
+    IRunRepository authorityRunRepository,
+    IRunPolicyPackPinService runPolicyPackPinService,
+    IRunEvidencePackagePinService runEvidencePackagePinService,
     IReplayRunCloneStage cloneStage,
     ILogger<ReplayRunCommitStage> logger) : IReplayRunCommitStage
 {
@@ -67,6 +71,15 @@ public sealed class ReplayRunCommitStage(
 
     private readonly ICommitRunIdempotencyCoordinator _commitRunIdempotencyCoordinator =
         commitRunIdempotencyCoordinator ?? throw new ArgumentNullException(nameof(commitRunIdempotencyCoordinator));
+
+    private readonly IRunRepository _authorityRunRepository =
+        authorityRunRepository ?? throw new ArgumentNullException(nameof(authorityRunRepository));
+
+    private readonly IRunPolicyPackPinService _runPolicyPackPinService =
+        runPolicyPackPinService ?? throw new ArgumentNullException(nameof(runPolicyPackPinService));
+
+    private readonly IRunEvidencePackagePinService _runEvidencePackagePinService =
+        runEvidencePackagePinService ?? throw new ArgumentNullException(nameof(runEvidencePackagePinService));
 
     private readonly IReplayRunCloneStage _cloneStage =
         cloneStage ?? throw new ArgumentNullException(nameof(cloneStage));
@@ -132,6 +145,18 @@ public sealed class ReplayRunCommitStage(
         List<string> warnings = merge.Warnings;
         Guid replayGuid = Guid.Parse(preparedReplayRunId);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? replayHeader = await _authorityRunRepository.GetByIdAsync(scope, replayGuid, cancellationToken);
+
+        if (replayHeader is not null)
+        {
+            await _runPolicyPackPinService
+                .VerifyPinIntegrityOrThrowAsync(replayHeader, scope, cancellationToken)
+                .ConfigureAwait(false);
+            await _runEvidencePackagePinService
+                .VerifyPinIntegrityOrThrowAsync(replayHeader, scope, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         Guid manifestId = Guid.NewGuid();
         Guid contextSnapshotId = Guid.NewGuid();
         Guid graphSnapshotId = Guid.NewGuid();

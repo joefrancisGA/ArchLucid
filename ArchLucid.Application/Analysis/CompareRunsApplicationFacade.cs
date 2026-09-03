@@ -1,8 +1,12 @@
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Analysis;
@@ -14,6 +18,7 @@ namespace ArchLucid.Application.Analysis;
 public sealed class CompareRunsApplicationFacade(
     IAuthorityQueryService authorityQuery,
     IRunDetailQueryService runDetailQueryService,
+    IRunRepository authorityRunRepository,
     IComparisonService comparison,
     IAgentResultDiffService agentResultDiffService,
     IScopeContextProvider scopeProvider) : ICompareRunsApplicationFacade
@@ -23,6 +28,9 @@ public sealed class CompareRunsApplicationFacade(
 
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IRunRepository _authorityRunRepository =
+        authorityRunRepository ?? throw new ArgumentNullException(nameof(authorityRunRepository));
 
     private readonly IComparisonService _comparison =
         comparison ?? throw new ArgumentNullException(nameof(comparison));
@@ -122,6 +130,67 @@ public sealed class CompareRunsApplicationFacade(
             };
         }
 
+        ArchitectureRunDetail? baseDetail = await _runDetailQueryService
+            .GetRunDetailAsync(baseRunId.ToString("N"), ct);
+
+        if (baseDetail is null)
+        {
+            return new ManifestCompareLoadResult
+            {
+                Outcome = ManifestCompareLoadOutcome.BaseRunNotFound,
+                RunId = baseRunId,
+            };
+        }
+
+        ArchitectureRunDetail? targetDetail = await _runDetailQueryService
+            .GetRunDetailAsync(targetRunId.ToString("N"), ct);
+
+        if (targetDetail is null)
+        {
+            return new ManifestCompareLoadResult
+            {
+                Outcome = ManifestCompareLoadOutcome.TargetRunNotFound,
+                RunId = targetRunId,
+            };
+        }
+
+        if (!TryEnsureComplete(baseDetail, baseRunId, ManifestCompareLoadOutcome.BaseLifecycleIncomplete, out ManifestCompareLoadOutcome? baseLifecycleOutcome))
+        {
+            return new ManifestCompareLoadResult
+            {
+                Outcome = baseLifecycleOutcome!.Value,
+                RunId = baseRunId,
+            };
+        }
+
+        if (!TryEnsureComplete(targetDetail, targetRunId, ManifestCompareLoadOutcome.TargetLifecycleIncomplete, out ManifestCompareLoadOutcome? targetLifecycleOutcome))
+        {
+            return new ManifestCompareLoadResult
+            {
+                Outcome = targetLifecycleOutcome!.Value,
+                RunId = targetRunId,
+            };
+        }
+
+        RunRecord? baseHeader = await _authorityRunRepository.GetByIdAsync(scope, baseRunId, ct);
+        RunRecord? targetHeader = await _authorityRunRepository.GetByIdAsync(scope, targetRunId, ct);
+
+        if (baseHeader is not null && targetHeader is not null)
+        {
+            try
+            {
+                RunComparePinFingerprintGuard.EnsureCreateTimePinFingerprintsMatchOrThrow(baseHeader, targetHeader);
+            }
+            catch (ConflictException)
+            {
+                return new ManifestCompareLoadResult
+                {
+                    Outcome = ManifestCompareLoadOutcome.PinFingerprintMismatch,
+                    RunId = baseRunId,
+                };
+            }
+        }
+
         ComparisonResult comparison = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         return new ManifestCompareLoadResult
         {
@@ -141,4 +210,24 @@ public sealed class CompareRunsApplicationFacade(
             leftDetail.Results,
             rightRunId,
             rightDetail.Results);
+
+    private static bool TryEnsureComplete(
+        ArchitectureRunDetail detail,
+        Guid runId,
+        ManifestCompareLoadOutcome blockedOutcome,
+        out ManifestCompareLoadOutcome? outcome)
+    {
+        outcome = null;
+
+        try
+        {
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.ToString("N"));
+            return true;
+        }
+        catch (ConflictException)
+        {
+            outcome = blockedOutcome;
+            return false;
+        }
+    }
 }

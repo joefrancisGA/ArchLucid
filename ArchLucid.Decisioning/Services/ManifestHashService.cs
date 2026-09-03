@@ -21,7 +21,7 @@ public sealed class ManifestHashService : IManifestHashService
     ///     Canonical projection schema version. Increment only with deliberate baseline re-lock
     ///     (<c>MANIFEST_HASH_HASHER_BASELINE.md</c>, <c>TB-1157</c>).
     /// </summary>
-    public const string HasherSchemaVersion = "v6";
+    public const string HasherSchemaVersion = "v7";
 
     /// <inheritdoc />
     public string ComputeHash(ManifestDocument manifest)
@@ -50,6 +50,10 @@ public sealed class ManifestHashService : IManifestHashService
             manifest.CreateTimeKnowledgeModelContentHashSha256,
             manifest.CreateTimeFocusedPilotModeEnabled,
             manifest.CreateTimeFocusedPilotCloudProvider,
+            manifest.CreateTimePackageOrigin,
+            manifest.CreateTimeArchitectureRequestId,
+            manifest.CreateTimeStructuralExecutionMode,
+            manifest.CreateTimePilotAoaiDeploymentSnapshot,
             manifest.RuleSetId,
             manifest.RuleSetVersion,
             manifest.RuleSetHash,

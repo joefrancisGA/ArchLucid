@@ -26,6 +26,7 @@ import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-fi
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { graphScopeModeHrefFromSearch } from "@/lib/insights/graph-scope-mode-url";
+import { graphNodeTypeHrefFromSearch } from "@/lib/insights/graph-node-type-url";
 import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
@@ -155,17 +156,27 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
       {!buyerPolishedShell ? (
         <>
           <div className="mb-3 flex flex-wrap items-center gap-3">
-            <label>
-              Filter by type{" "}
-              <select value={typeFilter} onChange={(e) => onTypeFilterChange(e.target.value)} className="ml-2 p-1.5">
-                <option value="">All types</option>
-                {nodeTypes.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <FilterChipGroup aria-label="Filter graph nodes by type" className="flex flex-wrap gap-2">
+              <FilterChip
+                href={graphNodeTypeHrefFromSearch(currentSearch, "", pathname)}
+                scroll={false}
+                className={buyerFilterChipClass(typeFilter.trim().length === 0, false)}
+                aria-current={typeFilter.trim().length === 0 ? "page" : undefined}
+              >
+                All types
+              </FilterChip>
+              {nodeTypes.map((nodeType) => (
+                <FilterChip
+                  key={nodeType}
+                  href={graphNodeTypeHrefFromSearch(currentSearch, nodeType, pathname)}
+                  scroll={false}
+                  className={buyerFilterChipClass(typeFilter === nodeType, false)}
+                  aria-current={typeFilter === nodeType ? "page" : undefined}
+                >
+                  {nodeType}
+                </FilterChip>
+              ))}
+            </FilterChipGroup>
             <span className={OPERATOR_TYPOGRAPHY.helper}>
               {`${graph.nodes.length} nodes, ${graph.edges.length} edges (before filter)`}
             </span>

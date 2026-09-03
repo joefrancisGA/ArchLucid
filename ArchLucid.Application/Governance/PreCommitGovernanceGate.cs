@@ -127,8 +127,25 @@ public sealed class PreCommitGovernanceGate(
         if (!_options.Value.PreCommitGateEnabled || !Guid.TryParse(runId, out Guid runKey))
             return PreCommitGateResult.Allowed();
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        bool needsRunHeader = preloadedData?.ScopePolicyPackAssignments is null
+            || preloadedData.FindingsSnapshotFindings is null
+            || requireScopedRun;
+
+        RunRecord? runHeader = needsRunHeader
+            ? await _runRepository.GetByIdAsync(scope, runKey, cancellationToken).ConfigureAwait(false)
+            : null;
+
         IReadOnlyList<PolicyPackAssignment> assignments = preloadedData?.ScopePolicyPackAssignments
-            ?? await _policyPackAssignmentRepository.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
+            ?? (runHeader is not null
+                ? await RunHeaderPinnedPolicyPackAssignmentFactory
+                    .ResolveCommitTimeAssignmentsWithEnforcementAsync(
+                        runHeader,
+                        scope,
+                        _policyPackAssignmentRepository,
+                        cancellationToken)
+                    .ConfigureAwait(false)
+                : []);
 
         PolicyPackAssignment? enforcing = assignments.Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
             .OrderByDescending(static a => a.AssignedUtc).FirstOrDefault();
@@ -141,16 +158,14 @@ public sealed class PreCommitGovernanceGate(
         }
         else
         {
-            RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken);
-
-            if (run is null)
+            if (runHeader is null)
                 return requireScopedRun
                     ? throw new RunNotFoundException(runId)
                     : PreCommitGateResult.Allowed();
 
-            if (run.FindingsSnapshotId.HasValue)
+            if (runHeader.FindingsSnapshotId.HasValue)
             {
-                FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, run.FindingsSnapshotId.Value, cancellationToken);
+                FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, runHeader.FindingsSnapshotId.Value, cancellationToken);
                 findings = snapshot?.Findings is { Count: > 0 } ? snapshot.Findings.ToList() : [];
             }
             else

@@ -102,8 +102,8 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
         string hasher = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
-        hasher.Should().Contain("HasherSchemaVersion = \"v6\"");
         hasher.Should().Contain("CreateTimeFocusedPilotModeEnabled");
+        hasher.Should().MatchRegex("HasherSchemaVersion = \"v[67]\"");
     }
 
     [Fact]

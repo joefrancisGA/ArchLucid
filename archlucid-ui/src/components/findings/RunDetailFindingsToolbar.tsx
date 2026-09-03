@@ -30,7 +30,7 @@ import {
 } from "@/components/findings/run-detail-findings-toolbar-presentation";
 
 import { FindingsProvenanceFilters } from "./FindingsProvenanceFilters";
-import { FindingsSortSelect } from "./FindingsSortSelect";
+import { FindingsSortChips } from "./FindingsSortChips";
 
 export type {
   RunDetailFindingsFilterKind,
@@ -62,8 +62,10 @@ export type RunDetailFindingsToolbarProps = {
   readonly onJobViewChange: (jobView: FindingJobView) => void;
   readonly ownerFilter: string;
   readonly onOwnerFilterChange: (value: string) => void;
+  readonly onClearOwnerFilter?: () => void;
   readonly domainFilter: string;
   readonly onDomainFilterChange: (value: string) => void;
+  readonly onClearDomainFilter?: () => void;
   readonly searchQuery: string;
   readonly onSearchQueryChange: (value: string) => void;
   readonly sort: RunDetailFindingsSortKind;
@@ -186,7 +188,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
             />
           </div>
           <div className="min-w-[12rem]">
-            <FindingsSortSelect id="findings-sort" sort={props.sort} onSortChange={props.onSortChange} />
+            <FindingsSortChips sort={props.sort} />
           </div>
         </div>
 
@@ -251,6 +253,12 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                   onChange={(event) => {
                     props.onOwnerFilterChange(event.target.value);
                   }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape" && props.ownerFilter.trim().length > 0) {
+                      event.preventDefault();
+                      props.onClearOwnerFilter?.();
+                    }
+                  }}
                   placeholder="Owner"
                   className="mt-1 h-9"
                 />
@@ -264,6 +272,12 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                   value={props.domainFilter}
                   onChange={(event) => {
                     props.onDomainFilterChange(event.target.value);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape" && props.domainFilter.trim().length > 0) {
+                      event.preventDefault();
+                      props.onClearDomainFilter?.();
+                    }
                   }}
                   placeholder="Policy or category"
                   className="mt-1 h-9"
@@ -354,6 +368,12 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                 onChange={(event) => {
                   props.onOwnerFilterChange(event.target.value);
                 }}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape" && props.ownerFilter.trim().length > 0) {
+                    event.preventDefault();
+                    props.onClearOwnerFilter?.();
+                  }
+                }}
                 placeholder="Owner"
                 className="mt-1 h-9"
               />
@@ -367,6 +387,12 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                 value={props.domainFilter}
                 onChange={(event) => {
                   props.onDomainFilterChange(event.target.value);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape" && props.domainFilter.trim().length > 0) {
+                    event.preventDefault();
+                    props.onClearDomainFilter?.();
+                  }
                 }}
                 placeholder="Policy or category"
                 className="mt-1 h-9"
@@ -386,7 +412,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                 className="mt-1 h-9"
               />
             </div>
-            <FindingsSortSelect id="findings-sort" sort={props.sort} onSortChange={props.onSortChange} />
+            <FindingsSortChips sort={props.sort} />
           </div>
         </div>
       </details>

@@ -35,7 +35,6 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/insights/search-review-evidence",
   useSearchParams: () => new URLSearchParams("runId=run-search-1"),
 }));
-
 import { SearchPageView } from "./SearchPageView";
 import type { SearchPageViewModel } from "./search-page-view-model";
 import { SEARCH_LOAD_RETRY_LABEL } from "./search-page-copy";
@@ -43,6 +42,7 @@ import { SEARCH_LOAD_RETRY_LABEL } from "./search-page-copy";
 function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageViewModel {
   return {
     buyerShell: false,
+    confidence: null,
     failure: null,
     hasSearched: false,
     isDemo: false,
@@ -55,6 +55,7 @@ function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageVie
     runId: "run-search-1",
     setQuery: vi.fn(),
     setRunId: vi.fn(),
+    totalResultCount: 0,
     ...overrides,
   };
 }

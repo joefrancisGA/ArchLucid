@@ -31,6 +31,9 @@ public enum ManifestCompareLoadOutcome
     TargetRunNotFound,
     BaseManifestNotFound,
     TargetManifestNotFound,
+    BaseLifecycleIncomplete,
+    TargetLifecycleIncomplete,
+    PinFingerprintMismatch,
 }
 
 /// <summary>Manifest comparison result or a not-found reason.</summary>

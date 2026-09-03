@@ -95,7 +95,8 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
             _effectiveGovernanceResolver,
             _policyPackAssignmentRepository,
             _policyPackRepository,
-            preloadedScopePolicyPackAssignments: null,
+            preloadedScopePolicyPackAssignments:
+                RunHeaderPinnedPolicyPackAssignmentFactory.ResolveCommitTimeAssignmentsOrThrow(header, scope),
             cancellationToken,
             _policyPackVersionRepository).ConfigureAwait(false);
 
