@@ -1014,7 +1014,7 @@ describe("openapi type alias schema keys", () => {
   });
 
   it("keeps the mapping table in sync with the number of guarded aliases", () => {
-    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(246);
+    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(245);
   });
 
   it("documents empty AgentResult OpenAPI snapshot (wave 10 wire module)", () => {
