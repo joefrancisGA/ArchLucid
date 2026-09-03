@@ -79,6 +79,7 @@ describe("PilotNavGroupBuilder", () => {
 
     expect(group.links.map((link) => link.label)).toEqual([
       "Home",
+      "Architectures",
       "Packages",
       "Sponsor dashboard",
       "First review guide",
@@ -87,12 +88,20 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.links.some((link) => link.href === "/insights/evidence-graph")).toBe(false);
   });
 
+  it("lists Architectures as the draft inventory destination (LI-06)", () => {
+    const group = new PilotNavGroupBuilder().build();
+    const architecturesLink = group.links.find((link) => link.href === ARCHITECTURES_LIST_PATH);
+
+    expect(architecturesLink?.label).toBe("Architectures");
+    expect(architecturesLink?.title).toContain("saved architecture drafts");
+  });
+
   it("lists Packages as the unified reviews and drafts destination", () => {
     const group = new PilotNavGroupBuilder().build();
     const packagesLink = group.links.find((link) => link.label === "Packages");
 
     expect(packagesLink?.href).toBe("/architecture/reviews");
-    expect(group.links.some((link) => link.href === ARCHITECTURES_LIST_PATH)).toBe(false);
+    expect(group.links.some((link) => link.href === ARCHITECTURES_LIST_PATH)).toBe(true);
     expect(group.links.some((link) => link.label === "Reviews")).toBe(false);
   });
 

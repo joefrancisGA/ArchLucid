@@ -3,8 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
 import { REVIEW_WORKBENCH_LAYOUT_TEST_ID } from "@/components/reviews/ReviewWorkbenchLayout";
+import {
+  REVIEW_WORKBENCH_DIAGRAM_NODES_EVENT,
+  PROFESSIONAL_WORKBENCH_STORAGE_KEY,
+} from "@/lib/workspace-mode/professional-workbench-preference";
 import { WORKSPACE_MODE_STORAGE_KEY } from "@/lib/workspace-mode/workspace-mode-preference";
-import { PROFESSIONAL_WORKBENCH_STORAGE_KEY } from "@/lib/workspace-mode/professional-workbench-preference";
 import {
   isActivityNewSinceLastVisit,
   markLastVisitedNow,
@@ -27,7 +30,11 @@ vi.mock("next/navigation", () => ({
     replace: replaceMock,
   }),
   usePathname: () => "/architecture/reviews/run-abc",
-  useSearchParams: () => new URLSearchParams("reviewTab=overview"),
+  useSearchParams: () => searchParamsMock.value,
+}));
+
+const searchParamsMock = vi.hoisted(() => ({
+  value: new URLSearchParams("reviewTab=overview"),
 }));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
@@ -51,12 +58,35 @@ const workspacePanels = {
   activity: <div>Activity</div>,
 };
 
+const tabLifecycle = {
+  manifestId: "manifest-1",
+  showProgressTracker: false,
+  runCompleted: false,
+} as const;
+
+function renderWorkingWorkbench(
+  panels: typeof workspacePanels = workspacePanels,
+): ReturnType<typeof render> {
+  workspaceModeMock.mode = "working";
+  workspaceModeMock.isWorkingMode = true;
+  window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, "working");
+
+  return render(
+    <ReviewDetailWorkspace
+      runId={RUN_ID}
+      tabLifecycle={tabLifecycle}
+      panels={panels}
+    />,
+  );
+}
+
 describe("ReviewDetailWorkspace", () => {
   beforeEach(() => {
     window.localStorage.clear();
     workspaceModeMock.mode = "guided";
     workspaceModeMock.isWorkingMode = false;
     workspaceModeMock.mounted = true;
+    searchParamsMock.value = new URLSearchParams("reviewTab=overview");
   });
 
   it("renders tab list and overview panel by default", () => {
@@ -150,30 +180,202 @@ describe("ReviewDetailWorkspace", () => {
     expect(screen.getByTestId("review-detail-workspace-panel-findings")).toBeInTheDocument();
   });
 
-  it("renders workbench layout in Working mode when architecture, findings, and evidence tabs are visible", async () => {
-    workspaceModeMock.mode = "working";
-    workspaceModeMock.isWorkingMode = true;
-
-    window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, "working");
+  it("renders workbench layout in Working mode when architecture, findings, and evidence tabs are visible", () => {
     window.localStorage.setItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY, "1");
 
+    renderWorkingWorkbench();
+
+    expect(screen.getByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByTestId("review-workbench-column-architecture")).toBeInTheDocument();
+    expect(screen.getByTestId("review-workbench-column-findings")).toBeInTheDocument();
+    expect(screen.getByTestId("review-workbench-column-evidence")).toBeInTheDocument();
+  });
+
+  it("shows workbench on first paint in Working mode without an explicit Tab-only preference", () => {
+    renderWorkingWorkbench();
+
+    expect(screen.getByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID)).toBeInTheDocument();
+  });
+
+  it("keeps tab-only layout in Guided mode", () => {
     render(
       <ReviewDetailWorkspace
         runId={RUN_ID}
-        tabLifecycle={{
-          manifestId: "manifest-1",
-          showProgressTracker: false,
-          runCompleted: false,
-        }}
+        tabLifecycle={tabLifecycle}
         panels={workspacePanels}
       />,
     );
 
+    expect(screen.queryByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  it("honors stored Tab-only preference in Working mode", () => {
+    window.localStorage.setItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY, "0");
+
+    renderWorkingWorkbench();
+
+    expect(screen.queryByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  it("highlights the related architecture node when a finding with relatedNodeIds is selected", async () => {
+    const panels = {
+      ...workspacePanels,
+      findings: (
+        <div data-testid="panel-findings">
+          <article
+            data-finding-id="finding-claims"
+            data-finding-related-node-ids="claims_api"
+            data-finding-title="Claims API latency"
+          >
+            <h3>Claims API latency</h3>
+          </article>
+        </div>
+      ),
+    };
+
+    renderWorkingWorkbench(panels);
+
+    window.dispatchEvent(
+      new CustomEvent(REVIEW_WORKBENCH_DIAGRAM_NODES_EVENT, {
+        detail: { nodes: [{ id: "claims_api", label: "Claims API" }] },
+      }),
+    );
+
+    const workbenchFindings = screen.getByTestId("review-workbench-column-findings");
+    const findingCard = workbenchFindings.querySelector('[data-finding-id="finding-claims"]');
+
+    expect(findingCard).not.toBeNull();
+
+    fireEvent.click(findingCard!);
+
     await waitFor(() => {
-      expect(screen.getByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID)).toBeInTheDocument();
+      expect(screen.getByTestId("review-workbench-column-architecture")).toHaveAttribute(
+        "data-workbench-highlighted-node-id",
+        "claims_api",
+      );
     });
-    expect(screen.getByTestId("review-workbench-column-architecture")).toBeInTheDocument();
-    expect(screen.getByTestId("review-workbench-column-findings")).toBeInTheDocument();
-    expect(screen.getByTestId("review-workbench-column-evidence")).toBeInTheDocument();
+  });
+
+  it("exiting Tab-only layout clears workbench selection when workbench unmounts", async () => {
+    const panels = {
+      ...workspacePanels,
+      findings: (
+        <div data-testid="panel-findings">
+          <article
+            data-finding-id="finding-claims"
+            data-finding-related-node-ids="claims_api"
+            data-finding-title="Claims API latency"
+          >
+            <h3>Claims API latency</h3>
+          </article>
+        </div>
+      ),
+    };
+
+    renderWorkingWorkbench(panels);
+
+    const workbenchFindings = screen.getByTestId("review-workbench-column-findings");
+    const findingCard = workbenchFindings.querySelector('[data-finding-id="finding-claims"]');
+
+    expect(findingCard).not.toBeNull();
+
+    fireEvent.click(findingCard!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("review-workbench-column-findings")).toHaveAttribute(
+        "data-workbench-selected-finding-id",
+        "finding-claims",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("review-workbench-exit"));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID)).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows presenter surface with findings, verdict strip, and trail in Working mode", () => {
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+    searchParamsMock.value = new URLSearchParams("reviewTab=findings&presenter=1");
+
+    render(
+      <ReviewDetailWorkspace
+        runId={RUN_ID}
+        defensibilityStrip={<div data-testid="presenter-verdict-strip">Verdict</div>}
+        panels={workspacePanels}
+      />,
+    );
+
+    expect(screen.getByTestId("review-presenter-surface")).toBeInTheDocument();
+    expect(screen.getByTestId("review-presenter-body")).toBeInTheDocument();
+    expect(screen.getByTestId("presenter-verdict-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("panel-findings")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-detail-workspace-tabs")).toBeNull();
+  });
+
+  it("does not show Presenter control in Guided mode", () => {
+    render(
+      <ReviewDetailWorkspace
+        runId={RUN_ID}
+        panels={workspacePanels}
+      />,
+    );
+
+    expect(screen.queryByTestId("review-presenter-enter")).toBeNull();
+  });
+
+  it("restores finding selection from findingId query in tab-only layout (LI-13)", async () => {
+    window.localStorage.setItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY, "0");
+    searchParamsMock.value = new URLSearchParams("reviewTab=findings&findingId=finding-claims");
+
+    const panels = {
+      ...workspacePanels,
+      findings: (
+        <div data-testid="panel-findings">
+          <article
+            data-finding-id="finding-claims"
+            data-finding-title="Claims API latency"
+            tabIndex={0}
+          >
+            <h3>Claims API latency</h3>
+          </article>
+          <article data-finding-id="finding-other" data-finding-title="Other" tabIndex={0}>
+            <h3>Other</h3>
+          </article>
+        </div>
+      ),
+    };
+
+    renderWorkingWorkbench(panels);
+
+    await waitFor(() => {
+      const selected = screen.getByTestId("panel-findings").querySelector('[data-finding-id="finding-claims"]');
+      expect(selected).toHaveAttribute("data-workbench-selected", "true");
+    });
+  });
+
+  it("fails closed when findingId query does not match a rendered finding (LI-13)", async () => {
+    window.localStorage.setItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY, "0");
+    searchParamsMock.value = new URLSearchParams("reviewTab=findings&findingId=stale-missing");
+
+    const panels = {
+      ...workspacePanels,
+      findings: (
+        <div data-testid="panel-findings">
+          <article data-finding-id="finding-claims" data-finding-title="Claims API latency" tabIndex={0}>
+            <h3>Claims API latency</h3>
+          </article>
+        </div>
+      ),
+    };
+
+    renderWorkingWorkbench(panels);
+
+    await waitFor(() => {
+      const card = screen.getByTestId("panel-findings").querySelector('[data-finding-id="finding-claims"]');
+      expect(card).toHaveAttribute("data-workbench-selected", "false");
+    });
   });
 });

@@ -37,7 +37,7 @@ describe("resolveEmptyHomeDoThisNext", () => {
 
     expect(action.kind).toBe("work");
     expect(action.label).toBe("New review");
-    expect(action.href).toBe("/architecture/reviews/new");
+    expect(action.href).toBe("/architecture/architectures/new");
   });
 
   it("returns sample package action when setup readiness can begin in guided mode", () => {

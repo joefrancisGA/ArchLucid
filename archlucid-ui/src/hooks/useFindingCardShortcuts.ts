@@ -41,7 +41,7 @@ function getFindingCardFromActiveElement(): HTMLElement | null {
   return active.closest<HTMLElement>("[data-finding-id]");
 }
 
-function getFocusedFindingId(): string | null {
+export function getFocusedFindingId(): string | null {
   const card = getFindingCardFromActiveElement();
 
   if (card === null) {
@@ -57,7 +57,14 @@ function getFocusedFindingId(): string | null {
   return id;
 }
 
-function focusAdjacentFindingCard(delta: number, onFindingFocus?: (findingId: string) => void): void {
+export type FocusAdjacentFindingCardOptions = {
+  readonly onFindingFocus?: (findingId: string) => void;
+  /** Palette work actions may start from the first card when nothing is focused (LI-07). */
+  readonly startFromFirstWhenUnfocused?: boolean;
+};
+
+export function focusAdjacentFindingCard(delta: number, options?: FocusAdjacentFindingCardOptions): void {
+  const onFindingFocus = options?.onFindingFocus;
   const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-finding-id]"));
 
   if (nodes.length === 0) {
@@ -68,6 +75,18 @@ function focusAdjacentFindingCard(delta: number, onFindingFocus?: (findingId: st
   const idx = current !== null ? nodes.indexOf(current) : -1;
 
   if (idx < 0) {
+    if (options?.startFromFirstWhenUnfocused !== true) {
+      return;
+    }
+
+    const first = nodes[0];
+    first?.focus();
+    const firstId = first?.getAttribute("data-finding-id") ?? "";
+
+    if (firstId.length > 0) {
+      onFindingFocus?.(firstId);
+    }
+
     return;
   }
 
@@ -104,13 +123,13 @@ export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions)
       "alt+j": {
         description: "Focus next finding card",
         handler: () => {
-          focusAdjacentFindingCard(1, onFindingFocus);
+          focusAdjacentFindingCard(1, { onFindingFocus });
         },
       },
       "alt+k": {
         description: "Focus previous finding card",
         handler: () => {
-          focusAdjacentFindingCard(-1, onFindingFocus);
+          focusAdjacentFindingCard(-1, { onFindingFocus });
         },
       },
     };

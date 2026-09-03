@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
@@ -10,6 +12,8 @@ import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-dr
 import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-client-cache";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operations";
+import { collectInFlightReviewRunIds, mapInFlightOperationsToDeskRows } from "@/lib/operations/map-in-flight-desk-rows";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
@@ -27,6 +31,7 @@ import {
 import type { RunSummary } from "@/types/authority";
 
 import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
+import { ReviewsHubInFlightAnalysisDesk } from "./ReviewsHubInFlightAnalysisDesk";
 import { ReviewsHubActiveFiltersStrip } from "./ReviewsHubActiveFiltersStrip";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import {
@@ -51,6 +56,7 @@ import {
   resolveInventoryFilterCountRuns,
   INVENTORY_FILTER_OPTIONS,
   sortRunsForInventory,
+  sortRunsForWorkingReviewsHubInventory,
   type ReviewFilterId,
 } from "./reviews-hub-inventory-filters";
 import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
@@ -106,6 +112,16 @@ function ReviewFilterChip(props: {
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { isWorkingMode } = useWorkspaceMode();
+  const inFlightOperations = useShellInFlightOperations();
+  const inFlightRunIds = useMemo(
+    () => collectInFlightReviewRunIds(inFlightOperations),
+    [inFlightOperations],
+  );
+  const inFlightDeskRows = useMemo(
+    () => mapInFlightOperationsToDeskRows(inFlightOperations),
+    [inFlightOperations],
+  );
   const searchQuery = parseReviewsHubInventorySearchQuery(searchParams.get("q"));
   const urlFilter = parseReviewsHubInventoryFilter(searchParams.get("filter"));
   const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(urlFilter);
@@ -175,8 +191,11 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   }, [activeFilter, mergedRuns, ownerContext, searchQuery, visibilityFilteredRuns]);
 
   const sortedFilteredRuns = useMemo(
-    () => sortRunsForInventory(filteredRuns, isFavorite),
-    [filteredRuns, isFavorite],
+    () =>
+      isWorkingMode
+        ? sortRunsForWorkingReviewsHubInventory(filteredRuns, isFavorite, inFlightRunIds)
+        : sortRunsForInventory(filteredRuns, isFavorite),
+    [filteredRuns, inFlightRunIds, isFavorite, isWorkingMode],
   );
 
   const clearInventoryFilters = useCallback(() => {
@@ -261,6 +280,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
           />
 
           <ReviewsHubSummaryRow summary={props.summary} />
+
+          {isWorkingMode ? <ReviewsHubInFlightAnalysisDesk rows={inFlightDeskRows} /> : null}
 
           <ReviewsHubInventoryTable
             runs={sortedFilteredRuns}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
@@ -11,9 +11,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
+  focusAdjacentFindingCard,
+  getFocusedFindingId,
   useFindingCardShortcuts,
   type FindingCardShortcutDisposition,
 } from "@/hooks/useFindingCardShortcuts";
+import {
+  COMMAND_PALETTE_FINDING_ACCEPT_EVENT,
+  COMMAND_PALETTE_FINDING_NEXT_EVENT,
+  COMMAND_PALETTE_FINDING_PREV_EVENT,
+  COMMAND_PALETTE_FINDING_REJECT_EVENT,
+  COMMAND_PALETTE_FINDING_REMEDIATE_EVENT,
+} from "@/lib/command-palette-handler-actions";
 import { recordFindingDisposition } from "@/lib/api/governance-stickiness-api";
 import { findingDispositionKindLabel } from "@/lib/disposition-export-before-after";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
@@ -72,6 +81,80 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     mutationsEnabled: canMutate,
     onFindingFocus: workbenchSelection?.setSelectedFindingId,
   });
+
+  useEffect(() => {
+    const onFindingFocus = workbenchSelection?.setSelectedFindingId;
+
+    function resolveFocusedFindingId(): string | null {
+      const focused = getFocusedFindingId();
+
+      if (focused !== null) {
+        return focused;
+      }
+
+      focusAdjacentFindingCard(1, { onFindingFocus, startFromFirstWhenUnfocused: true });
+
+      return getFocusedFindingId();
+    }
+
+    function onNext(): void {
+      focusAdjacentFindingCard(1, { onFindingFocus, startFromFirstWhenUnfocused: true });
+    }
+
+    function onPrev(): void {
+      focusAdjacentFindingCard(-1, { onFindingFocus, startFromFirstWhenUnfocused: true });
+    }
+
+    function onAccept(): void {
+      if (!canMutate) {
+        return;
+      }
+
+      const findingId = resolveFocusedFindingId();
+
+      if (findingId !== null) {
+        onAction(findingId, "Accepted");
+      }
+    }
+
+    function onRemediate(): void {
+      if (!canMutate) {
+        return;
+      }
+
+      const findingId = resolveFocusedFindingId();
+
+      if (findingId !== null) {
+        onAction(findingId, "Remediated");
+      }
+    }
+
+    function onReject(): void {
+      if (!canMutate) {
+        return;
+      }
+
+      const findingId = resolveFocusedFindingId();
+
+      if (findingId !== null) {
+        onAction(findingId, "RejectedAsNotApplicable");
+      }
+    }
+
+    window.addEventListener(COMMAND_PALETTE_FINDING_NEXT_EVENT, onNext);
+    window.addEventListener(COMMAND_PALETTE_FINDING_PREV_EVENT, onPrev);
+    window.addEventListener(COMMAND_PALETTE_FINDING_ACCEPT_EVENT, onAccept);
+    window.addEventListener(COMMAND_PALETTE_FINDING_REMEDIATE_EVENT, onRemediate);
+    window.addEventListener(COMMAND_PALETTE_FINDING_REJECT_EVENT, onReject);
+
+    return () => {
+      window.removeEventListener(COMMAND_PALETTE_FINDING_NEXT_EVENT, onNext);
+      window.removeEventListener(COMMAND_PALETTE_FINDING_PREV_EVENT, onPrev);
+      window.removeEventListener(COMMAND_PALETTE_FINDING_ACCEPT_EVENT, onAccept);
+      window.removeEventListener(COMMAND_PALETTE_FINDING_REMEDIATE_EVENT, onRemediate);
+      window.removeEventListener(COMMAND_PALETTE_FINDING_REJECT_EVENT, onReject);
+    };
+  }, [canMutate, onAction, workbenchSelection?.setSelectedFindingId]);
 
   async function applyPending(): Promise<void> {
     if (pending === null) {

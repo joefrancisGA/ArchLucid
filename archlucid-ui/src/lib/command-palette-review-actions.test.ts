@@ -12,7 +12,11 @@ describe("buildCommandPaletteReviewActions", () => {
     const actions = buildCommandPaletteReviewActions("abc-123");
 
     expect(actions).toHaveLength(3);
-    expect(actions[0]?.href).toContain("abc-123");
+    expect(actions[0]).toMatchObject({
+      id: "action-compare-this-review",
+      label: "Compare this review",
+      href: "/insights/compare-two-reviews?priorRunId=abc-123",
+    });
     expect(actions[1]?.href).toContain("runId=abc-123");
     expect(actions[2]?.href).toContain("runId=abc-123");
   });

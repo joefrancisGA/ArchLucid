@@ -5,12 +5,14 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Fragment, useMemo, useState } from "react";
 import type React from "react";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   ALERTS_PAGE_SHORTCUTS,
   FINDINGS_PAGE_SHORTCUTS,
   SHELL_COMMAND_SHORTCUTS,
   SHORTCUTS,
+  resolveShortcutDescription,
   type ShortcutEntry,
 } from "@/lib/shortcut-registry";
 
@@ -85,7 +87,7 @@ function ShortcutTable({
   );
 }
 
-function partitionNavigationShortcuts() {
+function partitionNavigationShortcuts(workingMode: boolean) {
   const withRoute: ShortcutEntry[] = [];
 
   for (const entry of SHORTCUTS) {
@@ -93,7 +95,10 @@ function partitionNavigationShortcuts() {
       continue;
     }
 
-    withRoute.push(entry);
+    withRoute.push({
+      ...entry,
+      description: resolveShortcutDescription(entry, workingMode),
+    });
   }
 
   const common = withRoute.filter((e) => COMMON_NAV_KEYS.has(e.key.toLowerCase()));
@@ -109,7 +114,11 @@ function partitionNavigationShortcuts() {
  * Also used from tests to keep shortcut copy aligned.
  */
 export function KeyboardShortcutsTabContent(): React.ReactElement {
-  const { common, rest, helpOnly } = useMemo(() => partitionNavigationShortcuts(), []);
+  const { isWorkingMode } = useWorkspaceMode();
+  const { common, rest, helpOnly } = useMemo(
+    () => partitionNavigationShortcuts(isWorkingMode),
+    [isWorkingMode],
+  );
   const [moreOpen, setMoreOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [findingsOpen, setFindingsOpen] = useState(false);

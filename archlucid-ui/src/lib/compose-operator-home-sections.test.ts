@@ -112,6 +112,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     });
 
     expect(evalEmpty.map((section) => section.id)).toEqual([
+      "in-flight",
       "unfinished",
       "start-something",
       "recent-reviews",
@@ -178,6 +179,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
 
     const sectionIds = sections.map((section) => section.id);
 
+    expect(sectionIds.indexOf("in-flight")).toBeLessThan(sectionIds.indexOf("unfinished"));
     expect(sectionIds.indexOf("unfinished")).toBeLessThan(sectionIds.indexOf("start-something"));
     expect(sectionIds.indexOf("recent-reviews")).toBeLessThan(sectionIds.indexOf("start-something"));
     expect(sectionIds).not.toContain("below-fold");

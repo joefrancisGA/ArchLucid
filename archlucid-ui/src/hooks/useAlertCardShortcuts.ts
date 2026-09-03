@@ -26,7 +26,7 @@ function getAlertCardFromActiveElement(): HTMLElement | null {
   return active.closest<HTMLElement>("[data-alert-id]");
 }
 
-function getFocusedAlertId(): string | null {
+export function getFocusedAlertId(): string | null {
   const card = getAlertCardFromActiveElement();
 
   if (card === null) {
@@ -42,7 +42,10 @@ function getFocusedAlertId(): string | null {
   return id;
 }
 
-function focusAdjacentAlertCard(delta: number): void {
+export function focusAdjacentAlertCard(
+  delta: number,
+  options?: { readonly startFromFirstWhenUnfocused?: boolean },
+): void {
   const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-alert-id]"));
 
   if (nodes.length === 0) {
@@ -53,6 +56,12 @@ function focusAdjacentAlertCard(delta: number): void {
   const idx = current !== null ? nodes.indexOf(current) : -1;
 
   if (idx < 0) {
+    if (options?.startFromFirstWhenUnfocused !== true) {
+      return;
+    }
+
+    nodes[0]?.focus();
+
     return;
   }
 

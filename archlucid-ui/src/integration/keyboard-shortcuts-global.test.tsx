@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { parseKeyCombo } from "@/hooks/useKeyboardShortcuts";
-import { SHORTCUTS } from "@/lib/shortcut-registry";
+import { SHORTCUTS, WORKING_MODE_NEW_REVIEW_ROUTE } from "@/lib/shortcut-registry";
 
 const { mockPush } = vi.hoisted(() => ({
   mockPush: vi.fn(),
@@ -63,7 +63,7 @@ describe("keyboard shortcuts global (integration)", () => {
     );
 
     fireCombo("alt+n");
-    expect(mockPush).toHaveBeenLastCalledWith("/architecture/reviews/new");
+    expect(mockPush).toHaveBeenLastCalledWith(WORKING_MODE_NEW_REVIEW_ROUTE);
 
     mockPush.mockClear();
     fireCombo("alt+c");
