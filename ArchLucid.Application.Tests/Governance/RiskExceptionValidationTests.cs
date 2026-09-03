@@ -107,4 +107,19 @@ public sealed class RiskExceptionValidationTests
 
         act.Should().Throw<ArgumentException>().WithMessage("*future*");
     }
+
+    [Fact]
+    public void ValidateRenew_rejects_evidence_ref_over_max_length()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = now.AddDays(30),
+            EvidenceRef = new string('e', RiskExceptionValidation.EvidenceRefMaxLength + 1),
+        };
+
+        Action act = () => RiskExceptionValidation.ValidateRenew(request, now);
+
+        act.Should().Throw<ArgumentException>().WithMessage($"*at most {RiskExceptionValidation.EvidenceRefMaxLength}*");
+    }
 }

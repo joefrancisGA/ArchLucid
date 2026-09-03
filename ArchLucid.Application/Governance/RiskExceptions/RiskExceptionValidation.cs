@@ -70,5 +70,17 @@ public static class RiskExceptionValidation
 
         if (request.ExpiresAtUtc > maxExpiry)
             throw new ArgumentException($"Waiver duration cannot exceed {MaxDurationDays} days.", nameof(request));
+
+        if (!string.IsNullOrWhiteSpace(request.EvidenceRef))
+        {
+            string evidenceRef = request.EvidenceRef.Trim();
+
+            if (evidenceRef.Length > EvidenceRefMaxLength)
+            {
+                throw new ArgumentException(
+                    $"Evidence reference must be at most {EvidenceRefMaxLength} characters.",
+                    nameof(request));
+            }
+        }
     }
 }
