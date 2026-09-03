@@ -6,14 +6,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpImprovementPlanningGuideView } from "@/app/(operator)/help/_sections/HelpImprovementPlanningGuideView";
-import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import {
   IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE,
-  IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING,
   IMPROVEMENT_PLANNING_HELP_SOURCES,
 } from "@/lib/improvement-planning-help-evidence-copy";
 import {
-  IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID,
   IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION,
   IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION_TAG,
   IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS,
@@ -21,6 +18,11 @@ import {
   IMPROVEMENT_PLANNING_HELP_SHOW_TILE_ITEMS,
   IMPROVEMENT_PLANNING_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/improvement-planning-help-guide-content";
+import {
+  IMPROVEMENT_PLANNING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  IMPROVEMENT_PLANNING_HELP_SKIP_LINK_LABEL,
+  IMPROVEMENT_PLANNING_HELP_SKIP_TARGET_ID,
+} from "@/lib/improvement-planning-help-page-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -29,7 +31,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("HelpImprovementPlanningGuideView", () => {
   const entry = getProductDocumentationEntry("improvement-planning");
 
-  it("renders provenance, feedback precondition, readingBody, and claim discipline", () => {
+  it("renders provenance, header claim discipline, feedback precondition, and action-first layout", () => {
     if (entry === undefined) {
       throw new Error("Expected improvement-planning documentation entry.");
     }
@@ -37,26 +39,21 @@ describe("HelpImprovementPlanningGuideView", () => {
     render(<HelpImprovementPlanningGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-improvement-planning-guide")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: IMPROVEMENT_PLANNING_HELP_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${IMPROVEMENT_PLANNING_HELP_SKIP_TARGET_ID}`,
+    );
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
+    expect(screen.queryByTestId("help-improvement-planning-claim-discipline-strip")).toBeNull();
+    expect(screen.getByTestId(IMPROVEMENT_PLANNING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
+      IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE,
+    );
     expect(screen.getByTestId("help-improvement-planning-feedback-precondition")).toHaveTextContent(
       IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION,
     );
     expect(screen.getByTestId("help-improvement-planning-feedback-precondition-tag")).toHaveTextContent(
       IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION_TAG,
-    );
-    expect(screen.getByTestId("help-improvement-planning-claim-discipline-strip")).toHaveTextContent(
-      IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE,
-    );
-    expectClaimDisciplineBandContent(
-      screen,
-      "help-improvement-planning",
-      "help-improvement-planning-claim-discipline",
-      IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE.slice(0, 40),
-    );
-    expect(screen.getByRole("heading", { name: IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
-      IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getByTestId("help-improvement-planning-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-improvement-planning-overview").textContent?.toLowerCase()).not.toContain(
@@ -82,6 +79,14 @@ describe("HelpImprovementPlanningGuideView", () => {
     for (const item of IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS) {
       expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
     }
+
+    const orientation = screen.getByTestId("help-improvement-planning-orientation");
+    const primaryContent = screen.getByTestId("help-improvement-planning-primary-content");
+    const actionPanel = screen.getByTestId("help-improvement-planning-action-panel");
+
+    expect(primaryContent).toContainElement(actionPanel);
+    expect(actionPanel.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByTestId("help-improvement-planning-claim-discipline")).toBeNull();
 
     for (const source of IMPROVEMENT_PLANNING_HELP_SOURCES.filter((item) => item.adminOnly !== true)) {
       const sourcesRegion = within(screen.getByTestId("help-improvement-planning-sources"));
