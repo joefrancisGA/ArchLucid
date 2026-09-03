@@ -1,10 +1,13 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Mvc;
@@ -318,6 +321,20 @@ public sealed partial class ManifestsController
         Persistence.Models.RunRecord? run =
             await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
-        return run is not null;
+        if (run is null)
+            return false;
+
+        AuthorityRunLifecyclePhase phase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run);
+
+        try
+        {
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(phase, runGuid.ToString("N"));
+        }
+        catch (ConflictException)
+        {
+            throw;
+        }
+
+        return true;
     }
 }

@@ -290,4 +290,11 @@ public class ManifestDocument
         get;
         set;
     }
+
+    /// <summary>Wave-13 suggestion 124: immutable artifact inventory sealed at commit.</summary>
+    public List<CommittedArtifactInventoryEntry> CommittedArtifactInventory
+    {
+        get;
+        set;
+    } = [];
 }
