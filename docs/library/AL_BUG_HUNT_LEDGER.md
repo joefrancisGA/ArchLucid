@@ -1834,11 +1834,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 117
-- **bugs-found:** 229
+- **hunts:** 118
+- **bugs-found:** 230
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `/mo` UOM substring false-positive on `1/moment` monthly meter detection
+- **last-bug:** 2026-09-03 — Azure hourly UOM `Hour` and `/hr` substring false-positives
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2229,6 +2229,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — `/mo` substring false-positive on `1/moment` — **hit 2026-09-03 (#586):** bare `Contains("/mo")` matched non-monthly `1/moment` after #539 ` mo` bounded-token fix (parity gap with #533 `/h` → `ContainsSlashHourToken`); fixed with boundary-aware `ContainsSlashMonthToken` (`LooksLikeConsumptionUsd_rejects_moment_slash_mo_unit_of_measure_false_positive`, `TryMonthlyUsdFromRow_rejects_moment_slash_mo_unit_of_measure_false_positive`).
 
 2026-09-03 seed hunt #586: reseeded from ArchLucid.Core Azure retail SKU matchers; proved `/mo` UOM substring false-positive beyond #539 bounded ` mo` token fix.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — `Hour` and `/hr` substring false-positives on `1 Hourglass` / `1/hrocket` — **hit 2026-09-03 (#588):** bare `Contains("Hour")` matched `Hourglass` and bare `Contains("/hr")` matched `/hrocket` after #533/#586 slash-token boundary fixes; fixed with `ContainsHourWordToken` (` hour` / ` hours`) and `ContainsSlashHrToken` (`LooksLikeConsumptionUsd_rejects_hourglass_hour_word_false_positive`, `LooksLikeConsumptionUsd_rejects_hrocket_slash_hr_unit_of_measure_false_positive`, `TryMonthlyUsdFromRow_accepts_hours_unit_of_measure_synonym`).
+
+2026-09-03 seed hunt #588: reseeded from ArchLucid.Core Azure retail SKU matchers; proved `Hour` and `/hr` UOM substring false-positives beyond #586 `/mo` boundary fix.
 
 - [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — backslash/pipe-delimited `enterprise` token not recognized — **hit 2026-09-02 (#532):** `contoso\enterprise\monthly` and `contoso|enterprise|annual` returned `Standard` because `IsPlanIdDelimiter` omitted `\` and `|` after #526 slash/colon fix; fixed by extending delimiters (`TierStorageCodeFromPlanId_maps_backslash_or_pipe_delimited_enterprise_token`).
 
