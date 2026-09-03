@@ -137,6 +137,7 @@ export function HelpPilotGuideView(props: HelpPilotGuideViewProps): React.ReactE
                 presentation="help"
                 sourceDocPath={sourceDocPath}
                 helpTopicSlug={entry.slug}
+                preparedMarkdownOverride={preparedMarkdown}
               />
             </div>
           </div>
