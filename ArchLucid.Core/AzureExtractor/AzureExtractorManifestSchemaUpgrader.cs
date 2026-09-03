@@ -1,6 +1,7 @@
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+
+using ArchLucid.Core.Explanation;
 
 namespace ArchLucid.Core.AzureExtractor;
 
@@ -140,7 +141,7 @@ public static class AzureExtractorManifestSchemaUpgrader
                     return true;
                 }
 
-                if (TryParseWholeNumberString(raw, out schemaVersion))
+                if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion))
                     return true;
 
                 break;
@@ -181,27 +182,6 @@ public static class AzureExtractorManifestSchemaUpgrader
         }
 
         schemaVersion = default;
-
-        return false;
-    }
-
-    private static bool TryParseWholeNumberString(string? raw, out int value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
-        {
-            return true;
-        }
-
-        value = default;
 
         return false;
     }
