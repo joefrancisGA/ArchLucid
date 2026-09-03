@@ -14,6 +14,7 @@ import {
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
 import { FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE } from "@/lib/buyer/buyer-polish-copy";
 import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type FirstReviewGuideStepUiStatus = "not-started" | "current" | "complete" | "blocked";
@@ -65,8 +66,8 @@ export type FirstReviewGuideHeaderActions = {
   readonly primaryHref: string;
   readonly primaryDisabled: boolean;
   readonly primaryDisabledReason: string | null;
-  readonly secondaryLabel: string;
-  readonly secondaryHref: string;
+  readonly secondaryLabel: string | null;
+  readonly secondaryHref: string | null;
 };
 
 export type FirstReviewGuideOutcomeLink = {
@@ -352,7 +353,12 @@ export function resolveFirstReviewGuideHeaderActions(
   input: FirstReviewGuideStateInput,
 ): FirstReviewGuideHeaderActions {
   const { commitContext, canExecute } = input;
-  const sampleHref = reviewDetailHref(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const liveShell = isLiveOperatorShellRecoveryContext();
+  const sampleHref = liveShell ? null : reviewDetailHref(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const sampleSecondary =
+    sampleHref !== null
+      ? { secondaryLabel: "Explore sample review" as const, secondaryHref: sampleHref }
+      : { secondaryLabel: null, secondaryHref: null };
 
   if (hasSealedReviewRecord(commitContext) && commitContext.firstCommittedRunId !== null) {
     return {
@@ -372,8 +378,7 @@ export function resolveFirstReviewGuideHeaderActions(
         primaryHref: reviewDetailHref(commitContext.latestRunId),
         primaryDisabled: false,
         primaryDisabledReason: null,
-        secondaryLabel: "Explore sample review",
-        secondaryHref: sampleHref,
+        ...sampleSecondary,
       };
     }
 
@@ -382,8 +387,7 @@ export function resolveFirstReviewGuideHeaderActions(
       primaryHref: reviewDetailHref(commitContext.latestRunId),
       primaryDisabled: false,
       primaryDisabledReason: null,
-      secondaryLabel: "Explore sample review",
-      secondaryHref: sampleHref,
+      ...sampleSecondary,
     };
   }
 
@@ -393,9 +397,10 @@ export function resolveFirstReviewGuideHeaderActions(
     primaryDisabled: !canExecute,
     primaryDisabledReason: canExecute
       ? null
-      : "Review creation requires elevated workspace permissions. Ask your administrator or explore the sample review.",
-    secondaryLabel: "Explore sample review",
-    secondaryHref: sampleHref,
+      : liveShell
+        ? "Review creation requires elevated workspace permissions. Ask your administrator."
+        : "Review creation requires elevated workspace permissions. Ask your administrator or explore the sample review.",
+    ...sampleSecondary,
   };
 }
 

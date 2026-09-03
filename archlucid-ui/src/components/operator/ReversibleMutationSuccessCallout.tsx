@@ -62,7 +62,7 @@ export function ReversibleMutationSuccessCallout(
             {props.undoBusy === true ? "Undoing…" : "Undo"}
           </Button>
           <p className="m-0 text-sm text-al-text-secondary">
-            Available for {MUTATION_UNDO_WINDOW_SECONDS} seconds
+            Available for several minutes
           </p>
         </div>
       ) : null}
