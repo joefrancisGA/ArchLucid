@@ -2871,11 +2871,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 105
-- **bugs-found:** 259
+- **hunts:** 106
+- **bugs-found:** 260
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — product-feedback comment max-length validation; whitespace comment normalization
+- **last-bug:** 2026-09-03 — exec/sponsor digest recipient serialized max-length validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3362,6 +3362,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `comment` longer than `dbo.ProductFeedback.CommentText NVARCHAR(2000)` reached SQL without HTTP 400 while `RunsController.PostFindingFeedbackAsync` already capped at 2000 — **hit 2026-09-03 (#550):** trim/normalize whitespace-only comment to null and reject over-length before `InsertProductFeedbackAsync`; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_comment_exceeds_max_length`.
 
 2026-09-03 seed hunt #550: proved product-feedback comment max-length validation parity with finding-feedback; seeded whitespace-only comment persistence candidate (closed in same fix).
+
+- [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` / `DigestRecipientEmailsValidator` — semicolon-joined recipient list longer than `RecipientEmails NVARCHAR(2000)` reached SQL without HTTP 400 (format/dedupe validated only) — **hit 2026-09-03 (#551):** reject serialized length > 2000 in shared validator before upsert; regression in `TenantExecDigestPreferencesControllerTests.PostExecDigestPreferences_returns_bad_request_when_recipient_emails_exceed_max_serialized_length` and `TenantSponsorDigestPreferencesControllerTests.PostSponsorDigestPreferences_returns_bad_request_when_recipient_emails_exceed_max_serialized_length`.
+- [ ] (candidate) `GovernanceStickinessController.CreateRiskException` / `RiskExceptionValidation` — `evidenceRef` (`NVARCHAR(500)`) and `ownerUserId` (`NVARCHAR(256)`) lack controller max-length guards before `SqlRiskExceptionRepository.CreateAsync` (required/whitespace only today).
+
+2026-09-03 seed hunt #551: proved exec/sponsor digest recipient serialized max-length validation; seeded risk-exception evidenceRef/ownerUserId max-length candidates.
 
 ---
 
