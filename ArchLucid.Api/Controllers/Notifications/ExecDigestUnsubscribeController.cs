@@ -53,7 +53,7 @@ public sealed class ExecDigestUnsubscribeController(
         await _preferencesRepository.TryDisableEmailAsync(tenantId, cancellationToken);
 
         return Content(
-            "Sponsor digest email has been turned off for this tenant.",
+            "Exec digest email has been turned off for this tenant.",
             "text/plain",
             Encoding.UTF8);
     }

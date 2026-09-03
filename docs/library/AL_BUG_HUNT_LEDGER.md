@@ -2628,11 +2628,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 11
-- **bugs-found:** 20
+- **hunts:** 12
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — digest subscription trim/unknown channel validation; multi-recipient ledger replay success
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — digest email subscription accepted non-mailbox destinations; exec unsubscribe copy mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2667,6 +2667,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RecurrenceCompletionNotificationService` recorded `emailSent: false` on replay when ledger already recorded all recipients — **hit 2026-09-02 (#425):** `MultiRecipientEmailDispatch` returned `false` when every mailbox was skipped via `IsRecordedAsync`; fixed idempotent replay to return `true` (parity with `FindingRemediationAssignmentEmailDispatcher`); regression in `RecurrenceCompletionEmailDispatcherTests.TryDispatchAsync_returns_true_when_all_mailboxes_already_recorded`.
 
 2026-09-02 thorough hunt #425: proved digest subscription trim + unknown-channel validation; multi-recipient ledger replay success; cheap-disproved FakeEmailSender as shared digest/alert composition design.
+
+- [x] (proven) `DigestSubscriptionFacade.CreateAsync` accepted non-mailbox Email destinations — **hit 2026-09-03 (#540):** `finance-team` and `finance@` persisted while exec/sponsor digest preferences already validate mailboxes via `IdentityEmailNormalizer`; fixed with email-channel mailbox validation and lowercase normalization (`DigestSubscriptionsControllerTests.Create_rejects_invalid_email_destination`).
+- [x] (proven) `DigestSubscriptionFacade.CreateAsync` persisted non-canonical `ChannelType` casing — **hit 2026-09-03 (#540):** lowercase `email` stored as-is instead of `DigestDeliveryChannelType.Email`; fixed with `CanonicalizeChannelType` (`DigestSubscriptionsControllerTests.Create_canonicalizes_email_channel_type_to_contract_constant`).
+- [x] (proven) `ExecDigestUnsubscribeController` success text copied from sponsor digest — **hit 2026-09-03 (#540):** valid exec-digest unsubscribe returned `"Sponsor digest email has been turned off..."`; fixed copy to `"Exec digest email..."` (`ExecDigestUnsubscribeControllerTests.UnsubscribeAsync_valid_token_disables_email_and_returns_plain_text`).
+
+2026-09-03 seed hunt #540: reseeded from notifications-pipeline; proved digest email destination validation gap, channel-type canonicalization, and exec unsubscribe copy mismatch beyond #425 trim/channel validation.
 
 ## Zone: artifact-synthesis
 

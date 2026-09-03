@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -72,6 +73,21 @@ public sealed class DigestSubscriptionFacade(
                 };
             }
         }
+        else if (string.Equals(channelType, DigestDeliveryChannelType.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            if (!IdentityEmailNormalizer.TryNormalize(destination, out string normalizedEmail, out _))
+            {
+                return new DigestSubscriptionCreateResult
+                {
+                    Outcome = DigestSubscriptionHttpOutcome.ValidationFailed,
+                    Message = $"Destination '{destination}' is not a valid email address.",
+                };
+            }
+
+            destination = normalizedEmail;
+        }
+
+        string canonicalChannelType = CanonicalizeChannelType(channelType);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
@@ -79,7 +95,7 @@ public sealed class DigestSubscriptionFacade(
         subscription.TenantId = scope.TenantId;
         subscription.WorkspaceId = scope.WorkspaceId;
         subscription.ProjectId = scope.ProjectId;
-        subscription.ChannelType = channelType;
+        subscription.ChannelType = canonicalChannelType;
         subscription.Destination = destination;
         subscription.CreatedUtc = TimeProvider.System.UtcNowDateTime();
 
@@ -259,4 +275,18 @@ public sealed class DigestSubscriptionFacade(
     private static bool IsOutboundWebhookChannel(string? channelType) =>
         string.Equals(channelType, DigestDeliveryChannelType.TeamsWebhook, StringComparison.OrdinalIgnoreCase) ||
         string.Equals(channelType, DigestDeliveryChannelType.SlackWebhook, StringComparison.OrdinalIgnoreCase);
+
+    private static string CanonicalizeChannelType(string channelType)
+    {
+        if (string.Equals(channelType, DigestDeliveryChannelType.Email, StringComparison.OrdinalIgnoreCase))
+            return DigestDeliveryChannelType.Email;
+
+        if (string.Equals(channelType, DigestDeliveryChannelType.TeamsWebhook, StringComparison.OrdinalIgnoreCase))
+            return DigestDeliveryChannelType.TeamsWebhook;
+
+        if (string.Equals(channelType, DigestDeliveryChannelType.SlackWebhook, StringComparison.OrdinalIgnoreCase))
+            return DigestDeliveryChannelType.SlackWebhook;
+
+        return channelType;
+    }
 }
