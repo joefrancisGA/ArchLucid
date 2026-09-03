@@ -32,6 +32,34 @@ public sealed class PolicyPacksHttpMapperTests
     }
 
     [Fact]
+    public void ValidatePromoteCatalogEntry_rejects_overlong_optional_version()
+    {
+        GovernanceHttpValidation? validation = PolicyPacksHttpMapper.ValidatePromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                Version = new string('1', PolicyPackRequestValidationRules.PackVersionMaxLength + 1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.Message.Should().Contain(PolicyPackRequestValidationRules.PackVersionMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidatePromoteCatalogEntry_rejects_non_semver_optional_version()
+    {
+        GovernanceHttpValidation? validation = PolicyPacksHttpMapper.ValidatePromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                Version = "latest",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.Message.Should().Be(PolicyPackRequestValidationRules.PackVersionSemVerMessage);
+    }
+
+    [Fact]
     public void ValidatePackVersion_rejects_blank_version()
     {
         GovernanceHttpValidation? validation = PolicyPacksHttpMapper.ValidatePackVersion("   ");
