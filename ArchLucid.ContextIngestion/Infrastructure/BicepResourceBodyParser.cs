@@ -20,6 +20,12 @@ internal static class BicepResourceBodyParser
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+    private static readonly Regex MultilineArrayAssignmentRegex = new(
+        """
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*$
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
     private static readonly Regex ScalarAssignmentRegex = new(
         """
         ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*(?<value>.+?)\s*$
@@ -62,21 +68,15 @@ internal static class BicepResourceBodyParser
 
             if (arrayMatch.Success)
             {
-                string arrayKey = arrayMatch.Groups["key"].Value;
-                string fromHere = string.Join('\n', lines[lineIndex..]);
-                int bracketIndex = fromHere.IndexOf('[', StringComparison.Ordinal);
-                string arrayBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBracketBody(fromHere, bracketIndex);
-
-                if (!string.IsNullOrWhiteSpace(arrayBody)
-                    && BicepArrayLiteralConverter.TryParseToJsonElement(arrayBody, out JsonElement arrayElement))
-                {
-                    BicepArrayLiteralConverter.TryAddParsedArrayProperty(properties, arrayKey, arrayElement);
-                }
-
-                int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
-                lineIndex += consumedArrayLines;
-                continue;
+                if (TryConsumeArrayAssignment(lines, ref lineIndex, arrayMatch.Groups["key"].Value, properties))
+                    continue;
             }
+
+            Match multilineArrayMatch = MultilineArrayAssignmentRegex.Match(line);
+
+            if (multilineArrayMatch.Success
+                && TryConsumeMultilineArrayAssignment(lines, ref lineIndex, multilineArrayMatch.Groups["key"].Value, properties))
+                continue;
 
             Match nestedBlockMatch = NestedBlockStartRegex.Match(line);
 
@@ -124,6 +124,68 @@ internal static class BicepResourceBodyParser
             InfrastructureDeclarationSecurityPropertyWriter.TryAddTfPropertyWithArmAlias(properties, key, scalarValue);
             lineIndex++;
         }
+    }
+
+    private static bool TryConsumeArrayAssignment(
+        string[] lines,
+        ref int lineIndex,
+        string arrayKey,
+        Dictionary<string, string> properties)
+    {
+        string fromHere = string.Join('\n', lines[lineIndex..]);
+        int bracketIndex = fromHere.IndexOf('[', StringComparison.Ordinal);
+        string arrayBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBracketBody(fromHere, bracketIndex);
+
+        if (!string.IsNullOrWhiteSpace(arrayBody)
+            && BicepArrayLiteralConverter.TryParseToJsonElement(arrayBody, out JsonElement arrayElement))
+        {
+            BicepArrayLiteralConverter.TryAddParsedArrayProperty(properties, arrayKey, arrayElement);
+        }
+
+        int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
+        lineIndex += consumedArrayLines;
+
+        return true;
+    }
+
+    private static bool TryConsumeMultilineArrayAssignment(
+        string[] lines,
+        ref int lineIndex,
+        string arrayKey,
+        Dictionary<string, string> properties)
+    {
+        int probeIndex = lineIndex + 1;
+
+        while (probeIndex < lines.Length)
+        {
+            string probeLine = lines[probeIndex].Trim();
+
+            if (probeLine.Length == 0 || probeLine.StartsWith("//", StringComparison.Ordinal))
+            {
+                probeIndex++;
+                continue;
+            }
+
+            if (!probeLine.StartsWith("[", StringComparison.Ordinal))
+                return false;
+
+            string fromHere = string.Join('\n', lines[probeIndex..]);
+            int bracketIndex = fromHere.IndexOf('[', StringComparison.Ordinal);
+            string arrayBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBracketBody(fromHere, bracketIndex);
+
+            if (!string.IsNullOrWhiteSpace(arrayBody)
+                && BicepArrayLiteralConverter.TryParseToJsonElement(arrayBody, out JsonElement arrayElement))
+            {
+                BicepArrayLiteralConverter.TryAddParsedArrayProperty(properties, arrayKey, arrayElement);
+            }
+
+            int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
+            lineIndex += probeIndex - lineIndex + consumedArrayLines;
+
+            return true;
+        }
+
+        return false;
     }
 
     private static bool IsFlattenableBlockName(string blockName) =>

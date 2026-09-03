@@ -121,7 +121,7 @@ public sealed class GcpCloudBillingCatalogClient
                 await http.GetStreamAsync(requestUri, ct).ConfigureAwait(false),
                 cancellationToken: ct).ConfigureAwait(false);
 
-            if (!document.RootElement.TryGetProperty("skus", out JsonElement skus))
+            if (!TryGetPropertyCaseInsensitive(document.RootElement, "skus", out JsonElement skus))
                 return null;
 
             string needle = machineType.Trim();
@@ -134,7 +134,7 @@ public sealed class GcpCloudBillingCatalogClient
                 string? description = descriptionElement.GetString();
 
                 if (string.IsNullOrWhiteSpace(description)
-                    || !description.Contains(needle, StringComparison.OrdinalIgnoreCase))
+                    || !DescriptionMatchesMachineType(description, needle))
                 {
                     continue;
                 }
@@ -145,21 +145,22 @@ public sealed class GcpCloudBillingCatalogClient
                     continue;
                 }
 
-                JsonElement firstPricing = pricingInfo[0];
-
-                if (!TryGetPropertyCaseInsensitive(firstPricing, "pricingExpression", out JsonElement expression))
-                    continue;
-
-                if (!TryGetPropertyCaseInsensitive(expression, "usageUnit", out JsonElement usageUnit)
-                    || !IsHourlyUsageUnit(usageUnit))
+                foreach (JsonElement pricingEntry in pricingInfo.EnumerateArray())
                 {
-                    continue;
+                    if (!TryGetPropertyCaseInsensitive(pricingEntry, "pricingExpression", out JsonElement expression))
+                        continue;
+
+                    if (!TryGetPropertyCaseInsensitive(expression, "usageUnit", out JsonElement usageUnit)
+                        || !IsHourlyUsageUnit(usageUnit))
+                    {
+                        continue;
+                    }
+
+                    if (!TryReadTieredRateUsd(pricingEntry, out decimal hourly))
+                        continue;
+
+                    return hourly;
                 }
-
-                if (!TryReadTieredRateUsd(firstPricing, out decimal hourly))
-                    continue;
-
-                return hourly;
             }
 
             return null;
@@ -184,26 +185,36 @@ public sealed class GcpCloudBillingCatalogClient
             return false;
         }
 
-        JsonElement firstTier = tieredRates[0];
+        foreach (JsonElement tier in tieredRates.EnumerateArray())
+        {
+            if (!TryGetPropertyCaseInsensitive(tier, "unitPrice", out JsonElement unitPrice))
+                continue;
 
-        if (!TryGetPropertyCaseInsensitive(firstTier, "unitPrice", out JsonElement unitPrice))
-            return false;
+            long units = 0;
 
-        if (!TryGetPropertyCaseInsensitive(unitPrice, "units", out JsonElement unitsElement))
-            return false;
+            if (TryGetPropertyCaseInsensitive(unitPrice, "units", out JsonElement unitsElement)
+                && !TryReadInt64Token(unitsElement, out units))
+            {
+                units = 0;
+            }
 
-        if (!TryGetPropertyCaseInsensitive(unitPrice, "nanos", out JsonElement nanosElement))
-            return false;
+            int nanos = 0;
 
-        if (!TryReadInt64Token(unitsElement, out long units))
-            units = 0;
+            if (TryGetPropertyCaseInsensitive(unitPrice, "nanos", out JsonElement nanosElement)
+                && !TryReadInt32Token(nanosElement, out nanos))
+            {
+                nanos = 0;
+            }
 
-        if (!TryReadInt32Token(nanosElement, out int nanos))
-            nanos = 0;
+            hourlyUsd = units + nanos / 1_000_000_000m;
 
-        hourlyUsd = units + nanos / 1_000_000_000m;
+            if (hourlyUsd > 0m)
+                return true;
+        }
 
-        return hourlyUsd > 0m;
+        hourlyUsd = 0m;
+
+        return false;
     }
 
     private static bool IsHourlyUsageUnit(JsonElement element)
@@ -219,7 +230,13 @@ public sealed class GcpCloudBillingCatalogClient
         if (TryParseBooleanString(raw, out bool boolean))
             return boolean;
 
-        return string.Equals(raw?.Trim(), "h", StringComparison.OrdinalIgnoreCase);
+        string? trimmed = raw?.Trim();
+
+        return string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "Hrs", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hour", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hours", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryReadInt64Token(JsonElement element, out long value)
@@ -421,6 +438,43 @@ public sealed class GcpCloudBillingCatalogClient
         value = default;
 
         return false;
+    }
+
+    private static bool DescriptionMatchesMachineType(string description, string machineType)
+    {
+        int index = description.IndexOf(machineType, StringComparison.OrdinalIgnoreCase);
+
+        if (index < 0)
+            return false;
+
+        int endIndex = index + machineType.Length;
+
+        if (index > 0)
+        {
+            char previous = description[index - 1];
+
+            if (previous is >= '0' and <= '9' or '-')
+                return false;
+
+            // Reject letter-variant prefixes such as e2-micro matching ve2-micro.
+            if (char.IsLetter(previous))
+                return false;
+        }
+
+        if (endIndex >= description.Length)
+            return true;
+
+        char next = description[endIndex];
+
+        // Reject prefix collisions such as n1-standard-1 matching n1-standard-10.
+        if (next is >= '0' and <= '9' or '-')
+            return false;
+
+        // Reject letter-variant suffixes such as n1-standard-1 matching n1-standard-1d.
+        if (char.IsDigit(description[endIndex - 1]) && char.IsLetter(next))
+            return false;
+
+        return true;
     }
 
     private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)

@@ -37,7 +37,18 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandler(
             return MarketplaceWebhookMutationOutcome.DeferredGaDisabled;
         }
 
-        int seats = MarketplaceWebhookPayloadParser.ReadQuantity(root);
+        if (!MarketplaceWebhookPayloadParser.TryReadQuantity(root, out int seats))
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "ChangeQuantity payload missing quantity; skipping ledger mutation. TenantId={TenantId}",
+                    tenantId);
+            }
+
+            return MarketplaceWebhookMutationOutcome.DeferredGaDisabled;
+        }
+
         await _ledger.ChangeQuantityAsync(tenantId, seats, rawBody, cancellationToken);
         return MarketplaceWebhookMutationOutcome.Applied;
     }
