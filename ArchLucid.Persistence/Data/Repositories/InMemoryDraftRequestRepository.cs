@@ -12,7 +12,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
-    private readonly ConcurrentDictionary<Guid, StoredDraft> _drafts = new();
+    private readonly ConcurrentDictionary<Guid, InMemoryDraftRequestStoredDraft> _drafts = new();
 
     /// <inheritdoc />
     public Task<DraftRequestResponse?> GetAsync(
@@ -22,7 +22,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         Guid draftId,
         CancellationToken cancellationToken)
     {
-        if (!_drafts.TryGetValue(draftId, out StoredDraft? stored))
+        if (!_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
             return Task.FromResult<DraftRequestResponse?>(null);
 
         if (!DraftRequestRepositoryCore.MatchesProjectScope(
@@ -50,7 +50,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(createdByUserId);
 
         DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
-        StoredDraft stored = new()
+        InMemoryDraftRequestStoredDraft stored = new()
         {
             DraftId = Guid.NewGuid(),
             TenantId = tenantId,
@@ -84,7 +84,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        if (!_drafts.TryGetValue(draftId, out StoredDraft? stored))
+        if (!_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
             return Task.FromResult<DraftRequestResponse?>(null);
 
         if (!DraftRequestRepositoryCore.MatchesProjectScope(
@@ -121,12 +121,12 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         DateTime cutoff = updatedBeforeUtc.UtcDateTime;
         List<Guid> deleted = [];
 
-        foreach (KeyValuePair<Guid, StoredDraft> entry in _drafts.ToArray())
+        foreach (KeyValuePair<Guid, InMemoryDraftRequestStoredDraft> entry in _drafts.ToArray())
         {
             if (deleted.Count >= effectiveBatchSize)
                 break;
 
-            StoredDraft stored = entry.Value;
+            InMemoryDraftRequestStoredDraft stored = entry.Value;
 
             if (!DraftRequestRepositoryCore.IsReaperEligible(stored.Status, stored.UpdatedUtc, cutoff))
                 continue;
@@ -194,26 +194,16 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         int maxCount,
         CancellationToken cancellationToken)
     {
-        int effectiveMax = DraftRequestRepositoryCore.ClampPriorDraftsMaxCount(maxCount);
-        List<DraftRequestResponse> matches = _drafts.Values
-            .Where(stored =>
-                DraftRequestRepositoryCore.MatchesProjectScope(
-                    tenantId,
-                    workspaceId,
-                    projectId,
-                    stored.TenantId,
-                    stored.WorkspaceId,
-                    stored.ProjectId)
-                && DraftRequestRepositoryCore.MatchesRunSpawnedInScope(
-                    stored.Status,
-                    stored.DraftId,
-                    excludeDraftId))
-            .OrderByDescending(stored => stored.UpdatedUtc)
-            .Take(effectiveMax)
-            .Select(Map)
-            .ToList();
+        IReadOnlyList<DraftRequestResponse> matches = DraftRequestRepositoryCore.ListRunSpawnedInScope(
+            _drafts.Values,
+            tenantId,
+            workspaceId,
+            projectId,
+            excludeDraftId,
+            maxCount,
+            Map);
 
-        return Task.FromResult<IReadOnlyList<DraftRequestResponse>>(matches);
+        return Task.FromResult(matches);
     }
 
     /// <inheritdoc />
@@ -226,29 +216,20 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         int pageSize,
         CancellationToken cancellationToken)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(createdByUserId);
-        DraftRequestRepositoryCore.ValidateStatusFilter(statuses);
+        (IReadOnlyList<DraftRequestResponse> pageItems, int totalCount) =
+            DraftRequestRepositoryCore.ListForCreatorInWorkspace(
+                _drafts.Values,
+                tenantId,
+                workspaceId,
+                createdByUserId,
+                statuses,
+                page,
+                pageSize,
+                Map);
 
         (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
-        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
-        HashSet<DraftRequestStatus> statusFilter = statuses.ToHashSet();
 
-        List<DraftRequestResponse> matches = _drafts.Values
-            .Where(stored =>
-                stored.TenantId == tenantId
-                && stored.WorkspaceId == workspaceId
-                && DraftRequestRepositoryCore.MatchesCreatorInWorkspace(
-                    stored.CreatedByUserId,
-                    stored.Status,
-                    createdByUserId,
-                    statusFilter))
-            .OrderByDescending(stored => stored.UpdatedUtc)
-            .Select(Map)
-            .ToList();
-
-        IReadOnlyList<DraftRequestResponse> pageItems = matches.Skip(skip).Take(safePageSize).ToList();
-
-        return Task.FromResult(PagedResponseBuilder.FromDatabasePage(pageItems, matches.Count, safePage, safePageSize));
+        return Task.FromResult(PagedResponseBuilder.FromDatabasePage(pageItems, totalCount, safePage, safePageSize));
     }
 
     /// <inheritdoc />
@@ -259,125 +240,16 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         string spawnedRunId,
         CancellationToken cancellationToken)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(spawnedRunId);
-
-        StoredDraft? match = _drafts.Values.FirstOrDefault(stored =>
-            DraftRequestRepositoryCore.MatchesProjectScope(
-                tenantId,
-                workspaceId,
-                projectId,
-                stored.TenantId,
-                stored.WorkspaceId,
-                stored.ProjectId)
-            && DraftRequestRepositoryCore.MatchesSpawnedRunId(stored.SpawnedRunId, spawnedRunId));
+        InMemoryDraftRequestStoredDraft? match = DraftRequestRepositoryCore.FindBySpawnedRunId(
+            _drafts.Values,
+            tenantId,
+            workspaceId,
+            projectId,
+            spawnedRunId);
 
         return Task.FromResult(match is null ? null : Map(match));
     }
 
-    private static DraftRequestResponse Map(StoredDraft stored) =>
-        new()
-        {
-            DraftId = stored.DraftId,
-            TenantId = stored.TenantId,
-            WorkspaceId = stored.WorkspaceId,
-            ProjectId = stored.ProjectId,
-            Status = stored.Status,
-            Document = DraftRequestRepositoryCore.CloneDocument(stored.Document, JsonOptions),
-            RedirectReason = stored.RedirectReason,
-            SpawnedRunId = stored.SpawnedRunId,
-            SpawnedArchitectureVersionId = stored.SpawnedArchitectureVersionId,
-            DocumentContentHashSha256 = stored.DocumentContentHashSha256,
-            SpawnedDocumentContentHashSha256 = stored.SpawnedDocumentContentHashSha256,
-            CreatedByUserId = stored.CreatedByUserId,
-            CreatedUtc = stored.CreatedUtc,
-            UpdatedUtc = stored.UpdatedUtc,
-        };
-
-
-    private sealed class StoredDraft
-    {
-        public Guid DraftId
-        {
-            get;
-            set;
-        }
-
-        public Guid TenantId
-        {
-            get;
-            set;
-        }
-
-        public Guid WorkspaceId
-        {
-            get;
-            set;
-        }
-
-        public Guid ProjectId
-        {
-            get;
-            set;
-        }
-
-        public string CreatedByUserId
-        {
-            get;
-            set;
-        } = string.Empty;
-
-        public DraftRequestStatus Status
-        {
-            get;
-            set;
-        }
-
-        public DraftRequestDocument Document
-        {
-            get;
-            set;
-        } = new();
-
-        public string? RedirectReason
-        {
-            get;
-            set;
-        }
-
-        public string? SpawnedRunId
-        {
-            get;
-            set;
-        }
-
-        public Guid? SpawnedArchitectureVersionId
-        {
-            get;
-            set;
-        }
-
-        public byte[]? DocumentContentHashSha256
-        {
-            get;
-            set;
-        }
-
-        public byte[]? SpawnedDocumentContentHashSha256
-        {
-            get;
-            set;
-        }
-
-        public DateTime CreatedUtc
-        {
-            get;
-            set;
-        }
-
-        public DateTime UpdatedUtc
-        {
-            get;
-            set;
-        }
-    }
+    private static DraftRequestResponse Map(InMemoryDraftRequestStoredDraft stored) =>
+        DraftRequestRepositoryCore.MapInMemoryStoredDraft(stored, JsonOptions);
 }

@@ -6,7 +6,12 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { governanceFindingsGroupByHrefFromSearch } from "@/lib/governance/governance-findings-group-by-url";
+import {
+  governanceFindingsNlSeverityHrefFromSearch,
+  governanceFindingsNlStatusHrefFromSearch,
+} from "@/lib/governance/governance-findings-queue-nl-facets-url";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture/architecture-risk-register-csv";
 import {
   matchesRiskRegisterFilter,
@@ -34,6 +39,8 @@ export type GovernanceFindingsFilterBarProps = {
   readonly onRegisterFilterChange: (filter: RiskRegisterFilter) => void;
   readonly jobView: FindingJobView;
   readonly onJobViewChange: (jobView: FindingJobView) => void;
+  readonly nlFacets: FindingsNaturalLanguageFacets;
+  readonly onNlFacetsChange: (facets: FindingsNaturalLanguageFacets) => void;
   readonly savedPresets: readonly GovernanceFindingsFilterPreset[];
   readonly onSaveCurrentFilterAsPreset: () => void;
   readonly onRemovePreset: (id: string) => void;
@@ -152,6 +159,74 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
       {props.onNaturalLanguageFilterApply !== undefined ? (
         <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />
       ) : null}
+
+      <FilterChipGroup aria-label="Severity facet" className="flex flex-wrap gap-2">
+        <FilterChip
+          href={governanceFindingsNlSeverityHrefFromSearch(currentSearch, null, pathname)}
+          scroll={false}
+          className={buyerFilterChipClass(props.nlFacets.severity === null, false)}
+          aria-current={props.nlFacets.severity === null ? "page" : undefined}
+          data-testid="governance-findings-nl-severity-any"
+          onClick={() => {
+            props.onNlFacetsChange({ ...props.nlFacets, severity: null });
+          }}
+        >
+          Any severity
+        </FilterChip>
+        {(["critical", "high", "medium", "low"] as const).map((severity) => (
+          <FilterChip
+            key={severity}
+            href={governanceFindingsNlSeverityHrefFromSearch(currentSearch, severity, pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(props.nlFacets.severity === severity, false)}
+            aria-current={props.nlFacets.severity === severity ? "page" : undefined}
+            data-testid={`governance-findings-nl-severity-${severity}`}
+            onClick={() => {
+              props.onNlFacetsChange({ ...props.nlFacets, severity });
+            }}
+          >
+            {severity.charAt(0).toUpperCase() + severity.slice(1)}
+          </FilterChip>
+        ))}
+      </FilterChipGroup>
+      <FilterChipGroup aria-label="Status facet" className="flex flex-wrap gap-2">
+        <FilterChip
+          href={governanceFindingsNlStatusHrefFromSearch(currentSearch, null, pathname)}
+          scroll={false}
+          className={buyerFilterChipClass(props.nlFacets.status === null, false)}
+          aria-current={props.nlFacets.status === null ? "page" : undefined}
+          data-testid="governance-findings-nl-status-any"
+          onClick={() => {
+            props.onNlFacetsChange({ ...props.nlFacets, status: null });
+          }}
+        >
+          Any status
+        </FilterChip>
+        <FilterChip
+          href={governanceFindingsNlStatusHrefFromSearch(currentSearch, "open", pathname)}
+          scroll={false}
+          className={buyerFilterChipClass(props.nlFacets.status === "open", false)}
+          aria-current={props.nlFacets.status === "open" ? "page" : undefined}
+          data-testid="governance-findings-nl-status-open"
+          onClick={() => {
+            props.onNlFacetsChange({ ...props.nlFacets, status: "open" });
+          }}
+        >
+          Open
+        </FilterChip>
+        <FilterChip
+          href={governanceFindingsNlStatusHrefFromSearch(currentSearch, "disposed", pathname)}
+          scroll={false}
+          className={buyerFilterChipClass(props.nlFacets.status === "disposed", false)}
+          aria-current={props.nlFacets.status === "disposed" ? "page" : undefined}
+          data-testid="governance-findings-nl-status-disposed"
+          onClick={() => {
+            props.onNlFacetsChange({ ...props.nlFacets, status: "disposed" });
+          }}
+        >
+          Disposed
+        </FilterChip>
+      </FilterChipGroup>
 
       {savedPresets.length > 0 ? (
         <div className="flex flex-wrap items-center gap-1.5" aria-label="Saved filter presets">

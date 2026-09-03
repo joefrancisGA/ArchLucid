@@ -34,6 +34,7 @@ export type GovernanceFindingsListProps = {
   readonly selectedFindingIds: ReadonlySet<string>;
   readonly onSelectionChange: (next: ReadonlySet<string>) => void;
   readonly onBulkApplied: () => void;
+  readonly showInsightDensityScore?: boolean;
 };
 
 function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): ReactElement {
@@ -45,6 +46,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
     selectedFindingIds,
     onSelectionChange,
     onBulkApplied,
+    showInsightDensityScore = false,
   } = props;
 
   const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
@@ -234,6 +236,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
         onActivateRow={(row) => {
           openTriageRow(row);
         }}
+        showInsightDensityScore={showInsightDensityScore}
       />
 
       <div className="space-y-3 md:hidden" data-testid="governance-findings-queue-mobile">

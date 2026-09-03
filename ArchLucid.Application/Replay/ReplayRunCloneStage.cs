@@ -13,6 +13,12 @@ public sealed class ReplayRunCloneStage : IReplayRunCloneStage
         ArgumentNullException.ThrowIfNull(original);
         ArgumentException.ThrowIfNullOrWhiteSpace(replayRunId);
 
+        if (string.IsNullOrWhiteSpace(original.RunId))
+        {
+            throw new ConflictException(
+                "Replay clone blocked: source evidence package is missing a source run header binding.");
+        }
+
         return new AgentEvidencePackage
         {
             EvidencePackageId = Guid.NewGuid().ToString("N"),

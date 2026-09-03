@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
 import { QuickStartL0MustQuestionsPanel } from "@/components/architecture/QuickStartL0MustQuestionsPanel";
+import { useExpertIntakePostureEnabled } from "@/components/reviews/ExpertIntakePostureToggle";
 import { EvidenceExtractionProgressCard } from "@/components/evidence/EvidenceExtractionProgressCard";
 import { EvidenceExtractionStickyIndicator } from "@/components/evidence/EvidenceExtractionStickyIndicator";
 import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
@@ -56,6 +57,7 @@ type FirstPilotIntakeFieldsProps = {
 
 export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): React.JSX.Element {
   const { wizard } = props;
+  const expertIntakePosture = useExpertIntakePostureEnabled();
   const extractionCardRef = useRef<HTMLDivElement>(null);
   const extractionProgress = wizard.evidenceExtractionProgress;
   const showExtractionCard = extractionProgress.phase !== "idle";
@@ -75,7 +77,9 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
           {CREATE_REVIEW_PACKAGE_HEADING}
         </h2>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}
+          {expertIntakePosture
+            ? "Expert intake: paste your brief first, then confirm MUST questions in the checklist below."
+            : REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}
         </p>
       </div>
 

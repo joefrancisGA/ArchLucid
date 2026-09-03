@@ -26,6 +26,7 @@ import { ArchitectureDraftListClient } from "./ArchitectureDraftListClient";
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   usePathname: () => "/architecture/architectures",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/api/draft-intake-api", () => ({

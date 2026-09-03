@@ -236,7 +236,7 @@ public sealed class ApplicationPackageCoverageBatch14Tests
     }
 
     [Fact]
-    public void ReplayAuthorityRunRecordFactory_CreateForReplay_uses_call_scope_and_resolves_origin_when_source_missing()
+    public void ReplayAuthorityRunRecordFactory_CreateForReplay_throws_when_source_missing()
     {
         Guid replayRunId = Guid.NewGuid();
         ScopeContext callScope = new()
@@ -252,15 +252,11 @@ public sealed class ApplicationPackageCoverageBatch14Tests
             WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
         };
 
-        RunRecord result = ReplayAuthorityRunRecordFactory.CreateForReplay(
+        Action act = () => ReplayAuthorityRunRecordFactory.CreateForReplay(
             replayRunId, callScope, sourceAuthorityRun: null, request);
 
-        result.TenantId.Should().Be(callScope.TenantId);
-        result.WorkspaceId.Should().Be(callScope.WorkspaceId);
-        result.ScopeProjectId.Should().Be(callScope.ProjectId);
-        result.ProjectId.Should().Be("PaymentsApi");
-        result.PackageOrigin.Should().Be(ArchitecturePackageOrigin.Created);
-        result.StructuralExecutionMode.Should().Be(StructuralExecutionMode.Simulator);
+        act.Should().Throw<ConflictException>()
+            .WithMessage("*source run header is required*");
     }
 
     [Fact]
