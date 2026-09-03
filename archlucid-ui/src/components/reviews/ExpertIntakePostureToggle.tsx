@@ -57,12 +57,26 @@ export function ExpertIntakePostureToggle(): React.JSX.Element | null {
   );
 }
 
-/** Hook for intake wizards — expert posture hides progressive teaching blocks. */
 export function useExpertIntakePostureEnabled(): boolean {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    setEnabled(readExpertIntakePostureEnabled());
+    const sync = () => setEnabled(readExpertIntakePostureEnabled());
+    sync();
+
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === "archlucid.expert-intake-posture.v1.enabled") {
+        sync();
+      }
+    };
+
+    window.addEventListener("archlucid.expert-intake-posture.changed", sync);
+    window.addEventListener("storage", onStorage);
+
+    return () => {
+      window.removeEventListener("archlucid.expert-intake-posture.changed", sync);
+      window.removeEventListener("storage", onStorage);
+    };
   }, []);
 
   return enabled;
