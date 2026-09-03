@@ -53,7 +53,6 @@ export function AppShellMainAffordances() {
     return (
       <>
         <BuyerGoldenJourneyLayerContextStrip />
-        {showPersistentWorkspaceNextActionStrip ? <PersistentWorkspaceNextActionStrip /> : null}
         <OperatorRecentViewsTracker />
         <ReviewsListReturnStateTracker />
         {staticDemoEnv ? (
@@ -67,7 +66,9 @@ export function AppShellMainAffordances() {
   return (
     <>
       <BuyerGoldenJourneyLayerContextStrip />
-      {showPersistentWorkspaceNextActionStrip ? <PersistentWorkspaceNextActionStrip /> : null}
+      {showPersistentWorkspaceNextActionStrip && teachingChromeVisible ? (
+        <PersistentWorkspaceNextActionStrip />
+      ) : null}
       {isOperatorHome ? <CorePilotCompleteCelebrateStrip /> : null}
       {hideShortcutCoaches ? null : <GlobalSearchShortcutCoach />}
       <OperatorRecentViewsTracker />

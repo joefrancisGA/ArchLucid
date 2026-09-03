@@ -7,6 +7,7 @@ import type { ReactElement } from "react";
 
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { GovernanceFindingDetailPane } from "@/components/governance/findings/GovernanceFindingDetailPane";
+import { FindingDispositionRestoreButton } from "@/components/governance/findings/FindingDispositionRestoreButton";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -117,6 +118,8 @@ export function GovernanceFindingTriagePanel(props: GovernanceFindingTriagePanel
             buyerPolishedShell={buyerPolishedShell}
             variant="operational"
           />
+
+          <FindingDispositionRestoreButton findingId={row.findingId} runId={row.runId} />
 
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             <Link className={OPERATOR_LINK.inline} href={inspectHref} data-testid="governance-finding-triage-open-full">

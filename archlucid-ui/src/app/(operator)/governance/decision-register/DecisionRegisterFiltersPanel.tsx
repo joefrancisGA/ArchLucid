@@ -15,6 +15,11 @@ import {
   OPERATOR_DATE_RANGE_START_LABEL,
 } from "@/lib/operator-date-range-copy";
 import { decisionRegisterDatePresetHrefFromSearch } from "@/lib/governance/decision-register-date-range-url";
+import {
+  DECISION_REGISTER_CONFIDENCE_BASIS_OPTIONS,
+  decisionRegisterConfidenceBasisHrefFromSearch,
+  type DecisionRegisterConfidenceBasisFilter,
+} from "@/lib/governance/decision-register-advanced-filters-url";
 import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 
 import {
@@ -34,7 +39,7 @@ import {
 } from "./decision-register-copy";
 import type { DecisionRegisterDatePreset } from "./decision-register-date-range";
 
-const CONFIDENCE_BASIS_OPTIONS = ["Evidence-backed", "Model-assisted", "Unknown"] as const;
+const CONFIDENCE_BASIS_OPTIONS = DECISION_REGISTER_CONFIDENCE_BASIS_OPTIONS;
 
 const DATE_PRESET_OPTIONS: ReadonlyArray<{ readonly id: DecisionRegisterDatePreset; readonly label: string }> = [
   { id: "30", label: DECISION_REGISTER_DATE_PRESET_30_LABEL },
@@ -98,20 +103,33 @@ export function DecisionRegisterFiltersPanel(props: DecisionRegisterFiltersPanel
       <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
         <span className="font-medium">{DECISION_REGISTER_CONFIDENCE_BASIS_LABEL}</span>
         <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{DECISION_REGISTER_CONFIDENCE_BASIS_HELPER}</span>
-        <select
-          className={inputClassName}
-          value={props.confidenceBasis}
-          onChange={(event) => {
-            props.onConfidenceBasisChange(event.target.value);
-          }}
-        >
-          <option value="">Any</option>
+        <FilterChipGroup aria-label="Confidence basis" className="flex flex-wrap gap-2">
+          <FilterChip
+            href={decisionRegisterConfidenceBasisHrefFromSearch(props.currentSearch, "", GOVERNANCE_DECISION_REGISTER_PATH)}
+            scroll={false}
+            className={buyerFilterChipClass(props.confidenceBasis.length === 0, false)}
+            aria-current={props.confidenceBasis.length === 0 ? "page" : undefined}
+            data-testid="decision-register-basis-any"
+          >
+            Any
+          </FilterChip>
           {CONFIDENCE_BASIS_OPTIONS.map((option) => (
-            <option key={option} value={option}>
+            <FilterChip
+              key={option}
+              href={decisionRegisterConfidenceBasisHrefFromSearch(
+                props.currentSearch,
+                option as DecisionRegisterConfidenceBasisFilter,
+                GOVERNANCE_DECISION_REGISTER_PATH,
+              )}
+              scroll={false}
+              className={buyerFilterChipClass(props.confidenceBasis === option, false)}
+              aria-current={props.confidenceBasis === option ? "page" : undefined}
+              data-testid={`decision-register-basis-${option.toLowerCase().replace(/\s+/g, "-")}`}
+            >
               {option}
-            </option>
+            </FilterChip>
           ))}
-        </select>
+        </FilterChipGroup>
       </label>
     </div>
   );

@@ -68,6 +68,8 @@ import {
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
+import { sortGovernanceFindingsRowsBySignal } from "@/lib/governance/governance-findings-density-sort";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -129,6 +131,7 @@ export default function GovernanceFindingsQueueClient({
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
   const scopedRunFilterActive = scopedRunId !== null && scopedRunId.trim().length > 0;
   const workspaceScopeTeaching =
     !isAssignedToMe && !scopedRunFilterActive
@@ -153,7 +156,7 @@ export default function GovernanceFindingsQueueClient({
     [rows, scopedRunId],
   );
   const findingsSearchQuery = parseGovernanceFindingsSearchQuery(searchParams.get("q"));
-  const displayedRows = useMemo(
+  const filteredRows = useMemo(
     () =>
       filterGovernanceFindingsDisplayedRows(
         scopedRows,
@@ -163,6 +166,10 @@ export default function GovernanceFindingsQueueClient({
         findingsSearchQuery,
       ),
     [scopedRows, registerFilter, effectiveJobView, nlFacets, findingsSearchQuery],
+  );
+  const displayedRows = useMemo(
+    () => (isWorkingMode ? sortGovernanceFindingsRowsBySignal(filteredRows) : filteredRows),
+    [filteredRows, isWorkingMode],
   );
   const registerSummary = useMemo(
     () => computeGovernanceFindingsRegisterSummary(scopedRows),

@@ -1,7 +1,9 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Contracts.Governance.Resolution;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
@@ -37,6 +39,10 @@ public sealed class RunExportAuthorityMaterialLoader(IAuthorityQueryService auth
 
         if (runDetail.GoldenManifest is null)
             return RunExportAuthorityMaterialLoadResult.ManifestNotFound();
+
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+            AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(runDetail.Run),
+            runId.ToString("D"));
 
         ManifestDocument golden = runDetail.GoldenManifest;
         string manifestJson = JsonSerializer.Serialize(golden, ExportJsonOptions);

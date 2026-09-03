@@ -15,6 +15,10 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
 import {
+  buildDispositionRestoreRevisitDueUtc,
+  recordFindingDispositionRestoreSnapshot,
+} from "@/lib/findings/finding-disposition-restore-snapshot";
+import {
   GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
   GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
   governanceBulkDispositionSuccessMessage,
@@ -73,15 +77,31 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
     const findingIds = [...props.selectedFindingIds];
 
     try {
+      const revisitDueUtc = computeFindingDispositionRevisitDueUtc();
+
       const result = await recordBulkFindingDisposition(
         {
           findingIds,
           disposition,
           rationale: trimmedReason,
-          revisitDueUtc: disposition === "Deferred" ? computeFindingDispositionRevisitDueUtc() : undefined,
+          revisitDueUtc: disposition === "Deferred" ? revisitDueUtc : undefined,
         },
         { idempotencyKey },
       );
+
+      if (disposition === "Accepted" || disposition === "RejectedAsNotApplicable") {
+        const appliedAtUtc = new Date().toISOString();
+
+        for (const findingId of findingIds) {
+          recordFindingDispositionRestoreSnapshot({
+            findingId,
+            previousDisposition: null,
+            appliedDisposition: disposition,
+            appliedAtUtc,
+            revisitDueUtc: buildDispositionRestoreRevisitDueUtc(),
+          });
+        }
+      }
 
       const successMessage = governanceBulkDispositionSuccessMessage(result.processedCount, disposition);
 

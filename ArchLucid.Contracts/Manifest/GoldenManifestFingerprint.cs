@@ -121,7 +121,9 @@ public static class GoldenManifestFingerprint
                 : ManifestCreateTimePinCanonicalProjection.ProjectEvidencePackagePins(createTimePins.EvidencePackagePins),
             createTimeEvidencePackagePinsHashSha256 = createTimePins?.EvidencePackagePinsHashSha256Hex,
             createTimeArchitectureVersionContentHashSha256 = createTimePins?.ArchitectureVersionContentHashSha256Hex,
-            createTimeKnowledgeModelContentHashSha256 = createTimePins?.KnowledgeModelContentHashSha256Hex
+            createTimeKnowledgeModelContentHashSha256 = createTimePins?.KnowledgeModelContentHashSha256Hex,
+            createTimeFocusedPilotModeEnabled = createTimePins?.FocusedPilotModeEnabled,
+            createTimeFocusedPilotCloudProvider = createTimePins?.FocusedPilotCloudProvider
         };
 
         byte[] utf8 = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(canonical, ContractJson.Default));

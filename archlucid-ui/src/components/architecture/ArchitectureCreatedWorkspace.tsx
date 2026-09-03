@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { ArchitectureCreatedClarificationsPanel } from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
 import { useReviewClarificationQuestions } from "@/hooks/use-review-clarification-questions";
 import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
@@ -93,10 +94,17 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     () => new Set(),
   );
   const [diagramInferredCount, setDiagramInferredCount] = useState(0);
+  const { isWorkingMode } = useWorkspaceMode();
   const [showFindingsLinkedView, setShowFindingsLinkedView] = useState(false);
   const [diagramNodes, setDiagramNodes] = useState<readonly { id: string; label: string }[]>([]);
   const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
   const linkedLayoutMode = resolveArchitectureFindingsDualPaneLayoutMode(showFindingsLinkedView);
+
+  useEffect(() => {
+    if (isWorkingMode) {
+      setShowFindingsLinkedView(true);
+    }
+  }, [isWorkingMode]);
 
   const clarificationQuestionsQuery = useReviewClarificationQuestions({
     runId: props.baseline.runId,
