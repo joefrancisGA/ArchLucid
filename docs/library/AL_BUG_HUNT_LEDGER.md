@@ -2472,11 +2472,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 68
-- **bugs-found:** 130
+- **hunts:** 69
+- **bugs-found:** 131
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — comma-separated inline array object properties parsed as single scalar; App Service network expander missed open-internet rules
+- **last-bug:** 2026-09-03 — HCL single-quoted `''` escape not honored in brace scanning or scalar unquote
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2649,9 +2649,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #599: reseeded from array-literal converter; proved comma-separated inline array-object scalar gap beyond #598 block-comment fix.
 
-- [ ] (candidate) `BicepArrayLiteralConverter.ParseObjectScalars` — full-line `#` HCL comments inside array objects may be mis-parsed if comment text resembles assignments
-- [ ] (candidate) `InfrastructureDeclarationBraceBodyExtractor` — single-quoted strings containing unescaped `'` may prematurely close delimiter scanning
-- [ ] (candidate) `PlainTextDocumentTopologyHintExtractor.EnumerateHintNames` — tab-indented `TOP:` lines after `TrimEntries` split may differ from parser line handling for mixed whitespace
+- [x] (invalid) `BicepArrayLiteralConverter.ParseObjectScalars` — full-line `#` HCL comments inside array objects may be mis-parsed if comment text resembles assignments — full-line `#` lines skipped; inline `#` is EOL comment per HCL so trailing segments are intentionally ignored (`ParseAsync_InlineArrayObjectWithFullLineHashComment_DoesNotParseCommentedAssignment`).
+- [x] (proven) `InfrastructureDeclarationBraceBodyExtractor` / `CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar` — HCL single-quoted `''` escape not honored — **hit 2026-09-03 (#605):** `owner''s rule` and `token''s } literal` left doubled apostrophes in `tf.*` values; `''` inside single-quoted strings could prematurely toggle delimiter depth; fixed with `''` skip in brace/bracket scanning and `UnescapeSingleQuotedInner` (`ParseAsync_SingleQuotedDoubledApostropheInNestedBlock_ParsesTrailingScalar`, `ParseAsync_SingleQuotedDoubledApostropheBeforeClosingBraceInNestedBlock_ParsesTrailingScalar`, `ParseAsync_SingleQuotedApostropheInArrayRuleName_ParsesIpAddress`).
+- [x] (valid-no-repro) `InfrastructureDeclarationBraceBodyExtractor` — lone unescaped `'` in single-quoted scalars (`'O'Brien'`) — invalid HCL; delimiter scan still breaks and leaks array scalars to top level; Terraform requires `''` escaping (`ParseAsync_UnescapedSingleQuotedApostrophe_LeaksArrayScalarsToTopLevel`).
+- [x] (valid-no-repro) `PlainTextDocumentTopologyHintExtractor.EnumerateHintNames` — tab-indented `TOP:` lines — extractor and `PlainTextContextDocumentParser` both use `TrimEntries` split; regression `EnumerateHintNames_TabIndentedTopLine_MatchesParser`.
+
+2026-09-03 thorough hunt #605: proved HCL `''` single-quote escape gap; disproved hash-comment mis-parse, tab-indent mismatch, and unescaped lone apostrophe (invalid HCL).
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
