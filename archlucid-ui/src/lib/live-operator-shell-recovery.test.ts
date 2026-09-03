@@ -4,9 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const RECOVERY_SOURCE_FILES = [
-  "src/hooks/use-first-review-guide-state.ts",
   "src/components/ReviewPackageLoadFailureView.tsx",
-  "src/app/(operator)/architecture/reviews/[reviewId]/error.tsx",
 ];
 
 describe("live operator shell recovery inventory", () => {
@@ -36,5 +34,14 @@ describe("live operator shell recovery inventory", () => {
     expect(guideSource).toMatch(
       /if \(isLiveOperatorShellRecoveryContext\(\)\) \{\s*return loadingHeaderActions;/,
     );
+  });
+
+  it("keeps live recovery views free of showcase static demo imports", () => {
+    for (const relativePath of RECOVERY_SOURCE_FILES) {
+      const source = readFileSync(join(process.cwd(), relativePath), "utf8");
+
+      expect(source).not.toContain("SHOWCASE_STATIC_DEMO_RUN_ID");
+      expect(source).not.toContain("SHOWCASE_STATIC_DEMO_MANIFEST_ID");
+    }
   });
 });

@@ -33,11 +33,10 @@ describe("resolveGraphIdleEmptyPreset", () => {
       showIdleCard: false,
     });
 
-    expect(preset.title).toBe("No completed reviews yet");
-    expect(preset.description).toContain("Complete a review to generate an evidence graph");
-    expect(preset.description).toContain("evidence relationships work");
-    expect(preset.actions?.[0]?.label).toBe(AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL);
-    expect(preset.actions?.[1]?.label).toBe(CREATE_ARCHITECTURE_LABEL);
+    expect(preset.title).toBe("No finalized reviews yet");
+    expect(preset.description).toContain("Select a finalized architecture review");
+    expect(preset.actions?.[0]?.label).toBe("Open reviews");
+    expect(preset.actions?.[1]?.label).toBe("Start an architecture review");
   });
 
   it("prefers showcase demo idle copy when demoUi and showIdleCard are both true", () => {
@@ -47,9 +46,9 @@ describe("resolveGraphIdleEmptyPreset", () => {
       showIdleCard: true,
     });
 
-    expect(preset.title).toBe("No completed reviews yet");
-    expect(preset.actions?.[0]?.label).toBe(AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL);
-    expect(preset.actions?.[1]?.label).toBe(CREATE_ARCHITECTURE_LABEL);
+    expect(preset.title).toBe("No finalized reviews yet");
+    expect(preset.actions?.[0]?.label).toBe("Open reviews");
+    expect(preset.actions?.[1]?.label).toBe("Start an architecture review");
   });
 
   it("uses awaiting-selection copy when packages exist but no review is chosen", () => {
@@ -66,7 +65,7 @@ describe("resolveGraphIdleEmptyPreset", () => {
 });
 
 describe("resolveEvidenceTrailPresentationView", () => {
-  it("defaults buyer shells to graph and honors explicit URL presentation", () => {
+  it("defaults eval shells to graph and Working desk to trace", () => {
     expect(resolveEvidenceTrailPresentationView(null, true)).toBe("graph");
     expect(resolveEvidenceTrailPresentationView(undefined, false)).toBe("trace");
     expect(resolveEvidenceTrailPresentationView("trace", true)).toBe("trace");
