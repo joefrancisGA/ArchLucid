@@ -2880,11 +2880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 121
-- **bugs-found:** 277
+- **hunts:** 122
+- **bugs-found:** 278
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — CreateRiskException remediated disposition guard
+- **last-bug:** 2026-09-03 — RenewRiskException revoked waiver HTTP 409
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3438,6 +3438,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` / `RiskExceptionService.CreateAsync` — waiver create returned HTTP 200 when latest finding disposition was `Remediated` while renew already rejected via `RiskExceptionDispositionGuard` — **hit 2026-09-03 (#568):** call `EnsureWaiverAllowedForFindingAsync` on create (parity with renew); regression in `RiskExceptionServiceTests.CreateAsync_rejects_when_finding_latest_disposition_is_remediated` and `GovernanceStickinessControllerTests.CreateRiskException_returns_bad_request_when_finding_latest_disposition_is_remediated`.
 
 2026-09-03 seed hunt #568: promoted and proved CreateRiskException remediated-disposition guard parity with renew.
+
+- [x] (proven) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — renewing a revoked in-scope waiver returned HTTP 404 because SQL zero-row renew mapped to `InvalidOperationException` instead of lifecycle conflict — **hit 2026-09-03 (#569):** reject `RiskExceptionStatus.Revoked` with `ConflictException` → HTTP 409; regression in `RiskExceptionServiceTests.RenewAsync_throws_conflict_when_risk_exception_status_is_revoked` and `GovernanceStickinessControllerTests.RenewRiskException_returns_conflict_when_waiver_is_revoked`.
+
+2026-09-03 seed hunt #569: promoted and proved RenewRiskException revoked-waiver conflict status mapping.
 
 ---
 
