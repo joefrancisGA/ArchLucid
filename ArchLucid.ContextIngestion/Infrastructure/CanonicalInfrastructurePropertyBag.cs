@@ -115,9 +115,33 @@ public static class CanonicalInfrastructurePropertyBag
             return UnescapeDoubleQuotedInner(rawValue[1..^1]);
 
         if (rawValue.Length >= 2 && rawValue[0] == '\'' && rawValue[^1] == '\'')
-            return rawValue[1..^1];
+            return UnescapeSingleQuotedInner(rawValue[1..^1]);
 
         return rawValue;
+    }
+
+    private static string UnescapeSingleQuotedInner(string inner)
+    {
+        if (string.IsNullOrEmpty(inner) || !inner.Contains("''", StringComparison.Ordinal))
+            return inner;
+
+        System.Text.StringBuilder builder = new(inner.Length);
+
+        for (int index = 0; index < inner.Length; index++)
+        {
+            char character = inner[index];
+
+            if (character == '\'' && index + 1 < inner.Length && inner[index + 1] == '\'')
+            {
+                builder.Append('\'');
+                index++;
+                continue;
+            }
+
+            builder.Append(character);
+        }
+
+        return builder.ToString();
     }
 
     private static string UnescapeDoubleQuotedInner(string inner)

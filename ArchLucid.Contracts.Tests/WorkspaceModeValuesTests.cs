@@ -10,11 +10,11 @@ namespace ArchLucid.Contracts.Tests;
 public sealed class WorkspaceModeValuesTests
 {
     [Fact]
-    public void ParseOrDefault_returns_guided_when_unset()
+    public void ParseOrDefault_returns_working_when_unset()
     {
-        WorkspaceModeValues.ParseOrDefault(null).Should().Be(WorkspaceModeValues.Guided);
-        WorkspaceModeValues.ParseOrDefault("").Should().Be(WorkspaceModeValues.Guided);
-        WorkspaceModeValues.ParseOrDefault("unknown").Should().Be(WorkspaceModeValues.Guided);
+        WorkspaceModeValues.ParseOrDefault(null).Should().Be(WorkspaceModeValues.Working);
+        WorkspaceModeValues.ParseOrDefault("").Should().Be(WorkspaceModeValues.Working);
+        WorkspaceModeValues.ParseOrDefault("unknown").Should().Be(WorkspaceModeValues.Working);
     }
 
     [Fact]
@@ -27,6 +27,6 @@ public sealed class WorkspaceModeValuesTests
     public void Serialize_normalizes_to_known_mode()
     {
         WorkspaceModeValues.Serialize("working").Should().Be(WorkspaceModeValues.Working);
-        WorkspaceModeValues.Serialize("bogus").Should().Be(WorkspaceModeValues.Guided);
+        WorkspaceModeValues.Serialize("bogus").Should().Be(WorkspaceModeValues.Working);
     }
 }

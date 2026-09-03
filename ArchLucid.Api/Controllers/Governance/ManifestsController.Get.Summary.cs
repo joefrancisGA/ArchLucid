@@ -2,6 +2,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
 using Microsoft.AspNetCore.Mvc;

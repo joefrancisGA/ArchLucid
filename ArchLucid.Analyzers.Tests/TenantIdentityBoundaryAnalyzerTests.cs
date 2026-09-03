@@ -234,6 +234,31 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_single_diagnostic_when_generic_has_multiple_banned_type_arguments()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using System.Collections.Generic;
+    using Microsoft.AspNetCore.Http;
+    using System.Security.Claims;
+
+    public sealed class C
+    {
+        void M({|#0:Dictionary|}<IHttpContextAccessor, ClaimsPrincipal> items) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("System.Collections.Generic.Dictionary<Microsoft.AspNetCore.Http.IHttpContextAccessor, System.Security.Claims.ClaimsPrincipal>");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
   public async Task Reports_generic_type_argument_in_inner_layer_assembly()
   {
     const string testCode = """
@@ -253,6 +278,77 @@ namespace N
     DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
         .WithLocation(0)
         .WithArguments("System.Collections.Generic.List<Microsoft.AspNetCore.Http.IHttpContextAccessor>");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_nested_generic_type_argument_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using System.Collections.Generic;
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M({|#0:Dictionary|}<string, List<IHttpContextAccessor>> items) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Microsoft.AspNetCore.Http.IHttpContextAccessor>>");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_array_element_identifier_for_banned_type_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M({|#0:IHttpContextAccessor|}[] accessors) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.IHttpContextAccessor");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_delegate_type_argument_with_banned_type_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using System;
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M({|#0:Action|}<HttpContext> callback) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("System.Action<Microsoft.AspNetCore.Http.HttpContext>");
 
     await RunInnerLayerTestAsync(testCode, expected);
   }

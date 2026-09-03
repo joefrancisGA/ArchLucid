@@ -19,6 +19,14 @@ internal static class DraftNewCommandIntakeLoop
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(error);
 
+        if (CliExecutionContext.JsonOutput)
+        {
+            int jsonFlagsExit = await TryValidateJsonModeRequiredFlagsAsync(options, error);
+
+            if (jsonFlagsExit != CliExitCode.Success)
+                return jsonFlagsExit;
+        }
+
         (DraftNewCommandConnectStage.Success? connect, int connectExit) =
             await DraftNewCommandConnectStage.RunAsync(options, hooks, output, error, cancellationToken);
 
@@ -125,6 +133,32 @@ internal static class DraftNewCommandIntakeLoop
                     status = submit.Value.Status.ToString(),
                     executionStarted = !options.NoAutoExecute,
                 });
+        }
+
+        return CliExitCode.Success;
+    }
+
+    private static async Task<int> TryValidateJsonModeRequiredFlagsAsync(DraftNewCommandOptions options, TextWriter error)
+    {
+        if (options.IntentText is null)
+        {
+            await error.WriteLineAsync("JSON output mode requires --text <intent>.");
+
+            return CliExitCode.UsageError;
+        }
+
+        if (string.IsNullOrWhiteSpace(options.SystemName))
+        {
+            await error.WriteLineAsync("JSON output mode requires --system-name <name>.");
+
+            return CliExitCode.UsageError;
+        }
+
+        if (string.IsNullOrWhiteSpace(options.BusinessOutcome))
+        {
+            await error.WriteLineAsync("JSON output mode requires --business-outcome <text>.");
+
+            return CliExitCode.UsageError;
         }
 
         return CliExitCode.Success;

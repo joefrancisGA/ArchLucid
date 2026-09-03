@@ -182,6 +182,7 @@ public sealed class DecisionReceiptServiceTests
                 Status = ArchitectureRunStatus.Committed,
                 CurrentManifestVersion = "v1",
             },
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
             Manifest = new GoldenManifest
             {
                 RunId = RunId.ToString("N"),

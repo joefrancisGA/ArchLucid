@@ -351,6 +351,52 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_json_output_missing_system_name_returns_usage_error_without_prompting()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+            bool prompted = false;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            DraftNewCommandHooks hooks = new()
+            {
+                ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+                CreateApiClient = (_, _) => CreateDraftFlowClient(),
+                PromptRequiredAsync = (_, _, _) =>
+                {
+                    prompted = true;
+
+                    return Task.FromResult<string?>("should-not-prompt");
+                },
+            };
+
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            prompted.Should().BeFalse();
+            error.ToString().Should().Contain("--system-name");
+            output.ToString().Should().NotContain("System name");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
     public async Task RunCoreAsync_json_output_suppresses_human_progress_lines()
     {
         bool previousJson = CliExecutionContext.JsonOutput;

@@ -68,6 +68,7 @@ export type OperatorHomeEmptyDoThisNextActionState = {
 /** Empty Overview lifecycle guidance shared by the canonical next-action slot (TB-2232). */
 export function useOperatorHomeEmptyDoThisNextAction(): OperatorHomeEmptyDoThisNextActionState {
   const readiness = useFinishSetupReadinessContext();
+  const { isWorkingMode } = useWorkspaceMode();
   const sampleQuery = useFeaturedCompletedSampleQuery();
   const featuredHref = resolveFeaturedSampleHref(sampleQuery.data);
   // Start false on SSR so production empty tenants do not inherit dev-default demo scope.
@@ -95,6 +96,7 @@ export function useOperatorHomeEmptyDoThisNextAction(): OperatorHomeEmptyDoThisN
     setupContext: readiness.context,
     sampleHref,
     demoSeededOverview: demoSeeded,
+    workingMode: isWorkingMode,
   });
   const sampleLoading = action.kind === "sample" && sampleQuery.isPending && !demoSeeded;
 

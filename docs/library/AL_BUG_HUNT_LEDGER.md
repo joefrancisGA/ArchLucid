@@ -540,11 +540,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 5
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — property SQL initializers bypassed ARCH006 static resolution
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — hash-line SQL comments bypassed `StripSqlComments`, false-binding tenant predicates
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -559,6 +559,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `QueryMultiple`/`QueryMultipleAsync` with string SQL bypassed ARCH006 — **hit 2026-08-24:** methods missing from `DapperQueryMethodNames`; regression in `ARCH006_reports_unscoped_static_sql_for_query_multiple_async`
 - [x] (proven) Non-const local / static readonly SQL variable references bypassed ARCH006 — **hit 2026-08-24:** resolver only folded `const` symbols, not declarator initializers; regressions in `ARCH006_reports_unscoped_sql_for_non_const_local_variable` and `ARCH006_reports_unscoped_sql_for_static_readonly_field`
 - [x] (proven) Property SQL initializers bypassed ARCH006 static resolution — **hit 2026-08-25:** `TenantScopedSqlExpressionResolver` resolved locals/fields from declarators but ignored `PropertyDeclarationSyntax` initializers, so `private string Sql { get; } = "SELECT … dbo.Runs …"` passed through unanalyzed; fixed by folding property initializers; regression in `ARCH006_reports_unscoped_sql_for_property_with_initializer`
+- [x] (proven) Hash-line SQL comments (`# …`) treated as tenant scope predicates — **hit 2026-09-03:** `StripSqlComments` stripped `--` and `/* */` but not full-line `#` comments, so `# TenantId = @TenantId …` false-bound `dbo.Runs`; fixed with `HashLineCommentRegex`; regression in `Tenant_id_predicate_in_hash_sql_comment_does_not_bind_runs`
+- [ ] (candidate) `Execute`/`ExecuteAsync` with `CommandType.StoredProcedure` may still be analyzed as raw SQL when procedure name is a string literal — needs hunt-ready locus in `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgument`
+- [ ] (candidate) `string.Format` / `nameof` / non-literal verbatim concatenation in SQL expressions may bypass static resolution — resolver returns non-static for unrecognized expression shapes
+- [x] (valid-no-repro) `const` field SQL initializers already fold via `IFieldSymbol.IsConst` in `ResolveFromSymbol` — same path as proven local/readonly fixes; no separate property-vs-field gap
 
 ---
 
@@ -569,12 +573,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **impact:** high
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
-- **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests
-- **hunts:** 4
-- **bugs-found:** 3
+- **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — ListByProject compared raw ProjectId while collision/committed lookups trim and ignore case
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — `CountActiveRunsForArchitectureRequest` / `ExistsRunForArchitectureRequestInScope` compared raw `ArchitectureRequestId` while project-slug paths trim and ignore case
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -589,6 +593,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ExistsActiveRunWithSystemNameInWorkspace` compares `UPPER(ProjectId)` without trimming so padded slugs bypass the workspace collision guard — **hit 2026-08-23 hunt #38:** `LTRIM(RTRIM(ProjectId))` before `UPPER`
 - [x] (proven) `GetLatestWithGraphAtOrBefore` / `GetLatestCommittedRunIdByManifestCreatedUtc` / `GetPriorCommittedRunIdBeforeCurrent` compare raw `ProjectId` while collision guard trims and ignores case — **hit 2026-08-24:** padded or differently-cased stored slugs missed committed/graph lookups (advisory eligibility, temporal graph); SQL uses `UPPER(LTRIM(RTRIM(ProjectId)))`; InMemory uses trim + ordinal-ignore-case; regressions in `RunRepositoryWorkspaceSystemNameSqlTests` / `InMemoryRunRepositoryGetLatestWithGraphAtOrBeforeTests`
 - [x] (proven) `ListByProjectAsync` / `ListByProjectKeysetAsync` compared raw `ProjectId` while workspace collision and committed-run lookups trim and ignore case — **hit 2026-08-24:** padded or differently-cased stored slugs omitted from dashboard project lists; SQL uses `UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug`; InMemory uses `MatchesProjectListFilter`; regressions in `InMemory_matches_padded_project_id_for_list_by_project` and `Project_list_queries_trim_project_id_before_upper_compare`
+- [x] (proven) `CountActiveRunsForArchitectureRequestAsync` / `ExistsRunForArchitectureRequestInScopeAsync` compared raw `ArchitectureRequestId` while project-slug paths trim stored values — **hit 2026-09-03 hunt #603 (seed→hit):** padded stored request ids missed active-run concurrency and scope-existence checks (`RequestReleased` latch, idempotency guard); SQL uses `UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId`; InMemory uses `ArchitectureRequestIdMatches`; regressions in `RunRepositoryArchitectureRequestSqlTests`
 
 ---
 
@@ -884,11 +889,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 5
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — `--json draft new` still wrote human progress lines (`DraftId:`, admit banner) to stdout
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — `--json draft new` still prompted for `--system-name` when omitted, writing human labels to stdout
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -905,6 +910,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `RunCoreAsync` line 206 uses `!submit.Success || submit.Value is null`; Stryker's surviving `&&` mutant — **2026-08-24:** same `DraftApiResult.Fail` shape; hollow submit is already covered by `RunCoreAsync_submit_without_run_id_returns_operation_failed`.
 - [x] (proven) `RunCoreAsync` writes JSON `ok: true` before `ExecuteRunAsync` when `--json` and auto-execute are enabled — **hit 2026-08-24:** submit success emitted success JSON then execute failure still returned `OperationFailed`, leaving `"ok":true` on stdout; fixed by deferring success JSON until execute succeeds and emitting `WriteFailureLine` on execute failure; regressions in `RunCoreAsync_json_output_does_not_emit_ok_true_when_execute_fails` / `RunCoreAsync_json_output_emits_ok_true_after_execute_succeeds`.
 - [x] (proven) `--json draft new` still writes human progress lines to stdout — **hit 2026-08-25:** after create/admit the command printed `DraftId:` and `Draft admitted. Resolving MUST questions…` alongside JSON; guarded with `!CliExecutionContext.JsonOutput`; regression in `RunCoreAsync_json_output_suppresses_human_progress_lines`.
+- [x] (proven) `--json draft new` still prompts for `--system-name` / `--business-outcome` / `--text` when omitted — **hit 2026-09-03 (#592):** `PromptRequiredAsync` wrote interactive labels to stdout in JSON mode; fixed by requiring all three flags before intake (`RunCoreAsync_json_output_missing_system_name_returns_usage_error_without_prompting`).
+- [ ] (hunt-ready) `ResolveMustQuestionsAsync` skip/answer paths omit `CliScopeResponseValidator` after `SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` return a draft body — cross-tenant drift may continue through MUST resolution when configured scope headers are set.
+
+2026-09-03 seed hunt #592: proved JSON-mode interactive prompt leak; seeded MUST-question scope-validation parity row.
 
 ---
 
@@ -1444,11 +1453,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — dot-segment return-path traversal after sign-in
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — anonymous marketing allowlist omitted early-access and trust-center evidence pack ZIP
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1463,9 +1472,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Nine-level `%2e%2e` proxy segments bypass the eight-pass decode guard and still normalize onto `architecture/draft/*` while `isAnonymousMarketingProxyPath` skips bearer auth — **hit 2026-08-23:** reject proxy segments and return paths that remain percent-encoded after the decode guard.
 - [x] (proven) Post-sign-in return URLs accept backslash path separators that normalize to traversal — **hit 2026-08-25:** `isSafeReturnPath` rejected `/\\evil` but not `/welcome\..\..\operator`; browsers normalize `\` to `/` so dot-segment smuggling bypassed the return-url gate; regression in `safe-return-path.test.ts` and `sign-in-return-destination.test.ts`.
 - [x] (proven) Post-sign-in return URLs accept dot-segment traversal that browsers normalize outside the auth subtree — **hit 2026-08-26:** `/signin/../../administration` and `/%2e%2e/admin` passed `isSafeReturnPath` while resolving to `/administration` and `/admin`; fixed with `containsDotDotSegment` in `safe-return-path.ts`; regressions in `safe-return-path.test.ts` and `sign-in-return-destination.test.ts`.
-- [ ] (candidate) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/early-access` and trust-center ZIP/PDF routes — UI posts through `/api/proxy/...` but server bearer may still attach (unlike quick-scan / quote-request).
+- [x] (proven) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/early-access` and trust-center ZIP/PDF routes — **hit 2026-09-03 (#593):** UI posts through `/api/proxy/...` but `buildProxyUpstreamHeaders` attached `ARCHLUCID_PROXY_BEARER_TOKEN` unlike quick-scan / quote-request; extended allowlist in `proxy-anonymous-marketing-paths.ts`; regressions in `proxy-route-anonymous-marketing.test.ts`.
 
-2026-08-26 seed hunt #7: proved dot-segment return-path traversal; reseeded marketing allowlist bearer candidate.
+2026-09-03 thorough hunt #593: proved marketing allowlist bearer leak for early-access and trust-center ZIP.
 
 ---
 
@@ -1477,11 +1486,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — AL0003 ignored inherited `[MutatingAuditExcluded]` on base controller classes
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — AL0003 inherited base `[MutatingAuditExcluded]` when override declared its own HTTP verb
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1495,6 +1504,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) AL0001 reported controller when every public action had `[AllowAnonymous]` — type-level fallback fired after all actions were skipped; regression in `Does_not_report_controller_when_all_public_actions_have_AllowAnonymous`
 - [x] (proven) AL0001 ignores `[Authorize]` on implemented interface methods — **hit 2026-08-24:** controller actions implementing interface methods with interface-level or method-level `[Authorize]` were flagged (or controller type reported when all actions were interface-authorized); fixed by walking `AllInterfaces` / `FindImplementationForInterfaceMember`; regressions in `Does_not_report_when_interface_method_has_Authorize` / `Does_not_report_when_implemented_interface_has_Authorize`
 - [x] (proven) AL0003 ignores inherited `[MutatingAuditExcluded]` on base controller — **hit 2026-08-25:** `MutatingAuditExcludeApplies` walked only `ContainingType` nesting, not `BaseType` inheritance; derived controller actions false-positive AL0003; fixed by walking base types per nested declaring type; regression in `Mutating_audit_excluded_on_base_controller_suppresses_AL0003_on_derived_action`
+- [x] (proven) AL0001 ignores `[NonAction]` on overridden base helper — **hit 2026-09-03:** `RequireAuthorizationAnalyzer` checked `NonActionAttribute` only on the derived `IMethodSymbol`, not `OverriddenMethod` chain; `public override IActionResult Helper()` false-positive AL0001; fixed by walking override chain; regression in `Does_not_report_NonAction_helper_inherited_from_base_method`
+- [x] (proven) AL0003 ignores `[MutatingAuditExcluded]` on overridden base mutating action — **hit 2026-09-03:** `MutatingAuditExcludeApplies` skipped method-level exclusion on `OverriddenMethod` when derived action re-declared `[HttpPost]`; false-positive AL0003; fixed by walking override chain; regression in `Mutating_audit_excluded_on_base_method_suppresses_AL0003_on_override`
+- [x] (valid-no-repro) `HttpContext? ctx = default` in inner layer — type name in declaration is intentional ARCH001 signal, not a `default` expression false positive
+- [x] (proven) ARCH001 emitted duplicate diagnostics when a generic had multiple banned type arguments — **hit 2026-09-03:** `AnalyzeGenericName` reported once per matching `TypeArguments` entry; fixed to emit a single diagnostic per generic; regression in `Reports_single_diagnostic_when_generic_has_multiple_banned_type_arguments`
+- [x] (proven) ARCH001 missed nested banned types inside generic type arguments — **hit 2026-09-03:** `IsOrUsesBannedType` did not recurse into `INamedTypeSymbol.TypeArguments`, so `Dictionary<string, List<IHttpContextAccessor>>` slipped through; fixed with recursive type-argument walk; regression in `Reports_nested_generic_type_argument_in_inner_layer_assembly`
+- [x] (proven) AL0001 ignored `[AllowAnonymous]` on overridden base helper — **hit 2026-09-03:** `RequireAuthorizationAnalyzer` checked auth attributes only on the derived `IMethodSymbol`, not `OverriddenMethod`; false-positive AL0001 on overrides; fixed by walking override chain; regression in `Does_not_report_AllowAnonymous_helper_inherited_from_base_method`
+- [x] (proven) AL0003 missed tracked HTTP verbs on overridden mutating actions — **hit 2026-09-03:** `MethodSpecifiesTrackedVerb` read only derived `IMethodSymbol` attributes, so `[HttpPost]` on a virtual base with an unaudited override skipped AL0003; fixed by walking `OverriddenMethod` and suppressing shadowed virtual bases; regressions in `AL0003_reports_when_overridden_action_inherits_HttpPost_from_base` and `AL0003_reports_when_override_adds_HttpPost_to_base_NonAction_helper`
+- [x] (valid-no-repro) `IHttpContextAccessor[]` array parameters — element-type `IdentifierName` already triggers ARCH001; no separate array-type gap
+- [x] (valid-no-repro) AL0001 `[Authorize]` on overridden base helper — already covered by `MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain`; regression in `Does_not_report_Authorize_helper_inherited_from_base_method`
+- [x] (proven) AL0003 inherited base `[MutatingAuditExcluded]` when override declared its own HTTP verb — **hit 2026-09-03:** `MutatingAuditExcludeApplies` walked `OverriddenMethod` without checking whether the derived action re-declared `[HttpPost]`/`[HttpPut]`/etc., so a derived mutating override skipped AL0003; fixed by skipping method-level exclusion inheritance when `MethodHasTrackedVerbAttribute` is true on the override; regression in `AL0003_reports_when_override_adds_HttpPost_despite_base_MutatingAuditExcluded`
+- [x] (valid-no-repro) ARCH001 `Action<HttpContext>` delegate parameters — recursive `IsOrUsesBannedType` already flags nested generic arguments; regression in `Reports_delegate_type_argument_with_banned_type_in_inner_layer_assembly`
+- [x] (valid-no-repro) AL0003 `LogAsync` inside local functions — `DescendantNodesAndSelf` already finds nested invocations; regression in `AL0003_is_absent_when_LogAsync_is_in_local_function`
 
 ---
 
@@ -1613,18 +1634,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 6
-- **bugs-found:** 9
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — first-value report cost-evidence badges ignored extractor collection timestamps
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — `PilotValueReportService` counted operator-muted findings in severity totals
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
 - [x] (invalid) Proof pack includes findings from a workspace outside the pilot scope — `GetRunDetailAsync` and `ValueReportBuilder.BuildAsync` both honor current `ScopeContext`; no cross-workspace join in pack builders (`PilotReportCardService.EnsureScopeMatches` pattern elsewhere).
-- [x] (candidate) PDF builder silently drops a section when source data is missing — **partial 2026-08-18:** snapshot fallback populated severity counts but left governed-coverage and top-finding unset (buyer proof / first-value surfaces)
+- [x] (valid-no-repro) PDF builder silently drops a section when source data is missing — snapshot fallback governed-coverage gap fixed 2026-08-26; `SponsorOnePagerPdfBuilder` / `BoardPackPdfBuilder` intentionally omit buyer-safe and governed-coverage sections (compact surfaces with explicit skip copy where applicable).
+- [x] (proven) `PilotValueReportService.AddFindings` counted operator-muted findings in tenant value-report severity totals — **hit 2026-09-03 (#591):** omitted `IsMuted` filter while `PilotRunDeltaComputer` excludes muted rows; fixed with `.Where(static f => !f.IsMuted)` (`BuildAsync_excludes_muted_findings_from_severity_totals`).
 - [x] (invalid) Pack builder uses cached tenant data after a scope switch — `BuyerProofPackBuilder` / `BoardPackPdfBuilder` do not use `IMemoryCache`; only `PilotOutcomeSummaryService` caches and keys include workspace id.
 - [x] (proven) `PilotRunDeltaComputer` agent-results path counts operator-muted findings in severity buckets and can select a muted row as top finding while snapshot fallback and `FirstValueReportBuilder.FormatSponsorTopFindings` exclude `IsMuted` — buyer proof ZIP deltas JSON overstated suppressed findings (hunt 2026-08-23).
 - [x] (proven) Snapshot fallback severity buckets include `IsMuted` findings — **hit 2026-08-24:** `AggregateFindingsBySeverity(IReadOnlyList<Finding>)` omitted mute filter while governed coverage and top-finding paths filtered; regression in `ComputeAsync_WhenSnapshotFallbackIncludesMutedFindings_ExcludesThemFromSeverityBuckets`.
@@ -1637,6 +1659,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `PilotProofPackageCompletenessMapper` committed timestamp Present contradicts buyer-safe gate soft gap when `CompletedUtc` resolves manifest timestamp — gate soft gap still surfaces in `PilotBuyerSafeEvidenceGateEvaluator`; `CommittedManifestTimestampResolved` fallback to `ManifestCommittedUtc` is intentional (`Build_WhenManifestCreatedUtcDefaultButDeltasCarryCompletedUtc_ResolvesCommittedTimestamp`).
 - [x] (invalid) `SponsorEvidencePackService` explainability trace completeness vs `PilotRunDeltaComputer` delta counts diverge on sparse agent + snapshot runs — **closed 2026-08-26** proven fix loads snapshot when `FindingsSnapshotId` is set; pack and deltas share the same snapshot source.
 - [x] (invalid) `PilotProofPackageCompletenessMapper.FindingsBySeverityPresent` hard-coded true — zero-finding runs still show Present in proof contract — intentional: empty severity breakdown is attested evidence, not missing data (`Build_ZeroTotalFindings_StillMarksFindingsEvidencePresent`).
+- [ ] (hunt-ready) `SponsorOnePagerPdfBuilder.BuildPdfAsync` with committed run and incomplete sponsor proof (non-demo) — bypasses `SponsorFirstValuePdfGate` / circulation watermarks that `FirstValueReportPdfBuilder` enforces; may return distributable PDF when first-value PDF export would block or watermark.
+
+2026-09-03 seed hunt #591: proved muted-finding parity gap in `PilotValueReportService`; cheap-disproved PDF section-drop candidate; seeded sponsor-one-pager PDF gate parity row.
 
 ---
 
@@ -1797,13 +1822,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 11
-- **bugs-found:** 14
+- **hunts:** 12
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — stale refresh `finally` cleared replacement in-flight guard (regression)
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1818,12 +1843,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) In-flight token refresh resurrects OIDC session after `clearOidcSession` — **hit 2026-08-23 hunt #34:** `ensureAccessTokenFresh` always called `persistTokenResponse` when the IdP refresh completed, so sign-out or idle-timeout clears that ran mid-flight wrote tokens back into `sessionStorage`; fixed by tracking a session generation counter bumped on clear and skipping persist/clear side effects for stale refreshes.
 - [x] (proven) Stale in-flight refresh blocks token refresh for a replacement session after `clearOidcSession` — **hit 2026-08-23 hunt #36:** `clearOidcSession` bumped the generation counter but left `refreshInFlight` set, so the first `ensureAccessTokenFresh` on a new sign-in awaited the prior session's refresh instead of starting one with the new refresh token; fixed by clearing the in-flight guard when session keys are removed.
 - [x] (proven) Transient OIDC refresh network failure clears the operator session — **hit 2026-08-23 hunt #41:** `ensureAccessTokenFresh` catch-all called `clearOidcSession` on any refresh rejection, so a flaky `Failed to fetch` during background renew wiped tokens while the refresh token was still valid; fixed by clearing only on OAuth auth failures (`invalid_grant`, 401/403) and leaving the session intact for network/5xx errors.
-- [x] (proven) Stale refresh `finally` clears the replacement session's in-flight guard — **hit 2026-08-23 hunt #42:** `ensureAccessTokenFresh` always set `refreshInFlight = null` in `finally`, so when a prior-session refresh completed after `clearOidcSession` and a replacement refresh had started, the stale `finally` nulled the guard and parallel API callers fired a duplicate IdP refresh (`invalid_grant` risk); fixed by clearing `refreshInFlight` only when it still references the completing promise.
+- [x] (proven) Stale refresh `finally` clears the replacement session's in-flight guard — **hit 2026-08-23 hunt #42:** `ensureAccessTokenFresh` always set `refreshInFlight = null` in `finally`, so when a prior-session refresh completed after `clearOidcSession` and a replacement refresh had started, the stale `finally` nulled the guard and parallel API callers fired a duplicate IdP refresh (`invalid_grant` risk); fixed by clearing `refreshInFlight` only when it still references the completing promise. **Re-hit 2026-09-03 hunt #594:** regression restored unconditional `refreshInFlight = null`; `does not clear the replacement refresh guard when a stale refresh finally runs` failed (3 refresh calls); same conditional-`finally` fix reapplied.
 - [x] (proven) Negative `expires_in` from token response writes a past expiry and breaks the session — **hit 2026-08-23:** `persistTokenResponse` stored `Date.now() + negative expires_in`, so a malformed IdP payload left the access token immediately expired and could tight-loop refresh; fixed by falling back to the default lifetime for negative values while still honoring zero.
 - [x] (proven) Missing `access_token` in token response persists the literal string `"undefined"` — **hit 2026-08-23:** `sessionStorage.setItem` coerced `undefined` to `"undefined"`, so `isLikelySignedIn` returned true and API calls sent `Bearer undefined`; fixed by rejecting empty or non-string access tokens before writing session keys.
 - [x] (proven) Malformed OIDC discovery document missing endpoints is cached permanently — **hit 2026-08-24:** `loadDiscoveryDocument` cached any HTTP 200 JSON body, so a partial discovery payload blocked sign-in, refresh, and logout discovery until a full page reload; fixed by validating required endpoints and evicting invalid documents from the cache.
 - [x] (proven) Token endpoint OAuth error returned with HTTP 200 is treated as a token response — **hit 2026-08-24:** `postTokenForm` only parsed OAuth `error` bodies when `response.ok` was false, so `invalid_grant` in a 200 body threw on missing `access_token` and `ensureAccessTokenFresh` kept a stale refresh token instead of clearing the session; fixed by rejecting OAuth error JSON before returning token responses.
 - [x] (proven) String `expires_in` from token response falls back to default lifetime — **hit 2026-08-24:** `resolveExpiresInSeconds` used `Number.isFinite` on the raw value, so IdPs that serialize `expires_in` as a JSON string were treated as non-finite and given the 3600s default; fixed by coercing with `Number()` before validation.
+- [ ] (candidate) Supplemental Google OIDC redirect overwrites primary PKCE state — `initiateSupplementalOidcRedirect` calls the same `storePkceState` session keys as `initiateOidcRedirect`; starting Google sign-in while a primary IdP authorize round-trip is pending could replace `state`/`code_verifier`/`nonce` before callback.
+- [ ] (candidate) Malformed `end_session_endpoint` in discovery passes parse but breaks RP-initiated logout — `parseDiscoveryDocument` validates `authorization_endpoint` and `token_endpoint` with `new URL()` but copies `end_session_endpoint` without URL validation; `signOutAndRedirectHome` may fall through to `/` without IdP logout when the endpoint is not a valid absolute URL.
 
 ---
 
@@ -1835,17 +1862,42 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 118
-- **bugs-found:** 230
+- **hunts:** 125
+- **bugs-found:** 240
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — Azure hourly UOM `Hour` and `/hr` substring false-positives
+- **last-bug:** 2026-09-03 — null failure-summary `schemaVersion` JSON token rejected dead-letter detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
-- [x] (proven) URL allow-list policy accepts a credential-bearing redirect target — **hit 2026-08-18:** outbound HTTPS URL policies allowed `https://user:pass@host` because only scheme/host were validated; embedded userinfo now rejected.
+- [x] (proven) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` — IPv4-mapped RFC1918 addresses bypass private-network guard — **hit 2026-09-03 (#597):** `::ffff:10.0.0.1` / `::ffff:192.168.1.1` stayed on the IPv6 branch after #223 ULA fix and returned allowed; SSRF policies missed mapped private literals; fixed by unmapping with `MapToIPv4()` before RFC1918 checks (`PrivateNetworkAddressGuard_IsForbiddenIpAddress_blocks_ipv4_mapped_private_addresses`).
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — string-encoded / whole-number-double `schemaVersion` rejected — **hit 2026-09-03 (#600):** `"schemaVersion":"1"` and `1.0` failed strict `int` deserialize and dropped dead-letter detection after #596 failureClass casing fix; fixed with case-insensitive schemaVersion coercion and direct `failureClass` read (`IsDeadLettered_returns_true_for_string_encoded_schema_version`, `IsDeadLettered_returns_true_for_whole_number_double_schema_version`).
+- [x] (invalid) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — committed run without `GoldenManifestId` resolves `NotStarted` — `dbo.Runs` CHECK (`LegacyRunStatus <> Committed OR GoldenManifestId IS NOT NULL`) prevents persisted rows; in-memory fixtures only; wave-9 Complete requires commit + golden manifest by design.
+- [x] (proven) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — lowercase `TrialStatus` treated as non-active — **hit 2026-09-03 (#600):** `trialStatus:"active"` used `Ordinal` compare against `TrialLifecycleStatus.Active` and returned a tier label during active trial; fixed with `OrdinalIgnoreCase` (`ResolveCommercialTierLabel_returns_null_for_lowercase_active_trial_status`).
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector` — whitespace-only `TaskId` groups with empty task id — `IsNullOrWhiteSpace` intentionally treats whitespace-only ids as missing so same-agent retries chain; regression `Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`.
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — padded `TaskId` breaks retry supersession — **hit 2026-09-03 (#600):** `" task-1 "` and `task-1` grouped separately so stale attempt 0 survived; fixed by trimming before keying (`Select_when_task_id_differs_only_by_outer_whitespace_chains_retries`).
+
+2026-09-03 thorough hunt #600: proved schemaVersion coercion, lowercase trial status, and TaskId trim gaps; disproved committed-without-manifest (SQL CHECK) and whitespace-only TaskId chaining (intentional).
+
+- [x] (proven) `CommercialTenantEligibility` / `TenantTrialSeatPolicy` — lowercase `TrialStatus` not treated as active — **hit 2026-09-03 (#601):** #600 fixed `CommercialPackagingTierResolver` only; `trialStatus:"active"` still bypassed seat-claim enforcement and Standard-tier commercial gates; fixed with `OrdinalIgnoreCase` (`RequiresSeatClaim_true_when_lowercase_active_trial_status`, `CommercialTenantEligibility_blocks_lowercase_active_trial_from_standard_gates`).
+
+2026-09-03 seed hunt #601: reseeded tenancy helpers after #600 TrialStatus fix; proved sibling Ordinal parity gap.
+
+- [x] (invalid) `AgentExecutionFailureSummaryJson.TryDeserialize` (Application) — string-encoded `schemaVersion` — wrong zone for `archlucid-core` thorough hunt; locus is `ArchLucid.Application/Runs/AgentExecutionFailureSummaryJson.cs`.
+- [x] (valid-no-repro) `TenantTrialSeatPolicy` / `CommercialTenantEligibility` — lowercase `converted` / `expired` trial status — Core helpers only special-case `Active`; lowercase non-active statuses do not bypass seat-claim enforcement or active-trial commercial blocks (`CommercialTenantEligibility_does_not_special_case_lowercase_converted_or_expired_trial_status`).
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — missing `schemaVersion` property rejected — **hit 2026-09-03 (#602):** forward-compatible `{"failureClass":"PipelineDeadLetter"}` payloads omitted `schemaVersion` but contract default is `1`; fixed by defaulting absent property to supported version (`IsDeadLettered_returns_true_when_schema_version_property_is_omitted`).
+
+2026-09-03 thorough hunt #602: proved omitted failure-summary schemaVersion gap; disproved Application-layer and converted/expired casing candidates.
+
+- [x] (invalid) `AgentExecutionFailureSummaryJson.TryDeserialize` (Application) — string-encoded `schemaVersion` parity gap — wrong zone for `archlucid-core`; locus is `ArchLucid.Application/Runs/AgentExecutionFailureSummaryJson.cs` (re-confirmed hunt #604).
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — null JSON `schemaVersion` token rejected — **hit 2026-09-03 (#604):** `{"schemaVersion":null,"failureClass":"PipelineDeadLetter"}` failed after #602 omitted-property fix; null token now defaults to supported v1 (`IsDeadLettered_returns_true_when_schema_version_property_is_null`).
+
+2026-09-03 thorough hunt #604: proved null failure-summary schemaVersion gap; re-disproved Application-layer candidate.
+
+- [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
 - [x] (valid-no-repro) Configuration default enables a production-unsafe integration flag — ITSM/native and quick-scan defaults are gated by environment validators and hosted-SaaS overrides.
@@ -2436,11 +2488,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 66
-- **bugs-found:** 127
+- **hunts:** 69
+- **bugs-found:** 131
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — simple-terraform scalar assignments ignored inline `//` comments (Bicep parity gap)
+- **last-bug:** 2026-09-03 — HCL single-quoted `''` escape not honored in brace scanning or scalar unquote
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2603,6 +2655,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SimpleTerraformResourceBlockParser` scalar assignments — inline `//` comments not stripped (Bicep parity gap) — **hit 2026-09-03 (#590):** `location = "eastus" // primary region` stored `tf.location = "eastus" // primary region` and false-modified infrastructure declaration deltas; fixed with `StripTrailingSlashSlashComment` and `StripTrailingBlockComment` before unquoting (`SimpleTerraformDeclarationParserTests.ParseAsync_InlineSlashSlashComment_DoesNotChangeTfLocation`, `InfrastructureDeclarationConnectorTests.DeltaAsync_SimpleTerraformInlineSlashSlashCommentChange_ReportsUnchanged`).
 
 2026-09-03 seed hunt #590: reseeded from simple-terraform vs Bicep scalar comment parity; proved missing `//`/`/* */` strip on HCL scalar values beyond #585 escaped-quote `#` fix.
+
+- [x] (proven) `PlainTextDocumentTopologyHintExtractor.EnumerateHintNames` — spaced `TOP :` prefix ignored — **hit 2026-09-03 (#598):** strict `StartsWith("TOP:")` missed `TOP : parentNet/childSubnet` while `PlainTextContextDocumentParser` already accepted optional whitespace before `:` via `TryGetPrefixedBody`; policy↔topology overlap never linked document-sourced hints; fixed by extracting shared `PlainTextDocumentPrefixedLine.TryGetPrefixedBody` (`EnumerateHintNames_SpacedPrefixBeforeColon_ExtractsTopologyHint`).
+- [x] (proven) `BicepArrayLiteralConverter.ParseObjectScalars` — block comments inside array objects not skipped — **hit 2026-09-03 (#598):** `ip_security_restrictions = [{ name = "AllowAll" /* ip_address = "1.1.1.1" */ }]` parsed commented-out `ip_address` as live scalar (body-level block-comment parity gap after #590); fixed with `TryConsumeBlockComment` in array-object scalar scan (`ParseAsync_IpSecurityRestrictionsArrayWithBlockCommentedProperty_DoesNotParseCommentedScalar`).
+
+2026-09-03 seed hunt #598: reseeded from plain-text topology hint extractor and array-literal converter; proved spaced `TOP :` prefix parity gap and array-object block-comment gap.
+
+- [x] (proven) `BicepArrayLiteralConverter.ParseObjectScalars` — comma-separated properties on one line inside array objects parsed as single scalar — **hit 2026-09-03 (#599):** `[{ name: 'AllowAll', ipAddress: '0.0.0.0/0', action: 'Allow' }]` stored only `name` with trailing assignment text; `AppServiceNetworkAccessSecurityBaselineExpander` never detected open-internet rules; fixed by splitting assignment segments on commas outside quoted strings (`ParseAsync_InlineSingleLineArray_ExpandsNetworkBaseline`, `ParseAsync_InlineCommaSeparatedArrayObject_ExpandsNetworkBaseline`).
+
+2026-09-03 seed hunt #599: reseeded from array-literal converter; proved comma-separated inline array-object scalar gap beyond #598 block-comment fix.
+
+- [x] (invalid) `BicepArrayLiteralConverter.ParseObjectScalars` — full-line `#` HCL comments inside array objects may be mis-parsed if comment text resembles assignments — full-line `#` lines skipped; inline `#` is EOL comment per HCL so trailing segments are intentionally ignored (`ParseAsync_InlineArrayObjectWithFullLineHashComment_DoesNotParseCommentedAssignment`).
+- [x] (proven) `InfrastructureDeclarationBraceBodyExtractor` / `CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar` — HCL single-quoted `''` escape not honored — **hit 2026-09-03 (#605):** `owner''s rule` and `token''s } literal` left doubled apostrophes in `tf.*` values; `''` inside single-quoted strings could prematurely toggle delimiter depth; fixed with `''` skip in brace/bracket scanning and `UnescapeSingleQuotedInner` (`ParseAsync_SingleQuotedDoubledApostropheInNestedBlock_ParsesTrailingScalar`, `ParseAsync_SingleQuotedDoubledApostropheBeforeClosingBraceInNestedBlock_ParsesTrailingScalar`, `ParseAsync_SingleQuotedApostropheInArrayRuleName_ParsesIpAddress`).
+- [x] (valid-no-repro) `InfrastructureDeclarationBraceBodyExtractor` — lone unescaped `'` in single-quoted scalars (`'O'Brien'`) — invalid HCL; delimiter scan still breaks and leaks array scalars to top level; Terraform requires `''` escaping (`ParseAsync_UnescapedSingleQuotedApostrophe_LeaksArrayScalarsToTopLevel`).
+- [x] (valid-no-repro) `PlainTextDocumentTopologyHintExtractor.EnumerateHintNames` — tab-indented `TOP:` lines — extractor and `PlainTextContextDocumentParser` both use `TrimEntries` split; regression `EnumerateHintNames_TabIndentedTopLine_MatchesParser`.
+
+2026-09-03 thorough hunt #605: proved HCL `''` single-quote escape gap; disproved hash-comment mis-parse, tab-indent mismatch, and unescaped lone apostrophe (invalid HCL).
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
