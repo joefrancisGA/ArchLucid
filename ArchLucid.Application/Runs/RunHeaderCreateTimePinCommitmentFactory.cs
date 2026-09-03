@@ -48,6 +48,21 @@ public static class RunHeaderCreateTimePinCommitmentFactory
             ? Convert.ToHexString(hash)
             : null;
 
-        return new GoldenManifestCreateTimePinCommitment(policyRows, evidenceRows, evidenceHashHex);
+        string? architectureVersionHashHex = header.PinnedArchitectureVersionContentHashSha256 is { Length: > 0 } avHash
+            ? Convert.ToHexString(avHash)
+            : null;
+
+        string? knowledgeModelHashHex = header.PinnedKnowledgeModelContentHashSha256 is { Length: > 0 } kmHash
+            ? Convert.ToHexString(kmHash)
+            : null;
+
+        return new GoldenManifestCreateTimePinCommitment(
+            policyRows,
+            evidenceRows,
+            evidenceHashHex,
+            architectureVersionHashHex,
+            knowledgeModelHashHex,
+            header.PinnedFocusedPilotModeEnabled,
+            header.PinnedFocusedPilotCloudProvider);
     }
 }

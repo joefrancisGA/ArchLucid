@@ -1,3 +1,4 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
 using ArchLucid.Contracts.ArchitectureIntelligence;
@@ -52,17 +53,25 @@ public sealed class KnowledgeModelClarificationAnswerApplicatorTests
     };
 
     Mock<IArchitectureIntelligencePersistence> persistence = new();
+    ArchitectureKnowledgeModel? savedModel = null;
     persistence
       .Setup(p => p.GetModelAsync(TestScope.TenantId.ToString("D"), modelId, It.IsAny<CancellationToken>()))
       .ReturnsAsync(model);
     persistence
       .Setup(p => p.SaveModelAsync(It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()))
+      .Callback<ArchitectureKnowledgeModel, CancellationToken>((saved, _) => savedModel = saved)
       .Returns(Task.CompletedTask);
 
     Mock<IRunRepository> runs = new();
+    byte[] pinnedKnowledgeModelHash = KnowledgeModelContentFingerprint.TryComputeContentHashSha256(model)!;
     runs
       .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new RunRecord { RunId = runId, KnowledgeModelId = modelId });
+      .ReturnsAsync(new RunRecord
+      {
+        RunId = runId,
+        KnowledgeModelId = modelId,
+        PinnedKnowledgeModelContentHashSha256 = pinnedKnowledgeModelHash,
+      });
     runs
       .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
       .Returns(Task.CompletedTask);
@@ -79,11 +88,12 @@ public sealed class KnowledgeModelClarificationAnswerApplicatorTests
     applied.AppliedCount.Should().Be(1);
     applied.AppliedAnswers.Should().ContainKey(questionId);
 
-    model.FramingAnswers[$"{KnowledgeModelClarificationAnswerApplicator.FindingClarificationFramingKeyPrefix}{questionId}"]
+    savedModel.Should().NotBeNull();
+    savedModel!.FramingAnswers[$"{KnowledgeModelClarificationAnswerApplicator.FindingClarificationFramingKeyPrefix}{questionId}"]
         .Should().Be(answer);
 
     string formatted = OperatorAssertedClarificationAnswerFormatter.Format(questionId, answer);
-    model.Elements.Should().ContainSingle(element =>
+    savedModel.Elements.Should().ContainSingle(element =>
         element.Kind == ArchitectureElementKind.Assumption
         && element.Description == formatted);
   }

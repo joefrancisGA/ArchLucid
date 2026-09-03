@@ -55,13 +55,10 @@ describe("HelpTopicAuditTrail", () => {
 
     render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    const technicalReference = screen.getByTestId("help-audit-trail-technical-reference");
     const visible = (document.body.textContent ?? "").toLowerCase();
-    const technicalText = (technicalReference.textContent ?? "").toLowerCase();
-    const primaryVisible = visible.replace(technicalText, "");
 
     for (const banned of AUDIT_TRAIL_HELP_BANNED_SUBSTRINGS) {
-      expect(primaryVisible, `rendered copy contains "${banned}"`).not.toContain(banned.toLowerCase());
+      expect(visible, `rendered copy contains "${banned}"`).not.toContain(banned.toLowerCase());
     }
   });
 
@@ -87,23 +84,33 @@ describe("HelpTopicAuditTrail", () => {
     expect(screen.queryByTestId("help-audit-trail-refresh-button")).toBeNull();
   });
 
-  it("renders technical reference body without a collapsible wrapper", () => {
+  it("keeps technical reference collapsed by default and mounts engineering detail after expand", async () => {
     if (loaded === null) {
       throw new Error("Expected audit-trail documentation to load.");
     }
 
     render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();
+    const technicalReference = screen.getByTestId("help-audit-trail-technical-reference");
+    expect(technicalReference).not.toHaveAttribute("open");
+    expect(screen.queryByTestId("help-audit-trail-technical-reference-body")).toBeNull();
+
+    fireEvent.click(within(technicalReference).getByText("Technical reference"));
+
+    expect(await screen.findByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();
   });
 
-  it("keeps technical reference body mounted for hash navigation", async () => {
+  it("mounts technical reference body when hash navigation opens details without a toggle event", async () => {
     if (loaded === null) {
       throw new Error("Expected audit-trail documentation to load.");
     }
 
     render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
+    const technicalReference = screen.getByTestId(
+      "help-audit-trail-technical-reference",
+    ) as HTMLDetailsElement;
+    technicalReference.open = true;
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
     expect(await screen.findByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();

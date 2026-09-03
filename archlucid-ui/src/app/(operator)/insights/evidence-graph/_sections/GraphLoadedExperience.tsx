@@ -1,9 +1,11 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { TabsContent } from "@/components/ui/tabs";
 import { EvidenceTrailTracePanel } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailTracePanel";
 import {
@@ -23,6 +25,7 @@ import {
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { graphScopeModeHrefFromSearch } from "@/lib/insights/graph-scope-mode-url";
 import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
@@ -75,6 +78,9 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
 
   void _sampleGraphActive;
 
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
   const runTrim = runId.trim();
   const showcaseRun = canonicalizeDemoRunId(runTrim) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
   const buyerTrailPresentation = demoUi || (buyerPolishedShell && showcaseRun);
@@ -92,19 +98,24 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             </div>
           </TabsContent>
           <TabsContent value="graph" className="pt-0" data-testid="graph-presentation-panel-graph">
-            <div className={cn("mb-2 flex flex-wrap gap-2", graphMainColumnMaxClass)} role="group" aria-label="Graph scope" data-testid="graph-scope-pills">
+            <FilterChipGroup
+              aria-label="Graph scope"
+              className={cn("mb-2 flex flex-wrap gap-2", graphMainColumnMaxClass)}
+              data-testid="graph-scope-pills"
+            >
               {BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS.map((option) => (
                 <FilterChip
                   key={option.mode}
+                  href={graphScopeModeHrefFromSearch(currentSearch, option.mode, pathname)}
+                  scroll={false}
                   className={buyerFilterChipClass(mode === option.mode, false)}
-                  aria-pressed={mode === option.mode}
+                  aria-current={mode === option.mode ? "page" : undefined}
                   aria-label={`Graph scope: ${option.label}`}
-                  onClick={() => onModeChange(option.mode)}
                 >
                   {option.label}
                 </FilterChip>
               ))}
-            </div>
+            </FilterChipGroup>
             <div className={cn("mb-2 flex flex-wrap items-center gap-3", graphMainColumnMaxClass)}>
               <span className={OPERATOR_TYPOGRAPHY.helper}>
                 {graphInteractiveReady && !loading

@@ -60,7 +60,7 @@ export function WorkspaceModeGraduationOffer(props: WorkspaceModeGraduationOffer
           </Button>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             data-testid="workspace-mode-graduation-remind-next"
             onClick={() => {
               void persistWorkspaceModeGraduationOfferToServer("remind-next");

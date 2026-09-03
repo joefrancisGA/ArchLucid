@@ -1,4 +1,6 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -49,7 +51,10 @@ public sealed class ArchitectureKnowledgeModelAccess(
                     .ConfigureAwait(false);
 
                 if (pinned is not null)
+                {
+                    EnsurePinnedKnowledgeModelContentHashOrThrow(run, pinned);
                     return ArchitectureKnowledgeModelCloner.Clone(pinned);
+                }
             }
         }
 
@@ -57,7 +62,10 @@ public sealed class ArchitectureKnowledgeModelAccess(
             .ConfigureAwait(false);
 
         if (runScoped is not null)
+        {
+            EnsurePinnedKnowledgeModelContentHashOrThrow(run, runScoped);
             return ArchitectureKnowledgeModelCloner.Clone(runScoped);
+        }
 
         if (_runRepository is not null
             && run is not null
@@ -112,6 +120,7 @@ public sealed class ArchitectureKnowledgeModelAccess(
             return;
 
         run.KnowledgeModelId = nextModelId;
+        RunHeaderKnowledgeModelContentPin.ApplyToHeader(run, modelToSave, nextModelId);
 
         if (run.GraphSnapshotId.HasValue)
             run.GraphSnapshotId = null;
@@ -183,5 +192,27 @@ public sealed class ArchitectureKnowledgeModelAccess(
         return await _persistence
             .GetModelByRunIdAsync(tenantId, runId.ToString("N"), cancellationToken)
             .ConfigureAwait(false);
+    }
+
+    private static void EnsurePinnedKnowledgeModelContentHashOrThrow(
+        ArchLucid.Persistence.Models.RunRecord? run,
+        ArchitectureKnowledgeModel model)
+    {
+        if (run is null || string.IsNullOrWhiteSpace(run.KnowledgeModelId))
+            return;
+
+        if (run.PinnedKnowledgeModelContentHashSha256 is not { Length: > 0 })
+        {
+            throw new ConflictException(
+                "Knowledge model load blocked: run is missing create-time knowledge model content hash pin.");
+        }
+
+        byte[]? computed = KnowledgeModelContentFingerprint.TryComputeContentHashSha256(model);
+
+        if (computed is null || !computed.AsSpan().SequenceEqual(run.PinnedKnowledgeModelContentHashSha256))
+        {
+            throw new ConflictException(
+                "Knowledge model load blocked: knowledge model content hash drifted since run create.");
+        }
     }
 }

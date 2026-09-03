@@ -3,8 +3,8 @@
 import Link from "next/link";
 
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
-import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
 export type SampleReviewDemoBannerProps = {
@@ -13,7 +13,7 @@ export type SampleReviewDemoBannerProps = {
 
 /** Reminds operators they are viewing curated demo data, not their tenant's review. */
 export function SampleReviewDemoBanner(props: SampleReviewDemoBannerProps): React.JSX.Element | null {
-  if (!isShowcaseStaticDemoRunId(props.runId.trim())) {
+  if (props.runId.trim() !== SHOWCASE_STATIC_DEMO_RUN_ID) {
     return null;
   }
 

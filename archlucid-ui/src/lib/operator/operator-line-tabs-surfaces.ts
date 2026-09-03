@@ -42,9 +42,9 @@ export const OPERATOR_LINE_TABS_TB1662_SURFACES: readonly OperatorLineTabsSurfac
   {
     id: "runs-dashboard-operator",
     modulePath: "components/operator-home/RunsDashboardPanelClient.tsx",
-    kind: "sections-no-tabs",
+    kind: "tabs-line",
     tabListTestId: "runs-dashboard-status-filters",
-    notes: "Operator/buyer home status filters use FilterChip links — Tabs chrome removed (wave 10).",
+    notes: "Operator shell status filters; buyer-polished shell uses FilterChip outside tablist.",
   },
 ];
 

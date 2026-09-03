@@ -75,6 +75,35 @@ public class ComparisonResult
         get;
         set;
     }
+
+    /// <summary>Wave-10 suggestion 98: duplicate decision/control keys that were excluded from comparison.</summary>
+    public List<ComparisonDuplicateKeyConflict> DuplicateKeyConflicts
+    {
+        get;
+        set;
+    } = [];
+}
+
+/// <summary>Duplicate comparison key detected in one manifest section (wave-10 suggestion 98).</summary>
+public sealed class ComparisonDuplicateKeyConflict
+{
+    public string Section
+    {
+        get;
+        set;
+    } = null!;
+
+    public string Key
+    {
+        get;
+        set;
+    } = null!;
+
+    public int Count
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>One decision key that was added, removed, or had a different selected option.</summary>

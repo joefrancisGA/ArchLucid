@@ -1,26 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { HelpSponsorSummaryPageHeader } from "@/app/(operator)/help/_sections/HelpSponsorSummaryPageHeader";
+
 import { HelpPilotRoiMeasurementSection } from "@/app/(operator)/help/_sections/HelpPilotRoiMeasurementSection";
+import { HelpSponsorReportClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpSponsorReportClaimOrientationStrip";
+import { HelpSponsorSummaryHeaderActions } from "@/app/(operator)/help/_sections/HelpSponsorSummaryHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { SponsorSummaryHelpClaimDisciplineStrip } from "@/components/help/SponsorSummaryHelpClaimDisciplineStrip";
-import { SponsorSummaryHelpEvidenceOrientationStrip } from "@/components/help/SponsorSummaryHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import {
-  SPONSOR_SUMMARY_HELP_OVERVIEW,
-  SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS,
-  SponsorReportHelpPageSubtitle,
-} from "@/lib/sponsor-report-help-guide-content";
-import { PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE } from "@/lib/sponsor/pilot-roi-measurement-help-guide-content";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import {
   extractMarkdownSectionsByAnchor,
@@ -29,6 +24,24 @@ import {
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE } from "@/lib/sponsor/pilot-roi-measurement-help-guide-content";
+import {
+  SPONSOR_SUMMARY_HELP_CANONICAL_PATH,
+  SPONSOR_SUMMARY_HELP_CLAIM_DISCIPLINE,
+} from "@/lib/sponsor/sponsor-report-help-evidence-copy";
+import {
+  SPONSOR_SUMMARY_HELP_OVERVIEW,
+  SPONSOR_SUMMARY_HELP_PAGE_TITLE,
+  SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS,
+  SponsorReportHelpPageSubtitle,
+} from "@/lib/sponsor/sponsor-report-help-guide-content";
+import {
+  SPONSOR_REPORT_HELP_FIRST_VIEWPORT_TEST_ID,
+  SPONSOR_REPORT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  SPONSOR_REPORT_HELP_PRIMARY_CONTENT_ID,
+  SPONSOR_REPORT_HELP_SKIP_LINK_LABEL,
+  SPONSOR_REPORT_HELP_SKIP_TARGET_ID,
+} from "@/lib/sponsor/sponsor-report-help-page-copy";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
@@ -37,7 +50,7 @@ type HelpSponsorSummaryGuideViewProps = {
   readonly markdown: string;
 };
 
-/** Buyer-safe sponsor report orientation for `/help/sponsor-report`. */
+/** Buyer-safe sponsor report orientation for `/help/sponsor-report` (EXE). */
 export function HelpSponsorSummaryGuideView(
   props: HelpSponsorSummaryGuideViewProps,
 ): React.JSX.Element {
@@ -59,97 +72,119 @@ export function HelpSponsorSummaryGuideView(
       ? { ...heading, title: PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE }
       : heading,
   );
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-sponsor-report-guide"
     >
+      <a href={`#${SPONSOR_REPORT_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {SPONSOR_REPORT_HELP_SKIP_LINK_LABEL}
+      </a>
       <HelpTopicHashScroll />
 
-      <HelpSponsorSummaryPageHeader
-        entry={entry}
-        subtitle={SponsorReportHelpPageSubtitle(buyerPolishedShell)}
-      />
-
-      <SponsorSummaryHelpClaimDisciplineStrip />
-
-      <section
-        className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-        data-testid="help-sponsor-report-action-panel"
-        aria-labelledby="help-sponsor-report-action-panel-heading"
+      <div
+        id={SPONSOR_REPORT_HELP_PRIMARY_CONTENT_ID}
+        data-testid={SPONSOR_REPORT_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
       >
-        <h2
-          id="help-sponsor-report-action-panel-heading"
-          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        <HelpTopicGuidePageHeader
+          title={SPONSOR_SUMMARY_HELP_PAGE_TITLE}
+          titleTestId="help-sponsor-report-page-title"
+          subtitle={SponsorReportHelpPageSubtitle(buyerPolishedShell)}
+          navHref={SPONSOR_SUMMARY_HELP_CANONICAL_PATH}
+          headingLevel="h1"
+          claimDiscipline={SPONSOR_SUMMARY_HELP_CLAIM_DISCIPLINE}
+          claimDisciplineTestId={SPONSOR_REPORT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          actions={<HelpSponsorSummaryHeaderActions entry={entry} />}
+        />
+
+        <div
+          id={SPONSOR_REPORT_HELP_SKIP_TARGET_ID}
+          data-testid={SPONSOR_REPORT_HELP_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 space-y-6 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
         >
-          Start or open sponsor outputs
-        </h2>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button asChild size="sm" variant="primary" data-testid="help-sponsor-report-start-review">
-            <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.startFirstReview.href}>
-              {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.startFirstReview.label}
-            </Link>
-          </Button>
-          <Button asChild size="sm" variant="outline">
-            <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.firstArchitectureReview.href}>
-              {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.firstArchitectureReview.label}
-            </Link>
-          </Button>
-          <Button asChild size="sm" variant="outline">
-            <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.href}>
-              {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.label}
-            </Link>
-          </Button>
-          <Button asChild size="sm" variant="outline">
-            <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorDashboard.href}>
-              {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorDashboard.label}
-            </Link>
-          </Button>
-          <Link
-            href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.href}
-            className={cn(
-              "text-sm underline-offset-2 hover:underline",
-              DESIGN_TOKENS.accent.link,
-              OPERATOR_TYPOGRAPHY.body,
-            )}
-          >
-            {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.label}
-          </Link>
-        </div>
-      </section>
-
-      <SponsorSummaryHelpEvidenceOrientationStrip />
-
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-sponsor-report-overview">
+          <p className={readingBodyClass} data-testid="help-sponsor-report-overview">
             {SPONSOR_SUMMARY_HELP_OVERVIEW}
           </p>
 
-          {preparedSponsorBrief.trim().length > 0 ? (
-            <div
-              className={HELP_PAGE_LAYOUT.contentColumn}
-              data-testid="help-sponsor-report-content"
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-sponsor-report-action-panel"
+            aria-labelledby="help-sponsor-report-action-panel-heading"
+          >
+            <h2
+              id="help-sponsor-report-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
             >
-              <MarketingAccessibilityMarkdownFragment
-                markdownBody={sponsorBriefRaw}
-                tableCaption={`${entry.title} reference table`}
-                presentation="help"
+              Start or open sponsor outputs
+            </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary">
+                <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.startFirstReview.href}>
+                  {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.startFirstReview.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.firstArchitectureReview.href}>
+                  {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.firstArchitectureReview.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.href}>
+                  {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorDashboard.href}>
+                  {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorDashboard.label}
+                </Link>
+              </Button>
+              <Link
+                href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.href}
+                className={cn(
+                  "text-sm underline-offset-2 hover:underline",
+                  DESIGN_TOKENS.accent.link,
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
+              >
+                {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.label}
+              </Link>
+            </div>
+          </section>
+
+          <div className={HELP_PAGE_LAYOUT.contentGrid}>
+            <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
+              {preparedSponsorBrief.trim().length > 0 ? (
+                <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-sponsor-report-content">
+                  <MarketingAccessibilityMarkdownFragment
+                    markdownBody={sponsorBriefRaw}
+                    tableCaption={`${entry.title} reference table`}
+                    presentation="help"
+                    sourceDocPath={sourceDocPath}
+                    helpTopicSlug={entry.slug}
+                  />
+                </div>
+              ) : null}
+
+              <HelpPilotRoiMeasurementSection
+                markdown={pilotRoiRaw}
                 sourceDocPath={sourceDocPath}
                 helpTopicSlug={entry.slug}
               />
             </div>
-          ) : null}
 
-          <HelpPilotRoiMeasurementSection
-            markdown={pilotRoiRaw}
-            sourceDocPath={sourceDocPath}
-            helpTopicSlug={entry.slug}
-          />
+            <HelpTopicTableOfContents headings={headings} />
+          </div>
         </div>
 
-        <HelpTopicTableOfContents headings={headings} />
+        <div data-testid="help-sponsor-report-orientation-bottom">
+          <HelpSponsorReportClaimOrientationStrip />
+        </div>
       </div>
     </article>
   );

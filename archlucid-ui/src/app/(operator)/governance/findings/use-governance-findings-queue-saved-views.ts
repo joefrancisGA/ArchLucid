@@ -17,10 +17,11 @@ import {
 } from "@/lib/findings/findings-natural-language-filter";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 import { governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
+import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import { patchGovernanceFindingsQueueFacets } from "@/lib/governance/governance-findings-queue-facets-storage";
 
 export type UseGovernanceFindingsQueueSavedViewsInput = {
-  readonly mode: string;
+  readonly mode: GovernanceFindingsQueueMode;
   readonly navHref: string;
   readonly searchParams: ReadonlyURLSearchParams;
   readonly router: AppRouterInstance;

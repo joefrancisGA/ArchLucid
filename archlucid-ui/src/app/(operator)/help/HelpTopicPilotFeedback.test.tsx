@@ -1,10 +1,18 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { expectClaimDisciplineBand, expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
@@ -20,7 +28,16 @@ import {
   PILOT_FEEDBACK_HELP_PRIMARY_ACTION,
   PILOT_FEEDBACK_HELP_WORKFLOW_STEPS,
 } from "@/lib/pilot-feedback-help-guide-content";
-import { PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE } from "@/lib/pilot-feedback-help-evidence-copy";
+import {
+  PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE,
+  PILOT_FEEDBACK_HELP_FOLLOW_UPS_TITLE,
+  PILOT_FEEDBACK_HELP_SOURCES,
+} from "@/lib/pilot-feedback-help-evidence-copy";
+import {
+  PILOT_FEEDBACK_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+} from "@/lib/pilot-feedback-help-page-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -54,19 +71,25 @@ describe("HelpPilotFeedbackGuideView", () => {
     expect(visible).not.toContain("58r");
     expect(screen.getByTestId("help-pilot-feedback-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-pilot-feedback-claim-discipline-strip")).toBeInTheDocument();
-    expectClaimDisciplineBand(screen, "help-pilot-feedback", "help-pilot-feedback-claim-discipline");
-    expectClaimDisciplineBandContent(
-      screen,
-      "help-pilot-feedback",
-      "help-pilot-feedback-claim-discipline",
-      PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    expect(screen.queryByTestId("help-pilot-feedback-claim-discipline-strip")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-pilot-feedback-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId(PILOT_FEEDBACK_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
+      PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE,
     );
+    expect(screen.getByRole("heading", { level: 2, name: PILOT_FEEDBACK_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("help-pilot-feedback-sources")).toBeInTheDocument();
     expect(screen.getByTestId("help-pilot-feedback-job-matrix")).toBeInTheDocument();
     expect(screen.getByTestId("help-pilot-feedback-workflow-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("help-pilot-feedback-page-title")).toHaveTextContent(
       PILOT_FEEDBACK_HELP_PAGE_TITLE,
     );
+
+    const sourcesSection = screen.getByTestId("help-pilot-feedback-sources");
+
+    for (const source of filterWhereToGoNextFollowUpLinks(PILOT_FEEDBACK_HELP_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
 
     const actionPanel = screen.getByTestId("help-pilot-feedback-action-panel");
 

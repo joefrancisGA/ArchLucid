@@ -111,7 +111,7 @@ public sealed class ManifestHashServiceTests
     }
 
     [Fact]
-    public void ComputeHash_MatchesPinnedBaseline_v4()
+    public void ComputeHash_MatchesPinnedBaseline_v6()
     {
         string baselinePath = Path.Combine(
             AppContext.BaseDirectory,
@@ -121,7 +121,7 @@ public sealed class ManifestHashServiceTests
             "..",
             "tests",
             "manifest-hash",
-            "hasher-baseline-v4.json");
+            "hasher-baseline-v6.json");
 
         baselinePath = Path.GetFullPath(baselinePath);
         using FileStream stream = File.OpenRead(baselinePath);

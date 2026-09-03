@@ -7,19 +7,15 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/digests",
 }));
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () => false,
-  };
-});
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
+}));
 
 import { DigestsPageHeader } from "@/components/digests/DigestsPageHeader";
 
 describe("DigestsPageHeader", () => {
-  it("renders h1, refresh, and last-updated metadata", () => {
+  it("renders h1, help, refresh, and last-updated metadata", () => {
     const onRefresh = vi.fn();
 
     render(
@@ -33,6 +29,7 @@ describe("DigestsPageHeader", () => {
 
     expect(screen.getByRole("heading", { level: 2, name: "Architecture digests" })).toBeInTheDocument();
     expect(screen.getByText(DIGESTS_BROWSE_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.getByTestId("digests-last-updated")).toHaveTextContent(/Last updated:/i);

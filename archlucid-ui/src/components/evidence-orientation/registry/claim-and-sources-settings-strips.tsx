@@ -63,6 +63,11 @@ import {
   DIGESTS_SCHEDULE_SOURCES_INTRO,
 } from "@/lib/digests-schedule-evidence-copy";
 import {
+  DEVELOPER_SETTINGS_FOLLOW_UPS_TITLE,
+  DEVELOPER_SETTINGS_SOURCES,
+  DEVELOPER_SETTINGS_SOURCES_INTRO,
+} from "@/lib/developer-settings-evidence-copy";
+import {
   OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE,
   OPERATOR_BILLING_SETTINGS_SOURCES,
   OPERATOR_BILLING_SETTINGS_SOURCES_INTRO,
@@ -108,12 +113,15 @@ import {
   TENANT_SETTINGS_SOURCES_INTRO,
 } from "@/lib/tenant-settings-evidence-copy";
 import {
-  SETTINGS_HUB_CLAIM_DISCIPLINE,
-  SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING,
   SETTINGS_HUB_FOLLOW_UPS_TITLE,
   SETTINGS_HUB_ORIENTATION_SOURCES,
   SETTINGS_HUB_SOURCES_INTRO,
 } from "@/lib/settings-hub-evidence-copy";
+import {
+  PROJECTS_RECYCLE_BIN_FOLLOW_UPS_TITLE,
+  PROJECTS_RECYCLE_BIN_SOURCES,
+  PROJECTS_RECYCLE_BIN_SOURCES_INTRO,
+} from "@/lib/projects-recycle-bin-evidence-copy";
 
 export function BaselineSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
@@ -158,6 +166,18 @@ export function DigestsScheduleEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
       hubSecondary
+    />
+  );
+}
+
+export function DeveloperSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="developer-settings"
+      sourcesTitle={DEVELOPER_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={DEVELOPER_SETTINGS_SOURCES_INTRO}
+      sources={DEVELOPER_SETTINGS_SOURCES}
+      sourcesHeadingId="where-to-go-next"
     />
   );
 }
@@ -356,6 +376,18 @@ export function TenantSettingsEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
+export function ProjectsRecycleBinEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="projects-recycle-bin"
+      sourcesTitle={PROJECTS_RECYCLE_BIN_FOLLOW_UPS_TITLE}
+      sourcesIntro={PROJECTS_RECYCLE_BIN_SOURCES_INTRO}
+      sources={PROJECTS_RECYCLE_BIN_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
 export function ApiKeysSettingsEvidenceOrientationStrip(
   props: { readonly readingBodyClassName?: string } = {},
 ): React.JSX.Element {
@@ -377,8 +409,6 @@ export function SettingsHubEvidenceOrientationStrip(
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="settings-hub"
-      claim={SETTINGS_HUB_CLAIM_DISCIPLINE}
-      claimHeading={SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING}
       sourcesTitle={SETTINGS_HUB_FOLLOW_UPS_TITLE}
       sourcesIntro={SETTINGS_HUB_SOURCES_INTRO}
       sources={SETTINGS_HUB_ORIENTATION_SOURCES}

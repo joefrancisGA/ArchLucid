@@ -53,9 +53,6 @@ export function AppShellMainAffordances() {
     return (
       <>
         <BuyerGoldenJourneyLayerContextStrip />
-        {showPersistentWorkspaceNextActionStrip && teachingChromeVisible ? (
-        <PersistentWorkspaceNextActionStrip />
-      ) : null}
         <OperatorRecentViewsTracker />
         <ReviewsListReturnStateTracker />
         {staticDemoEnv ? (

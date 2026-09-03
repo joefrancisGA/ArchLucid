@@ -2,14 +2,17 @@
 
 # Manifest hash field inclusion (wave-2 suggestion 18)
 
-`ManifestHashService.HasherSchemaVersion` is **`v4`** (wave-7 binds evidence pin hash digest; wave-6 bound create-time pin rows; wave-5 bound `ArchitectureVersionId`). The hash is a **content commitment** for structural manifest sections and committed governance — not the full findings envelope.
+`ManifestHashService.HasherSchemaVersion` is **`v6`** (wave-11 binds focused-pilot mode + cloud provider; wave-10 binds κ content hash + KM content hash; wave-7 binds evidence pin hash digest; wave-6 bound create-time pin rows; wave-5 bound `ArchitectureVersionId`). The hash is a **content commitment** for structural manifest sections and committed governance — not the full findings envelope.
 
 ## Included in `h(M)`
 
 - Scope ids, manifest/run/snapshot/trace/rule-set ids, **`ArchitectureVersionId`**
+- **Create-time κ content hash** (`CreateTimeArchitectureVersionContentHashSha256`: uppercase hex over pinned κ artifact bytes)
+- **Create-time κ model content hash** (`CreateTimeKnowledgeModelContentHashSha256`: uppercase hex over review-cache κ fingerprint bytes)
 - **Create-time policy pack pins** (`CreateTimePolicyPackPins`: id + version rows)
 - **Create-time evidence package pins** (`CreateTimeEvidencePackagePins`: provider + package id + collection timestamp when available)
 - **Create-time evidence pin hash** (`CreateTimeEvidencePackagePinsHashSha256`: uppercase hex over canonical pin JSON)
+- **Create-time focused-pilot pins** (`CreateTimeFocusedPilotModeEnabled`, `CreateTimeFocusedPilotCloudProvider`)
 - Structural sections: requirements, topology, security, compliance, cost, constraints, unresolved issues
 - Sorted decisions (with sorted supporting finding ids / related node ids)
 - Sorted assumptions and warnings

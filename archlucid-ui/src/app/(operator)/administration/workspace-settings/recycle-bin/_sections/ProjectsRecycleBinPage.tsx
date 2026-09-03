@@ -51,6 +51,7 @@ import { PROJECTS_RECYCLE_DRAFTS_PACKAGE_RESTORE_RESIDUE_HONESTY } from "@/lib/v
 import { whyDisabledNeedsRole } from "@/lib/why-disabled-cta";
 
 import { ProjectsRecycleBinEmptyState, ProjectsRecycleBinLoadingNotice } from "./ProjectsRecycleBinListStates";
+import { ProjectsRecycleBinEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ProjectsRecycleBinPageHeader } from "./ProjectsRecycleBinPageHeader";
 import { ProjectsRecycleBinContinueLastViewedRow } from "./ProjectsRecycleBinContinueLastViewedRow";
 import {
@@ -324,6 +325,7 @@ export function ProjectsRecycleBinPage() {
           void reload();
         }}
       />
+      <ProjectsRecycleBinEvidenceOrientationStrip />
       <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="projects-recycle" />
       <p
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

@@ -1,7 +1,25 @@
-import type { components } from "@/lib/openapi-schemas";
-
-/** `GET /v1/pilots/scorecard` in-product scorecard JSON — OpenAPI `PilotInProductScorecardResponse`. */
-export type PilotScorecardJson = components["schemas"]["PilotInProductScorecardResponse"];
-
-/** Trailing-window outcome rollup (`GET /v1/pilots/outcome-summary`). */
-export type PilotScorecardResponse = components["schemas"]["PilotScorecardResponse"];
+/** UI JSON from pilot scorecard endpoints; wire shape is not yet aliased to OpenAPI `PilotScorecardResponse`. */
+export type PilotScorecardJson = {
+  tenantId: string;
+  totalRunsCommitted: number;
+  totalManifestsCreated: number;
+  totalFindingsResolved: number;
+  averageTimeToManifestMinutes: number | null;
+  totalAuditEventsGenerated: number;
+  totalGovernanceApprovalsCompleted: number;
+  firstCommitUtc: string | null;
+  daysSinceFirstCommit: number | null;
+  metricSources?: Record<string, string>;
+  baselines: {
+    baselineHoursPerReview: number | null;
+    baselineReviewsPerQuarter: number | null;
+    baselineArchitectHourlyCost: number | null;
+    updatedUtc: string;
+  } | null;
+  roiEstimate: {
+    annualReviewCostStatusQuoUsd: number;
+    annualReviewSavingsFromReviewTimeLeverUsd: number;
+    modelReference: string;
+    currency: string;
+  } | null;
+};

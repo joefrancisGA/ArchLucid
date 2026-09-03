@@ -1,4 +1,3 @@
-import { authorityLifecyclePhaseLabel } from "@/lib/runs/authority-lifecycle-commit-block";
 import { formatRunListTitleWithDisambiguator } from "@/lib/operator/run-home-list-disambiguator";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import {
@@ -7,6 +6,7 @@ import {
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { isSampleReviewRun } from "@/lib/reviews/is-sample-review-run";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { reviewPackageArchitectureName, reviewPackageOwnerLabel, type ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
@@ -100,12 +100,6 @@ function splitReviewsHubReviewTitle(title: string): { primary: string; kindLabel
 }
 
 function reviewGovernanceState(run: RunSummary): string {
-  const authorityPhaseLabel = authorityLifecyclePhaseLabel(run.authorityLifecyclePhase);
-
-  if (authorityPhaseLabel !== null && run.authorityLifecyclePhase !== "Complete") {
-    return `Authority ${authorityPhaseLabel}`;
-  }
-
   const demoMeta = buyerDemoPackageCardMeta(run.runId);
 
   if (demoMeta !== null) {
@@ -222,10 +216,7 @@ export function toReviewsHubReviewRowDisplay(
     needsAttention: reviewsHubNeedsAttention(run),
     primaryAction,
     reviewHref: primaryAction.href,
-    isSampleReview:
-      run.isSample === true ||
-      runId === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID) ||
-      run.isDemoWelcomeRun === true,
+    isSampleReview: isSampleReviewRun(run),
   };
 }
 

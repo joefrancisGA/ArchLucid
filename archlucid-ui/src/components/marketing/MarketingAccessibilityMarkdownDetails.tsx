@@ -3,7 +3,7 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS } from "@/lib/design-tokens";
 import type { ReactNode } from "react";
 
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 import { MarketingAccessibilityMarkdownFragment } from "./MarketingAccessibilityMarkdownFragment";
 
@@ -44,33 +44,30 @@ export type MarketingAccessibilityMarkdownDetailsProps = {
 export function MarketingAccessibilityMarkdownDetailsBlock(
   props: MarketingAccessibilityMarkdownDetailsProps,
 ): ReactNode {
-  const markdownFragment =
-    props.innerMarkdown.length > 0 ? (
-      <MarketingAccessibilityMarkdownFragment
-        markdownBody={props.innerMarkdown}
-        tableCaption={props.tableCaption}
-        presentation={props.presentation}
-        sourceDocPath={props.sourceDocPath}
-      />
-    ) : null;
-
-  if (props.isHelp) {
-    return (
-      <HelpStaticSection title={props.summary} testId={props.detailsTestId}>
-        {markdownFragment}
-      </HelpStaticSection>
-    );
-  }
-
   return (
     <HelpLazyDetails
       data-testid={props.detailsTestId}
-      className="my-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"
+      className={
+        props.isHelp
+          ? HELP_PAGE_LAYOUT.details
+          : "my-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"
+      }
       summaryClassName={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
       summary={props.summary}
-      bodyClassName="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700"
+      bodyClassName={
+        props.isHelp
+          ? HELP_PAGE_LAYOUT.detailsBody
+          : "mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700"
+      }
     >
-      {markdownFragment}
+      {props.innerMarkdown.length > 0 ? (
+        <MarketingAccessibilityMarkdownFragment
+          markdownBody={props.innerMarkdown}
+          tableCaption={props.tableCaption}
+          presentation={props.presentation}
+          sourceDocPath={props.sourceDocPath}
+        />
+      ) : null}
     </HelpLazyDetails>
   );
 }

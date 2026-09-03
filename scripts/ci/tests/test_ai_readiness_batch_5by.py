@@ -39,7 +39,7 @@ class TestAiReadinessBatch5BY(unittest.TestCase):
             / "Startup"
             / "Modules"
             / "Agents"
-            / "AgentCompletionPipelineHelpers.cs"
+            / "AgentCompletionJudgeChainRegistrar.cs"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("useJudgeDailyCapOnly: true", text)

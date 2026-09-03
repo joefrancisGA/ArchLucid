@@ -9,6 +9,8 @@ export const ACCESSIBILITY_CLAIM_DISCIPLINE =
 export const ACCESSIBILITY_SOURCES_INTRO =
   "Use these evaluation links when accessibility questions turn into assurance, trust, or pilot-scope follow-ups.";
 
+export const ACCESSIBILITY_FOLLOW_UPS_TITLE = "Where to go next";
+
 
 /** Marketing Sources — no self-href to /accessibility. */
 export const ACCESSIBILITY_SOURCES: readonly EvidenceSourceLink[] = [

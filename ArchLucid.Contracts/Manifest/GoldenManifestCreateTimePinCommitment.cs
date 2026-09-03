@@ -8,4 +8,8 @@ namespace ArchLucid.Contracts.Manifest;
 public sealed record GoldenManifestCreateTimePinCommitment(
     IReadOnlyList<PinnedPolicyPackRow> PolicyPackPins,
     IReadOnlyList<PinnedEvidencePackageRow> EvidencePackagePins,
-    string? EvidencePackagePinsHashSha256Hex);
+    string? EvidencePackagePinsHashSha256Hex,
+    string? ArchitectureVersionContentHashSha256Hex = null,
+    string? KnowledgeModelContentHashSha256Hex = null,
+    bool? FocusedPilotModeEnabled = null,
+    int? FocusedPilotCloudProvider = null);

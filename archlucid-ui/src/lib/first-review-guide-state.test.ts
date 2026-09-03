@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import {
+  buildCorePilotCommitContextFromRunItems,
+  type CorePilotCommitContext,
+} from "@/lib/core-pilot-commit-context";
 import { REVIEWS_NEW_GUIDED_INTAKE_HREF, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE } from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_REVIEW_GUIDE_STEPS } from "@/lib/first-review-guide-steps";
 import {
   resolveFirstReviewGuideHeaderActions,
@@ -9,6 +13,7 @@ import {
   resolveFirstReviewGuideReadiness,
   resolveFirstReviewGuideSteps,
 } from "@/lib/first-review-guide-state";
+import { SHOWCASE_CREATED_STATIC_DEMO_RUN_ID } from "@/lib/showcase-created-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const emptyContext: CorePilotCommitContext = {
@@ -237,6 +242,69 @@ describe("first-review-guide-state", () => {
     expect(actions.primaryHref).toBe("/architecture/reviews/run-sealed");
     expect(actions.secondaryLabel).toBe("Start another review");
     expect(actions.secondaryHref).toBe("/architecture/reviews/new");
+  });
+
+  it("reports completed progress as a single finalized sentence", () => {
+    const progress = resolveFirstReviewGuideProgress({
+      ...emptyContext,
+      hasCommittedManifest: true,
+      firstCommittedRunId: "run-sealed",
+      latestRunId: "run-sealed",
+    });
+
+    expect(progress.phase).toBe("complete");
+    expect(progress.summaryLabel).toBe(FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE);
+    expect(progress.detailLabel).toBeNull();
+  });
+
+  it("does not treat seeded sample runs as a completed first review", () => {
+    const commitContext = buildCorePilotCommitContextFromRunItems(
+      [
+        {
+          runId: SHOWCASE_CREATED_STATIC_DEMO_RUN_ID,
+          projectId: "default",
+          createdUtc: "2026-04-01T00:00:00.000Z",
+          isSample: true,
+          hasGoldenManifest: true,
+          description:
+            "Enterprise Copilot RAG platform — born-governed created architecture package (synthetic guided-intake sample).",
+        },
+      ],
+      false,
+    );
+    const input = {
+      commitContext,
+      canExecute: true,
+      finishSetupContext: null,
+      finishSetupLoaded: true,
+    };
+
+    expect(resolveFirstReviewGuideReadiness(input).kind).toBe("ready-to-start");
+    expect(resolveFirstReviewGuideProgress(commitContext).phase).toBe("not-started");
+    expect(resolveFirstReviewGuideHeaderActions(input).primaryLabel).toBe("Start first review");
+  });
+
+  it("does not treat the reviewed showcase sample as a completed first review", () => {
+    const commitContext = buildCorePilotCommitContextFromRunItems(
+      [
+        {
+          runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+          projectId: "default",
+          createdUtc: "2026-04-01T00:00:00.000Z",
+          hasGoldenManifest: true,
+        },
+      ],
+      false,
+    );
+    const input = {
+      commitContext,
+      canExecute: true,
+      finishSetupContext: null,
+      finishSetupLoaded: true,
+    };
+
+    expect(resolveFirstReviewGuideReadiness(input).kind).toBe("ready-to-start");
+    expect(resolveFirstReviewGuideHeaderActions(input).primaryLabel).toBe("Start first review");
   });
 
   it("reports completed when a sealed record exists despite self-hosted setup blockers", () => {

@@ -18,7 +18,7 @@ import {
   provenanceTimelineShowsTechnicalKind,
   provenanceTimelineTechnicalKind,
 } from "@/lib/provenance-timeline-presentation";
-import type { NormalizedArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
+import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +26,7 @@ import { formatProvenancePageWorkspaceUtc } from "./provenance-page-workspace-pr
 
 export type ProvenancePageWorkspaceTimelineProps = {
   readonly runId: string;
-  readonly graph: NormalizedArchitectureRunProvenanceGraph;
+  readonly graph: ArchitectureRunProvenanceGraph;
   readonly viewMode: ProvenanceViewMode;
   readonly onSelectNode: (nodeId: string) => void;
 };
@@ -99,7 +99,7 @@ export function ProvenancePageWorkspaceTimeline({
                   className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40"
                 >
                   <EnterpriseTableCell className="border-b border-neutral-100 p-3 align-top whitespace-nowrap dark:border-neutral-800">
-                    <time dateTime={row.timestampUtc ?? undefined}>{formatProvenancePageWorkspaceUtc(row.timestampUtc ?? "")}</time>
+                    <time dateTime={row.timestampUtc}>{formatProvenancePageWorkspaceUtc(row.timestampUtc)}</time>
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
                     {relatedNode !== undefined ? (
