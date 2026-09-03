@@ -58,11 +58,11 @@ export function AzureCloudConnectionRolesTable(props: AzureCloudConnectionRolesT
       {props.expandedDetails ? (
         <div className="space-y-3 border-t border-neutral-200 p-4 dark:border-neutral-800">
           {AZURE_CLOUD_CONNECTION_ROLE_ROWS.map((row) => (
-            <div key={`${row.azureRole}-details`} className={HELP_PAGE_LAYOUT.details}>
-              <h4 className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            <details key={`${row.azureRole}-details`} className={HELP_PAGE_LAYOUT.details}>
+              <summary className="cursor-pointer font-medium">
                 {row.azureRole} — {formatAzurePermissionRequirementLabel(row.requirement)}
-              </h4>
-              <div className="mt-3">
+              </summary>
+              <div className={HELP_PAGE_LAYOUT.detailsBody}>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{row.expandedDetails}</p>
                 <p className={cn("m-0 mt-2 font-medium", OPERATOR_TYPOGRAPHY.label)}>Capabilities enabled</p>
                 <ul className={HELP_PAGE_LAYOUT.bulletList}>
@@ -88,7 +88,7 @@ export function AzureCloudConnectionRolesTable(props: AzureCloudConnectionRolesT
                   <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{row.omittedImpact}</p>
                 ) : null}
               </div>
-            </div>
+            </details>
           ))}
         </div>
       ) : null}

@@ -82,11 +82,9 @@ describe("impact-preview help negation drift guard", () => {
     expect(new Set(outputHrefs).size).toBe(outputHrefs.length);
   });
 
-  it("lists five guide headings so the topic rail renders at xl", () => {
-    expect(IMPACT_PREVIEW_HELP_GUIDE_HEADINGS).toHaveLength(5);
-    expect(IMPACT_PREVIEW_HELP_GUIDE_HEADINGS.some((heading) => heading.id === "help-impact-preview-claim-discipline-heading")).toBe(
-      true,
-    );
+  it("lists four guide headings so the topic rail renders at xl", () => {
+    expect(IMPACT_PREVIEW_HELP_GUIDE_HEADINGS).toHaveLength(4);
+    expect(IMPACT_PREVIEW_HELP_GUIDE_HEADINGS.some((heading) => heading.id === "where-to-go-next")).toBe(true);
   });
 
   it("links the primary action and simulation results tile to impact preview", () => {

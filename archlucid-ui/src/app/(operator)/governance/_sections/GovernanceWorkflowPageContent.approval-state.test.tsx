@@ -64,12 +64,21 @@ vi.mock("@/lib/api", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/api/policy-governance-api", () => ({
-  listApprovalRequests: apiHoisted.listApprovalRequests,
-  listPromotions: apiHoisted.listPromotions,
-  listActivations: apiHoisted.listActivations,
-  getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
-}));
+vi.mock("@/lib/api/policy-governance-api", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/api/policy-governance-api")>();
+
+  return {
+    ...mod,
+    listApprovalRequests: apiHoisted.listApprovalRequests,
+    listPromotions: apiHoisted.listPromotions,
+    listActivations: apiHoisted.listActivations,
+    getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
+    fetchGovernanceEnvironmentCatalog: vi.fn().mockResolvedValue({
+      isAdministratorConfigured: false,
+      environments: [],
+    }),
+  };
+});
 
 vi.mock("@/lib/api/governance-stickiness-api", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/api/governance-stickiness-api")>();

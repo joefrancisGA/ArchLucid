@@ -121,15 +121,13 @@ describe("ArchitectureDraftListClient", () => {
     expect(screen.queryByTestId("architecture-draft-list-table")).not.toBeInTheDocument();
   });
 
-  it("uses compact inventory toolbar sort label scale", () => {
+  it("uses URL-bound sort chips in the inventory toolbar", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
 
     renderClient();
 
-    const sortLabel = screen.getByText("Sort by");
-
-    expect(sortLabel.className).toContain("text-[11px]");
-    expect(screen.getByTestId("architecture-draft-list-sort").className).toContain("text-[11px]");
+    expect(screen.getByTestId("architecture-draft-list-sort-updated-desc")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("group", { name: "Sort architectures" })).toBeInTheDocument();
   });
 
   it("shows filter chip counts from the full registry", () => {
@@ -234,12 +232,12 @@ describe("ArchitectureDraftListClient", () => {
     expect(screen.getByTestId("architecture-draft-list-search").className).toContain("h-8");
   });
 
-  it("uses compact inventory toolbar sort control height", () => {
+  it("uses compact inventory toolbar sort chips", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
 
     renderClient();
 
-    expect(screen.getByTestId("architecture-draft-list-sort").className).toContain("h-8");
+    expect(screen.getByTestId("architecture-draft-list-sort-updated-desc")).toBeInTheDocument();
   });
 
   it("excludes archived drafts from the default All table view", () => {
@@ -264,7 +262,7 @@ describe("ArchitectureDraftListClient", () => {
     const toolbar = screen.getByTestId("architecture-draft-list-toolbar");
 
     expect(within(toolbar).getByTestId("architecture-draft-list-search")).toBeInTheDocument();
-    expect(within(toolbar).getByTestId("architecture-draft-list-sort")).toBeInTheDocument();
+    expect(within(toolbar).getByTestId("architecture-draft-list-sort-updated-desc")).toBeInTheDocument();
     expect(within(toolbar).getByRole("link", { name: /Filter architectures: All/ })).toBeInTheDocument();
   });
 

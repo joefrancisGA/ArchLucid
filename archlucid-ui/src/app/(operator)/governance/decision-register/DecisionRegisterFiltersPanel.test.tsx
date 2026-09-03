@@ -26,8 +26,8 @@ describe("DecisionRegisterFiltersPanel (TB-2013)", () => {
         onMinConfidenceChange={vi.fn()}
         onMaxConfidenceChange={vi.fn()}
         onConfidenceBasisChange={vi.fn()}
-        onDatePresetChange={vi.fn()}
         onClearFilters={vi.fn()}
+        currentSearch=""
       />,
     );
 
@@ -54,14 +54,14 @@ describe("DecisionRegisterFiltersPanel (TB-2013)", () => {
         onMinConfidenceChange={vi.fn()}
         onMaxConfidenceChange={vi.fn()}
         onConfidenceBasisChange={vi.fn()}
-        onDatePresetChange={vi.fn()}
         onClearFilters={vi.fn()}
+        currentSearch=""
       />,
     );
 
-    const last30 = screen.getByRole("button", { name: DECISION_REGISTER_DATE_PRESET_30_LABEL });
+    const last30 = screen.getByRole("link", { name: /Date range:\s*Last 30 days/i });
 
-    expect(last30).toHaveAttribute("aria-pressed", "true");
+    expect(last30).toHaveAttribute("aria-current", "page");
     expect(last30.className).not.toContain("--al-primary-action-bg");
   });
 });

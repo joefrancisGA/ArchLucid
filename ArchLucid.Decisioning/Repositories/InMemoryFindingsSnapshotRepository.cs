@@ -53,11 +53,10 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         ScopeContext? savedScope = FindingsSnapshotRepositoryCore.CaptureScopeAtSave(_scopeContextProvider);
         lock (_lock)
         {
+            Guid? evictKey = FindingsSnapshotRepositoryCore.SelectInMemoryEvictionKey(_store, snapshot.FindingsSnapshotId);
 
-            if (_store.Count >= FindingsSnapshotRepositoryCore.MaxInMemoryEntries
-                && !_store.ContainsKey(snapshot.FindingsSnapshotId))
+            if (evictKey is Guid evict)
             {
-                Guid evict = _store.Keys.First();
                 _store.Remove(evict);
                 _scopeBySnapshotId.Remove(evict);
             }
@@ -77,21 +76,11 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
     {
         ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
-        string? json;
-        ScopeContext? savedScope;
-        lock (_lock)
-        {
-            _store.TryGetValue(findingsSnapshotId, out json);
-            _scopeBySnapshotId.TryGetValue(findingsSnapshotId, out savedScope);
-        }
 
-        if (json is null)
+        if (!TryGetScopedSnapshotJson(scope, findingsSnapshotId, out string? json))
             return Task.FromResult<FindingsSnapshot?>(null);
 
-        if (savedScope is not null && !FindingsSnapshotRepositoryCore.ScopeMatches(savedScope, scope))
-            return Task.FromResult<FindingsSnapshot?>(null);
-
-        FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json);
+        FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json!);
         return Task.FromResult<FindingsSnapshot?>(snapshot);
     }
 
@@ -104,24 +93,11 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
 
-        string? json;
-        ScopeContext? savedScope;
-        lock (_lock)
-        {
-            _store.TryGetValue(findingsSnapshotId, out json);
-            _scopeBySnapshotId.TryGetValue(findingsSnapshotId, out savedScope);
-        }
-
-        if (json is null)
+        if (!TryGetScopedSnapshotJson(scope, findingsSnapshotId, out string? json))
             return Task.FromResult<FindingsSnapshot?>(null);
 
-        if (savedScope is not null && !FindingsSnapshotRepositoryCore.ScopeMatches(savedScope, scope))
-            return Task.FromResult<FindingsSnapshot?>(null);
-
-        FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json);
-
-        foreach (Finding finding in snapshot.Findings)
-            finding.Payload = null;
+        FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json!);
+        FindingsSnapshotRepositoryCore.StripFindingPayloads(snapshot);
 
         return Task.FromResult<FindingsSnapshot?>(snapshot);
     }
@@ -143,110 +119,37 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
 
-        if (cursorSortOrder.HasValue ^ cursorFindingRecordId.HasValue)
-            throw new ArgumentException(
-                "Cursor requires both sortOrder and findingRecordId, or neither for the first page.");
-
-        int cappedTake = Math.Clamp(take <= 0 ? FindingPagination.DefaultTake : take, 1, FindingPagination.MaxTake);
-        int fetch = cappedTake + 1;
+        FindingsSnapshotRepositoryCore.ValidateFindingKeysetCursor(cursorSortOrder, cursorFindingRecordId);
 
         if (!TryGetScopedSnapshotJson(scope, findingsSnapshotId, out string? json))
             return Task.FromResult(new FindingRecordMetadataPage([], false));
 
         FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json!);
 
-        IEnumerable<FindingEnvelope> envelopes =
-            Enumerable.Range(0, snapshot.Findings.Count)
-                .Select(i =>
-                {
-                    Finding f = snapshot.Findings[i];
-                    Guid recordId = FindingsSnapshotRepositoryCore.StableFindingRecordId(
-                        findingsSnapshotId,
-                        i,
-                        f.FindingId);
-                    int? priorityRank = ResolvePriorityRank(findingsSnapshotId, f.FindingId);
+        string? normalizedSeverity = FindingsSnapshotRepositoryCore.NormalizeFilter(severity);
+        string? normalizedCategory = FindingsSnapshotRepositoryCore.NormalizeFilter(category);
+        string? normalizedFindingType = FindingsSnapshotRepositoryCore.NormalizeFilter(findingType);
 
-                    return new FindingEnvelope(
-                        SortOrder: i,
-                        RecordId: recordId,
-                        Finding: f,
-                        PriorityRank: priorityRank);
-                });
+        IEnumerable<FindingKeysetEnvelope> envelopes = FindingsSnapshotRepositoryCore
+            .BuildFindingEnvelopes(snapshot, findingsSnapshotId, findingId => ResolvePriorityRank(findingsSnapshotId, findingId))
+            .Where(envelope => FindingsSnapshotRepositoryCore.MatchesFindingFilters(
+                envelope.Finding,
+                normalizedSeverity,
+                normalizedCategory,
+                normalizedFindingType));
 
-        string? sev = FindingsSnapshotRepositoryCore.NormalizeFilter(severity);
-        string? cat = FindingsSnapshotRepositoryCore.NormalizeFilter(category);
-        string? ftype = FindingsSnapshotRepositoryCore.NormalizeFilter(findingType);
+        List<FindingKeysetEnvelope> ordered =
+            FindingsSnapshotRepositoryCore.OrderFindingEnvelopes(envelopes, orderByPriority);
 
-        envelopes = envelopes.Where(e =>
-        {
-            Finding f = e.Finding;
+        FindingRecordMetadataPage page = FindingsSnapshotRepositoryCore.BuildKeysetPage(
+            ordered,
+            orderByPriority,
+            cursorSortOrder,
+            cursorFindingRecordId,
+            cursorPriorityRank,
+            take);
 
-            if (sev is not null && !string.Equals(f.Severity.ToString(), sev, StringComparison.OrdinalIgnoreCase))
-                return false;
-
-            if (cat is not null && !string.Equals(f.Category, cat, StringComparison.OrdinalIgnoreCase))
-                return false;
-
-            return ftype is null || string.Equals(f.FindingType, ftype, StringComparison.OrdinalIgnoreCase);
-        });
-
-        List<FindingEnvelope> ordered = orderByPriority
-            ? envelopes
-                .OrderBy(e => e.PriorityRank ?? int.MaxValue)
-                .ThenBy(e => e.SortOrder)
-                .ThenBy(e => e.RecordId)
-                .ToList()
-            : envelopes.OrderBy(e => e.SortOrder).ThenBy(e => e.RecordId).ToList();
-
-        bool hasCursor = cursorSortOrder.HasValue && cursorFindingRecordId.HasValue;
-
-        IEnumerable<FindingEnvelope> pageSource = ordered;
-
-        if (hasCursor)
-
-        {
-            int cs = cursorSortOrder!.Value;
-            Guid cid = cursorFindingRecordId!.Value;
-
-            if (orderByPriority)
-            {
-                int cpr = cursorPriorityRank ?? int.MaxValue;
-
-                pageSource = ordered.Where(e =>
-                    (e.PriorityRank ?? int.MaxValue) > cpr
-                    || ((e.PriorityRank ?? int.MaxValue) == cpr
-                        && (e.SortOrder > cs || (e.SortOrder == cs && e.RecordId.CompareTo(cid) > 0))));
-            }
-            else
-            {
-                pageSource =
-                    ordered.Where(e =>
-                        e.SortOrder > cs || (e.SortOrder == cs && e.RecordId.CompareTo(cid) > 0));
-            }
-        }
-
-        List<FindingEnvelope> slice = pageSource.Take(fetch).ToList();
-        bool hasMore = slice.Count > cappedTake;
-
-        if (hasMore)
-
-            slice.RemoveAt(slice.Count - 1);
-
-        FindingRecordMetadataRow[] rows =
-            slice.Select(static e =>
-                    new FindingRecordMetadataRow(
-                        e.RecordId,
-                        e.SortOrder,
-                        e.Finding.FindingId,
-                        e.Finding.FindingType,
-                        e.Finding.Category,
-                        e.Finding.EngineType,
-                        e.Finding.Severity.ToString(),
-                        e.Finding.Title,
-                        e.PriorityRank))
-                .ToArray();
-
-        return Task.FromResult(new FindingRecordMetadataPage(rows, hasMore));
+        return Task.FromResult(page);
     }
 
     public Task UpdatePriorityRanksAsync(
@@ -304,10 +207,6 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
     private int? ResolvePriorityRank(Guid findingsSnapshotId, string findingId)
     {
         lock (_lock)
-
             return _priorityRanks.TryGetValue((findingsSnapshotId, findingId), out int rank) ? rank : null;
     }
-
-    /// <remarks>Stable surrogate key for deterministic in-memory paging (differs from SQL <c>NewGuid()</c> row ids).</remarks>
-    private sealed record FindingEnvelope(int SortOrder, Guid RecordId, Finding Finding, int? PriorityRank);
 }

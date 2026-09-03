@@ -351,7 +351,7 @@ export function AuditPageView(props: AuditPageViewProps) {
           <AuditResultsSection
             buyerPolishedShell={buyerPolishedShell}
             viewMode={props.viewMode}
-            onViewModeChange={props.onViewModeChange}
+            currentSearch={props.currentSearch}
             callerAuthorityRank={props.callerAuthorityRank}
             events={props.events}
             displayEvents={props.displayEvents}

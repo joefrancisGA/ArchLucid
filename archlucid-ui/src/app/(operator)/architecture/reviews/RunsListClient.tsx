@@ -47,6 +47,7 @@ export function RunsListClient(props: RunsListClientProps) {
     buyerCollapseFilters,
     filterText,
     setFilterText,
+    clearFilterText,
     buyerPackageScope,
     sortOrder,
     setSortOrder,
@@ -123,6 +124,12 @@ export function RunsListClient(props: RunsListClientProps) {
         value={filterText}
         onChange={(event) => {
           setFilterText(event.target.value);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && filterText.trim().length > 0) {
+            event.preventDefault();
+            clearFilterText();
+          }
         }}
         className={cn(
           "rounded-md border border-neutral-300 bg-white px-3 py-2 text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",

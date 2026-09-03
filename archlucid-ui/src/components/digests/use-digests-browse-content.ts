@@ -54,10 +54,7 @@ export function useDigestsBrowseContent(
   const { refreshToken = 0, onLoaded, healthSnap = null } = options;
   const digestsQuery = useArchitectureDigestsBrowseQuery(40);
   const digests = digestsQuery.data ?? EMPTY_DIGESTS;
-  const digestIds = useMemo(
-    () => digests.map((digest) => digest.digestId).filter((id): id is string => id !== undefined),
-    [digests],
-  );
+  const digestIds = useMemo(() => digests.map((digest) => digest.digestId), [digests]);
   const rowAttemptsQuery = useDigestDeliveryAttemptsBatchQuery(digestIds, {
     enabled: digests.length > 0,
   });
@@ -129,10 +126,6 @@ export function useDigestsBrowseContent(
       );
 
       if (match === undefined) {
-        return;
-      }
-
-      if (!match.digestId) {
         return;
       }
 

@@ -50,13 +50,17 @@ export function HelpReviewGuideRelatedGuidesSection(): React.ReactElement {
       </h2>
       <div className="mt-2 space-y-3">
         <ReviewGuideRelatedGuideLinks links={REVIEW_GUIDE_HELP_RELATED_GUIDES} testIdPrefix="help-review-guide-related-primary" />
-        <div className="mt-2 space-y-3" data-testid="help-review-guide-related-more">
-          <h3 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>More help</h3>
-          <ReviewGuideRelatedGuideLinks
-            links={REVIEW_GUIDE_HELP_MORE_RELATED_GUIDES}
-            testIdPrefix="help-review-guide-related-more"
-          />
-        </div>
+        <details data-testid="help-review-guide-related-more">
+          <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            More help
+          </summary>
+          <div className="mt-2">
+            <ReviewGuideRelatedGuideLinks
+              links={REVIEW_GUIDE_HELP_MORE_RELATED_GUIDES}
+              testIdPrefix="help-review-guide-related-more"
+            />
+          </div>
+        </details>
       </div>
     </section>
   );

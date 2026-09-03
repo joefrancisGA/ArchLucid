@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthDomainsPageClient } from "./AuthDomainsPageClient";
@@ -34,6 +34,8 @@ import {
 } from "@/lib/auth-domains-page-copy";
 import { AUTH_DOMAINS_ZERO_DOMAIN_ENFORCEMENT_CALLOUT } from "@/lib/auth-domains-confirm-copy";
 import { AUTH_DOMAINS_SETTINGS_SOURCES } from "@/lib/auth-domains-settings-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -157,9 +159,16 @@ describe("AuthDomainsPageClient", () => {
     );
     expectClaimDisciplineBand(screen, "auth-domains-settings", "auth-domains-settings-claim-discipline");
 
-    for (const source of AUTH_DOMAINS_SETTINGS_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+    const sources = screen.getByTestId("auth-domains-settings-sources");
+    for (const source of filterWhereToGoNextFollowUpLinks(AUTH_DOMAINS_SETTINGS_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
+    expect(within(sources).queryByRole("link", { name: "Open SSO and identity" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("auth-domains-identity-providers-vocabulary-peer-link")).toHaveAttribute(
+      "href",
+      "/administration/identity-providers",
+    );
   });
 
   it("does not show sign-in posture until domains finish loading", async () => {

@@ -34,7 +34,8 @@ public sealed class ComparisonService : IComparisonService
             + result.RequirementChanges.Count
             + result.SecurityChanges.Count
             + result.TopologyChanges.Count
-            + result.CostChanges.Count;
+            + result.CostChanges.Count
+            + result.DuplicateKeyConflicts.Count;
 
         return result;
     }
@@ -47,9 +48,9 @@ public sealed class ComparisonService : IComparisonService
     private static void CompareDecisions(ManifestDocument baseM, ManifestDocument targetM, ComparisonResult result)
     {
         Dictionary<string, ResolvedArchitectureDecision> baseMap =
-            baseM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
+            BuildUniqueDecisionMap(baseM.Decisions, result, "Decisions(base)");
         Dictionary<string, ResolvedArchitectureDecision> targetMap =
-            targetM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
+            BuildUniqueDecisionMap(targetM.Decisions, result, "Decisions(target)");
 
         foreach (string key in baseMap.Keys.Union(targetMap.Keys))
         {
@@ -137,9 +138,9 @@ public sealed class ComparisonService : IComparisonService
     private static void CompareSecurity(ManifestDocument baseM, ManifestDocument targetM, ComparisonResult result)
     {
         Dictionary<string, SecurityPostureItem> baseMap =
-            baseM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
+            BuildUniqueSecurityMap(baseM.Security.Controls, result, "Security(base)");
         Dictionary<string, SecurityPostureItem> targetMap =
-            targetM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
+            BuildUniqueSecurityMap(targetM.Security.Controls, result, "Security(target)");
 
         foreach (string key in baseMap.Keys.Union(targetMap.Keys))
         {
@@ -164,13 +165,6 @@ public sealed class ComparisonService : IComparisonService
             if (!string.Equals(b.Status, t.Status, StringComparison.Ordinal))
 
                 result.SecurityChanges.Add(new SecurityDelta { ControlName = b.ControlName, BaseStatus = b.Status, TargetStatus = t.Status });
-        }
-
-        return;
-
-        static string Key(SecurityPostureItem c)
-        {
-            return string.IsNullOrWhiteSpace(c.ControlId) ? c.ControlName : $"{c.ControlId}|{c.ControlName}";
         }
     }
 
@@ -215,9 +209,73 @@ public sealed class ComparisonService : IComparisonService
         if (r.CostChanges.Count > 0)
             r.SummaryHighlights.Add("Maximum monthly cost changed.");
 
+        if (r.DuplicateKeyConflicts.Count > 0)
+            r.SummaryHighlights.Add($"{r.DuplicateKeyConflicts.Count} duplicate comparison key conflict(s).");
+
         if (r.SummaryHighlights.Count == 0)
             r.SummaryHighlights.Add("No material differences detected in compared sections.");
     }
+
+    private static Dictionary<string, ResolvedArchitectureDecision> BuildUniqueDecisionMap(
+        IEnumerable<ResolvedArchitectureDecision> decisions,
+        ComparisonResult result,
+        string sectionLabel)
+    {
+        Dictionary<string, ResolvedArchitectureDecision> map = new(StringComparer.Ordinal);
+
+        foreach (IGrouping<string, ResolvedArchitectureDecision> group in decisions.GroupBy(DecisionKey))
+        {
+            ResolvedArchitectureDecision[] values = group.ToArray();
+
+            if (values.Length > 1)
+            {
+                result.DuplicateKeyConflicts.Add(new ComparisonDuplicateKeyConflict
+                {
+                    Section = sectionLabel,
+                    Key = group.Key,
+                    Count = values.Length,
+                });
+
+                continue;
+            }
+
+            map[group.Key] = values[0];
+        }
+
+        return map;
+    }
+
+    private static Dictionary<string, SecurityPostureItem> BuildUniqueSecurityMap(
+        IEnumerable<SecurityPostureItem> controls,
+        ComparisonResult result,
+        string sectionLabel)
+    {
+        Dictionary<string, SecurityPostureItem> map = new(StringComparer.Ordinal);
+
+        foreach (IGrouping<string, SecurityPostureItem> group in controls.GroupBy(SecurityControlKey))
+        {
+            SecurityPostureItem[] values = group.ToArray();
+
+            if (values.Length > 1)
+            {
+                result.DuplicateKeyConflicts.Add(new ComparisonDuplicateKeyConflict
+                {
+                    Section = sectionLabel,
+                    Key = group.Key,
+                    Count = values.Length,
+                });
+
+                continue;
+            }
+
+            map[group.Key] = values[0];
+        }
+
+        return map;
+    }
+
+    private static string SecurityControlKey(SecurityPostureItem control) =>
+        string.IsNullOrWhiteSpace(control.ControlId) ? control.ControlName : $"{control.ControlId}|{control.ControlName}";
 
     private enum RequirementBucket
     {

@@ -19,11 +19,20 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => null,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { HelpPolicyPacksGuideView } from "@/app/(operator)/help/_sections/HelpPolicyPacksGuideView";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import {
   POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
+  POLICY_PACKS_HELP_FOLLOW_UPS_TITLE,
   POLICY_PACKS_HELP_PRIMARY_ACTION,
   POLICY_PACKS_HELP_SOURCES,
 } from "@/lib/policy/policy-packs-help-evidence-copy";
@@ -90,19 +99,20 @@ describe("HelpPolicyPacksGuideView (HEO)", () => {
     expect(screen.getByTestId("help-topic-toc")).toHaveAttribute("aria-label", "On this page");
 
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("policy-packs-help-claim-discipline")).toBeNull();
 
-    const exportActions = screen.getByTestId("help-topic-export-actions");
-    const policyPacksLink = within(exportActions).getByRole("link", {
+    const headerActions = screen.getByTestId("help-policy-packs-header-actions");
+    const policyPacksLink = within(headerActions).getByRole("link", {
       name: POLICY_PACKS_HELP_PRIMARY_ACTION.label,
     });
 
     expect(policyPacksLink).toHaveAttribute("href", POLICY_PACKS_HELP_PRIMARY_ACTION.href);
-    expect(screen.getByTestId("policy-packs-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-policy-packs-header-claim-discipline")).toHaveTextContent(
       POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
     );
 
-    const sources = screen.getByTestId("policy-packs-help-sources");
-    expect(within(sources).getByRole("heading", { name: HELP_DILIGENCE_ARTIFACT_INDEX_TITLE })).toBeInTheDocument();
+    const sources = screen.getByTestId("help-policy-packs-sources");
+    expect(within(sources).getByRole("heading", { name: POLICY_PACKS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     expectWhereToGoNextFollowUpLinks(within(sources), POLICY_PACKS_HELP_SOURCES);
   });

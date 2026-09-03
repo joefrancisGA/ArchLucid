@@ -60,7 +60,6 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly onNaturalLanguageFilterApply: (next: FindingsNaturalLanguageFacets) => void;
   readonly nlFacets: FindingsNaturalLanguageFacets;
   readonly onClearAllFilters: () => void;
-  readonly onDismissActiveFilterChip: (chipId: string) => void;
   readonly onLoadFindingsSavedView: (view: import("@/lib/api/operator-saved-views").OperatorSavedView) => void;
   readonly loading: boolean;
   readonly rows: readonly GovernanceFindingQueueRow[];

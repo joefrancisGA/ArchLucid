@@ -44,6 +44,7 @@ import {
 import type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
 import { GovernanceWorkflowMutationHost } from "./GovernanceWorkflowMutationHost";
 import { GovernanceApprovalQueueNextReviewFooterClient } from "./GovernanceApprovalQueueNextReviewFooterClient";
+import { ApprovalQueueEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { GovernanceApprovalQueuePickReviewBeforeSubmittingStrip } from "./GovernanceApprovalQueuePickReviewBeforeSubmittingStrip";
 import {
   GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE,
@@ -156,13 +157,15 @@ export function GovernanceWorkflowPageContent() {
             </span>
           ) : buyerPolishedShell && isReviewContext && !showBuyerApprovalStory ? (
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Production deployments and change-managed releases follow your enterprise proces — his page does not configure
+              Production deployments and change-managed releases follow your enterprise process — this page does not configure
               releases.
             </span>
           ) : null
         }
         actions={overviewHeaderActions}
       />
+
+      <ApprovalQueueEvidenceOrientationStrip />
 
       <LayerHeader
         pageKey="governance-workflow"

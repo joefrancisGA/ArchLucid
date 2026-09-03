@@ -66,12 +66,15 @@ import {
   architecturesHubFilterEmptyReason,
   architecturesHubFilterHrefFromSearch,
   architecturesHubSearchHrefFromSearch,
+  architecturesHubSortHrefFromSearch,
   countArchitecturesHubFilterMatches,
   matchesArchitecturesHubFilter,
   matchesArchitecturesHubSearch,
   parseArchitecturesHubFilter,
   parseArchitecturesHubSearchQuery,
+  parseArchitecturesHubSort,
   type ArchitectureHubFilterId,
+  type ArchitectureHubSortId,
 } from "@/lib/architecture/architectures-hub-filters";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
@@ -87,7 +90,7 @@ import { resolveContinueLastArchitectureDraftEntry } from "@/lib/architecture-dr
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { cn } from "@/lib/utils";
 
-type ArchitectureSortId = "updated-desc" | "updated-asc" | "name-asc" | "name-desc";
+type ArchitectureSortId = ArchitectureHubSortId;
 
 const SORT_OPTIONS: ReadonlyArray<{ id: ArchitectureSortId; label: string }> = [
   { id: "updated-desc", label: ARCHITECTURES_HUB_SORT_UPDATED_DESC_LABEL },
@@ -155,12 +158,12 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
   const currentSearch = searchParams.toString();
   const urlSearchQuery = parseArchitecturesHubSearchQuery(searchParams.get("q"));
   const activeFilter = parseArchitecturesHubFilter(searchParams.get("filter"));
+  const activeSort = parseArchitecturesHubSort(searchParams.get("sort"));
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const isHydrated = useArchitectureDraftRegistryHydrated();
   const entries = useArchitectureDraftRegistryEntries();
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
-  const [activeSort, setActiveSort] = useState<ArchitectureSortId>("updated-desc");
   const scopeRecord = useOperatorScopeRecord();
   const workspaceScopeTeaching = resolveWorkspaceScopeEmptyTeachingForHub({
     listEmpty: entries.length === 0,
@@ -293,30 +296,20 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
             />
           ))}
         </FilterChipGroup>
-        <div className="flex flex-wrap items-center gap-2 lg:ml-auto">
-          <label
-            htmlFor="architecture-draft-list-sort"
-            className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.nativeControlLabel)}
-          >
-            Sort by
-          </label>
-          <select
-            id="architecture-draft-list-sort"
-            value={activeSort}
-            onChange={(event) => setActiveSort(event.target.value as ArchitectureSortId)}
-            className={cn(
-              "h-8 max-w-[12rem] rounded-md border border-al-border-subtle bg-al-surface-raised px-2 text-al-text-primary",
-              OPERATOR_TYPOGRAPHY.nativeControlLabel,
-            )}
-            data-testid="architecture-draft-list-sort"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <FilterChipGroup aria-label="Sort architectures" className="flex flex-wrap items-center gap-2 lg:ml-auto">
+          {SORT_OPTIONS.map((option) => (
+            <FilterChip
+              key={option.id}
+              href={architecturesHubSortHrefFromSearch(currentSearch, option.id)}
+              scroll={false}
+              className={buyerFilterChipClass(activeSort === option.id, false)}
+              aria-current={activeSort === option.id ? "page" : undefined}
+              data-testid={`architecture-draft-list-sort-${option.id}`}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
       </div>
 
       {filteredEntries.length > 0 ? (

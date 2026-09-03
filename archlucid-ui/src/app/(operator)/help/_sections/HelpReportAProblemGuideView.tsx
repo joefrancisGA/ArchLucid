@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { ReportProblemAuditVocabularyRail } from "@/components/ReportProblemAuditVocabularyRail";
@@ -189,11 +189,13 @@ export function HelpReportAProblemGuideView(
           {REPORT_A_PROBLEM_HELP_OVERVIEW}
         </p>
 
-        <HelpStaticSection
-          title={REPORT_A_PROBLEM_HELP_DEFERRED_DETAILS_SUMMARY}
-          testId={REPORT_A_PROBLEM_HELP_DEFERRED_DETAILS_TEST_ID}
+        <HelpLazyDetails
+          summary={REPORT_A_PROBLEM_HELP_DEFERRED_DETAILS_SUMMARY}
+          data-testid={REPORT_A_PROBLEM_HELP_DEFERRED_DETAILS_TEST_ID}
+          bodyTestId="help-report-a-problem-deferred-body"
           className={cn("rounded-md border border-neutral-200 p-4 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}
-          bodyClassName="space-y-4"
+          summaryClassName="cursor-pointer font-medium text-al-text-primary"
+          bodyClassName="mt-4 space-y-4"
         >
           <MarketingAccessibilityMarkdownFragment
             markdownBody={deferredMarkdown}
@@ -202,7 +204,7 @@ export function HelpReportAProblemGuideView(
             sourceDocPath={sourceDocPath}
             helpTopicSlug={entry.slug}
           />
-        </HelpStaticSection>
+        </HelpLazyDetails>
 
         <section
           aria-labelledby="help-report-a-problem-related-heading"

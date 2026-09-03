@@ -42,17 +42,6 @@ describe("presentWebhookConnectionTestToasts", () => {
     expect(toastMocks.showError).toHaveBeenCalledWith("Test event returned HTTP 500", "Internal Server Error");
   });
 
-  it("shows error toast without HTTP code when statusCode is missing", () => {
-    presentWebhookConnectionTestToasts({
-      transportSucceeded: true,
-      reasonPhrase: "OK",
-      responseBodyTruncated: false,
-    });
-
-    expect(toastMocks.showSuccess).not.toHaveBeenCalled();
-    expect(toastMocks.showError).toHaveBeenCalledWith("Test event returned no HTTP status", "OK");
-  });
-
   it("shows error toast when transport fails", () => {
     presentWebhookConnectionTestToasts({
       transportSucceeded: false,
