@@ -42,8 +42,6 @@ export function AppShellMainAffordances() {
     isFirstReviewGuidePath ||
     isAdvisoryScansHubPath ||
     isRecurrenceSchedulesPath;
-    isAdvisoryScansHubPath ||
-    isRecurrenceSchedulesPath;
   const showPersistentWorkspaceNextActionStrip = isPersistentWorkspaceNextActionStripPath(pathname);
   const staticDemoEnv = isExplicitStaticDemoMarketingBuild();
 
