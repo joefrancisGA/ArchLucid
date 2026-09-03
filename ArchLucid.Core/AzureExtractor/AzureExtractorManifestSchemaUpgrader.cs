@@ -201,6 +201,16 @@ public static class AzureExtractorManifestSchemaUpgrader
             return true;
         }
 
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= 0
+            && numeric == Math.Floor(numeric))
+        {
+            value = (int)numeric;
+
+            return true;
+        }
+
         value = default;
 
         return false;
@@ -215,6 +225,32 @@ public static class AzureExtractorManifestSchemaUpgrader
             return false;
         }
 
-        return bool.TryParse(raw.Trim(), out value);
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("enabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = true;
+
+            return true;
+        }
+
+        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Equals("disabled", StringComparison.OrdinalIgnoreCase))
+        {
+            value = false;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
