@@ -258,6 +258,9 @@ public sealed class CorePackageCoverageBatchRc27Tests
     [InlineData("172.31.255.255")]
     [InlineData("192.168.1.1")]
     [InlineData("169.254.1.1")]
+    [InlineData("0.0.0.0")]
+    [InlineData("0")]
+    [InlineData("::")]
     [InlineData("::1")]
     [InlineData("fe80::1")]
     [InlineData("ff02::1")]
@@ -277,6 +280,15 @@ public sealed class CorePackageCoverageBatchRc27Tests
     public void IsForbiddenHostLiteral_public_hosts_are_allowed(string host)
     {
         PrivateNetworkAddressGuard.IsForbiddenHostLiteral(host).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("0.0.0.0")]
+    [InlineData("0")]
+    [InlineData("::")]
+    public void IsForbiddenHostLiteral_unspecified_addresses_are_forbidden(string host)
+    {
+        PrivateNetworkAddressGuard.IsForbiddenHostLiteral(host).Should().BeTrue();
     }
 
     [Fact]
