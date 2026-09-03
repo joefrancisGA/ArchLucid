@@ -12,8 +12,9 @@ import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effectiv
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
+import { useEffectiveOperatorShellDensity } from "@/hooks/use-effective-operator-shell-density";
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
@@ -27,6 +28,7 @@ import {
   filterNavGroupsForFirstSessionPilotMode,
   resolveRoleNavDensityPersona,
 } from "@/lib/role-shaped-nav-density";
+import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/working-mode-nav-filter";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
@@ -52,13 +54,15 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const ctoDemoNavExpandedEnv = isCtoDemoNavExpandedEnv();
+  const { isWorkingMode } = useWorkspaceMode();
   // CTO demo presenter pack expands Graph / Governance without role-density collapse (TB-2139).
-  const effectiveRoleNavDensityShowFullNav = roleNavDensityShowFullNav || ctoDemoNavExpandedEnv;
+  const effectiveRoleNavDensityShowFullNav = roleNavDensityShowFullNav || ctoDemoNavExpandedEnv || isWorkingMode;
   const effectiveOperateUnlockPhase: OperateNavUnlockPhase = 0;
   const effectiveHasCommittedArchitectureReview = useEffectiveNavCommittedArchitectureReview();
-  const { isWorkingMode } = useWorkspaceMode();
+  const { isFullOperatorShell } = useEffectiveOperatorShellDensity();
   const hideGettingStartedFromMainNav = isWorkingMode;
   const omitAdminClusters = demoUi && !buyerPolishedShell;
+  const omitDuplicateReportingNav = isWorkingMode;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
   return useMemo(() => {
@@ -83,8 +87,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
 
     // Internal Operations is already behind the `isShowSystemAdministrationNavEnabled()` feature
     // flag — it is an employee-only surface.
-    const hideInternalOperationsNav =
-      buyerPolishedShell && !isOperatorExperienceFullShellEnv();
+    const hideInternalOperationsNav = buyerPolishedShell && !isFullOperatorShell;
 
     const systemAdminNavRows: NavGroupWithVisibleLinks[] =
       omitAdminClusters || !isShowSystemAdministrationNavEnabled() || hideInternalOperationsNav
@@ -116,6 +119,9 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       roleNavDensityPersona,
       effectiveShowFullNav,
     );
+    const workingFilteredRows = omitDuplicateReportingNav
+      ? filterNavGroupsForWorkingProfessionalMode(allRows)
+      : allRows;
     const firstSessionHiddenCount = skipProgressiveNavDensity
       ? 0
       : countNavGroupsHiddenByFirstSessionPilotMode(
@@ -134,7 +140,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
         ));
 
     return {
-      allRows,
+      allRows: workingFilteredRows,
       buyerPolishedShell,
       demoUi,
       effectiveHasCommittedArchitectureReview,
@@ -155,6 +161,8 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     patternLibraryNavVisible,
     roleNavDensityPersona,
     hideGettingStartedFromMainNav,
+    isFullOperatorShell,
     isWorkingMode,
+    omitDuplicateReportingNav,
   ]);
 }

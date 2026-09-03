@@ -22,6 +22,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
       <ReviewDetailWorkspaceDeferred
         runId={model.resolvedDetail.run.runId}
+        defensibilityStrip={resolved.defensibilityStripEl}
         tabSectionNav={
           <RunDetailTabbedSectionNavDeferred
             runId={model.resolvedDetail.run.runId}
