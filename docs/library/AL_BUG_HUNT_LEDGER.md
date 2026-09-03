@@ -1866,7 +1866,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 242
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
+<<<<<<< HEAD
 - **last-bug:** 2026-09-03 — extractor manifest upgrader schemaVersion coercion below validator parity
+=======
+<<<<<<< HEAD
+- **last-bug:** 2026-09-03 — boolean / `on` synonym `schemaVersion` rejected dead-letter detection
+=======
+- **last-bug:** 2026-09-03 — string-encoded whole-number `schemaVersion` rejected in extractor manifest upgrader
+>>>>>>> origin/bugsmash
+>>>>>>> origin/bugsmash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1896,6 +1904,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #604: proved null failure-summary schemaVersion gap; re-disproved Application-layer candidate.
 
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` — boolean / `on` synonym `schemaVersion` JSON tokens rejected — **hit 2026-09-03 (#619):** `{"schemaVersion":true,"failureClass":"PipelineDeadLetter"}` and `"schemaVersion":"on"` failed after #600 string/number coercion while sibling readers already accept boolean synonyms; fixed with `TryParseBooleanString` and `JsonValueKind.True`/`False` handling (`IsDeadLettered_returns_true_for_boolean_true_schema_version`, `IsDeadLettered_returns_true_for_on_synonym_string_schema_version`).
+
+2026-09-03 seed hunt #619: reseeded from `RunAuthorityPipelineDeadLetterDetection`; proved boolean / on-off synonym schemaVersion parity gap after #604 null-token fix.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` — boolean / `on` synonym `schemaVersion` JSON tokens rejected — **hit 2026-09-03 (#616):** `{"schemaVersion":true,"failureClass":"PipelineDeadLetter"}` and `"schemaVersion":"on"` failed after #600 string/number coercion while sibling readers already accept boolean synonyms; fixed with `TryParseBooleanString` and `JsonValueKind.True`/`False` handling (`IsDeadLettered_returns_true_for_boolean_true_schema_version`, `IsDeadLettered_returns_true_for_on_synonym_string_schema_version`).
 
 2026-09-03 seed hunt #616: reseeded from `RunAuthorityPipelineDeadLetterDetection`; proved boolean / on-off synonym schemaVersion parity gap after #604 null-token fix.
@@ -1904,6 +1915,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (invalid) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"true"` / boolean `true` schemaVersion at current version not idempotent upgrade path — `TryReadSchemaVersion` maps boolean `true` to v1; `schemaVersion == CurrentSchemaVersion` returns success without mutation (re-confirmed hunt #636).
 - [x] (invalid) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` — decimal IPv4 literals (`3232235777`) bypass host-literal guard — `IPAddress.TryParse` accepts decimal notation as `192.168.1.1`; guard blocks RFC1918 (re-confirmed hunt #636).
+
 
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryReadSchemaVersion` — boolean-synonym and string whole-number `schemaVersion` below validator parity — **hit 2026-09-03 (#620):** `"on"`/`"off"` and `"1.0"`/`"0.0"` failed upgrade while sibling validator and `RunExplanationAggregateJsonReader` already coerce them; private helpers used `bool.TryParse` / `int.TryParse` only; fixed by delegating to shared coercion (`TryUpgradeManifestJson_upgrades_off_synonym_for_legacy_zero_schema_version`, `TryUpgradeManifestJson_accepts_on_synonym_for_current_schema_version`, `TryUpgradeManifestJson_upgrades_string_whole_number_zero_schema_version`, `TryUpgradeManifestJson_accepts_string_whole_number_current_schema_version`).
