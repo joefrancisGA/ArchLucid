@@ -22,12 +22,6 @@ vi.mock("./AdvisorySchedulesContent", () => ({
   AdvisorySchedulesContent: () => <div>Schedules panel</div>,
 }));
 
-import {
-  ADVISORY_HUB_FIRST_VIEWPORT_ID,
-  ADVISORY_HUB_SKIP_LINK_LABEL,
-  ADVISORY_HUB_SKIP_TARGET_ID,
-} from "@/lib/advisory-hub-page-copy";
-
 import { ADVISORY_SCANS_PAGE_LEAD, ADVISORY_SCANS_PAGE_VALUE_STATEMENT, ADVISORY_SCANS_TRUST_COPY } from "@/lib/advisory-copy";
 
 import { AdvisoryHubClient } from "./AdvisoryHubClient";
@@ -36,11 +30,6 @@ describe("AdvisoryHubClient (TB-670)", () => {
   it("shows one primary description above the fold (TB-1125)", () => {
     render(<AdvisoryHubClient initialTab="scans" />);
 
-    expect(screen.getByRole("link", { name: ADVISORY_HUB_SKIP_LINK_LABEL })).toHaveAttribute(
-      "href",
-      `#${ADVISORY_HUB_SKIP_TARGET_ID}`,
-    );
-    expect(screen.getByTestId(ADVISORY_HUB_FIRST_VIEWPORT_ID)).toBeInTheDocument();
     expect(screen.getByTestId("advisory-scans-page-lead")).toHaveTextContent(ADVISORY_SCANS_PAGE_LEAD);
     expect(screen.queryByText(ADVISORY_SCANS_PAGE_VALUE_STATEMENT)).not.toBeInTheDocument();
     expect(screen.queryByText(ADVISORY_SCANS_TRUST_COPY)).not.toBeInTheDocument();
@@ -48,14 +37,14 @@ describe("AdvisoryHubClient (TB-670)", () => {
     expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
   });
 
-  it("places tabs directly under the page lead inside the first viewport", () => {
+  it("places tabs directly under the page header without scans orientation chrome", () => {
     render(<AdvisoryHubClient initialTab="scans" />);
 
-    const lead = screen.getByTestId("advisory-scans-page-lead");
+    const header = screen.getByTestId("advisory-scans-page-title");
     const tablist = screen.getByTestId("advisory-hub-tablist");
     const panel = screen.getByTestId("advisory-hub-panel");
 
-    expect(lead.compareDocumentPosition(tablist) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(header.compareDocumentPosition(tablist) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(tablist.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 

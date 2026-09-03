@@ -1,25 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState } from "react";
 
 import {
   DEFAULT_FINDING_JOB_VIEW,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
 import { writeFindingJobViewToUrl } from "@/lib/findings/review-findings-job-view-url";
-import {
-  resolveReviewFindingsToolbarFilterFromSearchParam,
-  writeReviewFindingsToolbarFilterToUrl,
-} from "@/lib/findings/review-findings-toolbar-filter-url";
-import {
-  parseReviewFindingsToolbarSearchQuery,
-  reviewFindingsToolbarSearchHrefFromSearch,
-} from "@/lib/findings/review-findings-toolbar-search-url";
-import {
-  parseFindingsGroundingFilterFromSearch,
-  parseFindingsOriginFilterFromSearch,
-} from "@/lib/findings/findings-provenance-url";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
 import type {
   RunDetailFindingsFilterKind,
@@ -28,7 +15,6 @@ import type {
 
 export function useRunDetailFindingsToolbarState(options?: {
   readonly initialJobView?: FindingJobView;
-  readonly initialFilter?: RunDetailFindingsFilterKind;
 }): {
   readonly filter: RunDetailFindingsFilterKind;
   readonly setFilter: (filter: RunDetailFindingsFilterKind) => void;
@@ -47,20 +33,7 @@ export function useRunDetailFindingsToolbarState(options?: {
   readonly groundingFilter: FindingGroundingFilter;
   readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
 } {
-  const router = useRouter();
-  const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const initialFilter =
-    options?.initialFilter ??
-    resolveReviewFindingsToolbarFilterFromSearchParam(searchParams?.get("findingsFilter"));
-  const urlSearchQuery = parseReviewFindingsToolbarSearchQuery(searchParams?.get("q"));
-  const urlOriginFilter = parseFindingsOriginFilterFromSearch(searchParams?.get("origin"));
-  const urlGroundingFilter = parseFindingsGroundingFilterFromSearch(searchParams?.get("grounding"));
-  const [filter, setFilterState] = useState<RunDetailFindingsFilterKind>(initialFilter);
-  const setFilter = useCallback((next: RunDetailFindingsFilterKind): void => {
-    setFilterState(next);
-    writeReviewFindingsToolbarFilterToUrl(next);
-  }, []);
+  const [filter, setFilter] = useState<RunDetailFindingsFilterKind>("all");
   const [jobView, setJobViewState] = useState<FindingJobView>(
     options?.initialJobView ?? DEFAULT_FINDING_JOB_VIEW,
   );
@@ -70,52 +43,10 @@ export function useRunDetailFindingsToolbarState(options?: {
   }, []);
   const [ownerFilter, setOwnerFilter] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
-  const [searchQuery, setSearchQueryState] = useState(urlSearchQuery);
+  const [searchQuery, setSearchQuery] = useState("");
   const [sort, setSort] = useState<RunDetailFindingsSortKind>("trust-then-severity");
-  const [originFilter, setOriginFilterState] = useState<FindingOriginFilter>(urlOriginFilter);
-  const [groundingFilter, setGroundingFilterState] = useState<FindingGroundingFilter>(urlGroundingFilter);
-
-  useEffect(() => {
-    setSearchQueryState(urlSearchQuery);
-  }, [urlSearchQuery]);
-
-  useEffect(() => {
-    setOriginFilterState(urlOriginFilter);
-  }, [urlOriginFilter]);
-
-  useEffect(() => {
-    setGroundingFilterState(urlGroundingFilter);
-  }, [urlGroundingFilter]);
-
-  useEffect(() => {
-    if (pathname.length === 0) {
-      return;
-    }
-
-    const handle = window.setTimeout(() => {
-      const nextHref = reviewFindingsToolbarSearchHrefFromSearch(searchParams.toString(), pathname, searchQuery);
-
-      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-        router.replace(nextHref, { scroll: false });
-      }
-    }, 250);
-
-    return () => {
-      window.clearTimeout(handle);
-    };
-  }, [pathname, router, searchParams, searchQuery]);
-
-  const setSearchQuery = useCallback((value: string): void => {
-    setSearchQueryState(value);
-  }, []);
-
-  const setOriginFilter = useCallback((value: FindingOriginFilter): void => {
-    setOriginFilterState(value);
-  }, []);
-
-  const setGroundingFilter = useCallback((value: FindingGroundingFilter): void => {
-    setGroundingFilterState(value);
-  }, []);
+  const [originFilter, setOriginFilter] = useState<FindingOriginFilter>("all");
+  const [groundingFilter, setGroundingFilter] = useState<FindingGroundingFilter>("all");
 
   return {
     filter,

@@ -35,11 +35,11 @@ export function HelpEvidenceIntakeAcceptedFormatsTable(): React.ReactElement {
           </li>
         ))}
       </ul>
-      <div className={cn("mt-3", HELP_PAGE_LAYOUT.details)} data-testid="help-evidence-intake-formats-disclosure">
-        <h3 className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+      <details className={cn("mt-3", HELP_PAGE_LAYOUT.details)} data-testid="help-evidence-intake-formats-disclosure">
+        <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_DISCLOSURE_LABEL}
-        </h3>
-        <div className="mt-3">
+        </summary>
+        <div className={HELP_PAGE_LAYOUT.detailsBody}>
           <div className={HELP_PAGE_LAYOUT.compactTableWrap}>
             <table className={HELP_PAGE_LAYOUT.table}>
               <caption className="sr-only">Accepted evidence file extensions</caption>
@@ -69,7 +69,7 @@ export function HelpEvidenceIntakeAcceptedFormatsTable(): React.ReactElement {
             </table>
           </div>
         </div>
-      </div>
+      </details>
     </section>
   );
 }

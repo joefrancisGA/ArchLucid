@@ -81,6 +81,9 @@ export function ContactSupportHelpEmailSection(): React.JSX.Element {
         <Button asChild size="sm" variant="primary" data-testid="contact-support-help-email-template">
           <a href={mailtoHref}>{CONTACT_SUPPORT_PRIMARY_ACTIONS.emailSupport.label}</a>
         </Button>
+        <Button asChild size="sm" variant="outline">
+          <a href={`mailto:${ARCHLUCID_SUPPORT_EMAIL}`}>Email without template</a>
+        </Button>
       </div>
     </section>
   );

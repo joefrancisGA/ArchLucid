@@ -50,7 +50,6 @@ function buildProps(
     onNaturalLanguageFilterApply: () => undefined,
     nlFacets: {},
     onClearAllFilters: () => undefined,
-    onDismissActiveFilterChip: () => undefined,
     onLoadFindingsSavedView: () => undefined,
     loading: false,
     rows: [],

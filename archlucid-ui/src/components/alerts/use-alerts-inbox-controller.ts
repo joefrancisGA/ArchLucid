@@ -4,17 +4,24 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useAlertsInboxBatchActions } from "@/components/alerts/use-alerts-inbox-batch-actions";
-import { useAlertsInboxPagination } from "@/components/alerts/use-alerts-inbox-pagination";
+import type { AlertActionKind } from "@/components/alerts/AlertsInboxAlertCard";
 import { useAlertsInboxEmptyFilteredProps } from "@/components/alerts/use-alerts-inbox-empty-filtered-props";
 import {
   useAlertsInboxPageQuery,
   useAlertsInboxSummaryQuery,
   useAlertsInboxWorkspaceContextQuery,
 } from "@/components/alerts/use-alerts-inbox-queries";
+import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
+import {
+  acknowledgeAlertsBatch,
+  applyAlertAction,
+  archiveAlert,
+  fetchAlertActionLoop,
+} from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   resolveAlertsInboxEmptyVariant,
   shouldShowAlertsHeaderConfigureRulesLink,
@@ -27,8 +34,26 @@ import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_s
 import {
   ALERTS_INBOX_ALL_STATUSES_VALUE,
 } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
+import type { AlertActionLoopDto } from "@/types/operate-rhythm";
 import { useSyncAlertsHubHeaderConfigureLink } from "@/components/alerts/AlertsHubHeaderConfigureLinkContext";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+
+type PendingActionState = {
+  alertId: string;
+  action: AlertActionKind;
+};
+
+/** Cursor stack: index 0 is always `""` (first page). Later entries are prior `nextCursor` values. */
+function initialCursorStack(initialModel: AlertsInboxPageModel | null): string[] {
+  const cursor = initialModel?.cursor ?? "";
+
+  if (cursor.length === 0) {
+    return [""];
+  }
+
+  // Deep-linked mid-page: treat as a one-entry stack (Previous returns to first page).
+  return ["", cursor];
+}
 
 function matchesAlertsInboxRunScope(alert: { runId?: string | null }, scopedRunId: string): boolean {
   if (scopedRunId.trim().length === 0) {
@@ -49,15 +74,26 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
   const scope = useOperatorScopeQueryKey();
   const canMutateAlertInbox = useNavSurface("alerts").mutationCapability;
   const buyerPolishedShell = initialModel?.buyerPolishedShell ?? isBuyerPolishedOperatorShellEnv();
+  const [status, setStatus] = useState<string>(initialModel?.status ?? "Open");
+  const [cursorStack, setCursorStack] = useState<string[]>(() => initialCursorStack(initialModel));
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(initialModel?.loadFailure ?? null);
+  const [pendingAction, setPendingAction] = useState<PendingActionState | null>(null);
+  const [actionComment, setActionComment] = useState("");
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionLoopAlertId, setActionLoopAlertId] = useState<string | null>(null);
+  const [actionLoopFindingHref, setActionLoopFindingHref] = useState<string | null>(null);
+  const [actionLoopData, setActionLoopData] = useState<AlertActionLoopDto | null>(null);
+  const [actionLoopLoading, setActionLoopLoading] = useState(false);
+  const [actionLoopError, setActionLoopError] = useState<string | null>(null);
+  const [selectedAlertIds, setSelectedAlertIds] = useState<string[]>([]);
+  const [batchAckBusy, setBatchAckBusy] = useState(false);
+  const [archiveBusyAlertId, setArchiveBusyAlertId] = useState<string | null>(null);
   const [lastRefreshedUtc, setLastRefreshedUtc] = useState<string | null>(null);
 
-  const pagination = useAlertsInboxPagination(initialModel);
-  const pageQuery = useAlertsInboxPageQuery({
-    status: pagination.status,
-    cursor: pagination.cursor,
-    initialModel,
-  });
+  const statusFilter = status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : status;
+  const cursor = cursorStack[cursorStack.length - 1] ?? "";
+  const page = cursorStack.length;
+  const pageQuery = useAlertsInboxPageQuery({ status, cursor, initialModel });
   const summaryQuery = useAlertsInboxSummaryQuery({ initialModel });
   const workspaceQuery = useAlertsInboxWorkspaceContextQuery();
 
@@ -69,6 +105,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
   const summaryLoading = summaryQuery.loading;
   const workspaceContext = workspaceQuery.workspaceContext;
 
+  const canGoPrevious = cursorStack.length > 1;
   const canGoNext =
     hasMore && nextCursor !== null && nextCursor !== undefined && nextCursor.length > 0;
 
@@ -86,12 +123,24 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     }
   }, [pageQuery.loading, pageQuery.loadFailure, pageQuery.items, pageQuery.hasMore]);
 
-  const statusFilter = pagination.status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : pagination.status;
+  useEffect(() => {
+    setSelectedAlertIds((prev) => {
+      const next = prev.filter((id) => alerts.some((row) => row.alertId === id));
+
+      if (next.length === prev.length && next.every((id, index) => id === prev[index])) {
+        return prev;
+      }
+
+      return next;
+    });
+  }, [alerts]);
 
   const refreshInbox = useCallback(
     async (options?: { readonly refreshSummary?: boolean }) => {
+      const statusFilterValue = status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : status;
+
       await queryClient.invalidateQueries({
-        queryKey: operatorQueryKeys.alertsInboxPage(scope, { statusFilter, cursor: pagination.cursor }),
+        queryKey: operatorQueryKeys.alertsInboxPage(scope, { statusFilter: statusFilterValue, cursor }),
       });
 
       if (options?.refreshSummary === true) {
@@ -100,7 +149,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
         });
       }
     },
-    [pagination.cursor, queryClient, scope, statusFilter],
+    [cursor, queryClient, scope, status],
   );
 
   const visibleAlerts = useMemo(
@@ -110,13 +159,6 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
       ),
     [alerts, scopedRunId],
   );
-
-  const batchActions = useAlertsInboxBatchActions({
-    visibleAlerts,
-    canMutateAlertInbox,
-    refreshInbox,
-    setFailure,
-  });
 
   const onPickReviewForTriage = useCallback(
     (reviewId: string) => {
@@ -132,6 +174,14 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     },
     [router, searchParams],
   );
+
+  const selectedOnPageCount = useMemo(
+    () => visibleAlerts.filter((alert) => selectedAlertIds.includes(alert.alertId)).length,
+    [visibleAlerts, selectedAlertIds],
+  );
+
+  const allVisibleSelected =
+    visibleAlerts.length > 0 && selectedOnPageCount === visibleAlerts.length;
 
   const pageMixSummary = useMemo(() => {
     if (visibleAlerts.length === 0) {
@@ -155,12 +205,12 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     buyerPolishedShell,
     canMutateAlertInbox,
     workspaceContext,
-    pagination.status,
+    status,
   );
   const scopeRecord = useOperatorScopeRecord();
   const alertsInboxEmptyVariant = resolveAlertsInboxEmptyVariant(
     workspaceContext,
-    pagination.status,
+    status,
     ALERTS_INBOX_ALL_STATUSES_VALUE,
   );
   const workspaceScopeEmptyTeaching =
@@ -174,40 +224,217 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
 
   const showHeaderConfigureLink = shouldShowAlertsHeaderConfigureRulesLink(
     workspaceContext,
-    pagination.status,
+    status,
     ALERTS_INBOX_ALL_STATUSES_VALUE,
   );
   useSyncAlertsHubHeaderConfigureLink(showHeaderConfigureLink);
+
+  const act = useCallback(
+    async (alertId: string, action: AlertActionKind, comment: string) => {
+      setFailure(null);
+
+      try {
+        await applyAlertAction(alertId, action, comment);
+        await refreshInbox({ refreshSummary: true });
+      } catch (e) {
+        setFailure(toApiLoadFailure(e));
+      }
+    },
+    [refreshInbox],
+  );
+
+  const onAlertShortcutAction = useCallback((alertId: string, action: string) => {
+
+    if (action === "Acknowledge" || action === "Resolve" || action === "Suppress") {
+      setPendingAction({ alertId, action });
+      setActionComment("");
+    }
+  }, []);
+
+  useAlertCardShortcuts({ onAction: onAlertShortcutAction, mutationsEnabled: canMutateAlertInbox });
+
+  async function onAcknowledgeSelected(): Promise<void> {
+    if (!canMutateAlertInbox || selectedAlertIds.length === 0) {
+      return;
+    }
+
+    setBatchAckBusy(true);
+    setFailure(null);
+
+    try {
+      await acknowledgeAlertsBatch(selectedAlertIds);
+      setSelectedAlertIds([]);
+      await refreshInbox({ refreshSummary: true });
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setBatchAckBusy(false);
+    }
+  }
+
+  async function onArchiveAlert(alertId: string): Promise<void> {
+    if (!canMutateAlertInbox) {
+      return;
+    }
+
+    setArchiveBusyAlertId(alertId);
+    setFailure(null);
+
+    try {
+      await archiveAlert(alertId);
+      setSelectedAlertIds((prev) => prev.filter((id) => id !== alertId));
+      await refreshInbox({ refreshSummary: true });
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setArchiveBusyAlertId(null);
+    }
+  }
+
+  function toggleAlertSelected(alertId: string, checked: boolean): void {
+    setSelectedAlertIds((prev) => {
+      if (checked) {
+        if (prev.includes(alertId)) {
+          return prev;
+        }
+
+        return [...prev, alertId];
+      }
+
+      return prev.filter((id) => id !== alertId);
+    });
+  }
+
+  function toggleSelectAllVisible(checked: boolean): void {
+    if (!checked) {
+      setSelectedAlertIds([]);
+
+      return;
+    }
+
+    setSelectedAlertIds(visibleAlerts.map((alert) => alert.alertId));
+  }
+
+  async function onConfirmActionDialog(): Promise<void> {
+    if (pendingAction === null || !canMutateAlertInbox) {
+      return;
+    }
+
+    setActionBusy(true);
+
+    try {
+      await act(pendingAction.alertId, pendingAction.action, actionComment.trim());
+      setPendingAction(null);
+      setActionComment("");
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  function openRoutingDelivery(alertId: string, findingDetailHref: string | null): void {
+    setActionLoopAlertId(alertId);
+    setActionLoopFindingHref(findingDetailHref);
+    setActionLoopData(null);
+    setActionLoopError(null);
+    setActionLoopLoading(true);
+    void fetchAlertActionLoop(alertId)
+      .then((row) => {
+        setActionLoopData(row);
+      })
+      .catch((e: unknown) => {
+        setActionLoopError(e instanceof Error ? e.message : "Could not load action loop.");
+      })
+      .finally(() => {
+        setActionLoopLoading(false);
+      });
+  }
+
+  function changeStatusFilter(value: string): void {
+    setStatus(value);
+    setCursorStack([""]);
+  }
 
   function goNextPage(): void {
     if (!canGoNext || nextCursor === null || nextCursor === undefined) {
       return;
     }
 
-    pagination.goNextPage(nextCursor);
+    setCursorStack((prev) => [...prev, nextCursor]);
+  }
+
+  function goPreviousPage(): void {
+    if (!canGoPrevious) {
+      return;
+    }
+
+    setCursorStack((prev) => {
+      if (prev.length <= 1) {
+        return prev;
+      }
+
+      return prev.slice(0, -1);
+    });
+  }
+
+  function clearPendingAction(): void {
+    setPendingAction(null);
+    setActionComment("");
+  }
+
+  function queuePendingAction(alertId: string, action: AlertActionKind): void {
+    setPendingAction({ alertId, action });
+    setActionComment("");
+  }
+
+  function closeActionLoopDialog(): void {
+    setActionLoopAlertId(null);
+    setActionLoopFindingHref(null);
+    setActionLoopData(null);
+    setActionLoopError(null);
   }
 
   return {
-    ...batchActions,
+    actionBusy,
+    actionComment,
+    actionLoopAlertId,
+    actionLoopData,
+    actionLoopError,
+    actionLoopFindingHref,
+    actionLoopLoading,
     alerts,
+    allVisibleSelected,
+    archiveBusyAlertId,
+    batchAckBusy,
     buyerPolishedShell,
     canGoNext,
-    canGoPrevious: pagination.canGoPrevious,
+    canGoPrevious,
     canMutateAlertInbox,
-    changeStatusFilter: pagination.changeStatusFilter,
+    changeStatusFilter,
+    clearPendingAction,
+    closeActionLoopDialog,
     emptyFilteredProps,
     workspaceScopeEmptyTeaching,
     failure,
     goNextPage,
-    goPreviousPage: pagination.goPreviousPage,
+    goPreviousPage,
     hasMore,
     lastRefreshedUtc,
     loading,
-    page: pagination.page,
+    onAcknowledgeSelected,
+    onArchiveAlert,
+    onConfirmActionDialog,
+    openRoutingDelivery,
+    page,
     pageMixSummary,
-    status: pagination.status,
+    pendingAction,
+    queuePendingAction,
+    selectedAlertIds,
+    setActionComment,
+    status,
     summaryCounts,
     summaryLoading,
+    toggleAlertSelected,
+    toggleSelectAllVisible,
     visibleAlerts,
     scopedRunId,
     scopedRunFilterActive,

@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 
 import {
+  CAIQ_SIG_EVIDENCE_DISCLOSURE_WORD_LIMIT,
+  countWordsInCaiqSigEvidenceText,
   parseCaiqSigEvidenceSegments,
   resolveCaiqSigEvidenceAffordance,
   type CaiqSigEvidenceAffordanceKind,
   type CaiqSigEvidenceSegment,
 } from "@/lib/caiq-sig-response-help-presentation";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type CaiqSigResponseHelpEvidenceCellProps = {
@@ -37,7 +39,24 @@ function renderEvidenceSegmentBody(
   renderInline: (text: string, keyPrefix: string) => ReactNode[],
   keyPrefix: string,
 ): React.JSX.Element {
-  return <div>{renderInline(segment.text, keyPrefix)}</div>;
+  const wordCount = countWordsInCaiqSigEvidenceText(segment.text);
+  const needsDisclosure = wordCount > CAIQ_SIG_EVIDENCE_DISCLOSURE_WORD_LIMIT;
+
+  if (!needsDisclosure) {
+    return <div>{renderInline(segment.text, keyPrefix)}</div>;
+  }
+
+  const previewWords = segment.text.trim().split(/\s+/).slice(0, CAIQ_SIG_EVIDENCE_DISCLOSURE_WORD_LIMIT);
+  const preview = `${previewWords.join(" ")}…`;
+
+  return (
+    <details className="group">
+      <summary className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+        {preview}
+      </summary>
+      <div className="mt-1">{renderInline(segment.text, `${keyPrefix}-full`)}</div>
+    </details>
+  );
 }
 
 export function CaiqSigResponseHelpEvidenceCell(props: CaiqSigResponseHelpEvidenceCellProps): React.JSX.Element {

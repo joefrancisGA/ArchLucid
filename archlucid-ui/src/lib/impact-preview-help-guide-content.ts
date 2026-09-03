@@ -1,9 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { IMPACT_PREVIEW_CANONICAL_PATH } from "@/lib/impact-preview-evidence-copy";
-import {
-  IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING,
-  IMPACT_PREVIEW_HELP_TOPIC_LABEL,
-} from "@/lib/impact-preview-help-evidence-copy";
+import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
 import {
   IMPACT_PREVIEW_PLANNING_HREF,
   IMPACT_PREVIEW_REVIEWS_HREF,
@@ -28,6 +25,7 @@ export const IMPACT_PREVIEW_HELP_START_HERE_CARD_TITLE = "Start here";
 export const IMPACT_PREVIEW_HELP_PRIMARY_ACTION = {
   label: "Open impact preview",
   href: IMPACT_PREVIEW_CANONICAL_PATH,
+  testId: "help-impact-preview-open-workspace",
 } as const;
 
 export type ImpactPreviewHelpTileItem = {
@@ -74,11 +72,6 @@ export const IMPACT_PREVIEW_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] 
   { level: 2, id: "what-you-provide", title: "What you provide" },
   { level: 2, id: "what-impact-preview-returns", title: "What impact preview returns" },
   { level: 2, id: "how-impact-preview-works", title: IMPACT_PREVIEW_HELP_TOPIC_LABEL },
-  {
-    level: 2,
-    id: IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID,
-    title: IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING,
-  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 

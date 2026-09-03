@@ -6,10 +6,10 @@ import { SlackIntegrationHelpClaimDisciplineStrip } from "@/components/help/Slac
 import { SlackIntegrationHelpEvidenceOrientationStrip } from "@/components/help/SlackIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import {
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -118,13 +118,17 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
                 </div>
               ))}
             </dl>
-            <HelpStaticSection
-              title={SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_TITLE}
-              testId="help-slack-integration-credential-handling-details"
-              bodyClassName={HELP_PAGE_LAYOUT.detailsBody}
+            <details
+              className={HELP_PAGE_LAYOUT.details}
+              data-testid="help-slack-integration-credential-handling-details"
             >
-              <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY}</p>
-            </HelpStaticSection>
+              <summary className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+                {SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_TITLE}
+              </summary>
+              <div className={HELP_PAGE_LAYOUT.detailsBody}>
+                <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY}</p>
+              </div>
+            </details>
           </section>
 
           <section

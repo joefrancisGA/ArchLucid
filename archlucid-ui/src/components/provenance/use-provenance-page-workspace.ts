@@ -19,8 +19,7 @@ import {
   provenanceNodeTypeLabel,
   type ProvenanceNodeFilterCategory,
 } from "@/lib/provenance-node-presentation";
-import type { ArchitectureRunProvenanceGraph, NormalizedArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
-import { normalizeArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
+import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
 import type { ProvenancePageWorkspaceProps } from "./provenance-page-workspace-types";
 
@@ -49,7 +48,14 @@ function flashNodeRow(nodeId: string): void {
 
 export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) {
   const { runId, provenanceTraceId, reviewContext, dataOrigin = "live" } = props;
-  const graph: NormalizedArchitectureRunProvenanceGraph = normalizeArchitectureRunProvenanceGraph(props.graph);
+  // OpenAPI may omit optional arrays; normalize before .length / .map so SSR/demo payloads cannot crash.
+  const graph: ArchitectureRunProvenanceGraph = {
+    ...props.graph,
+    nodes: props.graph.nodes ?? [],
+    edges: props.graph.edges ?? [],
+    timeline: props.graph.timeline ?? [],
+    traceabilityGaps: props.graph.traceabilityGaps ?? [],
+  };
   const [viewMode, setViewMode] = useState<ProvenanceViewMode>("graph");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [highlightedEdgeId, setHighlightedEdgeId] = useState<string | null>(null);

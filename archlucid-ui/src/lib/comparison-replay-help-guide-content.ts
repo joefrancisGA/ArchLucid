@@ -5,12 +5,12 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 export const COMPARISON_REPLAY_VALIDATE_REVIEW_PATH = "/internal/validate-route" as const;
 
 export const COMPARISON_REPLAY_HELP_COMPARE_ACTION = {
-  label: "Compare two reviews",
+  label: "Open Compare two reviews",
   href: "/insights/compare-two-reviews",
 } as const;
 
 export const COMPARISON_REPLAY_HELP_VALIDATE_ACTION = {
-  label: OPERATOR_NAV_LINK_LABELS.replayReview,
+  label: `Open ${OPERATOR_NAV_LINK_LABELS.replayReview}`,
   href: COMPARISON_REPLAY_VALIDATE_REVIEW_PATH,
 } as const;
 
@@ -31,23 +31,23 @@ export const COMPARISON_REPLAY_HELP_DEFERRED_JOB_DETAIL_HEADING = "## When to co
 export const COMPARISON_REPLAY_HELP_DECISION_COMPARE = {
   title: "Compare two reviews",
   summary:
-    "Pick two sealed review records and generate a delta narrative for sponsors, reviewers, or approval leads.",
+    "Pick two finalized review records and generate a delta narrative for sponsors, reviewers, or approval leads.",
 } as const;
 
 export const COMPARISON_REPLAY_HELP_DECISION_VALIDATE = {
   title: OPERATOR_NAV_LINK_LABELS.replayReview,
   summary:
-    "Regenerate or re-export a saved comparison for a sealed review record — optionally with drift verification — without starting a new architecture review.",
+    "Replay (**Validate review** in the workspace) regenerates or re-exports a saved comparison record — optionally with drift verification — without re-running a full architecture review.",
 } as const;
 
-/** Buyer-safe compare vs validate decision flow — no API paths or internal identifiers. */
+/** Buyer-safe compare vs replay decision flow — no API paths or internal identifiers. */
 export const COMPARISON_REPLAY_HELP_DIAGRAM_SOURCE = `flowchart TD
   START([What do you need?])
   START --> Q1{Do you have a saved comparison record to regenerate or re-export?}
   Q1 -->|Yes| Q2{Need drift verification against the stored record?}
-  Q1 -->|No| Q3{Need a delta narrative between two sealed review records?}
-  Q2 -->|Yes| VFY[Validate with drift check]
-  Q2 -->|No| VAL[Validate saved comparison]
+  Q1 -->|No| Q3{Need a delta narrative between two Finalized review records?}
+  Q2 -->|Yes| VFY[Replay with verify]
+  Q2 -->|No| RPL[Replay saved comparison]
   Q3 -->|Yes| CMP[Compare two reviews]
   Q3 -->|No| NR[Start a new architecture review]`;
 
@@ -55,7 +55,7 @@ export const COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME =
   "Compare vs Validate review decision flow";
 
 export const COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE =
-  "Start from what you need. When you already have a saved comparison record, choose Validate with drift check when you need drift verification against that record, or Validate saved comparison when you only need to regenerate or re-export. When you do not have a saved record but need a delta between two architecture packages, open Compare two reviews. When neither applies, start a new architecture review.";
+  "Start from what you need. When you already have a saved comparison record, choose replay with verify when you need drift verification against that record, or replay saved comparison when you only need to regenerate or re-export. When you do not have a saved record but need a delta between two packages, open Compare two reviews. When neither applies, start a new architecture review.";
 
 export const COMPARISON_REPLAY_HELP_DIAGRAM_DETAILS_SUMMARY = "Compare vs replay decision diagram";
 

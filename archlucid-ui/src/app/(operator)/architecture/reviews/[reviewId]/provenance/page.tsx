@@ -61,7 +61,7 @@ export default async function RunProvenancePage({
     if (nodes.length === 0) {
       const demoGraph = tryStaticDemoProvenanceGraph(runId);
 
-      if (demoGraph !== null && (demoGraph.nodes ?? []).length > 0) {
+      if (demoGraph !== null && demoGraph.nodes.length > 0) {
         provenanceResponse = { data: demoGraph, traceId: provenanceResponse.traceId };
         loadFailure = null;
         dataOrigin = "sample";

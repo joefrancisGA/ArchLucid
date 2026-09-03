@@ -4,10 +4,8 @@ import {
   isExplicitStaticDemoMarketingBuild,
   shouldMergeDemoRunsIntoProjectPicker,
   shouldShowOperatorDemoMarketingChrome,
-  shouldShowRunDetailStandaloneSampleBadge,
   shouldUseGovernanceCuratedDemoSpine,
 } from "@/lib/buyer/buyer-demo-content-gating";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("buyer-demo-content-gating (TB-273 / BDA-024)", () => {
   const envBackup = { ...process.env };
@@ -41,17 +39,5 @@ describe("buyer-demo-content-gating (TB-273 / BDA-024)", () => {
     process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = "true";
 
     expect(shouldMergeDemoRunsIntoProjectPicker({ mergeDemoOnEmpty: false })).toBe(false);
-  });
-
-  it("suppresses standalone sample badge when curated showcase banner owns the chip", () => {
-    expect(
-      shouldShowRunDetailStandaloneSampleBadge(true, false, SHOWCASE_STATIC_DEMO_RUN_ID),
-    ).toBe(false);
-    expect(
-      shouldShowRunDetailStandaloneSampleBadge(true, false, "customer-intake-modernization-run"),
-    ).toBe(false);
-    expect(shouldShowRunDetailStandaloneSampleBadge(true, false, "other-static-demo-run")).toBe(true);
-    expect(shouldShowRunDetailStandaloneSampleBadge(true, true, "other-static-demo-run")).toBe(false);
-    expect(shouldShowRunDetailStandaloneSampleBadge(false, false, SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(false);
   });
 });

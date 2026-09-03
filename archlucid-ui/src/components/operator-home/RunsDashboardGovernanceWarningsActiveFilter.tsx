@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-import { DismissibleActiveFilterChip } from "@/components/ui/dismissible-active-filter-chip";
+import { Button } from "@/components/ui/button";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -26,14 +26,18 @@ export function RunsDashboardGovernanceWarningsActiveFilter(
       role="status"
     >
       <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Showing reviews matching
+        Showing reviews with {RUNS_DASHBOARD_LABELS.governanceWarningsOnly.toLowerCase()}
       </span>
-      <DismissibleActiveFilterChip
-        label={RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
-        onDismiss={props.onClear}
-        testId="runs-dashboard-governance-warnings-active-filter-chip"
-        dismissLabel={`Remove ${RUNS_DASHBOARD_LABELS.governanceWarningsOnly.toLowerCase()} filter`}
-      />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="h-auto px-2 py-1 text-al-text-primary"
+        onClick={props.onClear}
+        data-testid="runs-dashboard-governance-warnings-clear"
+      >
+        Clear
+      </Button>
     </div>
   );
 }

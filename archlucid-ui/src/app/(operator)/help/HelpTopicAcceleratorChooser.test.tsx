@@ -123,7 +123,7 @@ describe("HelpAcceleratorChooserGuideView", () => {
     const regulatedTechnical = screen.getByTestId("help-accelerator-chooser-pack-regulated-saas-soc-procurement-technical");
 
     expect(regulatedTechnical).not.toHaveAttribute("open");
-    expect(within(regulatedTechnical).getByText(/second-run\.json/)).toBeVisible();
+    expect(within(regulatedTechnical).getByText(/second-run\.json/)).not.toBeVisible();
 
     for (const pattern of ACCELERATOR_CHOOSER_HELP_BANNED_VISIBLE_COPY_PATTERNS) {
       expect(visible).not.toMatch(pattern);
