@@ -1391,11 +1391,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 8
-- **bugs-found:** 10
+- **hunts:** 9
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — Jira inbound webhook ignored PascalCase issue/fields/status/name
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — ServiceNow inbound PascalCase sys_id/state property lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1416,6 +1416,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.Resolve` delivery-id casing vs replay guard lowercase cache keys — `BuildCacheKey` lowercases event ids for dedupe; preserved casing in audit payloads is cosmetic and duplicate delivery ids with different casing still dedupe correctly.
 
 2026-09-02 thorough hunt #520: cheap-disproof closed disposition-map and replay-id casing candidates; proved Jira PascalCase payload property lookup gap.
+
+- [x] (proven) `ItsmInboundServiceNowPayloadReader` case-sensitive on `sys_id` / `sysId` / `state` / `incident_state` — PascalCase `Sys_Id` / `SysId` / `State` / `Incident_State` webhook shapes returned `TryRead=false` and were dropped as unrecognized payloads — **hit 2026-09-03 (#558):** shared `ItsmInboundJsonElementReader` case-insensitive property lookup for ServiceNow (Jira reader refactored to same helper); regression in `ItsmInboundServiceNowPayloadReaderTests`.
+
+2026-09-03 seed hunt #558: proved ServiceNow inbound PascalCase property lookup gap; refactored Jira reader onto shared JSON helper.
 
 ---
 
