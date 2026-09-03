@@ -170,6 +170,15 @@ public sealed class ArchitectureSynthesisKernel(
             knowledgeModel,
             cancellationToken);
 
+        Persistence.Models.RunRecord? pinnedHeader =
+            await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+
+        if (pinnedHeader is not null)
+        {
+            RunHeaderKnowledgeModelContentPin.ApplyToHeader(pinnedHeader, knowledgeModel, knowledgeModelId);
+            await _runRepository.UpdateAsync(pinnedHeader, cancellationToken).ConfigureAwait(false);
+        }
+
         Guid? architectureVersionId = await TryReadPinnedVersionIdAsync(scope, runGuid, cancellationToken)
             .ConfigureAwait(false);
 

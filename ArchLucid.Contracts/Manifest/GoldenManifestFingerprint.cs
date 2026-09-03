@@ -115,19 +115,13 @@ public static class GoldenManifestFingerprint
             },
             createTimePolicyPackPins = createTimePins is null
                 ? null
-                : createTimePins.PolicyPackPins
-                    .OrderBy(static row => row.PolicyPackId, StringComparer.OrdinalIgnoreCase)
-                    .ThenBy(static row => row.PolicyPackVersion, StringComparer.Ordinal)
-                    .Select(static row => new { row.PolicyPackId, row.PolicyPackVersion })
-                    .ToArray(),
+                : ManifestCreateTimePinCanonicalProjection.ProjectPolicyPackPins(createTimePins.PolicyPackPins),
             createTimeEvidencePackagePins = createTimePins is null
                 ? null
-                : createTimePins.EvidencePackagePins
-                    .OrderBy(static row => row.Provider, StringComparer.OrdinalIgnoreCase)
-                    .ThenBy(static row => row.PackageId)
-                    .Select(static row => new { row.Provider, row.PackageId, row.CollectionUtc })
-                    .ToArray(),
-            createTimeEvidencePackagePinsHashSha256 = createTimePins?.EvidencePackagePinsHashSha256Hex
+                : ManifestCreateTimePinCanonicalProjection.ProjectEvidencePackagePins(createTimePins.EvidencePackagePins),
+            createTimeEvidencePackagePinsHashSha256 = createTimePins?.EvidencePackagePinsHashSha256Hex,
+            createTimeArchitectureVersionContentHashSha256 = createTimePins?.ArchitectureVersionContentHashSha256Hex,
+            createTimeKnowledgeModelContentHashSha256 = createTimePins?.KnowledgeModelContentHashSha256Hex
         };
 
         byte[] utf8 = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(canonical, ContractJson.Default));
