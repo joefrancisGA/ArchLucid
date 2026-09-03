@@ -2880,11 +2880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 125
-- **bugs-found:** 281
+- **hunts:** 126
+- **bugs-found:** 283
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — duplicate active waiver per finding HTTP 409
+- **last-bug:** 2026-09-03 — renew sibling waiver conflict + create MarkExpired parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3459,11 +3459,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` / `RecordDisposition` / `GovernanceStickinessFacade` — in-scope `findingId` with body `runId` from a different in-scope authority run returned HTTP 200 while inspect exposes the finding's authority `RunId` — **hit 2026-09-03 (#571):** `EnsureRunMatchesFindingAuthorityRun` compares inspect `RunId` before scoped run preflight; controller maps `ArgumentException` → HTTP 400; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
 
-- [ ] (candidate) `GovernanceStickinessController.CreateRiskException` / `RiskExceptionService.CreateAsync` — second active waiver for the same finding returns HTTP 200 (no uniqueness guard on `(TenantId, FindingId, Active)`).
+- [x] (invalid) `GovernanceStickinessController.CreateRiskException` / `RiskExceptionService.CreateAsync` — second active waiver for the same finding returns HTTP 200 (no uniqueness guard on `(TenantId, FindingId, Active)`) — duplicate of proven #572 row; create guard shipped there.
 
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` / `RiskExceptionService.CreateAsync` — second non-expired active waiver for the same scoped finding returned HTTP 200 while inspect `HasActiveWaiver` and UI create path assume at most one — **hit 2026-09-03 (#572):** `GetActiveForScopeFindingAsync` guard (tenant/workspace/project/finding parity with inspect follow-up SQL) throws `ConflictException` → HTTP 409; regression in `RiskExceptionServiceTests.CreateAsync_throws_conflict_when_active_waiver_exists_for_finding` and `GovernanceStickinessControllerTests.CreateRiskException_returns_conflict_when_active_waiver_exists_for_finding`.
 
-2026-09-03 thorough hunt #572: promoted and proved duplicate active waiver create conflict mapping.
+- [x] (proven) `RiskExceptionService.RenewAsync` — renewing an `Expired` waiver while another non-expired active waiver exists for the same scoped finding returned HTTP 200 (create guard from #572 does not apply to renew) — **hit 2026-09-03 (#573):** sibling `GetActiveForScopeFindingAsync` check throws `ConflictException` when `RiskExceptionId` differs; regression in `RiskExceptionServiceTests.RenewAsync_throws_conflict_when_another_active_waiver_exists_for_same_finding`.
+
+- [x] (proven) `RiskExceptionService.CreateAsync` — stale `Status=Active` rows past `ExpiresAtUtc` were invisible to the duplicate guard until a background sweep ran, allowing a second create — **hit 2026-09-03 (#573):** `MarkExpiredAsync` + `AuditExpiredAsync` run before `GetActiveForScopeFindingAsync`; regression in `RiskExceptionServiceTests.CreateAsync_marks_expired_before_duplicate_active_guard`.
+
+2026-09-03 thorough hunt #573: proved renew sibling waiver conflict and create MarkExpired-before-guard parity; retired stale duplicate-create candidate.
 
 ---
 

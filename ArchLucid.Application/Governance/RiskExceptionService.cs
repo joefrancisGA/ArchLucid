@@ -52,6 +52,11 @@ public sealed class RiskExceptionService(
             request.FindingId.Trim(),
             cancellationToken);
 
+        IReadOnlyList<RiskExceptionRecord> expired =
+            await _repository.MarkExpiredAsync(scope.TenantId, now, cancellationToken);
+
+        await AuditExpiredAsync(expired, cancellationToken);
+
         RiskExceptionRecord? existingActive = await _repository.GetActiveForScopeFindingAsync(
             scope.TenantId,
             scope.WorkspaceId,
@@ -210,6 +215,19 @@ public sealed class RiskExceptionService(
         if (existing.Status == RiskExceptionStatus.Revoked)
         {
             throw new ConflictException("Revoked risk exceptions cannot be renewed.");
+        }
+
+        RiskExceptionRecord? siblingActive = await _repository.GetActiveForScopeFindingAsync(
+            tenantId,
+            existing.WorkspaceId,
+            existing.ProjectId,
+            existing.FindingId,
+            now,
+            cancellationToken);
+
+        if (siblingActive is not null && siblingActive.RiskExceptionId != riskExceptionId)
+        {
+            throw new ConflictException("An active waiver already exists for this finding.");
         }
 
         await RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync(
