@@ -1,15 +1,25 @@
 import Link from "next/link";
 
+import { HelpImpactPreviewClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpImpactPreviewClaimOrientationStrip";
+import { HelpImpactPreviewHeaderActions } from "@/app/(operator)/help/_sections/HelpImpactPreviewHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { ImpactPreviewHelpClaimDisciplineStrip } from "@/components/help/ImpactPreviewHelpClaimDisciplineStrip";
-import { ImpactPreviewHelpEvidenceOrientationStrip } from "@/components/help/ImpactPreviewHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import {
+  IMPACT_PREVIEW_HELP_CANONICAL_PATH,
+  IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
+} from "@/lib/impact-preview-help-evidence-copy";
 import {
   IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION,
   IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION_TAG,
@@ -24,14 +34,13 @@ import {
   IMPACT_PREVIEW_HELP_PRIMARY_ACTION,
   IMPACT_PREVIEW_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/impact-preview-help-guide-content";
-import { IMPACT_PREVIEW_HELP_CANONICAL_PATH } from "@/lib/impact-preview-help-evidence-copy";
 import {
-  OPERATOR_LAYOUT,
-  OPERATOR_LINK,
-  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-  OPERATOR_TYPOGRAPHY,
-} from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+  IMPACT_PREVIEW_HELP_FIRST_VIEWPORT_TEST_ID,
+  IMPACT_PREVIEW_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  IMPACT_PREVIEW_HELP_PRIMARY_CONTENT_ID,
+  IMPACT_PREVIEW_HELP_SKIP_LINK_LABEL,
+  IMPACT_PREVIEW_HELP_SKIP_TARGET_ID,
+} from "@/lib/impact-preview-help-page-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -83,31 +92,43 @@ export function HelpImpactPreviewGuideView(props: HelpImpactPreviewGuideViewProp
     IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID,
   );
   const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
-  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-impact-preview-guide"
     >
+      <a href={`#${IMPACT_PREVIEW_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {IMPACT_PREVIEW_HELP_SKIP_LINK_LABEL}
+      </a>
       <HelpTopicHashScroll />
 
-      <HelpTopicGuidePageHeader
-        title={IMPACT_PREVIEW_HELP_PAGE_TITLE}
-        titleTestId="help-impact-preview-page-title"
-        subtitle={IMPACT_PREVIEW_HELP_PAGE_SUBTITLE}
-        navHref={IMPACT_PREVIEW_HELP_CANONICAL_PATH}
-        headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
-      />
+      <div
+        id={IMPACT_PREVIEW_HELP_PRIMARY_CONTENT_ID}
+        data-testid={IMPACT_PREVIEW_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <HelpTopicGuidePageHeader
+          title={IMPACT_PREVIEW_HELP_PAGE_TITLE}
+          titleTestId="help-impact-preview-page-title"
+          subtitle={IMPACT_PREVIEW_HELP_PAGE_SUBTITLE}
+          navHref={IMPACT_PREVIEW_HELP_CANONICAL_PATH}
+          headingLevel="h1"
+          claimDiscipline={IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE}
+          claimDisciplineTestId={IMPACT_PREVIEW_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+          actions={<HelpImpactPreviewHeaderActions entry={entry} />}
+        />
 
-      <ImpactPreviewHelpClaimDisciplineStrip />
-
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <ImpactPreviewHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-
+        <div
+          id={IMPACT_PREVIEW_HELP_SKIP_TARGET_ID}
+          data-testid={IMPACT_PREVIEW_HELP_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 space-y-6 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
           <p className={readingBodyClass} data-testid="help-impact-preview-overview">
             {IMPACT_PREVIEW_HELP_OVERVIEW}
           </p>
@@ -140,43 +161,51 @@ export function HelpImpactPreviewGuideView(props: HelpImpactPreviewGuideViewProp
               {IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION}
             </p>
           </section>
-
-          <section
-            aria-labelledby="what-you-provide"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="what-you-provide">What you provide</HelpSectionHeading>
-            <HelpTileList items={IMPACT_PREVIEW_HELP_INPUT_TILE_ITEMS} testId="help-impact-preview-input-tile-items" />
-          </section>
-
-          <section
-            aria-labelledby="what-impact-preview-returns"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="what-impact-preview-returns">What impact preview returns</HelpSectionHeading>
-            <HelpTileList
-              items={IMPACT_PREVIEW_HELP_OUTPUT_TILE_ITEMS}
-              testId="help-impact-preview-output-tile-items"
-            />
-          </section>
-
-          <section
-            aria-labelledby="how-impact-preview-works"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="how-impact-preview-works">How impact preview works</HelpSectionHeading>
-            <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
-              data-testid="help-impact-preview-how-stepper"
-            >
-              {IMPACT_PREVIEW_HELP_HOW_TO_READ_STEPS.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </section>
         </div>
 
-        <HelpTopicTableOfContents headings={guideHeadings} />
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+            <section
+              aria-labelledby="what-you-provide"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="what-you-provide">What you provide</HelpSectionHeading>
+              <HelpTileList items={IMPACT_PREVIEW_HELP_INPUT_TILE_ITEMS} testId="help-impact-preview-input-tile-items" />
+            </section>
+
+            <section
+              aria-labelledby="what-impact-preview-returns"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="what-impact-preview-returns">What impact preview returns</HelpSectionHeading>
+              <HelpTileList
+                items={IMPACT_PREVIEW_HELP_OUTPUT_TILE_ITEMS}
+                testId="help-impact-preview-output-tile-items"
+              />
+            </section>
+
+            <section
+              aria-labelledby="how-impact-preview-works"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="how-impact-preview-works">How impact preview works</HelpSectionHeading>
+              <ol
+                className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-impact-preview-how-stepper"
+              >
+                {IMPACT_PREVIEW_HELP_HOW_TO_READ_STEPS.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </section>
+          </div>
+
+          <HelpTopicTableOfContents headings={guideHeadings} />
+        </div>
+
+        <div data-testid="help-impact-preview-orientation-bottom">
+          <HelpImpactPreviewClaimOrientationStrip />
+        </div>
       </div>
     </article>
   );
