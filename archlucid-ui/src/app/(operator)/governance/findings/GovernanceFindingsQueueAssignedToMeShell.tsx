@@ -76,6 +76,9 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   >;
   readonly assignedToMeOldestFindingTarget: AssignedToMeOldestFindingTarget | null;
   readonly firstFindingTriageTarget: FirstFindingTriageTarget | null;
+  readonly hideGenericLowDensity: boolean;
+  readonly onHideGenericLowDensityChange: (next: boolean) => void;
+  readonly showInsightDensityScore: boolean;
   readonly selectedFindingIds: ReadonlySet<string>;
   readonly onSelectionChange: (next: ReadonlySet<string>) => void;
   readonly onBulkApplied: () => void;

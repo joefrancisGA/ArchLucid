@@ -12,6 +12,8 @@ import { useArchitectureDraftStartReview } from "@/hooks/use-architecture-draft-
 import { useArchitectureDraftWorkspace } from "@/hooks/use-architecture-draft-workspace";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { useInAppNavigationGuard } from "@/hooks/use-in-app-navigation-guard";
+import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigationGuardDialog";
 import {
   acknowledgeArchitectureDraftHandoff,
 } from "@/lib/architecture/architecture-draft-handoff-gate";
@@ -228,6 +230,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   const hasUnsavedChanges = saveState === "unsaved" || saveState === "saving" || saveState === "error";
   useUnsavedChangesGuard({ when: hasUnsavedChanges && !editorLocked });
+  const inAppNavigationGuard = useInAppNavigationGuard({
+    when: hasUnsavedChanges && !editorLocked,
+    message: "You have unsaved architecture changes.",
+  });
 
   const displayName = useMemo(
     () => architectureDraftDisplayName(fields.systemName, fields.freeTextIntent),
@@ -317,7 +323,14 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, [canUnlockBrief, draft, handleDraftLoaded]);
 
   return (
-    <ArchitectureDraftWorkspaceBody
+    <>
+      <InAppNavigationGuardDialog
+        open={inAppNavigationGuard.dialogOpen}
+        message={inAppNavigationGuard.dialogMessage}
+        onConfirmLeave={inAppNavigationGuard.confirmLeave}
+        onCancelLeave={inAppNavigationGuard.cancelLeave}
+      />
+      <ArchitectureDraftWorkspaceBody
       architectureId={props.architectureId}
       loading={loading}
       loadError={loadError}
@@ -381,5 +394,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       handleContinueWithoutQualityAttributes={handleContinueWithoutQualityAttributes}
       nextDraft={nextDraft}
     />
+    </>
   );
 }
