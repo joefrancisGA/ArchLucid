@@ -110,4 +110,24 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
 
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
     }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_string_encoded_boolean_true_schema_version()
+    {
+        const string json = """
+            {"schemaVersion":"true","failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_PascalCase_failure_class_property_name()
+    {
+        const string json = """
+            {"schemaVersion":1,"FailureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
 }
