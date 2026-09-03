@@ -35,7 +35,13 @@ vi.mock("@/lib/api", () => ({
 
 import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
 import { fetchWeeklyDigestHealth, getExecDigestPreferences, listArchitectureDigests } from "@/lib/api";
-import { DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER, DIGESTS_PAGE_SUBTITLE_BUYER } from "@/lib/digests-browse-copy";
+import {
+  DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER,
+  DIGESTS_HUB_FIRST_VIEWPORT_ID,
+  DIGESTS_HUB_SKIP_LINK_LABEL,
+  DIGESTS_HUB_SKIP_TARGET_ID,
+  DIGESTS_PAGE_SUBTITLE_BUYER,
+} from "@/lib/digests-browse-copy";
 
 describe("DigestsHubClient buyer-polished shell", () => {
   beforeEach(() => {
@@ -70,6 +76,15 @@ describe("DigestsHubClient buyer-polished shell", () => {
       executiveDigestHourOfDay: 8,
       setupGaps: [],
     });
+  });
+
+  it("exposes skip link to the digest workspace first viewport", async () => {
+    render(<DigestsHubClient />);
+
+    const skipLink = await screen.findByRole("link", { name: DIGESTS_HUB_SKIP_LINK_LABEL });
+
+    expect(skipLink).toHaveAttribute("href", `#${DIGESTS_HUB_SKIP_TARGET_ID}`);
+    expect(screen.getByTestId(DIGESTS_HUB_FIRST_VIEWPORT_ID)).toBeInTheDocument();
   });
 
   it("uses buyer subtitle and collapses the privacy note", async () => {
