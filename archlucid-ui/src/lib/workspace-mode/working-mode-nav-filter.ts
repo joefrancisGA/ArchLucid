@@ -1,11 +1,8 @@
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 
-/** Secondary reporting destinations — canonical Outcomes hub covers the same questions. */
 const WORKING_MODE_SECONDARY_REPORTING_HREFS = new Set<string>([
   "/insights/architecture-scorecard",
-  "/governance/dashboard",
-  "/value-report/pilot",
-  "/value-report/roi",
+  "/insights/roi-summary",
 ]);
 
 export function filterNavGroupsForWorkingProfessionalMode(
