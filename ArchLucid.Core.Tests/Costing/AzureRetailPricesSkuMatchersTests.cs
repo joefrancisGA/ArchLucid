@@ -239,19 +239,64 @@ public sealed class AzureRetailPricesSkuMatchersTests
     }
 
     [Fact]
-    public void TryMonthlyUsdFromRow_rejects_moment_slash_mo_unit_of_measure_false_positive()
+    public void LooksLikeConsumptionUsd_rejects_hourglass_hour_word_false_positive()
     {
         AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
         {
             CurrencyCode = "USD",
             Type = "Consumption",
-            UnitOfMeasure = "1/moment",
-            UnitPrice = 12.34m,
+            UnitOfMeasure = "1 Hourglass",
+            UnitPrice = 0.01m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
+    }
+
+    [Fact]
+    public void LooksLikeConsumptionUsd_rejects_hrocket_slash_hr_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1/hrocket",
+            UnitPrice = 0.01m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryMonthlyUsdFromRow_rejects_hrocket_slash_hr_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1/hrocket",
+            UnitPrice = 0.01m,
         };
 
         bool ok = AzureRetailPricesCatalogClient.TryMonthlyUsdFromRow(dto, 1, out decimal monthly);
 
         ok.Should().BeFalse();
         monthly.Should().Be(0m);
+    }
+
+    [Fact]
+    public void TryMonthlyUsdFromRow_accepts_hours_unit_of_measure_synonym()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "10 Hours",
+            UnitPrice = 0.01m,
+        };
+
+        bool ok = AzureRetailPricesCatalogClient.TryMonthlyUsdFromRow(dto, 1, out decimal monthly);
+
+        ok.Should().BeTrue();
+        monthly.Should().Be(7.30m);
     }
 }

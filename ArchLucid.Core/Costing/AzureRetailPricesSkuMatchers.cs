@@ -172,14 +172,42 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         string trimmed = uom.Trim();
 
-        return trimmed.Contains("Hour", StringComparison.OrdinalIgnoreCase)
+        return ContainsHourWordToken(trimmed)
             || trimmed.Contains("hrs", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains(" hr", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("/hr", StringComparison.OrdinalIgnoreCase)
+            || ContainsSlashHrToken(trimmed)
             || ContainsSlashHourToken(trimmed)
             || ContainsBoundedToken(trimmed, " h")
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsHourWordToken(string trimmed)
+    {
+        return ContainsBoundedToken(trimmed, " hour")
+            || ContainsBoundedToken(trimmed, " hours");
+    }
+
+    private static bool ContainsSlashHrToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/hr", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterHr = index + 3;
+
+            if (afterHr >= trimmed.Length || !char.IsLetter(trimmed[afterHr]))
+                return true;
+
+            index = afterHr;
+        }
+
+        return false;
     }
 
     private static bool ContainsSlashHourToken(string trimmed)
