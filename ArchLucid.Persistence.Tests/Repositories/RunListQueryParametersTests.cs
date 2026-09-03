@@ -124,7 +124,7 @@ public sealed class RunListQueryParametersTests
     {
         object parameters = RunListQueryParameters.ForActiveRunCountByArchitectureRequest(Scope(), "  req-1  ");
 
-        Read<string>(parameters, "ArchitectureRequestId").Should().Be("req-1");
+        Read<string>(parameters, "NormalizedArchitectureRequestId").Should().Be("REQ-1");
         Read<string>(parameters, "CommittedStatus").Should().Be(nameof(ArchitectureRunStatus.Committed));
         Read<string>(parameters, "FailedStatus").Should().Be(nameof(ArchitectureRunStatus.Failed));
         Read<string>(parameters, "QualityRejectedStatus")

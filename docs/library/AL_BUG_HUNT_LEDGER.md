@@ -569,12 +569,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **impact:** high
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
-- **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests
-- **hunts:** 4
-- **bugs-found:** 3
+- **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — ListByProject compared raw ProjectId while collision/committed lookups trim and ignore case
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — `CountActiveRunsForArchitectureRequest` / `ExistsRunForArchitectureRequestInScope` compared raw `ArchitectureRequestId` while project-slug paths trim and ignore case
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -589,6 +589,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ExistsActiveRunWithSystemNameInWorkspace` compares `UPPER(ProjectId)` without trimming so padded slugs bypass the workspace collision guard — **hit 2026-08-23 hunt #38:** `LTRIM(RTRIM(ProjectId))` before `UPPER`
 - [x] (proven) `GetLatestWithGraphAtOrBefore` / `GetLatestCommittedRunIdByManifestCreatedUtc` / `GetPriorCommittedRunIdBeforeCurrent` compare raw `ProjectId` while collision guard trims and ignores case — **hit 2026-08-24:** padded or differently-cased stored slugs missed committed/graph lookups (advisory eligibility, temporal graph); SQL uses `UPPER(LTRIM(RTRIM(ProjectId)))`; InMemory uses trim + ordinal-ignore-case; regressions in `RunRepositoryWorkspaceSystemNameSqlTests` / `InMemoryRunRepositoryGetLatestWithGraphAtOrBeforeTests`
 - [x] (proven) `ListByProjectAsync` / `ListByProjectKeysetAsync` compared raw `ProjectId` while workspace collision and committed-run lookups trim and ignore case — **hit 2026-08-24:** padded or differently-cased stored slugs omitted from dashboard project lists; SQL uses `UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug`; InMemory uses `MatchesProjectListFilter`; regressions in `InMemory_matches_padded_project_id_for_list_by_project` and `Project_list_queries_trim_project_id_before_upper_compare`
+- [x] (proven) `CountActiveRunsForArchitectureRequestAsync` / `ExistsRunForArchitectureRequestInScopeAsync` compared raw `ArchitectureRequestId` while project-slug paths trim stored values — **hit 2026-09-03 hunt #603 (seed→hit):** padded stored request ids missed active-run concurrency and scope-existence checks (`RequestReleased` latch, idempotency guard); SQL uses `UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId`; InMemory uses `ArchitectureRequestIdMatches`; regressions in `RunRepositoryArchitectureRequestSqlTests`
 
 ---
 
@@ -1868,9 +1869,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #601: reseeded tenancy helpers after #600 TrialStatus fix; proved sibling Ordinal parity gap.
 
-- [ ] (candidate) `AgentExecutionFailureSummaryJson.TryDeserialize` (Application) — string-encoded `schemaVersion` still uses strict `int` deserialize while Core `RunAuthorityPipelineDeadLetterDetection` now coerces tokens
-- [ ] (candidate) `TenantTrialSeatPolicy` / `CommercialTenantEligibility` — other `TrialLifecycleStatus` values with unexpected casing (`converted`, `expired`) may mis-route lifecycle automation
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — missing `schemaVersion` property defaults deserialize `SchemaVersion` to 0 and is rejected despite forward-compatible payloads
+- [x] (invalid) `AgentExecutionFailureSummaryJson.TryDeserialize` (Application) — string-encoded `schemaVersion` — wrong zone for `archlucid-core` thorough hunt; locus is `ArchLucid.Application/Runs/AgentExecutionFailureSummaryJson.cs`.
+- [x] (valid-no-repro) `TenantTrialSeatPolicy` / `CommercialTenantEligibility` — lowercase `converted` / `expired` trial status — Core helpers only special-case `Active`; lowercase non-active statuses do not bypass seat-claim enforcement or active-trial commercial blocks (`CommercialTenantEligibility_does_not_special_case_lowercase_converted_or_expired_trial_status`).
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — missing `schemaVersion` property rejected — **hit 2026-09-03 (#602):** forward-compatible `{"failureClass":"PipelineDeadLetter"}` payloads omitted `schemaVersion` but contract default is `1`; fixed by defaulting absent property to supported version (`IsDeadLettered_returns_true_when_schema_version_property_is_omitted`).
+
+2026-09-03 thorough hunt #602: proved omitted failure-summary schemaVersion gap; disproved Application-layer and converted/expired casing candidates.
+
+- [ ] (candidate) `AgentExecutionFailureSummaryJson.TryDeserialize` (Application) — string-encoded `schemaVersion` parity gap with Core dead-letter reader (hunt in Application zone)
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — null JSON `schemaVersion` token should be treated like omitted v1 default
 - [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized

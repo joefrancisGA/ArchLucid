@@ -97,6 +97,17 @@ internal static class RunRepositoryCore
             StringComparison.OrdinalIgnoreCase);
     }
 
+    public static bool ArchitectureRequestIdMatches(string? storedArchitectureRequestId, string architectureRequestId)
+    {
+        if (string.IsNullOrWhiteSpace(storedArchitectureRequestId))
+            return false;
+
+        return string.Equals(
+            storedArchitectureRequestId.Trim(),
+            architectureRequestId.Trim(),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
     public static bool MatchesProjectListFilter(RunRecord run, string projectSlug)
     {
         ArgumentNullException.ThrowIfNull(run);
