@@ -101,6 +101,5 @@ describe("BaselineSettingsClient buyer-polished shell (ADA)", () => {
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    vi.unstubAllGlobals();
   });
 });
