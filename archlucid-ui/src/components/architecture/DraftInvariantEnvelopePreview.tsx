@@ -39,19 +39,12 @@ export function DraftInvariantEnvelopePreview(
     else if (next === "intent") {
       setDraftValue(props.baselineIntent);
     }
-    else {
-      setDraftValue("3");
-    }
-  }
-
   const baseline =
     field === "outcome"
       ? props.baselineOutcome
       : field === "intent"
         ? props.baselineIntent
-        : "3 seconds";
-
-  const changed = draftValue.trim() !== baseline.trim();
+        : "3";
 
   return (
     <section
