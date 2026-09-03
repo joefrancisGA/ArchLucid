@@ -103,7 +103,10 @@ public static class GraphSnapshotCommittedReuseResolver
         string? storedContextFingerprint = ReadContextProperty(graph, ContextCanonicalFingerprintKey);
 
         if (string.IsNullOrEmpty(storedContextFingerprint)
-            || !string.Equals(storedContextFingerprint, expectedContextFingerprint, StringComparison.Ordinal))
+            || !string.Equals(
+                storedContextFingerprint.Trim(),
+                expectedContextFingerprint.Trim(),
+                StringComparison.Ordinal))
         {
             return false;
         }
@@ -113,7 +116,10 @@ public static class GraphSnapshotCommittedReuseResolver
         string? storedModelFingerprint = ReadContextProperty(graph, KnowledgeModelFingerprintKey);
 
         if (string.IsNullOrEmpty(storedModelFingerprint)
-            || !string.Equals(storedModelFingerprint, expectedModelFingerprint, StringComparison.Ordinal))
+            || !string.Equals(
+                storedModelFingerprint.Trim(),
+                expectedModelFingerprint.Trim(),
+                StringComparison.Ordinal))
         {
             return false;
         }

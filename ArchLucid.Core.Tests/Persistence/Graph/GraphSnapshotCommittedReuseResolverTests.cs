@@ -31,7 +31,7 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
             graphId,
             contextSnapshot,
             knowledgeModel,
-            $" {architectureVersionId} ");
+            architectureVersionIdValue: $" {architectureVersionId} ");
 
         Mock<IGraphSnapshotRepository> repo = new();
         ScopeContext scope = new()
@@ -106,6 +106,87 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
         result!.ResolutionMode.Should().Be("reused_from_run_header");
     }
 
+    [Fact]
+    public async Task TryResolveAsync_reuses_graph_when_context_fingerprint_has_outer_whitespace()
+    {
+        Guid runId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        ContextSnapshot contextSnapshot = BuildContextSnapshot(contextId);
+        ArchitectureKnowledgeModel knowledgeModel = BuildKnowledgeModel();
+        string expectedFingerprint = GraphSnapshotCanonicalFingerprint.Compute(contextSnapshot);
+        GraphSnapshot stored = BuildGraphWithContextPins(
+            contextId,
+            runId,
+            graphId,
+            contextSnapshot,
+            knowledgeModel,
+            contextFingerprint: $" {expectedFingerprint} ");
+
+        Mock<IGraphSnapshotRepository> repo = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        repo.Setup(r => r.GetByIdAsync(scope, graphId, It.IsAny<CancellationToken>())).ReturnsAsync(stored);
+
+        GraphSnapshotResolutionResult? result = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
+            scope,
+            runId,
+            graphId,
+            contextId,
+            repo.Object,
+            CancellationToken.None,
+            contextSnapshot: contextSnapshot,
+            knowledgeModel: knowledgeModel);
+
+        result.Should().NotBeNull();
+        result!.ResolutionMode.Should().Be("reused_from_run_header");
+    }
+
+    [Fact]
+    public async Task TryResolveAsync_reuses_graph_when_knowledge_model_fingerprint_has_outer_whitespace()
+    {
+        Guid runId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        ContextSnapshot contextSnapshot = BuildContextSnapshot(contextId);
+        ArchitectureKnowledgeModel knowledgeModel = BuildKnowledgeModel();
+        string expectedFingerprint =
+            GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(knowledgeModel);
+        GraphSnapshot stored = BuildGraphWithContextPins(
+            contextId,
+            runId,
+            graphId,
+            contextSnapshot,
+            knowledgeModel,
+            knowledgeModelFingerprint: $" {expectedFingerprint} ");
+
+        Mock<IGraphSnapshotRepository> repo = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        repo.Setup(r => r.GetByIdAsync(scope, graphId, It.IsAny<CancellationToken>())).ReturnsAsync(stored);
+
+        GraphSnapshotResolutionResult? result = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
+            scope,
+            runId,
+            graphId,
+            contextId,
+            repo.Object,
+            CancellationToken.None,
+            contextSnapshot: contextSnapshot,
+            knowledgeModel: knowledgeModel);
+
+        result.Should().NotBeNull();
+        result!.ResolutionMode.Should().Be("reused_from_run_header");
+    }
+
     private static ContextSnapshot BuildContextSnapshot(Guid contextSnapshotId)
     {
         return new ContextSnapshot
@@ -149,14 +230,17 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
         Guid graphId,
         ContextSnapshot contextSnapshot,
         ArchitectureKnowledgeModel knowledgeModel,
-        string? architectureVersionIdValue,
-        string? policyPackPinsHash = null)
+        string? architectureVersionIdValue = null,
+        string? policyPackPinsHash = null,
+        string? contextFingerprint = null,
+        string? knowledgeModelFingerprint = null)
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
         {
-            ["contextCanonicalFingerprint"] = GraphSnapshotCanonicalFingerprint.Compute(contextSnapshot),
-            ["knowledgeModelFingerprint"] =
-                GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(knowledgeModel),
+            ["contextCanonicalFingerprint"] = contextFingerprint
+                ?? GraphSnapshotCanonicalFingerprint.Compute(contextSnapshot),
+            ["knowledgeModelFingerprint"] = knowledgeModelFingerprint
+                ?? GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(knowledgeModel),
         };
 
         if (architectureVersionIdValue is not null)

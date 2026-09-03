@@ -1881,11 +1881,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 129
-- **bugs-found:** 245
+- **hunts:** 130
+- **bugs-found:** 247
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `IsMonthlyMeter` `NonMonthly` false positive; graph pin hash whitespace blocked reuse
+- **last-bug:** 2026-09-03 — `hrs` substring false positive; graph context/km fingerprint whitespace blocked reuse
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1952,6 +1952,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GraphSnapshotCommittedReuseResolver.PinFingerprintMatchesHeader` / `PinStringPropertyMatches` — padded pin hash properties blocked committed graph reuse — **hit 2026-09-03 (#644):** `architectureVersionId` already trimmed in #630 but `policyPackPinsHashSha256Hex` and sibling pin fingerprints compared raw stored text; whitespace-padded graph context properties failed observational equality despite matching run header pins; fixed with `.Trim()` on stored pin strings (`TryResolveAsync_reuses_graph_when_policy_pack_pins_hash_has_outer_whitespace`).
 
 2026-09-03 seed hunt #644: reseeded from `AzureRetailPricesSkuMatchers` and `GraphSnapshotCommittedReuseResolver`; proved `NonMonthly` month-token false positive and pin-hash trim parity gap.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — bare `hrs` substring false-positive on `1 Purchrs` — **hit 2026-09-03 (#645):** unbounded `Contains("hrs")` matched non-hourly unit-of-measure after #533 bounded `/hr` and hour-word token fixes; inflated consumption SKU hourly cost estimates; fixed with bounded ` hrs` token and standalone `hrs` synonym (`LooksLikeConsumptionUsd_rejects_purchrs_unit_of_measure_false_positive`).
+
+- [x] (proven) `GraphSnapshotCommittedReuseResolver.IsObservationallyEqual` — padded `contextCanonicalFingerprint` / `knowledgeModelFingerprint` blocked committed graph reuse — **hit 2026-09-03 (#645):** pin-hash trim landed in #644 but context and KM fingerprint compares stayed raw; whitespace-padded graph context properties failed observational equality; fixed with bilateral `.Trim()` on stored and expected fingerprints (`TryResolveAsync_reuses_graph_when_context_fingerprint_has_outer_whitespace`, `TryResolveAsync_reuses_graph_when_knowledge_model_fingerprint_has_outer_whitespace`).
+
+2026-09-03 seed hunt #645: reseeded from `GraphSnapshotCommittedReuseResolver` after #644 pin-hash trim; proved context/KM fingerprint trim parity gap and `hrs` substring false positive.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
