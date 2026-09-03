@@ -1896,10 +1896,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #604: proved null failure-summary schemaVersion gap; re-disproved Application-layer candidate.
 
-- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — boolean / string-boolean `schemaVersion` rejected — **hit 2026-09-03 (#611):** `{"schemaVersion":true,...}` and `"schemaVersion":"true"` failed after #600–#604 numeric/string coercion fixes while sibling `AzureExtractorPackageZipValidator` already maps boolean tokens to v1; pipeline dead-letter runs showed not dead-lettered; fixed with validator-parity boolean coercion (`IsDeadLettered_returns_true_for_boolean_true_schema_version`, `IsDeadLettered_returns_true_for_string_encoded_boolean_true_schema_version`).
-- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — PascalCase `FailureClass` property name missed — case-insensitive property lookup already reads `FailureClass`; regression `IsDeadLettered_returns_true_for_PascalCase_failure_class_property_name`.
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` — boolean / `on` synonym `schemaVersion` JSON tokens rejected — **hit 2026-09-03 (#616):** `{"schemaVersion":true,"failureClass":"PipelineDeadLetter"}` and `"schemaVersion":"on"` failed after #600 string/number coercion while sibling readers already accept boolean synonyms; fixed with `TryParseBooleanString` and `JsonValueKind.True`/`False` handling (`IsDeadLettered_returns_true_for_boolean_true_schema_version`, `IsDeadLettered_returns_true_for_on_synonym_string_schema_version`).
 
-2026-09-03 seed hunt #611: reseeded dead-letter JSON coercion after #604; proved boolean schemaVersion gap; disproved PascalCase property-name candidate.
+2026-09-03 seed hunt #616: reseeded from `RunAuthorityPipelineDeadLetterDetection`; proved boolean / on-off synonym schemaVersion parity gap after #604 null-token fix.
+
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — PascalCase `FailureClass` property name missed — case-insensitive property lookup already reads `FailureClass`; regression `IsDeadLettered_returns_true_for_PascalCase_failure_class_property_name`.
 
 - [ ] (candidate) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"true"` / boolean `true` schemaVersion at current version not idempotent upgrade path — validator accepts but upgrader may treat as legacy zero; cheap-disproof before repro.
 - [ ] (candidate) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` — decimal IPv4 literals (`3232235777`) bypass host-literal guard — `TryParse` may not accept; verify before repro.
