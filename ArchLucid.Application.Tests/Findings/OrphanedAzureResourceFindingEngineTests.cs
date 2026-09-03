@@ -1,7 +1,9 @@
 using System.IO.Compression;
 using System.Text;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
@@ -45,9 +47,9 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             ]
             """;
 
-        OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+        (OrphanedAzureResourceFindingEngine sut, FindingAnalysisContext context) = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("OrphanedAzureResource");
@@ -91,9 +93,9 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             ],
         };
 
-        OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+        (OrphanedAzureResourceFindingEngine sut, FindingAnalysisContext context) = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].RelatedNodeIds.Should().ContainSingle().Which.Should().Be("topology-disk-1");
@@ -116,9 +118,9 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             ]
             """;
 
-        OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+        (OrphanedAzureResourceFindingEngine sut, FindingAnalysisContext context) = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(3);
@@ -154,10 +156,10 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             ]
             """;
 
-        OrphanedAzureResourceFindingEngine sut = CreateSut(
+        (OrphanedAzureResourceFindingEngine sut, FindingAnalysisContext context) = CreateSut(
             CreatePackageWithOrphanCandidates(orphanCandidatesJson, resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Payload.Should().BeOfType<ExtractorOrphanCandidateFindingPayload>();
@@ -179,10 +181,10 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             ]
             """;
 
-        OrphanedAzureResourceFindingEngine sut = CreateSut(
+        (OrphanedAzureResourceFindingEngine sut, FindingAnalysisContext context) = CreateSut(
             CreatePackageWithOrphanCandidates("[]", resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].Payload.Should().BeOfType<RequirementFindingPayload>();
@@ -203,9 +205,9 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             ]
             """;
 
-        OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+        (OrphanedAzureResourceFindingEngine sut, FindingAnalysisContext context) = CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -213,13 +215,8 @@ public sealed class OrphanedAzureResourceFindingEngineTests
     [Fact]
     public async Task AnalyzeAsync_returns_empty_when_inventory_collection_is_stale()
     {
+        Guid packageId = Guid.NewGuid();
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
-        packageRepository
-            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(DateTime.UtcNow.AddDays(-120));
-        packageRepository
-            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreatePackage("[]"));
 
         OrphanedAzureResourceFindingEngine sut = new(
             CreateScopeProvider().Object,
@@ -227,24 +224,27 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        FindingAnalysisContext context = EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(
+            packageId,
+            DateTime.UtcNow.AddDays(-120));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().BeEmpty();
         packageRepository.Verify(
-            repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()),
+            repo => repo.TryGetDownloadByPackageIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     [Fact]
-    public async Task AnalyzeAsync_returns_empty_when_package_missing()
+    public async Task AnalyzeAsync_throws_ConflictException_when_pinned_package_missing()
     {
+        Guid packageId = Guid.NewGuid();
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository
             .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync(DateTime.UtcNow);
-        packageRepository
-            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AzureExtractorPackageDownloadRecord?)null);
+        EffectfulFindingEngineTestSupport.SetupAzurePinnedDownloadMissing(packageRepository, TestScope, packageId);
 
         OrphanedAzureResourceFindingEngine sut = new(
             CreateScopeProvider().Object,
@@ -252,17 +252,19 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        FindingAnalysisContext context = EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(packageId);
 
-        findings.Should().BeEmpty();
+        Func<Task> act = () => sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>();
     }
 
     [Fact]
     public async Task AnalyzeAsync_returns_empty_when_resources_json_missing()
     {
-        OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackageWithoutResourcesJson());
+        (OrphanedAzureResourceFindingEngine sut, FindingAnalysisContext context) = CreateSut(CreatePackageWithoutResourcesJson());
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
@@ -277,28 +279,31 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             PackageBytes = [0x00, 0x01, 0x02, 0x03],
         };
 
-        OrphanedAzureResourceFindingEngine sut = CreateSut(package);
+        (OrphanedAzureResourceFindingEngine sut, FindingAnalysisContext context) = CreateSut(package);
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
 
-    private static OrphanedAzureResourceFindingEngine CreateSut(AzureExtractorPackageDownloadRecord package)
+    private static (OrphanedAzureResourceFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
+        AzureExtractorPackageDownloadRecord package)
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository
             .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync(DateTime.UtcNow);
-        packageRepository
-            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(package);
+        EffectfulFindingEngineTestSupport.SetupAzurePinnedDownload(packageRepository, TestScope, package);
 
-        return new OrphanedAzureResourceFindingEngine(
+        FindingAnalysisContext context = EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(package.PackageId);
+
+        OrphanedAzureResourceFindingEngine engine = new(
             CreateScopeProvider().Object,
             packageRepository.Object,
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        return (engine, context);
     }
 
     private static Mock<IScopeContextProvider> CreateScopeProvider()

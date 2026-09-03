@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
@@ -46,9 +47,10 @@ public sealed class AwsCostRecommendationFindingEngineTests
             }
             """;
 
-        AwsCostRecommendationFindingEngine sut = CreateSut(CreatePackage("advisor-cost.json", costJson));
+        (AwsCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage("advisor-cost.json", costJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("AwsCostRecommendation");
@@ -77,9 +79,10 @@ public sealed class AwsCostRecommendationFindingEngineTests
             }
             """;
 
-        AwsCostRecommendationFindingEngine sut = CreateSut(CreatePackage("cost-recommendations.json", costJson));
+        (AwsCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage("cost-recommendations.json", costJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         ((AdvisorCostRecommendationFindingPayload)findings[0].Payload!).ExtractorArtifactFileName
@@ -90,14 +93,16 @@ public sealed class AwsCostRecommendationFindingEngineTests
     [Fact]
     public async Task AnalyzeAsync_returns_empty_when_cost_json_missing()
     {
-        AwsCostRecommendationFindingEngine sut = CreateSut(CreatePackage("manifest.json", "{}"));
+        (AwsCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage("manifest.json", "{}"));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
 
-    private static AwsCostRecommendationFindingEngine CreateSut(CloudInventoryExtractorPackageDownloadRecord package)
+    private static (AwsCostRecommendationFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
+        CloudInventoryExtractorPackageDownloadRecord package)
     {
         Mock<ICloudInventoryExtractorPackageRepository> packageRepository = new();
         packageRepository
@@ -106,21 +111,25 @@ public sealed class AwsCostRecommendationFindingEngineTests
                 CloudProvider.Aws,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(DateTime.UtcNow);
-        packageRepository
-            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(
-                TestScope,
-                CloudProvider.Aws,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(package);
+        EffectfulFindingEngineTestSupport.SetupCloudPinnedDownload(
+            packageRepository,
+            TestScope,
+            CloudProvider.Aws,
+            package);
+
+        FindingAnalysisContext context =
+            EffectfulFindingEngineTestSupport.CreateCloudPinnedContext(CloudProvider.Aws, package.PackageId);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
 
-        return new AwsCostRecommendationFindingEngine(
+        AwsCostRecommendationFindingEngine engine = new(
             scopeProvider.Object,
             packageRepository.Object,
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        return (engine, context);
     }
 
     private static CloudInventoryExtractorPackageDownloadRecord CreatePackage(string entryName, string content)

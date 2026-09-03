@@ -21,8 +21,8 @@ type Props = {
 
 export function DemoExplainStatusBanner(props: Props) {
   const payload = props.payload;
-  const statusTag = resolveDemoExplainStatusTag(payload.isDemoData ?? false, payload.demoStatusMessage ?? "");
-  const generatedLabel = formatDemoExplainGeneratedLabel(payload.generatedUtc ?? "");
+  const statusTag = resolveDemoExplainStatusTag(payload.isDemoData, payload.demoStatusMessage);
+  const generatedLabel = formatDemoExplainGeneratedLabel(payload.generatedUtc);
 
   return (
     <div
@@ -57,7 +57,7 @@ export function DemoExplainStatusBanner(props: Props) {
             >
               {payload.runId}
             </code>
-            <CopyIdButton value={payload.runId ?? ""} aria-label="Copy review ID" />
+            <CopyIdButton value={payload.runId} aria-label="Copy review ID" />
           </dd>
           {payload.manifestVersion ? (
             <>

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -6,10 +6,6 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpServiceNowIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpServiceNowIntegrationGuideView";
-import {
-  expectClaimDisciplineBandContent,
-  expectClaimDisciplineHeading,
-} from "@/lib/claim-discipline-test-helpers";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID,
@@ -22,7 +18,6 @@ import {
 } from "@/lib/servicenow-integration-help-guide-content";
 import {
   SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE,
-  SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   SERVICENOW_INTEGRATION_HELP_SOURCES,
 } from "@/lib/servicenow-integration-help-evidence-copy";
 import { SERVICENOW_INTEGRATION_PAGE_TITLE } from "@/lib/servicenow-integration-page-copy";
@@ -33,7 +28,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("HelpServiceNowIntegrationGuideView", () => {
   const entry = getProductDocumentationEntry("servicenow-integration");
 
-  it("renders provenance, breadcrumb, start-here card, readingBody, TOC, and deduped follow-ups", () => {
+  it("renders provenance, start-here card, readingBody, header claim discipline, and deduped follow-ups", () => {
     if (entry === undefined) {
       throw new Error("Expected servicenow-integration documentation entry.");
     }
@@ -57,27 +52,11 @@ describe("HelpServiceNowIntegrationGuideView", () => {
     );
     expect(screen.queryByTestId("help-servicenow-integration-connection-precondition-tag")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-servicenow-integration-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
-    expect(screen.getByTestId("help-servicenow-integration-claim-discipline-strip")).toHaveTextContent(
+    expect(screen.getByTestId("help-servicenow-integration-header-claim-discipline")).toHaveTextContent(
       SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE,
     );
-    expectClaimDisciplineBandContent(
-      screen,
-      "help-servicenow-integration",
-      "help-servicenow-integration-claim-discipline",
-      SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE.slice(0, 40),
-    );
-    expectClaimDisciplineHeading(
-      screen,
-      "help-servicenow-integration",
-      SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
-      SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID,
-    );
-    expect(screen.getByRole("link", { name: SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.label })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
-      "href",
-      SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.href,
-    );
-    expect(screen.getAllByRole("link", { name: SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
+    expect(screen.queryByTestId("help-servicenow-integration-claim-discipline-strip")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveLength(2);
     expect(
       screen.getByRole("heading", { level: 2, name: SERVICENOW_INTEGRATION_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
@@ -86,10 +65,12 @@ describe("HelpServiceNowIntegrationGuideView", () => {
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Integration readiness" })).not.toBeInTheDocument();
 
+    const sourcesSection = screen.getByTestId("help-servicenow-integration-sources");
+
     for (const source of SERVICENOW_INTEGRATION_HELP_SOURCES) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
 
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
     expect(screen.getByRole("link", { name: "Read Integration readiness help" })).toHaveAttribute(

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AdvisoryScansHelpClaimDisciplineStrip } from "@/components/help/AdvisoryScansHelpClaimDisciplineStrip";
 import { AdvisoryScansHelpEvidenceOrientationStrip } from "@/components/help/AdvisoryScansHelpEvidenceOrientationStrip";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -125,10 +126,16 @@ function AdvisoryScansTroubleshootingList(): React.ReactElement {
     <ul className="m-0 list-none space-y-2 p-0" data-testid="help-advisory-scans-troubleshooting">
       {ADVISORY_SCANS_HELP_TROUBLESHOOTING.map((item: AdvisoryScansHelpTroubleshootingItem) => (
         <li key={item.issue}>
-          <div className={cn(DESIGN_TOKENS.surface.card, "p-3")}>
-            <h4 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          <details className={cn(DESIGN_TOKENS.surface.card, "group p-3")}>
+            <summary
+              className={cn(
+                "flex cursor-pointer list-none items-center gap-2 font-semibold text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
+                OPERATOR_TYPOGRAPHY.cardTitle,
+              )}
+            >
+              <DisclosureTriangleIndicator />
               {item.issue}
-            </h4>
+            </summary>
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
               {item.resolution}
               {item.href !== undefined && item.linkLabel !== undefined ? (
@@ -141,7 +148,7 @@ function AdvisoryScansTroubleshootingList(): React.ReactElement {
                 </>
               ) : null}
             </p>
-          </div>
+          </details>
         </li>
       ))}
     </ul>

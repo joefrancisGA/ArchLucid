@@ -12,4 +12,18 @@ public sealed class CommittedEffectiveGovernanceSnapshotCaptureOptions
         get;
         init;
     }
+
+    /// <summary>Wave-11 suggestion 109: focused pilot mode from create-time run header pins.</summary>
+    public bool? PinnedFocusedPilotModeEnabled
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Wave-11 suggestion 109: focused pilot cloud provider from create-time run header pins.</summary>
+    public int? PinnedFocusedPilotCloudProvider
+    {
+        get;
+        init;
+    }
 }

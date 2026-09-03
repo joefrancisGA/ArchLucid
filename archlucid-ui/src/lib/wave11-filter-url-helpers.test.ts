@@ -319,4 +319,3 @@ describe("wave14 filter url helpers", () => {
     expect(helpHubSearchHrefFromSearch("tab=guides", "export")).toBe("/help?tab=guides&q=export");
   });
 });
-

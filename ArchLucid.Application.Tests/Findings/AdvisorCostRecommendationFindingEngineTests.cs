@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
@@ -46,9 +47,10 @@ public sealed class AdvisorCostRecommendationFindingEngineTests
             }
             """;
 
-        AdvisorCostRecommendationFindingEngine sut = CreateSut(CreatePackage(advisorCostJson));
+        (AdvisorCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage(advisorCostJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("AdvisorCostRecommendation");
@@ -60,31 +62,35 @@ public sealed class AdvisorCostRecommendationFindingEngineTests
     [Fact]
     public async Task AnalyzeAsync_returns_empty_when_advisor_cost_json_missing()
     {
-        AdvisorCostRecommendationFindingEngine sut = CreateSut(CreatePackageWithoutAdvisorCost());
+        (AdvisorCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackageWithoutAdvisorCost());
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().BeEmpty();
     }
 
-    private static AdvisorCostRecommendationFindingEngine CreateSut(AzureExtractorPackageDownloadRecord package)
+    private static (AdvisorCostRecommendationFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
+        AzureExtractorPackageDownloadRecord package)
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository
             .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync(DateTime.UtcNow);
-        packageRepository
-            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(package);
+        EffectfulFindingEngineTestSupport.SetupAzurePinnedDownload(packageRepository, TestScope, package);
+
+        FindingAnalysisContext context = EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(package.PackageId);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
 
-        return new AdvisorCostRecommendationFindingEngine(
+        AdvisorCostRecommendationFindingEngine engine = new(
             scopeProvider.Object,
             packageRepository.Object,
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        return (engine, context);
     }
 
     private static AzureExtractorPackageDownloadRecord CreatePackage(string advisorCostJson)

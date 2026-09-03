@@ -13,6 +13,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -70,6 +71,10 @@ public sealed class RunFindingsQueryService(
                 ProblemDetail = $"Run '{runId}' has no findings snapshot."
             };
         }
+
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+            AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run),
+            runId);
 
         bool orderByPriority = RunFindingsListResponseBuilder.IsPriorityOrder(orderBy);
         int pageTake = take ?? FindingPagination.DefaultTake;

@@ -1,4 +1,5 @@
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
@@ -54,7 +55,8 @@ public sealed class AuthorityPipelineGraphStage(
             cancellationToken,
             context.ContextSnapshot,
             await TryLoadKnowledgeModelAsync(context.Scope, run.RunId, cancellationToken),
-            run.ArchitectureVersionId);
+            run.ArchitectureVersionId,
+            run);
 
         if (committedReuse is not null)
         {
@@ -135,7 +137,7 @@ public sealed class AuthorityPipelineGraphStage(
 
         await _stagePersistence.SaveGraphAsync(graphSnapshot, context.Scope, context.UnitOfWork, cancellationToken);
 
-        StampGraphObservationFingerprints(context.ContextSnapshot!, knowledgeModel, graphSnapshot);
+        StampGraphObservationFingerprints(context.ContextSnapshot!, knowledgeModel, graphSnapshot, run);
 
         run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
         await _stagePersistence.UpdateRunAsync(run, context.UnitOfWork, cancellationToken);
@@ -157,7 +159,8 @@ public sealed class AuthorityPipelineGraphStage(
     private static void StampGraphObservationFingerprints(
         ContextSnapshot contextSnapshot,
         ArchitectureKnowledgeModel? knowledgeModel,
-        GraphSnapshot graphSnapshot)
+        GraphSnapshot graphSnapshot,
+        RunRecord runHeader)
     {
         GraphNode? contextNode = graphSnapshot.Nodes
             .FirstOrDefault(node => string.Equals(node.NodeType, "ContextSnapshot", StringComparison.OrdinalIgnoreCase));
@@ -174,6 +177,59 @@ public sealed class AuthorityPipelineGraphStage(
         {
             contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.KnowledgeModelFingerprint] =
                 GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(knowledgeModel);
+        }
+
+        string? policyHashHex = RunHeaderPinFingerprint.ToHexOrNull(runHeader.PinnedPolicyPackIdsHashSha256);
+
+        if (policyHashHex is not null)
+        {
+            contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.PolicyPackPinsHashSha256Hex] =
+                policyHashHex;
+        }
+
+        string? evidenceHashHex = RunHeaderPinFingerprint.ToHexOrNull(runHeader.PinnedEvidencePackagePinsHashSha256);
+
+        if (evidenceHashHex is not null)
+        {
+            contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.EvidencePackagePinsHashSha256Hex] =
+                evidenceHashHex;
+        }
+
+        string? architectureVersionHashHex =
+            RunHeaderPinFingerprint.ToHexOrNull(runHeader.PinnedArchitectureVersionContentHashSha256);
+
+        if (architectureVersionHashHex is not null)
+        {
+            contextNode.Properties[
+                    ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.ArchitectureVersionContentHashSha256Hex] =
+                architectureVersionHashHex;
+        }
+
+        string? knowledgeModelHashHex =
+            RunHeaderPinFingerprint.ToHexOrNull(runHeader.PinnedKnowledgeModelContentHashSha256);
+
+        if (knowledgeModelHashHex is not null)
+        {
+            contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.KnowledgeModelContentHashSha256Hex] =
+                knowledgeModelHashHex;
+        }
+
+        string? focusedPilotMode = RunHeaderFocusedPilotPinFingerprint.FormatModeEnabled(
+            runHeader.PinnedFocusedPilotModeEnabled);
+
+        if (focusedPilotMode is not null)
+        {
+            contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.FocusedPilotModeEnabled] =
+                focusedPilotMode;
+        }
+
+        string? focusedPilotCloudProvider = RunHeaderFocusedPilotPinFingerprint.FormatCloudProvider(
+            runHeader.PinnedFocusedPilotCloudProvider);
+
+        if (focusedPilotCloudProvider is not null)
+        {
+            contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.FocusedPilotCloudProvider] =
+                focusedPilotCloudProvider;
         }
     }
 }

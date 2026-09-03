@@ -3,7 +3,6 @@ import {
   SERVICENOW_INTEGRATION_CANONICAL_PATH,
   SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL,
 } from "@/lib/servicenow-integration-evidence-copy";
-import { SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/servicenow-integration-help-evidence-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE = "ServiceNow integration";
 
@@ -18,6 +17,7 @@ export const SERVICENOW_INTEGRATION_HELP_OVERVIEW =
 export const SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION = {
   label: "Open ServiceNow integration",
   href: SERVICENOW_INTEGRATION_CANONICAL_PATH,
+  testId: "help-servicenow-integration-open-workspace",
 } as const;
 
 export const SERVICENOW_INTEGRATION_HELP_START_HERE_CARD_TITLE = "Start here";
@@ -64,10 +64,5 @@ export const SERVICENOW_INTEGRATION_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHe
   { level: 2, id: "what-servicenow-integration-does", title: "What ServiceNow integration does" },
   { level: 2, id: "before-you-connect", title: SERVICENOW_INTEGRATION_HELP_BEFORE_YOU_CONNECT_TITLE },
   { level: 2, id: "how-servicenow-integration-works", title: SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL },
-  {
-    level: 2,
-    id: SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID,
-    title: SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
-  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

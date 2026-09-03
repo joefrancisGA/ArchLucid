@@ -55,7 +55,7 @@ export function PreferencesSaveChecklist(props: PreferencesSaveChecklistProps): 
               data-testid={`${props.testIdPrefix}-setup-step-${step.id}`}
             >
               <a
-                href={`#${step.anchorId}`}
+                href={`#${step.anchorId ?? step.id}`}
                 className={cn(
                   OPERATOR_LINK.inline,
                   "min-h-6 flex-1 text-left",

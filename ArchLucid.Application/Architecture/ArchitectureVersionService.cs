@@ -117,6 +117,7 @@ public sealed class ArchitectureVersionService(
             {
                 throw new ConflictException(
                     $"Architecture version pin failed for run '{runId:D}' and architecture version '{architectureVersionId:D}': existing pinned content hash does not match computed artifact hash.");
+            }
 
             return;
         }

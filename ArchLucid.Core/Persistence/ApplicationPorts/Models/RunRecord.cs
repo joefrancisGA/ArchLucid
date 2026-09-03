@@ -118,6 +118,13 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>SHA-256 κ content hash pinned at create (wave-10 suggestion 95).</summary>
+    public byte[]? PinnedKnowledgeModelContentHashSha256
+    {
+        get;
+        set;
+    }
+
     /// <summary>FK logical key to <c>ArchitectureRequests.RequestId</c>.</summary>
     public string? ArchitectureRequestId
     {

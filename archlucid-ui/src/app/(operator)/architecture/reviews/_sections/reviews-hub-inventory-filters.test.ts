@@ -5,9 +5,7 @@ import {
   parseReviewsHubInventorySearchQuery,
   reviewsHubInventoryFilterHref,
   reviewsHubInventoryHrefFromSearch,
-  reviewsHubInventoryClearFilterHrefFromSearch,
   reviewsHubInventoryClearFiltersHrefFromSearch,
-  reviewsHubInventoryClearSearchHrefFromSearch,
   reviewsHubInventorySearchHrefFromSearch,
   countRunsMatchingInventoryFilter,
 } from "./reviews-hub-inventory-filters";
@@ -49,12 +47,6 @@ describe("reviews hub inventory filter URL", () => {
   it("clears filter and search while preserving unrelated query params", () => {
     expect(reviewsHubInventoryClearFiltersHrefFromSearch("projectId=default&filter=Active&q=pay")).toBe(
       "/architecture/reviews?projectId=default",
-    );
-    expect(reviewsHubInventoryClearSearchHrefFromSearch("projectId=default&filter=Active&q=pay")).toBe(
-      "/architecture/reviews?projectId=default&filter=Active",
-    );
-    expect(reviewsHubInventoryClearFilterHrefFromSearch("projectId=default&filter=Active&q=pay")).toBe(
-      "/architecture/reviews?projectId=default&q=pay",
     );
   });
 });

@@ -89,7 +89,8 @@ describe("HelpConfigurationReferenceGuideView", () => {
 
     const appendix = screen.getByTestId("help-configuration-reference-catalog-appendix");
 
-    expect(appendix.tagName.toLowerCase()).toBe("section");
+    expect(appendix.tagName.toLowerCase()).toBe("details");
+    expect(appendix).not.toHaveAttribute("open");
 
     const actionPanel = screen.getByTestId("help-configuration-reference-action-panel");
     const claimStrip = screen.getByTestId("help-configuration-reference-claim-discipline-strip");

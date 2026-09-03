@@ -41,19 +41,15 @@ public sealed class AzureInventorySecurityBaselineFindingEngine(
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        DateTime? collectionUtc = analysisContext?.EvidencePin?.CollectionUtc
-            ?? await _packageRepository
-                .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, ct)
-                .ConfigureAwait(false);
-
-        if (InventoryCollectionFreshnessGate.ShouldSuppressInventoryFindings(
-                collectionUtc,
+        if (EffectfulFindingEngineCollectionFreshness.ShouldSuppressInventoryFindingsForAzure(
+                analysisContext,
                 _clock.GetUtcNow().UtcDateTime,
                 _freshnessOptions.StaleAfterDays))
         {
             return [];
         }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         AzureExtractorPackageDownloadRecord? download =
             await EffectfulFindingEngineEvidenceLoader.TryResolveAzureDownloadAsync(

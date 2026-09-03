@@ -25,7 +25,6 @@ import {
 } from "@/lib/runs/runs-list-search-url";
 import {
   parseRunsListSortFromSearch,
-  runsListSortFromSortOrder,
   sortOrderFromRunsListSort,
 } from "@/lib/runs/runs-list-sort-url";
 

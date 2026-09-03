@@ -7,6 +7,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -45,7 +46,7 @@ import type { useGovernanceOverviewLoadState } from "./use-governance-overview-l
 export type GovernanceOverviewSummaryPanelShellProps = {
   readonly buyerPolishedShell: boolean;
   readonly canMutateWorkflow: boolean;
-  readonly submitDisabledReason: string | null;
+  readonly submitDisabledReason: WhyDisabledCtaReason | null;
   readonly onFocusSubmit: () => void;
   readonly onFocusPending: () => void;
   readonly loadState: ReturnType<typeof useGovernanceOverviewLoadState>["loadState"];

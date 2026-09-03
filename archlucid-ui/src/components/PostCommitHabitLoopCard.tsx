@@ -71,12 +71,25 @@ export function PostCommitHabitLoopCard({
           </div>
         ) : null}
 
-        {loop.optional.length > 0 ? (
+        {pagePrimaryOwnedElsewhere || loop.optional.length > 0 ? (
           <div className="flex flex-col gap-2">
             <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Optional
             </p>
             <ul className="m-0 flex list-none flex-col gap-2 p-0">
+              {pagePrimaryOwnedElsewhere ? (
+                <li key={loop.primary.id}>
+                  <Link
+                    href={loop.primary.href}
+                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                    data-testid="post-commit-habit-primary-as-optional"
+                    title={loop.primary.description}
+                  >
+                    {loop.primary.label}
+                  </Link>
+                  <span className={cn("block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{loop.primary.description}</span>
+                </li>
+              ) : null}
               {loop.optional.map((action) => (
                 <li key={action.id}>
                   <Link

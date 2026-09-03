@@ -1,8 +1,8 @@
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import {
-  CORE_PILOT_HELP_CLOUD_CONNECTIONS_GUIDE_LINK,
-  CORE_PILOT_HELP_CLOUD_CONNECTIONS_LINK,
+  CORE_PILOT_HELP_CLOUD_ACTIONS,
   CORE_PILOT_HELP_DEFERRED_ITEMS,
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_OPTIONAL_PATHS_SUMMARY,
@@ -41,29 +41,30 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
       <section aria-labelledby="optional-paths" className="space-y-3" data-testid="core-pilot-optional-paths">
         <PostStepperSectionHeading id="optional-paths">{CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE}</PostStepperSectionHeading>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CORE_PILOT_HELP_OPTIONAL_PATHS_SUMMARY}</p>
-        <div className="space-y-6" data-testid="core-pilot-optional-paths-disclosure">
+        <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-optional-paths-disclosure">
+          <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Show optional cloud, evidence-only, and later topics
+          </summary>
+          <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-6")}>
             <div className="space-y-3" data-testid="core-pilot-cloud-actions">
               <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Cloud connectors</h3>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                Connect Azure, AWS, or GCP when the review needs live inventory, configuration, identity, policy, cost,
-                or operational signals. Optional read-only connections for Azure, AWS, or GCP are available when live
-                inventory is needed — open{" "}
-                <Link
-                  href={CORE_PILOT_HELP_CLOUD_CONNECTIONS_LINK.href}
-                  className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}
-                >
-                  {CORE_PILOT_HELP_CLOUD_CONNECTIONS_LINK.label}
-                </Link>{" "}
-                to configure a provider. You can run an evidence-only review first, then connect a provider later when
-                source-system evidence is required. Share the{" "}
-                <Link
-                  href={CORE_PILOT_HELP_CLOUD_CONNECTIONS_GUIDE_LINK.href}
-                  className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}
-                >
-                  {CORE_PILOT_HELP_CLOUD_CONNECTIONS_GUIDE_LINK.label}
-                </Link>{" "}
-                with your security team before enabling read-only access.
+                {CORE_PILOT_HELP_DISCLOSURE.whenToUseCloudConnectors.body}
               </p>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {CORE_PILOT_HELP_CLOUD_ACTIONS.map((action) => (
+                  <div
+                    key={action.title}
+                    className="flex h-full flex-col space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                  >
+                    <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>{action.title}</p>
+                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.description}</p>
+                    <Button asChild size="sm" variant="outline" className="mt-auto w-fit">
+                      <Link href={action.href}>{action.ctaLabel}</Link>
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div
@@ -117,7 +118,8 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
                 {CORE_PILOT_HELP_DISCLOSURE.whatCanWaitUntilLater.body}
               </p>
             </div>
-        </div>
+          </div>
+        </details>
       </section>
     </>
   );

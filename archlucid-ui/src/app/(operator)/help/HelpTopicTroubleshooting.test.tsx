@@ -109,7 +109,7 @@ describe("HelpTroubleshootingGuideView", () => {
     );
   });
 
-  it("renders common issues with full detail and filters by sign-in", () => {
+  it("renders accordion issues with expand affordance and filters by sign-in", () => {
     if (entry === undefined) {
       throw new Error("Expected troubleshooting documentation entry.");
     }
@@ -122,7 +122,7 @@ describe("HelpTroubleshootingGuideView", () => {
       "href",
       "/help/evidence-intake",
     );
-    expect(evidenceIssue.querySelector("svg")).toBeNull();
+    expect(evidenceIssue.querySelector("svg")).not.toBeNull();
 
     fireEvent.change(screen.getByTestId("troubleshooting-issue-filter"), {
       target: { value: "sign in" },

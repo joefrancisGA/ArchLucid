@@ -4,7 +4,7 @@ import type { RunDetailPageModel } from "./run-detail-page-model";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import {
   BeforeAfterDeltaPanelDeferred,
-  RunDetailCompareToBaselineCta,
+  RunDetailCompareToBaselineCtaDeferred,
   RunDetailGovernanceCtaDeferred,
   RunDetailGovernanceDecisionSectionDeferred,
   RunDetailWhatIfBranchCompareBannerDeferred,
@@ -82,7 +82,7 @@ export function composeRunDetailGovernanceTab(
         </Suspense>
       ) : null}
       {!m.buyerPolishedArtifactTable ? (
-        <RunDetailCompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
+        <RunDetailCompareToBaselineCtaDeferred currentRunId={m.resolvedDetail.run.runId} />
       ) : null}
       {m.manifestId && !m.buyerPolishedArtifactTable ? (
         <BeforeAfterDeltaPanelDeferred variant="inline" runId={m.routeRunId} />

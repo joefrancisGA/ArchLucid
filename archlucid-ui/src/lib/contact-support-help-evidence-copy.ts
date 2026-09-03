@@ -1,7 +1,7 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE_HEADING = "Scope of this guide";
+export const CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE =
   "This page routes architects to Report problem, email support, and redacted diagnostics bundles — not a live ticket queue or full audit export.";

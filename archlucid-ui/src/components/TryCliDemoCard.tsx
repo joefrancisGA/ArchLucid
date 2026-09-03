@@ -18,7 +18,7 @@ import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 /** Optional local CLI workflow — collapsed by default on internal developer settings (TB-1898). */
-export function TryCliDemoCard(): React.JSX.Element {
+export function TryCliDemoCard(props: { readonly hideCliHelpLink?: boolean }): React.JSX.Element {
   const commandLine = useMemo(() => buildTryCliDemoCommand(), []);
   const [copied, setCopied] = useState(false);
 
@@ -51,13 +51,15 @@ export function TryCliDemoCard(): React.JSX.Element {
           <Link href={MARKETING_CANONICAL_DEMO_PATH} className={OPERATOR_LINK.nav}>
             Preview in browser
           </Link>
-          <Link
-            href={TRY_CLI_DEMO_CLI_HELP_HREF}
-            className={OPERATOR_LINK.nav}
-            data-testid="try-cli-demo-cli-help-link"
-          >
-            {TRY_CLI_DEMO_CLI_HELP_LABEL}
-          </Link>
+          {props.hideCliHelpLink ? null : (
+            <Link
+              href={TRY_CLI_DEMO_CLI_HELP_HREF}
+              className={OPERATOR_LINK.nav}
+              data-testid="try-cli-demo-cli-help-link"
+            >
+              {TRY_CLI_DEMO_CLI_HELP_LABEL}
+            </Link>
+          )}
         </div>
 
         <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-testid="try-cli-demo-disclosure">

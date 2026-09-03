@@ -36,6 +36,24 @@ public static class ContextGraphPropertyKeys
     /// <summary>Pipe-separated enabled policy pack ids in force for this findings pass.</summary>
     public const string EnabledPolicyPackIds = "enabledPolicyPackIds";
 
+    /// <summary>Uppercase hex SHA-256 over create-time policy pack pin JSON.</summary>
+    public const string PolicyPackPinsHashSha256Hex = "policyPackPinsHashSha256Hex";
+
+    /// <summary>Uppercase hex SHA-256 over create-time evidence package pin JSON.</summary>
+    public const string EvidencePackagePinsHashSha256Hex = "evidencePackagePinsHashSha256Hex";
+
+    /// <summary>Uppercase hex SHA-256 κ artifact hash pinned at create.</summary>
+    public const string ArchitectureVersionContentHashSha256Hex = "architectureVersionContentHashSha256Hex";
+
+    /// <summary>Uppercase hex SHA-256 κ model content hash pinned at create.</summary>
+    public const string KnowledgeModelContentHashSha256Hex = "knowledgeModelContentHashSha256Hex";
+
+    /// <summary>Focused pilot mode pinned at create (wave-11 suggestion 106).</summary>
+    public const string FocusedPilotModeEnabled = "focusedPilotModeEnabled";
+
+    /// <summary>Focused pilot cloud provider pinned at create (wave-11 suggestion 106).</summary>
+    public const string FocusedPilotCloudProvider = "focusedPilotCloudProvider";
+
     /// <summary>Pipe-separated topology categories added by tenant policy packs (additive floor).</summary>
     public const string PolicyExpectedTopologyCategories = "policyExpectedTopologyCategories";
 
