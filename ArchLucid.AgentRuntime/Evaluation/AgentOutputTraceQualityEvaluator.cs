@@ -273,7 +273,9 @@ public static class AgentOutputTraceQualityEvaluator
         CancellationToken cancellationToken,
         AgentEvidencePackage? evidencePackage = null,
         IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker = null,
-        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId = null) =>
+        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId = null,
+        IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator = null,
+        AgentOutputLlmFaithfulnessOptions? llmFaithfulnessOptions = null) =>
         ComputeQualityGateAcceptedForConfidenceAsyncCore(
             trace,
             options,
@@ -283,7 +285,9 @@ public static class AgentOutputTraceQualityEvaluator
             cancellationToken,
             evidencePackage,
             agentResultFaithfulnessChecker,
-            calibratedConfidenceByTaskId);
+            calibratedConfidenceByTaskId,
+            llmFaithfulnessEvaluator,
+            llmFaithfulnessOptions ?? new AgentOutputLlmFaithfulnessOptions());
 
     private static async Task<bool> ComputeQualityGateAcceptedForConfidenceAsyncCore(
         AgentExecutionTrace trace,
@@ -294,7 +298,9 @@ public static class AgentOutputTraceQualityEvaluator
         CancellationToken cancellationToken,
         AgentEvidencePackage? evidencePackage,
         IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker,
-        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId)
+        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId,
+        IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator,
+        AgentOutputLlmFaithfulnessOptions llmFaithfulnessOptions)
     {
         TraceQualityEvaluationResult? result =
             await TryEvaluateTraceAsync(
@@ -306,7 +312,9 @@ public static class AgentOutputTraceQualityEvaluator
                 cancellationToken,
                 evidencePackage,
                 agentResultFaithfulnessChecker,
-                calibratedConfidenceByTaskId: calibratedConfidenceByTaskId).ConfigureAwait(false);
+                llmFaithfulnessEvaluator: llmFaithfulnessEvaluator,
+                calibratedConfidenceByTaskId: calibratedConfidenceByTaskId,
+                llmFaithfulnessOptions: llmFaithfulnessOptions).ConfigureAwait(false);
 
         return result is { GateOutcome: not AgentOutputQualityGateOutcome.Rejected };
     }

@@ -102,7 +102,7 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
-    public void IsDeadLettered_returns_true_for_on_synonym_string_schema_version()
+    public void IsDeadLettered_returns_true_for_string_on_schema_version_synonym()
     {
         const string json = """
             {"schemaVersion":"on","failureClass":"PipelineDeadLetter"}

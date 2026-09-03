@@ -6,22 +6,36 @@ using ArchLucid.Core.Explanation;
 
 using ArchLucid.Persistence.Data.Repositories;
 
+using ArchLucid.Core.Scoping;
+
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <inheritdoc cref="IRunAgentOutputPilotEvidenceAggregator" />
 public sealed class RunAgentOutputPilotEvidenceAggregator(
     IAgentOutputQualityGateOptionsResolver optionsResolver,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IScopeContextProvider scopeContextProvider,
+    IAgentResultRepository agentResultRepository,
     IAgentOutputEvaluator structuralEvaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputQualityGate qualityGate,
-    IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker) : IRunAgentOutputPilotEvidenceAggregator
+    IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
+    IAgentOutputFaithfulnessEvaluator llmFaithfulnessEvaluator,
+    IOptions<AgentOutputLlmFaithfulnessOptions> llmFaithfulnessOptions) : IRunAgentOutputPilotEvidenceAggregator
 {
     private readonly IAgentOutputQualityGateOptionsResolver _optionsResolver =
         optionsResolver ?? throw new ArgumentNullException(nameof(optionsResolver));
 
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
         agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAgentResultRepository _agentResultRepository =
+        agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
     private readonly IAgentResultEvidenceFaithfulnessChecker _agentResultEvidenceFaithfulnessChecker =
         agentResultEvidenceFaithfulnessChecker ??
@@ -35,6 +49,12 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
 
     private readonly IAgentOutputQualityGate _qualityGate =
         qualityGate ?? throw new ArgumentNullException(nameof(qualityGate));
+
+    private readonly IAgentOutputFaithfulnessEvaluator _llmFaithfulnessEvaluator =
+        llmFaithfulnessEvaluator ?? throw new ArgumentNullException(nameof(llmFaithfulnessEvaluator));
+
+    private readonly IOptions<AgentOutputLlmFaithfulnessOptions> _llmFaithfulnessOptions =
+        llmFaithfulnessOptions ?? throw new ArgumentNullException(nameof(llmFaithfulnessOptions));
 
     /// <inheritdoc />
     public async Task<bool> WouldPilotStrictBlockSponsorEvidenceAsync(
@@ -56,6 +76,13 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
             await _agentEvidencePackageRepository.GetByRunIdAsync(traces[0].RunId, cancellationToken)
                 .ConfigureAwait(false);
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentResult> agentResults =
+            await _agentResultRepository.GetByRunIdAsync(scope, traces[0].RunId, cancellationToken).ConfigureAwait(false);
+
+        Dictionary<string, double?> calibratedConfidenceByTaskId =
+            AgentCalibratedConfidenceByTaskIdBuilder.Build(agentResults);
+
         IReadOnlyList<AgentExecutionTrace> tracesForEvaluation =
             AgentExecutionTraceLatestPerTaskSelector.Select(traces);
 
@@ -70,7 +97,10 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
                         _qualityGate,
                         cancellationToken,
                         evidence,
-                        _agentResultEvidenceFaithfulnessChecker)
+                        _agentResultEvidenceFaithfulnessChecker,
+                        llmFaithfulnessEvaluator: _llmFaithfulnessEvaluator,
+                        calibratedConfidenceByTaskId: calibratedConfidenceByTaskId,
+                        llmFaithfulnessOptions: _llmFaithfulnessOptions.Value)
                     .ConfigureAwait(false);
 
             if (evaluated is { GateOutcome: AgentOutputQualityGateOutcome.Rejected })

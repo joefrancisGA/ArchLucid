@@ -40,7 +40,7 @@ public static class TeamsNotificationTriggerCatalog
 
     /// <summary>O(1) membership test backing <see cref="IsKnown" />.</summary>
     private static readonly FrozenSet<string> AllSet =
-        All.ToFrozenSet(StringComparer.Ordinal);
+        All.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Default JSON payload for the SQL column when a tenant has not explicitly chosen \u2014 mirrors the migration
@@ -81,16 +81,15 @@ public static class TeamsNotificationTriggerCatalog
             if (parsed is null || parsed.Length == 0)
                 return All;
 
-            string[] filtered = parsed
+            HashSet<string> filtered = parsed
                 .Select(IntegrationEventTypes.MapToCanonical)
-                .Where(IsKnown)
-                .Distinct(StringComparer.Ordinal)
-                .ToArray();
+                .Where(AllSet.Contains)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            if (filtered.Length == 0)
+            if (filtered.Count == 0)
                 return All;
 
-            return filtered;
+            return All.Where(filtered.Contains).ToArray();
         }
         catch (JsonException)
         {
@@ -109,7 +108,7 @@ public static class TeamsNotificationTriggerCatalog
 
         FrozenSet<string> requested = enabledTriggers
             .Where(IsKnown)
-            .ToFrozenSet(StringComparer.Ordinal);
+            .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
         if (requested.Count == 0)
             return DefaultEnabledTriggersJson;
@@ -126,7 +125,7 @@ public static class TeamsNotificationTriggerCatalog
 
         return enabledTriggers
             .Where(t => !string.IsNullOrWhiteSpace(t) && !IsKnown(t))
-            .Distinct(StringComparer.Ordinal)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
     }
 }

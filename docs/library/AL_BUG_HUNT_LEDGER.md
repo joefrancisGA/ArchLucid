@@ -1102,6 +1102,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-09-03 seed hunt #639 (hit): PUT/PATCH `externalId` conflict check ignored directory-removed rows; tombstoned `externalId` could be reassigned to another active user (SQL unique constraint / silent duplicate); fixed `EnsureExternalIdNotUsedByAnotherUserAsync`; regressions `ReplaceAsync_tombstoned_external_id_throws_conflict` and `PatchAsync_tombstoned_external_id_throws_conflict`.
+
+---
+
 ## Zone: scim-users
 
 - **id:** scim-users
@@ -1110,11 +1114,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 5
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — POST create after DELETE returned 409 on tombstoned externalId
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1130,6 +1134,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) DELETE decremented enterprise seat then leaked it when repository deactivate failed — **hit 2026-08-24:** `DeactivateAsync` had no compensating increment; regression in `DeactivateAsync_restores_seat_when_persistence_fails`
 - [x] (proven) Repeat DELETE on directory-removed user returned success instead of notFound — **hit 2026-08-25:** `DeactivateAsync` omitted `DirectoryRemovedUtc` guard used by GET/PUT/PATCH; second DELETE returned HTTP 204 while GET returned 404; regression in `DeactivateAsync_throws_not_found_when_user_already_directory_removed`
 - [x] (proven) POST create after directory DELETE returned 409 on tombstoned `externalId` instead of reactivating — **hit 2026-08-25:** `CreateAsync` treated directory-removed rows as active duplicates; `UQ_ScimUsers_TenantId_ExternalId` blocks insert; `ReactivateAsync` clears `DirectoryRemovedUtc` and restores profile; regression in `CreateAsync_after_directory_remove_reactivates_same_external_id`
+- [x] (proven) PUT/PATCH changing `externalId` to a directory-removed user's value bypassed conflict check — **hit 2026-09-03:** `EnsureExternalIdNotUsedByAnotherUserAsync` skipped rows with `DirectoryRemovedUtc`; active user could claim tombstoned `externalId` (SQL `UQ_ScimUsers_TenantId_ExternalId` fault or silent in-memory duplicate); regressions in `ReplaceAsync_tombstoned_external_id_throws_conflict` and `PatchAsync_tombstoned_external_id_throws_conflict`
+- [ ] (candidate) PATCH `active:false` on already-inactive user decrements enterprise seat twice — `TransitionSeatAsync` only runs when `wasActive != willBeActive`; cheap-disproof pending
+- [ ] (candidate) SCIM filter `externalId eq` matches directory-removed users in list results — `ListAsync` excludes `DirectoryRemovedUtc`; cheap-disproof pending
 
 ---
 
@@ -1665,6 +1672,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-09-03 thorough hunt #640 (hit): confidence path omitted Phase B LLM faithfulness; engine-type trace fallback used unordered `g.First()`; threaded faithfulness into `ComputeQualityGateAcceptedForConfidenceAsync` and `SelectPreferredTraceForAgentType`.
+
+---
+
+2026-09-03 thorough hunt #641 (hit): pilot sponsor gate omitted calibrated confidence + Phase B LLM faithfulness; confidence enrichment used host gate options instead of tenant resolver.
+
+---
+
 ## Zone: agent-runtime-evaluation
 
 - **id:** agent-runtime-evaluation
@@ -1673,13 +1688,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — confidence enrichment ignored calibrated confidence on semantic reject floor
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — pilot sponsor gate omitted calibrated confidence and Phase B LLM faithfulness
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1691,10 +1706,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) PilotStrict sponsor evidence gate evaluates superseded auto-retry traces — **hit 2026-08-21:** `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` iterated all persisted traces; a rejected first attempt blocked sponsor evidence even when the latest retry passed PilotStrict.
 - [x] (proven) Confidence enrichment ignores PilotStrict faithfulness rejection — **hit 2026-08-23:** `ComputeQualityGateAcceptedForConfidenceAsync` and both confidence enrichers evaluated traces without run evidence/faithfulness, so `schemaPassed` stayed true on outputs PilotStrict would reject for low agent-result faithfulness support.
 - [x] (proven) Confidence enrichment ignores calibrated confidence on semantic reject floor — **hit 2026-08-26:** `ComputeQualityGateAcceptedForConfidenceAsync` omitted `calibratedConfidenceByTaskId`, so high heuristic semantic scores accepted traces the batch recorder rejected when `CalibratedConfidence` was below `SemanticRejectBelow`; fixed by threading calibrated lookup through `AgentEvaluationConfidencePipeline` (`AgentOutputTraceQualityEvaluatorTests.ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor`).
-- [ ] (candidate) `ComputeQualityGateAcceptedForConfidenceAsync` omits Phase B LLM faithfulness enforcement — recorder path passes `llmFaithfulnessEvaluator` / options; confidence path does not.
-- [ ] (candidate) `AgentEvaluationConfidencePipeline.TraceByAgentType` uses unordered `g.First()` — engine-type fallback may inherit wrong trace when multiple same-agent tasks lack trace-id linkage.
+- [x] (proven) `ComputeQualityGateAcceptedForConfidenceAsync` omits Phase B LLM faithfulness enforcement — **hit 2026-09-03:** recorder path passed `llmFaithfulnessEvaluator` / options; confidence path did not; regression in `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_phase_b_llm_faithfulness_below_reject_floor`
+- [x] (proven) `AgentEvaluationConfidencePipeline.TraceByAgentType` uses unordered `g.First()` — **hit 2026-09-03:** engine-type fallback inherited arbitrary trace when multiple same-agent tasks lacked trace-id linkage; fixed with `SelectPreferredTraceForAgentType`; regression in `TryEnrichAsync_engine_type_fallback_prefers_parsed_trace_when_multiple_topology_tasks_exist`
+- [x] (proven) `RunAgentOutputPilotEvidenceAggregator` omits calibrated confidence and Phase B LLM faithfulness — **hit 2026-09-03:** sponsor gate called `TryEvaluateTraceAsync` without `calibratedConfidenceByTaskId` or LLM faithfulness deps; regressions in `WouldPilotStrictBlockSponsorEvidenceAsync_blocks_when_calibrated_confidence_below_semantic_reject_floor` and `..._blocks_when_phase_b_llm_faithfulness_below_reject_floor`
+- [x] (proven) Confidence enrichment ignores tenant `AgentOutputQualityGateMode` override — **hit 2026-09-03:** pipeline used host `IOptions` while recorder uses `IAgentOutputQualityGateOptionsResolver`; regression in `TryEnrichAsync_uses_resolved_tenant_pilot_strict_mode_for_schema_gate`
+- [ ] (candidate) Confidence schema gate uses heuristic-only semantic while recorder uses LLM-judge composite — intentional fast-path tradeoff documented on `HeuristicOnlyAgentOutputSemanticEvaluator`; cheap-disproof pending
 
 2026-08-26 seed hunt #5: proved calibrated-confidence parity gap; reseeded LLM Phase B and engine-type fallback candidates.
+2026-09-03 thorough hunt #640 (hit): confidence path LLM faithfulness + engine-type trace fallback parity.
 
 ---
 
@@ -1866,7 +1885,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 242
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — string-encoded whole-number `schemaVersion` rejected in extractor manifest upgrader
+- **last-bug:** 2026-09-03 — Azure extractor manifest upgrader rejected on/off and 1.0 schemaVersion strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2515,11 +2534,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 69
-- **bugs-found:** 131
+- **hunts:** 70
+- **bugs-found:** 132
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — HCL single-quoted `''` escape not honored in brace scanning or scalar unquote
+- **last-bug:** 2026-09-03 — `/*` inside quoted array-object scalars stripped as block comment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2699,6 +2718,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #605: proved HCL `''` single-quote escape gap; disproved hash-comment mis-parse, tab-indent mismatch, and unescaped lone apostrophe (invalid HCL).
 
+- [x] (proven) `BicepArrayLiteralConverter.TryConsumeBlockComment` — `/*` inside quoted array-object scalars stripped as block comment — **hit 2026-09-03 (#634):** `name = 'Allow /* All'` in inline `ip_security_restrictions` array truncated at `/*`, dropped `ip_address`/`action`, and broke App Service network-rule expander; fixed with quote-aware `/*` detection honoring `''` escapes (`ParseAsync_InlineArrayObjectWithBlockCommentSequenceInsideSingleQuotedName_PreservesFullRuleName`, `ParseAsync_InlineArrayObjectWithBlockCommentSequenceInsideDoubleQuotedName_PreservesFullRuleName`).
+
+- [ ] (candidate) `BicepArrayLiteralConverter.TryParseToJsonElement` — primitive string `ip_security_restrictions` arrays silently dropped — `["0.0.0.0/0"]` yields no `tf.ip_security_restrictions`; may be invalid HCL vs parity gap; cheap-disproof before repro.
+
+2026-09-03 seed hunt #634: reseeded from `BicepArrayLiteralConverter`; proved quote-unaware block-comment strip in inline array-object scalars; seeded primitive-string array candidate.
+
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
 
@@ -2795,7 +2820,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — trial lifecycle email gate rejected lowercase `TrialStatus`
+- **last-bug:** 2026-09-03 — trial lifecycle email/scanner used Ordinal for TrialStatus after Core parity fixes
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2836,6 +2861,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ExecDigestUnsubscribeController` success text copied from sponsor digest — **hit 2026-09-03 (#540):** valid exec-digest unsubscribe returned `"Sponsor digest email has been turned off..."`; fixed copy to `"Exec digest email..."` (`ExecDigestUnsubscribeControllerTests.UnsubscribeAsync_valid_token_disables_email_and_returns_plain_text`).
 - [x] (proven) `FindingRemediationAssignmentEmailDispatcher` accepted malformed assignee mailboxes — **hit 2026-09-03 (#583):** `IsMailboxAddress` only required `@` with index > 0, so `finance@` rendered and sent while digest subscriptions reject via `IdentityEmailNormalizer`; fixed with shared normalizer; regression in `FindingRemediationAssignmentEmailDispatcherTests.TryDispatchAsync_rejects_invalid_assignee_mailbox_without_sending`.
 - [x] (invalid) `WeeklySponsorReportEmailDispatcher` subject capitalizes "Sponsor" while summary email uses lowercase "sponsor" — intentional product copy distinction (`weekly Sponsor report` vs `weekly sponsor summary`); no delivery/idempotency impact.
+- [x] (proven) `TrialLifecycleEmailDispatcher` / `TrialScheduledLifecycleEmailScanner` — lowercase `TrialStatus` not treated as active/converted — **hit 2026-09-03 (#623):** after Core #600/#601 `OrdinalIgnoreCase` parity, notifications pipeline still used `Ordinal` so `trialStatus:"active"` skipped scheduled scans and lifecycle dispatch; fixed with `OrdinalIgnoreCase` (`DispatchAsync_sends_welcome_when_trial_status_is_lowercase_active`, `DispatchAsync_sends_converted_email_when_trial_status_is_lowercase_converted`, `PublishDueAsync_publishes_mid_trial_for_lowercase_active_trial_status`).
+
+2026-09-03 thorough hunt #623: proved trial lifecycle TrialStatus casing gap; cheap-disproved sponsor subject capitalization as copy-only.
+
 - [x] (proven) `TrialLifecycleEmailDispatcher.PassesTriggerGate` — lowercase `TrialStatus` suppresses lifecycle mail — **hit 2026-09-03 (#613):** `trialStatus:"active"` failed `Ordinal` compare against `TrialLifecycleStatus.Active` after #600–#601 fixed sibling Core tenancy helpers; mid-trial/expiring/limit emails silently skipped; fixed with `OrdinalIgnoreCase` for Active/Converted gates (`DispatchAsync_sends_mid_trial_email_when_trial_status_is_lowercase_active`).
 - [x] (invalid) `ExecDigestUnsubscribeController` class XML summary still says sponsor digest — wrong developer-doc `<summary>` on exec controller; user-visible unsubscribe response copy fixed in #540.
 
