@@ -4,10 +4,12 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.GoldenCorpus;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -83,12 +85,36 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             manifest.Should().NotBeNull();
 
-            string actualSha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest);
+            HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
+            await getRunResponse.EnsureSuccessForTestAsync();
+
+            string getRunJson = await getRunResponse.Content.ReadAsStringAsync();
+            using JsonDocument getRunDoc = JsonDocument.Parse(getRunJson);
+            JsonElement runElement = getRunDoc.RootElement.GetProperty("run");
+            RunRecord header = new()
+            {
+                PinnedPolicyPackIdsJson = runElement.TryGetProperty("pinnedPolicyPackIdsJson", out JsonElement policyJson)
+                    ? policyJson.GetString()
+                    : null,
+                PinnedEvidencePackagePinsJson = runElement.TryGetProperty("pinnedEvidencePackagePinsJson", out JsonElement evidenceJson)
+                    ? evidenceJson.GetString()
+                    : null,
+                PinnedEvidencePackagePinsHashSha256 = runElement.TryGetProperty(
+                        "pinnedEvidencePackagePinsHashSha256",
+                        out JsonElement evidenceHash)
+                    && evidenceHash.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(evidenceHash.GetString())
+                    ? Convert.FromHexString(evidenceHash.GetString()!)
+                    : null,
+            };
+
+            GoldenManifestCreateTimePinCommitment? createTimePins =
+                RunHeaderCreateTimePinCommitmentFactory.TryFromRunHeader(header);
+
+            string actualSha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest!, createTimePins);
             string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
 
-            HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
-            await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? runPayload =
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
             runPayload.Should().NotBeNull();

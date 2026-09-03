@@ -16,7 +16,8 @@ internal static partial class RunRepositorySql
                                      RetryCount, LastFailureReason, PackageOrigin, CreatedByUserId,
                                      PinnedPolicyPackIdsJson, PinnedPolicyPackIdsHashSha256,
                                      PinnedEvidencePackagePinsJson, PinnedEvidencePackagePinsHashSha256,
-                                     PinnedFocusedPilotModeEnabled, PinnedFocusedPilotCloudProvider
+                                     PinnedFocusedPilotModeEnabled, PinnedFocusedPilotCloudProvider,
+                                     PinnedArchitectureVersionContentHashSha256
                                  )
                                  OUTPUT inserted.RowVersionStamp INTO @RunInsertOutput
                                  VALUES
@@ -30,7 +31,8 @@ internal static partial class RunRepositorySql
                                      @RetryCount, @LastFailureReason, @PackageOrigin, @CreatedByUserId,
                                      @PinnedPolicyPackIdsJson, @PinnedPolicyPackIdsHashSha256,
                                      @PinnedEvidencePackagePinsJson, @PinnedEvidencePackagePinsHashSha256,
-                                     @PinnedFocusedPilotModeEnabled, @PinnedFocusedPilotCloudProvider
+                                     @PinnedFocusedPilotModeEnabled, @PinnedFocusedPilotCloudProvider,
+                                     @PinnedArchitectureVersionContentHashSha256
                                  );
 
                                  SELECT RowVersionStamp FROM @RunInsertOutput;
@@ -129,7 +131,8 @@ internal static partial class RunRepositorySql
                                      PinnedEvidencePackagePinsJson = @PinnedEvidencePackagePinsJson,
                                      PinnedEvidencePackagePinsHashSha256 = @PinnedEvidencePackagePinsHashSha256,
                                      PinnedFocusedPilotModeEnabled = @PinnedFocusedPilotModeEnabled,
-                                     PinnedFocusedPilotCloudProvider = @PinnedFocusedPilotCloudProvider
+                                     PinnedFocusedPilotCloudProvider = @PinnedFocusedPilotCloudProvider,
+                                     PinnedArchitectureVersionContentHashSha256 = @PinnedArchitectureVersionContentHashSha256
                                  OUTPUT inserted.RowVersionStamp INTO @RunUpdateOutput
                                  WHERE RunId = @RunId
                                    AND TenantId = @TenantId

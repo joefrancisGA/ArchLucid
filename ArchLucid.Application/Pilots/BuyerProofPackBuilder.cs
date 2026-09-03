@@ -5,6 +5,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -83,6 +84,8 @@ public sealed class BuyerProofPackBuilder(
 
         if (detail.Manifest is null || detail.Run.Status != ArchitectureRunStatus.Committed)
             return null;
+
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
         PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

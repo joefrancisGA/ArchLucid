@@ -267,6 +267,7 @@ public sealed class IncompleteAuthorityPipelineExecuteHandlerTests
             requests,
             runs,
             scope.Object,
+            Mock.Of<IRunGovernanceScopePinService>(),
             new RunStateTransitionService(),
             NullLogger<IncompleteAuthorityPipelineExecuteHandler>.Instance);
     }

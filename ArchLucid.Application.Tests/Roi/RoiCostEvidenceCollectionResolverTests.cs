@@ -1,5 +1,8 @@
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
@@ -37,7 +40,8 @@ public sealed class RoiCostEvidenceCollectionResolverTests
             .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(Scope, CloudProvider.Gcp, It.IsAny<CancellationToken>()))
             .ReturnsAsync((CloudInventoryExtractorPackageDownloadRecord?)null);
 
-        RoiCostEvidenceCollectionResolver sut = new(azureRepository.Object, cloudRepository.Object);
+        RoiCostEvidenceCollectionResolver sut =
+            RoiCostEvidenceCollectionResolverTestSupport.Create(azureRepository.Object, cloudRepository.Object);
 
         bool hasPackages = await sut.HasAnyUploadedInventoryPackagesAsync(Scope, CancellationToken.None);
 
@@ -67,7 +71,8 @@ public sealed class RoiCostEvidenceCollectionResolverTests
             .Setup(repo => repo.TryGetLatestProvenanceByRunIdAsync(Scope, runId, CloudProvider.Gcp, It.IsAny<CancellationToken>()))
             .ReturnsAsync((CloudInventoryExtractorPackageProvenance?)null);
 
-        RoiCostEvidenceCollectionResolver sut = new(azureRepository.Object, cloudRepository.Object);
+        RoiCostEvidenceCollectionResolver sut =
+            RoiCostEvidenceCollectionResolverTestSupport.Create(azureRepository.Object, cloudRepository.Object);
 
         DateTime? resolvedUtc = await sut.TryResolveLatestCollectionTimestampUtcAsync(
             Scope,
@@ -97,10 +102,65 @@ public sealed class RoiCostEvidenceCollectionResolverTests
             .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(Scope, CloudProvider.Gcp, It.IsAny<CancellationToken>()))
             .ReturnsAsync(gcpUtc);
 
-        RoiCostEvidenceCollectionResolver sut = new(azureRepository.Object, cloudRepository.Object);
+        RoiCostEvidenceCollectionResolver sut =
+            RoiCostEvidenceCollectionResolverTestSupport.Create(azureRepository.Object, cloudRepository.Object);
 
         DateTime? resolvedUtc = await sut.TryGetLatestCollectionTimestampUtcInScopeAsync(Scope, CancellationToken.None);
 
         resolvedUtc.Should().Be(awsUtc);
+    }
+
+    [Fact]
+    public async Task TryResolveLatestCollectionTimestampUtcAsync_prefers_pinned_evidence_json_over_provenance()
+    {
+        Guid runId = Guid.Parse("44444444-5555-6666-7777-888888888888");
+        DateTime pinnedUtc = new(2026, 6, 15, 8, 30, 0, DateTimeKind.Utc);
+        DateTime provenanceUtc = new(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        Mock<IAzureExtractorPackageRepository> azureRepository = new();
+        Mock<ICloudInventoryExtractorPackageRepository> cloudRepository = new();
+
+        Mock<ArchLucid.Persistence.Interfaces.IRunRepository> runRepository = new();
+        runRepository
+            .Setup(repo => repo.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                PinnedEvidencePackagePinsJson =
+                    """[{"provider":"aws-extractor","packageId":"pkg-1","collectionUtc":"2026-06-15T08:30:00Z"}]""",
+                PinnedEvidencePackagePinsHashSha256 = new byte[32],
+            });
+
+        Mock<IRunEvidencePackagePinService> pinService = new();
+        pinService
+            .Setup(service => service.ResolvePinsFromHeader(It.IsAny<RunRecord?>()))
+            .Returns(
+            [
+                new EvidencePackagePin
+                {
+                    Provider = RunEvidencePackagePinService.AwsProvider,
+                    PackageId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+                    CollectionUtc = pinnedUtc,
+                },
+            ]);
+
+        RoiCostEvidenceCollectionResolver sut = RoiCostEvidenceCollectionResolverTestSupport.Create(
+            azureRepository.Object,
+            cloudRepository.Object,
+            runRepository.Object,
+            pinService.Object);
+
+        DateTime? resolvedUtc = await sut.TryResolveLatestCollectionTimestampUtcAsync(
+            Scope,
+            runId.ToString("N"),
+            CancellationToken.None);
+
+        resolvedUtc.Should().Be(pinnedUtc);
+        cloudRepository.Verify(
+            repo => repo.TryGetLatestProvenanceByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CloudProvider>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }
