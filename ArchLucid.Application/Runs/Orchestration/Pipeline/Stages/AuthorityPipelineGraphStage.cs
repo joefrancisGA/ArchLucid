@@ -103,6 +103,7 @@ public sealed class AuthorityPipelineGraphStage(
                 run.RunId,
                 knowledgeModel,
                 priorKnowledgeModel,
+                run,
                 _knowledgeGraphService,
                 _knowledgeModelGraphProjector,
                 _graphSnapshotRepository,

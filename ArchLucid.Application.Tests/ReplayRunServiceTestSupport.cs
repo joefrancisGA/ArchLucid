@@ -90,6 +90,9 @@ internal static class ReplayRunServiceTestSupport
             actorContext ?? UnitTestActor(),
             architectureRunCommitOrchestrator ?? Mock.Of<IArchitectureRunCommitOrchestrator>(),
             commitRunIdempotencyCoordinator ?? Mock.Of<ICommitRunIdempotencyCoordinator>(),
+            authorityRunRepository,
+            Mock.Of<IRunPolicyPackPinService>(),
+            Mock.Of<IRunEvidencePackagePinService>(),
             cloneStage,
             NullLogger<ReplayRunCommitStage>.Instance);
         IReplayRunExecutePreparedStage executePreparedStage = new ReplayRunExecutePreparedStage(
@@ -152,6 +155,9 @@ internal static class ReplayRunServiceTestSupport
             actorContext ?? UnitTestActor(),
             architectureRunCommitOrchestrator ?? Mock.Of<IArchitectureRunCommitOrchestrator>(),
             commitRunIdempotencyCoordinator ?? Mock.Of<ICommitRunIdempotencyCoordinator>(),
+            authorityRunRepository.Object,
+            Mock.Of<IRunPolicyPackPinService>(),
+            Mock.Of<IRunEvidencePackagePinService>(),
             cloneStage,
             NullLogger<ReplayRunCommitStage>.Instance);
         IReplayRunExecutePreparedStage executePreparedStage = new ReplayRunExecutePreparedStage(
