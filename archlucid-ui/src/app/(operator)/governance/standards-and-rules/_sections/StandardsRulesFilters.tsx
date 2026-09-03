@@ -10,7 +10,7 @@ import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { standardsRulesSeverityHrefFromSearch, standardsRulesLinkedFindingsHrefFromSearch } from "@/lib/governance/standards-rules-filters-url";
+import { standardsRulesSeverityHrefFromSearch, standardsRulesLinkedFindingsHrefFromSearch, standardsRulesEvidenceCoverageHrefFromSearch, standardsRulesEnforcementHrefFromSearch } from "@/lib/governance/standards-rules-filters-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -186,6 +186,47 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
           </FilterChip>
         </FilterChipGroup>
       </div>
+      <div className="space-y-2">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Evidence coverage</p>
+        <FilterChipGroup aria-label="Filter rules by evidence coverage" className="flex flex-wrap gap-2">
+          <FilterChip
+            href={standardsRulesEvidenceCoverageHrefFromSearch(props.currentSearch, "all", props.pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(filters.evidenceCoverage === "all", false)}
+            aria-current={filters.evidenceCoverage === "all" ? "page" : undefined}
+            data-testid="standards-rules-evidence-coverage-all"
+            onClick={() => {
+              onChange({ ...filters, evidenceCoverage: "all" });
+            }}
+          >
+            All
+          </FilterChip>
+          <FilterChip
+            href={standardsRulesEvidenceCoverageHrefFromSearch(props.currentSearch, "evidenced", props.pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(filters.evidenceCoverage === "evidenced", false)}
+            aria-current={filters.evidenceCoverage === "evidenced" ? "page" : undefined}
+            data-testid="standards-rules-evidence-coverage-evidenced"
+            onClick={() => {
+              onChange({ ...filters, evidenceCoverage: "evidenced" });
+            }}
+          >
+            Evidenced
+          </FilterChip>
+          <FilterChip
+            href={standardsRulesEvidenceCoverageHrefFromSearch(props.currentSearch, "unevidenced", props.pathname)}
+            scroll={false}
+            className={buyerFilterChipClass(filters.evidenceCoverage === "unevidenced", false)}
+            aria-current={filters.evidenceCoverage === "unevidenced" ? "page" : undefined}
+            data-testid="standards-rules-evidence-coverage-unevidenced"
+            onClick={() => {
+              onChange({ ...filters, evidenceCoverage: "unevidenced" });
+            }}
+          >
+            Not evidenced
+          </FilterChip>
+        </FilterChipGroup>
+      </div>
       <div className="flex flex-wrap gap-3">
         <FilterSelect
           label="Standard / Framework"
@@ -195,14 +236,38 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
             onChange({ ...filters, standardFramework: value });
           }}
         />
-        <FilterSelect
-          label="Enforcement mode"
-          value={filters.enforcementMode}
-          options={options.enforcementModes}
-          onChange={(value) => {
-            onChange({ ...filters, enforcementMode: value });
-          }}
-        />
+        <div className="space-y-2">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Enforcement mode</p>
+          <FilterChipGroup aria-label="Filter rules by enforcement mode" className="flex flex-wrap gap-2">
+            <FilterChip
+              href={standardsRulesEnforcementHrefFromSearch(props.currentSearch, "all", props.pathname)}
+              scroll={false}
+              className={buyerFilterChipClass(filters.enforcementMode === "all", false)}
+              aria-current={filters.enforcementMode === "all" ? "page" : undefined}
+              data-testid="standards-rules-enforcement-all"
+              onClick={() => {
+                onChange({ ...filters, enforcementMode: "all" });
+              }}
+            >
+              All
+            </FilterChip>
+            {options.enforcementModes.map((enforcementMode) => (
+              <FilterChip
+                key={enforcementMode}
+                href={standardsRulesEnforcementHrefFromSearch(props.currentSearch, enforcementMode, props.pathname)}
+                scroll={false}
+                className={buyerFilterChipClass(filters.enforcementMode === enforcementMode, false)}
+                aria-current={filters.enforcementMode === enforcementMode ? "page" : undefined}
+                data-testid={`standards-rules-enforcement-${enforcementMode.toLowerCase().replace(/\s+/g, "-")}`}
+                onClick={() => {
+                  onChange({ ...filters, enforcementMode });
+                }}
+              >
+                {enforcementMode}
+              </FilterChip>
+            ))}
+          </FilterChipGroup>
+        </div>
         <FilterSelect
           label="Source policy pack"
           value={filters.sourcePolicyPack}
@@ -211,24 +276,6 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
             onChange({ ...filters, sourcePolicyPack: value });
           }}
         />
-        <label className={cn("flex min-w-[10rem] flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-          <span className="text-al-text-secondary">Evidence coverage</span>
-          <select
-            className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900"
-            value={filters.evidenceCoverage}
-            onChange={(event) => {
-              const value = event.target.value;
-
-              if (value === "evidenced" || value === "unevidenced" || value === "all") {
-                onChange({ ...filters, evidenceCoverage: value });
-              }
-            }}
-          >
-            <option value="all">All</option>
-            <option value="evidenced">Evidenced</option>
-            <option value="unevidenced">Not evidenced</option>
-          </select>
-        </label>
       </div>
     </div>
   );

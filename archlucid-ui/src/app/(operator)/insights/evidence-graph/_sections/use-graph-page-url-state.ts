@@ -12,6 +12,10 @@ import {
 import { parseGraphScopeModeFromSearch } from "@/lib/insights/graph-scope-mode-url";
 import { parseGraphNodeTypeFromSearch } from "@/lib/insights/graph-node-type-url";
 import { parseGraphNeighborhoodDepthFromSearch } from "@/lib/insights/graph-neighborhood-depth-url";
+import {
+  parseGraphDecisionIdFromSearch,
+  parseGraphNodeIdFromSearch,
+} from "@/lib/insights/graph-node-decision-id-url";
 
 export function useGraphPageUrlState(options: {
   setRunId: (runId: string) => void;
@@ -20,8 +24,10 @@ export function useGraphPageUrlState(options: {
   setMode: (mode: GraphMode) => void;
   setTypeFilter: (typeFilter: string) => void;
   setDepth: (depth: number) => void;
+  setNodeId: (nodeId: string) => void;
+  setDecisionId: (decisionId: string) => void;
 }): { urlRunId: string; urlGraphNodeId: string } {
-  const { setRunId, setGraphLoadRequested, setPresentationView, setMode, setTypeFilter, setDepth } = options;
+  const { setRunId, setGraphLoadRequested, setPresentationView, setMode, setTypeFilter, setDepth, setNodeId, setDecisionId } = options;
   const searchParams = useSearchParams();
   const urlRunId = searchParams.get("runId")?.trim() ?? "";
   const urlGraphNodeId = searchParams.get("graphNodeId")?.trim() ?? "";
@@ -29,6 +35,8 @@ export function useGraphPageUrlState(options: {
   const urlGraphMode = searchParams.get("graphMode");
   const urlNodeType = searchParams.get("nodeType");
   const urlDepth = searchParams.get("depth");
+  const urlNodeId = searchParams.get("nodeId");
+  const urlDecisionId = searchParams.get("decisionId");
 
   useEffect(() => {
     if (urlRunId.length === 0) return;
@@ -53,6 +61,14 @@ export function useGraphPageUrlState(options: {
   useEffect(() => {
     setDepth(parseGraphNeighborhoodDepthFromSearch(urlDepth));
   }, [setDepth, urlDepth]);
+
+  useEffect(() => {
+    setNodeId(parseGraphNodeIdFromSearch(urlNodeId));
+  }, [setNodeId, urlNodeId]);
+
+  useEffect(() => {
+    setDecisionId(parseGraphDecisionIdFromSearch(urlDecisionId));
+  }, [setDecisionId, urlDecisionId]);
 
   return { urlRunId, urlGraphNodeId };
 }
