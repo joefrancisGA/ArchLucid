@@ -4,24 +4,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
-import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
-import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import {
   resolveNewRunWizardCompleteSetupEmphasizedStepId,
   resolveNewRunWizardCompleteSetupSteps,
 } from "@/lib/new-run-wizard-complete-setup-checklist";
-import {
-  deriveWizardPolicyPackCloudMismatch,
-  type WizardCreateRunPayloadOptions,
-} from "@/lib/wizard-payload";
+import type { WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
 import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
 import {
   getWizardStepFieldGroup,
   FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
 } from "@/lib/wizard-step-fields";
-import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metrics-actions";
 import {
   buildDefaultWizardValues,
   wizardFormSchema,
@@ -41,7 +35,11 @@ import {
   macroCompletedSteps,
   macroWizardStepIndex,
 } from "./new-run-wizard-steps";
+import { useNewRunWizardBaselineMetrics } from "./use-new-run-wizard-baseline-metrics";
 import { useNewRunWizardIntakeParams } from "./use-new-run-wizard-intake-params";
+import { useNewRunWizardLlmBudgetGate } from "./use-new-run-wizard-llm-budget-gate";
+import { useNewRunWizardPolicyPackMismatch } from "./use-new-run-wizard-policy-pack-mismatch";
+import { useNewRunWizardTrackStream } from "./use-new-run-wizard-track-stream";
 import { useNewRunWizardMode } from "./use-new-run-wizard-mode";
 import { useNewRunWizardPendingEvidence } from "./use-new-run-wizard-pending-evidence";
 import { useNewRunWizardQueryPrefill } from "./use-new-run-wizard-query-prefill";
@@ -68,7 +66,7 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   } = params;
 
   const commitPresentationContext = useCorePilotCommitPresentationContext();
-  const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
+  const { status: llmBudgetStatus, blocksLlmExecution } = useNewRunWizardLlmBudgetGate();
   const stepDefinitions = baselineFirst
     ? WIZARD_STEP_DEFINITIONS_BASELINE
     : WIZARD_STEP_DEFINITIONS_FULL;
@@ -92,7 +90,6 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [advancedConfigurationOptIn, setAdvancedConfigurationOptIn] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
-  const [trackPollSession, setTrackPollSession] = useState(0);
   const {
     baselineReviewCycleHours,
     setBaselineReviewCycleHours,
@@ -101,7 +98,7 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
     baselineMetricsError,
     setBaselineMetricsError,
     persistBaselineMetricsIfNeeded,
-  } = useWizardBaselineMetricsActions();
+  } = useNewRunWizardBaselineMetrics();
   const [stepValidationMessage, setStepValidationMessage] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
   const liveRef = useRef<HTMLDivElement>(null);
@@ -111,9 +108,10 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
     wizardReadyRef.current?.setAttribute("data-wizard-ready", "true");
   }, []);
 
-  const { summary: pollSummary } = useRunSummaryStream(runId, {
-    enabled: runId !== null && (wizardMode === "quick" ? true : stepIndex === TRACK_STEP_INDEX),
-    retryToken: trackPollSession,
+  const { pollSummary, liveMessage, retryTrackPolling } = useNewRunWizardTrackStream({
+    runId,
+    wizardMode,
+    stepIndex,
   });
 
   const form = useForm<WizardFormValues>({
@@ -176,10 +174,7 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
     }),
     [focusedPilotModeEnabled, presetDeeplinkToken],
   );
-  const policyPackCloudMismatch = useMemo(
-    () => deriveWizardPolicyPackCloudMismatch(templateWizardSessionState, payloadOptions),
-    [payloadOptions, templateWizardSessionState],
-  );
+  const policyPackCloudMismatch = useNewRunWizardPolicyPackMismatch(templateWizardSessionState, payloadOptions);
 
   const showQuickTrack = wizardMode === "quick" && runId !== null;
   const effectiveShowFullWizardShell = wizardMode === "full" && !showQuickTrack;
@@ -244,13 +239,6 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
     evidenceConfigured: stepIndex > 1 || evidence.hasPendingEvidence,
     reviewStarted: runId !== null,
   });
-
-  const liveMessage =
-    runId === null
-      ? "No review started yet."
-      : pollSummary
-        ? `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, Finalized review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
-        : `Review ${runId} created; loading summary.`;
 
   const skipEvidenceAndAdvance = () => {
     evidence.clearPendingEvidence();
@@ -357,7 +345,7 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
     <WizardStepTrack
       runId={runId}
       pollSummary={pollSummary}
-      onRetryPolling={() => setTrackPollSession((session) => session + 1)}
+      onRetryPolling={retryTrackPolling}
     />
   );
 

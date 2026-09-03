@@ -26,7 +26,7 @@ internal static class FindingRecordKeysetPageReader
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
 
-        int cappedTake = ClampTake(request.Take);
+        int cappedTake = FindingsSnapshotRepositoryCore.ClampKeysetTake(request.Take);
         string sql = FindingRecordKeysetListSql.BuildKeysetPage(scope, request.OrderByPriority);
         DynamicParameters parameters = BuildParameters(scope, request, cappedTake + 1);
 
@@ -41,9 +41,6 @@ internal static class FindingRecordKeysetPageReader
 
         return new FindingRecordMetadataPage(rows.ConvertAll(MapRow).ToArray(), hasMore);
     }
-
-    private static int ClampTake(int take) =>
-        Math.Clamp(take <= 0 ? FindingPagination.DefaultTake : take, 1, FindingPagination.MaxTake);
 
     private static DynamicParameters BuildParameters(
         ScopeContext scope,

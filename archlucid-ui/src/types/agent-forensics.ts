@@ -10,12 +10,10 @@ export type AgentExecutionTraceRow = components["schemas"]["AgentExecutionTraceS
 };
 
 /** Inline prompt/response fields joined to tool-invocation forensics rows (TB-110). */
-export type AgentTraceRawSnapshot = {
-  userPrompt?: string | null;
-  rawResponse?: string | null;
-  systemPrompt?: string | null;
-  parsedResultJson?: string | null;
-};
+export type AgentTraceRawSnapshot = Pick<
+  AgentExecutionTraceRow,
+  "userPrompt" | "rawResponse" | "systemPrompt" | "parsedResultJson"
+>;
 
 export type AgentExecutionTraceListPayload = components["schemas"]["AgentExecutionTraceResponse"];
 
