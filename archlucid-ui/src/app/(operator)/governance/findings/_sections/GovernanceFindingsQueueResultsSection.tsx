@@ -8,6 +8,7 @@ import { PolicyPackAssignFromReviewStrip } from "@/components/governance/PolicyP
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import { AssignedToMeContinueOldestFindingStrip } from "@/components/usability/AssignedToMeContinueOldestFindingStrip";
 import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
+import { WorkingFindingsKeyboardHint } from "@/components/governance/findings/WorkingFindingsKeyboardHint";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -68,6 +69,7 @@ export function GovernanceFindingsQueueResultsSection(
               href={props.firstFindingTriageTarget.href}
             />
           ) : null}
+          <WorkingFindingsKeyboardHint />
           <GovernanceFindingsList
             displayedRows={props.displayedRows}
             buyerPolishedShell={props.buyerPolishedShell}
