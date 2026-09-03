@@ -3377,8 +3377,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #555: proved policy pack catalog promote snapshot name/description max-length validation before SQL insert; seeded recurrence-schedule name/cron max-length candidate.
 
-2026-09-03 seed hunt #555: proved policy pack catalog promote snapshot name/description max-length validation before SQL insert; seeded recurrence-schedule name/cron max-length candidate.
-
 - [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` / `RecurrenceScheduleValidation` — `Name` (`NVARCHAR(300)`) and `CronExpression` (`NVARCHAR(100)`) lacked max-length guards before `ArchitectureReviewRecurrenceSchedules` insert/update (cron format only) — **hit 2026-09-03 (#556):** `RecurrenceScheduleValidation` rejects over-length after trim in create/update facade paths; update controller maps `ArgumentException` to HTTP 400; regression in `RecurrenceScheduleValidationTests`, `GovernanceStickinessFacadeScopeTests.CreateRecurrenceScheduleAsync_throws_when_name_exceeds_sql_max_length`, and `GovernanceStickinessControllerTests` create/update bad-request cases.
 
 2026-09-03 thorough hunt #556: proved recurrence schedule name and cron expression max-length validation before SQL persist.
