@@ -77,6 +77,7 @@ Open `http://localhost:8080` and load **`workspace.dsl`** from this directory.
 *(Former thin hub `ARCHITECTURE_INDEX.md` redirects here — see [`../redirects.md`](../redirects.md).)*
 
 ### Orientation
+- **Professional-tool / livelihood-grade Composer prompts** — [`.cursor/prompts/professional-tool-00-index.md`](../../.cursor/prompts/professional-tool-00-index.md) (**PT-01–10** identity/start/tabs/amend/keyboard/ranking/trail/first-paint/home queue; **PT-11–20** workbench, continuity, presenter, infeasible-as-product, finalize MUST gate, dirty guards, meeting session, compare-from-review). Predecessor DD-01–10: [`DAILY_DRIVER_COMPOSER_PROMPTS.md`](DAILY_DRIVER_COMPOSER_PROMPTS.md) (shipped/partial — do not re-run).
 - **Insight-density Composer prompts** — [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) (**shipped 2026-08-26** — archive; do not re-run ID-01–07) · follow-on [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) (ID-08–10 shipped; ID-11 may still be open)
 - **Policy-pack moat Composer prompt** — [`POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`](POLICY_PACK_MOAT_COMPOSER_PROMPTS.md) (**ready to run** — PP-01: map SOC 2 / HIPAA / ISO / PCI / CIS AWS-GCP / AKS onto declaration engines)
 - **Policy-pack expectation facets** — [`../library/POLICY_PACK_EXPECTATION_FACET.md`](../library/POLICY_PACK_EXPECTATION_FACET.md) (additive coverage/cost parameterization via `advisoryDefaults`; commitment engines stay pack-independent)
