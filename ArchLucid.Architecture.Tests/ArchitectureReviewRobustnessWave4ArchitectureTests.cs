@@ -53,10 +53,15 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
 
         packDocument.Should().Contain("requiredEngineTypes");
 
-        string orchestrator = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "FindingsOrchestrator.cs"));
+        string mergeStage = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Decisioning",
+                "Services",
+                "Findings",
+                "FindingsMergeAndGateStage.cs"));
 
-        orchestrator.Should().Contain("GetMissingEngineTypeViolations");
+        mergeStage.Should().Contain("GetMissingEngineTypeViolations");
     }
 
     [Fact]

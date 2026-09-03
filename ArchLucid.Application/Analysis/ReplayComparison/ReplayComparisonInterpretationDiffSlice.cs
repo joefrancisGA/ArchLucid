@@ -131,7 +131,8 @@ public sealed class ReplayComparisonInterpretationDiffSlice : IReplayComparisonD
         return manifestDiff.AddedServices.Count > 0 || manifestDiff.RemovedServices.Count > 0 ||
                manifestDiff.AddedDatastores.Count > 0 || manifestDiff.RemovedDatastores.Count > 0 ||
                manifestDiff.AddedRequiredControls.Count > 0 || manifestDiff.RemovedRequiredControls.Count > 0 ||
-               manifestDiff.AddedRelationships.Count > 0 || manifestDiff.RemovedRelationships.Count > 0;
+               manifestDiff.AddedRelationships.Count > 0 || manifestDiff.RemovedRelationships.Count > 0 ||
+               manifestDiff.Warnings.Count > 0;
     }
 
     private static bool HasNotEvaluatedSnapshot(ReviewRunEngineProvenance? provenance)

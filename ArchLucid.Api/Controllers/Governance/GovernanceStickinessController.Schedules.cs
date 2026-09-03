@@ -119,19 +119,26 @@ public sealed partial class GovernanceStickinessController
         if (scheduleIdProblem is not null)
             return scheduleIdProblem;
 
-        RecurrenceScheduleUpdateResult result =
-            await _facade.UpdateRecurrenceScheduleAsync(scheduleId, request!, cancellationToken);
-
-        return result.Outcome switch
+        try
         {
-            RecurrenceScheduleUpdateOutcome.NotFound => this.NotFoundProblem(
-                "Recurrence schedule was not found.",
-                ProblemTypes.ResourceNotFound),
-            RecurrenceScheduleUpdateOutcome.InvalidCron => this.BadRequestProblem(
-                Application.Governance.RecurrenceScheduleCronValidation.InvalidCronMessage,
-                ProblemTypes.ValidationFailed),
-            RecurrenceScheduleUpdateOutcome.Updated => Ok(result.Schedule),
-            _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
-        };
+            RecurrenceScheduleUpdateResult result =
+                await _facade.UpdateRecurrenceScheduleAsync(scheduleId, request!, cancellationToken);
+
+            return result.Outcome switch
+            {
+                RecurrenceScheduleUpdateOutcome.NotFound => this.NotFoundProblem(
+                    "Recurrence schedule was not found.",
+                    ProblemTypes.ResourceNotFound),
+                RecurrenceScheduleUpdateOutcome.InvalidCron => this.BadRequestProblem(
+                    Application.Governance.RecurrenceScheduleCronValidation.InvalidCronMessage,
+                    ProblemTypes.ValidationFailed),
+                RecurrenceScheduleUpdateOutcome.Updated => Ok(result.Schedule),
+                _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
+            };
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
     }
 }

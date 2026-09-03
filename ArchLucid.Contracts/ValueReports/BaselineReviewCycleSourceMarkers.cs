@@ -9,6 +9,13 @@ public static class BaselineReviewCycleSourceMarkers
     /// <summary>Exact marker persisted when operators save hours without an optional provenance note.</summary>
     public const string OperatorSettingsToken = "baseline_settings";
 
+    /// <summary>Maximum length of <c>dbo.Tenants.BaselineReviewCycleSource</c>.</summary>
+    public const int PersistedSourceMaxLength = 256;
+
+    /// <summary>Maximum operator note length after <see cref="FormatOperatorSettingsPersistence" /> prefix.</summary>
+    public static int MaxOperatorSettingsNoteLength =>
+        PersistedSourceMaxLength - (OperatorSettingsToken + ":").Length;
+
     /// <summary>
     ///     Determines whether review-cycle provenance should read as tenant-maintained baseline settings rather than signup.
     /// </summary>

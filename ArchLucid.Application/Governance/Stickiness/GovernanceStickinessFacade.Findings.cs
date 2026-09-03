@@ -19,7 +19,8 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        await EnsureFindingInScopeAsync(scope, request.FindingId, ct);
+        FindingInspectResponse finding = await RequireFindingInspectInScopeAsync(scope, request.FindingId, ct);
+        EnsureRunMatchesFindingAuthorityRun(request.RunId, finding);
         await EnsureRunInScopeWhenProvidedAsync(scope, request.RunId, ct);
 
         return await _findingDispositionService.RecordAsync(
@@ -51,15 +52,24 @@ public sealed partial class GovernanceStickinessFacade
         foreach (string normalizedFindingId in normalizedFindingIds)
         {
 
+            string? tradeOffAcknowledgment = null;
+
+            if (request.Disposition == ArchLucid.Contracts.Findings.FindingDisposition.Accepted)
+            {
+                tradeOffAcknowledgment = string.IsNullOrWhiteSpace(request.TradeOffAcknowledgment)
+                    ? request.Rationale
+                    : request.TradeOffAcknowledgment;
+            }
+
             RecordFindingDispositionRequest normalized = new()
             {
                 FindingId = normalizedFindingId,
                 RunId = Guid.Empty,
                 Disposition = request.Disposition,
                 Rationale = request.Rationale,
-                RevisitDueUtc = request.Disposition == ArchLucid.Contracts.Findings.FindingDisposition.Deferred && request.RevisitDueUtc is null
-                    ? TimeProvider.System.GetUtcNow().AddDays(30)
-                    : request.RevisitDueUtc,
+                TradeOffAcknowledgment = tradeOffAcknowledgment,
+                RevisitDueUtc = request.RevisitDueUtc,
+                EvidenceRequestText = request.EvidenceRequestText,
             };
 
             await _findingDispositionService.RecordAsync(normalized, scope, actorId, ct);
@@ -144,8 +154,39 @@ public sealed partial class GovernanceStickinessFacade
 
     private async Task EnsureFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
     {
-        if (!await IsFindingInScopeAsync(scope, findingId, ct))
+        _ = await RequireFindingInspectInScopeAsync(scope, findingId, ct);
+    }
+
+    private async Task<FindingInspectResponse> RequireFindingInspectInScopeAsync(
+        ScopeContext scope,
+        string findingId,
+        CancellationToken ct)
+    {
+        findingId = findingId.Trim();
+
+        FindingInspectResponse? finding = await _findingInspectReadRepository.GetInspectAsync(
+            scope,
+            findingId,
+            ct,
+            FindingInspectReadOptions.MetadataOnly);
+
+        if (finding is null)
             throw new InvalidOperationException("Finding was not found.");
+
+        return finding;
+    }
+
+    private static void EnsureRunMatchesFindingAuthorityRun(Guid? runId, FindingInspectResponse finding)
+    {
+        if (runId is not Guid resolvedRunId || resolvedRunId == Guid.Empty)
+            return;
+
+        if (finding.RunId != Guid.Empty && finding.RunId != resolvedRunId)
+        {
+            throw new ArgumentException(
+                "runId does not match the finding's authority run.",
+                nameof(runId));
+        }
     }
 
     private async Task<bool> IsFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
@@ -179,7 +220,8 @@ public sealed partial class GovernanceStickinessFacade
             ExpiresAtUtc = request.ExpiresAtUtc,
         };
 
-        await EnsureFindingInScopeAsync(scope, normalized.FindingId, ct);
+        FindingInspectResponse finding = await RequireFindingInspectInScopeAsync(scope, normalized.FindingId, ct);
+        EnsureRunMatchesFindingAuthorityRun(normalized.RunId, finding);
         await EnsureRunInScopeWhenProvidedAsync(scope, normalized.RunId, ct);
         await EnsureManifestMatchesRunWhenProvidedAsync(scope, normalized.RunId, normalized.ManifestId, ct);
 

@@ -149,7 +149,9 @@ internal static class SimpleTerraformResourceBlockParser
                 continue;
 
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
-            string scalarValue = UnquoteScalar(rawValue);
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
+            string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
 
             CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, key, scalarValue);
         }
@@ -261,16 +263,6 @@ internal static class SimpleTerraformResourceBlockParser
         }
 
         return string.IsNullOrWhiteSpace(line) && inBlockComment;
-    }
-
-    private static string UnquoteScalar(string rawValue)
-    {
-        if (rawValue.Length >= 2
-            && ((rawValue[0] == '"' && rawValue[^1] == '"')
-                || (rawValue[0] == '\'' && rawValue[^1] == '\'')))
-            return rawValue[1..^1];
-
-        return rawValue;
     }
 
     private static int CountConsumedLines(string fromHere, string arrayBody)

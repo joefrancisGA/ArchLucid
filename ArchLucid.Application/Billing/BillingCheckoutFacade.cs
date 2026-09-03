@@ -34,7 +34,8 @@ public sealed class BillingCheckoutFacade(
 
         BillingCheckoutTier tier = ParseCheckoutTier(body.TargetTier);
         BillingSubscriptionSnapshot? existingSubscription = await _billingLedger.TryGetSubscriptionAsync(scope.TenantId, cancellationToken);
-        if (existingSubscription is not null && !string.Equals(existingSubscription.Status, "Canceled", StringComparison.OrdinalIgnoreCase))
+
+        if (existingSubscription is not null && BlocksNewCheckout(existingSubscription.Status))
         {
             IBillingProvider conflictProvider = _billingProviderRegistry.ResolveActiveProvider();
             ArchLucidInstrumentation.RecordBillingCheckout(conflictProvider.ProviderName, tier.ToString(), "conflict_active_subscription");
@@ -122,4 +123,8 @@ public sealed class BillingCheckoutFacade(
         "Enterprise" => BillingCheckoutTier.Enterprise,
         _ => BillingCheckoutTier.Team,
     };
+
+    private static bool BlocksNewCheckout(string status) =>
+        string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(status, "Suspended", StringComparison.OrdinalIgnoreCase);
 }

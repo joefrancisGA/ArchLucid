@@ -55,6 +55,23 @@ public sealed class FindingsMergeAndGateStage(
                         OccurredUtc = _clock.UtcNowDateTime(),
                     });
             }
+
+            IReadOnlyList<string> engineTypeViolations = PolicyPackCategoryCoverageValidator.GetMissingEngineTypeViolations(
+                context.AnalysisContext,
+                context.SuccessfulEngineTypes);
+
+            foreach (string violation in engineTypeViolations)
+            {
+                context.EngineFailures.Add(
+                    new FindingEngineFailure
+                    {
+                        EngineType = "policy-pack-coverage",
+                        Category = "Policy",
+                        ErrorMessage = violation,
+                        ExceptionType = nameof(PolicyPackCategoryCoverageValidator),
+                        OccurredUtc = _clock.UtcNowDateTime(),
+                    });
+            }
         }
 
         FindingsSnapshot snapshot = new()

@@ -1,6 +1,7 @@
 using ArchLucid.Application.Notifications.Email.Models;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
 
@@ -55,8 +56,10 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
 
         string mailbox = assigneeMailbox.Trim();
 
-        if (!IsMailboxAddress(mailbox))
+        if (!IdentityEmailNormalizer.TryNormalize(mailbox, out string normalizedMailbox, out _))
             return false;
+
+        mailbox = normalizedMailbox;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName)
@@ -130,7 +133,4 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
 
         return reserved;
     }
-
-    private static bool IsMailboxAddress(string value) =>
-        value.Contains('@', StringComparison.Ordinal) && value.IndexOf('@', StringComparison.Ordinal) > 0;
 }

@@ -568,6 +568,80 @@ public sealed class TenantTrialControllerTests
     }
 
     [Fact]
+    public async Task LinkEntraAsync_returns_bad_request_when_entra_oid_exceeds_max_length()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            ProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+        };
+        TenantRecord tenant = new()
+        {
+            Id = tenantId,
+            Name = "home",
+            Slug = "home",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Converted,
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        const string normalizedEmail = "ADMIN@CUSTOMER.COM";
+        Mock<ITrialIdentityUserRepository> trialUsers = new();
+        trialUsers
+            .Setup(r => r.GetByNormalizedEmailAsync(normalizedEmail, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TrialIdentityUserRecord
+                {
+                    Id = Guid.NewGuid(),
+                    NormalizedEmail = normalizedEmail,
+                    Email = "admin@customer.com",
+                });
+
+        Mock<ISelfServiceTrialAbuseRepository> abuseRepository = new();
+        abuseRepository
+            .Setup(r => r.HasEmailClaimForTenantAsync(normalizedEmail, tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        TenantTrialController sut = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            audit.Object,
+            gate.Object,
+            trialUsers.Object,
+            schedulerOpts.Object,
+            abuseRepository.Object);
+
+        IActionResult result = await sut.LinkEntraAsync(
+            new TenantLinkEntraRequest
+            {
+                EntraTenantId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+                LocalEmail = "admin@customer.com",
+                EntraOid = new string('o', ArchLucid.Core.Identity.TrialIdentityUserFieldLimits.LinkedEntraOidMaxLength + 1),
+            },
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenants.Verify(
+            t => t.UpdateEntraTenantIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        trialUsers.Verify(
+            r => r.TryLinkLocalIdentityToEntraAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task LinkEntraAsync_links_local_identity_when_email_claimed_for_tenant()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");

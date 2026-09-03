@@ -141,6 +141,33 @@ public sealed class GovernanceEnvironmentCatalogServiceTests
         (await service.IsValidTransitionAsync("dev", "prod", CancellationToken.None)).Should().BeFalse();
     }
 
+    [Fact]
+    public async Task ReplaceCatalogAsync_accepts_slug_up_to_sixty_four_characters()
+    {
+        InMemoryGovernanceEnvironmentCatalogRepository repository = new();
+        GovernanceEnvironmentCatalogService service = CreateService(repository);
+
+        string sourceSlug = new string('a', GovernanceEnvironmentSlug.MaxLength);
+        string targetSlug = new string('b', GovernanceEnvironmentSlug.MaxLength);
+
+        ReplaceGovernanceEnvironmentCatalogRequest request = new()
+        {
+            Environments =
+            [
+                new GovernanceEnvironmentDefinition { Slug = sourceSlug, DisplayName = "Source", SortOrder = 0, IsActive = true },
+                new GovernanceEnvironmentDefinition { Slug = targetSlug, DisplayName = "Target", SortOrder = 1, IsActive = true },
+            ],
+            Transitions =
+            [
+                new GovernanceEnvironmentTransition { SourceSlug = sourceSlug, TargetSlug = targetSlug },
+            ],
+        };
+
+        Func<Task> act = async () => await service.ReplaceCatalogAsync(request, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
     private static GovernanceEnvironmentCatalogService CreateService(IGovernanceEnvironmentCatalogRepository repository)
     {
         MockScopeContextProvider scopeProvider = new(Scope);

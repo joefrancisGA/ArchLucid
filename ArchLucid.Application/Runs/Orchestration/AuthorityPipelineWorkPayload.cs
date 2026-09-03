@@ -114,6 +114,13 @@ public sealed class AuthorityPipelineWorkPayload
         if (values is null)
             return [];
 
-        return values.Where(static declaration => declaration is not null).ToList();
+        return values
+            .Where(static declaration => declaration is not null && HasSubstantiveInfrastructureDeclaration(declaration))
+            .ToList();
+    }
+
+    private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
+    {
+        return HasSubstantiveText(declaration.Name) && HasSubstantiveText(declaration.Content);
     }
 }

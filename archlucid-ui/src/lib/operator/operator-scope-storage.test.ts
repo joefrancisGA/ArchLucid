@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FRICTIONLESS_TRIAL_SESSION_STORAGE_KEY } from "@/lib/frictionless-trial-session";
+import {
+  markOperatorHomeRunsSnapshotStale,
+  consumeOperatorHomeRunsSnapshotStale,
+} from "@/lib/operator/operator-home-lifecycle-notify";
 import { getEffectiveBrowserProxyScopeHeaders, writeOperatorScopeToStorage, ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
 import { OPERATOR_SCOPE_COOKIE_NAME } from "@/lib/operator/operator-scope-cookie";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
@@ -164,6 +168,20 @@ describe("operator-scope-storage", () => {
     });
 
     expect(localStorage.getItem(HAS_SEEN_ONBOARDING_STORAGE_KEY)).toBeNull();
+  });
+
+  it("writeOperatorScopeToStorage_clears_operator_home_runs_stale_flag", () => {
+    markOperatorHomeRunsSnapshotStale();
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(consumeOperatorHomeRunsSnapshotStale()).toBe(false);
   });
 
   it("writeOperatorScopeToStorage_clears_home_disclosure_prefs", () => {

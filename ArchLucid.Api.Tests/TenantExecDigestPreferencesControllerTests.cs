@@ -222,6 +222,30 @@ public sealed class TenantExecDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostExecDigestPreferences_returns_bad_request_when_recipient_emails_exceed_max_serialized_length()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            Mock.Of<ITenantExecDigestPreferencesRepository>(),
+            Mock.Of<IAuditService>());
+
+        string longLocalPart = new('a', 1000);
+        ExecDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = [$"{longLocalPart}@contoso.test", $"{longLocalPart}@fabrikam.test"],
+        };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PostExecDigestPreferences_persists_and_audits_on_success()
     {
         ExecDigestPreferencesResponse saved = new()

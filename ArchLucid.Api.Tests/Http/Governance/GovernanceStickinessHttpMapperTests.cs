@@ -61,4 +61,44 @@ public sealed class GovernanceStickinessHttpMapperTests
             .Should()
             .BeNull();
     }
+
+    [Fact]
+    public void ValidateBuyerConfidenceSource_accepts_padded_known_label()
+    {
+        GovernanceStickinessHttpMapper.ValidateBuyerConfidenceSource($" {BuyerDecisionConfidenceSource.EvidenceBacked} ")
+            .Should()
+            .BeNull();
+    }
+
+    [Theory]
+    [InlineData(-0.1)]
+    [InlineData(1.1)]
+    public void ValidateDecisionRegisterFilters_rejects_out_of_range_confidence_bounds(double value)
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateDecisionRegisterFilters(
+            category: null,
+            recordedAfterUtc: null,
+            recordedBeforeUtc: null,
+            minConfidence: value < 0 ? value : null,
+            maxConfidence: value > 1 ? value : null,
+            buyerConfidenceSource: null);
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public void ValidateDecisionRegisterFilters_rejects_recorded_after_before_1970()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateDecisionRegisterFilters(
+            category: null,
+            recordedAfterUtc: new DateTimeOffset(1969, 12, 31, 23, 59, 59, TimeSpan.Zero),
+            recordedBeforeUtc: null,
+            minConfidence: null,
+            maxConfidence: null,
+            buyerConfidenceSource: null);
+
+        validation.Should().NotBeNull();
+        validation!.Message.Should().Contain("recordedAfterUtc");
+    }
 }

@@ -160,7 +160,7 @@ public sealed class RetrievalQueryService(
         AgenticRetrievalQueryPlan queryPlan,
         CancellationToken budgetCt)
     {
-        int finalTopK = Math.Clamp(query.TopK, 1, 25);
+        int finalTopK = Math.Clamp(query.TopK, 1, RetrievalQuery.MaxTopK);
         RetrievalRerankingOptions rerankOptions = _rerankingOptions.CurrentValue;
         bool applyRerank = rerankOptions.Enabled && !query.SkipReranking;
         int candidateTopK = applyRerank

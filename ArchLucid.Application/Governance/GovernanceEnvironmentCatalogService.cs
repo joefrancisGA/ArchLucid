@@ -142,8 +142,8 @@ public sealed class GovernanceEnvironmentCatalogService(
             if (string.IsNullOrWhiteSpace(environment.Slug))
                 throw new ArgumentException("Environment slug is required.");
 
-            if (environment.Slug.Length > 64)
-                throw new ArgumentException("Environment slug must not exceed 64 characters.");
+            if (environment.Slug.Length > GovernanceEnvironmentSlug.MaxLength)
+                throw new ArgumentException($"Environment slug must not exceed {GovernanceEnvironmentSlug.MaxLength} characters.");
 
             if (string.IsNullOrWhiteSpace(environment.DisplayName))
                 throw new ArgumentException($"Display name is required for environment '{environment.Slug}'.");
