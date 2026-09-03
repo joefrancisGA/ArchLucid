@@ -77,7 +77,6 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
         ok.Should().BeTrue();
         error.Should().BeNull();
     }
-    }
 
     [Fact]
     public void TryUpgradeManifestJson_accepts_boolean_true_schema_version_at_current_version()
