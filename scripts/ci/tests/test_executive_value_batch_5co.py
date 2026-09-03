@@ -57,7 +57,7 @@ class TestExecutiveValueBatch5CO(unittest.TestCase):
             / "SponsorRoiTrendSection.tsx"
         )
         text = trend.read_text(encoding="utf-8")
-        self.assertIn("exec-roi-trend-time-range", text)
+        self.assertIn("exec-roi-trend-range-", text)
         self.assertIn("filterHistoryPointsByRange", text)
 
 
