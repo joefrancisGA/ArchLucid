@@ -57,7 +57,7 @@ public sealed class RiskExceptionService(
             ManifestId = request.ManifestId,
             OwnerUserId = request.OwnerUserId.Trim(),
             Rationale = request.Rationale.Trim(),
-            EvidenceRef = request.EvidenceRef,
+            EvidenceRef = request.EvidenceRef!.Trim(),
             ExpiresAtUtc = request.ExpiresAtUtc,
             Status = RiskExceptionStatus.Active,
             CreatedAtUtc = now,

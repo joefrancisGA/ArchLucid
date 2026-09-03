@@ -62,6 +62,42 @@ public sealed class RiskExceptionValidationTests
     }
 
     [Fact]
+    public void Validate_rejects_owner_user_id_over_max_length()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            OwnerUserId = new string('o', RiskExceptionValidation.OwnerUserIdMaxLength + 1),
+            Rationale = "Temporary acceptance for pilot.",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = RiskExceptionValidation.DefaultExpiresAtUtc(now),
+        };
+
+        Action act = () => RiskExceptionValidation.Validate(request, now);
+
+        act.Should().Throw<ArgumentException>().WithMessage($"*at most {RiskExceptionValidation.OwnerUserIdMaxLength}*");
+    }
+
+    [Fact]
+    public void Validate_rejects_evidence_ref_over_max_length()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            OwnerUserId = "owner-1",
+            Rationale = "Temporary acceptance for pilot.",
+            EvidenceRef = new string('e', RiskExceptionValidation.EvidenceRefMaxLength + 1),
+            ExpiresAtUtc = RiskExceptionValidation.DefaultExpiresAtUtc(now),
+        };
+
+        Action act = () => RiskExceptionValidation.Validate(request, now);
+
+        act.Should().Throw<ArgumentException>().WithMessage($"*at most {RiskExceptionValidation.EvidenceRefMaxLength}*");
+    }
+
+    [Fact]
     public void ValidateRenew_rejects_past_expiration()
     {
         DateTimeOffset now = DateTimeOffset.UtcNow;
