@@ -3,12 +3,12 @@ import type { Metadata } from "next";
 import { showcaseTitleForRunId } from "@/lib/showcase-page-copy";
 
 import {
-  SHOWCASE_PAGE_REVALIDATE_SECONDS,
   resolveShowcasePageRenderPlan,
 } from "./showcase-page-server-resolution";
 import { ShowcasePageFailedView, ShowcasePayloadView } from "./ShowcasePageViewShell";
 
-export const revalidate = SHOWCASE_PAGE_REVALIDATE_SECONDS;
+// Next 16 requires a literal export (no imported identifier). Keep in sync with SHOWCASE_PAGE_REVALIDATE_SECONDS.
+export const revalidate = 300;
 
 type PageProps = {
   params: Promise<{ runId: string }>;
