@@ -62,6 +62,9 @@ public static class ProblemTypes
     /// <summary>Manifest compare blocked because committed artifact inventory fingerprints differ.</summary>
     public const string CommittedArtifactInventoryMismatch = Base + "#committed-artifact-inventory-mismatch";
 
+    /// <summary>Export blocked because sealed decision receipt hash does not match recomputed receipt.</summary>
+    public const string DecisionReceiptSealedHashMismatch = Base + "#decision-receipt-sealed-hash-mismatch";
+
     /// <summary>Agent output quality gate rejected persisted traces for this workspace (RFC 9457; HTTP 409).</summary>
     public const string QualityGateRejected = Base + "#quality-gate-rejected";
 

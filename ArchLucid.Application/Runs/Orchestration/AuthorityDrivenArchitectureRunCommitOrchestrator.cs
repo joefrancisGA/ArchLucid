@@ -2,6 +2,7 @@
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration.Commit;
 using ArchLucid.Core.Persistence.Ports;
@@ -219,6 +220,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         if (runRecord is null)
             throw new RunNotFoundException(runId);
+
+        RunScopeAssertionGuard.EnsureCallerScopeMatchesRunOrThrow(scope, runRecord, runId, "Commit");
+
         ArchitectureRun? run =
             await ArchitectureRunAuthorityReader.TryGetArchitectureRunFromRecordAsync(_scopeContextProvider, _taskRepository, runId, runRecord,
                 cancellationToken);
@@ -259,6 +263,11 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 runRecord,
                 runId,
                 recomputedMaterial);
+
+            AuthorityCommitRecoveryVerifier.EnsureSealedManifestHashMatchesOrThrow(
+                persistedManifest,
+                runId,
+                _manifestHashService);
 
             string manifestVersion = !string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
                 ? run.CurrentManifestVersion

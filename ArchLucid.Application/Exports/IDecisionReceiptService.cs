@@ -11,7 +11,7 @@ public interface IDecisionReceiptService
         Guid draftId,
         CancellationToken cancellationToken);
 
-    Task<DecisionReceiptDocument?> BuildForRunAsync(
+    Task<DecisionReceiptRunBuildResult> BuildForRunAsync(
         ScopeContext scope,
         Guid runId,
         CancellationToken cancellationToken);

@@ -10,6 +10,8 @@ public enum ScopedRunPairLoadOutcome
     Success,
     LeftRunNotFound,
     RightRunNotFound,
+    PinFingerprintMismatch,
+    CommittedArtifactInventoryMismatch,
 }
 
 /// <summary>Loaded scoped run pair for agent-result comparison.</summary>
@@ -22,6 +24,8 @@ public sealed record ScopedRunPairLoadResult
     public ArchitectureRunDetail? Right { get; init; }
 
     public string? MissingRunId { get; init; }
+
+    public Guid? RunId { get; init; }
 }
 
 /// <summary>Outcome of loading runs and golden manifests for manifest comparison.</summary>
@@ -62,4 +66,6 @@ public sealed record VersionManifestCompareLoadResult
     public Guid? RunId { get; init; }
 
     public string? VersionLabel { get; init; }
+
+    public CompareInputFingerprints? InputFingerprints { get; init; }
 }

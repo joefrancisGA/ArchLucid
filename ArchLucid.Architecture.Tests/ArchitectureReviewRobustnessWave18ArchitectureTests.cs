@@ -18,7 +18,7 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
         string service = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
 
-        service.Should().Contain("ManifestDecisionReceiptExportBinder.TryBuildVerifiedExportReceiptOrNull");
+        service.Should().Contain("ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt");
 
         string binder = File.ReadAllText(
             Path.Combine(

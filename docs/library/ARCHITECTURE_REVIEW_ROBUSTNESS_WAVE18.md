@@ -19,4 +19,4 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE17.md`](ARCHITECTURE_REVIEW_RO
 
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave18ArchitectureTests.cs`.
 
-**Hasher baseline note:** wave 18 does not bump Hasher A schema version; receipt verification and review fail-closed are export/recovery/finalization gates on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
+**Hasher baseline note:** wave 18 does not bump Hasher A schema version; receipt verification and review fail-closed are export/recovery/finalization gates on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`). See [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE19.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE19.md) for suggestions 181–190.

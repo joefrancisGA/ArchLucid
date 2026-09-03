@@ -2035,6 +2035,60 @@ public sealed class FindingJsonConverterTests
         finding!.ConfidenceScore.Should().Be(1.0);
     }
 
+    [Fact]
+    public void RoundTrip_syncsEnforcementTierWithPropertiesBag()
+    {
+        Finding finding = new()
+        {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+            FindingId = "finding-enforcement-tier",
+            FindingType = "SecurityControlFinding",
+            Category = "Security",
+            EngineType = "SecurityCoverage",
+            Severity = FindingSeverity.Warning,
+            Title = "Missing control",
+            Rationale = "Control not applied.",
+            EnforcementTier = FindingEnforcementTier.Advisory,
+        };
+
+        JsonSerializerOptions options = CreateOptions();
+        string json = JsonSerializer.Serialize(finding, options);
+        Finding? roundTripped = JsonSerializer.Deserialize<Finding>(json, options);
+
+        roundTripped.Should().NotBeNull();
+        roundTripped!.Properties.Should().ContainKey(FindingPropertyKeys.EnforcementTier);
+        roundTripped.Properties[FindingPropertyKeys.EnforcementTier].Should().Be(FindingEnforcementTier.Advisory.ToString());
+    }
+
+    [Fact]
+    public void Deserialize_withoutFindingId_throwsJsonException()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": "Pending"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<Finding>(json, options);
+
+        act.Should().Throw<JsonException>().WithMessage("*findingId is required*");
+    }
+
     private static JsonSerializerOptions CreateOptions()
     {
         JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
