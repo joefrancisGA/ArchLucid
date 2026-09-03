@@ -46,6 +46,38 @@ public sealed class CorePackageCoverageBatchRc28cTests
     }
 
     [Fact]
+    public void CommercialTenantEligibility_blocks_lowercase_active_trial_from_standard_gates()
+    {
+        TenantRecord trial = new()
+        {
+            Tier = TenantTier.Standard,
+            TrialStatus = "active",
+        };
+
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(trial, TenantTier.Standard).Should().BeFalse();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(trial).Should().BeFalse();
+    }
+
+    [Fact]
+    public void CommercialTenantEligibility_does_not_special_case_lowercase_converted_or_expired_trial_status()
+    {
+        TenantRecord converted = new()
+        {
+            Tier = TenantTier.Standard,
+            TrialStatus = "converted",
+        };
+        TenantRecord expired = new()
+        {
+            Tier = TenantTier.Standard,
+            TrialStatus = "expired",
+        };
+
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(converted, TenantTier.Standard).Should().BeTrue();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(converted).Should().BeTrue();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(expired).Should().BeTrue();
+    }
+
+    [Fact]
     public void TenantErasureEligibility_quarantine_and_hard_purge_predicates()
     {
         DateTimeOffset now = DateTimeOffset.Parse("2026-08-10T12:00:00Z");

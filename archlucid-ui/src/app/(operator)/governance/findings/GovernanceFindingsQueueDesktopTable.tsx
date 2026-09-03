@@ -52,6 +52,7 @@ export type GovernanceFindingsQueueDesktopTableProps = {
   readonly onRowOpened?: (row: GovernanceFindingQueueRow) => void;
   /** When set, Enter/row activation opens the triage panel instead of navigating away from the queue. */
   readonly onActivateRow?: (row: GovernanceFindingQueueRow, index: number) => void;
+  readonly showInsightDensityScore?: boolean;
 };
 
 /** Carbon-style desktop queue for architecture risks and recorded decisions (md+). */
@@ -68,6 +69,7 @@ export function GovernanceFindingsQueueDesktopTable(
     isRowNewSinceLastVisit,
     onRowOpened,
     onActivateRow,
+    showInsightDensityScore = false,
   } = props;
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH;
@@ -231,6 +233,7 @@ export function GovernanceFindingsQueueDesktopTable(
     isRowNewSinceLastVisit,
     onRowOpened,
     ariaRowCount: useVirtualization ? ariaRowCount : undefined,
+    showInsightDensityScore,
   };
 
   return (

@@ -40,6 +40,15 @@ export const WORKSPACE_MODE_GRADUATION_KEEP_GUIDED_CTA = "Keep Guided";
 
 export const WORKSPACE_MODE_GRADUATION_REMIND_CTA = "Remind me after my next review";
 
+export const WORKSPACE_MODE_GUIDED_TEACHING_OFFER_TITLE = "Need teaching chrome again?";
+
+export const WORKSPACE_MODE_GUIDED_TEACHING_OFFER_LEAD =
+  "You are in Working mode. Guided mode restores teaching strips, tours, and first-session navigation hints.";
+
+export const WORKSPACE_MODE_GUIDED_TEACHING_OFFER_SWITCH_CTA = "Switch to Guided";
+
+export const WORKSPACE_MODE_GUIDED_TEACHING_OFFER_KEEP_WORKING_CTA = "Keep Working";
+
 export function workspaceModeLabel(mode: WorkspaceModeId): string {
   if (mode === "working") {
     return WORKSPACE_MODE_WORKING_LABEL;

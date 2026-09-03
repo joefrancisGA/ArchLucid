@@ -48,7 +48,15 @@ internal static class InfrastructureDeclarationBraceBodyExtractor
                 inDoubleQuotes = !inDoubleQuotes;
 
             if (character == '\'' && !inDoubleQuotes)
+            {
+                if (inSingleQuotes && index + 1 < content.Length && content[index + 1] == '\'')
+                {
+                    index++;
+                    continue;
+                }
+
                 inSingleQuotes = !inSingleQuotes;
+            }
 
             if (inDoubleQuotes || inSingleQuotes)
                 continue;

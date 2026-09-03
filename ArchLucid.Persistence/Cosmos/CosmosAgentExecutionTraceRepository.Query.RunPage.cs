@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
-using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -11,17 +10,6 @@ namespace ArchLucid.Persistence.Cosmos;
 public sealed partial class CosmosAgentExecutionTraceRepository
 {
     /// <inheritdoc />
-    public async Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
-
-        AgentTraceDocument? doc = await FindDocumentByTraceIdAsync(traceId, cancellationToken);
-
-        return doc is null ? null : CosmosAgentTraceDocumentMapper.Deserialize(doc);
-    }
-
-    /// <inheritdoc />
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
         ScopeContext scope,
         string runId,
@@ -31,47 +19,6 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         (IReadOnlyList<AgentExecutionTrace> traces, _) = await QueryRunPageAsync(runId, 0, 500, cancellationToken);
 
         return traces;
-    }
-
-    /// <inheritdoc />
-    public async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> GetLlmCostSlicesByRunIdAsync(
-        ScopeContext scope,
-        string runId,
-        CancellationToken cancellationToken = default)
-    {
-        _ = scope;
-        return await QueryLlmCostSlicesByRunIdAsync(runId, cancellationToken);
-    }
-
-    public async Task<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>> GetLlmCostSlicesByRunIdsAsync(
-        ScopeContext scope,
-        IReadOnlyCollection<string> runIds,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(runIds);
-
-        List<string> normalized = AgentExecutionTraceQueryPatchCore.NormalizeRunIds(runIds);
-
-        _ = scope;
-
-        // Each slice query is a single-partition lookup keyed by runId, so fan out rather than
-        // paying one sequential round-trip per run.
-        IReadOnlyList<AgentExecutionTraceLlmCostSlice>[] sliceGroups = await BoundedParallelMap.MapAsync(
-            normalized,
-            LlmCostSliceFanOutMaxConcurrent,
-            async (runId, ct) => await QueryLlmCostSlicesByRunIdAsync(runId, ct),
-            cancellationToken);
-
-        Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> map =
-            new(StringComparer.OrdinalIgnoreCase);
-
-        // MapAsync preserves input order, so index i corresponds to normalized[i].
-        for (int i = 0; i < normalized.Count; i++)
-        {
-            map[normalized[i]] = sliceGroups[i];
-        }
-
-        return map;
     }
 
     /// <inheritdoc />
@@ -131,29 +78,6 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
 
         return await ReadRunIdCountAsync(container, runId, cancellationToken);
-    }
-
-    /// <inheritdoc />
-    public async Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(
-        string taskId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
-
-        Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
-        QueryDefinition query = CosmosAgentTraceQueryCore.TaskIdQuery(taskId);
-
-        using FeedIterator<AgentTraceDocument> iterator = container.GetItemQueryIterator<AgentTraceDocument>(query);
-        List<AgentExecutionTrace> list = [];
-
-        while (iterator.HasMoreResults)
-        {
-            FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(cancellationToken);
-
-            list.AddRange(page.Select(CosmosAgentTraceDocumentMapper.Deserialize));
-        }
-
-        return list;
     }
 
     /// <inheritdoc />
@@ -270,55 +194,6 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         }
 
         return (traces, total);
-    }
-
-    private async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> QueryLlmCostSlicesByRunIdAsync(
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-
-        Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
-
-        QueryDefinition query = CosmosAgentTraceQueryCore.RunIdLlmCostSliceQuery(runId);
-
-        using FeedIterator<AgentTraceLlmCostProjection> iterator =
-            container.GetItemQueryIterator<AgentTraceLlmCostProjection>(
-                query,
-                requestOptions: CosmosAgentTraceQueryCore.PartitionedByRunId(runId));
-
-        List<AgentExecutionTraceLlmCostSlice> slices = [];
-
-        while (iterator.HasMoreResults)
-        {
-            FeedResponse<AgentTraceLlmCostProjection> page = await iterator.ReadNextAsync(cancellationToken);
-
-            foreach (AgentTraceLlmCostProjection row in page.Resource)
-            {
-                slices.Add(CosmosAgentTraceQueryCore.MapLlmCostProjection(row));
-            }
-        }
-
-        return slices;
-    }
-
-    private async Task<AgentTraceDocument?> FindDocumentByTraceIdAsync(string traceId, CancellationToken ct)
-    {
-        Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
-        QueryDefinition query = CosmosAgentTraceQueryCore.TraceIdQuery(traceId);
-
-        using FeedIterator<AgentTraceDocument> iterator = container.GetItemQueryIterator<AgentTraceDocument>(query);
-
-        while (iterator.HasMoreResults)
-        {
-            FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(ct);
-            AgentTraceDocument? doc = page.Resource.FirstOrDefault();
-
-            if (doc is not null)
-                return doc;
-        }
-
-        return null;
     }
 
     private static async Task<int> ReadRunIdCountAsync(

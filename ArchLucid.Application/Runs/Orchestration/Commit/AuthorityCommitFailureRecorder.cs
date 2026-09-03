@@ -3,9 +3,12 @@ using System.Text.Json;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Abstractions.Integrations;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +18,8 @@ namespace ArchLucid.Application.Runs.Orchestration.Commit;
 public sealed class AuthorityCommitFailureRecorder(
     IBaselineMutationAuditService baselineMutationAudit,
     IAzureDevOpsCommitStatusPublisher azureDevOpsCommitStatusPublisher,
+    IScopeContextProvider scopeContextProvider,
+    IAuditService auditService,
     ILogger<AuthorityCommitFailureRecorder> logger) : IAuthorityCommitFailureRecorder
 {
     private readonly IBaselineMutationAuditService _baselineMutationAudit =
@@ -22,6 +27,12 @@ public sealed class AuthorityCommitFailureRecorder(
 
     private readonly IAzureDevOpsCommitStatusPublisher _azureDevOpsCommitStatusPublisher =
         azureDevOpsCommitStatusPublisher ?? throw new ArgumentNullException(nameof(azureDevOpsCommitStatusPublisher));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly ILogger<AuthorityCommitFailureRecorder> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -39,6 +50,20 @@ public sealed class AuthorityCommitFailureRecorder(
             runId,
             auditDetails,
             cancellationToken);
+
+        if (Guid.TryParseExact(runId, "N", out Guid runGuid) || Guid.TryParse(runId, out runGuid))
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            AuditEvent lifecycleTransition = AuthorityRunLifecycleTransitionAuditor.BuildTransitionEvent(
+                scope,
+                runGuid,
+                AuthorityRunLifecyclePhase.InProgress,
+                AuthorityRunLifecyclePhase.Failed,
+                auditDetails,
+                actor);
+            await _auditService.LogAsync(lifecycleTransition, cancellationToken);
+        }
+
         await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: false, cancellationToken);
     }
 

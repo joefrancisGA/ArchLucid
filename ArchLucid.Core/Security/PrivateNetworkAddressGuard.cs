@@ -25,6 +25,11 @@ public static class PrivateNetworkAddressGuard
         if (IPAddress.IsLoopback(ip))
             return true;
 
+        if (ip.IsIPv4MappedToIPv6)
+        {
+            return IsForbiddenIpAddress(ip.MapToIPv4());
+        }
+
         if (ip.AddressFamily is AddressFamily.InterNetwork)
         {
             byte[] b = ip.GetAddressBytes();

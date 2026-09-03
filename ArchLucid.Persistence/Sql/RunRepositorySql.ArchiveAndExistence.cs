@@ -88,7 +88,7 @@ internal static partial class RunRepositorySql
                                                                 WHERE TenantId = @TenantId
                                                                   AND WorkspaceId = @WorkspaceId
                                                                   AND ScopeProjectId = @ScopeProjectId
-                                                                  AND ArchitectureRequestId = @ArchitectureRequestId
+                                                                  AND UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId
                                                                   AND ArchivedUtc IS NULL
                                                                   AND (
                                                                       LegacyRunStatus IS NULL
@@ -103,7 +103,7 @@ internal static partial class RunRepositorySql
                                                                          WHERE TenantId = @TenantId
                                                                            AND WorkspaceId = @WorkspaceId
                                                                            AND ScopeProjectId = @ScopeProjectId
-                                                                           AND ArchitectureRequestId = @ArchitectureRequestId
+                                                                           AND UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId
                                                                      ) THEN 1
                                                                      ELSE 0
                                                                  END;

@@ -54,6 +54,23 @@ public sealed class TenantScopedQuerySqlInspectorTests
     }
 
     [Fact]
+    public void Tenant_id_predicate_in_hash_sql_comment_does_not_bind_runs()
+    {
+        const string sql = """
+                           # TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ScopeProjectId = @ScopeProjectId
+                           SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL;
+                           """;
+
+        bool bound = TenantScopedQuerySqlInspector.IsScopeBoundForTable(
+            sql,
+            "dbo.Runs",
+            requiresTripleScope: true,
+            hasScopeHelperInvocation: false);
+
+        Assert.False(bound);
+    }
+
+    [Fact]
     public void Merge_on_tenant_id_is_bound_for_tenant_settings()
     {
         const string sql = """

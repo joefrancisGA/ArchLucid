@@ -215,7 +215,7 @@ public sealed class PilotValueReportService(
 
     private static void AddFindings(ArchitectureRunDetail detail, PilotValueReportSeverityBreakdown target)
     {
-        foreach (ArchitectureFinding f in detail.Results.SelectMany(static r => r.Findings))
+        foreach (ArchitectureFinding f in detail.Results.SelectMany(static r => r.Findings).Where(static f => !f.IsMuted))
         {
             switch (f.Severity)
             {

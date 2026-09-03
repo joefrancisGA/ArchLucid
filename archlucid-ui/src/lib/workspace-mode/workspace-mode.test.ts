@@ -8,11 +8,11 @@ import {
 } from "@/lib/workspace-mode/workspace-mode";
 
 describe("workspace-mode", () => {
-  it("defaults to guided", () => {
-    expect(DEFAULT_WORKSPACE_MODE).toBe("guided");
-    expect(parseWorkspaceMode(null)).toBe("guided");
-    expect(parseWorkspaceMode(undefined)).toBe("guided");
-    expect(parseWorkspaceMode("bogus")).toBe("guided");
+  it("defaults to working", () => {
+    expect(DEFAULT_WORKSPACE_MODE).toBe("working");
+    expect(parseWorkspaceMode(null)).toBe("working");
+    expect(parseWorkspaceMode(undefined)).toBe("working");
+    expect(parseWorkspaceMode("bogus")).toBe("working");
   });
 
   it("parses working case-insensitively", () => {

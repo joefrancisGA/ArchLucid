@@ -197,6 +197,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         if (run is null)
             throw new RunNotFoundException(runId);
+        AuthorityCommitRecoveryVerifier.EnsureRecoverableOrThrow(run, runRecord, runId);
+
         CommitRunResult? idempotent = await _idempotencyHandler.TryReturnCommittedAsync(run, runId, cancellationToken);
 
         if (idempotent is not null)

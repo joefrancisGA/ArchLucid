@@ -107,31 +107,37 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       ),
       patternLibraryNavVisible,
     );
+    const skipProgressiveNavDensity = isWorkingMode;
+    const effectiveShowFullNav = skipProgressiveNavDensity || effectiveRoleNavDensityShowFullNav;
     const firstSessionRows = filterNavGroupsForFirstSessionPilotMode(
       scopedRows,
       effectiveHasCommittedArchitectureReview,
-      effectiveRoleNavDensityShowFullNav,
+      effectiveShowFullNav,
     );
     const allRows = filterNavGroupsByRoleDensity(
       firstSessionRows,
       roleNavDensityPersona,
-      effectiveRoleNavDensityShowFullNav,
+      effectiveShowFullNav,
     );
     const workingFilteredRows = omitDuplicateReportingNav
       ? filterNavGroupsForWorkingProfessionalMode(allRows)
       : allRows;
-    const firstSessionHiddenCount = countNavGroupsHiddenByFirstSessionPilotMode(
-      scopedRows,
-      effectiveHasCommittedArchitectureReview,
-      effectiveRoleNavDensityShowFullNav,
-    );
-    const roleNavDensityHiddenGroupCount =
-      firstSessionHiddenCount
-      + countNavGroupsHiddenByRoleDensity(
-        firstSessionRows,
-        roleNavDensityPersona,
+    const firstSessionHiddenCount = skipProgressiveNavDensity
+      ? 0
+      : countNavGroupsHiddenByFirstSessionPilotMode(
+        scopedRows,
+        effectiveHasCommittedArchitectureReview,
         effectiveRoleNavDensityShowFullNav,
       );
+    const roleNavDensityHiddenGroupCount =
+      firstSessionHiddenCount
+      + (skipProgressiveNavDensity
+        ? 0
+        : countNavGroupsHiddenByRoleDensity(
+          firstSessionRows,
+          roleNavDensityPersona,
+          effectiveRoleNavDensityShowFullNav,
+        ));
 
     return {
       allRows: workingFilteredRows,
@@ -156,6 +162,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     roleNavDensityPersona,
     hideGettingStartedFromMainNav,
     isFullOperatorShell,
+    isWorkingMode,
     omitDuplicateReportingNav,
   ]);
 }
