@@ -1,0 +1,164 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Contracts.User;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.UserPreferences;
+
+using Microsoft.AspNetCore.Mvc;
+
+namespace ArchLucid.Api.Controllers.User;
+
+public sealed partial class UserPreferencesController
+{
+    /// <summary>Persists whether Where to go next follow-up strips are shown.</summary>
+    [HttpPut("where-to-go-next")]
+    [MutatingAuditExcluded("Personal Where to go next visibility stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWhereToGoNextVisibility(
+        [FromBody] SetWhereToGoNextVisibilityRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+        string serialized = WhereToGoNextVisibilityValues.Serialize(body.Enabled);
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.WhereToGoNextEnabled,
+            serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists whether sample reviews are shown on Overview.</summary>
+    [HttpPut("sample-reviews-on-overview")]
+    [MutatingAuditExcluded("Personal sample-reviews-on-Overview visibility stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetSampleReviewsOnOverviewVisibility(
+        [FromBody] SetSampleReviewsOnOverviewVisibilityRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+        string serialized = SampleReviewsOnOverviewVisibilityValues.Serialize(body.Enabled);
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.SampleReviewsOnOverviewEnabled,
+            serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists the authenticated user's personal IANA time zone preference.</summary>
+    [HttpPut("time-zone")]
+    [MutatingAuditExcluded("Personal time zone stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetIanaTimeZonePreference(
+        [FromBody] SetIanaTimeZonePreferenceRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string? normalized = IanaTimeZonePreferenceValues.NormalizeOrNull(body.IanaTimeZoneId);
+
+        if (normalized is null)
+        {
+            return this.BadRequestProblem(
+                "ianaTimeZoneId must be a recognized IANA time zone id.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.IanaTimeZoneId,
+            normalized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists the authenticated user's workspace mode preference.</summary>
+    [HttpPut("workspace-mode")]
+    [MutatingAuditExcluded("Personal workspace mode stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWorkspaceMode(
+        [FromBody] SetWorkspaceModeRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string serialized = WorkspaceModeValues.Serialize(body.Mode);
+
+        if (!WorkspaceModeValues.IsExplicitValue(serialized))
+        {
+            return this.BadRequestProblem("mode must be 'guided' or 'working'.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.WorkspaceMode,
+            serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists the authenticated user's workspace-mode graduation-offer preference.</summary>
+    [HttpPut("workspace-mode-graduation-offer")]
+    [MutatingAuditExcluded("Personal workspace-mode graduation offer stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWorkspaceModeGraduationOffer(
+        [FromBody] SetWorkspaceModeGraduationOfferRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string serialized = WorkspaceModeGraduationOfferValues.Serialize(body.State);
+
+        if (!WorkspaceModeGraduationOfferValues.IsExplicitValue(serialized))
+        {
+            return this.BadRequestProblem(
+                "state must be 'pending', 'dismissed', or 'remind-next'.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.WorkspaceModeGraduationOffer,
+            serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
+}

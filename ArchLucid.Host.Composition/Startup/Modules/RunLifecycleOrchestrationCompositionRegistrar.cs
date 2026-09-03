@@ -2,12 +2,12 @@
 
 using ArchLucid.Application;
 using ArchLucid.Application.Advisory;
-using ArchLucid.Application.Common;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Alerts;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Authorization;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Billing;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Configuration;
@@ -22,12 +22,9 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
-using ArchLucid.Application.Governance.Coverage;
-using ArchLucid.Application.Governance.Coverage.Stages;
 using ArchLucid.Application.Governance.PolicyPackDryRun.Stages;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.FindingReview;
-using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Integrations;
 using ArchLucid.Application.Integrations.Confluence;
 using ArchLucid.Application.Replay;
@@ -44,10 +41,8 @@ using ArchLucid.Application.Runs.Enrichment;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
-using ArchLucid.Application.Runs.Orchestration.Create.Hooks;
-using ArchLucid.Application.Runs.Orchestration.Execute;
-using ArchLucid.Application.Runs.Orchestration.Execute.Hooks;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
+using ArchLucid.Application.Runs.Query.Stages;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Application.Search;
@@ -78,55 +73,27 @@ namespace ArchLucid.Host.Composition.Startup.Modules;
 /// <summary>
 ///     Run create/execute orchestration, replay, manifest/diff exports, and operator lifecycle registrations.
 /// </summary>
-internal static class RunLifecycleOrchestrationCompositionRegistrar
+internal static partial class RunLifecycleOrchestrationCompositionRegistrar
 {
     public static void Register(IServiceCollection services, IConfiguration configuration)
+    {
+        RegisterCoverage(services);
+        RegisterCreateHooks(services);
+        RegisterExecuteStages(services);
+        RegisterRunLifecycleServices(services, configuration);
+    }
+
+    private static void RegisterRunLifecycleServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<TechnologyLedgerRequestSeeder>();
         services.AddScoped<TechnologyLedgerEvidenceSeeder>();
         services.AddScoped<TechnologyLedgerTopologyProposalSeeder>();
         services.AddScoped<ITechnologyLedgerRunCommandService, TechnologyLedgerRunCommandService>();
-        services.AddScoped<ICoverageQueryService, CoverageQueryService>();
-        services.AddScoped<ICoveragePreviewLoadStage, CoveragePreviewLoadStage>();
-        services.AddScoped<ICoveragePreviewEmitStage, CoveragePreviewEmitStage>();
-        services.AddScoped<ICoveragePreviewService, CoveragePreviewService>();
-        services.AddSingleton<IExaminationStateResolver, ExaminationStateResolver>();
-        services.AddScoped<IArchitecturePostureService, ArchitecturePostureService>();
-        services.AddSingleton<CoverageAssignmentValidator>();
-        services.AddScoped<IArchitectureRunCommandService, ArchitectureRunCommandService>();
-        services.AddScoped<IExecuteEvidenceReadinessGate, ExecuteEvidenceReadinessGate>();
         services.AddScoped<Application.Runs.Query.IRunLifecycleCommandService, Application.Runs.Query.RunLifecycleCommandService>();
+        services.AddScoped<IRunFindingsListStage, RunFindingsListStage>();
+        services.AddScoped<IRunFindingsCsvExportStage, RunFindingsCsvExportStage>();
+        services.AddScoped<IRunFindingsInspectStage, RunFindingsInspectStage>();
         services.AddScoped<Application.Runs.Query.IRunFindingsQueryService, Application.Runs.Query.RunFindingsQueryService>();
-        services.AddScoped<ArchitectureRunCreateIdempotencyHelper>();
-        services.AddScoped<ArchitectureRunCreatePersistenceHelper>();
-        services.AddScoped<ArchitectureRunCreatePostCreateHooks>();
-        services.AddScoped<IArchitectureRunCreateAuditHook, ArchitectureRunCreateAuditHook>();
-        services.AddScoped<IArchitectureRunCreateMeteringHook, ArchitectureRunCreateMeteringHook>();
-        services.AddScoped<IArchitectureRunCreatePolicyBaselineHook, ArchitectureRunCreatePolicyBaselineHook>();
-        services.AddScoped<IArchitectureRunCreateIdentityLinkHook, ArchitectureRunCreateIdentityLinkHook>();
-        services.AddScoped<ArchitectureRunExecutePostExecuteHooks>();
-        services.AddScoped<IArchitectureRunExecuteAuditHook, ArchitectureRunExecuteAuditHook>();
-        services.AddScoped<IArchitectureRunExecuteBaselineMutationHook, ArchitectureRunExecuteBaselineMutationHook>();
-        services.AddScoped<IArchitectureRunExecuteOutboxPublishHook, ArchitectureRunExecuteOutboxPublishHook>();
-        services.AddScoped<IIncompleteAuthorityPipelineExecuteHandler, IncompleteAuthorityPipelineExecuteHandler>();
-        services.AddScoped<IArchitectureRunExecuteIdempotencyStage, ArchitectureRunExecuteIdempotencyStage>();
-        services.AddScoped<IArchitectureRunExecuteCancellationGuardStage, ArchitectureRunExecuteCancellationGuardStage>();
-        services.AddScoped<IArchitectureRunExecutePreExecuteStage, ArchitectureRunExecutePreExecuteStage>();
-        services.AddScoped<IArchitectureRunExecutePersistRowsStage, ArchitectureRunExecutePersistRowsStage>();
-        services.AddScoped<IArchitectureRunExecutePersistenceStage, ArchitectureRunExecutePersistenceStage>();
-        services.AddScoped<IArchitectureRunExecuteQualityGateRetryStage, ArchitectureRunExecuteQualityGateRetryStage>();
-        services.AddScoped<IArchitectureRunExecuteQualityGateStage, ArchitectureRunExecuteQualityGateStage>();
-        services.AddScoped<IAgentLoopPrepareStage, AgentLoopPrepareStage>();
-        services.AddScoped<IAgentLoopInvokeStage, AgentLoopInvokeStage>();
-        services.AddScoped<IAgentLoopPersistStage, AgentLoopPersistStage>();
-        services.AddScoped<IArchitectureRunExecuteAgentLoopStage, ArchitectureRunExecuteAgentLoopStage>();
-        services.AddScoped<IArchitectureRunExecuteScopeResolveStage, ArchitectureRunExecuteScopeResolveStage>();
-        services.AddScoped<IArchitectureRunExecuteTelemetryStage, ArchitectureRunExecuteTelemetryStage>();
-        services.AddScoped<IArchitectureRunExecuteTailHooksStage, ArchitectureRunExecuteTailHooksStage>();
-        services.AddScoped<IArchitectureRunExecuteFailureRecorder, ArchitectureRunExecuteFailureRecorder>();
-        services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
-        services.AddScoped<IArchitectureRunBatchCreateOrchestrator, ArchitectureRunBatchCreateOrchestrator>();
-        services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         services.AddScoped<IArchitectureRunArchiveService, ArchitectureRunArchiveService>();
         services.Configure<RunExecuteOwnershipLeaseOptions>(
             configuration.GetSection(RunExecuteOwnershipLeaseOptions.SectionName));

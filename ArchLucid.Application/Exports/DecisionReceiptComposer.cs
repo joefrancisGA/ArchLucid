@@ -15,7 +15,7 @@ public static class DecisionReceiptComposer
         ArgumentNullException.ThrowIfNull(draft);
         ArgumentNullException.ThrowIfNull(verdict);
 
-        return new DecisionReceiptDocument
+        DecisionReceiptDocument receipt = new()
         {
             GeneratedUtc = TimeProvider.System.UtcNowDateTime(),
             Source = DecisionReceiptSource.DraftAdmission,
@@ -25,20 +25,51 @@ public static class DecisionReceiptComposer
             Verdict = verdict,
             CostStory = BuildCostStory(),
         };
+
+        return SealReceiptHash(receipt);
     }
 
-    public static DecisionReceiptDocument BuildForRun(Guid runId, FeasibilityVerdict verdict)
+    private static DecisionReceiptDocument SealReceiptHash(DecisionReceiptDocument receipt)
+    {
+        receipt.ReceiptHashSha256 = DecisionReceiptCanonicalHasher.ComputeSha256Hex(receipt);
+
+        return receipt;
+    }
+
+    public static DecisionReceiptDocument BuildForRun(
+        Guid runId,
+        FeasibilityVerdict verdict,
+        string? manifestHashSha256,
+        string? manifestVersion)
     {
         ArgumentNullException.ThrowIfNull(verdict);
 
-        return new DecisionReceiptDocument
+        if (string.IsNullOrWhiteSpace(manifestHashSha256))
+        {
+            throw new ArgumentException(
+                "Committed-run decision receipts require a manifest hash binding.",
+                nameof(manifestHashSha256));
+        }
+
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+        {
+            throw new ArgumentException(
+                "Committed-run decision receipts require a manifest version binding.",
+                nameof(manifestVersion));
+        }
+
+        DecisionReceiptDocument receipt = new()
         {
             GeneratedUtc = TimeProvider.System.UtcNowDateTime(),
             Source = DecisionReceiptSource.CommittedRun,
             RunId = runId,
             Verdict = verdict,
+            ManifestHashSha256 = manifestHashSha256,
+            ManifestVersion = manifestVersion,
             CostStory = BuildCostStory(),
         };
+
+        return SealReceiptHash(receipt);
     }
 
     public static string BuildFilename(Guid? draftId, Guid? runId)
