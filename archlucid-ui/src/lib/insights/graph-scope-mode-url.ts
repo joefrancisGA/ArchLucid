@@ -1,7 +1,15 @@
 import {
   type GraphMode,
 } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+
+export const OPERATOR_GRAPH_SCOPE_MODE_OPTIONS: ReadonlyArray<{ readonly mode: GraphMode; readonly label: string }> = [
+  { mode: "provenance-full", label: `${BUYER_SURFACE_VOCABULARY.evidenceGraph} (provenance)` },
+  { mode: "decision-subgraph", label: "Decision focus" },
+  { mode: "node-neighborhood", label: "Node connections" },
+  { mode: "architecture", label: "Architecture graph" },
+];
 
 export const GRAPH_SCOPE_MODE_PARAM = "graphMode";
 
