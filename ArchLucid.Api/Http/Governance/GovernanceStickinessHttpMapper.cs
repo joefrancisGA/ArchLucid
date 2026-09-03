@@ -33,7 +33,7 @@ public static class GovernanceStickinessHttpMapper
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (request.RunId == Guid.Empty)
+        if (request.RunId is null || request.RunId == Guid.Empty)
             return new GovernanceHttpValidation("runId is required.", ProblemTypes.ValidationFailed);
 
         if (string.IsNullOrWhiteSpace(request.FindingId))
