@@ -83,11 +83,7 @@ vi.mock("@/components/operator/OperatorPageHeader", () => ({
     navHref?: string;
     claimDiscipline?: string;
   }) => (
-    <div>
-      {navHref !== undefined ? <span data-testid="page-heading-icon" aria-hidden /> : null}
-      <h2>{title}</h2>
-      {subtitle ? <p data-testid="runs-page-subtitle">{subtitle}</p> : null}
-      {claimDiscipline ? <p data-testid="reviews-hub-claim-discipline">{claimDiscipline}</p> : null}
+      <h1>{title}</h1>
       {metadata ? <div data-testid="runs-page-metadata">{metadata}</div> : null}
       {actions ? <div data-testid="runs-page-header-actions">{actions}</div> : null}
     </div>
