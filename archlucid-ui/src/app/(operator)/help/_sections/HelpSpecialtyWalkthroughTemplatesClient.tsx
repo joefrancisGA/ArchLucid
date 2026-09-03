@@ -11,7 +11,7 @@ import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHe
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { SpecialtyTemplateCloudContextPicker } from "@/components/help/SpecialtyTemplateCloudContextPicker";
 import { SpecialtyTemplateComparisonTable } from "@/components/help/SpecialtyTemplateComparisonTable";
-import { OperatorPageContainer, operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
