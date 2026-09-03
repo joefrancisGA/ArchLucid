@@ -1,9 +1,16 @@
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
-import type { PatternDomainFilter, PatternPlatformFilter } from "@/lib/pattern-library-types";
+import type {
+  PatternDomainFilter,
+  PatternPlatformFilter,
+  PatternRiskSignal,
+  PatternTypeFilter,
+} from "@/lib/pattern-library-types";
 
 export const PATTERN_LIBRARY_SEARCH_PARAM = "q";
 export const PATTERN_LIBRARY_DOMAIN_PARAM = "domain";
 export const PATTERN_LIBRARY_PLATFORM_PARAM = "platform";
+export const PATTERN_LIBRARY_TYPE_PARAM = "type";
+export const PATTERN_LIBRARY_RISK_PARAM = "risk";
 
 const PATTERN_DOMAIN_IDS = new Set<string>([
   "All domains",
@@ -24,6 +31,20 @@ const PATTERN_PLATFORM_IDS = new Set<string>([
   "Multi-cloud",
   "Evidence-only",
 ]);
+
+const PATTERN_TYPE_IDS = new Set<string>([
+  "All types",
+  "Connectivity",
+  "Application",
+  "Data",
+  "Integration",
+  "Security",
+  "AI and knowledge",
+  "Resilience",
+  "Migration",
+]);
+
+const PATTERN_RISK_IDS = new Set<string>(["All risks", "Low", "Moderate", "High"]);
 
 export function parsePatternLibrarySearchQuery(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
@@ -116,6 +137,72 @@ export function patternLibraryPlatformHrefFromSearch(
     params.delete(PATTERN_LIBRARY_PLATFORM_PARAM);
   } else {
     params.set(PATTERN_LIBRARY_PLATFORM_PARAM, platform);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function parsePatternLibraryTypeFromSearch(raw: string | null | undefined): PatternTypeFilter {
+  if (raw === null || raw === undefined) {
+    return "All types";
+  }
+
+  const trimmed = raw.trim();
+
+  if (!PATTERN_TYPE_IDS.has(trimmed)) {
+    return "All types";
+  }
+
+  return trimmed as PatternTypeFilter;
+}
+
+export function parsePatternLibraryRiskFromSearch(
+  raw: string | null | undefined,
+): PatternRiskSignal | "All risks" {
+  if (raw === null || raw === undefined) {
+    return "All risks";
+  }
+
+  const trimmed = raw.trim();
+
+  if (!PATTERN_RISK_IDS.has(trimmed)) {
+    return "All risks";
+  }
+
+  return trimmed as PatternRiskSignal | "All risks";
+}
+
+export function patternLibraryTypeHrefFromSearch(
+  currentSearch: string,
+  patternType: PatternTypeFilter,
+  pathname: string = PATTERN_LIBRARY_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (patternType === "All types") {
+    params.delete(PATTERN_LIBRARY_TYPE_PARAM);
+  } else {
+    params.set(PATTERN_LIBRARY_TYPE_PARAM, patternType);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function patternLibraryRiskHrefFromSearch(
+  currentSearch: string,
+  risk: PatternRiskSignal | "All risks",
+  pathname: string = PATTERN_LIBRARY_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (risk === "All risks") {
+    params.delete(PATTERN_LIBRARY_RISK_PARAM);
+  } else {
+    params.set(PATTERN_LIBRARY_RISK_PARAM, risk);
   }
 
   const nextQuery = params.toString();

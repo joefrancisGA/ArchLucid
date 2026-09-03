@@ -20,6 +20,8 @@ function GovernanceFindingsAdvancedFiltersPanel(
         onRegisterFilterChange={props.onRegisterFilterChange}
         jobView={props.jobView}
         onJobViewChange={props.onJobViewChange}
+        nlFacets={props.nlFacets}
+        onNlFacetsChange={props.onNaturalLanguageFilterApply}
         savedPresets={props.savedPresets}
         onSaveCurrentFilterAsPreset={props.onSaveCurrentFilterAsPreset}
         onRemovePreset={props.onRemovePreset}

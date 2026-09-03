@@ -1,9 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Label } from "@/components/ui/label";
 import {
@@ -31,6 +34,8 @@ import {
   IMPACT_PREVIEW_SETUP_CARD_TITLE,
 } from "@/lib/impact-preview-page-copy";
 import type { ImpactPreviewBaselineOption, ImpactPreviewComparisonScope } from "@/lib/impact-preview-page-types";
+import { impactPreviewComparisonScopeToggleHrefFromSearch } from "@/lib/impact-preview/impact-preview-comparison-scope-url";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import type { EvolutionCandidateChangeSetResponse } from "@/types/evolution";
 
 export type ImpactPreviewSetupCardProps = {
@@ -58,6 +63,8 @@ const SCOPE_ITEMS: ReadonlyArray<{ readonly key: keyof ImpactPreviewComparisonSc
 ];
 
 export function ImpactPreviewSetupCard(props: ImpactPreviewSetupCardProps): React.JSX.Element {
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
   const selectedCandidate = props.selectedCandidateId ?? "";
   const simulateSteps = resolveImpactPreviewSimulateSteps({
     baselinePicked: (props.selectedBaselineId ?? "").trim().length > 0,
@@ -128,20 +135,23 @@ export function ImpactPreviewSetupCard(props: ImpactPreviewSetupCardProps): Reac
 
         <fieldset className="space-y-2">
           <legend className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{IMPACT_PREVIEW_COMPARISON_SCOPE_LABEL}</legend>
-          <div className="flex flex-wrap gap-3">
+          <FilterChipGroup aria-label={IMPACT_PREVIEW_COMPARISON_SCOPE_LABEL} className="flex flex-wrap gap-2">
             {SCOPE_ITEMS.map((item) => (
-              <label key={item.key} className={cn("inline-flex items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                <input
-                  type="checkbox"
-                  checked={props.comparisonScope[item.key]}
-                  onChange={() => {
-                    props.onToggleScope(item.key);
-                  }}
-                />
+              <FilterChip
+                key={item.key}
+                href={impactPreviewComparisonScopeToggleHrefFromSearch(currentSearch, item.key, props.comparisonScope)}
+                scroll={false}
+                className={buyerFilterChipClass(props.comparisonScope[item.key], false)}
+                aria-pressed={props.comparisonScope[item.key]}
+                data-testid={`impact-preview-scope-${item.key}`}
+                onClick={() => {
+                  props.onToggleScope(item.key);
+                }}
+              >
                 {item.label}
-              </label>
+              </FilterChip>
             ))}
-          </div>
+          </FilterChipGroup>
         </fieldset>
 
         {props.canSimulate && props.selectedCandidateId !== null ? (

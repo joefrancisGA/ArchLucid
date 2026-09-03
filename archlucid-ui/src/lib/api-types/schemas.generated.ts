@@ -5030,6 +5030,7 @@ export interface components {
             /** Format: uuid */
             contextSnapshotId?: string;
             cost?: components["schemas"]["CostSection"];
+            createTimeArchitectureRequestId?: null | string;
             createTimeArchitectureVersionContentHashSha256?: null | string;
             createTimeEvidencePackagePins?: components["schemas"]["PinnedEvidencePackageRow"][];
             createTimeEvidencePackagePinsHashSha256?: null | string;
@@ -5037,7 +5038,11 @@ export interface components {
             createTimeFocusedPilotCloudProvider?: null | number;
             createTimeFocusedPilotModeEnabled?: null | boolean;
             createTimeKnowledgeModelContentHashSha256?: null | string;
+            createTimePackageOrigin?: null | string;
+            createTimePilotAoaiDeploymentSnapshot?: null | string;
             createTimePolicyPackPins?: components["schemas"]["PinnedPolicyPackRow"][];
+            /** Format: int32 */
+            createTimeStructuralExecutionMode?: null | number;
             /** Format: date-time */
             createdUtc?: string;
             /** Format: uuid */
@@ -6916,10 +6921,12 @@ export interface components {
         };
         RecordBulkFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
+            evidenceRequestText?: null | string;
             findingIds: string[];
             rationale: string;
             /** Format: date-time */
             revisitDueUtc?: null | string;
+            tradeOffAcknowledgment?: null | string;
         };
         RecordBulkFindingDispositionResponse: {
             /** Format: int32 */
@@ -7795,9 +7802,14 @@ export interface components {
             pinnedArchitectureVersionContentHashSha256?: null | string;
             /** Format: byte */
             pinnedEvidencePackagePinsHashSha256?: null | string;
+            /** @description Read-only create-time evidence package pin rows (JSON array) frozen at run create (wave-6+). */
             pinnedEvidencePackagePinsJson?: null | string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Read-only focused-pilot cloud provider pin frozen at run create (wave-11).
+             */
             pinnedFocusedPilotCloudProvider?: null | number;
+            /** @description Read-only focused-pilot mode pin frozen at run create (wave-11). */
             pinnedFocusedPilotModeEnabled?: null | boolean;
             /**
              * Format: byte
@@ -7806,6 +7818,7 @@ export interface components {
             pinnedKnowledgeModelContentHashSha256?: null | string;
             /** Format: byte */
             pinnedPolicyPackIdsHashSha256?: null | string;
+            /** @description Read-only create-time policy pack pin rows (JSON array) frozen at run create (wave-6+). */
             pinnedPolicyPackIdsJson?: null | string;
             projectId: string;
             realModeFellBackToSimulator?: boolean;
