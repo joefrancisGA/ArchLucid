@@ -117,15 +117,8 @@ internal sealed partial class SqlStorageProviderRegistrar
         SqlOutboxRepositoryRegistrar.Register(services);
         services.AddScoped<IRetrievalGroundingTraceWriter, DapperRetrievalGroundingTraceWriter>();
         services.AddScoped<IRetrievalGroundingTraceReader, DapperRetrievalGroundingTraceReader>();
-        services.AddScoped<IProductLearningPilotSignalRepository, DapperProductLearningPilotSignalRepository>();
-        services.AddScoped<IProductLearningPlanningRepository, DapperProductLearningPlanningRepository>();
-        services.AddScoped<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
-        services.AddScoped<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
-        services.AddScoped<IProductLearningDashboardService, ProductLearningDashboardService>();
-        services.AddScoped<IProductLearningPlanningDerivationService, ProductLearningPlanningDerivationService>();
-        services.AddScoped<IPatternInsightAggregateRepository, DapperPatternInsightAggregateRepository>();
-        services.AddScoped<IEvolutionCandidateChangeSetRepository, DapperEvolutionCandidateChangeSetRepository>();
-        services.AddScoped<IEvolutionSimulationRunRepository, DapperEvolutionSimulationRunRepository>();
+        RegisterProductLearning(services);
+        RegisterEvolutionConversation(services);
         SqlPilotRepositoryRegistrar.Register(services);
         SqlMarketingRepositoryRegistrar.Register(services);
         SqlItsmRepositoryRegistrar.Register(services);
@@ -140,8 +133,6 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();
         services.AddScoped<IProvenanceGraphAccessService, ProvenanceGraphAccessService>();
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
-        services.AddScoped<IConversationThreadRepository, DapperConversationThreadRepository>();
-        services.AddScoped<IConversationMessageRepository, DapperConversationMessageRepository>();
         services.AddScoped<IRecommendationRepository, DapperRecommendationRepository>();
         services.AddScoped<ArchLucid.Core.Persistence.Ports.IRecommendationWorkflowService, RecommendationWorkflowService>();
         services.AddScoped<ArchLucid.Core.Persistence.Ports.IRecommendationFeedbackAnalyzer, RecommendationFeedbackAnalyzer>();

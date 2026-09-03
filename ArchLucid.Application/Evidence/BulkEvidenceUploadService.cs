@@ -20,7 +20,7 @@ using Serilog.Context;
 
 namespace ArchLucid.Application.Evidence;
 
-public sealed class BulkEvidenceUploadService(
+public sealed partial class BulkEvidenceUploadService(
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     IAuditService auditService,
@@ -195,110 +195,5 @@ public sealed class BulkEvidenceUploadService(
                 UploadedEvidenceItemIds = uploadedIds
             };
         }
-    }
-
-    private async Task UploadExpandedZipEntriesAsync(
-        Guid runId,
-        IFormFile zipFile,
-        string archiveName,
-        Guid evidencePackageId,
-        List<string> uploadedIds,
-        List<string> fileNames,
-        CancellationToken cancellationToken)
-    {
-        using Stream zipStream = zipFile.OpenReadStream();
-        ZipEvidenceExpansionResult expansion = zipEvidenceExpanderService.Expand(zipStream, archiveName, evidencePackageId);
-
-        foreach (ZipEvidenceExpandedFile expandedFile in expansion.Files)
-        {
-            using MemoryStream contentStream = new(expandedFile.Content);
-
-            await UploadSingleEvidenceFileAsync(
-                runId,
-                expandedFile.FileName,
-                contentStream,
-                uploadedIds,
-                fileNames,
-                cancellationToken);
-        }
-    }
-
-    private async Task UploadSingleEvidenceFileAsync(
-        Guid runId,
-        string safeBaseName,
-        Stream contentStream,
-        List<string> uploadedIds,
-        List<string> fileNames,
-        CancellationToken cancellationToken)
-    {
-        string evidenceItemId = Guid.NewGuid().ToString("N");
-        string blobName = $"evidence/{runId:N}/{evidenceItemId}_{safeBaseName}";
-
-        using MemoryStream ms = new();
-        await contentStream.CopyToAsync(ms, cancellationToken);
-        string contentBase64 = Convert.ToBase64String(ms.ToArray());
-
-        await blobStore.WriteAsync("artifacts", blobName, contentBase64, cancellationToken);
-
-        uploadedIds.Add(evidenceItemId);
-        fileNames.Add(safeBaseName);
-    }
-
-    private static bool IsZipArchive(IFormFile file)
-    {
-        if (file.FileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ||
-            file.ContentType.Equals("application/zip", StringComparison.OrdinalIgnoreCase) ||
-            file.ContentType.Equals("application/x-zip-compressed", StringComparison.OrdinalIgnoreCase))
-        {
-            using Stream stream = file.OpenReadStream();
-            if (stream.Length >= 4)
-            {
-                byte[] buffer = new byte[4];
-                if (stream.Read(buffer, 0, 4) == 4)
-                {
-                    return buffer[0] == 0x50 && buffer[1] == 0x4B && buffer[2] == 0x03 && buffer[3] == 0x04;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private async Task TryUpdateEvidenceBundleMetadataAsync(
-        ScopeContext scope,
-        Guid runId,
-        int uploadedCount,
-        CancellationToken cancellationToken)
-    {
-        if (uploadedCount <= 0)
-            return;
-
-        IReadOnlyList<AgentTask> tasks =
-            await agentTaskRepository.GetByRunIdAsync(scope, runId.ToString("N"), cancellationToken).ConfigureAwait(false);
-
-        string? bundleRef = tasks.FirstOrDefault()?.EvidenceBundleRef;
-
-        if (string.IsNullOrWhiteSpace(bundleRef))
-            return;
-
-        EvidenceBundle? bundle = await evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken).ConfigureAwait(false);
-
-        if (bundle is null)
-            return;
-
-        if (bundle.Metadata.TryGetValue(BulkEvidenceMetadataKeys.AttachedFileCountKey, out string? existingRaw)
-            && int.TryParse(existingRaw, out int existingCount))
-        {
-            bundle.Metadata[BulkEvidenceMetadataKeys.AttachedFileCountKey] = (existingCount + uploadedCount).ToString();
-        }
-        else
-        {
-            bundle.Metadata[BulkEvidenceMetadataKeys.AttachedFileCountKey] = uploadedCount.ToString();
-        }
-
-        bundle.Metadata[BulkEvidenceMetadataKeys.LastAttachedUtcKey] =
-            TimeProvider.System.GetUtcNow().UtcDateTime.ToString("O");
-
-        await evidenceBundleRepository.UpdateAsync(bundle, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -17,6 +17,8 @@ import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
+import { hasSealedReviewRecord } from "@/lib/first-review-guide-persistence";
+
 export type FirstReviewGuideStepUiStatus = "not-started" | "current" | "complete" | "blocked";
 
 export type FirstReviewGuideReadinessKind =
@@ -175,10 +177,6 @@ export function resolveFirstReviewGuideReadiness(input: FirstReviewGuideStateInp
     headline: "Ready to start",
     detail: "Optional workspace setup can be completed later.",
   };
-}
-
-function hasSealedReviewRecord(commitContext: CorePilotCommitContext): boolean {
-  return commitContext.firstCommittedRunId !== null;
 }
 
 function baseStepStatuses(commitContext: CorePilotCommitContext): FirstReviewGuideStepUiStatus[] {
