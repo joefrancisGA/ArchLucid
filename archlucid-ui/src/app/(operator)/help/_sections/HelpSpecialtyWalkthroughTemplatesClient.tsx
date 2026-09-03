@@ -330,7 +330,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
               </ul>
             </section>
           </div>
-        </OperatorPageContainer>
+        </div>
 
         <div data-testid="help-specialty-walkthroughs-orientation-bottom">
           <HelpSpecialtyWalkthroughClaimOrientationStrip />
