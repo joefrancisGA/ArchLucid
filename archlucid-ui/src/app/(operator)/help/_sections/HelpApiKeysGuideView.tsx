@@ -1,10 +1,10 @@
 import Link from "next/link";
 
+import { HelpApiKeysClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpApiKeysClaimOrientationStrip";
+import { HelpApiKeysHeaderActions } from "@/app/(operator)/help/_sections/HelpApiKeysHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { ApiKeysHelpClaimDisciplineStrip } from "@/components/help/ApiKeysHelpClaimDisciplineStrip";
-import { ApiKeysHelpEvidenceOrientationStrip } from "@/components/help/ApiKeysHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
@@ -26,7 +26,17 @@ import {
   API_KEYS_HELP_RELEASE_STATUS_LABEL,
   type ApiKeysHelpPrimaryAction,
 } from "@/lib/api-keys-help-guide-content";
-import { API_KEYS_HELP_CANONICAL_PATH } from "@/lib/api-keys-help-evidence-copy";
+import {
+  API_KEYS_HELP_CANONICAL_PATH,
+  API_KEYS_HELP_CLAIM_DISCIPLINE,
+} from "@/lib/api-keys-help-evidence-copy";
+import {
+  API_KEYS_HELP_FIRST_VIEWPORT_TEST_ID,
+  API_KEYS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  API_KEYS_HELP_PRIMARY_CONTENT_ID,
+  API_KEYS_HELP_SKIP_LINK_LABEL,
+  API_KEYS_HELP_SKIP_TARGET_ID,
+} from "@/lib/api-keys-help-page-copy";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -63,7 +73,8 @@ function HelpApiKeysPrimaryActionButton(props: { readonly action: ApiKeysHelpPri
 }
 
 /** Operator API keys orientation for `/help/api-keys`. */
-export function HelpApiKeysGuideView(_props: HelpApiKeysGuideViewProps): React.ReactElement {
+export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.ReactElement {
+  const { entry } = props;
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-api-keys",
     API_KEYS_HELP_GUIDE_HEADINGS,
@@ -74,23 +85,36 @@ export function HelpApiKeysGuideView(_props: HelpApiKeysGuideViewProps): React.R
 
   return (
     <article className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)} data-testid="help-api-keys-guide">
+      <a href={`#${API_KEYS_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {API_KEYS_HELP_SKIP_LINK_LABEL}
+      </a>
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
-        title={API_KEYS_HELP_PAGE_TITLE}
-        titleTestId="help-api-keys-page-title"
-        subtitle={API_KEYS_HELP_PAGE_SUBTITLE}
-        navHref={API_KEYS_HELP_CANONICAL_PATH}
-        headingLevel="h1"
-        statusBadge={<StatusTag kind="neutral" label={API_KEYS_HELP_RELEASE_STATUS_LABEL} />}
-      />
+      <div
+        id={API_KEYS_HELP_PRIMARY_CONTENT_ID}
+        data-testid={API_KEYS_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <HelpTopicGuidePageHeader
+          title={API_KEYS_HELP_PAGE_TITLE}
+          titleTestId="help-api-keys-page-title"
+          subtitle={API_KEYS_HELP_PAGE_SUBTITLE}
+          navHref={API_KEYS_HELP_CANONICAL_PATH}
+          headingLevel="h1"
+          claimDiscipline={API_KEYS_HELP_CLAIM_DISCIPLINE}
+          claimDisciplineTestId={API_KEYS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          statusBadge={<StatusTag kind="neutral" label={API_KEYS_HELP_RELEASE_STATUS_LABEL} />}
+          actions={<HelpApiKeysHeaderActions entry={entry} />}
+        />
 
-      <ApiKeysHelpClaimDisciplineStrip />
-
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <ApiKeysHelpEvidenceOrientationStrip />
-
+        <div
+          id={API_KEYS_HELP_SKIP_TARGET_ID}
+          data-testid={API_KEYS_HELP_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
           <p className={readingBodyClass} data-testid="help-api-keys-overview">
             {API_KEYS_HELP_OVERVIEW}
           </p>
@@ -126,44 +150,52 @@ export function HelpApiKeysGuideView(_props: HelpApiKeysGuideViewProps): React.R
               <HelpApiKeysPrimaryActionButton action={API_KEYS_HELP_PRIMARY_ACTIONS.audit} />
             </div>
           </section>
-
-          <section
-            aria-labelledby="what-api-keys-are-for"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="what-api-keys-are-for">What API keys are for</HelpSectionHeading>
-            <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
-              data-testid="help-api-keys-feature-items"
-            >
-              {API_KEYS_HELP_FEATURE_ITEMS.map((item) => (
-                <div key={item.label}>
-                  <dt className="font-medium text-al-text-primary">{item.label}</dt>
-                  <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-
-          <section
-            aria-labelledby={API_KEYS_HELP_INSTEAD_SECTION_ID}
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id={API_KEYS_HELP_INSTEAD_SECTION_ID}>
-              {API_KEYS_HELP_INSTEAD_SECTION_TITLE}
-            </HelpSectionHeading>
-            <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
-              data-testid="help-api-keys-how-stepper"
-            >
-              {API_KEYS_HELP_HOW_TO_READ_STEPS.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </section>
         </div>
 
-        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+            <section
+              aria-labelledby="what-api-keys-are-for"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="what-api-keys-are-for">What API keys are for</HelpSectionHeading>
+              <dl
+                className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-api-keys-feature-items"
+              >
+                {API_KEYS_HELP_FEATURE_ITEMS.map((item) => (
+                  <div key={item.label}>
+                    <dt className="font-medium text-al-text-primary">{item.label}</dt>
+                    <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+
+            <section
+              aria-labelledby={API_KEYS_HELP_INSTEAD_SECTION_ID}
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id={API_KEYS_HELP_INSTEAD_SECTION_ID}>
+                {API_KEYS_HELP_INSTEAD_SECTION_TITLE}
+              </HelpSectionHeading>
+              <ol
+                className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-api-keys-how-stepper"
+              >
+                {API_KEYS_HELP_HOW_TO_READ_STEPS.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </section>
+          </div>
+
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
+        </div>
+
+        <div data-testid="help-api-keys-orientation-bottom">
+          <HelpApiKeysClaimOrientationStrip />
+        </div>
       </div>
     </article>
   );
