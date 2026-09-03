@@ -57,6 +57,52 @@ public sealed class SponsorReviewPacketComposerTests
     }
 
     [Fact]
+    public void ComposeMarkdown_includes_top_level_demo_notice_for_demo_run()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = ContosoRetailDemoIdentifiers.RunBaseline,
+                RequestId = ContosoRetailDemoIdentifiers.RequestContoso,
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1"
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = ContosoRetailDemoIdentifiers.RunBaseline,
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow }
+            }
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            ["Finding one"],
+            roiSummary,
+            DateTime.UtcNow);
+
+        int demoNoticeIndex = markdown.IndexOf("Demo notice", StringComparison.Ordinal);
+        int manifestSummaryIndex = markdown.IndexOf("## Manifest summary", StringComparison.Ordinal);
+
+        demoNoticeIndex.Should().BeGreaterThan(-1);
+        manifestSummaryIndex.Should().BeGreaterThan(-1);
+        demoNoticeIndex.Should().BeLessThan(manifestSummaryIndex);
+        markdown.Should().Contain(ArchitectureReviewBoardCoverPageContent.DemoTenantNotice);
+    }
+
+    [Fact]
     public void ComposeMarkdown_includes_active_trial_notice_when_provided()
     {
         ArchitectureRunDetail detail = new()

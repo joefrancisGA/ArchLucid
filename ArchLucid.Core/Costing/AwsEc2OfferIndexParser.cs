@@ -13,13 +13,13 @@ public static class AwsEc2OfferIndexParser
 
         using JsonDocument document = JsonDocument.Parse(offerJson);
 
-        if (!document.RootElement.TryGetProperty("products", out JsonElement products))
+        if (!TryGetPropertyCaseInsensitive(document.RootElement, "products", out JsonElement products))
             return null;
 
-        if (!document.RootElement.TryGetProperty("terms", out JsonElement terms))
+        if (!TryGetPropertyCaseInsensitive(document.RootElement, "terms", out JsonElement terms))
             return null;
 
-        if (!terms.TryGetProperty("OnDemand", out JsonElement onDemandRoot))
+        if (!TryGetPropertyCaseInsensitive(terms, "OnDemand", out JsonElement onDemandRoot))
             return null;
 
         string normalizedInstance = instanceType.Trim();
@@ -28,7 +28,7 @@ public static class AwsEc2OfferIndexParser
         {
             JsonElement product = productEntry.Value;
 
-            if (!product.TryGetProperty("attributes", out JsonElement attributes))
+            if (!TryGetPropertyCaseInsensitive(product, "attributes", out JsonElement attributes))
                 continue;
 
             if (!TryReadAttribute(attributes, "instanceType", out string? foundType)
@@ -55,7 +55,7 @@ public static class AwsEc2OfferIndexParser
                 continue;
             }
 
-            if (!onDemandRoot.TryGetProperty(productEntry.Name, out JsonElement skuTerms))
+            if (!TryGetPropertyCaseInsensitive(onDemandRoot, productEntry.Name, out JsonElement skuTerms))
                 continue;
 
             foreach (JsonProperty skuTerm in skuTerms.EnumerateObject())
@@ -146,7 +146,13 @@ public static class AwsEc2OfferIndexParser
         if (TryParseBooleanString(raw, out bool boolean))
             return boolean;
 
-        return string.Equals(raw?.Trim(), "Hrs", StringComparison.OrdinalIgnoreCase);
+        string? trimmed = raw?.Trim();
+
+        return string.Equals(trimmed, "Hrs", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hour", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hours", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryParseBooleanString(string? raw, out bool value)
@@ -194,12 +200,37 @@ public static class AwsEc2OfferIndexParser
         if (!TryGetPropertyCaseInsensitive(attributes, name, out JsonElement element))
             return false;
 
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            value = TryReadWholeNumberLongToken(element) ?? element.GetRawText().Trim();
+
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
         if (element.ValueKind is not JsonValueKind.String)
             return false;
 
         value = element.GetString()?.Trim();
 
         return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static string? TryReadWholeNumberLongToken(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long whole))
+            return whole.ToString(CultureInfo.InvariantCulture);
+
+        if (element.ValueKind == JsonValueKind.Number
+            && element.TryGetDouble(out double numeric)
+            && double.IsFinite(numeric)
+            && numeric >= long.MinValue
+            && numeric <= long.MaxValue
+            && numeric == Math.Floor(numeric))
+        {
+            return ((long)numeric).ToString(CultureInfo.InvariantCulture);
+        }
+
+        return null;
     }
 
     private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)

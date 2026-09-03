@@ -262,6 +262,97 @@ public sealed class BicepInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_MultilineIpSecurityRestrictionsArray_PreservesRulesForNetworkExpander()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource app 'Microsoft.Web/sites@2022-03-01' = {
+                        properties: {
+                          siteConfig: {
+                            ipSecurityRestrictions:
+                            [
+                              {
+                                name: 'AllowAll'
+                                ipAddress: '0.0.0.0/0'
+                                action: 'Allow'
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ipsecurityrestrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+        result[0].Properties.Should().NotContainKey("tf.ipaddress");
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedSiteConfigWithClosingBraceInQuotedString_StillParsesTrailingScalars()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource app 'Microsoft.Web/sites@2022-03-01' = {
+                        properties: {
+                          siteConfig: {
+                            note: 'policy } marker'
+                            publicNetworkAccess: 'Disabled'
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.note"].Should().Be("policy } marker");
+        result[0].Properties["tf.publicnetworkaccess"].Should().Be("disabled");
+    }
+
+    [Fact]
+    public async Task ParseAsync_IpSecurityRestrictionsArrayWithBracketInLineComment_PreservesRulesForNetworkExpander()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource app 'Microsoft.Web/sites@2022-03-01' = {
+                        properties: {
+                          siteConfig: {
+                            ipSecurityRestrictions: [ // legacy rule ]
+                            {
+                              name: 'AllowAll'
+                              ipAddress: '0.0.0.0/0'
+                              action: 'Allow'
+                            }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ipsecurityrestrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+        result[0].Properties.Should().NotContainKey("tf.ipaddress");
+    }
+
+    [Fact]
     public async Task ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline()
     {
         InfrastructureDeclarationReference declaration = new()

@@ -237,4 +237,44 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
 
         reasons.Should().BeEmpty();
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_task_id_missing_groups_by_agent_type_not_single_empty_task()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime sharedUtc = new(2026, 5, 1, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace rejectedTopology = new()
+        {
+            TraceId = "trace-a-topology",
+            TaskId = string.Empty,
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace acceptedCost = new()
+        {
+            TraceId = "trace-z-cost",
+            TaskId = string.Empty,
+            AgentType = AgentType.Cost,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [rejectedTopology, acceptedCost]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-a-topology");
+    }
 }
