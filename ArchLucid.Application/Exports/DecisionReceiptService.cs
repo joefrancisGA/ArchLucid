@@ -91,6 +91,10 @@ public sealed class DecisionReceiptService(
         if (verdict is null || !DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
             return null;
 
-        return DecisionReceiptComposer.BuildForRun(runId, verdict);
+        return DecisionReceiptComposer.BuildForRun(
+            runId,
+            verdict,
+            manifestSummary!.ManifestHash,
+            detail.Run.CurrentManifestVersion);
     }
 }

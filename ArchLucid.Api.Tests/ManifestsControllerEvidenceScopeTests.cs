@@ -7,6 +7,7 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -89,7 +90,12 @@ public sealed class ManifestsControllerEvidenceScopeTests
         Mock<IRunRepository> runs = new();
         runs
             .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord { RunId = runId });
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                GoldenManifestId = Guid.NewGuid(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed)
+            });
 
         ManifestsController controller = CreateController(
             reader.Object,
@@ -128,7 +134,12 @@ public sealed class ManifestsControllerEvidenceScopeTests
         Mock<IRunRepository> runs = new();
         runs
             .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord { RunId = runId });
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                GoldenManifestId = Guid.NewGuid(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed)
+            });
 
         Mock<IManifestSummaryGenerator> summary = new(MockBehavior.Strict);
 
@@ -270,7 +281,12 @@ public sealed class ManifestsControllerEvidenceScopeTests
         Mock<IRunRepository> runs = new();
         runs
             .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord { RunId = runId });
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                GoldenManifestId = Guid.NewGuid(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed)
+            });
 
         ManifestsController controller = CreateController(
             reader.Object,
@@ -308,7 +324,12 @@ public sealed class ManifestsControllerEvidenceScopeTests
         Mock<IRunRepository> runs = new();
         runs
             .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord { RunId = runId });
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                GoldenManifestId = Guid.NewGuid(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed)
+            });
 
         Mock<IManifestSummaryGenerator> summaryGenerator = new();
         summaryGenerator

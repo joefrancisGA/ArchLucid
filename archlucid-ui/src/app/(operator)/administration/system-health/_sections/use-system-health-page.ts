@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { HealthReadyResponse, VersionInfoResponse } from "@/lib/health-dashboard-types";
 import { fetchHealthLive } from "@/lib/fetch-health-live";
@@ -11,13 +11,15 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { buildCriticalDependencyRows } from "@/lib/system-health-critical-dependencies";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
-import type { SystemHealthPageViewModel } from "./system-health-page-view-model";
+import type { SystemHealthPageViewModel, SystemHealthStatusTransition } from "./system-health-page-view-model";
 
 const DEMO_REFRESH_DELAY_MS = 350;
 
 function isBuyerDemoSystemHealthShell(): boolean {
   return isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
 }
+
+const SYSTEM_HEALTH_POLL_INTERVAL_MS = 60_000;
 
 export function useSystemHealthPage(): SystemHealthPageViewModel {
   const showDemoWorkspaceDashboard = isBuyerDemoSystemHealthShell();
@@ -33,6 +35,8 @@ export function useSystemHealthPage(): SystemHealthPageViewModel {
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(
     showDemoWorkspaceDashboard ? new Date() : null,
   );
+  const [statusTransitions, setStatusTransitions] = useState<readonly SystemHealthStatusTransition[]>([]);
+  const lastOverallStatusRef = useRef<string | null>(null);
 
   const refreshLiveHealth = useCallback(async () => {
     setLoading(true);
@@ -54,7 +58,21 @@ export function useSystemHealthPage(): SystemHealthPageViewModel {
       setLiveStatus(live.body?.status?.trim() || (live.ok ? "Healthy" : "Unavailable"));
 
       if (readyRes.ok) {
-        setReady((await readyRes.json()) as HealthReadyResponse);
+        const readyPayload = (await readyRes.json()) as HealthReadyResponse;
+        const nextOverall = readyPayload.status?.trim() || "Unknown";
+
+        if (lastOverallStatusRef.current !== null && lastOverallStatusRef.current !== nextOverall) {
+          setStatusTransitions((current) => [
+            ...current,
+            {
+              at: new Date(),
+              message: `Overall readiness changed from ${lastOverallStatusRef.current} to ${nextOverall}.`,
+            },
+          ].slice(-5));
+        }
+
+        lastOverallStatusRef.current = nextOverall;
+        setReady(readyPayload);
       } else {
         setReady(null);
         setReadyError(`Readiness check failed (HTTP ${readyRes.status}).`);
@@ -105,6 +123,22 @@ export function useSystemHealthPage(): SystemHealthPageViewModel {
     void refreshLiveHealth();
   }, [isStaticDemo, refreshLiveHealth, showDemoWorkspaceDashboard]);
 
+  useEffect(() => {
+    if (showDemoWorkspaceDashboard || isStaticDemo) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        void refreshLiveHealth();
+      }
+    }, SYSTEM_HEALTH_POLL_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [isStaticDemo, refreshLiveHealth, showDemoWorkspaceDashboard]);
+
   const criticalDependencies = buildCriticalDependencyRows(ready?.entries ?? []);
 
   return {
@@ -117,6 +151,7 @@ export function useSystemHealthPage(): SystemHealthPageViewModel {
     criticalDependencies,
     refresh,
     lastRefreshedAt,
+    statusTransitions,
     showDemoWorkspaceDashboard,
     showTechnicalDetails: isShowSystemAdministrationNavEnabled(),
   };

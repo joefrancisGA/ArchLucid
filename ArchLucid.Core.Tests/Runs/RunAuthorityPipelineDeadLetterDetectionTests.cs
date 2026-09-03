@@ -80,4 +80,14 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
 
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
     }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_when_schema_version_property_is_null()
+    {
+        const string json = """
+            {"schemaVersion":null,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
 }

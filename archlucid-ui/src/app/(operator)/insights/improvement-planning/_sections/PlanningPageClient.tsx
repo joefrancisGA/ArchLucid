@@ -1,9 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 
 import { sortPlansForPlanningDisplay, sortThemesForPlanningDisplay } from "@/lib/planning-display-order";
+import {
+  parsePlanningThemeIdFromSearch,
+  planningThemeHrefFromSearch,
+} from "@/lib/planning/planning-theme-filter-url";
 
 import type { PlanningPageServerLoadResult } from "./load-planning-page-data";
 import type { PlanningPageViewModel } from "./planning-page-view-model";
@@ -15,9 +19,28 @@ type PlanningPageClientProps = {
 
 export function PlanningPageClient(props: PlanningPageClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlThemeId = parsePlanningThemeIdFromSearch(searchParams.get("theme"));
   const loaded = props.loaded;
-  const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
+  const [selectedThemeId, setSelectedThemeId] = useState<string | null>(urlThemeId);
   const [isRefreshing, startRefreshTransition] = useTransition();
+
+  useEffect(() => {
+    setSelectedThemeId(urlThemeId);
+  }, [urlThemeId]);
+
+  const setSelectedThemeIdWithUrl = useCallback(
+    (value: string | null | ((prev: string | null) => string | null)): void => {
+      setSelectedThemeId((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+
+        router.replace(planningThemeHrefFromSearch(searchParams.toString(), next), { scroll: false });
+
+        return next;
+      });
+    },
+    [router, searchParams],
+  );
 
   useEffect(() => {
     if (loaded.kind !== "data") {
@@ -51,7 +74,7 @@ export function PlanningPageClient(props: PlanningPageClientProps) {
         themeTitleById: new Map(),
         visiblePlans: [],
         selectedThemeId: null,
-        setSelectedThemeId,
+        setSelectedThemeId: setSelectedThemeIdWithUrl,
         selectedThemeTitle: null,
         generatedUtc: null,
         loading: false,
@@ -95,7 +118,7 @@ export function PlanningPageClient(props: PlanningPageClientProps) {
       themeTitleById,
       visiblePlans,
       selectedThemeId,
-      setSelectedThemeId,
+      setSelectedThemeId: setSelectedThemeIdWithUrl,
       selectedThemeTitle,
       generatedUtc,
       loading: false,
@@ -105,7 +128,7 @@ export function PlanningPageClient(props: PlanningPageClientProps) {
       load,
       empty,
     };
-  }, [isRefreshing, loaded, router, selectedThemeId]);
+  }, [isRefreshing, loaded, router, selectedThemeId, setSelectedThemeIdWithUrl]);
 
   return <PlanningPageView model={model} />;
 }

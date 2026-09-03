@@ -14,4 +14,14 @@ public sealed class PlainTextDocumentTopologyHintExtractorTests
 
         hints.Should().ContainSingle().Which.Should().Be("parentnet/childsubnet");
     }
+
+    [Fact]
+    public void EnumerateHintNames_TabIndentedTopLine_MatchesParser()
+    {
+        const string content = "\tTOP:\tparentNet/childSubnet";
+
+        IEnumerable<string> hints = PlainTextDocumentTopologyHintExtractor.EnumerateHintNames(content);
+
+        hints.Should().ContainSingle().Which.Should().Be("parentnet/childsubnet");
+    }
 }

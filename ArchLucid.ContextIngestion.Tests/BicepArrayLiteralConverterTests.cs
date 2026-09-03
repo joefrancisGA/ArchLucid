@@ -66,4 +66,33 @@ public sealed class BicepArrayLiteralConverterTests
 
         baseline.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task ParseAsync_InlineArrayObjectWithFullLineHashComment_DoesNotParseCommentedAssignment()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-full-line-hash-comment",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        ip_security_restrictions = [
+                          {
+                            name = "AllowAll"
+                            # ip_address = "1.1.1.1"
+                            ip_address = "0.0.0.0/0"
+                            action = "Allow"
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _terraformParser.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand(parsed);
+
+        expanded.Should().HaveCountGreaterThan(1);
+        parsed[0].Properties["tf.ip_security_restrictions"].Should().NotContain("1.1.1.1");
+    }
 }

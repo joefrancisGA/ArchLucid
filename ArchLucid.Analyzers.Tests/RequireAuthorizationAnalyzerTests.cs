@@ -343,6 +343,107 @@ namespace N
         await test.RunAsync();
     }
 
+    [Fact]
+    public async Task Does_not_report_NonAction_helper_inherited_from_base_method()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class HelperBaseController : ControllerBase
+    {
+        [NonAction]
+        public virtual IActionResult Helper() => Ok();
+    }
+
+    public sealed class DerivedHelperController : HelperBaseController
+    {
+        public override IActionResult Helper() => Ok();
+    }
+}
+""";
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_report_AllowAnonymous_helper_inherited_from_base_method()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class AnonymousHelperBaseController : ControllerBase
+    {
+        [AllowAnonymous]
+        public virtual IActionResult Helper() => Ok();
+    }
+
+    public sealed class DerivedAnonymousHelperController : AnonymousHelperBaseController
+    {
+        public override IActionResult Helper() => Ok();
+    }
+}
+""";
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_report_Authorize_helper_inherited_from_base_method()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class AuthorizedHelperBaseController : ControllerBase
+    {
+        [Authorize]
+        public virtual IActionResult Helper() => Ok();
+    }
+
+    public sealed class DerivedAuthorizedHelperController : AuthorizedHelperBaseController
+    {
+        public override IActionResult Helper() => Ok();
+    }
+}
+""";
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 }
