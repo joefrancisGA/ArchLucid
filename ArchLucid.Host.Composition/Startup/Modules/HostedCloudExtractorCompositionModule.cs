@@ -1,6 +1,7 @@
 // Hosted multi-cloud extractor integration composition registrations.
 
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.AzureExtractor.Stages;
 using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Application.GcpExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
@@ -63,6 +64,8 @@ public static class HostedCloudExtractorCompositionModule
                         .GetRequiredService<ILoggerFactory>()
                         .CreateLogger("HostedAzureArmReadClient.Policies")));
         services.AddScoped<IHostedAzureExtractorClient, HostedAzureExtractorClient>();
+        services.AddScoped<IAzureExtractorPreparedZipValidateStage, AzureExtractorPreparedZipValidateStage>();
+        services.AddScoped<IAzureExtractorPreparedZipPersistStage, AzureExtractorPreparedZipPersistStage>();
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
         services.AddScoped<IAzureExtractorResultEnricher, AzureExtractorResultEnricher>();
         services.Configure<AzureExtractorEnrichmentOptions>(

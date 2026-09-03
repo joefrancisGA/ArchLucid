@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { SpecialtyTemplateCloudContextPicker } from "@/components/help/SpecialtyTemplateCloudContextPicker";
 import { SpecialtyTemplateComparisonTable } from "@/components/help/SpecialtyTemplateComparisonTable";
@@ -114,10 +113,13 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
         <header className="space-y-4 border-b border-neutral-200 p-4 pb-4 dark:border-neutral-800">
           <HelpTopicTitleRow title={SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE} actions={<PageContextualHelpButton />} />
           <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_PAGE_SUBTITLE}</p>
-          <HelpStaticSection title={SPECIALTY_REVIEW_TEMPLATES_INTRO_DISCLOSURE_TITLE}>
-            <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>{SPECIALTY_REVIEW_TEMPLATES_INTRO}</p>
+          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/30">
+            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.helper)}>
+              {SPECIALTY_REVIEW_TEMPLATES_INTRO_DISCLOSURE_TITLE}
+            </summary>
+            <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>{SPECIALTY_REVIEW_TEMPLATES_INTRO}</p>
             <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE}</p>
-          </HelpStaticSection>
+          </details>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             <Link href="/architecture/reviews/new" className={cn(OPERATOR_LINK.inline)}>
               {SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL}

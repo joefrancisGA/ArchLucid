@@ -42,10 +42,6 @@ import {
   resolveFindingJobViewFromSearchParam,
   REVIEW_FINDINGS_JOB_VIEW_PARAM,
 } from "@/lib/findings/review-findings-job-view-url";
-import {
-  resolveReviewFindingsToolbarFilterFromSearchParam,
-  REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM,
-} from "@/lib/findings/review-findings-toolbar-filter-url";
 
 export type RunDetailFindingsWorkspaceProps = {
   readonly runId: string;
@@ -77,10 +73,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const initialJobView = resolveFindingJobViewFromSearchParam(
     searchParams?.get(REVIEW_FINDINGS_JOB_VIEW_PARAM),
   );
-  const initialFilter = resolveReviewFindingsToolbarFilterFromSearchParam(
-    searchParams?.get(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM),
-  );
-  const toolbar = useRunDetailFindingsToolbarState({ initialJobView, initialFilter });
+  const toolbar = useRunDetailFindingsToolbarState({ initialJobView });
 
   function applyNaturalLanguageFacets(facets: FindingsNaturalLanguageFacets): void {
 

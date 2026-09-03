@@ -1,26 +1,43 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunComparison } from "@/lib/operator/operator-response-guards";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns, getRunSummary } from "@/lib/api";
+import { fetchComparisonNarrativeViaAsk } from "@/lib/api/conversation-api";
 import {
   compareRunIdsAreSameAfterDemoCanonicalization,
+  comparePageHrefAdaptive,
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
 import { BUYER_COMPARE_PAGE_TITLE, BUYER_COMPARE_PRIMARY_ACTION_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import {
+  isStaticDemoPayloadFallbackEnabled,
+  tryStaticDemoGoldenManifestComparison,
+  tryStaticDemoRunComparison,
+} from "@/lib/operator/operator-static-demo";
+import {
+  readCompareLastComparisonPair,
+  writeCompareLastComparisonPair,
+  type CompareLastComparisonPair,
+} from "@/lib/compare/compare-last-comparison-pair-storage";
 import {
   resolveCompareTwoReviewsEmphasizedStepId,
   resolveCompareTwoReviewsSteps,
 } from "@/lib/compare-two-reviews-checklist";
 import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageIntro";
 import { useCompareFormUrlSync } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form-url-sync";
-import { useCompareFormFetch } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form-fetch";
-import { useCompareFormAiExplanation } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form-ai-explanation";
 import { useCompareFinalizedRunAvailability } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFinalizedRunAvailability";
+import type { ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { comparePickerFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
+import type { GoldenManifestComparison } from "@/types/comparison";
+import type { ComparisonExplanation } from "@/types/explanation";
+import type { RunComparison, RunSummary } from "@/types/authority";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
@@ -28,51 +45,161 @@ import {
 } from "@/lib/showcase-static-demo";
 
 export function useCompareForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const compareGenerationRef = useRef(0);
+  const aiGenerationRef = useRef(0);
   const initialUrlPair = readCompareRunIdsFromSearchParams(searchParams);
   const [leftRunId, setLeftRunId] = useState(initialUrlPair.prior);
   const [rightRunId, setRightRunId] = useState(initialUrlPair.later);
+  const [result, setResult] = useState<RunComparison | null>(null);
+  const [golden, setGolden] = useState<GoldenManifestComparison | null>(null);
+  const [legacyFailure, setLegacyFailure] = useState<ApiLoadFailureState | null>(null);
+  const [goldenFailure, setGoldenFailure] = useState<ApiLoadFailureState | null>(null);
+  const [legacyMalformed, setLegacyMalformed] = useState<string | null>(null);
+  const [goldenMalformed, setGoldenMalformed] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState<ComparisonExplanation | null>(null);
+  const [aiFailure, setAiFailure] = useState<ApiLoadFailureState | null>(null);
+  const [aiMalformed, setAiMalformed] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [comparisonNarrative, setComparisonNarrative] = useState<string | null>(null);
+  const [comparisonNarrativeLoading, setComparisonNarrativeLoading] = useState(false);
+  const [lastComparedPair, setLastComparedPair] = useState<ComparedPair | null>(null);
+  const [leftPickedSummary, setLeftPickedSummary] = useState<RunSummary | null>(null);
+  const [rightPickedSummary, setRightPickedSummary] = useState<RunSummary | null>(null);
+  const [continueLastPair, setContinueLastPair] = useState<CompareLastComparisonPair | null>(null);
 
-  const {
-    result,
-    golden,
-    legacyFailure,
-    goldenFailure,
-    legacyMalformed,
-    goldenMalformed,
-    loading,
-    comparisonNarrative,
-    comparisonNarrativeLoading,
-    lastComparedPair,
-    leftPickedSummary,
-    rightPickedSummary,
-    continueLastPair,
-    setLeftPickedSummary,
-    setRightPickedSummary,
-    runCompareForPair,
-    resetComparisonOutputs,
-  } = useCompareFormFetch();
+  useEffect(() => {
+    setContinueLastPair(readCompareLastComparisonPair());
+  }, []);
 
-  const {
-    aiExplanation,
-    aiFailure,
-    aiMalformed,
-    aiLoading,
-    loadAiExplanation,
-    resetAiExplanation,
-  } = useCompareFormAiExplanation();
+  const hydratePickedSummariesForPair = useCallback(async (leftAtStart: string, rightAtStart: string) => {
+    const [leftSummary, rightSummary] = await Promise.all([
+      getRunSummary(leftAtStart).catch(() => null),
+      getRunSummary(rightAtStart).catch(() => null),
+    ]);
 
-  const runCompareForPairWithAiReset = useCallback(
-    async (leftAtStart: string, rightAtStart: string) => {
-      await runCompareForPair(leftAtStart, rightAtStart, resetAiExplanation);
-    },
-    [resetAiExplanation, runCompareForPair],
-  );
+    if (leftSummary !== null) {
+      setLeftPickedSummary(leftSummary);
+    }
+
+    if (rightSummary !== null) {
+      setRightPickedSummary(rightSummary);
+    }
+  }, []);
+
+  const loadComparisonNarrative = async (leftAtStart: string, rightAtStart: string, compareGen: number) => {
+    setComparisonNarrativeLoading(true);
+
+    try {
+      const narrative = await fetchComparisonNarrativeViaAsk(leftAtStart, rightAtStart);
+
+      if (compareGen !== compareGenerationRef.current) {
+        return;
+      }
+
+      setComparisonNarrative(narrative);
+    } catch {
+      if (compareGen !== compareGenerationRef.current) {
+        return;
+      }
+
+      setComparisonNarrative(null);
+    } finally {
+      if (compareGen === compareGenerationRef.current) {
+        setComparisonNarrativeLoading(false);
+      }
+    }
+  };
+
+  const runCompareForPair = useCallback(async (leftAtStart: string, rightAtStart: string) => {
+    const gen = ++compareGenerationRef.current;
+
+    setLoading(true);
+    setLegacyFailure(null);
+    setGoldenFailure(null);
+    setLegacyMalformed(null);
+    setGoldenMalformed(null);
+    setResult(null);
+    setGolden(null);
+    setAiExplanation(null);
+    setAiFailure(null);
+    setAiMalformed(null);
+    setComparisonNarrative(null);
+    setComparisonNarrativeLoading(false);
+    setLastComparedPair(null);
+
+    const staticLegacy = tryStaticDemoRunComparison(leftAtStart, rightAtStart);
+    const staticGolden = tryStaticDemoGoldenManifestComparison(leftAtStart, rightAtStart);
+
+    if (staticLegacy !== null && staticGolden !== null) {
+      if (gen !== compareGenerationRef.current) {
+        return;
+      }
+
+      setResult(staticLegacy);
+      setGolden(staticGolden);
+      setLoading(false);
+      setLastComparedPair({ left: leftAtStart, right: rightAtStart });
+      void hydratePickedSummariesForPair(leftAtStart, rightAtStart);
+
+      return;
+    }
+
+    try {
+      const [legacyOutcome, structuredOutcome] = await Promise.allSettled([
+        compareRuns(leftAtStart, rightAtStart),
+        compareGoldenManifestRuns(leftAtStart, rightAtStart),
+      ]);
+
+      if (gen !== compareGenerationRef.current) {
+        return;
+      }
+
+      if (legacyOutcome.status === "fulfilled") {
+        const coercedLegacy = coerceRunComparison(legacyOutcome.value);
+
+        if (!coercedLegacy.ok) {
+          setResult(null);
+          setLegacyMalformed(coercedLegacy.message);
+        } else {
+          setResult(coercedLegacy.value);
+        }
+      } else {
+        setLegacyFailure(toApiLoadFailure(legacyOutcome.reason));
+        setResult(null);
+      }
+
+      if (structuredOutcome.status === "fulfilled") {
+        const coercedGolden = coerceGoldenManifestComparison(structuredOutcome.value);
+
+        if (!coercedGolden.ok) {
+          setGolden(null);
+          setGoldenMalformed(coercedGolden.message);
+        } else {
+          setGolden(coercedGolden.value);
+        }
+      } else {
+        setGoldenFailure(toApiLoadFailure(structuredOutcome.reason));
+        setGolden(null);
+      }
+    } finally {
+      if (gen === compareGenerationRef.current) {
+        setLoading(false);
+        setLastComparedPair({ left: leftAtStart, right: rightAtStart });
+        writeCompareLastComparisonPair({ priorRunId: leftAtStart, laterRunId: rightAtStart });
+        setContinueLastPair({ priorRunId: leftAtStart, laterRunId: rightAtStart });
+        void hydratePickedSummariesForPair(leftAtStart, rightAtStart);
+        void loadComparisonNarrative(leftAtStart, rightAtStart, gen);
+      }
+    }
+  }, [hydratePickedSummariesForPair]);
 
   const { syncSelectionToUrl } = useCompareFormUrlSync({
     setLeftRunId,
     setRightRunId,
-    runCompareForPair: runCompareForPairWithAiReset,
+    runCompareForPair,
   });
 
   const handleLeftRunIdChange = useCallback(
@@ -103,7 +230,7 @@ export function useCompareForm() {
 
       return prev;
     });
-  }, [leftRunId, setLeftPickedSummary]);
+  }, [leftRunId]);
 
   useEffect(() => {
     setRightPickedSummary((prev) => {
@@ -117,7 +244,7 @@ export function useCompareForm() {
 
       return prev;
     });
-  }, [rightRunId, setRightPickedSummary]);
+  }, [rightRunId]);
 
   const leftTrim = leftRunId.trim();
   const rightTrim = rightRunId.trim();
@@ -172,7 +299,52 @@ export function useCompareForm() {
       return;
     }
 
-    await runCompareForPairWithAiReset(leftTrim, rightTrim);
+    await runCompareForPair(leftTrim, rightTrim);
+  };
+
+  const loadAiExplanation = async () => {
+    if (!leftTrim || !rightTrim) return;
+
+    if (sameCanonicalRunIdsBlocked) {
+      return;
+    }
+
+    const leftAtStart = leftTrim;
+    const rightAtStart = rightTrim;
+    const gen = ++aiGenerationRef.current;
+
+    setAiLoading(true);
+    setAiFailure(null);
+    setAiExplanation(null);
+    setAiMalformed(null);
+
+    try {
+      const ex: unknown = await explainComparisonRuns(leftAtStart, rightAtStart);
+
+      if (gen !== aiGenerationRef.current) {
+        return;
+      }
+
+      const coerced = coerceComparisonExplanation(ex);
+
+      if (!coerced.ok) {
+        setAiExplanation(null);
+        setAiMalformed(coerced.message);
+      } else {
+        setAiExplanation(coerced.value);
+      }
+    } catch (err) {
+      if (gen !== aiGenerationRef.current) {
+        return;
+      }
+
+      setAiFailure(toApiLoadFailure(err));
+      setAiExplanation(null);
+    } finally {
+      if (gen === aiGenerationRef.current) {
+        setAiLoading(false);
+      }
+    }
   };
 
   const hasResultsToNavigate =
@@ -206,7 +378,7 @@ export function useCompareForm() {
     pickClaimsIntakePair();
 
     if (isStaticDemoPayloadFallbackEnabled()) {
-      void runCompareForPairWithAiReset(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID, SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
+      void runCompareForPair(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID, SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
     }
   };
 
@@ -262,7 +434,7 @@ export function useCompareForm() {
     compareChecklistSteps,
     compareChecklistEmphasizedStepId,
     onCompare,
-    loadAiExplanation: () => loadAiExplanation(leftTrim, rightTrim, sameCanonicalRunIdsBlocked),
+    loadAiExplanation,
     hasResultsToNavigate,
     buyerPolished,
     finalizedCount,

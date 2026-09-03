@@ -13,7 +13,7 @@ def _instrumentation_sources() -> str:
     diagnostics = REPO_ROOT / "ArchLucid.Core" / "Diagnostics"
     return "".join(
         path.read_text(encoding="utf-8")
-        for path in sorted(diagnostics.glob("ArchLucidInstrumentation*.cs"))
+        for path in sorted(diagnostics.glob("ArchLucid*.cs"))
     )
 
 

@@ -43,6 +43,8 @@ export const BUYER_ONBOARDING_PAGE_LEAD =
 
 export const FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE = "Your first review";
 
+export const FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE = "Your first review is finalized";
+
 export const FIRST_REVIEW_GUIDE_OUTCOMES_TITLE = "What you will have";
 
 export const FIRST_REVIEW_GUIDE_OUTCOMES_COMPLETED_TITLE = "What you have";

@@ -18,7 +18,13 @@ class TestInsightDensityBatchTb382385(unittest.TestCase):
         self.assertIn("generic-advice", text)
 
     def test_tb_382_orchestrator_wiring(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Decisioning" / "Services" / "FindingsOrchestrator.cs"
+        path = (
+            REPO_ROOT
+            / "ArchLucid.Decisioning"
+            / "Services"
+            / "Findings"
+            / "FindingsMergeAndGateStage.cs"
+        )
         text = path.read_text(encoding="utf-8")
         self.assertIn("IInsightDensityGate", text)
         self.assertIn("FindingInsightDensityGateApplicator.ApplyToFindings", text)

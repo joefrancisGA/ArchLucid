@@ -34,7 +34,8 @@ class TestTraceabilityBatchTb039(unittest.TestCase):
             / "ArchLucid.Application"
             / "Runs"
             / "Orchestration"
-            / "ArchitectureRunExecuteOrchestrator.PreExecute.cs"
+            / "Execute"
+            / "ArchitectureRunExecuteIdempotencyStage.cs"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("AgentExecuteIdempotentResultPolicy.ShouldSkipRetry", text)

@@ -19,6 +19,13 @@ export type CorePilotHelpWorkflowStep = {
   readonly ctaLabel: string;
 };
 
+export type CorePilotHelpActionCard = {
+  readonly title: string;
+  readonly description: string;
+  readonly href: string;
+  readonly ctaLabel: string;
+};
+
 export type CorePilotHelpDeferredItem = {
   readonly title: string;
   readonly description: string;
@@ -108,16 +115,27 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
   },
 ];
 
-export const CORE_PILOT_HELP_CLOUD_CONNECTIONS_LINK = {
-  href: "/integrations/cloud-connections",
-  label: "Cloud connections",
-} as const;
-
-export const CORE_PILOT_HELP_CLOUD_CONNECTIONS_GUIDE_LINK = {
-  href: inAppHelpHref("cloud-connections"),
-  label: "cloud connections guide",
-} as const;
-
+export const CORE_PILOT_HELP_CLOUD_ACTIONS: readonly CorePilotHelpActionCard[] = [
+  {
+    title: "Connect cloud provider",
+    description: "Optional read-only connections for Azure, AWS, or GCP when live inventory is needed.",
+    href: "/integrations/cloud-connections",
+    ctaLabel: "Cloud connections",
+  },
+  {
+    title: "Security intake checklist",
+    description: "Share with InfoSec before enabling connectors in regulated environments.",
+    href: inAppHelpHref("cloud-connections"),
+    ctaLabel: "Cloud connections guide",
+  },
+  {
+    title: "Evidence-only review",
+    description:
+      "Start without cloud connectors — attach files on review detail. For workspace-wide inventory ZIP imports, use Administration → Extract & Upload after review intake.",
+    href: CORE_PILOT_HELP_START_REVIEW_HREF,
+    ctaLabel: "Start evidence-only review",
+  },
+];
 export const CORE_PILOT_HELP_DEFERRED_ITEMS: readonly CorePilotHelpDeferredItem[] = [
   {
     title: "Compare, replay, and portfolio graph at scale",
@@ -167,7 +185,6 @@ export const CORE_PILOT_HELP_DISCLOSURE = {
     title: "When to use cloud connectors",
     body:
       "Connect Azure, AWS, or GCP when the review needs live inventory, configuration, identity, policy, cost, or operational signals. " +
-      "Optional read-only connections for Azure, AWS, or GCP are available when live inventory is needed — open Cloud connections to configure a provider. " +
       "You can run an evidence-only review first, then connect a provider later when source-system evidence is required. " +
       "Share the cloud connections guide with your security team before enabling read-only access.",
   },

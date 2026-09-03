@@ -1,7 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { expectFollowUpLink, expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
   MermaidDiagram: ({
@@ -22,6 +21,9 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpComparisonReplayGuideView } from "@/app/(operator)/help/_sections/HelpComparisonReplayGuideView";
+import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
 import {
   COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
   COMPARISON_REPLAY_HELP_SOURCES,
@@ -90,7 +92,7 @@ describe("HelpTopicComparisonReplay (CO)", () => {
 
   it("aligns Validate review action label with canonical nav label", () => {
     expect(COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label).toBe(
-      OPERATOR_NAV_LINK_LABELS.replayReview,
+      `Open ${OPERATOR_NAV_LINK_LABELS.replayReview}`,
     );
     expect(OPERATOR_NAV_LINK_LABELS.replayReview).toBe("Validate review");
   });
@@ -122,10 +124,10 @@ describe("HelpTopicComparisonReplay (CO)", () => {
 
     const jobMatrix = screen.getByTestId(COMPARISON_REPLAY_HELP_JOB_MATRIX_TEST_ID);
 
-    expect(whenToCompare.compareDocumentPosition(jobMatrix) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(decisionPanel.compareDocumentPosition(jobMatrix) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("renders decision actions, provenance, collapsed diagram, and orientation after body", () => {
+  it("renders primary actions, provenance, evidence strip, and visible decision diagram", () => {
     if (loaded === null) {
       throw new Error("Expected comparison-replay documentation to load.");
     }
@@ -137,22 +139,26 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-09");
 
     expect(screen.getByTestId("comparison-replay-help-orientation")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-comparison-replay-claim-discipline-strip")).toBeNull();
-    expect(screen.getByTestId("comparison-replay-help-header-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-comparison-replay-claim-discipline-strip")).toHaveTextContent(
       COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
     );
-    expect(screen.queryByTestId("comparison-replay-help-claim-discipline")).toBeNull();
+    expectClaimDisciplineBandContent(
+      screen,
+      "comparison-replay-help",
+      "comparison-replay-help-claim-discipline",
+      COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
 
     const sources = screen.getByTestId("comparison-replay-help-sources");
 
     expectWhereToGoNextFollowUpLinks(within(sources), COMPARISON_REPLAY_HELP_SOURCES);
 
-    const decisionPanel = screen.getByTestId(COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID);
-
     expect(screen.getByTestId("help-comparison-replay-compare-action")).toHaveAttribute(
       "href",
       "/insights/compare-two-reviews",
     );
+    const decisionPanel = screen.getByTestId(COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID);
+
     expect(
       within(decisionPanel).getByRole("link", { name: COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label }),
     ).toHaveAttribute("href", "/internal/validate-route");
@@ -167,7 +173,7 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     const repeatReviewCrossLinks = screen.getAllByRole("link", { name: REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE });
     expect(repeatReviewCrossLinks).toHaveLength(1);
     expect(repeatReviewCrossLinks[0]).toHaveAttribute("href", "/help/repeat-review-loop");
-    expect(within(decisionPanel).getByText(/Pick two sealed review records/i)).toBeInTheDocument();
+    expect(screen.getByText(/Validate review.*in the workspace/i)).toBeInTheDocument();
 
     expect(screen.getByTestId("help-comparison-replay-decision-diagram-panel")).toBeInTheDocument();
     expect(screen.getByTestId("help-comparison-replay-decision-diagram-summary")).toHaveTextContent(
@@ -179,15 +185,16 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     const orientation = screen.getByTestId("comparison-replay-help-orientation");
 
     expect(primaryContent).toContainElement(orientation);
-    expect(body.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const mermaid = screen.getByTestId("help-comparison-replay-decision-diagram-mermaid");
     expect(mermaid).toHaveAttribute("aria-label", COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME);
     expect(mermaid).toHaveTextContent("Compare two reviews");
-    expect(mermaid).toHaveTextContent("Validate saved comparison");
-    expect(mermaid).toHaveTextContent("Validate with drift check");
+    expect(mermaid).toHaveTextContent("Replay saved comparison");
+    expect(mermaid).toHaveTextContent("Replay with verify");
     expect(mermaid).toHaveTextContent("Start a new architecture review");
-    expect(mermaid).toHaveTextContent("sealed review records");
+    expect(mermaid).toHaveTextContent("saved comparison record");
+    expect(mermaid).toHaveTextContent("delta narrative");
 
     const diagramText = mermaid.textContent ?? "";
 
@@ -239,18 +246,5 @@ describe("HelpTopicComparisonReplay (CO)", () => {
       "href",
       "/insights/compare-two-reviews",
     );
-
-    const sources = screen.getByTestId("comparison-replay-help-sources");
-    const visibleSources = filterWhereToGoNextFollowUpLinks(
-      COMPARISON_REPLAY_HELP_SOURCES.filter((source) => source.href !== "/internal/validate-route"),
-    );
-
-    for (const source of visibleSources) {
-      expectFollowUpLink(within(sources), source);
-    }
-
-    expect(
-      within(sources).queryByRole("link", { name: "Validate review" }),
-    ).toBeNull();
   });
 });

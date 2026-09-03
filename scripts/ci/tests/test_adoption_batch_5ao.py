@@ -14,7 +14,7 @@ class TestAdoptionBatch5AO(unittest.TestCase):
             / "ArchLucid.Api"
             / "Controllers"
             / "Governance"
-            / "GovernanceStickinessController.ExceptionsAndSchedules.cs"
+            / "GovernanceStickinessController.Schedules.cs"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn('HttpPut("recurrence-schedules/{scheduleId:guid}")', text)

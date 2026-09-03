@@ -1,46 +1,49 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   type AuditTrailViewMode,
-  defaultAuditTrailViewMode,
   readAuditTrailViewModeFromStorage,
   resolveAuditTrailViewMode,
   writeAuditTrailViewModeToStorage,
 } from "@/lib/audit-trail-view-mode";
+import { parseAuditTrailViewModeFromSearch } from "@/lib/governance/audit-trail-view-url";
 
 export type UseAuditPageViewModeResult = {
   readonly buyerPolishedShell: boolean;
   readonly viewMode: AuditTrailViewMode;
-  readonly onViewModeChange: (mode: AuditTrailViewMode) => void;
+  readonly currentSearch: string;
 };
 
 export function useAuditPageViewMode(): UseAuditPageViewModeResult {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const [viewMode, setViewModeState] = useState<AuditTrailViewMode>(() =>
-    defaultAuditTrailViewMode(buyerPolishedShell),
-  );
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlViewMode = searchParams.get("view");
+  const [storedMode, setStoredMode] = useState<AuditTrailViewMode | null>(null);
 
   useEffect(() => {
-    const storedMode = readAuditTrailViewModeFromStorage();
-    const resolved = resolveAuditTrailViewMode({
-      buyerPolishedShell,
-      storedMode,
-    });
-
-    setViewModeState(resolved);
-  }, [buyerPolishedShell]);
-
-  const onViewModeChange = useCallback((mode: AuditTrailViewMode) => {
-    setViewModeState(mode);
-    writeAuditTrailViewModeToStorage(mode);
+    setStoredMode(readAuditTrailViewModeFromStorage());
   }, []);
+
+  const viewMode =
+    urlViewMode !== null && urlViewMode.trim().length > 0
+      ? parseAuditTrailViewModeFromSearch(urlViewMode, buyerPolishedShell)
+      : resolveAuditTrailViewMode({
+          buyerPolishedShell,
+          storedMode,
+        });
+
+  useEffect(() => {
+    writeAuditTrailViewModeToStorage(viewMode);
+  }, [viewMode]);
 
   return {
     buyerPolishedShell,
     viewMode,
-    onViewModeChange,
+    currentSearch,
   };
 }

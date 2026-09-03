@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { IntegrationReadinessHelpClaimDisciplineStrip } from "@/components/help/IntegrationReadinessHelpClaimDisciplineStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
@@ -157,9 +157,10 @@ export function HelpIntegrationReadinessGuideView(
       </section>
 
       {statusGlossaryMarkdown.trim().length > 0 ? (
-        <HelpStaticSection
+        <CollapsibleSection
           title={INTEGRATION_READINESS_HELP_STATUS_GLOSSARY_TITLE}
-          testId="help-integration-readiness-status-glossary"
+          sectionTestId="help-integration-readiness-status-glossary"
+          defaultOpen={false}
         >
           <MarketingAccessibilityMarkdownFragment
             markdownBody={statusGlossaryMarkdown}
@@ -168,7 +169,7 @@ export function HelpIntegrationReadinessGuideView(
             sourceDocPath={sourceDocPath}
             helpTopicSlug={entry.slug}
           />
-        </HelpStaticSection>
+        </CollapsibleSection>
       ) : null}
 
       {configureMarkdown.trim().length > 0 ? (

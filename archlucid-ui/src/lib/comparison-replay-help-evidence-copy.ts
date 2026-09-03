@@ -4,10 +4,10 @@ export const COMPARISON_REPLAY_HELP_CANONICAL_PATH = "/help/comparison-replay" a
 
 export const COMPARISON_REPLAY_HELP_TOPIC_LABEL = "How to compare and replay reviews";
 
-export const COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING = "Scope of this guide";
+export const COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE =
-  "This guide orients architects on diffing two architecture reviews and validating a sealed review record — open Compare two reviews or Validate review when you need live workspace tools.";
+  "This guide orients architects on diffing two architecture reviews and validating a finalized package — open Compare two reviews or Validate review when you need live workspace tools.";
 
 export const COMPARISON_REPLAY_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

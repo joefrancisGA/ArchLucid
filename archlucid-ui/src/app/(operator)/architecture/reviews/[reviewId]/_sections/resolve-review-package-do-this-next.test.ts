@@ -188,15 +188,10 @@ describe("resolveReviewPackageDoThisNext", () => {
 
     expect(next.kind).toBe("send-to-sponsor");
     expect(next.sentence).toContain("none of its 4 open findings have linked evidence");
-    expect(next.href).toBeNull();
-    expect(next.actionLabel).toBe("");
-    expect(next.secondaryAction).toBeUndefined();
-    expect(next.quickLinks?.map((link) => link.label)).toEqual([
-      "Start follow-up review",
-      "Invite reviewer",
-      "Compare reviews",
-      "Open sponsor briefing export",
-    ]);
+    expect(next.actionLabel).toBe("Review evidence coverage");
+    expect(next.buttonVariant).toBe("outline");
+    expect(next.href).toContain("reviewTab=evidence");
+    expect(next.secondaryAction?.label).toBe("Send sponsor briefing export");
   });
 
   it("defaults a comparable second package to compare against the prior review", () => {

@@ -51,7 +51,6 @@ export type RunsDashboardRecentTabProps = {
   readonly restoreBusyRequestId: string | null;
   readonly contentTestId?: string;
   readonly statusFilterEmptyMessage?: string | null;
-  readonly onClearStatusFilter?: () => void;
   readonly governanceWarningsOnly?: boolean;
   readonly onClearGovernanceWarningsFilter?: () => void;
   readonly onRestoreArchivedRequest: (requestId: string) => void;
@@ -209,27 +208,9 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
       {showWorkspaceEmptyState ? <OperatorHomeWorkspaceEmptyState /> : null}
 
       {showStatusFilterEmptyState ? (
-        <div
-          className="flex flex-wrap items-center gap-2"
-          data-testid="runs-dashboard-status-filter-empty"
-          role="status"
-        >
-          <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {props.statusFilterEmptyMessage}
-          </p>
-          {props.onClearStatusFilter !== undefined ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-auto px-2 py-1 text-al-text-primary"
-              onClick={props.onClearStatusFilter}
-              data-testid="runs-dashboard-status-filter-empty-clear"
-            >
-              Show all reviews
-            </Button>
-          ) : null}
-        </div>
+        <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {props.statusFilterEmptyMessage}
+        </p>
       ) : null}
 
       {showGovernanceWarningsEmptyState ? (

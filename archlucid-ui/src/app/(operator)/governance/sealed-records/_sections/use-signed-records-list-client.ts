@@ -13,11 +13,6 @@ import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-
 import { resolveContinueLastSignedRecordsListRow } from "@/lib/resolve-continue-last-signed-record";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import {
-  parseSignedRecordsListSearchQuery,
-  signedRecordsListSearchHrefFromSearch,
-  SIGNED_RECORDS_LIST_SEARCH_PARAM,
-} from "@/lib/signed-records/signed-records-list-search";
-import {
   resolveSignedRecordsFilterEmphasizedStepId,
   resolveSignedRecordsFilterSteps,
 } from "@/lib/signed-records-filter-checklist";
@@ -85,7 +80,6 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
-  const urlSearchQuery = parseSignedRecordsListSearchQuery(searchParams.get(SIGNED_RECORDS_LIST_SEARCH_PARAM));
 
   const [rows, setRows] = useState<readonly SignedRecordsListRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +90,7 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   const [retryingRunId, setRetryingRunId] = useState<string | null>(null);
   const [retryFailedRunId, setRetryFailedRunId] = useState<string | null>(null);
   const [retrySucceededRunId, setRetrySucceededRunId] = useState<string | null>(null);
-  const [searchQuery, setSearchQueryState] = useState(urlSearchQuery);
+  const [searchQuery, setSearchQuery] = useState("");
   const [integrityFilter, setIntegrityFilter] = useState<SignedRecordsListIntegrityFilter>("all");
   const [page, setPage] = useState(1);
   const [cursor, setCursor] = useState("");
@@ -111,31 +105,6 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
   useEffect(() => () => {
     mountedRef.current = false;
   }, []);
-
-  useEffect(() => {
-    setSearchQueryState(urlSearchQuery);
-  }, [urlSearchQuery]);
-
-  useEffect(() => {
-    const handle = window.setTimeout(() => {
-      const nextHref = signedRecordsListSearchHrefFromSearch(searchParams.toString(), searchQuery);
-
-      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-        router.replace(nextHref, { scroll: false });
-      }
-    }, 250);
-
-    return () => {
-      window.clearTimeout(handle);
-    };
-  }, [router, searchParams, searchQuery]);
-
-  const setSearchQuery = useCallback(
-    (value: SetStateAction<string>): void => {
-      setSearchQueryState(value);
-    },
-    [],
-  );
 
   const onPickReviewForFiltering = useCallback(
     (reviewId: string) => {
@@ -299,10 +268,9 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     setCursorHistory((history) => [...history, cursor]);
     setCursor(nextCursor);
     setPage((currentPage) => currentPage + 1);
-    setSearchQueryState("");
-    router.replace(signedRecordsListSearchHrefFromSearch(searchParams.toString(), ""), { scroll: false });
+    setSearchQuery("");
     setIntegrityFilter("all");
-  }, [cursor, nextCursor, router, searchParams]);
+  }, [cursor, nextCursor]);
 
   const goToPreviousPage = useCallback(() => {
     if (cursorHistory.length === 0) {
@@ -314,16 +282,14 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     setCursorHistory((history) => history.slice(0, -1));
     setCursor(previousCursor);
     setPage((currentPage) => Math.max(1, currentPage - 1));
-    setSearchQueryState("");
-    router.replace(signedRecordsListSearchHrefFromSearch(searchParams.toString(), ""), { scroll: false });
+    setSearchQuery("");
     setIntegrityFilter("all");
-  }, [cursorHistory, router, searchParams]);
+  }, [cursorHistory]);
 
   const clearFilters = useCallback(() => {
-    setSearchQueryState("");
+    setSearchQuery("");
     setIntegrityFilter("all");
-    router.replace(signedRecordsListSearchHrefFromSearch(searchParams.toString(), ""), { scroll: false });
-  }, [router, searchParams]);
+  }, []);
 
   const hasRows = rows.length > 0;
   const isInitialLoad = loading && !hasRows;

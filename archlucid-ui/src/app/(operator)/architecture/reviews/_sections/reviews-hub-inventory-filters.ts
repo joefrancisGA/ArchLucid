@@ -104,26 +104,6 @@ export function reviewsHubInventorySearchHrefFromSearch(
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
 
-/** Clears inventory search while preserving unrelated query params. */
-export function reviewsHubInventoryClearSearchHrefFromSearch(
-  currentSearch: string,
-  pathname: string = "/architecture/reviews",
-): string {
-  const params = new URLSearchParams(currentSearch);
-  params.delete(REVIEWS_HUB_INVENTORY_SEARCH_PARAM);
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
-}
-
-/** Clears inventory filter while preserving search and unrelated query params. */
-export function reviewsHubInventoryClearFilterHrefFromSearch(
-  currentSearch: string,
-  pathname: string = "/architecture/reviews",
-): string {
-  return reviewsHubInventoryHrefFromSearch(currentSearch, "all", pathname);
-}
-
 /** Clears inventory filter and search while preserving unrelated query params. */
 export function reviewsHubInventoryClearFiltersHrefFromSearch(
   currentSearch: string,
@@ -267,6 +247,12 @@ export function sortRunsForInventory(
 
     return left.runId.localeCompare(right.runId);
   });
+}
+
+export function reviewsHubInventoryFilterEmptyReason(filter: ReviewFilterId): string {
+  const option = INVENTORY_FILTER_OPTIONS.find((entry) => entry.id === filter);
+
+  return `No reviews match ${option?.label ?? filter}.`;
 }
 
 export function emptyInventoryDescription(draftCount: number): string {

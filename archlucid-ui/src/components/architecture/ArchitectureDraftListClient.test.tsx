@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { useSyncExternalStore, type ReactElement, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
@@ -6,9 +7,47 @@ import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architect
 
 import { ArchitectureDraftListClient } from "./ArchitectureDraftListClient";
 
+const architectureHubSearchParamsHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { query: "" };
+
+  return {
+    state,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyHref(href: string): void {
+      try {
+        const url = new URL(href, "http://localhost/");
+        state.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+      } catch {
+        const qIndex = href.indexOf("?");
+        state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+      }
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.query = "";
+    },
+  };
+});
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: (href: string) => {
+      architectureHubSearchParamsHarness.applyHref(href);
+    },
+  }),
   usePathname: () => "/architecture/architectures",
+  useSearchParams: () => new URLSearchParams(architectureHubSearchParamsHarness.state.query),
 }));
 
 vi.mock("@/lib/api/draft-intake-api", () => ({
@@ -39,7 +78,28 @@ function entry(
 }
 
 describe("ArchitectureDraftListClient", () => {
+  function SearchParamsRerenderHost({ children }: { readonly children: ReactNode }): ReactElement {
+    useSyncExternalStore(
+      architectureHubSearchParamsHarness.subscribe,
+      () => architectureHubSearchParamsHarness.state.query,
+      () => "",
+    );
+
+    return <>{children}</>;
+  }
+
+  function renderClient(searchQuery = "") {
+    architectureHubSearchParamsHarness.state.query = searchQuery;
+
+    return render(
+      <SearchParamsRerenderHost>
+        <ArchitectureDraftListClient />
+      </SearchParamsRerenderHost>,
+    );
+  }
+
   beforeEach(() => {
+    architectureHubSearchParamsHarness.reset();
     useArchitectureDraftRegistryEntries.mockReset();
     useArchitectureDraftRegistryHydrated.mockReset();
     useArchitectureDraftRegistryHydrated.mockReturnValue(true);
@@ -52,24 +112,22 @@ describe("ArchitectureDraftListClient", () => {
       entry({ architectureId: "a2", customerStatus: "archived", linkedReviewId: null, displayName: "Deleted B" }),
     ]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
-    expect(screen.getByRole("button", { name: "Filter architectures: All (0)" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Filter architectures: No review yet (0)" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Filter architectures: Archived (2)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filter architectures: All (0)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter architectures: No review yet (0)" })).toBeDisabled();
+    expect(screen.getByRole("link", { name: "Filter architectures: Archived (2)" })).toBeInTheDocument();
     expect(screen.queryByText("No drafts match your filters")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-list-table")).not.toBeInTheDocument();
   });
 
-  it("uses compact inventory toolbar sort label scale", () => {
+  it("uses URL-bound sort chips in the inventory toolbar", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
-    const sortLabel = screen.getByText("Sort by");
-
-    expect(sortLabel.className).toContain("text-[11px]");
-    expect(screen.getByTestId("architecture-draft-list-sort").className).toContain("text-[11px]");
+    expect(screen.getByTestId("architecture-draft-list-sort-updated-desc")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("group", { name: "Sort architectures" })).toBeInTheDocument();
   });
 
   it("shows filter chip counts from the full registry", () => {
@@ -84,18 +142,18 @@ describe("ArchitectureDraftListClient", () => {
       }),
     ]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     expect(screen.getByTestId("architecture-draft-list")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Filter architectures: All (2)" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Filter architectures: Draft (1)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filter architectures: All (2)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filter architectures: Draft (1)" })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Filter architectures: Ready for review (1)" }),
+      screen.getByRole("link", { name: "Filter architectures: Ready for review (1)" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Filter architectures: No review yet (2)" }),
+      screen.getByRole("link", { name: "Filter architectures: No review yet (2)" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Filter architectures: Archived (1)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filter architectures: Archived (1)" })).toBeInTheDocument();
   });
 
   it("renders ready-for-review with in-progress status semantics and hybrid updated time", () => {
@@ -108,7 +166,7 @@ describe("ArchitectureDraftListClient", () => {
       }),
     ]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     expect(screen.getByText("Healthcare Claims Platform")).toBeInTheDocument();
 
@@ -130,7 +188,7 @@ describe("ArchitectureDraftListClient", () => {
     useArchitectureDraftRegistryHydrated.mockReturnValue(false);
     useArchitectureDraftRegistryEntries.mockReturnValue([]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     expect(screen.getByTestId("architecture-draft-list-skeleton")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-list-empty")).not.toBeInTheDocument();
@@ -139,7 +197,7 @@ describe("ArchitectureDraftListClient", () => {
   it("does not flash the empty state before registry hydrate when drafts exist (TB-1450)", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     expect(screen.queryByTestId("architecture-draft-list-empty")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-list")).toBeInTheDocument();
@@ -149,7 +207,7 @@ describe("ArchitectureDraftListClient", () => {
   it("keeps the empty first viewport action-oriented without stacked intro blocks (TB-1449)", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     expect(screen.getByTestId("architecture-draft-list-empty")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
@@ -159,7 +217,7 @@ describe("ArchitectureDraftListClient", () => {
   it("shows draft-vs-review disclosure only when drafts exist (TB-1449)", async () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-guidance-disclosure")).toBeInTheDocument();
@@ -169,17 +227,17 @@ describe("ArchitectureDraftListClient", () => {
   it("uses compact inventory toolbar search height", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     expect(screen.getByTestId("architecture-draft-list-search").className).toContain("h-8");
   });
 
-  it("uses compact inventory toolbar sort control height", () => {
+  it("uses compact inventory toolbar sort chips", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
-    expect(screen.getByTestId("architecture-draft-list-sort").className).toContain("h-8");
+    expect(screen.getByTestId("architecture-draft-list-sort-updated-desc")).toBeInTheDocument();
   });
 
   it("excludes archived drafts from the default All table view", () => {
@@ -188,7 +246,7 @@ describe("ArchitectureDraftListClient", () => {
       entry({ architectureId: "a2", customerStatus: "archived", displayName: "Archived B" }),
     ]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     const table = screen.getByTestId("architecture-draft-list-table");
 
@@ -199,13 +257,13 @@ describe("ArchitectureDraftListClient", () => {
   it("keeps search, filters, and sort in one toolbar", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     const toolbar = screen.getByTestId("architecture-draft-list-toolbar");
 
     expect(within(toolbar).getByTestId("architecture-draft-list-search")).toBeInTheDocument();
-    expect(within(toolbar).getByTestId("architecture-draft-list-sort")).toBeInTheDocument();
-    expect(within(toolbar).getByRole("button", { name: /Filter architectures: All/ })).toBeInTheDocument();
+    expect(within(toolbar).getByTestId("architecture-draft-list-sort-updated-desc")).toBeInTheDocument();
+    expect(within(toolbar).getByRole("link", { name: /Filter architectures: All/ })).toBeInTheDocument();
   });
 
   it("filters by chip without changing registry counts", () => {
@@ -214,17 +272,13 @@ describe("ArchitectureDraftListClient", () => {
       entry({ architectureId: "a2", customerStatus: "ready-for-review", displayName: "Ready B" }),
     ]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient("filter=draft");
 
     const table = screen.getByTestId("architecture-draft-list-table");
 
     expect(within(table).getByText("Draft A")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Filter architectures: Draft (1)" }));
-
-    expect(within(table).getByText("Draft A")).toBeInTheDocument();
     expect(within(table).queryByText("Ready B")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Filter architectures: All (2)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filter architectures: All (2)" })).toBeInTheDocument();
   });
 
   it("pins continue last draft when session remembers an architecture id", () => {
@@ -234,7 +288,7 @@ describe("ArchitectureDraftListClient", () => {
       entry({ architectureId: "a2", customerStatus: "draft", displayName: "Draft B" }),
     ]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     expect(screen.getByTestId("architecture-draft-continue-last-row")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-continue-last-open")).toHaveAttribute(
@@ -249,7 +303,7 @@ describe("ArchitectureDraftListClient", () => {
       entry({ architectureId: "a1", customerStatus: "archived", displayName: "Archived A" }),
     ]);
 
-    render(<ArchitectureDraftListClient />);
+    renderClient();
 
     expect(screen.queryByTestId("architecture-draft-continue-last-row")).not.toBeInTheDocument();
   });

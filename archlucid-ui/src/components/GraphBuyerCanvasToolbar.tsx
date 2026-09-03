@@ -1,7 +1,10 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
@@ -12,6 +15,7 @@ import {
   BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA,
   BUYER_EVIDENCE_GRAPH_ZOOM_100_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
+import { graphPathOnlyHrefFromSearch } from "@/lib/insights/graph-path-only-url";
 
 /** Accessible name for the buyer Evidence graph canvas control group (TB-2102). */
 export const GRAPH_CANVAS_CONTROLS_GROUP_LABEL = "Graph canvas controls";
@@ -24,7 +28,6 @@ export type GraphBuyerCanvasToolbarProps = {
   onZoom100: () => void;
   onResetView: () => void;
   onTracePath: () => void;
-  onTogglePathOnly: () => void;
   showPathOnly: boolean;
   hasSelection: boolean;
 };
@@ -38,10 +41,14 @@ export function GraphBuyerCanvasToolbar({
   onZoom100,
   onResetView,
   onTracePath,
-  onTogglePathOnly,
   showPathOnly,
   hasSelection,
 }: GraphBuyerCanvasToolbarProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+
   // Show-all exits path scope without needing a node; keep it available after deselection.
   const pathToggleNeedsSelection = !showPathOnly;
   const pathActionsDisabled = pathToggleNeedsSelection && !hasSelection;
@@ -50,12 +57,14 @@ export function GraphBuyerCanvasToolbar({
     ? { kind: "prerequisite" as const, message: GRAPH_CANVAS_SELECTION_REQUIRED_TITLE }
     : null;
 
+  const pathOnlyHref = graphPathOnlyHrefFromSearch(currentSearch, !showPathOnly, pathname);
+  const showAllHref = graphPathOnlyHrefFromSearch(currentSearch, false, pathname);
+
   return (
     <div className="space-y-2">
-    <div
+    <FilterChipGroup
       className="flex flex-wrap items-center gap-2"
       data-testid="graph-buyer-canvas-toolbar"
-      role="group"
       aria-label={GRAPH_CANVAS_CONTROLS_GROUP_LABEL}
     >
       <Button type="button" size="sm" variant="outline" onClick={onFitGraph}>
@@ -75,18 +84,34 @@ export function GraphBuyerCanvasToolbar({
         {BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA}
       </Button>
       <FilterChip
+        href={showPathOnly ? showAllHref : pathOnlyHref}
+        scroll={false}
         className={buyerFilterChipClass(showPathOnly, pathActionsDisabled)}
-        aria-pressed={showPathOnly}
+        aria-current={showPathOnly ? "page" : undefined}
         aria-describedby={pathActionsDisabled ? selectionRequiredHintId : undefined}
         disabled={pathActionsDisabled}
-        onClick={onTogglePathOnly}
+        onClick={() => {
+          if (pathActionsDisabled) {
+            return;
+          }
+
+          router.replace(showPathOnly ? showAllHref : pathOnlyHref, { scroll: false });
+        }}
       >
         {showPathOnly ? BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA : BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA}
       </FilterChip>
-      <Button type="button" size="sm" variant="outline" onClick={onResetView}>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        onClick={() => {
+          onResetView();
+          router.replace(showAllHref, { scroll: false });
+        }}
+      >
         {BUYER_EVIDENCE_GRAPH_RESET_VIEW_CTA}
       </Button>
-    </div>
+    </FilterChipGroup>
     <WhyDisabledCtaHint
       id={selectionRequiredHintId}
       reason={selectionRequiredReason}

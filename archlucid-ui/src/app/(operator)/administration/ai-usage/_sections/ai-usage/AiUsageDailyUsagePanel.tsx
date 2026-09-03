@@ -1,10 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AiUsageDailyMetric } from "@/lib/ai-usage-dashboard-model";
 import {
@@ -16,6 +18,10 @@ import { hasLlmUsageInDailyBuckets } from "@/lib/llm-cost-reporting-display-labe
 import { formatCostReportingEstimatedUsd } from "@/app/(operator)/administration/ai-usage/_sections/cost-reporting-page-helpers";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import {
+  aiUsageDailyMetricHrefFromSearch,
+  parseAiUsageDailyMetricFromSearch,
+} from "@/lib/administration/ai-usage-daily-metric-url";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 
 type Props = {
@@ -51,7 +57,10 @@ function formatMetricValue(metric: AiUsageDailyMetric, value: number, currency: 
 }
 
 export function AiUsageDailyUsagePanel(props: Props) {
-  const [metric, setMetric] = useState<AiUsageDailyMetric>("cost");
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const metric = parseAiUsageDailyMetricFromSearch(searchParams.get("metric"));
   const hasUsage = hasLlmUsageInDailyBuckets(props.daily);
 
   const chart = useMemo(() => {
@@ -115,19 +124,20 @@ export function AiUsageDailyUsagePanel(props: Props) {
               Rolling 30-day trend for this workspace. Hover or focus bars for daily totals.
             </p>
           </div>
-          <div className="flex flex-wrap gap-1" role="group" aria-label="Daily usage metric">
+          <FilterChipGroup aria-label="Daily usage metric" className="flex flex-wrap gap-1">
             {METRIC_OPTIONS.map((option) => (
               <FilterChip
                 key={option.id}
+                href={aiUsageDailyMetricHrefFromSearch(currentSearch, option.id, pathname)}
+                scroll={false}
                 className={buyerFilterChipClass(metric === option.id, false)}
-                aria-pressed={metric === option.id}
+                aria-current={metric === option.id ? "page" : undefined}
                 aria-label={`Daily usage metric: ${option.label}`}
-                onClick={() => setMetric(option.id)}
               >
                 {option.label}
               </FilterChip>
             ))}
-          </div>
+          </FilterChipGroup>
         </div>
       </CardHeader>
       <CardContent className={cn(OPERATOR_CARD.content, "space-y-3")}>

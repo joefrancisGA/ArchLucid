@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
+import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
@@ -55,7 +56,7 @@ function formatDigestsLastUpdated(lastUpdatedUtc: string | null): string {
   });
 }
 
-/** Shared `/digests` hero — title, lead, refresh, and last-updated metadata. */
+/** Shared `/digests` hero — title, lead, contextual help, refresh, and last-updated metadata. */
 export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showRefresh = props.showRefresh !== false;
@@ -70,6 +71,7 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
       subtitle={props.subtitle}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="digests-header-actions">
+          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           {props.actions}
           {showRefresh ? (
             <RefreshButton

@@ -1,32 +1,34 @@
-import type { components } from "@/lib/openapi-schemas";
+export type TeamsIncomingWebhookConnectionResponse = {
+  tenantId: string;
+  isConfigured: boolean;
+  label: string | null;
+  keyVaultSecretName: string | null;
+  /**
+   * Per-trigger opt-in matrix returned by the API. Always non-null; for an unconfigured tenant
+   * this is the v1 catalog default (all-on), for a configured tenant it is the persisted subset
+   * filtered to known catalog entries and ordered canonically.
+   */
+  enabledTriggers: string[];
+  updatedUtc: string;
+};
 
-type TeamsIncomingWebhookConnectionResponseSchema =
-  components["schemas"]["TeamsIncomingWebhookConnectionResponse"];
+export type TeamsIncomingWebhookConnectionUpsertRequest = {
+  keyVaultSecretName: string;
+  label?: string | null;
+  /**
+   * Per-trigger opt-in subset of the canonical catalog. Omit / `undefined` = leave existing
+   * triggers unchanged (or all-on for a fresh row). Empty array = explicit opt-out of every
+   * trigger. Unknown trigger names cause an HTTP 400.
+   */
+  enabledTriggers?: string[];
+};
 
-export type TeamsIncomingWebhookConnectionResponse = TeamsIncomingWebhookConnectionResponseSchema &
-  Required<
-    Pick<
-      TeamsIncomingWebhookConnectionResponseSchema,
-      "tenantId" | "isConfigured" | "label" | "keyVaultSecretName" | "enabledTriggers" | "updatedUtc"
-    >
-  >;
+export type TeamsIncomingWebhookSecretValidationResponse = {
+  outcome: "Found" | "InvalidName" | "NotFound" | "PermissionDenied" | "InvalidValue";
+  message: string;
+};
 
-export type TeamsIncomingWebhookConnectionUpsertRequest =
-  components["schemas"]["TeamsIncomingWebhookConnectionUpsertRequest"];
-
-export type TeamsIncomingWebhookSecretValidationOutcome =
-  components["schemas"]["TeamsIncomingWebhookSecretValidationOutcome"];
-
-type TeamsIncomingWebhookSecretValidationResponseSchema =
-  components["schemas"]["TeamsIncomingWebhookSecretValidationResponse"];
-
-export type TeamsIncomingWebhookSecretValidationResponse = Omit<
-  TeamsIncomingWebhookSecretValidationResponseSchema,
-  "outcome"
-> &
-  Required<Pick<TeamsIncomingWebhookSecretValidationResponseSchema, "message">> & {
-    outcome: TeamsIncomingWebhookSecretValidationOutcome;
-  };
-
-export type TeamsIncomingWebhookConnectionTestResponse =
-  components["schemas"]["TeamsIncomingWebhookConnectionTestResponse"];
+export type TeamsIncomingWebhookConnectionTestResponse = {
+  delivered: boolean;
+  message?: string | null;
+};

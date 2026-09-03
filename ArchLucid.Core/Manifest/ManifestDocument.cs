@@ -221,6 +221,20 @@ public class ManifestDocument
         set;
     } = [];
 
+    /// <summary>Wave-10 suggestion 92: κ content hash hex pinned at create, bound into h(M) v5.</summary>
+    public string? CreateTimeArchitectureVersionContentHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-10 suggestion 95/92: κ model content hash hex pinned at create, bound into h(M) v5.</summary>
+    public string? CreateTimeKnowledgeModelContentHashSha256
+    {
+        get;
+        set;
+    }
+
     /// <summary>Wave-6 suggestion 57: evidence package ids pinned at run create, bound into h(M).</summary>
     public List<Contracts.Governance.PolicyPacks.PinnedEvidencePackageRow> CreateTimeEvidencePackagePins
     {

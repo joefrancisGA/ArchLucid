@@ -5,6 +5,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Explanation;
@@ -66,8 +67,7 @@ public sealed class ArchitectureReviewExportService(
             throw new ConflictException(
                 "This finalized review references an architecture snapshot that could not be loaded from storage. Resolve the broken manifest reference before exporting.");
 
-        if (!detail.IsCommitted)
-            throw new ConflictException("Export requires a finalized review with a committed architecture snapshot.");
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
         ArchitectureAnalysisRequest analysisRequest = new()
         {

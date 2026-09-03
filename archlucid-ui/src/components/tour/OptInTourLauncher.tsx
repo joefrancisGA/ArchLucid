@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 
 import { OptInTour } from "./OptInTour";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 
 export type OptInTourLauncherProps = {
   className?: string;
@@ -20,6 +21,7 @@ export type OptInTourLauncherProps = {
  */
 export function OptInTourLauncher({ className }: OptInTourLauncherProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const teachingChromeVisible = useTeachingChromeVisible();
 
   const handleOpen = useCallback(() => {
     setIsOpen(true);
@@ -29,6 +31,10 @@ export function OptInTourLauncher({ className }: OptInTourLauncherProps) {
   const handleClose = useCallback(() => {
     setIsOpen(false);
   }, []);
+
+  if (!teachingChromeVisible) {
+    return null;
+  }
 
   return (
     <>

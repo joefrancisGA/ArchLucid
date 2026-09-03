@@ -25,9 +25,9 @@ export const WIZARD_STICKY_PROGRESS_TEST_ID = "wizard-sticky-progress";
  * Keeps the single page primary visible while long clarification stacks scroll.
  */
 export const WIZARD_STICKY_FOOTER_CLASS = cn(
-  "sticky bottom-0 z-20 -mx-1 mt-4 border-t border-neutral-200/80 bg-neutral-50/95 px-1 py-3 backdrop-blur",
+  "sticky bottom-0 z-20 bg-neutral-50/95 backdrop-blur",
   "supports-[backdrop-filter]:bg-neutral-50/85",
-  "dark:border-neutral-800/80 dark:bg-neutral-950/95",
+  "dark:bg-neutral-950/95",
   "dark:supports-[backdrop-filter]:bg-neutral-950/85",
 );
 
@@ -40,4 +40,4 @@ export const WIZARD_STICKY_FOOTER_TEST_ID = "wizard-sticky-footer";
  * wrapper that also contains the sticky footer (avoids a dead band before follow-ups).
  * Only when multiple active clarifications are visible in show-all mode.
  */
-export const WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS = "pb-24";
+export const WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS = "pb-14";

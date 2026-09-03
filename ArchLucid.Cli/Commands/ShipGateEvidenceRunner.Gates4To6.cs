@@ -218,8 +218,7 @@ internal sealed partial class ShipGateEvidenceRunner
             return _alternateScopeClientFactory();
 
         HttpClient alternateClient = CliAuthorizedHttpClient.Create(baseUrl, _config);
-        (string tenantId, string workspaceId, string projectId) = TenantIsolationNegativeTestRunner.ResolveAlternateScope(options);
-        CliScopeHeaders.ApplyExplicit(alternateClient, tenantId, workspaceId, projectId);
+        TenantIsolationNegativeTestLiveRunner.ApplyAlternateScopeHeaders(alternateClient, options);
 
         return alternateClient;
     }

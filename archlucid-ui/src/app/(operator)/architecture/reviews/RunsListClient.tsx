@@ -47,8 +47,8 @@ export function RunsListClient(props: RunsListClientProps) {
     buyerCollapseFilters,
     filterText,
     setFilterText,
+    clearFilterText,
     buyerPackageScope,
-    setBuyerPackageScope,
     sortOrder,
     setSortOrder,
     selectedRun,
@@ -125,6 +125,12 @@ export function RunsListClient(props: RunsListClientProps) {
         onChange={(event) => {
           setFilterText(event.target.value);
         }}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && filterText.trim().length > 0) {
+            event.preventDefault();
+            clearFilterText();
+          }
+        }}
         className={cn(
           "rounded-md border border-neutral-300 bg-white px-3 py-2 text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
           OPERATOR_TYPOGRAPHY.body,
@@ -198,7 +204,6 @@ export function RunsListClient(props: RunsListClientProps) {
                   <BuyerPackageScopeFilterChips
                     scope={buyerPackageScope}
                     buyerPipelineLabels={buyerPipelineLabels}
-                    onScopeChange={setBuyerPackageScope}
                   />
                 </div>
               </fieldset>
@@ -219,7 +224,6 @@ export function RunsListClient(props: RunsListClientProps) {
                 <BuyerPackageScopeFilterChips
                   scope={buyerPackageScope}
                   buyerPipelineLabels={buyerPipelineLabels}
-                  onScopeChange={setBuyerPackageScope}
                 />
               </div>
             </fieldset>

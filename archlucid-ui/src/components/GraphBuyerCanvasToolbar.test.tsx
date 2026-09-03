@@ -14,13 +14,18 @@ import {
   BUYER_EVIDENCE_GRAPH_ZOOM_100_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/insights/evidence-graph",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 describe("GraphBuyerCanvasToolbar", () => {
   const noopHandlers = {
     onFitGraph: vi.fn(),
     onZoom100: vi.fn(),
     onResetView: vi.fn(),
     onTracePath: vi.fn(),
-    onTogglePathOnly: vi.fn(),
   };
 
   it("exposes an accessibly named group for canvas controls", () => {
@@ -62,7 +67,7 @@ describe("GraphBuyerCanvasToolbar", () => {
 
     const toolbar = screen.getByRole("group", { name: GRAPH_CANVAS_CONTROLS_GROUP_LABEL });
     const highlight = within(toolbar).getByRole("button", { name: BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA });
-    const focus = within(toolbar).getByRole("button", {
+    const focus = within(toolbar).getByRole("link", {
       name: BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA,
     });
 
@@ -70,5 +75,6 @@ describe("GraphBuyerCanvasToolbar", () => {
     expect(focus).toBeEnabled();
     expect(highlight).not.toHaveAttribute("aria-describedby");
     expect(focus).not.toHaveAttribute("aria-describedby");
+    expect(focus).toHaveAttribute("href", "/insights/evidence-graph?pathOnly=1");
   });
 });

@@ -2,6 +2,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Contracts.Manifest;
+
 namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
@@ -19,7 +21,7 @@ public sealed class ManifestHashService : IManifestHashService
     ///     Canonical projection schema version. Increment only with deliberate baseline re-lock
     ///     (<c>MANIFEST_HASH_HASHER_BASELINE.md</c>, <c>TB-1157</c>).
     /// </summary>
-    public const string HasherSchemaVersion = "v4";
+    public const string HasherSchemaVersion = "v5";
 
     /// <inheritdoc />
     public string ComputeHash(ManifestDocument manifest)
@@ -39,17 +41,13 @@ public sealed class ManifestHashService : IManifestHashService
             manifest.FindingsSnapshotId,
             manifest.DecisionTraceId,
             manifest.ArchitectureVersionId,
-            CreateTimePolicyPackPins = manifest.CreateTimePolicyPackPins
-                .OrderBy(static row => row.PolicyPackId, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(static row => row.PolicyPackVersion, StringComparer.Ordinal)
-                .Select(static row => new { row.PolicyPackId, row.PolicyPackVersion })
-                .ToArray(),
-            CreateTimeEvidencePackagePins = manifest.CreateTimeEvidencePackagePins
-                .OrderBy(static row => row.Provider, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(static row => row.PackageId)
-                .Select(static row => new { row.Provider, row.PackageId, row.CollectionUtc })
-                .ToArray(),
+            CreateTimePolicyPackPins = ManifestCreateTimePinCanonicalProjection.ProjectPolicyPackPins(
+                manifest.CreateTimePolicyPackPins),
+            CreateTimeEvidencePackagePins = ManifestCreateTimePinCanonicalProjection.ProjectEvidencePackagePins(
+                manifest.CreateTimeEvidencePackagePins),
             manifest.CreateTimeEvidencePackagePinsHashSha256,
+            manifest.CreateTimeArchitectureVersionContentHashSha256,
+            manifest.CreateTimeKnowledgeModelContentHashSha256,
             manifest.RuleSetId,
             manifest.RuleSetVersion,
             manifest.RuleSetHash,
