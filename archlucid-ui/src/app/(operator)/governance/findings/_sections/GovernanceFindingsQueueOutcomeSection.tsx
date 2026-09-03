@@ -5,6 +5,7 @@ import Link from "next/link";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { EnterpriseInlineErrorNotification } from "@/components/EnterpriseInlineErrorNotification";
 import { GovernanceFindingsBuyerChrome } from "@/components/governance/findings/GovernanceFindingsBuyerChrome";
+import { GovernanceFindingsAssignedToMeBuyerChrome } from "@/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeBuyerChrome";
 import { GovernanceFindingsQueueNextReviewFooterClient } from "@/components/governance/findings/GovernanceFindingsQueueNextReviewFooterClient";
 import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governance/findings/GovernanceFindingsRelatedQueuesDisclosure";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
@@ -38,14 +39,18 @@ export function GovernanceFindingsQueueOutcomeSection(
         <EnterpriseInlineErrorNotification
           testId={props.loadFailedPreset.testId}
           title={
-            !props.isAssignedToMe && props.buyerPolishedShell
-              ? "Could not load findings for this workspace"
-              : props.loadFailedPreset.title
+            props.isAssignedToMe && props.buyerPolishedShell
+              ? "Could not load your assigned findings"
+              : !props.isAssignedToMe && props.buyerPolishedShell
+                ? "Could not load findings for this workspace"
+                : props.loadFailedPreset.title
           }
           description={
-            !props.isAssignedToMe && props.buyerPolishedShell
-              ? "The findings queue did not load. Your existing findings are unchanged — retry the load or check connectivity before navigating away."
-              : props.loadFailedPreset.description
+            props.isAssignedToMe && props.buyerPolishedShell
+              ? "Your assigned findings did not load. Existing assignments are unchanged — retry the load or check connectivity before navigating away."
+              : !props.isAssignedToMe && props.buyerPolishedShell
+                ? "The findings queue did not load. Your existing findings are unchanged — retry the load or check connectivity before navigating away."
+                : props.loadFailedPreset.description
           }
           onRetry={() => {
             props.onRefresh();
@@ -139,6 +144,10 @@ export function GovernanceFindingsQueueOutcomeSection(
 
       {!props.isAssignedToMe && props.buyerPolishedShell ? (
         <GovernanceFindingsBuyerChrome scopedRunId={props.scopedRunId} />
+      ) : null}
+
+      {props.isAssignedToMe && props.buyerPolishedShell ? (
+        <GovernanceFindingsAssignedToMeBuyerChrome />
       ) : null}
 
       {props.scopedRunFilterActive && props.scopedRunId !== null ? (

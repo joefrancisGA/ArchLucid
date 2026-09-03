@@ -60,7 +60,7 @@ export function GovernanceFindingsQueueScopeSection(
             Compare with prior review (finding lifecycle)
           </Link>
         </p>
-      ) : props.scopedRunId === null || props.scopedRunId.length === 0 ? (
+      ) : !props.isAssignedToMe && (props.scopedRunId === null || props.scopedRunId.length === 0) ? (
         <FindingsQueuePickReviewBeforeTriageStrip
           selectedReviewId=""
           onSelectReview={props.onPickReviewForTriage}
