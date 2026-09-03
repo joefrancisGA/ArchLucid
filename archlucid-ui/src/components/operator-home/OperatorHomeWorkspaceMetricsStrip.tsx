@@ -38,7 +38,7 @@ function MetricTile(props: MetricTileProps): React.JSX.Element {
       {props.href !== undefined ? (
         <Link
           href={props.href}
-          className={cn(OPERATOR_LINK.inline, "no-underline hover:underline")}
+          className={OPERATOR_LINK.inline}
           aria-label={props.ariaLabel}
         >
           {content}
@@ -86,7 +86,7 @@ export function OperatorHomeWorkspaceMetricsStrip(
       <p className="sr-only">{compactLine}</p>
       <div
         className={cn(
-          "flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-neutral-200 py-3 dark:border-neutral-800",
+          "flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-neutral-200 py-3 dark:border-neutral-800",
           OPERATOR_TYPOGRAPHY.helper,
           "text-al-text-secondary",
         )}

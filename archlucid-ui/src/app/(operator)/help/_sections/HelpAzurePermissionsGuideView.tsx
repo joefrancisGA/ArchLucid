@@ -4,11 +4,9 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
 
 import { Suspense } from "react";
 
+import { HelpAzurePermissionsClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpAzurePermissionsClaimOrientationStrip";
 import { AzureCloudConnectionRolesTable } from "@/components/help/AzureCloudConnectionRolesTable";
-import { AzurePermissionsHelpClaimDisciplineStrip } from "@/components/help/AzurePermissionsHelpClaimDisciplineStrip";
-import { AzurePermissionsHelpEvidenceOrientationStrip } from "@/components/help/AzurePermissionsHelpEvidenceOrientationStrip";
-import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAzurePermissionsHeaderActions } from "@/app/(operator)/help/_sections/HelpAzurePermissionsHeaderActions";
 import { HelpAzurePermissionsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzurePermissionsConnectionContext";
@@ -17,8 +15,7 @@ import { HelpAzurePermissionsRequiredRolesSummary } from "@/app/(operator)/help/
 import { HelpAzurePermissionsSetupSection } from "@/app/(operator)/help/_sections/HelpAzurePermissionsSetupSection";
 import { HelpAzurePermissionsVerificationPanel } from "@/app/(operator)/help/_sections/HelpAzurePermissionsVerificationPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { Button } from "@/components/ui/button";
+import { HelpStaticSection } from "@/components/help/HelpStaticSection";
 import {
   AZURE_CLOUD_CONNECTION_CANNOT_DO,
   AZURE_CLOUD_CONNECTION_CUSTOM_ROLE_READ_ACTIONS,
@@ -64,6 +61,8 @@ import {
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
+  AZURE_PERMISSIONS_HELP_CANONICAL_PATH,
+  AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE,
   AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -71,12 +70,17 @@ import {
   AZURE_PERMISSIONS_HELP_JOB_MATRIX_HEADING,
   AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID,
   AZURE_PERMISSIONS_HELP_HEADER_TEST_ID,
-  AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TITLE,
   formatAzurePermissionsHelpRequirementsReviewedLine,
 } from "@/lib/azure-permissions-help-evidence-copy";
+import {
+  AZURE_PERMISSIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  AZURE_PERMISSIONS_HELP_PRIMARY_CONTENT_ID,
+  AZURE_PERMISSIONS_HELP_SKIP_LINK_LABEL,
+  AZURE_PERMISSIONS_HELP_SKIP_TARGET_ID,
+} from "@/lib/azure-permissions-help-page-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -168,244 +172,263 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-azure-permissions-guide"
     >
+      <a href={`#${AZURE_PERMISSIONS_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {AZURE_PERMISSIONS_HELP_SKIP_LINK_LABEL}
+      </a>
+
       <HelpTopicHashScroll />
-      <header className={HELP_PAGE_LAYOUT.articleHeader} data-testid={AZURE_PERMISSIONS_HELP_HEADER_TEST_ID}>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 space-y-2">
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link href={returnHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                ← {AZURE_PERMISSIONS_BACK_TO_CONNECTIONS}
-              </Link>
-              <span aria-hidden="true"> · </span>
-              <a href="#troubleshoot" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                Fix a failed permission check
-              </a>
-            </p>
-            <HelpTopicTitleRow title={AZURE_PERMISSIONS_PAGE_TITLE} />
-            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_PERMISSIONS_PAGE_SUBTITLE}</p>
-            <HelpTopicRegistryProvenanceLine entry={entry} />
-          </div>
-          <div className="flex min-w-0 flex-col items-start gap-2">
-            <Button asChild size="sm" variant="primary" data-testid={AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.testId}>
-              <Link href={verifySetupHref}>{AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.label}</Link>
-            </Button>
-            <HelpAzurePermissionsHeaderActions entry={entry} />
-          </div>
+
+      <div
+        id={AZURE_PERMISSIONS_HELP_PRIMARY_CONTENT_ID}
+        data-testid={AZURE_PERMISSIONS_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <div data-testid={AZURE_PERMISSIONS_HELP_HEADER_TEST_ID}>
+          <HelpTopicGuidePageHeader
+            title={AZURE_PERMISSIONS_PAGE_TITLE}
+            titleTestId="help-azure-permissions-page-title"
+            subtitle={AZURE_PERMISSIONS_PAGE_SUBTITLE}
+            navHref={AZURE_PERMISSIONS_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            claimDiscipline={AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE}
+            claimDisciplineTestId={AZURE_PERMISSIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+            metadata={
+              <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
+                <Link href={returnHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                  ← {AZURE_PERMISSIONS_BACK_TO_CONNECTIONS}
+                </Link>
+                <span aria-hidden="true"> · </span>
+                <a href="#troubleshoot" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                  Fix a failed permission check
+                </a>
+              </p>
+            }
+            actions={<HelpAzurePermissionsHeaderActions entry={entry} setupHref={verifySetupHref} />}
+          />
         </div>
-      </header>
 
-      <AzurePermissionsHelpClaimDisciplineStrip />
-
-      <AzurePermissionsHelpEvidenceOrientationStrip />
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">
-          <div className="space-y-6" data-testid={AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID}>
-            <section
-              aria-labelledby="help-azure-permissions-job-matrix-heading"
-              data-testid={AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID}
+        <div className={HELP_PAGE_LAYOUT.contentGrid}>
+          <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">
+            <div
+              id={AZURE_PERMISSIONS_HELP_SKIP_TARGET_ID}
+              className={cn(
+                "space-y-6 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+              data-testid={AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID}
             >
-              <h2
-                id="help-azure-permissions-job-matrix-heading"
-                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+              <section
+                aria-labelledby="help-azure-permissions-job-matrix-heading"
+                data-testid={AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID}
               >
-                {AZURE_PERMISSIONS_HELP_JOB_MATRIX_HEADING}
-              </h2>
-              <ul className={cn("m-0 mt-2 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
-                {AZURE_PERMISSIONS_HELP_JOB_MATRIX.map((row) => (
-                  <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
-                    {row.isCurrent === true ? (
-                      <span
-                        className="shrink-0 font-medium text-al-text-primary"
-                        data-testid="help-azure-permissions-job-matrix-current"
-                      >
-                        {row.label}
-                      </span>
-                    ) : (
-                      <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
-                        {row.label}
-                      </Link>
-                    )}
-                    <span className="text-al-text-secondary">{row.when}</span>
+                <h2
+                  id="help-azure-permissions-job-matrix-heading"
+                  className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                >
+                  {AZURE_PERMISSIONS_HELP_JOB_MATRIX_HEADING}
+                </h2>
+                <ul className={cn("m-0 mt-2 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
+                  {AZURE_PERMISSIONS_HELP_JOB_MATRIX.map((row) => (
+                    <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+                      {row.isCurrent === true ? (
+                        <span
+                          className="shrink-0 font-medium text-al-text-primary"
+                          data-testid="help-azure-permissions-job-matrix-current"
+                        >
+                          {row.label}
+                        </span>
+                      ) : (
+                        <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
+                          {row.label}
+                        </Link>
+                      )}
+                      <span className="text-al-text-secondary">{row.when}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <HelpAzurePermissionsRequiredRolesSummary />
+
+              <section aria-labelledby="read-only-summary" className="space-y-3">
+                <HelpSectionHeading id="read-only-summary">{AZURE_PERMISSIONS_READ_ONLY_HEADING}</HelpSectionHeading>
+                <div className={cn(DESIGN_TOKENS.callout.neutral, "space-y-3")} data-testid="azure-permissions-trust-panel">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_PERMISSIONS_READ_ONLY_INTRO}</p>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    {AZURE_PERMISSIONS_COST_OPTIONAL_NOTE}
+                  </p>
+                  <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                    <li>{AZURE_PERMISSIONS_TRUST_NO_MODIFY}</li>
+                    <li>{AZURE_PERMISSIONS_TRUST_NO_ROLE_ASSIGN}</li>
+                    <li>{AZURE_PERMISSIONS_TRUST_NO_DEPLOY}</li>
+                  </ul>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Do not assign: {AZURE_CLOUD_CONNECTION_FORBIDDEN_ROLES.join(", ")}.
+                  </p>
+                </div>
+              </section>
+            </div>
+
+            <section id="setup" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+              <HelpAzurePermissionsSetupSection subscriptionId={props.subscriptionId} />
+            </section>
+
+            <section id="verify" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+              <HelpAzurePermissionsVerificationPanel subscriptionId={props.subscriptionId} returnHref={verifySetupHref} />
+            </section>
+
+            <section
+              id="connection-context"
+              className="scroll-mt-24 space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="connection-context-heading">{AZURE_PERMISSIONS_CONNECTION_CONTEXT_HEADING}</HelpSectionHeading>
+              <Suspense fallback={<HelpAzurePermissionsConnectionContextLoadingSkeleton />}>
+                <HelpAzurePermissionsConnectionContext />
+              </Suspense>
+            </section>
+
+            <section aria-labelledby="permissions-matrix" className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
+              <HelpStaticSection
+                id="permissions-matrix"
+                headingLevel={2}
+                title={AZURE_PERMISSIONS_MATRIX_HEADING}
+                intro={AZURE_PERMISSIONS_MATRIX_DISCLOSURE_SUMMARY}
+                testId={AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID}
+              >
+                <div className="space-y-3">
+                  <AzureCloudConnectionRolesTable expandedDetails={false} testId="azure-permissions-matrix-table" />
+                </div>
+              </HelpStaticSection>
+            </section>
+
+            <section
+              aria-labelledby="recommended-scope"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="azure-permissions-scope-section"
+            >
+              <HelpSectionHeading id="recommended-scope">{AZURE_PERMISSIONS_SCOPE_HEADING}</HelpSectionHeading>
+              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                {AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.recommendedTier2}
+              </p>
+              <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.multipleSubscriptions}</li>
+                <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.resourceGroupLimitation}</li>
+                <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.managementGroupLimitation}</li>
+                <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.billingScope}</li>
+              </ul>
+            </section>
+
+            <section
+              aria-labelledby="collected-data"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="azure-permissions-collected-section"
+            >
+              <HelpSectionHeading id="collected-data">{AZURE_PERMISSIONS_COLLECTED_HEADING}</HelpSectionHeading>
+              <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                {AZURE_CLOUD_CONNECTION_DATA_COLLECTED.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <div
+                className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="azure-permissions-not-collected-panel"
+              >
+                <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Not collected</h3>
+                <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                  {AZURE_CLOUD_CONNECTION_DATA_NOT_COLLECTED.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+
+            <section
+              aria-labelledby="cannot-do"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="azure-permissions-cannot-do-section"
+            >
+              <HelpSectionHeading id="cannot-do">{AZURE_PERMISSIONS_CANNOT_DO_HEADING}</HelpSectionHeading>
+              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                {AZURE_PERMISSIONS_CANNOT_DO_INTRO}
+              </p>
+              <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                {AZURE_CLOUD_CONNECTION_CANNOT_DO.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section
+              aria-labelledby="custom-role"
+              className="border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="azure-permissions-custom-role-section"
+            >
+              <HelpStaticSection
+                id="custom-role"
+                headingLevel={2}
+                title={AZURE_PERMISSIONS_CUSTOM_ROLE_HEADING}
+                intro={AZURE_PERMISSIONS_CUSTOM_ROLE_DISCLOSURE_SUMMARY}
+                testId={AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID}
+              >
+                <div className="space-y-3">
+                  <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    {AZURE_PERMISSIONS_CUSTOM_ROLE_INTRO}
+                  </p>
+                  <CustomRoleActionsTable />
+                </div>
+              </HelpStaticSection>
+            </section>
+
+            <section
+              aria-labelledby="troubleshoot"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="azure-permissions-troubleshoot-section"
+            >
+              <HelpSectionHeading id="troubleshoot">{AZURE_PERMISSIONS_TROUBLESHOOT_HEADING}</HelpSectionHeading>
+              <ul className={HELP_PAGE_LAYOUT.bulletList} data-testid="azure-permissions-troubleshoot-list">
+                {AZURE_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section
+              aria-labelledby="other-providers"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="azure-permissions-other-providers"
+            >
+              <HelpSectionHeading id="other-providers">{AZURE_PERMISSIONS_OTHER_PROVIDERS_HEADING}</HelpSectionHeading>
+              <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                {otherProviders.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
             </section>
 
-            <HelpAzurePermissionsRequiredRolesSummary />
-
-            <section aria-labelledby="read-only-summary" className="space-y-3">
-              <HelpSectionHeading id="read-only-summary">{AZURE_PERMISSIONS_READ_ONLY_HEADING}</HelpSectionHeading>
-              <div className={cn(DESIGN_TOKENS.callout.neutral, "space-y-3")} data-testid="azure-permissions-trust-panel">
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_PERMISSIONS_READ_ONLY_INTRO}</p>
+            <section className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
+              <HelpStaticSection
+                headingLevel={2}
+                title={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TITLE}
+                intro={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY}
+                testId={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID}
+              >
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  {AZURE_PERMISSIONS_COST_OPTIONAL_NOTE}
+                  {formatAzurePermissionsHelpRequirementsReviewedLine(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}
                 </p>
-                <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                  <li>{AZURE_PERMISSIONS_TRUST_NO_MODIFY}</li>
-                  <li>{AZURE_PERMISSIONS_TRUST_NO_ROLE_ASSIGN}</li>
-                  <li>{AZURE_PERMISSIONS_TRUST_NO_DEPLOY}</li>
-                </ul>
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  Do not assign: {AZURE_CLOUD_CONNECTION_FORBIDDEN_ROLES.join(", ")}.
-                </p>
-              </div>
+              </HelpStaticSection>
             </section>
           </div>
 
-          <section id="setup" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <HelpAzurePermissionsSetupSection subscriptionId={props.subscriptionId} />
-          </section>
-
-          <section id="verify" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <HelpAzurePermissionsVerificationPanel subscriptionId={props.subscriptionId} returnHref={verifySetupHref} />
-          </section>
-
-          <section
-            id="connection-context"
-            className="scroll-mt-24 space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="connection-context-heading">{AZURE_PERMISSIONS_CONNECTION_CONTEXT_HEADING}</HelpSectionHeading>
-            <Suspense fallback={<HelpAzurePermissionsConnectionContextLoadingSkeleton />}>
-              <HelpAzurePermissionsConnectionContext />
-            </Suspense>
-          </section>
-
-          <section aria-labelledby="permissions-matrix" className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <CollapsibleSection
-              title={AZURE_PERMISSIONS_MATRIX_HEADING}
-              headingLevel={2}
-              summaryLine={AZURE_PERMISSIONS_MATRIX_DISCLOSURE_SUMMARY}
-              summaryId="permissions-matrix"
-              sectionTestId={AZURE_PERMISSIONS_HELP_DEFERRED_MATRIX_DISCLOSURE_TEST_ID}
-            >
-              <div className="space-y-3">
-                <AzureCloudConnectionRolesTable expandedDetails={false} testId="azure-permissions-matrix-table" />
-              </div>
-            </CollapsibleSection>
-          </section>
-
-          <section
-            aria-labelledby="recommended-scope"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-            data-testid="azure-permissions-scope-section"
-          >
-            <HelpSectionHeading id="recommended-scope">{AZURE_PERMISSIONS_SCOPE_HEADING}</HelpSectionHeading>
-            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.recommendedTier2}
-            </p>
-            <ul className={HELP_PAGE_LAYOUT.bulletList}>
-              <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.multipleSubscriptions}</li>
-              <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.resourceGroupLimitation}</li>
-              <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.managementGroupLimitation}</li>
-              <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.billingScope}</li>
-            </ul>
-          </section>
-
-          <section
-            aria-labelledby="collected-data"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-            data-testid="azure-permissions-collected-section"
-          >
-            <HelpSectionHeading id="collected-data">{AZURE_PERMISSIONS_COLLECTED_HEADING}</HelpSectionHeading>
-            <ul className={HELP_PAGE_LAYOUT.bulletList}>
-              {AZURE_CLOUD_CONNECTION_DATA_COLLECTED.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <div
-              className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-              data-testid="azure-permissions-not-collected-panel"
-            >
-              <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Not collected</h3>
-              <ul className={HELP_PAGE_LAYOUT.bulletList}>
-                {AZURE_CLOUD_CONNECTION_DATA_NOT_COLLECTED.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </section>
-
-          <section
-            aria-labelledby="cannot-do"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-            data-testid="azure-permissions-cannot-do-section"
-          >
-            <HelpSectionHeading id="cannot-do">{AZURE_PERMISSIONS_CANNOT_DO_HEADING}</HelpSectionHeading>
-            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {AZURE_PERMISSIONS_CANNOT_DO_INTRO}
-            </p>
-            <ul className={HELP_PAGE_LAYOUT.bulletList}>
-              {AZURE_CLOUD_CONNECTION_CANNOT_DO.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
-
-          <section
-            aria-labelledby="custom-role"
-            className="border-t border-neutral-200 pt-6 dark:border-neutral-800"
-            data-testid="azure-permissions-custom-role-section"
-          >
-            <CollapsibleSection
-              title={AZURE_PERMISSIONS_CUSTOM_ROLE_HEADING}
-              headingLevel={2}
-              summaryLine={AZURE_PERMISSIONS_CUSTOM_ROLE_DISCLOSURE_SUMMARY}
-              summaryId="custom-role"
-              sectionTestId={AZURE_PERMISSIONS_HELP_DEFERRED_CUSTOM_ROLE_DISCLOSURE_TEST_ID}
-            >
-              <div className="space-y-3">
-                <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  {AZURE_PERMISSIONS_CUSTOM_ROLE_INTRO}
-                </p>
-                <CustomRoleActionsTable />
-              </div>
-            </CollapsibleSection>
-          </section>
-
-          <section
-            aria-labelledby="troubleshoot"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-            data-testid="azure-permissions-troubleshoot-section"
-          >
-            <HelpSectionHeading id="troubleshoot">{AZURE_PERMISSIONS_TROUBLESHOOT_HEADING}</HelpSectionHeading>
-            <ul className={HELP_PAGE_LAYOUT.bulletList} data-testid="azure-permissions-troubleshoot-list">
-              {AZURE_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
-
-          <section
-            aria-labelledby="other-providers"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-            data-testid="azure-permissions-other-providers"
-          >
-            <HelpSectionHeading id="other-providers">{AZURE_PERMISSIONS_OTHER_PROVIDERS_HEADING}</HelpSectionHeading>
-            <ul className={HELP_PAGE_LAYOUT.bulletList}>
-              {otherProviders.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <CollapsibleSection
-              title={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TITLE}
-              headingLevel={2}
-              summaryLine={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY}
-              sectionTestId={AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID}
-            >
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {formatAzurePermissionsHelpRequirementsReviewedLine(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}
-              </p>
-            </CollapsibleSection>
-          </section>
+          <HelpTopicTableOfContents headings={AZURE_PERMISSIONS_TOC_HEADINGS} />
         </div>
-        <HelpTopicTableOfContents headings={AZURE_PERMISSIONS_TOC_HEADINGS} />
+
+        <div data-testid="help-azure-permissions-orientation-bottom">
+          <HelpAzurePermissionsClaimOrientationStrip />
+        </div>
       </div>
     </article>
   );

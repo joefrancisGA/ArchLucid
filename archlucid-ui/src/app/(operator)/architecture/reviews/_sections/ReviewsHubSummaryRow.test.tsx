@@ -46,6 +46,10 @@ describe("ReviewsHubSummaryRow", () => {
       "href",
       "/governance/approval-queue",
     );
+
+    const activeLink = screen.getByRole("link", { name: /2 Active/ });
+    expect(activeLink.className).toMatch(/underline/);
+    expect(activeLink.className).not.toMatch(/no-underline/);
   });
 
   it("opens the sole ready draft instead of scrolling when only one draft is ready", () => {

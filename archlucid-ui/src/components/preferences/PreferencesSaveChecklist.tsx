@@ -1,5 +1,5 @@
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens-status";
 import type { PreferencesSaveChecklistStep } from "@/lib/preferences-save-checklist";
 import { cn } from "@/lib/utils";
@@ -17,20 +17,20 @@ function resolveStepStatusTag(
   emphasizedStepId: string,
 ): { readonly kind: EnterpriseStatusKind; readonly label: string } {
   if (step.status === "default") {
-    return { kind: "neutral", label: "Default" };
+    return { kind: "ready", label: "In use" };
   }
 
   if (step.status === "done") {
-    return { kind: "ready", label: "Done" };
+    return { kind: "ready", label: "Saved" };
   }
 
   return {
     kind: step.id === emphasizedStepId ? "in-progress" : "neutral",
-    label: "Pending",
+    label: step.id === emphasizedStepId ? "Needs attention" : "Pending",
   };
 }
 
-/** Preferences setup checklist with Default / Done / Pending chips per section. */
+/** Preferences setup checklist with in-page section links and honest applied-state tags. */
 export function PreferencesSaveChecklist(props: PreferencesSaveChecklistProps): React.JSX.Element {
   return (
     <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
@@ -54,15 +54,22 @@ export function PreferencesSaveChecklist(props: PreferencesSaveChecklistProps): 
               data-emphasized={step.id === props.emphasizedStepId ? "true" : undefined}
               data-testid={`${props.testIdPrefix}-setup-step-${step.id}`}
             >
-              <span
+              <a
+                href={`#${step.anchorId}`}
                 className={cn(
+                  OPERATOR_LINK.inline,
+                  "min-h-6 flex-1 text-left",
                   step.status === "done" ? "text-al-text-primary" : "text-al-text-secondary",
                   step.id === props.emphasizedStepId ? "font-medium text-al-text-primary" : undefined,
                 )}
               >
                 {step.label}
-              </span>
-              <StatusTag kind={statusTag.kind} label={statusTag.label} />
+              </a>
+              <StatusTag
+                kind={statusTag.kind}
+                label={statusTag.label}
+                className="pointer-events-none shrink-0"
+              />
             </li>
           );
         })}
