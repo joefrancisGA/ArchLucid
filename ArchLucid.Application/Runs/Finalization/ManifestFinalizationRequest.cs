@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Runs;
 using ArchLucid.Decisioning.DecisionTraces;
@@ -108,6 +109,13 @@ public sealed class ManifestFinalizationRequest
 
     /// <summary>When set, review standards snapshot capture skips reloading the architecture request (TB-2345).</summary>
     public ArchitectureRequest? PreloadedArchitectureRequest
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Wave-15 suggestion 142: artifact bundle bytes for inventory hashing when a bundle is expected.</summary>
+    public ArtifactBundle? PreloadedArtifactBundle
     {
         get;
         init;

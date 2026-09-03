@@ -3,7 +3,10 @@ import { ensureAppInsights } from "@/lib/telemetry";
 const ACK_STORAGE_PREFIX = "archlucid.architecture_draft_handoff_ack.v1.";
 
 export const ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD =
-  "This architecture draft already started a review. Continue in the review to evaluate evidence, findings, and exports.";
+  "This draft is a snapshot source for the linked review. Continue in the review for findings, evidence, and exports. Editing here does not update an in-flight or sealed package.";
+
+export const ARCHITECTURE_DRAFT_HANDOFF_CANONICAL_REVIEW_LABEL =
+  "The review is the canonical work surface after handoff.";
 
 export const ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL =
   "Edit draft anyway — changes will not update the review";

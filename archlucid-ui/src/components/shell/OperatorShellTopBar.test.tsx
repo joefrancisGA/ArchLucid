@@ -30,6 +30,16 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: "guided",
+    mounted: true,
+    accountSyncState: "synced",
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 vi.mock("@/lib/ui-authority-theme", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/ui-authority-theme")>();
 

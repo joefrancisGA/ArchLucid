@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Identity;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -34,6 +35,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IAuthorityCommitGovernanceStage governanceStage,
     IAuthorityCommitPersistenceStage persistenceStage,
     IAuthorityCommitFailureRecorder failureRecorder,
+    IGoldenManifestRepository goldenManifestRepository,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -55,6 +57,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IAuthorityCommitFailureRecorder _failureRecorder =
         failureRecorder ?? throw new ArgumentNullException(nameof(failureRecorder));
+
+    private readonly IGoldenManifestRepository _goldenManifestRepository =
+        goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
 
     private readonly ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -197,6 +202,15 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         if (run is null)
             throw new RunNotFoundException(runId);
+        AuthorityCommitRecoveryVerifier.EnsureRecoverableOrThrow(run, runRecord, runId);
+
+        if (runRecord.GoldenManifestId is Guid goldenManifestId)
+        {
+            ManifestDocument? persistedManifest =
+                await _goldenManifestRepository.GetByIdAsync(scope, goldenManifestId, cancellationToken);
+            AuthorityCommitRecoveryVerifier.EnsureInventoryConsistentOrThrow(persistedManifest, runRecord, runId);
+        }
+
         CommitRunResult? idempotent = await _idempotencyHandler.TryReturnCommittedAsync(run, runId, cancellationToken);
 
         if (idempotent is not null)

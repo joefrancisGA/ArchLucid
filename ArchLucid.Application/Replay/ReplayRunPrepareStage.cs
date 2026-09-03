@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
@@ -89,6 +90,14 @@ public sealed class ReplayRunPrepareStage(
 
         if (Guid.TryParse(originalRunId, out Guid originalGuid))
             sourceAuthorityRun = await _authorityRunRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
+
+        if (sourceAuthorityRun is null)
+        {
+            throw new ConflictException(
+                $"Replay blocked for run '{originalRunId}': source run header was not found; create-time pins cannot be cloned.");
+        }
+
+        ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(scope, sourceAuthorityRun, originalRunId);
 
         RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(replayGuid, scope, sourceAuthorityRun, request);
         await _authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);

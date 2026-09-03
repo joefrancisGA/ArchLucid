@@ -28,9 +28,13 @@ internal static class ReplayAuthorityRunRecordFactory
 
         DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
 
-        if (sourceAuthorityRun is not null)
+        if (sourceAuthorityRun is null)
+        {
+            throw new ConflictException(
+                "Replay blocked: source run header is required to clone create-time pins.");
+        }
 
-            return new RunRecord
+        return new RunRecord
             {
                 TenantId = sourceAuthorityRun.TenantId,
                 WorkspaceId = sourceAuthorityRun.WorkspaceId,
@@ -56,18 +60,5 @@ internal static class ReplayAuthorityRunRecordFactory
                 PinnedFocusedPilotModeEnabled = sourceAuthorityRun.PinnedFocusedPilotModeEnabled,
                 PinnedFocusedPilotCloudProvider = sourceAuthorityRun.PinnedFocusedPilotCloudProvider,
             };
-
-        return new RunRecord
-        {
-            TenantId = callScope.TenantId,
-            WorkspaceId = callScope.WorkspaceId,
-            ScopeProjectId = callScope.ProjectId,
-            RunId = replayRunId,
-            ProjectId = request.SystemName,
-            CreatedUtc = createdUtc,
-            ArchitectureRequestId = request.RequestId,
-            StructuralExecutionMode = StructuralExecutionMode.Simulator,
-            PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request)
-        };
     }
 }

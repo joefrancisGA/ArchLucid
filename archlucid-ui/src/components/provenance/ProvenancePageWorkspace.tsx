@@ -69,6 +69,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
     showTimeline,
     showTables,
     evidenceGraphHref,
+    pathname,
+    currentSearch,
   } = useProvenancePageWorkspace(props);
   const scopedRunId = runId.trim();
   const hasScopedRun = scopedRunId.length > 0;
@@ -128,6 +130,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
               <ProvenancePageWorkspaceFilters
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
+                pathname={pathname}
+                currentSearch={currentSearch}
                 filterOptions={FILTER_OPTIONS}
                 activeFilters={activeFilters}
                 filterCounts={filterCounts}

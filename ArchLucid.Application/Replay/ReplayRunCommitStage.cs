@@ -149,6 +149,19 @@ public sealed class ReplayRunCommitStage(
 
         if (replayHeader is not null)
         {
+            RunRecord? sourceHeader = null;
+
+            if (Guid.TryParse(originalRunId, out Guid originalGuid))
+                sourceHeader = await _authorityRunRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
+
+            if (sourceHeader is not null)
+            {
+                ReplayRunScopeAssertionGuard.EnsureReplayHeaderMatchesSourceScopeOrThrow(
+                    replayHeader,
+                    sourceHeader,
+                    originalRunId);
+            }
+
             await _runPolicyPackPinService
                 .VerifyPinIntegrityOrThrowAsync(replayHeader, scope, cancellationToken)
                 .ConfigureAwait(false);

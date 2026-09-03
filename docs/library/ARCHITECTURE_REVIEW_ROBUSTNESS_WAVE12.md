@@ -20,3 +20,5 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE11.md`](ARCHITECTURE_REVIEW_RO
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave12ArchitectureTests.cs`.
 
 **Hasher baseline note:** suggestion 120 bumps production `h(M)` to **`v7`** (package origin, request id, structural execution mode, pilot AOAI snapshot). Owner re-lock via `tests/manifest-hash/hasher-baseline-v7.json`.
+
+**Successor:** [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE13.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE13.md) (suggestions 121–130; Hasher A **`v8`**).

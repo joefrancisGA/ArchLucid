@@ -25,7 +25,17 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
   PageContextualHelpButton: () => <button type="button">Page help</button>,
 }));
 
