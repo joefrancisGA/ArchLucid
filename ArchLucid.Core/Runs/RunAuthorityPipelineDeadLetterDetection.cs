@@ -61,12 +61,12 @@ public static class RunAuthorityPipelineDeadLetterDetection
                     document.RootElement,
                     "failureClass",
                     out JsonElement failureClassElement)
-                || failureClassElement.ValueKind != JsonValueKind.String)
+                || !RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(failureClassElement, out string? failureClass))
             {
                 return null;
             }
 
-            string? failureClass = failureClassElement.GetString();
+            failureClass = failureClass?.Trim();
 
             if (string.IsNullOrWhiteSpace(failureClass))
                 return null;
