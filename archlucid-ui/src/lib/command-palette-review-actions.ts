@@ -1,4 +1,5 @@
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import type { CommandPaletteAction } from "@/lib/command-palette-actions";
@@ -17,7 +18,7 @@ export function buildCommandPaletteReviewActions(runId: string | null): readonly
     {
       id: "action-compare-this-review",
       label: "Compare this review",
-      href: comparePageHrefAdaptive(trimmed),
+      href: buildCompareTwoReviewsHref({ baseRunId: trimmed }),
       searchValue: "action compare review delta prior later",
     },
     {

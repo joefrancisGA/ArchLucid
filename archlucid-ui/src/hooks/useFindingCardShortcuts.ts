@@ -26,6 +26,8 @@ export type UseFindingCardShortcutsOptions = {
    * Pass **`useOperateCapability()`** so shortcuts match the same Execute+ floor as disposition confirms.
    */
   mutationsEnabled?: boolean;
+  /** Called when Alt+J/K moves focus to a different finding card (workbench selection sync). */
+  onFindingFocus?: (findingId: string) => void;
 };
 
 function getFindingCardFromActiveElement(): HTMLElement | null {
@@ -55,7 +57,7 @@ function getFocusedFindingId(): string | null {
   return id;
 }
 
-function focusAdjacentFindingCard(delta: number): void {
+function focusAdjacentFindingCard(delta: number, onFindingFocus?: (findingId: string) => void): void {
   const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-finding-id]"));
 
   if (nodes.length === 0) {
@@ -77,7 +79,15 @@ function focusAdjacentFindingCard(delta: number): void {
     nextIdx = 0;
   }
 
-  nodes[nextIdx]?.focus();
+  const next = nodes[nextIdx];
+
+  next?.focus();
+
+  const nextId = next?.getAttribute("data-finding-id") ?? "";
+
+  if (nextId.length > 0) {
+    onFindingFocus?.(nextId);
+  }
 }
 
 /**
@@ -87,19 +97,20 @@ function focusAdjacentFindingCard(delta: number): void {
 export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions): void {
   const onAction = options.onAction;
   const mutationsEnabled = options.mutationsEnabled !== false;
+  const onFindingFocus = options.onFindingFocus;
 
   const map = useMemo((): KeyboardShortcutsMap => {
     const navigation: KeyboardShortcutsMap = {
       "alt+j": {
         description: "Focus next finding card",
         handler: () => {
-          focusAdjacentFindingCard(1);
+          focusAdjacentFindingCard(1, onFindingFocus);
         },
       },
       "alt+k": {
         description: "Focus previous finding card",
         handler: () => {
-          focusAdjacentFindingCard(-1);
+          focusAdjacentFindingCard(-1, onFindingFocus);
         },
       },
     };
@@ -141,7 +152,7 @@ export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions)
       },
       ...navigation,
     };
-  }, [onAction, mutationsEnabled]);
+  }, [onAction, mutationsEnabled, onFindingFocus]);
 
   useKeyboardShortcuts(map);
 }
