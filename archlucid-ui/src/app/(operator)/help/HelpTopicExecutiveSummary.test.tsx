@@ -2,7 +2,6 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HelpSponsorReportGuideView } from "@/app/(operator)/help/_sections/HelpSponsorReportGuideView";
-import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
@@ -23,6 +22,15 @@ vi.mock("@/components/help/HelpTopicPdfDownloadButton", () => ({
 vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => null,
 }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
 
 const SPONSOR_SUMMARY_HELP_BANNED_SUBSTRINGS = [
   "frequently asked questions",
@@ -74,20 +82,16 @@ describe("HelpTopicSponsorReport", () => {
     expect(screen.queryByTestId("help-sponsor-report-refresh-button")).toBeNull();
     expect(screen.queryByTestId("help-sponsor-report-last-refreshed")).toBeNull();
     expect(screen.queryByTestId("help-sponsor-report-claim-discipline")).toBeNull();
-    expect(screen.getByTestId("help-sponsor-report-claim-discipline-strip")).toHaveTextContent(
+    expect(screen.getByTestId("help-sponsor-report-header-claim-discipline")).toHaveTextContent(
       SPONSOR_SUMMARY_HELP_CLAIM_DISCIPLINE,
     );
-    expectClaimDisciplineBandContent(
-      screen,
-      "help-sponsor-report",
-      "help-sponsor-report-claim-discipline",
-      SPONSOR_SUMMARY_HELP_CLAIM_DISCIPLINE.slice(0, 40),
-    );
+    expect(screen.queryByTestId("help-sponsor-report-claim-discipline-strip")).toBeNull();
     expect(screen.queryByTestId("help-sponsor-report-source-of-record")).toBeNull();
-    expect(screen.getByRole("link", { name: /open sponsor value report/i })).toHaveAttribute(
-      "href",
-      SPONSOR_REPORT_PATH,
-    );
+    expect(
+      within(screen.getByTestId("help-sponsor-report-action-panel")).getByRole("link", {
+        name: /open sponsor value report/i,
+      }),
+    ).toHaveAttribute("href", SPONSOR_REPORT_PATH);
 
     const contentRegion = screen.getByTestId("help-sponsor-report-content");
     const numberedHeadings = within(contentRegion)
@@ -111,11 +115,11 @@ describe("HelpTopicSponsorReport", () => {
 
     const actionPanel = screen.getByTestId("help-sponsor-report-action-panel");
     const overview = screen.getByTestId("help-sponsor-report-overview");
-    const claimStrip = screen.getByTestId("help-sponsor-report-claim-discipline-strip");
+    const sourcesSection = screen.getByTestId("help-sponsor-report-sources");
 
-    expect(claimStrip.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(actionPanel.className).not.toMatch(/bg-teal-/);
     expect(actionPanel.className).not.toMatch(/border-teal-/);
+    expect(actionPanel.compareDocumentPosition(sourcesSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
