@@ -139,6 +139,39 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_zip_slip_entry_path_is_invalid_archive()
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
+
+            using (StreamWriter writer = new(manifest.Open()))
+            {
+                writer.Write("""{"schemaVersion":1,"cloudProvider":"Aws","accountId":"123456789012"}""");
+            }
+
+            ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+            using (StreamWriter writer = new(resources.Open()))
+            {
+                writer.Write("[]");
+            }
+
+            zip.CreateEntry("../evil.txt");
+        }
+
+        ms.Position = 0;
+
+        CloudInventoryExtractorZipValidationResult result = CloudInventoryExtractorPackageZipValidator.Validate(ms);
+
+        result.IsValid.Should().BeFalse();
+        result.IsInvalidArchive.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("Unsafe ZIP entry path");
+    }
+
+    [Fact]
     public void Validate_malformed_manifest_json_is_schema_rejection()
     {
         byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 1, includeResources: true, malformedManifest: true);
