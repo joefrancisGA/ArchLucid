@@ -1881,11 +1881,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 127
-- **bugs-found:** 242
+- **hunts:** 128
+- **bugs-found:** 243
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — Azure extractor manifest upgrader rejected on/off and 1.0 schemaVersion strings
+- **last-bug:** 2026-09-03 — padded `TrialStatus` whitespace bypassed active-trial gates
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1942,6 +1942,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CloudInventoryExtractorPackageZipValidator.Validate` — zip-slip / zip-bomb archives accepted without `ZipArchiveSafety` — **hit 2026-09-03 (#636):** AWS/GCP inventory ingest validator skipped `ZipArchiveSafety.ValidateArchive` while sibling `AzureExtractorPackageZipValidator` already rejects unsafe entry paths; fixed with Azure parity safety gate (`Validate_zip_slip_entry_path_is_invalid_archive`).
 
 2026-09-03 thorough hunt #636: proved cloud inventory ZIP safety parity gap; disproved boolean-true current-schema upgrader path, decimal IPv4 literals, and duplicate dead-letter boolean `schemaVersion` candidate.
+
+- [x] (proven) `CommercialPackagingTierResolver` / `TenantTrialSeatPolicy` / `CommercialTenantEligibility` — padded `TrialStatus` not treated as active — **hit 2026-09-03 (#642):** after #600/#601 `OrdinalIgnoreCase` parity, `trialStatus:" active "` still bypassed tier resolution null, seat-claim enforcement, and Standard-tier commercial gates; fixed with `TrialLifecycleStatus.EqualsStatus` trim+ignore-case helper (`ResolveCommercialTierLabel_returns_null_for_padded_active_trial_status`, `RequiresSeatClaim_true_when_padded_active_trial_status`, `CommercialTenantEligibility_blocks_padded_active_trial_from_standard_gates`).
+
+2026-09-03 seed hunt #642: reseeded tenancy helpers after #601 lowercase TrialStatus fix; proved whitespace-padded active status parity gap.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
