@@ -21,3 +21,11 @@ export const GLOSSARY_HELP_FOLLOW_UP_LINKS: readonly EvidenceSourceLink[] = [
 
 /** Plain-text guard for tests that do not render links. */
 export const GLOSSARY_HELP_CLAIM_DISCIPLINE = `${GLOSSARY_HELP_CLAIM_DISCIPLINE_LEAD} Open Getting started, Assurance status, or Audit trail ${GLOSSARY_HELP_CLAIM_DISCIPLINE_TAIL}`;
+
+export const GLOSSARY_HELP_HEADER_CLAIM_DISCIPLINE =
+  `${GLOSSARY_HELP_CLAIM_DISCIPLINE_LEAD} Use the follow-ups below ${GLOSSARY_HELP_CLAIM_DISCIPLINE_TAIL}`;
+
+export const GLOSSARY_HELP_FOLLOW_UPS_TITLE = "Where to go next" as const;
+
+export const GLOSSARY_HELP_SOURCES_INTRO =
+  "Use these follow-ups when glossary terms turn into live workflow, assurance status, or audit records.";

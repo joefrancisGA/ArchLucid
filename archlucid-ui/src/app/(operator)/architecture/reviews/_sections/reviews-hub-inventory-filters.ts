@@ -269,6 +269,12 @@ export function sortRunsForInventory(
   });
 }
 
+export function reviewsHubInventoryFilterEmptyReason(filter: ReviewFilterId): string {
+  const option = INVENTORY_FILTER_OPTIONS.find((entry) => entry.id === filter);
+
+  return `No reviews match ${option?.label ?? filter}.`;
+}
+
 export function emptyInventoryDescription(draftCount: number): string {
   if (draftCount === 1) {
     return REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY;

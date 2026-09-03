@@ -105,6 +105,8 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
         >
           {RISK_REGISTER_FILTER_LABELS.stale}
         </FilterChip>
+      </FilterChipGroup>
+      <div className="flex flex-wrap items-center gap-2">
         {registerFilter !== "all" && !savedPresets.some((preset) => preset.filter === registerFilter) ? (
           <Button
             type="button"
@@ -147,7 +149,7 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
         >
           Group by resource
         </Button>
-      </FilterChipGroup>
+      </div>
 
       {props.onNaturalLanguageFilterApply !== undefined ? (
         <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />

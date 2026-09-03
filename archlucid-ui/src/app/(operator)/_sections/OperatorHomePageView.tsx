@@ -39,6 +39,8 @@ import {
   PilotCommandCenterCardDeferred,
 } from "./operator-home-page-view-deferred-chunks";
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
+import { WorkspaceModeGraduationOfferHost } from "@/components/workspace-mode/WorkspaceModeGraduationOfferHost";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
@@ -193,6 +195,7 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
 function OperatorHomePageBody(props: {
   readonly model: OperatorHomePageViewModel;
   readonly buyerPolishedShell: boolean;
+  readonly workingMode: boolean;
 }): React.JSX.Element {
   const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
     props.model.runsDashboard.items,
@@ -213,6 +216,7 @@ function OperatorHomePageBody(props: {
     },
     buyerPolishedShell: props.buyerPolishedShell,
     metrics: workspaceMetrics,
+    workingMode: props.workingMode,
   });
 
   return (
@@ -221,6 +225,7 @@ function OperatorHomePageBody(props: {
       initialHasOverviewReviewRows={overviewPhaseSignals.hasOverviewReviewRows}
       initialOpenFindingsCount={workspaceMetrics.openFindings}
     >
+      <WorkspaceModeGraduationOfferHost />
       {sections.map((section) =>
         renderOperatorHomeSection({
           section,
@@ -237,6 +242,7 @@ function OperatorHomePageBody(props: {
 /** Landing page: hero CTA, workspace activity, and collapsed advanced guidance. */
 export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
   const buyerPolishedShell = model.buyerPolishedShell;
+  const { isWorkingMode } = useWorkspaceMode();
 
   return (
     <OperatorHomeGateDeferred>
@@ -258,10 +264,10 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
               className="scroll-mt-24 space-y-4"
               data-testid="operator-home-primary-content"
             >
-              <OperatorHomePageBody model={model} buyerPolishedShell />
+              <OperatorHomePageBody model={model} buyerPolishedShell workingMode={isWorkingMode} />
             </div>
           ) : (
-            <OperatorHomePageBody model={model} buyerPolishedShell={false} />
+            <OperatorHomePageBody model={model} buyerPolishedShell={false} workingMode={isWorkingMode} />
           )}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>

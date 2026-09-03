@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   DEFAULT_FINDING_JOB_VIEW,
@@ -12,6 +12,10 @@ import {
   resolveReviewFindingsToolbarFilterFromSearchParam,
   writeReviewFindingsToolbarFilterToUrl,
 } from "@/lib/findings/review-findings-toolbar-filter-url";
+import {
+  parseReviewFindingsToolbarSearchQuery,
+  reviewFindingsToolbarSearchHrefFromSearch,
+} from "@/lib/findings/review-findings-toolbar-search-url";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
 import type {
   RunDetailFindingsFilterKind,
@@ -39,10 +43,13 @@ export function useRunDetailFindingsToolbarState(options?: {
   readonly groundingFilter: FindingGroundingFilter;
   readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
 } {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const initialFilter =
     options?.initialFilter ??
     resolveReviewFindingsToolbarFilterFromSearchParam(searchParams?.get("findingsFilter"));
+  const urlSearchQuery = parseReviewFindingsToolbarSearchQuery(searchParams?.get("q"));
   const [filter, setFilterState] = useState<RunDetailFindingsFilterKind>(initialFilter);
   const setFilter = useCallback((next: RunDetailFindingsFilterKind): void => {
     setFilterState(next);
@@ -57,10 +64,36 @@ export function useRunDetailFindingsToolbarState(options?: {
   }, []);
   const [ownerFilter, setOwnerFilter] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQueryState] = useState(urlSearchQuery);
   const [sort, setSort] = useState<RunDetailFindingsSortKind>("trust-then-severity");
   const [originFilter, setOriginFilter] = useState<FindingOriginFilter>("all");
   const [groundingFilter, setGroundingFilter] = useState<FindingGroundingFilter>("all");
+
+  useEffect(() => {
+    setSearchQueryState(urlSearchQuery);
+  }, [urlSearchQuery]);
+
+  useEffect(() => {
+    if (pathname.length === 0) {
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      const nextHref = reviewFindingsToolbarSearchHrefFromSearch(searchParams.toString(), pathname, searchQuery);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [pathname, router, searchParams, searchQuery]);
+
+  const setSearchQuery = useCallback((value: string): void => {
+    setSearchQueryState(value);
+  }, []);
 
   return {
     filter,

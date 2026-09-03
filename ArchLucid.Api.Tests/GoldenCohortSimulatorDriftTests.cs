@@ -104,7 +104,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
                         out JsonElement evidenceHash)
                     && evidenceHash.ValueKind == JsonValueKind.String
                     && !string.IsNullOrWhiteSpace(evidenceHash.GetString())
-                    ? Convert.FromHexString(evidenceHash.GetString()!)
+                    ? Convert.FromBase64String(evidenceHash.GetString()!)
                     : null,
             };
 

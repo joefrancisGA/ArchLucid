@@ -48,7 +48,7 @@ export function RunsDashboardPanelFilters({
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const archivedHref = runsDashboardHomeHrefFromSearch(currentSearch, { tab: "all", showArchived: true });
-  const archivedDisabledReasonId = "runs-dashboard-archived-disabled-reason";
+  const archivedDisabledReasonId = "runs-dashboard-panel-archived-disabled-reason";
 
   return (
     <CardHeader className={OPERATOR_CARD.header}>

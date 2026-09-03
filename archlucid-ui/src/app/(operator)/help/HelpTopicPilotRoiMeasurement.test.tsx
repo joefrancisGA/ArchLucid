@@ -26,6 +26,15 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => null,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 const PILOT_ROI_MEASUREMENT_HELP_BANNED_SUBSTRINGS = [
   "ReadyForCommit",
   "Create review → Execute → Finalize",
@@ -45,7 +54,12 @@ describe("HelpTopicPilotRoiMeasurement (TB-1391–TB-1393)", () => {
 
     const section = screen.getByTestId("help-pilot-roi-measurement-section");
     const actionPanel = screen.getByTestId("help-pilot-roi-measurement-action-panel");
-    const scorecard = within(section).getByTestId("pilot-roi-measurement-scorecard");
+    const scorecards = within(section).getAllByTestId("pilot-roi-measurement-scorecard");
+    const scorecard = scorecards[0];
+
+    if (scorecard === undefined) {
+      throw new Error("Expected pilot ROI measurement scorecard.");
+    }
 
     expect(screen.getByRole("heading", { name: PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE })).toBeInTheDocument();
     expect(within(actionPanel).getByRole("link", { name: PILOT_ROI_MEASUREMENT_HELP_PRIMARY_ACTIONS.setBaseline.label })).toHaveAttribute(

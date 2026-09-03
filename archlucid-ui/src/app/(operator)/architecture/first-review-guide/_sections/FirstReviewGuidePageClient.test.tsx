@@ -6,6 +6,7 @@ import { FirstReviewGuidePageClient } from "./FirstReviewGuidePageClient";
 import {
   BUYER_ONBOARDING_PAGE_LEAD,
   BUYER_ONBOARDING_PAGE_TITLE,
+  FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import {
@@ -14,7 +15,7 @@ import {
   FIRST_REVIEW_GUIDE_SKIP_TARGET_ID,
 } from "@/lib/first-review-guide-page-copy";
 import { FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID } from "@/lib/first-review-guide-route";
-import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
+import { FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE, FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
 import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -149,6 +150,7 @@ describe("FirstReviewGuidePageClient", () => {
     );
     expect(screen.queryByTestId("first-review-guide-help-crosslink")).not.toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-orientation")).toBeInTheDocument();
+    expect(screen.queryByText(FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-walkthrough")).toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-header-loading")).not.toBeInTheDocument();
@@ -231,8 +233,8 @@ describe("FirstReviewGuidePageClient", () => {
       progress: {
         phase: "complete" as const,
         progressFraction: 1,
-        summaryLabel: "Complete",
-        detailLabel: "Your first architecture review is finalized.",
+        summaryLabel: FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE,
+        detailLabel: null,
         completedStepCount: 7,
         totalStepCount: 7,
       },
@@ -266,7 +268,10 @@ describe("FirstReviewGuidePageClient", () => {
     });
     render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
 
-    expect(screen.getByTestId("first-review-guide-readiness")).toHaveTextContent("First review completed");
+    expect(screen.queryByTestId("first-review-guide-readiness")).not.toBeInTheDocument();
+    expect(screen.getByTestId("first-review-guide-completed-message")).toHaveTextContent(
+      FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE,
+    );
     expect(screen.getByTestId("first-review-guide-sealed-record-provenance")).toHaveTextContent("Payments platform");
     expect(screen.getByTestId("first-review-guide-sealed-record-provenance")).toHaveTextContent("Apr 15, 2026");
     expect(screen.queryByTestId("first-review-guide-evaluation-scope")).not.toBeInTheDocument();
@@ -280,6 +285,8 @@ describe("FirstReviewGuidePageClient", () => {
       "/architecture/reviews/new",
     );
     expect(screen.getByTestId("first-review-guide-walkthrough-completed-summary")).toBeInTheDocument();
+    expect(screen.queryByText(/7 of 7 steps complete/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE })).not.toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-walkthrough")).not.toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-orientation")).toBeInTheDocument();
   });

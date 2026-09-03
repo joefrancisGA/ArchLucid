@@ -7,6 +7,7 @@ import { DismissControl } from "@/components/usability/DismissControl";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 
 const STORAGE_KEY = "archlucid_findings_triage_first_finding_strip_dismissed_v1";
 
@@ -21,6 +22,7 @@ export function FindingsTriageFirstFindingStrip(
   props: FindingsTriageFirstFindingStripProps,
 ): React.JSX.Element | null {
   const [visible, setVisible] = useState(false);
+  const teachingChromeVisible = useTeachingChromeVisible();
 
   useEffect(() => {
     try {
@@ -39,6 +41,10 @@ export function FindingsTriageFirstFindingStrip(
 
     setVisible(false);
   }, []);
+
+  if (!teachingChromeVisible) {
+    return null;
+  }
 
   if (!visible) {
     return null;

@@ -13,7 +13,7 @@ def _instrumentation_sources() -> str:
     diagnostics = REPO_ROOT / "ArchLucid.Core" / "Diagnostics"
     return "".join(
         path.read_text(encoding="utf-8")
-        for path in sorted(diagnostics.glob("ArchLucidInstrumentation*.cs"))
+        for path in sorted(diagnostics.glob("ArchLucid*.cs"))
     )
 
 
@@ -38,8 +38,8 @@ class TestLlmCostEstimatorTb025(unittest.TestCase):
 
     def test_tb_025_record_llm_cost_usd_comment_documents_monitoring_grade_cast(self) -> None:
         text = _instrumentation_sources()
-        self.assertIn("Counter<double> requires double", text)
-        self.assertIn("Acceptable for dashboards/alerts", text)
+        self.assertIn("cast to <see cref=\"double\" /> for the OTel counter", text)
+        self.assertIn("monitoring-grade IEEE 754 rounding only", text)
 
     def test_tb_025_llm_cost_estimation_options_documents_pretax(self) -> None:
         text = OPTIONS.read_text(encoding="utf-8")

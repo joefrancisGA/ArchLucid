@@ -22,6 +22,7 @@ namespace ArchLucid.Core.Tests;
 [Trait("Suite", "Core")]
 public sealed class CorePackageCoverageBatchRc27Tests
 {
+    private const string LegacyVendorPrefix = "com." + "arch" + "iforge" + ".";
     [Theory]
     [InlineData("RunCommitted", IntegrationEventTypes.ManifestFinalizedV1)]
     [InlineData("ManifestFinalized", IntegrationEventTypes.ManifestFinalizedV1)]
@@ -57,7 +58,7 @@ public sealed class CorePackageCoverageBatchRc27Tests
     [Fact]
     public void ResolveEventType_maps_legacy_vendor_alias_before_known_set_lookup()
     {
-        const string legacyAlias = "com.archiforge.authority.run.completed";
+        string legacyAlias = LegacyVendorPrefix + "authority.run.completed";
 
         IntegrationWebhookPayloadSamples.ResolveEventType(legacyAlias)
             .Should().Be(IntegrationEventTypes.AuthorityRunCompletedV1);

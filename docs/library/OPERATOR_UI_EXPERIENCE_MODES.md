@@ -25,6 +25,21 @@ Local `next dev` sets this in **`archlucid-ui/.env.development`** so engineers k
 
 **`NEXT_PUBLIC_DEMO_MODE`** and **`NEXT_PUBLIC_DEMO_STATIC_OPERATOR`** still force **buyer-polished** chrome and curated static payloads where documented. They are independent of `NEXT_PUBLIC_OPERATOR_EXPERIENCE`: demo builds stay buyer-safe, and production operator builds no longer need demo flags for buyer-default language (TB-643).
 
+## Guided vs Working workspace mode
+
+Personal preference stored in `dbo.UserSettings` (`WorkspaceMode`):
+
+| Mode | Behavior |
+|------|----------|
+| **Guided** (default) | Teaching chrome on — tours, first-finding strips, shortcut coaches, Where to go next strips, sample reviews on Overview. Live architecture packages only. |
+| **Working** | Teaching chrome off — Overview leads with the work queue; full authorized nav unlocks even before first commit; Getting started demoted from main nav. |
+
+Users switch modes in **Account → Preferences → Workspace mode**. After the user's first sealed review, a dismissible graduation offer suggests Working mode but never auto-switches.
+
+API: `GET /v1/user/preferences` returns `workspaceMode` and `workspaceModeGraduationOffer`; `PUT /v1/user/preferences/workspace-mode` and `PUT /v1/user/preferences/workspace-mode-graduation-offer` persist changes.
+
+Frontend: `WorkspaceModeProvider` in `archlucid-ui/src/app/layout.tsx`; `useTeachingChromeVisible()` gates teaching surfaces.
+
 ## Related
 
 - [operator-shell.md](operator-shell.md) — workflow and nav behavior
