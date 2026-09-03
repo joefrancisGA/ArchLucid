@@ -1,41 +1,31 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AuditEvent, CursorPagedResponse } from "@/lib/api";
 import { getAuditEventTypes } from "@/lib/api";
-import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
-import { OPERATOR_QUERY_GC_MS } from "@/lib/query/operator-query-stale-time";
-import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
-import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
-import { auditTrailDateRangePresetHrefFromSearch, parseAuditTrailDateRangePresetFromSearch } from "@/lib/governance/audit-trail-date-range-url";
-import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
 import {
-  CTO_DEMO_AUDIT_FILTER_QUERY_PARAM,
-  isCtoDemoAuditFilterActive,
-} from "@/lib/cto-demo-audit-filter";
-import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+  auditTrailActionHrefFromSearch,
+  auditTrailActorHrefFromSearch,
+  auditTrailClearFiltersHrefFromSearch,
+  auditTrailSearchHrefFromSearch,
+  parseAuditTrailActionFromSearch,
+  parseAuditTrailActorFromSearch,
+  parseAuditTrailSearchQueryFromSearch,
+} from "@/lib/governance/audit-trail-filters-url";
 
 import type { AuditPageServerLoad } from "./load-audit-page-data";
-import {
-  type AuditFilterFields,
-  resolveAuditScopedRunId,
-  shouldDeferAuditAutoSearch,
-  toDatetimeLocalInputValue,
-} from "./audit-page-helpers";
-import { resolveAuditSearchPageForUi, shouldInjectAuditDemoOnSearchError } from "./resolve-audit-search-page-for-ui";
+import type { AuditFilterFields } from "./audit-page-helpers";
 import { useAuditPageUrlState } from "./use-audit-page-url-state";
-import {
-  auditFiltersToQueryRecord,
-  fetchAuditEventsSearch,
-} from "./audit-events-query-fetch";
+import { useAuditPageCtoDemoFilter } from "./use-audit-page-cto-demo-filter";
+import { useAuditPageDateRange } from "./use-audit-page-date-range";
+import { useAuditPageSearchQuery } from "./use-audit-page-search-query";
+import { shouldInjectAuditDemoOnSearchError } from "./resolve-audit-search-page-for-ui";
 
 export type UseAuditPageSearchResult = {
   readonly runId: string;
@@ -84,61 +74,64 @@ export function useAuditPageSearch(
   serverLoad: AuditPageServerLoad,
   buyerPolishedShell: boolean,
 ): UseAuditPageSearchResult {
-  const queryClient = useQueryClient();
-  const scope = useOperatorScopeQueryKey();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const workspaceRun = useWorkspaceActiveRun();
+  const urlAction = parseAuditTrailActionFromSearch(searchParams.get("action"));
+  const urlActor = parseAuditTrailActorFromSearch(searchParams.get("actor"));
+  const urlSearchQuery = parseAuditTrailSearchQueryFromSearch(searchParams.get("q"));
+
   const [advancedAuditFiltersOpen, setAdvancedAuditFiltersOpen] = useState(!buyerPolishedShell);
   const [buyerPrimaryFiltersOpen, setBuyerPrimaryFiltersOpen] = useState(false);
   const [eventTypes, setEventTypes] = useState<string[]>(serverLoad.eventTypes);
-  const [eventType, setEventType] = useState<string>("");
+  const [eventType, setEventType] = useState<string>(urlAction);
   const [fromUtc, setFromUtc] = useState<string>("");
   const [toUtc, setToUtc] = useState<string>("");
-  const [correlationId, setCorrelationId] = useState<string>("");
-  const [actorUserId, setActorUserId] = useState<string>("");
+  const [correlationId, setCorrelationId] = useState<string>(urlSearchQuery);
+  const [actorUserId, setActorUserId] = useState<string>(urlActor);
   const [runId, setRunId] = useState<string>(() => searchParams.get("runId")?.trim() ?? "");
-  const [events, setEvents] = useState<AuditEvent[]>([]);
-  const [hasMoreResults, setHasMoreResults] = useState(false);
-  const [auditNextCursor, setAuditNextCursor] = useState<string | null>(null);
   const [loadingTypes, setLoadingTypes] = useState(serverLoad.typesLoadFailure !== null);
-  const [searching, setSearching] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const urlDatePreset = parseAuditTrailDateRangePresetFromSearch(searchParams.get("range"));
-  const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(urlDatePreset);
-  const initialAutoSearchPrimedRef = useRef(false);
-  const lastAutoSearchUrlRunIdRef = useRef<string | null>(null);
-  const ctoDemoAuditFilterActive = isCtoDemoAuditFilterActive(searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM));
+
+  const { ctoDemoAuditFilterActive, onClearCtoDemoAuditFilter } = useAuditPageCtoDemoFilter();
 
   useAuditPageUrlState({ runId, setRunId });
 
   useEffect(() => {
-    setAuditDatePreset(urlDatePreset);
+    setEventType(urlAction);
+  }, [urlAction]);
 
-    if (urlDatePreset === null) {
-      return;
-    }
+  useEffect(() => {
+    setActorUserId(urlActor);
+  }, [urlActor]);
 
-    const hours = urlDatePreset === "24h" ? 24 : 168;
-    const fromStr = toDatetimeLocalInputValue(new Date(Date.now() - hours * 3600 * 1000));
+  useEffect(() => {
+    setCorrelationId(urlSearchQuery);
+  }, [urlSearchQuery]);
 
-    setFromUtc(fromStr);
-    setToUtc("");
-  }, [urlDatePreset]);
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      let nextHref = auditTrailActionHrefFromSearch(searchParams.toString(), eventType, pathname ?? GOVERNANCE_AUDIT_PATH);
+      nextHref = auditTrailActorHrefFromSearch(
+        nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
+        actorUserId,
+        pathname ?? GOVERNANCE_AUDIT_PATH,
+      );
+      nextHref = auditTrailSearchHrefFromSearch(
+        nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
+        correlationId,
+        pathname ?? GOVERNANCE_AUDIT_PATH,
+      );
 
-  const onClearCtoDemoAuditFilter = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM);
-    const query = params.toString();
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
 
-    router.replace(
-      query.length > 0 ? `${GOVERNANCE_AUDIT_PATH}?${query}` : GOVERNANCE_AUDIT_PATH,
-      { scroll: false },
-    );
-  }, [router, searchParams]);
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [actorUserId, correlationId, eventType, pathname, router, searchParams]);
 
   const loadTypes = useCallback(async () => {
     setLoadingTypes(true);
@@ -162,41 +155,6 @@ export function useAuditPageSearch(
     void loadTypes();
   }, [loadTypes, serverLoad.typesLoadFailure]);
 
-  useEffect(() => {
-    if (!buyerPolishedShell || events.length === 0) {
-      return;
-    }
-
-    const sorted = [...events].map((e) => e.occurredUtc).sort((a, b) => a.localeCompare(b));
-    const firstUtc = sorted[0];
-    const lastUtc = sorted[sorted.length - 1];
-
-    if (firstUtc === undefined || lastUtc === undefined) {
-      return;
-    }
-
-    setFromUtc(toDatetimeLocalInputValue(new Date(firstUtc)));
-    setToUtc(toDatetimeLocalInputValue(new Date(lastUtc)));
-  }, [buyerPolishedShell, events]);
-
-  const executeSearch = useCallback(
-    async (filters: AuditFilterFields, loadMoreCursor?: string | null) => {
-      setFailure(null);
-
-      return queryClient.fetchQuery({
-        queryKey: operatorQueryKeys.auditEventsSearch(
-          scope,
-          auditFiltersToQueryRecord(filters),
-          loadMoreCursor ?? null,
-        ),
-        queryFn: () => fetchAuditEventsSearch(filters, loadMoreCursor),
-        staleTime: 0,
-        gcTime: OPERATOR_QUERY_GC_MS,
-      });
-    },
-    [queryClient, scope],
-  );
-
   const currentFilters = useCallback(
     (): AuditFilterFields => ({
       eventType,
@@ -209,154 +167,40 @@ export function useAuditPageSearch(
     [actorUserId, correlationId, eventType, fromUtc, runId, toUtc],
   );
 
-  const applySearchPageToState = useCallback((page: CursorPagedResponse<AuditEvent>, filters: AuditFilterFields) => {
-    const slice = resolveAuditSearchPageForUi(page, filters);
+  const query = useAuditPageSearchQuery({
+    runId,
+    currentFilters,
+    setFailure,
+  });
 
-    setEvents(slice.events);
-    setHasMoreResults(slice.hasMoreResults);
-    setAuditNextCursor(slice.auditNextCursor);
-    setLastRefreshedAt(new Date());
-  }, []);
-
-  const applyDemoAuditFallback = useCallback(() => {
-    setEvents(getDemoSampleAuditTrailEvents());
-    setHasMoreResults(false);
-    setAuditNextCursor(null);
-    setFailure(null);
-    setLastRefreshedAt(new Date());
-  }, []);
-
-  const runSearch = useCallback(async () => {
-    setSearching(true);
-
-    try {
-      const filters = currentFilters();
-      const page = await executeSearch(filters);
-
-      applySearchPageToState(page, filters);
-    } catch (e) {
-      const emptyFilters = currentFilters();
-
-      if (shouldInjectAuditDemoOnSearchError(emptyFilters)) {
-        applyDemoAuditFallback();
-      } else {
-        setFailure(toApiLoadFailure(e));
-      }
-    } finally {
-      setSearching(false);
-    }
-  }, [applyDemoAuditFallback, applySearchPageToState, currentFilters, executeSearch]);
-
-  const applyAuditDatePreset = useCallback(
-    async (preset: "24h" | "7d") => {
-      const hours = preset === "24h" ? 24 : 168;
-      const fromStr = toDatetimeLocalInputValue(new Date(Date.now() - hours * 3600 * 1000));
-
-      setAuditDatePreset(preset);
-      setFromUtc(fromStr);
-      setToUtc("");
-      router.replace(
-        auditTrailDateRangePresetHrefFromSearch(searchParams.toString(), preset, pathname ?? GOVERNANCE_AUDIT_PATH),
-        { scroll: false },
-      );
-      setFailure(null);
-      setSearching(true);
-
-      const filters: AuditFilterFields = {
-        eventType,
-        fromUtc: fromStr,
-        toUtc: "",
-        correlationId,
-        actorUserId,
-        runId,
-      };
-
-      try {
-        const page = await executeSearch(filters);
-
-        applySearchPageToState(page, filters);
-      } catch (e) {
-        if (shouldInjectAuditDemoOnSearchError(filters)) {
-          applyDemoAuditFallback();
-        } else {
-          setFailure(toApiLoadFailure(e));
-        }
-      } finally {
-        setSearching(false);
-      }
-    },
-    [actorUserId, applyDemoAuditFallback, applySearchPageToState, correlationId, eventType, executeSearch, pathname, router, runId, searchParams],
-  );
-
-  const clearDateRangeAndSearch = useCallback(async () => {
-    setAuditDatePreset(null);
-    setFromUtc("");
-    setToUtc("");
-    router.replace(
-      auditTrailDateRangePresetHrefFromSearch(searchParams.toString(), null, pathname ?? GOVERNANCE_AUDIT_PATH),
-      { scroll: false },
-    );
-    setFailure(null);
-    setSearching(true);
-
-    const filters: AuditFilterFields = {
-      eventType,
-      fromUtc: "",
-      toUtc: "",
-      correlationId,
-      actorUserId,
-      runId,
-    };
-
-    try {
-      const page = await executeSearch(filters);
-
-      applySearchPageToState(page, filters);
-    } catch (e) {
-      if (shouldInjectAuditDemoOnSearchError(filters)) {
-        applyDemoAuditFallback();
-      } else {
-        setFailure(toApiLoadFailure(e));
-      }
-    } finally {
-      setSearching(false);
-    }
-  }, [actorUserId, applyDemoAuditFallback, applySearchPageToState, correlationId, eventType, executeSearch, pathname, router, runId, searchParams]);
-
-  useEffect(() => {
-    const urlRunIdParam = searchParams.get("runId")?.trim() ?? "";
-    const scopedRunId = resolveAuditScopedRunId({
-      urlRunId: urlRunIdParam,
-      pathname: pathname ?? GOVERNANCE_AUDIT_PATH,
-      search: searchParams.toString(),
-      workspaceActiveRunId: workspaceRun?.activeRunId ?? null,
-    });
-
-    if (shouldDeferAuditAutoSearch(runId, scopedRunId)) {
-      return;
-    }
-
-    const shouldAutoSearch =
-      !initialAutoSearchPrimedRef.current || urlRunIdParam !== lastAutoSearchUrlRunIdRef.current;
-
-    if (!shouldAutoSearch) {
-      return;
-    }
-
-    initialAutoSearchPrimedRef.current = true;
-    lastAutoSearchUrlRunIdRef.current = urlRunIdParam;
-    void runSearch();
-  }, [pathname, runId, runSearch, searchParams, workspaceRun?.activeRunId]);
+  const dateRange = useAuditPageDateRange({
+    buyerPolishedShell,
+    events: query.events,
+    eventType,
+    correlationId,
+    actorUserId,
+    runId,
+    setFromUtc,
+    setToUtc,
+    setFailure,
+    setSearching: query.setSearching,
+    executeSearch: query.executeSearch,
+    applySearchPageToState: query.applySearchPageToState,
+    applyDemoAuditFallback: query.applyDemoAuditFallback,
+  });
 
   const clearFiltersAndSearch = useCallback(async () => {
-    setAuditDatePreset(null);
+    dateRange.setAuditDatePreset(null);
     setEventType("");
     setFromUtc("");
     setToUtc("");
     setCorrelationId("");
     setActorUserId("");
     setRunId("");
-    setSearching(true);
+    router.replace(auditTrailClearFiltersHrefFromSearch(searchParams.toString(), pathname ?? GOVERNANCE_AUDIT_PATH), {
+      scroll: false,
+    });
+    query.setSearching(true);
     setFailure(null);
 
     const empty: AuditFilterFields = {
@@ -369,56 +213,19 @@ export function useAuditPageSearch(
     };
 
     try {
-      const page = await executeSearch(empty);
+      const page = await query.executeSearch(empty);
 
-      applySearchPageToState(page, empty);
+      query.applySearchPageToState(page, empty);
     } catch (e) {
       if (shouldInjectAuditDemoOnSearchError(empty)) {
-        applyDemoAuditFallback();
+        query.applyDemoAuditFallback();
       } else {
         setFailure(toApiLoadFailure(e));
       }
     } finally {
-      setSearching(false);
+      query.setSearching(false);
     }
-  }, [applyDemoAuditFallback, applySearchPageToState, executeSearch]);
-
-  const loadMore = useCallback(async () => {
-    if (events.length === 0) {
-      return;
-    }
-
-    if (!auditNextCursor) {
-      return;
-    }
-
-    setLoadingMore(true);
-    setFailure(null);
-
-    try {
-      const page = await executeSearch(currentFilters(), auditNextCursor);
-
-      setHasMoreResults(page.hasMore);
-      setAuditNextCursor(page.nextCursor);
-
-      setEvents((prev) => {
-        const seen = new Set(prev.map((e) => e.eventId));
-        const merged = [...prev];
-
-        for (const ev of page.items) {
-          if (!seen.has(ev.eventId)) {
-            merged.push(ev);
-          }
-        }
-
-        return merged;
-      });
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [auditNextCursor, currentFilters, events.length, executeSearch]);
+  }, [dateRange, pathname, query, router, searchParams]);
 
   const auditFiltersActive =
     eventType.trim().length > 0 ||
@@ -427,7 +234,7 @@ export function useAuditPageSearch(
     correlationId.trim().length > 0 ||
     actorUserId.trim().length > 0 ||
     runId.trim().length > 0 ||
-    auditDatePreset !== null;
+    dateRange.auditDatePreset !== null;
 
   return {
     runId,
@@ -449,26 +256,26 @@ export function useAuditPageSearch(
     actorUserId,
     setActorUserId,
     setRunId,
-    searching,
-    lastRefreshedAt,
+    searching: query.searching,
+    lastRefreshedAt: query.lastRefreshedAt,
     loadingTypes,
-    auditDatePreset,
-    applyAuditDatePreset,
-    clearDateRangeAndSearch,
-    runSearch,
+    auditDatePreset: dateRange.auditDatePreset,
+    applyAuditDatePreset: dateRange.applyAuditDatePreset,
+    clearDateRangeAndSearch: dateRange.clearDateRangeAndSearch,
+    runSearch: query.runSearch,
     clearFiltersAndSearch,
-    events,
-    hasMoreResults,
-    loadingMore,
-    loadMore,
+    events: query.events,
+    hasMoreResults: query.hasMoreResults,
+    loadingMore: query.loadingMore,
+    loadMore: query.loadMore,
     ctoDemoAuditFilterActive,
     onClearCtoDemoAuditFilter,
     auditFiltersActive,
     currentFilters,
-    executeSearch,
-    applySearchPageToState,
-    applyDemoAuditFallback,
-    setSearching,
-    setAuditDatePreset,
+    executeSearch: query.executeSearch,
+    applySearchPageToState: query.applySearchPageToState,
+    applyDemoAuditFallback: query.applyDemoAuditFallback,
+    setSearching: query.setSearching,
+    setAuditDatePreset: dateRange.setAuditDatePreset,
   };
 }

@@ -14,10 +14,13 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { parseEvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import {
-  DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE,
   type ImpactPreviewBaselineOption,
   type ImpactPreviewComparisonScope,
 } from "@/lib/impact-preview-page-types";
+import {
+  impactPreviewComparisonScopeHrefFromSearch,
+  parseImpactPreviewComparisonScopeFromSearch,
+} from "@/lib/impact-preview/impact-preview-comparison-scope-url";
 import {
   readFindingApplyChangePreviewQuery,
   recordFindingApplyChangePreviewCompleted,
@@ -74,9 +77,8 @@ export function useEvolutionReviewPage(
     serverLoad.mode === "live" ? serverLoad.selectedId : null,
   );
   const [selectedBaselineId, setSelectedBaselineId] = useState<string | null>(null);
-  const [comparisonScope, setComparisonScope] = useState<ImpactPreviewComparisonScope>(
-    DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE,
-  );
+  const urlComparisonScope = parseImpactPreviewComparisonScopeFromSearch(searchParams.get("scope"));
+  const [comparisonScope, setComparisonScope] = useState<ImpactPreviewComparisonScope>(urlComparisonScope);
   const [detail, setDetail] = useState<EvolutionResultsResponse | null>(
     serverLoad.mode === "live" ? serverLoad.detail : null,
   );
@@ -98,6 +100,10 @@ export function useEvolutionReviewPage(
   useEffect(() => {
     setContinueLastPair(readImpactPreviewLastBaselinePair());
   }, []);
+
+  useEffect(() => {
+    setComparisonScope(urlComparisonScope);
+  }, [urlComparisonScope]);
 
   const rememberBaselinePair = useCallback((baselineRunId: string | null, candidateRunId: string | null) => {
     if (baselineRunId === null || candidateRunId === null) {
@@ -289,8 +295,14 @@ export function useEvolutionReviewPage(
   }, [baselineOptions, scopedRunId]);
 
   const toggleComparisonScope = useCallback((key: keyof ImpactPreviewComparisonScope) => {
-    setComparisonScope((prev) => ({ ...prev, [key]: !prev[key] }));
-  }, []);
+    setComparisonScope((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+
+      router.replace(impactPreviewComparisonScopeHrefFromSearch(searchParams.toString(), next), { scroll: false });
+
+      return next;
+    });
+  }, [router, searchParams]);
 
   const retryDetailLoad = useCallback(async () => {
     if (selectedId === null || selectedId === "") {

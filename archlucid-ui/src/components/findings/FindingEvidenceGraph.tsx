@@ -12,6 +12,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
+import { FindingEvidenceGraphOutline } from "@/components/findings/FindingEvidenceGraphOutline";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
@@ -158,6 +159,7 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
   const [viewMode, setViewMode] = useState<FindingEvidenceGraphViewMode>(
     defaultFindingEvidenceGraphViewMode(graphNodeIdsExamined.length),
   );
+  const [presentationMode, setPresentationMode] = useState<"graph" | "outline">("graph");
 
   useEffect(() => {
     let canceled = false;
@@ -217,6 +219,17 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
           type="button"
           size="sm"
           variant="outline"
+          aria-pressed={presentationMode === "outline"}
+          onClick={() => {
+            setPresentationMode(presentationMode === "outline" ? "graph" : "outline");
+          }}
+        >
+          {presentationMode === "outline" ? "Show graph view" : "Show list view"}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
           aria-pressed={viewMode === "context"}
           onClick={() => {
             setViewMode(viewMode === "context" ? "reasoningPath" : "context");
@@ -249,11 +262,15 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
       ) : null}
 
       {!loading && failure === null && graph !== null ? (
-        <FindingEvidenceGraphCanvas
-          graph={graph}
-          graphNodeIdsExamined={graphNodeIdsExamined}
-          viewMode={viewMode}
-        />
+        presentationMode === "outline" ? (
+          <FindingEvidenceGraphOutline graph={graph} graphNodeIdsExamined={graphNodeIdsExamined} />
+        ) : (
+          <FindingEvidenceGraphCanvas
+            graph={graph}
+            graphNodeIdsExamined={graphNodeIdsExamined}
+            viewMode={viewMode}
+          />
+        )
       ) : null}
     </section>
   );
