@@ -131,9 +131,11 @@ public sealed class AgentArchitectureFindingConfidenceEnricherTests
             new AgentOutputEvaluator(),
             semanticFacade,
             new AgentOutputQualityGate(Options.Create(gateOptions)),
-            Options.Create(gateOptions),
+            CreateGateOptionsResolver(gateOptions),
             referenceEvaluator,
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
+            new NoOpLlmFaithfulnessEvaluator(),
+            Options.Create(new AgentOutputLlmFaithfulnessOptions()),
             new FindingConfidenceCalculator());
 
         AgentArchitectureFindingConfidenceEnricher sut = new(
@@ -165,5 +167,23 @@ public sealed class AgentArchitectureFindingConfidenceEnricherTests
     {
         public Task AppendAsync(AgentOutputEvaluationResultRecord row, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
+    }
+
+    private sealed class NoOpLlmFaithfulnessEvaluator : IAgentOutputFaithfulnessEvaluator
+    {
+        public Task<double?> TryEvaluateAsync(
+            string traceId,
+            string parsedResultJson,
+            AgentEvidencePackage evidencePackage,
+            CancellationToken cancellationToken) =>
+            Task.FromResult<double?>(null);
+    }
+
+    private static IAgentOutputQualityGateOptionsResolver CreateGateOptionsResolver(AgentOutputQualityGateOptions gateOptions)
+    {
+        Mock<IAgentOutputQualityGateOptionsResolver> resolver = new();
+        resolver.Setup(r => r.Resolve(It.IsAny<CancellationToken>())).Returns(gateOptions);
+
+        return resolver.Object;
     }
 }

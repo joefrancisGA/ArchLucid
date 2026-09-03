@@ -109,6 +109,13 @@ public sealed class TeamsNotificationTriggerCatalogTests
     }
 
     [Fact]
+    public void IsKnown_returns_true_for_uppercase_canonical_trigger_names()
+    {
+        TeamsNotificationTriggerCatalog.IsKnown("COM.ARCHLUCID.AUTHORITY.RUN.COMPLETED")
+            .Should().BeTrue("canonical trigger names are case-insensitive like legacy alias mapping");
+    }
+
+    [Fact]
     public void Unknown_returns_only_unknown_distinct_entries()
     {
         IReadOnlyList<string> unknown = TeamsNotificationTriggerCatalog.Unknown([
@@ -123,8 +130,56 @@ public sealed class TeamsNotificationTriggerCatalogTests
     }
 
     [Fact]
+    public void Unknown_returns_empty_for_uppercase_canonical_trigger_names()
+    {
+        TeamsNotificationTriggerCatalog.Unknown(["COM.ARCHLUCID.AUTHORITY.RUN.COMPLETED"]).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseOrDefault_normalizes_uppercase_canonical_triggers_to_catalog_order()
+    {
+        IReadOnlyList<string> parsed = TeamsNotificationTriggerCatalog.ParseOrDefault(
+            "[\"COM.ARCHLUCID.AUTHORITY.RUN.COMPLETED\"]");
+
+        parsed.Should().Equal(IntegrationEventTypes.AuthorityRunCompletedV1);
+    }
+
+    [Fact]
+    public void Serialize_accepts_uppercase_canonical_trigger_names()
+    {
+        string serialized = TeamsNotificationTriggerCatalog.Serialize([
+            IntegrationEventTypes.AlertFiredV1.ToUpperInvariant()
+        ]);
+
+        string[] parsed = JsonSerializer.Deserialize<string[]>(serialized)!;
+        parsed.Should().Equal(IntegrationEventTypes.AlertFiredV1);
+    }
+
+    [Fact]
     public void Unknown_returns_empty_for_null()
     {
         TeamsNotificationTriggerCatalog.Unknown(null).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void IsKnown_returns_true_for_uppercase_canonical_trigger_names()
+    {
+        TeamsNotificationTriggerCatalog.IsKnown("COM.ARCHLUCID.AUTHORITY.RUN.COMPLETED").Should().BeTrue();
+    }
+
+    [Fact]
+    public void ParseOrDefault_preserves_uppercase_canonical_trigger_names()
+    {
+        string json = JsonSerializer.Serialize(new[]
+        {
+            "COM.ARCHLUCID.ALERT.FIRED",
+            IntegrationEventTypes.AuthorityRunCompletedV1,
+        });
+
+        IReadOnlyList<string> parsed = TeamsNotificationTriggerCatalog.ParseOrDefault(json);
+
+        parsed.Should().BeEquivalentTo(
+            IntegrationEventTypes.AlertFiredV1,
+            IntegrationEventTypes.AuthorityRunCompletedV1);
     }
 }

@@ -733,6 +733,76 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
             because: "confidence enrichment must mirror recorder gate semantics when calibrated confidence triggers semantic reject");
     }
 
+    [Fact]
+    public async Task ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_phase_b_llm_faithfulness_below_reject_floor()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+        };
+
+        AgentOutputLlmFaithfulnessOptions faithfulnessOptions = new()
+        {
+            Enabled = true,
+            EnforcePhaseB = true,
+            MinScoreRejectBelow = 0.65,
+        };
+
+        Mock<IAgentOutputFaithfulnessEvaluator> llmFaithfulness = new();
+        llmFaithfulness
+            .Setup(e => e.TryEvaluateAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<AgentEvidencePackage>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0.20);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = MinimalValidTopologyAgentResultJson(),
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? recorderResult =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                new AgentEvidencePackage(),
+                llmFaithfulnessEvaluator: llmFaithfulness.Object,
+                llmFaithfulnessOptions: faithfulnessOptions);
+
+        recorderResult.Should().NotBeNull();
+        recorderResult!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+
+        bool accepted =
+            await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                new AgentEvidencePackage(),
+                llmFaithfulnessEvaluator: llmFaithfulness.Object,
+                llmFaithfulnessOptions: faithfulnessOptions);
+
+        accepted.Should().BeFalse(
+            because: "confidence enrichment must mirror recorder Phase B LLM faithfulness rejection");
+    }
+
     [Theory]
     [InlineData("{}")]
     [InlineData("{\"citations\":\"not-an-array\"}")]
