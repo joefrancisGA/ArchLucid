@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import type { ReactElement, ReactNode } from "react";
+import type { MouseEvent, ReactElement, ReactNode } from "react";
 
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 
@@ -8,12 +8,14 @@ export type FilterChipProps = {
   readonly children: ReactNode;
   readonly href?: string;
   readonly scroll?: boolean;
-  readonly onClick?: () => void;
+  readonly onClick?: (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void;
   readonly className?: string;
   readonly "aria-label"?: string;
   readonly "aria-pressed"?: boolean | "true" | "false";
   readonly "aria-current"?: boolean | "page" | "step" | "location" | "date" | "time";
   readonly "aria-describedby"?: string;
+  readonly "aria-disabled"?: boolean;
+  readonly tabIndex?: number;
   readonly disabled?: boolean;
   readonly "data-testid"?: string;
 };
@@ -31,8 +33,12 @@ export function FilterChip(props: FilterChipProps): ReactElement {
         href={props.href}
         scroll={props.scroll}
         className={shell}
+        onClick={props.onClick}
         aria-label={props["aria-label"]}
         aria-current={props["aria-current"]}
+        aria-pressed={props["aria-pressed"]}
+        aria-disabled={props["aria-disabled"]}
+        tabIndex={props.tabIndex}
         data-testid={props["data-testid"]}
       >
         {props.children}
@@ -48,6 +54,8 @@ export function FilterChip(props: FilterChipProps): ReactElement {
       aria-label={props["aria-label"]}
       aria-pressed={props["aria-pressed"]}
       aria-describedby={props["aria-describedby"]}
+      aria-disabled={props["aria-disabled"]}
+      tabIndex={props.tabIndex}
       disabled={props.disabled}
       data-testid={props["data-testid"]}
     >
