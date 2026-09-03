@@ -102,7 +102,10 @@ public sealed partial class ArchLucidApiClient
                     .ToList();
             }
 
-            string sha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest, createTimePins, inventoryRows);
+            string sha = GoldenManifestFingerprint.ComputeContentSha256Hex(
+                manifest,
+                createTimePins,
+                inventoryRows ?? []);
 
             return new GoldenManifestFingerprintResult(true, sha, null);
         }

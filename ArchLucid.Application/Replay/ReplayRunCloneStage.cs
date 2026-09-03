@@ -21,7 +21,7 @@ public sealed class ReplayRunCloneStage : IReplayRunCloneStage
 
         return new AgentEvidencePackage
         {
-            EvidencePackageId = Guid.NewGuid().ToString("N"),
+            EvidencePackageId = original.EvidencePackageId,
             RunId = replayRunId,
             RequestId = original.RequestId,
             SystemName = original.SystemName,

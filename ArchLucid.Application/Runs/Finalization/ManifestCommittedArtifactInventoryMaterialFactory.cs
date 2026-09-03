@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Persistence.Artifacts;
+using ArchLucid.Core.Findings.Serialization;
 using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
 
@@ -30,7 +31,7 @@ internal static class ManifestCommittedArtifactInventoryMaterialFactory
             JsonSerializer.Serialize(request.Contract, ContractJson.Default));
 
         byte[] findingsSnapshotUtf8 = Encoding.UTF8.GetBytes(
-            JsonSerializer.Serialize(request.PreloadedFindingsSnapshot, ContractJson.Default));
+            FindingsSerialization.SerializeSnapshot(request.PreloadedFindingsSnapshot));
 
         byte[] decisionTraceUtf8 = Encoding.UTF8.GetBytes(
             JsonSerializer.Serialize(DecisionTraceRecordMapper.ToDto(request.Trace), ContractJson.Default));
