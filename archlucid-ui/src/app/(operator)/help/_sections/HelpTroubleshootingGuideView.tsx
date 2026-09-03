@@ -100,7 +100,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
         <HelpTopicGuidePageHeader
           title={TROUBLESHOOTING_HELP_PAGE_TITLE}
           titleTestId="help-troubleshooting-page-title"
-          subtitle={TROUBLESHOOTING_HELP_SUBTITLE}
+          subtitle={undefined}
           navHref={TROUBLESHOOTING_HELP_CANONICAL_PATH}
           headingLevel="h1"
           claimDiscipline={TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE}
