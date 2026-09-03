@@ -3,6 +3,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const TRUST_CENTER_CANONICAL_PATH = "/trust" as const;
 
+export const TRUST_CENTER_CLAIM_DISCIPLINE_HEADING = "Scope of this Trust Center" as const;
+
 export const TRUST_CENTER_CLAIM_DISCIPLINE =
   "Trust Center pages and public downloads summarize assurance posture and published artifacts — they are not a CPA-issued SOC 2 report or a published third-party pen-test report unless a linked artifact explicitly says so. Use Assurance status engagement metadata and NDA channels for diligence materials that are not public.";
 
