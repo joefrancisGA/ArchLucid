@@ -79,6 +79,10 @@ public sealed partial class AzureRetailPricesCatalogClient
 
             if (previous is >= '0' and <= '9')
                 return false;
+
+            // Reject letter-variant prefixes such as Standard_VE2s_v5 matching E2s_v5.
+            if (char.IsUpper(previous))
+                return false;
         }
 
         return true;
@@ -173,7 +177,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || trimmed.Contains(" hr", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("/hr", StringComparison.OrdinalIgnoreCase)
             || ContainsSlashHourToken(trimmed)
-            || trimmed.Contains(" h", StringComparison.OrdinalIgnoreCase)
+            || ContainsBoundedToken(trimmed, " h")
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase);
     }
@@ -210,8 +214,30 @@ public sealed partial class AzureRetailPricesCatalogClient
         return trimmed.Contains("Month", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("/Month", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("/mo", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains(" mo", StringComparison.OrdinalIgnoreCase)
+            || ContainsBoundedToken(trimmed, " mo")
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsBoundedToken(string trimmed, string token)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf(token, index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterToken = index + token.Length;
+
+            if (afterToken >= trimmed.Length || !char.IsLetter(trimmed[afterToken]))
+                return true;
+
+            index = afterToken;
+        }
+
+        return false;
     }
 
     internal static string OdataEscape(string literal)

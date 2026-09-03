@@ -1788,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 115
-- **bugs-found:** 227
+- **hunts:** 116
+- **bugs-found:** 228
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — GCP machine-type letter-prefix collision (e2-micro vs ve2-micro)
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — Azure collapsed SKU letter-prefix collision and UOM ` h`/` mo` substring false-positives
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2173,6 +2173,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GcpCloudBillingCatalogClient.DescriptionMatchesMachineType` — letter-variant machine-type prefix collision — **hit 2026-09-02 (#537):** lookup `e2-micro` matched catalog SKU `ve2-micro` after #531 suffix-boundary fix because leading `v` was not rejected; fixed by rejecting letter prefixes immediately before the match (`TryGetComputeEngineMonthlyUsdAsync_rejects_letter_prefix_machine_type_collision`).
 
 2026-09-02 seed hunt #537: reseeded from ArchLucid.Core GCP billing catalog; proved letter-prefix machine-type collision (parity with #531 suffix fix).
+
+- [x] (proven) `AzureRetailPricesCatalogClient.HasCollapsedSkuBoundary` — letter-variant SKU prefix collision — **hit 2026-09-03 (#539):** `E2s_v5` matched retail row `Standard_VE2s_v5` after #529 suffix-boundary fix because uppercase series letter `V` before `E2` was not rejected (GCP #537 parity gap); fixed by rejecting uppercase letter prefixes immediately before the match (`RowMatchesSku_rejects_letter_prefix_series_collision_against_ve_family`, `RowMatchesSku_accepts_standard_e_series_when_hint_omits_standard_prefix`).
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — ` h` substring false-positive on `1 horsepower` — **hit 2026-09-03 (#539):** bare `Contains(" h")` matched non-hourly `1 horsepower` after #514 hourly synonym fix; fixed with boundary-aware `ContainsBoundedToken` (`LooksLikeConsumptionUsd_rejects_horsepower_unit_of_measure_false_positive`).
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — ` mo` substring false-positive on `1 moment` — **hit 2026-09-03 (#539):** bare `Contains(" mo")` matched non-monthly `1 moment` after #515 monthly synonym fix; fixed with boundary-aware `ContainsBoundedToken` (`LooksLikeConsumptionUsd_rejects_moment_unit_of_measure_false_positive`).
+
+2026-09-03 seed hunt #539: reseeded from ArchLucid.Core Azure retail SKU matchers; proved letter-prefix SKU collision (GCP #537 parity) and hourly/monthly UOM substring false-positives beyond #533 `/h` boundary fix.
 
 - [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — backslash/pipe-delimited `enterprise` token not recognized — **hit 2026-09-02 (#532):** `contoso\enterprise\monthly` and `contoso|enterprise|annual` returned `Standard` because `IsPlanIdDelimiter` omitted `\` and `|` after #526 slash/colon fix; fixed by extending delimiters (`TierStorageCodeFromPlanId_maps_backslash_or_pipe_delimited_enterprise_token`).
 

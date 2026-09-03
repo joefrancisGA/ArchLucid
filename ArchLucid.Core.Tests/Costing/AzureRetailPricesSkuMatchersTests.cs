@@ -150,6 +150,50 @@ public sealed class AzureRetailPricesSkuMatchersTests
     }
 
     [Fact]
+    public void RowMatchesSku_rejects_letter_prefix_series_collision_against_ve_family()
+    {
+        AzureRetailPricesCatalogClient.RowMatchesSku("E2s_v5", "Standard_VE2s_v5")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void RowMatchesSku_accepts_standard_e_series_when_hint_omits_standard_prefix()
+    {
+        AzureRetailPricesCatalogClient.RowMatchesSku("E2s_v5", "Standard_E2s_v5")
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void LooksLikeConsumptionUsd_rejects_horsepower_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1 horsepower",
+            UnitPrice = 0.01m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
+    }
+
+    [Fact]
+    public void LooksLikeConsumptionUsd_rejects_moment_unit_of_measure_false_positive()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Consumption",
+            UnitOfMeasure = "1 moment",
+            UnitPrice = 12.34m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeFalse();
+    }
+
+    [Fact]
     public void LooksLikeConsumptionUsd_rejects_health_unit_of_measure_false_positive()
     {
         AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
