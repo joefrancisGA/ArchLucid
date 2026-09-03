@@ -24,6 +24,7 @@ export function AppShellMainAffordances() {
   const isPreferencesSettingsPath = pathname === "/account/preferences";
   const isHelpTopicPath = pathname === "/help" || pathname.startsWith("/help/");
   const isArchitectureScorecardPath = pathname === "/insights/architecture-scorecard";
+  const isSettingsHubPath = pathname === "/administration";
   const isItsmOAuthCallbackPath = pathname === "/integrations/itsm/oauth/callback";
   const isDigestsHubPath = pathname === "/architecture/digests";
   const isFirstReviewGuidePath = pathname === "/architecture/first-review-guide";
@@ -33,6 +34,7 @@ export function AppShellMainAffordances() {
     isPreferencesSettingsPath ||
     isHelpTopicPath ||
     isArchitectureScorecardPath ||
+    isSettingsHubPath ||
     isItsmOAuthCallbackPath ||
     isDigestsHubPath ||
     isFirstReviewGuidePath ||

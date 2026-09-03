@@ -35,7 +35,7 @@ describe("SettingsMasterOverviewHeader (TB-1199 / TB-1201)", () => {
     expect(screen.queryByText("See audit trail")).not.toBeInTheDocument();
   });
 
-  it("uses PageHeading with nav icon and contextual help (TB-1201)", () => {
+  it("uses PageHeading with nav icon (TB-1201)", () => {
     render(
       <SettingsMasterOverviewHeader
         scope={{
@@ -54,7 +54,7 @@ describe("SettingsMasterOverviewHeader (TB-1199 / TB-1201)", () => {
       "/administration",
     );
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(
       screen.getByRole("heading", { level: 1, name: OPERATOR_NAV_LINK_LABELS.settings }),
     ).toBeInTheDocument();
