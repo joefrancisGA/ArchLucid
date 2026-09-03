@@ -13,10 +13,16 @@ class TestAiReadinessBatch5BS(unittest.TestCase):
         path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "RunsController.Intake.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("request/draft", text)
-        self.assertIn("architectureRequestDraftService", text)
+        self.assertIn("IArchitectureRequestIntakeFacade", text)
 
     def test_tb_187_draft_service_prompt(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Application" / "Planning" / "ArchitectureRequestDraftService.cs"
+        path = (
+            REPO_ROOT
+            / "ArchLucid.Application"
+            / "Planning"
+            / "Stages"
+            / "ArchitectureRequestDraftExtractStage.cs"
+        )
         text = path.read_text(encoding="utf-8")
         self.assertIn("suggestedConstraints", text)
         self.assertIn("enterprise architecture intake assistant", text)
