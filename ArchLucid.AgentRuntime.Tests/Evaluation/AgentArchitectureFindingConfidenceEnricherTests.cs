@@ -134,6 +134,8 @@ public sealed class AgentArchitectureFindingConfidenceEnricherTests
             Options.Create(gateOptions),
             referenceEvaluator,
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
+            new NoOpLlmFaithfulnessEvaluator(),
+            Options.Create(new AgentOutputLlmFaithfulnessOptions()),
             new FindingConfidenceCalculator());
 
         AgentArchitectureFindingConfidenceEnricher sut = new(
@@ -165,5 +167,15 @@ public sealed class AgentArchitectureFindingConfidenceEnricherTests
     {
         public Task AppendAsync(AgentOutputEvaluationResultRecord row, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
+    }
+
+    private sealed class NoOpLlmFaithfulnessEvaluator : IAgentOutputFaithfulnessEvaluator
+    {
+        public Task<double?> TryEvaluateAsync(
+            string traceId,
+            string parsedResultJson,
+            AgentEvidencePackage evidencePackage,
+            CancellationToken cancellationToken) =>
+            Task.FromResult<double?>(null);
     }
 }
