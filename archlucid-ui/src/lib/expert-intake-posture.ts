@@ -26,6 +26,7 @@ export function writeExpertIntakePostureEnabled(enabled: boolean): void {
 
   try {
     window.localStorage.setItem(EXPERT_INTAKE_POSTURE_STORAGE_KEY, enabled ? "1" : "0");
+    window.dispatchEvent(new CustomEvent("archlucid.expert-intake-posture.changed", { detail: { enabled } }));
   }
   catch {
     /* ignore */
