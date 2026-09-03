@@ -29,7 +29,7 @@ export function sortReviewDetailFindingsBySignal(
       return rightScore - leftScore;
     }
 
-    const severityDelta = left.severityValue - right.severityValue;
+    const severityDelta = right.severityValue - left.severityValue;
 
     if (severityDelta !== 0) {
       return severityDelta;
