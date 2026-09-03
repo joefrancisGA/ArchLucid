@@ -22,17 +22,32 @@ public sealed class NoOpCloudInventoryExtractorPackageRepository : ICloudInvento
         Guid runId,
         CloudProvider cloudProvider,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<CloudInventoryExtractorPackageProvenance?>(null);
+    {
+        if (!CloudInventoryExtractorPackageRepositoryCore.IsSupportedProvider(cloudProvider))
+            return Task.FromResult<CloudInventoryExtractorPackageProvenance?>(null);
+
+        return Task.FromResult<CloudInventoryExtractorPackageProvenance?>(null);
+    }
 
     public Task<DateTime?> TryGetLatestCollectionTimestampUtcInScopeAsync(
         ScopeContext scope,
         CloudProvider cloudProvider,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<DateTime?>(null);
+    {
+        if (!CloudInventoryExtractorPackageRepositoryCore.IsSupportedProvider(cloudProvider))
+            return Task.FromResult<DateTime?>(null);
+
+        return Task.FromResult<DateTime?>(null);
+    }
 
     public Task<CloudInventoryExtractorPackageDownloadRecord?> TryGetLatestDownloadInScopeAsync(
         ScopeContext scope,
         CloudProvider cloudProvider,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<CloudInventoryExtractorPackageDownloadRecord?>(null);
+    {
+        if (!CloudInventoryExtractorPackageRepositoryCore.IsSupportedProvider(cloudProvider))
+            return Task.FromResult<CloudInventoryExtractorPackageDownloadRecord?>(null);
+
+        return Task.FromResult<CloudInventoryExtractorPackageDownloadRecord?>(null);
+    }
 }

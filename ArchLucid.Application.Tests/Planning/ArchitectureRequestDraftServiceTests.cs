@@ -121,9 +121,8 @@ public sealed class ArchitectureRequestDraftServiceTests
             .ReturnsAsync(["Stable internet connection"]);
 
         ArchitectureRequestDraftService sut = new(
-            client.Object,
-            semanticPass.Object,
-            CreateEmptyContradictionPassMock().Object,
+            new ArchitectureRequestDraftExtractStage(client.Object),
+            new ArchitectureRequestDraftNormalizeStage(semanticPass.Object, CreateEmptyContradictionPassMock().Object),
             NullLogger<ArchitectureRequestDraftService>.Instance);
 
         DraftArchitectureRequestResponse response = await sut.DraftAsync(
