@@ -105,9 +105,24 @@ public static class RunAuthorityPipelineDeadLetterDetection
             return schemaVersion == SupportedSchemaVersion;
         }
 
+        if (element.ValueKind == JsonValueKind.String
+            && RunExplanationAggregateJsonReader.TryParseBooleanString(element.GetString(), out bool booleanSchema))
+        {
+            schemaVersion = booleanSchema ? SupportedSchemaVersion : 0;
+
+            return schemaVersion == SupportedSchemaVersion;
+        }
+
         if (element.ValueKind == JsonValueKind.Number
             && RunExplanationAggregateJsonReader.TryReadWholeNumber(element, out schemaVersion))
         {
+            return schemaVersion == SupportedSchemaVersion;
+        }
+
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            schemaVersion = element.ValueKind == JsonValueKind.True ? SupportedSchemaVersion : 0;
+
             return schemaVersion == SupportedSchemaVersion;
         }
 

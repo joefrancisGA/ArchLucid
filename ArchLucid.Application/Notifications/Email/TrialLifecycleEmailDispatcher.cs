@@ -104,6 +104,7 @@ public sealed class TrialLifecycleEmailDispatcher(
     {
         if (trigger is TrialLifecycleEmailTrigger.Converted)
             return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.OrdinalIgnoreCase);
+
         if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.OrdinalIgnoreCase))
             return false;
         if (trigger is TrialLifecycleEmailTrigger.TrialProvisioned)

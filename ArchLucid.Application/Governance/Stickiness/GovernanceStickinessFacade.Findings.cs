@@ -68,7 +68,9 @@ public sealed partial class GovernanceStickinessFacade
                 Disposition = request.Disposition,
                 Rationale = request.Rationale,
                 TradeOffAcknowledgment = tradeOffAcknowledgment,
-                RevisitDueUtc = request.RevisitDueUtc,
+                RevisitDueUtc = request.Disposition == ArchLucid.Contracts.Findings.FindingDisposition.Deferred && request.RevisitDueUtc is null
+                    ? TimeProvider.System.GetUtcNow().AddDays(30)
+                    : request.RevisitDueUtc,
                 EvidenceRequestText = request.EvidenceRequestText,
             };
 
