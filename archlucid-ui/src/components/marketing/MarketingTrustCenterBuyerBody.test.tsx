@@ -5,6 +5,7 @@ import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingTrustCenterBuyerBody } from "./MarketingTrustCenterBuyerBody";
 import { TRUST_ASSURANCE_CLASSIFICATIONS } from "@/lib/trust-center-buyer-content";
 import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
+import { TRUST_CENTER_CLAIM_DISCIPLINE } from "@/lib/trust-center-evidence-copy";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 
 describe("MarketingTrustCenterBuyerBody", () => {
@@ -52,6 +53,9 @@ describe("MarketingTrustCenterBuyerBody", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByTestId("trust-center-page-purpose")).toBeInTheDocument();
+    expect(screen.getByTestId(TRUST_CENTER_PUBLIC_LAYOUT.headerClaimDisciplineTestId)).toHaveTextContent(
+      TRUST_CENTER_CLAIM_DISCIPLINE,
+    );
 
     const primaryActions = screen.getAllByRole("link", { name: /Request diligence materials/i });
     expect(primaryActions[0]).toHaveAttribute("href", "mailto:security@archlucid.net");
@@ -162,6 +166,14 @@ describe("MarketingTrustCenterBuyerBody", () => {
     const contact = screen.getByTestId("trust-center-security-contact");
     expect(within(contact).getByRole("heading", { level: 2, name: "Security and diligence contact" })).toBeInTheDocument();
     expect(within(contact).getByRole("link", { name: "security@archlucid.net" })).toBeInTheDocument();
+  });
+
+  it("renders header claim discipline and sources-only orientation strip", () => {
+    render(<MarketingTrustCenterBuyerBody lastReviewedUtc="2026-05-01" />);
+
+    expect(screen.getByTestId(TRUST_CENTER_PUBLIC_LAYOUT.headerClaimDisciplineTestId)).toBeInTheDocument();
+    expect(screen.getByTestId("trust-center-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("trust-center-claim-discipline")).toBeNull();
   });
 });
 

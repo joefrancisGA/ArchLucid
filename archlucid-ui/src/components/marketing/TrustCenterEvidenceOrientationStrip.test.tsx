@@ -4,18 +4,16 @@ import { describe, expect, it } from "vitest";
 import { TrustCenterEvidenceOrientationStrip } from "@/components/marketing/TrustCenterEvidenceOrientationStrip";
 import {
   TRUST_CENTER_CANONICAL_PATH,
-  TRUST_CENTER_CLAIM_DISCIPLINE_HEADING,
   TRUST_CENTER_SOURCES,
   TRUST_CENTER_SOURCES_INTRO,
 } from "@/lib/trust-center-evidence-copy";
 
 describe("TrustCenterEvidenceOrientationStrip", () => {
-  it("renders claim discipline and Sources footer for procurement readers", () => {
+  it("renders sources-only follow-ups when hero carries claim discipline", () => {
     render(<TrustCenterEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("trust-center-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("trust-center-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: TRUST_CENTER_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expect(screen.queryByTestId("trust-center-claim-discipline")).toBeNull();
     expect(screen.getByText(TRUST_CENTER_SOURCES_INTRO)).toBeInTheDocument();
 
     for (const link of TRUST_CENTER_SOURCES) {
