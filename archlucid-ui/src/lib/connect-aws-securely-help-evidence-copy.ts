@@ -8,7 +8,7 @@ export const CONNECT_AWS_SECURELY_HELP_TOPIC_LABEL = "How AWS cloud connection w
 export const CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE =
-  "This guide covers OIDC trust and read-only IAM setup for AWS — not live connector health on Connection status or assurance attestations on Assurance status.";
+  "This guide explains how to attach AWS with OIDC-federated read-only IAM and Resource Explorer inventory — open Assurance status or Cloud connections for connector health or official materials.";
 
 export const CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE = "Where to go next";
 

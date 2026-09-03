@@ -7,16 +7,18 @@ import { useCallback, useMemo } from "react";
 
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { DocumentLayout } from "@/components/DocumentLayout";
+import { ArchitectureScorecardBreadcrumb } from "@/components/insights/ArchitectureScorecardBreadcrumb";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
+import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import {
   ARCHITECTURE_SCORECARD_PRIMARY_CONTENT_ID,
-  ARCHITECTURE_SCORECARD_FIRST_VIEWPORT_ID,
   ARCHITECTURE_SCORECARD_SKIP_LINK_LABEL,
-  ARCHITECTURE_SCORECARD_SKIP_TARGET_ID,
+  ARCHITECTURE_SCORECARD_SOURCES,
+  ARCHITECTURE_SCORECARD_SOURCES_INTRO,
 } from "@/lib/architecture/architecture-scorecard-page-copy";
 import { ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-scorecard-evidence-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -47,7 +49,7 @@ import {
   resolveScorecardScoringSteps,
 } from "@/lib/scorecard-scoring-checklist";
 
-import { ArchitectureScorecardClaimOrientationStrip } from "./ArchitectureScorecardClaimOrientationStrip";
+import { ArchitectureScorecardBuyerChrome } from "./ArchitectureScorecardBuyerChrome";
 import { PilotScorecardMethodology } from "./PilotScorecardMethodology";
 import { PilotScorecardPrimaryOutcomes } from "./PilotScorecardPrimaryOutcomes";
 import { PilotScorecardRoiPanel } from "./PilotScorecardRoiPanel";
@@ -196,7 +198,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
       <ValueReportOutcomesNav />
       {buyerPolishedShell ? null : <ScorecardRoiVocabularyRail currentSurfaceId="scorecard" />}
       <a
-        href={`#${ARCHITECTURE_SCORECARD_SKIP_TARGET_ID}`}
+        href={`#${ARCHITECTURE_SCORECARD_PRIMARY_CONTENT_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
         {ARCHITECTURE_SCORECARD_SKIP_LINK_LABEL}
@@ -211,6 +213,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             navHref={ARCHITECTURE_SCORECARD_PATH}
             title={REVIEW_SCORECARD_PAGE_TITLE}
             headingLevel="h1"
+            breadcrumb={buyerPolishedShell ? <ArchitectureScorecardBreadcrumb /> : undefined}
             subtitle={REVIEW_SCORECARD_PAGE_SUBTITLE}
             claimDiscipline={ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}
             claimDisciplineTestId="architecture-scorecard-claim-discipline"
@@ -235,33 +238,62 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               </>
             }
             actions={
-              buyerPolishedShell ? null : (
-                <nav
-                  aria-label="Related value reports"
-                  className={cn(
-                    "flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary print:hidden",
-                    OPERATOR_TYPOGRAPHY.helper,
-                  )}
-                >
-                  <Link href={SPONSOR_REPORT_ROI_SUMMARY_PATH} className={OPERATOR_LINK.inline}>
-                    ROI summary
-                  </Link>
-                  <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
-                    Baseline settings
-                  </Link>
-                  <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
-                    Workspace health
-                  </Link>
-                </nav>
+              buyerPolishedShell ? (
+                <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+              ) : (
+                <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end print:hidden">
+                  <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+                  <nav
+                    aria-label="Related value reports"
+                    className={cn(
+                      "flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary",
+                      OPERATOR_TYPOGRAPHY.helper,
+                    )}
+                  >
+                    <Link href={SPONSOR_REPORT_ROI_SUMMARY_PATH} className={OPERATOR_LINK.inline}>
+                      ROI summary
+                    </Link>
+                    <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
+                      Baseline settings
+                    </Link>
+                    <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
+                      Workspace health
+                    </Link>
+                  </nav>
+                </div>
               )
             }
           />
 
-          <div
-            id={ARCHITECTURE_SCORECARD_FIRST_VIEWPORT_ID}
-            className="scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
-            data-testid={ARCHITECTURE_SCORECARD_FIRST_VIEWPORT_ID}
-          >
+          <ArchitectureScorecardBuyerChrome />
+
+          {buyerPolishedShell ? null : (
+            <section
+              className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+              aria-labelledby="architecture-scorecard-sources-heading"
+              data-testid="architecture-scorecard-sources"
+            >
+              <h2
+                id="architecture-scorecard-sources-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              >
+                Sources
+              </h2>
+              <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {ARCHITECTURE_SCORECARD_SOURCES_INTRO}
+              </p>
+              <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+                {ARCHITECTURE_SCORECARD_SOURCES.map((link) => (
+                  <li key={`${link.href}-${link.label}`}>
+                    <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
       {sampleMode ? (
         <div
           role="status"
@@ -377,11 +409,6 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
       {scopedRunFilterActive ? (
         <ScorecardNextReviewFooterClient runId={scopedRunId} />
       ) : null}
-          </div>
-
-          <div data-testid="architecture-scorecard-orientation-bottom">
-            <ArchitectureScorecardClaimOrientationStrip />
-          </div>
         </div>
       </DocumentLayout>
     </OperatorPageContainer>

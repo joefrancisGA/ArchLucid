@@ -28,15 +28,20 @@ export function TimeZonePreferencePanel({
   return (
     <section className="space-y-3" data-testid="time-zone-preference-panel" aria-labelledby={labelledById}>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{PREFERENCES_TIME_ZONE_USAGE}</p>
-      <span id={`${controlId}-label`} className="sr-only">
-        Time zone
-      </span>
-      <IanaTimeZoneCombobox
-        ianaTimeZoneId={ianaTimeZoneId}
-        onIanaTimeZoneIdChange={onIanaTimeZoneIdChange}
-        labelledById={labelledById ?? `${controlId}-label`}
-        controlId={controlId}
-      />
+      <div className="grid gap-1.5">
+        <span id={`${controlId}-label`} className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          Time zone
+        </span>
+        <IanaTimeZoneCombobox
+          ianaTimeZoneId={ianaTimeZoneId}
+          onIanaTimeZoneIdChange={onIanaTimeZoneIdChange}
+          labelledById={labelledById ?? `${controlId}-label`}
+          controlId={controlId}
+        />
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Used for dates, audit events, reports, and notifications.
+        </p>
+      </div>
       <PreferenceAccountSyncStatus
         accountSyncState={accountSyncState}
         localOnlyMessage={IANA_TIME_ZONE_PREFERENCE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE}

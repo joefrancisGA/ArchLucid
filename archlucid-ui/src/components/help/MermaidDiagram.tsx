@@ -215,12 +215,12 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
           {description}
         </figcaption>
       ) : null}
-      <div className="mt-2">
-        <p className={cn("m-0 font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Diagram source
-        </p>
+      <details className="mt-2">
+        <summary className={cn("cursor-pointer font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          View diagram source
+        </summary>
         <HelpMarkdownCodeBlock code={source} language="mermaid" />
-      </div>
+      </details>
     </figure>
   );
 }

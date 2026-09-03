@@ -58,8 +58,6 @@ export function DemoPreviewMarketingBody({
 }: DemoPreviewMarketingBodyProps) {
   const demoMode = buyerAudienceChrome || isBuyerSafeDemoMarketingChromeEnv();
   const payloadRunId = typeof payload.run?.runId === "string" ? payload.run.runId.trim() : "";
-  const signInReturnPath =
-    payloadRunId.length > 0 ? `/architecture/reviews/${encodeURIComponent(payloadRunId)}` : undefined;
   const isRunDetailAvailable = payloadRunId.length > 0 && isStaticDemoPayloadFallbackActiveForRun(payloadRunId);
   const pipelineItems = toAuthorityPipelineItems(payload.pipelineTimeline);
   const primaryFindingId =
@@ -95,8 +93,8 @@ export function DemoPreviewMarketingBody({
         showcaseTelemetry={showcaseTelemetry}
       />
       <DemoPreviewDeliverablesSection payload={payload} />
-      <DemoPreviewSignInCallout signInReturnPath={signInReturnPath} />
-      <DemoPreviewEvaluationCta signInReturnPath={signInReturnPath} />
+      <DemoPreviewSignInCallout />
+      <DemoPreviewEvaluationCta />
     </div>
   );
 }

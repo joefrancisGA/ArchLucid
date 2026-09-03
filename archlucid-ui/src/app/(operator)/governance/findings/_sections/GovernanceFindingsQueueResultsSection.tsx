@@ -2,7 +2,6 @@
 
 import { GovernanceFindingsContinueLastViewedRow } from "@/app/(operator)/governance/findings/GovernanceFindingsContinueLastViewedRow";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { Button } from "@/components/ui/button";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { PolicyPackAssignFromReviewStrip } from "@/components/governance/PolicyPackAssignFromReviewStrip";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
@@ -30,12 +29,6 @@ export function GovernanceFindingsQueueResultsSection(
               ? `${props.filterNoMatchPreset.description} Active filters: ${props.activeFiltersSummary}.`
               : props.filterNoMatchPreset.description
           }
-          footer={
-            <Button type="button" size="sm" variant="outline" onClick={props.onClearAllFilters}>
-              Clear filters
-            </Button>
-          }
-          testId="governance-findings-filter-no-match-empty"
         />
       ) : null}
 

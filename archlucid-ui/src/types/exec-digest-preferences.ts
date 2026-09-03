@@ -1,29 +1,19 @@
-import type { components } from "@/lib/openapi-schemas";
+export type ExecDigestPreferencesResponse = {
+  schemaVersion: number;
+  tenantId: string;
+  isConfigured: boolean;
+  emailEnabled: boolean;
+  recipientEmails: string[];
+  ianaTimeZoneId: string;
+  dayOfWeek: number;
+  hourOfDay: number;
+  updatedUtc: string;
+};
 
-type ExecDigestPreferencesResponseSchema = components["schemas"]["ExecDigestPreferencesResponse"];
-
-export type ExecDigestPreferencesResponse = ExecDigestPreferencesResponseSchema &
-  Required<
-    Pick<
-      ExecDigestPreferencesResponseSchema,
-      | "schemaVersion"
-      | "tenantId"
-      | "isConfigured"
-      | "emailEnabled"
-      | "recipientEmails"
-      | "ianaTimeZoneId"
-      | "dayOfWeek"
-      | "hourOfDay"
-      | "updatedUtc"
-    >
-  >;
-
-type ExecDigestPreferencesUpsertRequestSchema = components["schemas"]["ExecDigestPreferencesUpsertRequest"];
-
-export type ExecDigestPreferencesUpsertRequest = ExecDigestPreferencesUpsertRequestSchema &
-  Required<
-    Pick<
-      ExecDigestPreferencesUpsertRequestSchema,
-      "emailEnabled" | "recipientEmails" | "ianaTimeZoneId" | "dayOfWeek" | "hourOfDay"
-    >
-  >;
+export type ExecDigestPreferencesUpsertRequest = {
+  emailEnabled: boolean;
+  recipientEmails: string[];
+  ianaTimeZoneId: string;
+  dayOfWeek: number;
+  hourOfDay: number;
+};

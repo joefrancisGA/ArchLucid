@@ -4,7 +4,6 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 
 import {
   governanceFindingsSearchHrefFromSearch,
-  governanceFindingsRegisterFilterHrefFromSearch,
   matchesGovernanceFindingsSearchQuery,
   parseGovernanceFindingsSearchQuery,
 } from "./governance-findings-queue-search";
@@ -34,12 +33,6 @@ describe("governance findings queue search", () => {
     );
     expect(governanceFindingsSearchHrefFromSearch("q=old", "", "/governance/findings")).toBe(
       "/governance/findings",
-    );
-    expect(governanceFindingsRegisterFilterHrefFromSearch("", "open", "/governance/findings")).toBe(
-      "/governance/findings?filter=open",
-    );
-    expect(governanceFindingsRegisterFilterHrefFromSearch("filter=open&q=pay", "all", "/governance/findings")).toBe(
-      "/governance/findings?q=pay",
     );
   });
 

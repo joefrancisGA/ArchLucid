@@ -9,7 +9,6 @@ import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/Operato
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { ArchitectureIntelligenceReviewToolStrip } from "@/components/ArchitectureIntelligenceReviewToolStrip";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
-import { shouldShowRunDetailStandaloneSampleBadge } from "@/lib/buyer/buyer-demo-content-gating";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 
 import { deriveReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
@@ -251,11 +250,7 @@ export async function RunDetailPageView(props: {
 
       <RunDetailDemoMarketingChromeDeferred
         showMarketingBanner={showDemoMarketingChrome}
-        showSampleBadge={shouldShowRunDetailStandaloneSampleBadge(
-          m.usedStaticDemoRun,
-          showDemoMarketingChrome,
-          m.resolvedDetail.run.runId,
-        )}
+        showSampleBadge={m.usedStaticDemoRun && !showDemoMarketingChrome}
         emphasizeSampleData={m.usedStaticDemoRun}
                 usedStaticDemoRun={m.usedStaticDemoRun}
                 isSimulator={m.resolvedDetail.run.realModeFellBackToSimulator === true}

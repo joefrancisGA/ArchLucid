@@ -24,7 +24,7 @@ import type { AlertRule } from "@/types/alerts";
 
 /** Headline UX line for operators after `POST /v1/alert-simulation/simulate`. */
 function simulationOutcomeHeadline(result: RuleSimulationResult): string {
-  if ((result.wouldCreateCount ?? 0) > 0) {
+  if (result.wouldCreateCount > 0) {
     return "Alert would fire";
   }
 
@@ -166,9 +166,9 @@ export function AlertRuleSimulateModal({ rule, open, onOpenChange }: AlertRuleSi
                 <strong>{simulationResult.wouldCreateCount}</strong> · would suppress:{" "}
                 <strong>{simulationResult.wouldSuppressCount}</strong>
               </div>
-              {(simulationResult.summaryNotes?.length ?? 0) > 0 ? (
+              {simulationResult.summaryNotes.length > 0 ? (
                 <ul className={cn("m-0 max-h-32 overflow-y-auto pl-[18px] text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  {(simulationResult.summaryNotes ?? []).map((n, i) => (
+                  {simulationResult.summaryNotes.map((n, i) => (
                     <li key={i}>{n}</li>
                   ))}
                 </ul>

@@ -16,11 +16,7 @@ export const ARCHITECTURE_SCORECARD_CANONICAL_PATH = ARCHITECTURE_SCORECARD_PATH
 
 export const ARCHITECTURE_SCORECARD_PRIMARY_CONTENT_ID = "architecture-scorecard-primary-content" as const;
 
-export const ARCHITECTURE_SCORECARD_FIRST_VIEWPORT_ID = "architecture-scorecard-first-viewport" as const;
-
-export const ARCHITECTURE_SCORECARD_SKIP_TARGET_ID = ARCHITECTURE_SCORECARD_FIRST_VIEWPORT_ID;
-
-export const ARCHITECTURE_SCORECARD_SKIP_LINK_LABEL = "Skip to scorecard outcomes" as const;
+export const ARCHITECTURE_SCORECARD_SKIP_LINK_LABEL = "Skip to architecture scorecard" as const;
 
 export const ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL = "How architecture scorecards work";
 

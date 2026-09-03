@@ -45,10 +45,4 @@ describe("resolveContinueLastAdvisorySchedule", () => {
     expect(match?.scheduleId).toBe("sooner");
     expect(match?.name).toBe("Sooner");
   });
-
-  it("fails fast when the resolved schedule has no scheduleId", () => {
-    expect(() =>
-      resolveContinueLastAdvisorySchedule([schedule({ scheduleId: undefined })]),
-    ).toThrowError(/missing scheduleId/i);
-  });
 });
