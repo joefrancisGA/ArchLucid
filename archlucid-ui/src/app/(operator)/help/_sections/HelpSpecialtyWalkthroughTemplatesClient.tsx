@@ -191,7 +191,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
           </section>
         </div>
 
-        <OperatorPageContainer variant="workflow" className="space-y-4">
+        <div className="space-y-4">
           <details className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/30">
             <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.helper)}>
               {SPECIALTY_REVIEW_TEMPLATES_INTRO_DISCLOSURE_TITLE}
