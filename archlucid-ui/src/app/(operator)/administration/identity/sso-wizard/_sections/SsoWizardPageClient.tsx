@@ -4,11 +4,18 @@ import { cn } from "@/lib/utils";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { formatSsoWizardUnexpectedError } from "@/lib/sso-wizard-error-present";
 import {
   SSO_WIZARD_IDP_STEP_INSTRUCTION,
   SSO_WIZARD_PROTOCOL_STEP_INSTRUCTION,
 } from "@/lib/sso-wizard-copy";
+import {
+  SSO_WIZARD_SETTINGS_PRIMARY_CONTENT_ID,
+  SSO_WIZARD_SETTINGS_SKIP_LINK_LABEL,
+  SSO_WIZARD_SETTINGS_SKIP_TARGET_ID,
+} from "@/lib/sso-wizard-settings-page-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { SsoWizardFooter } from "./SsoWizardFooter";
@@ -17,10 +24,25 @@ import { SsoWizardStepContent } from "./SsoWizardStepContent";
 import { useSsoWizardPage } from "./use-sso-wizard-page";
 
 export function SsoWizardPageClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const wizard = useSsoWizardPage();
 
   return (
     <OperatorPageContainer variant="settings" className={cn(OPERATOR_LAYOUT.sectionStack, "px-1 sm:px-0")} data-testid="sso-wizard-page">
+      {buyerPolishedShell ? (
+        <a
+          href={`#${SSO_WIZARD_SETTINGS_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {SSO_WIZARD_SETTINGS_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <div
+        id={buyerPolishedShell ? SSO_WIZARD_SETTINGS_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? SSO_WIZARD_SETTINGS_PRIMARY_CONTENT_ID : undefined}
+        className={buyerPolishedShell ? cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack) : OPERATOR_LAYOUT.sectionStack}
+      >
       <SsoWizardPageChrome
         existingConfigLoading={wizard.existingConfigLoading}
         existingConfigLoadError={wizard.existingConfigLoadError}
@@ -89,6 +111,7 @@ export function SsoWizardPageClient() {
           />
         </CardContent>
       </Card>
+      </div>
     </OperatorPageContainer>
   );
 }
