@@ -6,7 +6,7 @@ describe("formatTransparencyTrailMarkdownSection", () => {
   it("renders asserted, inferred, and skipped MUST sections", () => {
     const markdown = formatTransparencyTrailMarkdownSection({
       asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
-      inferred: [{ key: "policy.violation.CIS-1.1", value: "Encrypt data at rest", confidence: 85 }],
+      inferred: [{ key: "restEncryption", value: "Encrypt data at rest", confidence: 85 }],
       skipped: [{ questionKey: "l0.pillar.security", tier: "Must" }],
     });
 
