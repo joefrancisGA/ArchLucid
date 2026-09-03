@@ -21,6 +21,18 @@ namespace ArchLucid.Core.Tests;
 public sealed class CorePackageCoverageBatchRc28fTests
 {
     [Theory]
+    [InlineData("::ffff:10.0.0.1")]
+    [InlineData("::ffff:192.168.1.1")]
+    [InlineData("::ffff:172.16.0.1")]
+    public void PrivateNetworkAddressGuard_IsForbiddenIpAddress_blocks_ipv4_mapped_private_addresses(string address)
+    {
+        IPAddress ip = IPAddress.Parse(address);
+
+        PrivateNetworkAddressGuard.IsForbiddenIpAddress(ip).Should().BeTrue();
+        PrivateNetworkAddressGuard.IsForbiddenHostLiteral(address).Should().BeTrue();
+    }
+
+    [Theory]
     [InlineData("10.0.0.1")]
     [InlineData("172.16.8.1")]
     [InlineData("192.168.0.42")]
