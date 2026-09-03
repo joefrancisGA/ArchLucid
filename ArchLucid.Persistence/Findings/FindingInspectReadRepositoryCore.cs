@@ -18,10 +18,14 @@ internal static class FindingInspectReadRepositoryCore
 
             if (ids is { Count: > 0 })
             {
-                string first = ids[0].Trim();
+                string? firstRaw = ids[0];
 
-                if (first.Length > 0)
+                if (!string.IsNullOrWhiteSpace(firstRaw))
+                {
+                    string first = firstRaw.Trim();
+
                     return (first, first);
+                }
             }
         }
         catch (JsonException)
