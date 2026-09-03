@@ -58,6 +58,11 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         {
             finding.EvidencePackageId = evidencePackageId;
         }
+        else if (finding.Properties.TryGetValue(FindingPropertyKeys.EvidencePackageId, out string? propertyPackageId)
+                 && Guid.TryParse(propertyPackageId, out Guid propertyEvidencePackageId))
+        {
+            finding.EvidencePackageId = propertyEvidencePackageId;
+        }
 
         if (TryGetPropertyCaseInsensitive(root, "enforcementTier", out JsonElement tierEl))
         {
@@ -128,8 +133,16 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         JsonSerializer.Serialize(writer, value.RelatedNodeIds, options);
         writer.WritePropertyName("recommendedActions");
         JsonSerializer.Serialize(writer, value.RecommendedActions, options);
+
+        Dictionary<string, string> properties = new(value.Properties);
+
+        if (value.EvidencePackageId is Guid syncedPackageId)
+            properties[FindingPropertyKeys.EvidencePackageId] = syncedPackageId.ToString("D");
+        else
+            properties.Remove(FindingPropertyKeys.EvidencePackageId);
+
         writer.WritePropertyName("properties");
-        JsonSerializer.Serialize(writer, value.Properties, options);
+        JsonSerializer.Serialize(writer, properties, options);
 
         if (value.PayloadType is not null)
             writer.WriteString("payloadType", value.PayloadType);

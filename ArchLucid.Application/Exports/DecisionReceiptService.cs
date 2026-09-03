@@ -88,7 +88,7 @@ public sealed class DecisionReceiptService(
 
         FeasibilityVerdict? verdict = manifestSummary?.FeasibilityVerdict;
 
-        if (verdict is null || !DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
+        if (verdict is null)
             return null;
 
         if (string.IsNullOrWhiteSpace(manifestSummary!.ManifestHash)

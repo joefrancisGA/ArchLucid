@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -157,12 +158,12 @@ public sealed partial class ManifestsController
             };
         }
 
-        await EnsureManifestComparePinFingerprintsMatchOrThrowAsync(left, right, cancellationToken);
+        await EnsureManifestCompareFingerprintsMatchOrThrowAsync(left, right, cancellationToken);
 
         return new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };
     }
 
-    private async Task EnsureManifestComparePinFingerprintsMatchOrThrowAsync(
+    private async Task EnsureManifestCompareFingerprintsMatchOrThrowAsync(
         GoldenManifest left,
         GoldenManifest right,
         CancellationToken cancellationToken)
@@ -185,6 +186,27 @@ public sealed partial class ManifestsController
         }
 
         RunComparePinFingerprintGuard.EnsureCreateTimePinFingerprintsMatchOrThrow(leftHeader, rightHeader);
+
+        Task<RunDetailDto?> leftDetailTask =
+            _authorityQueryService.GetRunDetailForManifestCompareAsync(scope, leftRunGuid, cancellationToken);
+        Task<RunDetailDto?> rightDetailTask =
+            _authorityQueryService.GetRunDetailForManifestCompareAsync(scope, rightRunGuid, cancellationToken);
+        await Task.WhenAll(leftDetailTask, rightDetailTask);
+
+        RunDetailDto? leftDetail = await leftDetailTask;
+        RunDetailDto? rightDetail = await rightDetailTask;
+
+        if (leftDetail?.GoldenManifest is null || rightDetail?.GoldenManifest is null)
+        {
+            throw new ConflictException(
+                "Compare blocked: committed artifact inventory requires hydrated golden manifests for both runs.");
+        }
+
+        RunComparePinFingerprintGuard.EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow(
+            CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                leftDetail.GoldenManifest.CommittedArtifactInventory),
+            CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                rightDetail.GoldenManifest.CommittedArtifactInventory));
     }
 
     private sealed class LoadedManifestPair

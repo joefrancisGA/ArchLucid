@@ -83,11 +83,6 @@ public sealed partial class ManifestFinalizationService
             request.ManifestModel,
             inventoryMaterial,
             request.ManifestModel.CreatedUtc);
-        ManifestDecisionReceiptHashCapturer.ApplyToManifest(
-            request.ManifestModel,
-            request.RunId,
-            request.Contract.Metadata.ManifestVersion,
-            manifestHashService);
 
         await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(
             request.ManifestModel,
@@ -102,8 +97,35 @@ public sealed partial class ManifestFinalizationService
                 request.PreloadedFindingsSnapshot);
         }
 
+        ManifestDecisionReceiptHashCapturer.ApplyToManifest(
+            request.ManifestModel,
+            request.RunId,
+            request.Contract.Metadata.ManifestVersion,
+            manifestHashService);
+
         if (request.SkipPersistingPipelineArtifacts)
-            return request.ManifestModel;
+        {
+            if (connection is not null)
+            {
+                return await goldenManifestRepository.SaveAsync(
+                    request.Contract,
+                    scope,
+                    request.Keying,
+                    manifestHashService,
+                    cancellationToken,
+                    connection,
+                    transaction,
+                    request.ManifestModel);
+            }
+
+            return await goldenManifestRepository.SaveAsync(
+                request.Contract,
+                scope,
+                request.Keying,
+                manifestHashService,
+                cancellationToken,
+                authorityPersistBody: request.ManifestModel);
+        }
 
         await decisionTraceRepository.SaveAsync(
             DecisionTraceRecordMapper.ToDto(request.Trace),
