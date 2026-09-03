@@ -139,6 +139,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "scope-help",
   "search-review-evidence",
   "sealed-record-detail",
+  "settings-hub",
   "security-trust-help",
   "servicenow-integration",
   "session-expired",
