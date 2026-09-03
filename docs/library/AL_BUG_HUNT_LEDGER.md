@@ -3525,11 +3525,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 9
-- **bugs-found:** 16
+- **hunts:** 10
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — showcase embedded demo sign-in CTA missing returnUrl
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — demo preview artifact sections bypass operator deep-link gating
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3557,6 +3557,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DemoPreviewSignInCallout` / `DemoPreviewEvaluationCta` hardcoded `/auth/signin` without `returnUrl` on embedded showcase demo body — **hit 2026-09-02 (#535):** gated showcase visitors who signed in from the bottom demo preview CTAs did not return to `/architecture/reviews/{runId}` unlike `ShowcaseQuickNav`; fixed by threading `signInReturnPath` from `DemoPreviewMarketingBody` and using `buildAuthSignInHref` (`DemoPreviewCallouts.test.tsx`).
 
 2026-09-02 seed hunt #535: reseeded from showcase demo preview callouts; proved sign-in returnUrl parity gap vs `ShowcaseQuickNav`.
+
+- [x] (proven) `DemoPreviewEvidenceGraphSection` / `DemoPreviewGovernanceSection` linked operator routes when `ShowcaseQuickNav` gated anonymous visitors — **hit 2026-09-03 (#548):** evidence graph and governance CTAs used `/insights/evidence-graph` and `/governance/approval-queue` without sign-in `returnUrl` while `canShowcaseAnonymousVisitorOpenOperatorDeepLinks` was false; fixed by threading `operatorDeepLinksAvailable` from `DemoPreviewMarketingBody` (`DemoPreviewArtifactSections.test.tsx`).
+- [ ] (candidate) `ExecDigestSponsorDeepLinkIssuePage` hardcodes `/auth/signin` without `returnUrl` on token-missing shells — may be acceptable when digest token is unknown; confirm whether sponsor digest entry path should be preserved.
+- [ ] (candidate) `GetStartedPageClient` builds sign-in href manually instead of `buildAuthSignInHref` — parity risk if auth route normalization changes.
+
+2026-09-03 seed hunt #548: proved demo preview artifact operator deep-link gating gap; reseeded digest issue-page and get-started sign-in parity candidates.
 
 2026-08-28 thorough hunt #7: proved sponsor digest signInUrl trailing-slash normalization; reseeded quick-scan capacity-banner and captcha candidates.
 - [x] (proven) Static-first showcase slugs skip API but pass `renderMode="api"` and `banner={null}` when API base is configured — **hit 2026-08-27:** conflated API configured with served-from-API; static-first branch now always uses `renderMode="static"` and static banner (`showcase-page.test.tsx`).
