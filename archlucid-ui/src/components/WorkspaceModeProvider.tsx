@@ -20,6 +20,7 @@ import {
   readWorkspaceModeFromStorage,
   syncWorkspaceModeFromServer,
 } from "@/lib/workspace-mode/workspace-mode-preference";
+import { writeProfessionalWorkbenchEnabledToStorage } from "@/lib/workspace-mode/professional-workbench-preference";
 
 export type WorkspaceModeAccountSyncState = "idle" | "synced" | "local-only";
 
@@ -57,6 +58,11 @@ export function WorkspaceModeProvider(props: { readonly children: ReactNode }) {
 
   const setAndPersist = useCallback((nextMode: WorkspaceModeId) => {
     setMode(nextMode);
+
+    if (isWorkingWorkspaceMode(nextMode)) {
+      writeProfessionalWorkbenchEnabledToStorage(true);
+    }
+
     void persistWorkspaceMode(nextMode).then((synced) => {
       setAccountSyncState(synced ? "synced" : "local-only");
     });

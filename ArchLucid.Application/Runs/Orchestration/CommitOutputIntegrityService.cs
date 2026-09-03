@@ -1,5 +1,6 @@
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
@@ -144,6 +145,25 @@ public sealed class CommitOutputIntegrityService(
             throw new ConflictException(
                 "Commit blocked: existential assumptions require confirmation before finalize. "
                 + string.Join(" ", assumptionGateReasons));
+        }
+
+        if (Guid.TryParseExact(runId, "N", out Guid runGuidForEvidence) || Guid.TryParse(runId, out runGuidForEvidence))
+        {
+            Persistence.Models.RunRecord? header =
+                await _runRepository.GetByIdAsync(scope, runGuidForEvidence, cancellationToken).ConfigureAwait(false);
+
+            if (header is not null)
+            {
+                IReadOnlyList<string> evidenceIntegrityReasons =
+                    FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons(header, findings.Findings);
+
+                if (evidenceIntegrityReasons.Count > 0)
+                {
+                    throw new ConflictException(
+                        "Commit blocked: finding evidence referential integrity failed. "
+                        + string.Join(" ", evidenceIntegrityReasons));
+                }
+            }
         }
     }
 

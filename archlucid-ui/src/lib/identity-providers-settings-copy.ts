@@ -178,6 +178,15 @@ export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_INTRO =
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE =
   "Validate identity configuration, review health probes, and run support tooling before enabling SSO for all users.";
 
+export const BUYER_IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE =
+  "Review sign-in health probes and configuration readiness before enabling SSO for all users." as const;
+
+export function identityProvidersDiagnosticsPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? BUYER_IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE
+    : IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE;
+}
+
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_LOADING = "Loading identity diagnostics…";
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PROTOCOL_DETAILS_TITLE = "Protocol diagnostics";

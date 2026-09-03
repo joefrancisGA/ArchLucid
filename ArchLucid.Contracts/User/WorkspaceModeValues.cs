@@ -7,7 +7,7 @@ public static class WorkspaceModeValues
 
     public const string Working = "working";
 
-    public const string Default = Guided;
+    public const string Default = Working;
 
     public static string ParseOrDefault(string? value)
     {
