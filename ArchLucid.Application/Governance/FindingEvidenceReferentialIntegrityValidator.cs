@@ -6,7 +6,7 @@ using ArchLucid.Persistence.Models;
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-///     Wave-13 suggestion 125: block commit when high-severity findings lack resolvable evidence anchors.
+///     Wave-13 suggestion 125 / wave-14 suggestion 132: block commit when high-severity findings lack resolvable evidence anchors.
 /// </summary>
 public static class FindingEvidenceReferentialIntegrityValidator
 {
@@ -42,8 +42,15 @@ public static class FindingEvidenceReferentialIntegrityValidator
             if (finding.Severity is not (FindingSeverity.Error or FindingSeverity.Critical))
                 continue;
 
-            if (FindingEvidenceLinkageFindingEngine.HasEvidenceLinkage(finding))
+            if (FindingPinnedEvidencePackageReferenceResolver.ResolvesToPinnedPackageId(finding, pinnedPackageIds))
                 continue;
+
+            if (FindingEvidenceLinkageFindingEngine.HasEvidenceLinkage(finding))
+            {
+                reasons.Add(
+                    $"Finding '{finding.FindingId}' ({finding.Severity}) references evidence anchors that do not resolve to a pinned evidence package id ({pinnedPackageIds.Count} pinned).");
+                continue;
+            }
 
             reasons.Add(
                 $"Finding '{finding.FindingId}' ({finding.Severity}) lacks resolvable evidence linkage against pinned evidence packages ({pinnedPackageIds.Count} pinned).");

@@ -6992,6 +6992,27 @@
         },
         "type": "object"
       },
+      "CommittedArtifactInventoryEntry": {
+        "properties": {
+          "artifactName": {
+            "type": "string"
+          },
+          "capturedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "contentHashSha256": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "producer": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "CommittedCoverageAssignmentSnapshot": {
         "properties": {
           "coverageType": {
@@ -7146,6 +7167,74 @@
               "type": "string"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "CompareInputFingerprints": {
+        "properties": {
+          "baseArchitectureVersionContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baseEvidencePackagePinHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baseKnowledgeModelContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baseManifestHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "basePolicyPackPinHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "comparisonAlgorithmVersion": {
+            "type": "string"
+          },
+          "targetArchitectureVersionContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetEvidencePackagePinHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetKnowledgeModelContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetManifestHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetPolicyPackPinHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -7510,6 +7599,16 @@
               "$ref": "#/components/schemas/ComparisonDuplicateKeyConflict"
             },
             "type": "array"
+          },
+          "inputFingerprints": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareInputFingerprints"
+              }
+            ]
           },
           "requirementChanges": {
             "items": {
@@ -17362,6 +17461,12 @@
             },
             "type": "array"
           },
+          "committedArtifactInventory": {
+            "items": {
+              "$ref": "#/components/schemas/CommittedArtifactInventoryEntry"
+            },
+            "type": "array"
+          },
           "compliance": {
             "$ref": "#/components/schemas/ComplianceSection"
           },
@@ -20209,6 +20314,17 @@
       },
       "PinnedPolicyPackRow": {
         "properties": {
+          "blockCommitMinimumSeverity": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "blockCommitOnCritical": {
+            "default": false,
+            "type": "boolean"
+          },
           "policyPackId": {
             "type": "string"
           },

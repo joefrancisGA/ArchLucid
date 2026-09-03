@@ -35,6 +35,20 @@ public static class DecisionReceiptComposer
     {
         ArgumentNullException.ThrowIfNull(verdict);
 
+        if (string.IsNullOrWhiteSpace(manifestHashSha256))
+        {
+            throw new ArgumentException(
+                "Committed-run decision receipts require a manifest hash binding.",
+                nameof(manifestHashSha256));
+        }
+
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+        {
+            throw new ArgumentException(
+                "Committed-run decision receipts require a manifest version binding.",
+                nameof(manifestVersion));
+        }
+
         return new DecisionReceiptDocument
         {
             GeneratedUtc = TimeProvider.System.UtcNowDateTime(),

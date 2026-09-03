@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useFeaturedCompletedSampleQuery } from "@/hooks/use-featured-completed-sample-query";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import {

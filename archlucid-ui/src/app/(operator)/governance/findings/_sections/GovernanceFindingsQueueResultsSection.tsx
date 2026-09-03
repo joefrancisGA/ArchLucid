@@ -9,6 +9,7 @@ import { AssignedToMeContinueOldestFindingStrip } from "@/components/usability/A
 import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
 import { WorkingFindingsKeyboardHint } from "@/components/governance/findings/WorkingFindingsKeyboardHint";
 import { INSIGHT_DENSITY_GENERIC_THRESHOLD } from "@/lib/governance/governance-findings-density-sort";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";

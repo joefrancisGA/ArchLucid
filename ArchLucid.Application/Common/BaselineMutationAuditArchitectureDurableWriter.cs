@@ -104,6 +104,18 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     executeStarted.RunId = runGuid;
 
                     await auditService.LogAsync(executeStarted, ct);
+
+                    if (runGuid is Guid startedRunGuid)
+                    {
+                        AuditEvent lifecycleTransition = AuthorityRunLifecycleTransitionAuditor.BuildTransitionEvent(
+                            scope,
+                            startedRunGuid,
+                            AuthorityRunLifecyclePhase.NotStarted,
+                            AuthorityRunLifecyclePhase.InProgress,
+                            "execute-started",
+                            actor);
+                        await auditService.LogAsync(lifecycleTransition, ct);
+                    }
                 },
                 logger,
                 $"Run.ExecuteStarted:{LogSanitizer.Sanitize(entityId)}",
@@ -168,6 +180,18 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     rejected.RunId = runGuid;
 
                     await auditService.LogAsync(rejected, ct);
+
+                    if (runGuid is Guid rejectedRunGuid)
+                    {
+                        AuditEvent lifecycleTransition = AuthorityRunLifecycleTransitionAuditor.BuildTransitionEvent(
+                            scope,
+                            rejectedRunGuid,
+                            AuthorityRunLifecyclePhase.InProgress,
+                            AuthorityRunLifecyclePhase.Failed,
+                            "quality-gate-rejected",
+                            actor);
+                        await auditService.LogAsync(lifecycleTransition, ct);
+                    }
                 },
                 logger,
                 $"Run.QualityGateRejected:{LogSanitizer.Sanitize(entityId)}",

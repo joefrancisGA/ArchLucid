@@ -332,6 +332,7 @@ export function IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip(): 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-diagnostics-settings"
+      sourcesTestId="identity-providers-diagnostics-settings-sources"
       sourcesTitle={IDENTITY_PROVIDERS_DIAGNOSTICS_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES_INTRO}
       sources={IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES}
@@ -356,6 +357,7 @@ export function SsoWizardSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="sso-wizard-settings"
+      sourcesTestId="sso-wizard-settings-sources"
       sourcesTitle={SSO_WIZARD_FOLLOW_UPS_TITLE}
       sourcesIntro={SSO_WIZARD_SOURCES_INTRO}
       sources={SSO_WIZARD_SOURCES}
