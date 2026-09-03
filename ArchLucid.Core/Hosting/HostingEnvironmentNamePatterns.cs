@@ -9,8 +9,8 @@ public static class HostingEnvironmentNamePatterns
     /// <summary>
     ///     Treats names containing a production-like <c>prod</c> token (case-insensitive) as production-like so
     ///     misnamed hosts (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot rely on Development-only
-    ///     behavior. Excludes <c>non-production</c> / <c>nonproduction</c> and embedded <c>prod</c> substrings
-    ///     inside unrelated words (for example <c>reproduce</c>, <c>product</c>).
+    ///     behavior. Excludes <c>non-production</c> / <c>nonproduction</c>, <c>reproduction</c>, and embedded
+    ///     <c>prod</c> substrings inside unrelated words (for example <c>reproduce</c>, <c>product</c>).
     /// </summary>
     public static bool EnvironmentNameImpliesProductionLike(string? environmentName)
     {
@@ -30,10 +30,22 @@ public static class HostingEnvironmentNamePatterns
 
     private static bool ContainsProductionLikeProdReference(string trimmed)
     {
+        if (IsReproductionLikeEnvironmentName(trimmed))
+            return false;
+
         if (trimmed.Contains("production", StringComparison.OrdinalIgnoreCase))
             return true;
 
         return ContainsStandaloneProdDelimiterToken(trimmed);
+    }
+
+    private static bool IsReproductionLikeEnvironmentName(string trimmed)
+    {
+        if (string.Equals(trimmed, "reproduction", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return trimmed.StartsWith("reproduction-", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("reproduction_", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsStandaloneProdDelimiterToken(string trimmed)
