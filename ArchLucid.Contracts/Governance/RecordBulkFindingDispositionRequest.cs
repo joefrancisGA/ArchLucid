@@ -16,4 +16,7 @@ public sealed class RecordBulkFindingDispositionRequest
     }
 
     public DateTimeOffset? RevisitDueUtc { get; init; }
+
+    /// <summary>Shared evidence request when disposition is NeedsEvidence.</summary>
+    public string? EvidenceRequestText { get; init; }
 }

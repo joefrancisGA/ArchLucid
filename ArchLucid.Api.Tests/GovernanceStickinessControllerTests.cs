@@ -1807,6 +1807,104 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordBulkDisposition_returns_ok_when_needs_evidence_with_shared_evidence_request_text()
+    {
+        const string findingId = "finding-bulk-needs-evidence";
+        const string evidenceRequestText = "Provide architecture decision record for waiver.";
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request =>
+                    request.FindingId == findingId
+                    && request.EvidenceRequestText == evidenceRequestText),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<RecordFindingDispositionRequest, ScopeContext, string, CancellationToken>(
+                static (request, _, _, _) => FindingDispositionValidation.Validate(request))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId],
+            Disposition = FindingDisposition.NeedsEvidence,
+            Rationale = "pending evidence from security review",
+            EvidenceRequestText = evidenceRequestText,
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_needs_evidence_without_evidence_request_text()
+    {
+        const string findingId = "finding-bulk-needs-evidence-missing-text";
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<RecordFindingDispositionRequest, ScopeContext, string, CancellationToken>(
+                static (request, _, _, _) => FindingDispositionValidation.Validate(request))
+            .ReturnsAsync((RecordFindingDispositionRequest request, ScopeContext _, string __, CancellationToken ___) =>
+                new FindingDispositionEventDto { FindingId = request.FindingId });
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId],
+            Disposition = FindingDisposition.NeedsEvidence,
+            Rationale = "pending evidence from security review",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        dispositions.Verify(
+            d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RecordBulkDisposition_returns_bad_request_when_waive_rationale_shorter_than_minimum()
     {
         const string findingId = "finding-bulk-waive-short";

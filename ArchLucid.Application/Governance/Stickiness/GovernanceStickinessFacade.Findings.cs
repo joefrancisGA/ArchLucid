@@ -68,6 +68,7 @@ public sealed partial class GovernanceStickinessFacade
                 Rationale = request.Rationale,
                 TradeOffAcknowledgment = tradeOffAcknowledgment,
                 RevisitDueUtc = request.RevisitDueUtc,
+                EvidenceRequestText = request.EvidenceRequestText,
             };
 
             await _findingDispositionService.RecordAsync(normalized, scope, actorId, ct);

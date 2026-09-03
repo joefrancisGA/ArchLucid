@@ -834,6 +834,50 @@ public sealed class GovernanceStickinessFacadeScopeTests
         response.ProcessedCount.Should().Be(1);
     }
 
+    [Fact]
+    public async Task RecordBulkDispositionAsync_forwards_evidence_request_text_for_needs_evidence_disposition()
+    {
+        const string findingId = "finding-bulk-needs-evidence";
+        const string evidenceRequestText = "Provide threat model appendix.";
+
+        Mock<IFindingInspectReadRepository> inspect = new();
+        inspect
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request =>
+                    request.FindingId == findingId
+                    && request.EvidenceRequestText == evidenceRequestText),
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: inspect.Object,
+            dispositionService: dispositions.Object);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId],
+            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.NeedsEvidence,
+            Rationale = "awaiting evidence",
+            EvidenceRequestText = evidenceRequestText,
+        };
+
+        RecordBulkFindingDispositionResponse response =
+            await sut.RecordBulkDispositionAsync(request, CancellationToken.None);
+
+        response.ProcessedCount.Should().Be(1);
+    }
+
     private static GovernanceStickinessFacade CreateSut(
         IArchitectureRiskRegisterService? riskRegister = null,
         IFindingInspectReadRepository? findingInspect = null,
