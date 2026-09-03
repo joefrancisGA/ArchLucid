@@ -272,6 +272,28 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
+    public async Task PostProductFeedbackAsync_returns_bad_request_when_comment_exceeds_max_length()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            Score = 1,
+            Comment = new string('x', 2001),
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repo.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task PostProductFeedbackAsync_omits_finding_ref_when_value_is_whitespace()
     {
         ProductFeedbackSubmission? captured = null;

@@ -54,6 +54,8 @@ public sealed class TenantCustomerSuccessController(
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
         findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
 
+    private const int ProductFeedbackCommentMaxLength = 2000;
+
     /// <summary>Returns the latest materialized health score row when the worker has populated it.</summary>
     [HttpGet("health-score")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -272,6 +274,17 @@ public sealed class TenantCustomerSuccessController(
             }
         }
 
+        string? comment = string.IsNullOrWhiteSpace(request.Comment)
+            ? null
+            : request.Comment.Trim();
+
+        if (comment is { Length: > ProductFeedbackCommentMaxLength })
+        {
+            return this.BadRequestProblem(
+                $"Comment exceeds maximum length ({ProductFeedbackCommentMaxLength}).",
+                ProblemTypes.ValidationFailed);
+        }
+
         ProductFeedbackSubmission submission = new()
         {
             TenantId = scope.TenantId,
@@ -280,7 +293,7 @@ public sealed class TenantCustomerSuccessController(
             FindingRef = findingRef,
             RunId = request.RunId,
             Score = request.Score,
-            Comment = request.Comment
+            Comment = comment
         };
 
         await _customerSuccessRepository.InsertProductFeedbackAsync(submission, cancellationToken)

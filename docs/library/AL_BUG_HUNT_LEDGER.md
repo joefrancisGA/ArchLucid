@@ -2871,11 +2871,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 104
-- **bugs-found:** 258
+- **hunts:** 105
+- **bugs-found:** 259
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — decision-register pre-1970 date validation; legal-hold reason length/whitespace guards
+- **last-bug:** 2026-09-03 — product-feedback comment max-length validation; whitespace comment normalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3358,6 +3358,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — whitespace-only `Reason` persisted without HTTP 400 — **hit 2026-09-03 (#549):** reject empty/whitespace reason and trim before persist; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_reason_is_whitespace`.
 
 2026-09-03 seed hunt #549: proved decision-register pre-1970 date validation and legal-hold reason validation parity.
+
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `comment` longer than `dbo.ProductFeedback.CommentText NVARCHAR(2000)` reached SQL without HTTP 400 while `RunsController.PostFindingFeedbackAsync` already capped at 2000 — **hit 2026-09-03 (#550):** trim/normalize whitespace-only comment to null and reject over-length before `InsertProductFeedbackAsync`; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_comment_exceeds_max_length`.
+
+2026-09-03 seed hunt #550: proved product-feedback comment max-length validation parity with finding-feedback; seeded whitespace-only comment persistence candidate (closed in same fix).
 
 ---
 
