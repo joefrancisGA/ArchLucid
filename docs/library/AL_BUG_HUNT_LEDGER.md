@@ -1613,18 +1613,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 6
-- **bugs-found:** 9
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — first-value report cost-evidence badges ignored extractor collection timestamps
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — `PilotValueReportService` counted operator-muted findings in severity totals
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
 - [x] (invalid) Proof pack includes findings from a workspace outside the pilot scope — `GetRunDetailAsync` and `ValueReportBuilder.BuildAsync` both honor current `ScopeContext`; no cross-workspace join in pack builders (`PilotReportCardService.EnsureScopeMatches` pattern elsewhere).
-- [x] (candidate) PDF builder silently drops a section when source data is missing — **partial 2026-08-18:** snapshot fallback populated severity counts but left governed-coverage and top-finding unset (buyer proof / first-value surfaces)
+- [x] (valid-no-repro) PDF builder silently drops a section when source data is missing — snapshot fallback governed-coverage gap fixed 2026-08-26; `SponsorOnePagerPdfBuilder` / `BoardPackPdfBuilder` intentionally omit buyer-safe and governed-coverage sections (compact surfaces with explicit skip copy where applicable).
+- [x] (proven) `PilotValueReportService.AddFindings` counted operator-muted findings in tenant value-report severity totals — **hit 2026-09-03 (#591):** omitted `IsMuted` filter while `PilotRunDeltaComputer` excludes muted rows; fixed with `.Where(static f => !f.IsMuted)` (`BuildAsync_excludes_muted_findings_from_severity_totals`).
 - [x] (invalid) Pack builder uses cached tenant data after a scope switch — `BuyerProofPackBuilder` / `BoardPackPdfBuilder` do not use `IMemoryCache`; only `PilotOutcomeSummaryService` caches and keys include workspace id.
 - [x] (proven) `PilotRunDeltaComputer` agent-results path counts operator-muted findings in severity buckets and can select a muted row as top finding while snapshot fallback and `FirstValueReportBuilder.FormatSponsorTopFindings` exclude `IsMuted` — buyer proof ZIP deltas JSON overstated suppressed findings (hunt 2026-08-23).
 - [x] (proven) Snapshot fallback severity buckets include `IsMuted` findings — **hit 2026-08-24:** `AggregateFindingsBySeverity(IReadOnlyList<Finding>)` omitted mute filter while governed coverage and top-finding paths filtered; regression in `ComputeAsync_WhenSnapshotFallbackIncludesMutedFindings_ExcludesThemFromSeverityBuckets`.
@@ -1637,6 +1638,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `PilotProofPackageCompletenessMapper` committed timestamp Present contradicts buyer-safe gate soft gap when `CompletedUtc` resolves manifest timestamp — gate soft gap still surfaces in `PilotBuyerSafeEvidenceGateEvaluator`; `CommittedManifestTimestampResolved` fallback to `ManifestCommittedUtc` is intentional (`Build_WhenManifestCreatedUtcDefaultButDeltasCarryCompletedUtc_ResolvesCommittedTimestamp`).
 - [x] (invalid) `SponsorEvidencePackService` explainability trace completeness vs `PilotRunDeltaComputer` delta counts diverge on sparse agent + snapshot runs — **closed 2026-08-26** proven fix loads snapshot when `FindingsSnapshotId` is set; pack and deltas share the same snapshot source.
 - [x] (invalid) `PilotProofPackageCompletenessMapper.FindingsBySeverityPresent` hard-coded true — zero-finding runs still show Present in proof contract — intentional: empty severity breakdown is attested evidence, not missing data (`Build_ZeroTotalFindings_StillMarksFindingsEvidencePresent`).
+- [ ] (hunt-ready) `SponsorOnePagerPdfBuilder.BuildPdfAsync` with committed run and incomplete sponsor proof (non-demo) — bypasses `SponsorFirstValuePdfGate` / circulation watermarks that `FirstValueReportPdfBuilder` enforces; may return distributable PDF when first-value PDF export would block or watermark.
+
+2026-09-03 seed hunt #591: proved muted-finding parity gap in `PilotValueReportService`; cheap-disproved PDF section-drop candidate; seeded sponsor-one-pager PDF gate parity row.
 
 ---
 
